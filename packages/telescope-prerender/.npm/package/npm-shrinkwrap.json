@@ -21,9 +21,6 @@
             "node-uuid": {
               "version": "1.4.3"
             },
-            "tough-cookie": {
-              "version": "2.2.0"
-            },
             "form-data": {
               "version": "0.1.4",
               "dependencies": {

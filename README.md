@@ -1,4 +1,10 @@
-**IMPORTANT: [Nova](https://github.com/TelescopeJS/Telescope/tree/nova) is a new, React-based version of Telescope. Although it's still beta software, it is recommended you use it for any new projects going forward.**
+There are currently two discinct versions of Telescope: **Nova** and **Legacy**. 
+
+**Nova** is the new, React-based version and all development will happen on this version going forward. It's used by the [master](https://github.com/TelescopeJS/Telescope/tree/master) and [devel](https://github.com/TelescopeJS/Telescope/tree/devel) branches. 
+
+**Legacy** (this version) is the old, Blaze-powered version of Telescope and you can find it on the [legacy](https://github.com/TelescopeJS/Telescope/tree/legacy) and [legacy-devel](https://github.com/TelescopeJS/Telescope/tree/legacy-devel) branches. 
+
+Note that both versions use the same data format, so you can go back and forth between them on the same app and the same database. 
 
 ---
 
