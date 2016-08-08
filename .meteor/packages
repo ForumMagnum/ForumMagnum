@@ -9,30 +9,33 @@ nova:core # do not remove!
 
 ############ Optional Packages ############
 
-nova:settings
 nova:users
 nova:posts
 nova:comments
-nova:newsletter
-nova:search
-nova:notifications
-nova:getting-started
 nova:categories
-nova:voting
 nova:forms
-nova:embedly
-nova:api
-nova:rss
-nova:kadira
-nova:email
-nova:subscribe
+
+# nova:settings
+# nova:newsletter
+# nova:search
+# nova:notifications
+# nova:getting-started
+# nova:voting
+# nova:embedly
+# nova:api
+# nova:rss
+# nova:kadira
+# nova:email
+# nova:subscribe
 
 ############ Customizable Packages ############
 
 # nova:base-components
 # nova:base-styles
 # nova:base-routes
-nova:email-templates
+
+# nova:email-templates
+
 nova:i18n-en-us
 
 accounts-password

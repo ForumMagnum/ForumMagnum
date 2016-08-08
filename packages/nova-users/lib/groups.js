@@ -98,7 +98,32 @@ Users.canDo = (user, action) => {
  */
 Users.canView = function (user, document) {
 
-  const status = _.findWhere(Posts.config.postStatuses, {value: document.status}).label;
+  // TODO: make this not depend on Posts
+  // const status = _.findWhere(Posts.config.postStatuses, {value: document.status}).label;
+  const statuses = [
+    {
+      value: 1,
+      label: 'pending'
+    },
+    {
+      value: 2,
+      label: 'approved'
+    },
+    {
+      value: 3,
+      label: 'rejected'
+    },
+    {
+      value: 4,
+      label: 'spam'
+    },
+    {
+      value: 5,
+      label: 'deleted'
+    }
+  ];
+
+  const status = _.findWhere(statuses, {value: document.status}).label;
   const collectionName = document.getCollectionName();
 
   if (!document) {
