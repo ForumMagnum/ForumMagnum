@@ -13,6 +13,9 @@ import Helmet from 'react-helmet';
 import '../packages/nova-base-components/lib/components.js';
 import '../packages/nova-base-components/lib/config.js';
 
+import '../packages/nova-base-styles/lib/stylesheets/bootstrap.css';
+import '../packages/nova-base-styles/lib/stylesheets/main.scss';
+
 console.log(Telescope)
 
 Telescope.routes.indexRoute = { name: "posts.list", component: Telescope.components.PostsHome };
