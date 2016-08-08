@@ -24,7 +24,6 @@ Package.onUse(function (api) {
     'http',
     'email',
     'tracker',
-    'ecmascript@0.4.2',
     'react-meteor-data@0.2.8',
     'service-configuration',
     
@@ -48,7 +47,7 @@ Package.onUse(function (api) {
     'peerlibrary:reactive-publish@0.2.0'
   ];
 
-  api.use(packages);
+  api.use(packages.concat(['ecmascript@0.4.2']));
 
   api.imply(packages);
 

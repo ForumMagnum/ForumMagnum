@@ -11,6 +11,8 @@ Package.onUse(function (api) {
 
   api.use([
 
+    'ecmascript',
+
     // Nova packages
     
     'nova:core@0.26.5-nova',

@@ -10,6 +10,9 @@ Package.onUse(function(api) {
   api.versionsFrom("METEOR@1.0");
 
   api.use([
+
+    'ecmascript',
+    
     'nova:lib@0.26.5-nova',
     'nova:events@0.26.5-nova'
   ]);

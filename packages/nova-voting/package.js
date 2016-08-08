@@ -12,6 +12,9 @@ Package.onUse(function (api) {
   api.use(['nova:core@0.26.5-nova']);
 
   api.use([
+
+    'ecmascript',
+    
     'nova:posts@0.26.5-nova', 
     'nova:comments@0.26.5-nova'
   ], ['client', 'server']);

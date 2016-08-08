@@ -1,3 +1,8 @@
+webpack:webpack
+webpack:react
+webpack:sass
+webpack:assets
+
 ############ Nova Core ############
 
 nova:core # do not remove!
@@ -24,9 +29,9 @@ nova:subscribe
 
 ############ Customizable Packages ############
 
-nova:base-components
-nova:base-styles
-nova:base-routes
+# nova:base-components
+# nova:base-styles
+# nova:base-routes
 nova:email-templates
 nova:i18n-en-us
 
@@ -36,7 +41,7 @@ accounts-password
 
 ############ Debug Packages ############
 
-nova:debug
+# nova:debug
 
 ############ Your Packages ############
 

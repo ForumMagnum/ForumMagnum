@@ -11,7 +11,8 @@ Package.onUse(function (api) {
 
   api.use([
 
-    'fourseven:scss@3.8.0_1',
+    'ecmascript',
+    // 'fourseven:scss@3.8.0_1',
 
     // Nova packages
 

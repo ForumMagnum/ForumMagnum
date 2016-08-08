@@ -10,6 +10,9 @@ Package.onUse( function(api) {
   api.versionsFrom("METEOR@1.0");
 
   api.use([
+
+    'ecmascript',
+    
     'nova:core@0.26.5-nova',
     'nova:forms@0.26.5-nova'
   ]);

@@ -15,5 +15,6 @@ Users.avatar.setOptions({
   "defaultImageUrl": "http://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm&f=y"
 });
 
+// TODO: uncomment this
 // https://github.com/softwarerero/meteor-accounts-t9n
-T9n.setLanguage(Telescope.settings.get("locale", "en"));
+// T9n.setLanguage(Telescope.settings.get("locale", "en"));

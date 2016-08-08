@@ -10,10 +10,13 @@ Package.onUse( function(api) {
   api.versionsFrom("METEOR@1.0");
 
   api.use([
+
+    'ecmascript',
+    
     'nova:core@0.26.5-nova',
     'nova:posts@0.26.5-nova',
     'nova:users@0.26.5-nova',
-    'fourseven:scss@3.8.0_1'
+    // 'fourseven:scss@3.8.0_1'
   ]);
 
   api.addFiles([
@@ -26,7 +29,7 @@ Package.onUse( function(api) {
   ], ['server']);
 
   api.addFiles([
-    'lib/stylesheets/embedly.scss'
+    // 'lib/stylesheets/embedly.scss'
   ], ['client']);
 
 });

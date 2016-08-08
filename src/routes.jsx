@@ -1,3 +1,4 @@
+import Telescope from 'meteor/nova:lib';
 import React from 'react';
 import {mount} from 'react-mounter';
 import { Messages } from 'meteor/nova:core';
@@ -8,6 +9,11 @@ import { ListContainer, DocumentContainer } from "meteor/utilities:react-list-co
 import createBrowserHistory from 'history/lib/createBrowserHistory';
 import Events from "meteor/nova:events";
 import Helmet from 'react-helmet';
+
+import '../packages/nova-base-components/lib/components.js';
+import '../packages/nova-base-components/lib/config.js';
+
+console.log(Telescope)
 
 Telescope.routes.indexRoute = { name: "posts.list", component: Telescope.components.PostsHome };
 

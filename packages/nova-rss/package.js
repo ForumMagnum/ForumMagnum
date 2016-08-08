@@ -9,7 +9,7 @@ Npm.depends({rss: "1.1.1"});
 
 Package.onUse(function (api) {
 
-  api.use(['nova:core@0.26.5-nova']);
+  api.use(['ecmascript', 'nova:core@0.26.5-nova']);
 
   api.addFiles(['lib/headtags.js'], ['client', 'server']);
 

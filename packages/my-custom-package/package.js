@@ -7,8 +7,9 @@ Package.onUse( function(api) {
   api.versionsFrom("METEOR@1.0");
 
   api.use([
-    'fourseven:scss',
-
+    // 'fourseven:scss',
+    'ecmascript',
+    
     'nova:core',
     'nova:base-components',
     'nova:posts',
