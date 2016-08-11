@@ -1,3 +1,8 @@
+fortawesome:fontawesome
+tmeasday:check-npm-versions
+std:accounts-ui@1.1.20
+utilities:react-list-container
+
 webpack:webpack
 webpack:react
 webpack:sass

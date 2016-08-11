@@ -1,6 +1,12 @@
 {
-  "root": "src",
+  "root": ".",
   "devServer": {
     "host": "localhost"
+  },
+  "resolve": {
+    "alias": {
+      "nova-forms": "packages/nova-forms/lib/export.js",
+      "modal-trigger": "packages/nova-core/lib/components/ModalTrigger.jsx"
+    }
   }
 }
