@@ -1,5 +1,6 @@
 import Telescope from 'meteor/nova:lib';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import {mount} from 'react-mounter';
 import { Messages } from 'meteor/nova:core';
 import { IndexRoute, Route, useRouterHistory, browserHistory, createMemoryHistory } from 'react-router';
@@ -39,7 +40,7 @@ Meteor.startup(() => {
 
   let history;
 
-  const clientOptions = {}, serverOptions = {};
+  const clientOptions = { ReactDOM }, serverOptions = {};
 
   // if (Meteor.isClient) {
   //   history = useNamedRoutes(useRouterHistory(createBrowserHistory))({ routes: AppRoutes });
