@@ -2,7 +2,7 @@ import Telescope from 'meteor/nova:lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Modal } from 'react-bootstrap';
-import NovaForm from "meteor/nova:forms";
+import NovaForm from 'nova-forms';
 import { withRouter } from 'react-router'
 import Users from 'meteor/nova:users';
 

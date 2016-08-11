@@ -1,7 +1,7 @@
 import Telescope from 'meteor/nova:lib';
 import React, { PropTypes, Component } from 'react';
 import { intlShape } from 'react-intl';
-import NovaForm from "meteor/nova:forms";
+import NovaForm from "nova-forms";
 import { withRouter } from 'react-router'
 import Posts from "meteor/nova:posts";
 

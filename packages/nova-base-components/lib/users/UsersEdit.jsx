@@ -2,7 +2,9 @@ import Telescope from 'meteor/nova:lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
 import { Row, Col } from 'react-bootstrap';
-import NovaForm from "meteor/nova:forms";
+// import NovaForm from "meteor/nova:forms";
+import NovaForm from 'nova-forms';
+
 //import { Messages } from "meteor/nova:core";
 import Users from 'meteor/nova:users';
 

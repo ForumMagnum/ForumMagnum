@@ -1,7 +1,7 @@
 import Telescope from 'meteor/nova:lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
-import NovaForm from "meteor/nova:forms";
+import NovaForm from 'nova-forms';
 import { DocumentContainer } from "meteor/utilities:react-list-container";
 //import { Messages } from "meteor/nova:core";
 //import Actions from "../actions.js";

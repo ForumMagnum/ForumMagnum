@@ -3,7 +3,7 @@ import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, FormattedRelative } from 'react-intl';
 import { Button } from 'react-bootstrap';
 import moment from 'moment';
-import { ModalTrigger } from "meteor/nova:core";
+import ModalTrigger from "modal-trigger";
 import { Link } from 'react-router';
 import Posts from "meteor/nova:posts";
 import Users from 'meteor/nova:users';

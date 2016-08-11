@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 //import { Messages } from "meteor/nova:core";
 import Categories from "meteor/nova:categories";
-import NovaForm from "meteor/nova:forms";
+import NovaForm from 'nova-forms';
 
 const CategoriesNewForm = (props, context) => {
 
