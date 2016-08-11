@@ -20,18 +20,18 @@ nova:comments
 nova:categories
 nova:forms
 
-# nova:settings
-# nova:newsletter
-# nova:search
-# nova:notifications
-# nova:getting-started
-# nova:voting
-# nova:embedly
-# nova:api
-# nova:rss
-# nova:kadira
-# nova:email
-# nova:subscribe
+nova:settings
+nova:newsletter
+nova:search
+nova:notifications
+nova:getting-started
+nova:voting
+nova:embedly
+nova:api
+nova:rss
+nova:kadira
+nova:email
+nova:subscribe
 
 ############ Customizable Packages ############
 
