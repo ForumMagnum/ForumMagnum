@@ -76,7 +76,6 @@ nova:core@0.26.5-nova
 nova:email@0.26.5-nova
 nova:embedly@0.26.5-nova
 nova:events@0.26.5-nova
-nova:forms@0.26.5-nova
 nova:getting-started@0.26.5-nova
 nova:i18n-en-us@0.26.5-nova
 nova:kadira@0.26.5-nova

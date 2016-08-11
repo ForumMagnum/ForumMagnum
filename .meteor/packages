@@ -18,7 +18,7 @@ nova:users
 nova:posts
 nova:comments
 nova:categories
-nova:forms
+# nova:forms # loaded by Webpack
 
 nova:settings
 nova:newsletter
@@ -35,7 +35,7 @@ nova:subscribe
 
 ############ Customizable Packages ############
 
-# nova:base-components
+# nova:base-components # loaded by Webpack
 # nova:base-styles
 # nova:base-routes
 

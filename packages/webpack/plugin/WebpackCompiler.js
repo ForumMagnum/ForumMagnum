@@ -120,8 +120,6 @@ WebpackCompiler = class WebpackCompiler {
       // iterate through alias properties and resolve paths
       _.keys(settings.resolve.alias).forEach(key => {
         const absolutePath = _path.resolve(settings.resolve.alias[key]);
-        console.log(settings.resolve.alias[key]);
-        console.log(absolutePath);
         settings.resolve.alias[key] = absolutePath;
       });
 

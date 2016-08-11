@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import DateTimePicker from 'react-datetime';
 import moment from 'moment';
+import './datetime.scss';
 
 class DateTime extends Component {
 
