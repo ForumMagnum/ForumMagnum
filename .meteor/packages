@@ -30,6 +30,10 @@ utilities:smart-methods@0.1.4
 meteorhacks:inject-initial@1.0.4
 peerlibrary:reactive-publish@0.2.0
 
+accounts-password
+# accounts-twitter
+# accounts-facebook
+
 webpack:webpack
 webpack:react
 webpack:sass
@@ -69,10 +73,6 @@ webpack:assets
 # nova:email-templates
 
 # nova:i18n-en-us
-
-accounts-password
-# accounts-twitter
-# accounts-facebook
 
 ############ Debug Packages ############
 
