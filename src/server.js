@@ -12,7 +12,7 @@ import 'nova-categories-server';
 
 import 'nova-api-server';
 import 'nova-rss-server';
-// import 'nova-newsletter-server';
+// import 'nova-newsletter-server'; // bug
 import 'nova-notifications-server';
 import 'nova-voting-server';
 
