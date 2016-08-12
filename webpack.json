@@ -24,8 +24,6 @@
       "nova-categories": "packages/nova-categories/lib/export.js",
       "nova-categories-server": "packages/nova-categories/lib/server.js",
 
-      "nova-api-server": "packages/nova-api/lib/server.js",
-
       "nova-rss": "packages/nova-rss/lib/export.js",
       "nova-rss-server": "packages/nova-rss/lib/server.js",
       
@@ -41,6 +39,14 @@
       "nova-email": "packages/nova-email/lib/export.js",
       "nova-email-server": "packages/nova-email/lib/server.js",
 
+      "nova-getting-started": "packages/nova-getting-started/lib/export.js",
+      "nova-getting-started-server": "packages/nova-getting-started/lib/server.js",
+
+      "nova-api-server": "packages/nova-api/lib/server.js",
+
+      "nova-kadira-server": "packages/nova-kadira/lib/server.js",
+
+      "nova-subscribe": "packages/nova-subscribe/lib/export.js",
       "nova-forms": "packages/nova-forms/lib/export.js",
       "nova-search": "packages/nova-search/lib/export.js",
       "nova-base-components": "packages/nova-base-components/lib/export.js",
