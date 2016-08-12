@@ -2,7 +2,7 @@ import Telescope from 'nova-lib';
 import React from 'react';
 import {FormattedMessage } from 'react-intl';
 import { ListContainer } from "meteor/utilities:react-list-container";
-import ModalTrigger from "modal-trigger";
+import { ModalTrigger } from 'nova-core';
 import Comments from 'nova-comments';
 
 const PostsCommentsThread = ({document, currentUser}) => {

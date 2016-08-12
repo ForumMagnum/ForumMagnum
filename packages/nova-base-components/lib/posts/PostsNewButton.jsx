@@ -3,7 +3,7 @@ import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
 import { Button } from 'react-bootstrap';
 // import { ModalTrigger } from 'nova-core';
-import ModalTrigger from "modal-trigger";
+import { ModalTrigger } from 'nova-core';
 
 const PostsNewButton = (props, context) => {
 

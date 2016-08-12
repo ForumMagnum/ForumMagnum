@@ -43,9 +43,8 @@
       "nova-forms": "packages/nova-forms/lib/export.js",
       "nova-search": "packages/nova-search/lib/export.js",
       "nova-base-components": "packages/nova-base-components/lib/export.js",
-      "nova-base-styles": "packages/nova-base-styles/lib/stylesheets/main.scss",
+      "nova-base-styles": "packages/nova-base-styles/lib/stylesheets/main.scss"
 
-      "modal-trigger": "packages/nova-core/lib/components/ModalTrigger.jsx"
     }
   }
 }

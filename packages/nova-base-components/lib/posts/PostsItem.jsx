@@ -3,7 +3,7 @@ import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, FormattedRelative } from 'react-intl';
 import { Button } from 'react-bootstrap';
 import moment from 'moment';
-import ModalTrigger from "modal-trigger";
+import { ModalTrigger } from 'nova-core';
 import { Link } from 'react-router';
 import Posts from 'nova-posts';
 import Users from 'nova-users';
