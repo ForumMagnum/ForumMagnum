@@ -1,3 +1,5 @@
+console.log("// Loading nova-posts…");
+
 import Posts from './modules.js';
 
 import './server/publications.js';

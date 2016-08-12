@@ -1,8 +1,7 @@
+import RSS from 'rss';
 import Telescope from 'nova-lib';
 import Posts from 'nova-posts';
 import Comments from 'nova-comments';
-
-const RSS = Npm.require('rss');
 
 Posts.views.rss = Posts.views.new; // default to "new" view for RSS feed
 

@@ -1,3 +1,5 @@
+console.log("// Loading nova-categories…");
+
 import Categories from './modules.js';
 
 import './server/publications.js';

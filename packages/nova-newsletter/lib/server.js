@@ -1,3 +1,5 @@
+console.log("// Loading nova-newsletter…");
+
 import Newsletter from "./namespace.js";
 
 import './emails.js';
@@ -10,4 +12,4 @@ import './server/emails.js';
 import './server/methods.js';
 import './server/callbacks.js';
 
-export default Newsletter;
+// export default Newsletter;

@@ -14,6 +14,8 @@
       "nova-categories": "packages/nova-categories/lib/export.js",
       "nova-forms": "packages/nova-forms/lib/export.js",
       "nova-email": "packages/nova-email/lib/export.js",
+      "nova-rss": "packages/nova-rss/lib/export.js",
+      "nova-newsletter": "packages/nova-newsletter/lib/export.js",
       "modal-trigger": "packages/nova-core/lib/components/ModalTrigger.jsx"
     }
   }

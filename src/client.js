@@ -1,4 +1,8 @@
 import '../packages/nova-i18n-en-us/lib/en_US.js';
+import '../packages/nova-rss/lib/export.js';
+import '../packages/nova-notifications/lib/export.js';
+import '../packages/nova-search/lib/export.js';
+import '../packages/nova-voting/lib/export.js';
 
 import './routes';
 

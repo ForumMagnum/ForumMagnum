@@ -3,7 +3,7 @@ import Posts from 'nova-posts';
 import Comments from 'nova-comments';
 import Users from 'nova-users';
 
-serveAPI = function(terms){
+const serveAPI = function(terms){
   var posts = [];
 
   var parameters = Posts.parameters.get(terms);

@@ -1,6 +1,6 @@
 import Telescope from 'nova-lib';
 
-getUnsubscribeLink = function(user){
+const getUnsubscribeLink = function(user){
   return Telescope.utils.getRouteUrl('unsubscribe', {hash: user.telescope.emailHash});
 };
 

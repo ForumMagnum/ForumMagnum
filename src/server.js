@@ -7,6 +7,12 @@ import '../packages/nova-posts/lib/server.js';
 import '../packages/nova-comments/lib/server.js';
 import '../packages/nova-categories/lib/server.js';
 
+import '../packages/nova-api/lib/server.js';
+import '../packages/nova-rss/lib/server.js';
+// import '../packages/nova-newsletter/lib/server.js';
+import '../packages/nova-notifications/lib/server.js';
+import '../packages/nova-voting/lib/server.js';
+
 // Do server-rendering only in production
 // Otherwise, it will break the hot-reload
 // DO NOT REMOVE THIS LINE TO TEST, use: meteor --production
