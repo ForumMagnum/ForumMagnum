@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Posts from './collection.js'
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 Posts.getNotificationProperties = function (data) {
   const post = data.post;

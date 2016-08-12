@@ -1,14 +1,14 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {mount} from 'react-mounter';
-import { Messages } from 'meteor/nova:core';
+import { Messages } from 'nova-core';
 import { IndexRoute, Route, useRouterHistory, browserHistory, createMemoryHistory } from 'react-router';
 import { ReactRouterSSR } from 'meteor/reactrouter:react-router-ssr';
 import { ListContainer, DocumentContainer } from "meteor/utilities:react-list-container";
 // import useNamedRoutes from 'use-named-routes';
 import createBrowserHistory from 'history/lib/createBrowserHistory';
-import Events from "meteor/nova:events";
+import Events from "nova-events";
 import Helmet from 'react-helmet';
 
 import '../packages/nova-base-components/lib/components.js';

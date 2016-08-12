@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 
 function telescopeCreateUserCallback (options, user) {
   user = Telescope.callbacks.run("onCreateUser", user, options);

@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { ListContainer, DocumentContainer } from "meteor/utilities:react-list-container";
-import Posts from "meteor/nova:posts";
+import Posts from 'nova-posts';
 
 class PostsHome extends Component {
 

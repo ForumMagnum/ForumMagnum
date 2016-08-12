@@ -1,11 +1,11 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button, DropdownButton, MenuItem, Modal } from 'react-bootstrap';
-import { /* ModalTrigger, */ ContextPasser } from "meteor/nova:core";
-import { withRouter } from 'react-router'
+import { /* ModalTrigger, */ ContextPasser } from 'nova-core';
+import { withRouter } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 // note: cannot use ModalTrigger component because of https://github.com/react-bootstrap/react-bootstrap/issues/1808
 

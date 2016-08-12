@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 
 Telescope.updateScore = function (args) {
   var collection = args.collection;

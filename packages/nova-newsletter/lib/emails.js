@@ -1,4 +1,4 @@
-import NovaEmail from 'meteor/nova:email';
+import NovaEmail from 'nova-email';
 // email test routes (make available to client & server)
 
 NovaEmail.addEmails({

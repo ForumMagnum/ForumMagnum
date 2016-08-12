@@ -1,6 +1,6 @@
 import Newsletter from "../namespace.js";
 import MailChimpList from "./mailchimp/mailchimp_list.js";
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 Meteor.methods({
   'newsletter.send': function () {

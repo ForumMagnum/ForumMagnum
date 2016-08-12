@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Posts from './collection.js'
-import Users from 'meteor/nova:users';
-import Events from "meteor/nova:events";
+import Users from 'nova-users';
+import Events from 'nova-events';
 
 /**
  *

@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import NewsletterSubscribe from './components/NewsletterSubscribe.jsx';
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 
 // check if user can create a new account
 const canInsert = user => Users.canDo(user, "users.new");

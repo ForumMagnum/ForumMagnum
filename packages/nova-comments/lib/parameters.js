@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Comments from './collection.js';
 
 Comments.parameters = {};

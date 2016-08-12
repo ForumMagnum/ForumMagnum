@@ -1,8 +1,8 @@
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button } from 'react-bootstrap';
-import { Messages } from 'meteor/nova:core';
-import Users from 'meteor/nova:users';
+import { Messages } from 'nova-core';
+import Users from 'nova-users';
 
 class NewsletterButton extends Component {
   constructor(props) {

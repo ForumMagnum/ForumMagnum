@@ -3,7 +3,7 @@
  * @namespace Telescope
  */
 
-Telescope = {};
+const Telescope = {};
 
 Telescope.VERSION = '0.26.5-nova';
 

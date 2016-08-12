@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Telescope from 'nova-lib';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 
 getEmbedlyData = function (url) {
   var data = {};

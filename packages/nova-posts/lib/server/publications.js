@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Posts from '../collection.js';
-// import Comments from "meteor/nova:comments";
-import Users from 'meteor/nova:users';
+// import Comments from 'nova-comments';
+import Users from 'nova-users';
 
 Posts._ensureIndex({"status": 1, "postedAt": 1});
 

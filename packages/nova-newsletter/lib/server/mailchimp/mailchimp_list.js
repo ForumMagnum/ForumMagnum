@@ -1,5 +1,5 @@
-import Telescope from 'meteor/nova:lib';
-import Users from 'meteor/nova:users';
+import Telescope from 'nova-lib';
+import Users from 'nova-users';
 import MailChimp from './mailchimp_api.js';
 
 const MailChimpList = {};

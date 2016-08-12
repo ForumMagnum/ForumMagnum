@@ -23,9 +23,7 @@ Package.onUse(function (api) {
     'check',
     'http',
     'email',
-    'tracker',
     'react-meteor-data@0.2.8',
-    'service-configuration',
     
     // Third-party packages
 

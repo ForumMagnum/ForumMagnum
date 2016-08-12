@@ -1,5 +1,5 @@
-import Telescope from 'meteor/nova:lib';
-import NovaEmail from 'meteor/nova:email';
+import Telescope from 'nova-lib';
+import NovaEmail from 'nova-email';
 import Newsletter from "../namespace.js";
 
 // Extend email objects with server-only properties

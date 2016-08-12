@@ -1,7 +1,7 @@
-import PostsImport from "meteor/nova:posts";
-import CommentsImport from "meteor/nova:comments";
-import UsersImport from "meteor/nova:users";
-import CategoriesImport from "meteor/nova:categories";
+import PostsImport from 'nova-posts';
+import CommentsImport from 'nova-comments';
+import UsersImport from 'nova-users';
+import CategoriesImport from 'nova-categories';
 
 Posts = PostsImport;
 Comments = CommentsImport;

@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React from 'react';
 import {injectIntl, FormattedMessage} from 'react-intl';
 

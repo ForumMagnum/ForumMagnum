@@ -1,6 +1,6 @@
 import PublicationUtils from 'meteor/utilities:smart-publications';
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 import Categories from "./collection.js";
 
 // check if user can create a new post

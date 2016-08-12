@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 
 Meteor.startup(function() {
   if(process.env.NODE_ENV === "production" && !!Telescope.settings.get('kadiraAppId') && !!Telescope.settings.get('kadiraAppSecret')){

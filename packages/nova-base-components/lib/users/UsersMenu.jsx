@@ -1,12 +1,12 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/std:accounts-ui';
 import { Modal, Dropdown, MenuItem } from 'react-bootstrap';
-import { ContextPasser } from "meteor/nova:core";
+import { ContextPasser } from 'nova-core';
 import { LinkContainer } from 'react-router-bootstrap';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 class UsersMenu extends Component {
 

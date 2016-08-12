@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Categories from "./collection.js";
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 const canInsert = user => Users.canDo(user, "categories.new");
 const canEdit = user => Users.canDo(user, "categories.edit.all");
@@ -71,33 +71,33 @@ Categories.schema = new SimpleSchema({
 Categories.attachSchema(Categories.schema);
 
 
-Telescope.settings.collection.addField([
-  {
-    fieldName: 'categoriesBehavior',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      autoform: {
-        group: 'categories',
-        instructions: 'Let users filter by one or multiple categories at a time.', 
-        options: function () {
-          return [
-            {value: "single", label: "categories_behavior_one_at_a_time"},
-            {value: "multiple", label: "categories_behavior_multiple"}
-          ];
-        }
-      }
-    }
-  },
-  {
-    fieldName: 'hideEmptyCategories',
-    fieldSchema: {
-      type: Boolean,
-      optional: true,
-      autoform: {
-        group: 'categories',
-        instructions: 'Hide empty categories in navigation'
-      }
-    }
-  }
-]);
+// Telescope.settings.collection.addField([
+//   {
+//     fieldName: 'categoriesBehavior',
+//     fieldSchema: {
+//       type: String,
+//       optional: true,
+//       autoform: {
+//         group: 'categories',
+//         instructions: 'Let users filter by one or multiple categories at a time.', 
+//         options: function () {
+//           return [
+//             {value: "single", label: "categories_behavior_one_at_a_time"},
+//             {value: "multiple", label: "categories_behavior_multiple"}
+//           ];
+//         }
+//       }
+//     }
+//   },
+//   {
+//     fieldName: 'hideEmptyCategories',
+//     fieldSchema: {
+//       type: Boolean,
+//       optional: true,
+//       autoform: {
+//         group: 'categories',
+//         instructions: 'Hide empty categories in navigation'
+//       }
+//     }
+//   }
+// ]);

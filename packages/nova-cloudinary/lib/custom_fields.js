@@ -1,4 +1,4 @@
-import Posts from "meteor/nova:posts";
+import Posts from 'nova-posts';
 import PublicationUtils from 'meteor/utilities:smart-publications';
 
 Posts.addField([

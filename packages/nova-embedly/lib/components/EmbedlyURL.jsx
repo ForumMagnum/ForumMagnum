@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import FRC from 'formsy-react-components';
 const Input = FRC.Input;

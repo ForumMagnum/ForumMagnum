@@ -1,10 +1,10 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import moment from 'moment';
-import Posts from "meteor/nova:posts";
-import Comments from "meteor/nova:comments";
-import Users from 'meteor/nova:users';
-import Categories from "meteor/nova:categories";
-import NovaEmail from 'meteor/nova:email';
+import Posts from 'nova-posts';
+import Comments from 'nova-comments';
+import Users from 'nova-users';
+import Categories from 'nova-categories';
+import NovaEmail from 'nova-email';
 import Newsletter from '../namespace.js';
 
 // create new "newsletter" view for all posts from the past X days that haven't been scheduled yet

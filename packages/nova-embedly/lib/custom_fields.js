@@ -1,9 +1,9 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import PublicationUtils from 'meteor/utilities:smart-publications';
 import EmbedlyURL from './components/EmbedlyURL.jsx';
 import ThumbnailURL from './components/ThumbnailURL.jsx';
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 
 // check if user can create a new post
 const canInsert = user => Users.canDo(user, "posts.new");

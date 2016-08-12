@@ -1,9 +1,9 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { intlShape } from 'react-intl';
 import NovaForm from "nova-forms";
 import { withRouter } from 'react-router'
-import Posts from "meteor/nova:posts";
+import Posts from 'nova-posts';
 
 const PostsNewForm = (props, context) => {
   

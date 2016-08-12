@@ -1,4 +1,4 @@
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 const anonymousActions = [
   "comments.view.own",

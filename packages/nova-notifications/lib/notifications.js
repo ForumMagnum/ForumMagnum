@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
-import Users from 'meteor/nova:users';
-import NovaEmail from 'meteor/nova:email';
+import Telescope from 'nova-lib';
+import Users from 'nova-users';
+import NovaEmail from 'nova-email';
 
 Telescope.notifications = {};
 

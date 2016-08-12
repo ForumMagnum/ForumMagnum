@@ -1,9 +1,9 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ListContainer } from "meteor/utilities:react-list-container";
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 import { Link } from 'react-router';
 
 const UsersProfile = ({user}, {currentUser}) => {

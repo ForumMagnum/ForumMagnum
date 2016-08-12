@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Newsletter from '../namespace.js';
 import moment from 'moment';
 

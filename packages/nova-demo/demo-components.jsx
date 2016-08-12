@@ -1,10 +1,10 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { ListContainer } from "meteor/utilities:react-list-container";
-import NovaForm from "meteor/nova:forms";
+import NovaForm from 'nova-forms';
 import { Button } from 'react-bootstrap';
 import { Accounts } from 'meteor/std:accounts-ui';
-import { ModalTrigger, Messages, FlashContainer } from "meteor/nova:core";
+import { ModalTrigger, Messages, FlashContainer } from 'nova-core';
 
 const FlashMessages = Telescope.components.FlashMessages;
 

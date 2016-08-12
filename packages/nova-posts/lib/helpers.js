@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import moment from 'moment';
 import Posts from './collection.js';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 Posts.helpers({getCollection: () => Posts});
 Posts.helpers({getCollectionName: () => "posts"});

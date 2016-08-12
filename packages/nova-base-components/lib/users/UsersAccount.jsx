@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React from 'react';
 import { DocumentContainer } from "meteor/utilities:react-list-container";
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 const UsersAccount = (props, context) => {
   const terms = props.params.slug ? {"telescope.slug": props.params.slug} : context.currentUser ? {_id: context.currentUser._id } : undefined;

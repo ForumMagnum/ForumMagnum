@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
-import Posts from "meteor/nova:posts";
-import Comments from "meteor/nova:comments";
+import Telescope from 'nova-lib';
+import Posts from 'nova-posts';
+import Comments from 'nova-comments';
 
 Meteor.startup(function () {
   var scoreInterval = parseInt(Telescope.settings.get("scoreUpdateInterval")) || 30;

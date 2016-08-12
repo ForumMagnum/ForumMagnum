@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import { composeWithTracker } from 'react-komposer';
 import Messages from '../messages.js';
-import Events from "meteor/nova:events";
+import Events from 'nova-events';
 
 function composer(props, onData) {
 
@@ -12,8 +12,8 @@ function composer(props, onData) {
     actions: {call: Meteor.call},
     events: Events,
     messages: Messages
-  }
-
+  };
+  
   if (!subscriptions.length || _.every(subscriptions, handle => handle.ready())) {
     data.ready = true;
     onData(null, data);

@@ -1,8 +1,8 @@
 import moment from 'moment';
-import Posts from "meteor/nova:posts";
-import Comments from "meteor/nova:comments";
-import Users from 'meteor/nova:users';
-import Events from "meteor/nova:events";
+import Posts from 'nova-posts';
+import Comments from 'nova-comments';
+import Users from 'nova-users';
+import Events from 'nova-events';
 
 var toTitleCase = function (str) {
   return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});

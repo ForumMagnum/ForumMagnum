@@ -1,5 +1,5 @@
 import Posts from './collection.js';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 /**
  * @summary Posts config namespace

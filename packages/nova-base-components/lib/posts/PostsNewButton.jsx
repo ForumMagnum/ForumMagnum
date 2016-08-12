@@ -1,8 +1,8 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
 import { Button } from 'react-bootstrap';
-// import { ModalTrigger } from "meteor/nova:core";
+// import { ModalTrigger } from 'nova-core';
 import ModalTrigger from "modal-trigger";
 
 const PostsNewButton = (props, context) => {

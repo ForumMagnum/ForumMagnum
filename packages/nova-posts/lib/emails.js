@@ -1,5 +1,5 @@
 import Posts from './collection.js';
-import NovaEmail from 'meteor/nova:email';
+import NovaEmail from 'nova-email';
 
 const getPost = (postId) => {
   return typeof Posts.findOne(postId) === "undefined" ? {post: Posts.findOne()} : {post: Posts.findOne(postId)};

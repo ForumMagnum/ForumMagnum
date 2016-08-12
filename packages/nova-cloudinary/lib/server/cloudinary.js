@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import cloudinary from "cloudinary";
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 
 const Cloudinary = cloudinary.v2;
 const uploadSync = Meteor.wrapAsync(Cloudinary.uploader.upload);

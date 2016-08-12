@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React from 'react';
-//import { Messages } from "meteor/nova:core";
+//import { Messages } from 'nova-core';
 
 const Header = ({currentUser}) => {
   

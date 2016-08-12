@@ -1,9 +1,9 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 //import Actions from "../actions.js";
-//import { Messages } from "meteor/nova:core";
+//import { Messages } from 'nova-core';
 import classNames from 'classnames';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 class Vote extends Component {
 

@@ -1,5 +1,5 @@
-import Telescope from 'meteor/nova:lib';
-import Users from 'meteor/nova:users';
+import Telescope from 'nova-lib';
+import Users from 'nova-users';
 
 // Meteor.publish('settings', function() {
 //   var options = {};

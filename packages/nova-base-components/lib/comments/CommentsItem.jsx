@@ -1,8 +1,8 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { intlShape, FormattedMessage, FormattedRelative } from 'react-intl';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 class CommentsItem extends Component{
 

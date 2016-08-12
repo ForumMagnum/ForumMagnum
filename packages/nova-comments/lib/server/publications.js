@@ -1,5 +1,6 @@
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
+import Comments from '../collection.js';
 
 Comments._ensureIndex({postId: 1});
 Comments._ensureIndex({parentCommentId: 1});
@@ -13,7 +14,7 @@ Meteor.publish('comments.list', function (terms) {
   const currentUser = this.userId && Meteor.users.findOne(this.userId);
 
   terms.currentUserId = this.userId; // add currentUserId to terms
-  ({selector, options} = Comments.parameters.get(terms));
+  const {selector, options} = Comments.parameters.get(terms);
 
   // commenting this because of FR-SSR issue
   // Counts.publish(this, 'comments.list', Comments.find(selector, options));

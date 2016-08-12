@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import {mount} from 'react-mounter';
 import MoviesWrapper from './demo-components.jsx';

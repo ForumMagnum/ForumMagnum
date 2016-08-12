@@ -1,5 +1,5 @@
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 
 var hasSubscribedItem = function (item, user) {
   return item.subscribers && item.subscribers.indexOf(user._id) != -1;

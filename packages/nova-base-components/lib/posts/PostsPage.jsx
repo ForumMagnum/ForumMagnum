@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React from 'react';
-import Posts from "meteor/nova:posts";
+import Posts from 'nova-posts';
 
 const PostsPage = ({document, currentUser}) => {
   

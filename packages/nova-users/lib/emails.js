@@ -1,5 +1,5 @@
 import Users from './collection.js';
-import NovaEmail from 'meteor/nova:email';
+import NovaEmail from 'nova-email';
 
 const getUser = (userId) => {
   return typeof Users.findOne(userId) === "undefined" ? Users.findOne() : Users.findOne(userId);

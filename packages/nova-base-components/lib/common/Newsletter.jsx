@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
 import Formsy from 'formsy-react';
@@ -6,8 +6,8 @@ import { Input } from 'formsy-react-components';
 //import Actions from "../actions.js";
 import { Button } from 'react-bootstrap';
 import Cookie from 'react-cookie';
-//import { Messages } from "meteor/nova:core";
-import Users from 'meteor/nova:users';
+//import { Messages } from 'nova-core';
+import Users from 'nova-users';
 
 class Newsletter extends Component {
 

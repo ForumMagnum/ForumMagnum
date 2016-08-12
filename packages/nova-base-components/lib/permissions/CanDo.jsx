@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 const CanDo = (props, context) => {
   // no user login, display the login form

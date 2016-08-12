@@ -1,4 +1,4 @@
-import NovaEmail from 'meteor/nova:email';
+import NovaEmail from 'nova-email';
 
 NovaEmail.addTemplates({
   test:                     Assets.getText("lib/server/emails/common/test.handlebars"),

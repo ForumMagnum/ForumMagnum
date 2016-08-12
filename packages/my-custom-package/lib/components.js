@@ -2,7 +2,7 @@
 This file centralizes all our custom component overrides. 
 */
 
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 
 import CustomLogo from "./components/CustomLogo.jsx";
 import CustomNewsletter from "./components/CustomNewsletter.jsx";

@@ -1,9 +1,9 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import Actions from "../actions.js";
 import { Button } from 'react-bootstrap';
-import { Messages } from "meteor/nova:core";
-import NovaEmail from 'meteor/nova:email';
+import { Messages } from 'nova-core';
+import NovaEmail from 'nova-email';
 
 const Loading = Telescope.components.Loading;
 

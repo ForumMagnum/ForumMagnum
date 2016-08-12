@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Comments from './collection.js';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 
 // check if user can create a new comment

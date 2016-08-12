@@ -5,7 +5,15 @@
   },
   "resolve": {
     "alias": {
+      "nova-lib": "packages/nova-lib/lib/export.js",
+      "nova-events": "packages/nova-events/lib/export.js",
+      "nova-core": "packages/nova-core/lib/export.js",
+      "nova-users": "packages/nova-users/lib/export.js",
+      "nova-posts": "packages/nova-posts/lib/export.js",
+      "nova-comments": "packages/nova-comments/lib/export.js",
+      "nova-categories": "packages/nova-categories/lib/export.js",
       "nova-forms": "packages/nova-forms/lib/export.js",
+      "nova-email": "packages/nova-email/lib/export.js",
       "modal-trigger": "packages/nova-core/lib/components/ModalTrigger.jsx"
     }
   }

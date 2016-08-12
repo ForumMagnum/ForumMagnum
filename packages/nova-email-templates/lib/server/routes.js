@@ -1,4 +1,4 @@
-import NovaEmail from 'meteor/nova:email';
+import NovaEmail from 'nova-email';
 
 Meteor.startup(function () {
 

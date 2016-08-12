@@ -1,4 +1,4 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 
 Meteor.startup(function () {
   if (Telescope.settings.collection.find().count() === 0) {

@@ -1,7 +1,7 @@
 // Deprecated way to handle permission in components, check CanDo component
 
 // import React, { PropTypes, Component } from 'react';
-// import Users from 'meteor/nova:users';
+// import Users from 'nova-users';
 
 // const CanEditUser = ({user, userToEdit, children}) => {
 //   if (!user){

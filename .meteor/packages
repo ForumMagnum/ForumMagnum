@@ -3,6 +3,33 @@ tmeasday:check-npm-versions
 std:accounts-ui@1.1.20
 utilities:react-list-container
 
+meteor-base
+mongo
+tracker
+service-configuration
+standard-minifiers
+modules
+accounts-base
+check
+http
+email
+react-meteor-data
+
+aldeed:simple-schema@1.5.3
+aldeed:collection2@2.9.1
+meteorhacks:picker@1.0.3
+dburles:collection-helpers@1.0.4
+matb33:collection-hooks@0.8.1
+percolatestudio:synced-cron@1.1.0
+jparker:gravatar@0.4.1
+tmeasday:publish-counts@0.7.3
+meteorhacks:unblock@1.1.0
+reactrouter:react-router-ssr@3.1.3
+utilities:smart-publications@0.1.4
+utilities:smart-methods@0.1.4
+meteorhacks:inject-initial@1.0.4
+peerlibrary:reactive-publish@0.2.0
+
 webpack:webpack
 webpack:react
 webpack:sass
@@ -10,28 +37,28 @@ webpack:assets
 
 ############ Nova Core ############
 
-nova:core # do not remove!
+# nova:core # do not remove!
 
 ############ Optional Packages ############
 
-nova:users
-nova:posts
-nova:comments
-nova:categories
+# nova:users
+# nova:posts
+# nova:comments
+# nova:categories
 # nova:forms # loaded by Webpack
 
-nova:settings
-nova:newsletter
-nova:search
-nova:notifications
-nova:getting-started
-nova:voting
-nova:embedly
-nova:api
-nova:rss
-nova:kadira
-nova:email
-nova:subscribe
+# nova:settings
+# nova:newsletter
+# nova:search
+# nova:notifications
+# nova:getting-started
+# nova:voting
+# nova:embedly
+# nova:api
+# nova:rss
+# nova:kadira
+# nova:email
+# nova:subscribe
 
 ############ Customizable Packages ############
 
@@ -41,7 +68,7 @@ nova:subscribe
 
 # nova:email-templates
 
-nova:i18n-en-us
+# nova:i18n-en-us
 
 accounts-password
 # accounts-twitter

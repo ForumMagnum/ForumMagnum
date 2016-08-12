@@ -1,4 +1,4 @@
-import Posts from "meteor/nova:posts";
+import Posts from 'nova-posts';
 
 Posts.views.add("userSubscribedPosts", function (terms) {
   var user = Meteor.users.findOne(terms.userId),

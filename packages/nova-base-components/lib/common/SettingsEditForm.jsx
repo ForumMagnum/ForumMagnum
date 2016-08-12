@@ -1,9 +1,9 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
 import NovaForm from 'nova-forms';
 import { DocumentContainer } from "meteor/utilities:react-list-container";
-//import { Messages } from "meteor/nova:core";
+//import { Messages } from 'nova-core';
 
 class SettingsEditForm extends Component{
 

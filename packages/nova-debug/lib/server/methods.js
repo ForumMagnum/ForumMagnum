@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
-import NovaEmail from 'meteor/nova:email';
-import Users from 'meteor/nova:users';
+import Telescope from 'nova-lib';
+import NovaEmail from 'nova-email';
+import Users from 'nova-users';
 
 Meteor.methods({
   "email.test": function (emailName) {

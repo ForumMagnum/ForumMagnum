@@ -1,5 +1,5 @@
-import Telescope from 'meteor/nova:lib';
-import Posts from "meteor/nova:posts";
+import Telescope from 'nova-lib';
+import Posts from 'nova-posts';
 import Categories from "./collection.js";
 
 // generate slug on insert

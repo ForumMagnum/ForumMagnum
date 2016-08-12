@@ -1,6 +1,6 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
-import { FlashContainer } from "meteor/nova:core";
+import { FlashContainer } from 'nova-core';
 
 class Layout extends Component {
 

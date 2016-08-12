@@ -1,7 +1,7 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React from 'react';
 import { ListContainer } from "meteor/utilities:react-list-container";
-import Categories from "meteor/nova:categories";
+import Categories from 'nova-categories';
 
 const PostsListHeader = () => {
 

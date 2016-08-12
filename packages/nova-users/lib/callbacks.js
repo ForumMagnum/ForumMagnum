@@ -1,8 +1,8 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import Users from './collection.js';
 import marked from 'marked';
-import Events from "meteor/nova:events";
-import NovaEmail from 'meteor/nova:email';
+import Events from 'nova-events';
+import NovaEmail from 'nova-email';
 
 //////////////////////////////////////////////////////
 // Collection Hooks                                 //

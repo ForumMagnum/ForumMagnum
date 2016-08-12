@@ -1,12 +1,12 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { FormattedMessage, intlShape } from 'react-intl';
 import NovaForm from 'nova-forms';
 import { DocumentContainer } from "meteor/utilities:react-list-container";
-//import { Messages } from "meteor/nova:core";
+//import { Messages } from 'nova-core';
 //import Actions from "../actions.js";
-import Posts from "meteor/nova:posts";
-import Users from 'meteor/nova:users';
+import Posts from 'nova-posts';
+import Users from 'nova-users';
 
 class PostsEditForm extends Component{
 

@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 import { Link } from 'react-router';
 
 const UsersAvatar = ({user, size, link}) => {

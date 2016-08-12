@@ -1,4 +1,4 @@
-import NovaEmail from 'meteor/nova:email';
+import NovaEmail from 'nova-email';
 
 // Invitation email
 Picker.route('/email/invite-existing-user/:id?', function(params, req, res, next) {

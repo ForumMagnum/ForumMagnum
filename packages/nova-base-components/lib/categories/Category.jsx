@@ -1,11 +1,11 @@
-import Telescope from 'meteor/nova:lib';
+import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { Button, DropdownButton, MenuItem } from 'react-bootstrap';
 import classNames from "classnames";
 //import { Messages, ModalTrigger } from 'meteor/nova:core';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withRouter } from 'react-router'
-import Users from 'meteor/nova:users';
+import Users from 'nova-users';
 
 class Category extends Component {
 
