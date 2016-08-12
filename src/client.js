@@ -8,19 +8,8 @@ import 'nova-voting';
 import 'nova-base-components';
 import 'nova-base-styles';
 
-import './routes';
-
-import TelescopeImport from 'nova-lib';
-import PostsImport from 'nova-posts';
-import CommentsImport from 'nova-comments';
-import UsersImport from 'nova-users';
-import CategoriesImport from 'nova-categories';
-
-window.Telescope = TelescopeImport;
-window.Posts = PostsImport;
-window.Comments = CommentsImport;
-window.Users = UsersImport;
-window.Categories = CategoriesImport;
+import 'nova-base-routes';
+import 'nova-debug';
 
 /*
 nova:core # do not remove!

@@ -2,6 +2,8 @@ import { ReactRouterSSR } from 'meteor/reactrouter:react-router-ssr';
 
 import '../packages/nova-i18n-en-us/lib/en_US.js';
 
+import 'nova-debug';
+
 import 'nova-core-server';
 import 'nova-users-server';
 import 'nova-posts-server';
@@ -21,5 +23,5 @@ if (process.env.NODE_ENV === 'production') {
   // Load Webpack infos for SSR
   ReactRouterSSR.LoadWebpackStats(WebpackStats);
 
-  require('./routes').default;
+  require('nova-base-routes').default;
 }

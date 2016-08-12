@@ -7,6 +7,7 @@
     "alias": {
       "nova-lib": "packages/nova-lib/lib/export.js",
       "nova-events": "packages/nova-events/lib/export.js",
+      "nova-debug": "packages/nova-debug/lib/export.js",
       
       "nova-core": "packages/nova-core/lib/export.js",
       "nova-core-server": "packages/nova-core/lib/server.js",
@@ -43,6 +44,8 @@
       "nova-forms": "packages/nova-forms/lib/export.js",
       "nova-search": "packages/nova-search/lib/export.js",
       "nova-base-components": "packages/nova-base-components/lib/export.js",
+      "nova-base-routes": "packages/nova-base-routes/lib/export.js",
+
       "nova-base-styles": "packages/nova-base-styles/lib/stylesheets/main.scss"
 
     }

@@ -2,7 +2,7 @@ import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import {mount} from 'react-mounter';
 import MoviesWrapper from './demo-components.jsx';
-import Core from 'meteor/nova:core';
+import Core from 'nova-core';
 import { Route } from 'react-router';
 
 //////////////////////////////////////////////////////

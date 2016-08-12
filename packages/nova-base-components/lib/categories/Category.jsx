@@ -2,7 +2,7 @@ import Telescope from 'nova-lib';
 import React, { PropTypes, Component } from 'react';
 import { Button, DropdownButton, MenuItem } from 'react-bootstrap';
 import classNames from "classnames";
-//import { Messages, ModalTrigger } from 'meteor/nova:core';
+//import { Messages, ModalTrigger } from 'nova-core';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withRouter } from 'react-router'
 import Users from 'nova-users';
