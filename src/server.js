@@ -1,17 +1,18 @@
 import { ReactRouterSSR } from 'meteor/reactrouter:react-router-ssr';
 
 import '../packages/nova-i18n-en-us/lib/en_US.js';
-import '../packages/nova-core/lib/server.js';
-import '../packages/nova-users/lib/server.js';
-import '../packages/nova-posts/lib/server.js';
-import '../packages/nova-comments/lib/server.js';
-import '../packages/nova-categories/lib/server.js';
 
-import '../packages/nova-api/lib/server.js';
-import '../packages/nova-rss/lib/server.js';
-// import '../packages/nova-newsletter/lib/server.js';
-import '../packages/nova-notifications/lib/server.js';
-import '../packages/nova-voting/lib/server.js';
+import 'nova-core-server';
+import 'nova-users-server';
+import 'nova-posts-server';
+import 'nova-comments-server';
+import 'nova-categories-server';
+
+import 'nova-api-server';
+import 'nova-rss-server';
+// import 'nova-newsletter-server';
+import 'nova-notifications-server';
+import 'nova-voting-server';
 
 // Do server-rendering only in production
 // Otherwise, it will break the hot-reload

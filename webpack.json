@@ -7,15 +7,44 @@
     "alias": {
       "nova-lib": "packages/nova-lib/lib/export.js",
       "nova-events": "packages/nova-events/lib/export.js",
+      
       "nova-core": "packages/nova-core/lib/export.js",
+      "nova-core-server": "packages/nova-core/lib/server.js",
+
       "nova-users": "packages/nova-users/lib/export.js",
+      "nova-users-server": "packages/nova-users/lib/server.js",
+
       "nova-posts": "packages/nova-posts/lib/export.js",
+      "nova-posts-server": "packages/nova-posts/lib/server.js",
+
       "nova-comments": "packages/nova-comments/lib/export.js",
+      "nova-comments-server": "packages/nova-comments/lib/server.js",
+
       "nova-categories": "packages/nova-categories/lib/export.js",
-      "nova-forms": "packages/nova-forms/lib/export.js",
-      "nova-email": "packages/nova-email/lib/export.js",
+      "nova-categories-server": "packages/nova-categories/lib/server.js",
+
+      "nova-api-server": "packages/nova-api/lib/server.js",
+
       "nova-rss": "packages/nova-rss/lib/export.js",
+      "nova-rss-server": "packages/nova-rss/lib/server.js",
+      
       "nova-newsletter": "packages/nova-newsletter/lib/export.js",
+      "nova-newsletter-server": "packages/nova-newsletter/lib/server.js",
+
+      "nova-notifications": "packages/nova-notifications/lib/export.js",
+      "nova-notifications-server": "packages/nova-notifications/lib/server.js",
+
+      "nova-voting": "packages/nova-voting/lib/export.js",
+      "nova-voting-server": "packages/nova-voting/lib/server.js",
+
+      "nova-email": "packages/nova-email/lib/export.js",
+      "nova-email-server": "packages/nova-email/lib/server.js",
+
+      "nova-forms": "packages/nova-forms/lib/export.js",
+      "nova-search": "packages/nova-search/lib/export.js",
+      "nova-base-components": "packages/nova-base-components/lib/export.js",
+      "nova-base-styles": "packages/nova-base-styles/lib/stylesheets/main.scss",
+
       "modal-trigger": "packages/nova-core/lib/components/ModalTrigger.jsx"
     }
   }
