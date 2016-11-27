@@ -1,0 +1,22 @@
+.accounts-ui, .document-new {
+  padding: 20px;
+  border: 1px solid #ccc;
+  width: 400px;
+  margin-bottom: 20px;
+}
+.accounts-ui label{
+  margin-right: 5px;
+}
+.accounts-ui .buttons a, .accounts-ui button{
+  display: block;
+  width: 100%;
+  border: 1px #ccc solid;
+  border-radius: 3px;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+.accounts-ui button{
+  background: #0072DB;
+  color: white;
+  border: none;
+}
