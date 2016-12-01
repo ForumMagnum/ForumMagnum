@@ -28,13 +28,14 @@ import Telescope from 'meteor/nova:lib';
 import React, { PropTypes, Component } from 'react';
 import { intlShape } from 'react-intl';
 import { withApollo, compose } from 'react-apollo';
-import { withCurrentUser, withNew, withEdit, withRemove } from 'meteor/nova:core';
+import { withCurrentUser } from 'meteor/nova:core';
+import { withNew, withEdit, withRemove } from 'meteor/nova:core';
 import { getEditableFields, getInsertableFields } from './utils.js';
 import Form from './Form.jsx';
 import gql from 'graphql-tag';
 import { withSingle } from 'meteor/nova:core';
 
-class FormWithSingle extends Component{
+class FormWrapper extends Component{
 
   // return the current schema based on either the schema or collection prop
   getSchema() {
@@ -53,10 +54,13 @@ class FormWithSingle extends Component{
     const prefix = `${this.props.collection._name}${Telescope.utils.capitalize(this.getFormType())}`
     const fragmentName = `${prefix}FormFragment`;
 
+    const schema = this.getSchema();
     const fields = this.props.fields;
+    const insertableFields = _.filter(_.keys(schema), fieldName => !!schema[fieldName].insertableIf);
+    const editableFields = _.filter(_.keys(schema), fieldName => !!schema[fieldName].editableIf);
 
     // get all editable/insertable fields (depending on current form type)
-    let relevantFields = this.getFormType() === 'edit' ? getEditableFields(this.getSchema(), this.props.currentUser) : getInsertableFields(this.getSchema(), this.props.currentUser);
+    let relevantFields = this.getFormType() === 'new' ? insertableFields : editableFields;
 
     // if "fields" prop is specified, restrict list of fields to it
     if (typeof fields !== "undefined" && fields.length > 0) {
@@ -86,30 +90,28 @@ class FormWithSingle extends Component{
 
   render() {
 
+    // console.log(this)
+
     let WrappedComponent;
 
     const prefix = `${this.props.collection._name}${Telescope.utils.capitalize(this.getFormType())}`
-    const queryName = `${prefix}FormQuery`;
     const fragmentName = `${prefix}FormFragment`;
 
     // props received from parent component (i.e. <NovaForm/> call)
     const parentProps = this.props;
 
-    // props to pass on to child component (i.e. <FormWithMutations />)
+    // props to pass on to child component (i.e. <Form />)
     const childProps = {
       formType: this.getFormType(),
       schema: this.getSchema(),
-      fragmentName,
-      fragment: this.getFragment(),
-    }
+    };
 
-    // options for the withSingle, withNew, withEdit, and withRemove HoCs
+    // generic options for the withSingle, withNew, withEdit, and withRemove HoCs
     const options = {
       collection: this.props.collection,
-      queryName: queryName,
       fragmentName: fragmentName,
       fragment: this.getFragment(),
-    }
+    };
 
     // if this is an edit from, load the necessary data using the withSingle HoC
     if (this.getFormType() === 'edit') { 
@@ -131,9 +133,9 @@ class FormWithSingle extends Component{
       Loader.displayName = `withLoader(Form)`;
 
       WrappedComponent = compose(
-        withSingle(options),
+        withSingle({...options, queryName: `${prefix}FormQuery`}),
         withEdit(options),
-        withRemove(options)
+        withRemove({...options, queryToUpdate: this.props.queryToUpdate})
       )(Loader);
 
       return <WrappedComponent documentId={this.props.documentId} />
@@ -141,7 +143,7 @@ class FormWithSingle extends Component{
     } else {
 
       WrappedComponent = compose(
-        withNew(options)
+        withNew({...options, queryToUpdate: this.props.queryToUpdate})
       )(Form);
 
       return <WrappedComponent {...childProps} {...parentProps} />
@@ -152,7 +154,7 @@ class FormWithSingle extends Component{
 
 }
 
-FormWithSingle.propTypes = {
+FormWrapper.propTypes = {
 
   // main options
   collection: React.PropTypes.object,
@@ -163,6 +165,7 @@ FormWithSingle.propTypes = {
   newMutation: React.PropTypes.func, // the new mutation
   editMutation: React.PropTypes.func, // the edit mutation
   removeMutation: React.PropTypes.func, // the remove mutation
+  queryToUpdate: React.PropTypes.string, // query to update, used on new and remove mutation
 
   // form
   prefilledProps: React.PropTypes.object,
@@ -181,16 +184,16 @@ FormWithSingle.propTypes = {
   client: React.PropTypes.object,
 }
 
-FormWithSingle.defaultProps = {
+FormWrapper.defaultProps = {
   layout: "horizontal",
 }
 
-FormWithSingle.contextTypes = {
+FormWrapper.contextTypes = {
   closeCallback: React.PropTypes.func,
   intl: intlShape
 }
 
-FormWithSingle.childContextTypes = {
+FormWrapper.childContextTypes = {
   autofilledValues: React.PropTypes.object,
   addToAutofilledValues: React.PropTypes.func,
   updateCurrentValue: React.PropTypes.func,
@@ -201,4 +204,4 @@ FormWithSingle.childContextTypes = {
 module.exports = compose(
   withCurrentUser,
   withApollo,
-)(FormWithSingle);
+)(FormWrapper);
