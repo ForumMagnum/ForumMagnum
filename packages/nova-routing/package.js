@@ -14,10 +14,12 @@ Package.onUse(function (api) {
     'nova:core@0.27.4-nova',
     'nova:apollo@0.27.4-nova',
   ]);
-
-  api.addFiles([
-    'lib/store.js',
-    'lib/routing.jsx'
-  ], ['client', 'server']);
+  
+  api.mainModule('lib/routing-simple-server.jsx', 'server');
+  api.mainModule('lib/routing-simple-client.jsx', 'client');
+  // api.addFiles([
+  //   'lib/store.js',
+  //   'lib/routing.jsx'
+  // ], ['client', 'server']);
 
 });

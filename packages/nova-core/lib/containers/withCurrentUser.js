@@ -65,26 +65,26 @@ export default withCurrentUser;
  * withCurrentUser - HOC to give access to the currentUser as a prop of a WrappedComponent
  **/
  
-function withCurrentUserWithoutQuery(WrappedComponent) {
-
-  class WithCurrentUser extends React.Component {
-    constructor(...args) {
-      super(...args);
-      this.logCurrentUser = this.logCurrentUser.bind(this);
-    }
-
-    render() {
-      const {client} = this.context; // grab the apollo client from the context
-
-      const currentUser = client ? client.store.getState().apollo.data[`User${Meteor.userId()}`] : null;
-
-      return currentUser ? <WrappedComponent currentUser={currentUser} {...this.props} /> : <WrappedComponent {...this.props} />;
-    }
-  }
-
-  WithCurrentUser.contextTypes = { client: React.PropTypes.object.isRequired };
-  WithCurrentUser.displayName = `withCurrentUser(${Utils.getComponentDisplayName(WrappedComponent)}`;
-  WithCurrentUser.WrappedComponent = WrappedComponent;
-
-  return hoistStatics(WithCurrentUser, WrappedComponent);
-}
+// function withCurrentUserWithoutQuery(WrappedComponent) {
+// 
+//   class WithCurrentUser extends React.Component {
+//     constructor(...args) {
+//       super(...args);
+//       this.logCurrentUser = this.logCurrentUser.bind(this);
+//     }
+// 
+//     render() {
+//       const {client} = this.context; // grab the apollo client from the context
+// 
+//       const currentUser = client ? client.store.getState().apollo.data[`User${Meteor.userId()}`] : null;
+// 
+//       return currentUser ? <WrappedComponent currentUser={currentUser} {...this.props} /> : <WrappedComponent {...this.props} />;
+//     }
+//   }
+// 
+//   WithCurrentUser.contextTypes = { client: React.PropTypes.object.isRequired };
+//   WithCurrentUser.displayName = `withCurrentUser(${Utils.getComponentDisplayName(WrappedComponent)}`;
+//   WithCurrentUser.WrappedComponent = WrappedComponent;
+// 
+//   return hoistStatics(WithCurrentUser, WrappedComponent);
+// }
