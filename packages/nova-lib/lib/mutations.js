@@ -4,7 +4,7 @@ Mutations have four steps:
 
 1. Validation
 
-If the mutation call is not trusted (i.e. it comes from a GraphQL mutation), 
+If the mutation call is not trusted (i.e. it comes from a GraphQL mutation),
 we'll run all validate steps:
 
 - Check that the current user has permission to insert/edit each field.
@@ -14,7 +14,7 @@ we'll run all validate steps:
 
 2. Sync Callbacks
 
-The second step is to run the mutation argument through all the sync callbacks. 
+The second step is to run the mutation argument through all the sync callbacks.
 
 3. Operation
 
@@ -22,19 +22,19 @@ We then perform the insert/update/remove operation.
 
 4. Async Callbacks
 
-Finally, *after* the operation is performed, we execute any async callbacks. 
+Finally, *after* the operation is performed, we execute any async callbacks.
 Being async, they won't hold up the mutation and slow down its response time
-to the client. 
+to the client.
 
 */
 
 import { runCallbacks, runCallbacksAsync } from './callbacks.js';
 
 export const newMutation = ({ collection, document, currentUser, validate, context }) => {
-  
-  console.log("// newMutation")
-  console.log(collection._name)
-  console.log(document)
+
+  // console.log("// newMutation")
+  // console.log(collection._name)
+  // console.log(document)
 
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
@@ -80,19 +80,19 @@ export const newMutation = ({ collection, document, currentUser, validate, conte
   // note: query for document to get fresh document with collection-hooks effects applied
   runCallbacksAsync(`${collectionName}.new.async`, newDocument, currentUser);
 
-  console.log("// new mutation finished:")
-  console.log(newDocument)
+  // console.log("// new mutation finished:")
+  // console.log(newDocument)
   return document;
 }
 
 export const editMutation = ({ collection, documentId, set, unset, currentUser, validate, context }) => {
 
-  console.log("// editMutation")
-  console.log(collection._name)
-  console.log(documentId)
-  console.log(set)
-  console.log(unset)
-  
+  // console.log("// editMutation")
+  // console.log(collection._name)
+  // console.log(documentId)
+  // console.log(set)
+  // console.log(unset)
+
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
 
@@ -133,17 +133,17 @@ export const editMutation = ({ collection, documentId, set, unset, currentUser, 
   // run async callbacks
   runCallbacksAsync(`${collectionName}.edit.async`, newDocument, document, currentUser);
 
-  console.log("// edit mutation finished")
-  console.log(newDocument)
+  // console.log("// edit mutation finished")
+  // console.log(newDocument)
 
   return newDocument;
 }
 
 export const removeMutation = ({ collection, documentId, currentUser, validate, context }) => {
 
-  console.log("// removeMutation")
-  console.log(collection._name)
-  console.log(documentId)
+  // console.log("// removeMutation")
+  // console.log(collection._name)
+  // console.log(documentId)
 
   const collectionName = collection._name;
 

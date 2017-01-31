@@ -12,4 +12,4 @@ Click the “Log In” link in the top menu and come back here once you're done!
 
 ### Start Posting!
 
-You're now all set to start using Nova. Check out the other posts for more information, or just start posting!
+You're now all set to start using Nova. Check out the other posts for more information, or just start posting! TESTTEST
