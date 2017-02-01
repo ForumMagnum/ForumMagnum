@@ -35,7 +35,7 @@ received "unexpected error" and the app quit. had to restart.
 mean: 205 s
 ```
 
-## Test 2: load daily posts using curl x 10
+## Test 2: daily page load using curl x 10
 
 This tests the raw load speed without any rendering in the mix. 
 
