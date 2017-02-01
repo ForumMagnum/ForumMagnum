@@ -1,5 +1,9 @@
 # DB stress test results
 
+## Construction
+
+See my changes to the source in `packages/nova-getting-started/lib/server/dummy_content.js`. It populates the database with the following parameters upon app start.
+
 ## Parameters
 * users = 2000
 * posts = 30000
