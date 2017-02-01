@@ -2,7 +2,7 @@
 
 ### First steps
 
-1. Go through the [nova architecture documentation](http://nova-docs.telescopeapp.org/architecture.html)http://nova-docs.telescopeapp.org/architecture.html
+1. Go through the [nova architecture documentation](http://nova-docs.telescopeapp.org/architecture.html)
 2. Read [customizing and extending nova](http://nova-docs.telescopeapp.org/tutorial-customizing.html)
 3. Understand [components and theming](http://nova-docs.telescopeapp.org/theming.html)
 4. Understand the [data layer](http://nova-docs.telescopeapp.org/data-layer.html)
