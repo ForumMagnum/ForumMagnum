@@ -87,6 +87,19 @@ var createUser = function (username) {
   });
 };
 
+var createDummyUsers = function() {
+  const usernames = _.range(num_users).map(i => {
+    const username = shortid.generate();
+    createUser(username);
+    if (i % 100 == 0) {
+      console.log('Created user ' + i);
+    }
+    return username
+  });
+
+  return usernames;
+};
+
 var createDummyPosts = function (users) {
 
   const postIds = _.range(num_posts).map(i => {
@@ -100,9 +113,14 @@ var createDummyPosts = function (users) {
       numVotes
     );
 
+    if (i % 100 == 0) {
+      console.log('Created post ' + i);
+    }
+
     return postId;
   });
 
+  console.log('Created dummy posts');
   return postIds;
 };
 
@@ -117,14 +135,17 @@ var createDummyComments = function (users, postIds) {
         user,
         dummy_comment
       );
+      if (i % 100 == 0) {
+        console.log('Created comment ' + i + ' for user ' + user);
+      }
     });
   });
+  console.log('Created comments for users');
 };
 
 var createDummyContent = function() {
   console.log('createDummyContent');
-  const users = _.range(num_users).map(i => shortid.generate());
-  users.forEach(user => createUser(user));
+  const users = createDummyUsers();
   const postIds = createDummyPosts(users);
   createDummyComments(users, postIds);
   console.log('done');
