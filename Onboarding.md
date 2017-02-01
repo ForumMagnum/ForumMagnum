@@ -1,6 +1,6 @@
 # Getting started on LessWrong 2.0
 
-### Prerequisites
+### First steps
 
 1. Go through the [nova architecture documentation](http://nova-docs.telescopeapp.org/architecture.html)http://nova-docs.telescopeapp.org/architecture.html
 2. Read [customizing and extending nova](http://nova-docs.telescopeapp.org/tutorial-customizing.html)
@@ -69,11 +69,10 @@ This is far faster than trying to determine whether something is e.g. in the `Po
 
 ### JS development tips
 
-#### Writing "pure" code
+#### Iteration
 * Prefer `_.range(n).forEach(i => my_function())` over `for (var i=0; i<n; i++)...`
 * If the body of a for loop performs a stateful action (i.e. modifies a variable outside the scope of the for body), use `forEach`. Else, use `map`. 
 * Use underscore.js when possible.
-* Prefer `const` over `var` or `let`.
 
 #### Style guide
 
@@ -100,6 +99,6 @@ This is far faster than trying to determine whether something is e.g. in the `Po
 
 `meteor reset`, then re-run `meteor`. This will clear your local mongo database.
 
-> Help! I have x issue
+> Help! I have an unknown issue
 
 Join the [Telescope slack](http://slack.telescopeapp.org/) and ask specific questions there.
