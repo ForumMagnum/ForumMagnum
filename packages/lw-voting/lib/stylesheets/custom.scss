@@ -1,0 +1,47 @@
+@import "colors";
+@import "variables";
+@import "breakpoints";
+
+.posts-item-vote{
+  @include border;
+  @include border-radius;
+  @include flex-center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3px 5px;
+  @include small{
+    float: right;    
+  }
+  @include medium-large{
+    margin-right: $hmargin;
+  }
+  @include activeHover;
+  &, &:active, &:hover{
+    text-decoration: none;
+  }
+}
+
+.upvote-button{
+  .icon{
+    text-align: center;
+    display: block;
+  }
+  .voted &{
+    color: $light-text;
+  }
+}
+
+.vote-count{
+  text-align: center;
+  display: block;
+}
+
+.downvote-button{
+  .icon{
+    text-align: center;
+    display: block;
+  }
+  .voted &{
+    color: $light-text;
+  }
+}

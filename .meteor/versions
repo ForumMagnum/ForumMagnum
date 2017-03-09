@@ -46,6 +46,7 @@ jquery@1.11.10
 livedata@1.0.18
 localstorage@1.0.12
 logging@1.1.16
+lw-voting@0.0.0
 mdg:validation-error@0.5.1
 meteor@1.6.0
 meteor-base@1.0.4
