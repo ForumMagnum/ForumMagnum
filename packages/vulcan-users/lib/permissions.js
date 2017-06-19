@@ -10,7 +10,7 @@ Users.groups = {};
  * @summary Group class
  */
 class Group {
-  
+
   constructor() {
     this.actions = [];
   }
@@ -50,15 +50,15 @@ Users.getGroups = user => {
   if (!user) { // guests user
 
     userGroups = ["guests"];
-  
+
   } else {
-  
+
     userGroups = ["members"];
 
     if (user.groups) { // custom groups
       userGroups = userGroups.concat(user.groups);
-    } 
-    
+    }
+
     if (Users.isAdmin(user)) { // admin
       userGroups.push("admins");
     }
@@ -74,8 +74,12 @@ Users.getGroups = user => {
  * @param {Object} user
  */
 Users.getActions = user => {
-  const userGroups = Users.getGroups(user);
-  const groupActions = userGroups.map(groupName => {
+  let userGroups = Users.getGroups(user);
+  if (!userGroups.includes('guests')) {
+    // always give everybody permission for guests actions, too
+    userGroups.push('guests');
+  }
+  let groupActions = userGroups.map(groupName => {
     // note: make sure groupName corresponds to an actual group
     const group = Users.groups[groupName];
     return group && group.actions;
@@ -85,18 +89,18 @@ Users.getActions = user => {
 
 /**
  * @summary check if a user is a member of a group
- * @param {Array} user 
+ * @param {Array} user
  * @param {String} group or array of groups
  */
 Users.isMemberOf = (user, groupOrGroups) => {
   const groups = Array.isArray(groupOrGroups) ? groupOrGroups : [groupOrGroups];
-  
+
   // everybody is considered part of the guests group
   if (groups.indexOf('guests') !== -1) return true;
-  
+
   // every logged in user is part of the members group
-  if (groups.indexOf('members') !== -1) return !!user; 
-  
+  if (groups.indexOf('members') !== -1) return !!user;
+
   // the admin group have their own function
   if (groups.indexOf('admin') !== -1) return Users.isAdmin(user);
 
@@ -127,7 +131,7 @@ Users.canDo = (user, action) => {
 //   // note(apollo): use of `__typename` given by react-apollo
 //   //const collectionName = document.getCollectionName();
 //   const collectionName = document.__typename ? Utils.getCollectionNameFromTypename(document.__typename) : document.getCollectionName();
-  
+
 //   if (!user || !document) {
 //     return false;
 //   }
@@ -211,13 +215,34 @@ Users.helpers({
 });
 
 /**
- * @summary For a given document, keep only fields viewable by current user
+ * @summary For a given document or list of documents, keep only fields viewable by current user
  * @param {Object} user - The user performing the action
  * @param {Object} collection - The collection
  * @param {Object} document - The document being returned by the resolver
  */
-Users.keepViewableFields = function (user, collection, document) {
-  return document && document._id && _.pick(document, _.keys(Users.getViewableFields(user, collection, document)));
+Users.restrictViewableFields = function (user, collection, docOrDocs) {
+
+  if (!docOrDocs) return {};
+
+  const restrictDoc = document => {
+
+    // get array of all keys viewable by user
+    const viewableKeys = _.keys(Users.getViewableFields(user, collection, document));
+    const restrictedDocument = _.clone(document);
+
+    // loop over each property in the document and delete it if it's not viewable
+    _.forEach(restrictedDocument, (value, key) => {
+      if (!viewableKeys.includes(key)) {
+        delete restrictedDocument[key];
+      }
+    });
+
+    return restrictedDocument;
+
+  };
+
+  return Array.isArray(docOrDocs) ? docOrDocs.map(restrictDoc) : restrictDoc(docOrDocs);
+
 }
 
 /**
@@ -255,8 +280,8 @@ Users.createGroup("guests"); // non-logged-in users
 Users.createGroup("members"); // regular users
 
 const membersActions = [
-  "users.new", 
-  "users.edit.own", 
+  "users.new",
+  "users.edit.own",
   "users.remove.own"
 ];
 Users.groups.members.can(membersActions);
@@ -264,7 +289,7 @@ Users.groups.members.can(membersActions);
 Users.createGroup("admins"); // admin users
 
 const adminActions = [
-  "users.new", 
+  "users.new",
   "users.edit.all",
   "users.remove.all",
   "settings.edit"

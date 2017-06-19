@@ -1,48 +1,49 @@
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { ModalTrigger, withList, withCurrentUser, Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import PropTypes from 'prop-types';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { withList, withCurrentUser, Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import Comments from 'meteor/vulcan:comments';
 
-const PostsCommentsThread = (props, context) => {
+const PostsCommentsThread = (props, /* context*/) => {
 
-  const {loading, terms: { postId }, results, totalCount} = props;
-  
+  const {loading, terms: { postId }, results, totalCount, currentUser} = props;
+
   if (loading) {
-  
+
     return <div className="posts-comments-thread"><Components.Loading/></div>
-  
+
   } else {
-    
+
     const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
-    const nestedComments = Utils.unflatten(resultsClone, '_id', 'parentCommentId');
+    const nestedComments = Utils.unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
 
     return (
       <div className="posts-comments-thread">
         <h4 className="posts-comments-thread-title"><FormattedMessage id="comments.comments"/></h4>
-        <Components.CommentsList comments={nestedComments} commentCount={totalCount}/>
-        {!!props.currentUser ?
+        <Components.CommentsList currentUser={currentUser} comments={nestedComments} commentCount={totalCount}/>
+        {!!currentUser ?
           <div className="posts-comments-thread-new">
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
-              postId={postId} 
-              type="comment" 
+              postId={postId}
+              type="comment"
             />
           </div> :
           <div>
-            <ModalTrigger size="small" component={<a><FormattedMessage id="comments.please_log_in"/></a>}>
-              <Components.UsersAccountForm/>
-            </ModalTrigger>
-          </div> 
+            <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="comments.please_log_in"/></a>}>
+              <Components.AccountsLoginForm/>
+            </Components.ModalTrigger>
+          </div>
         }
       </div>
     );
   }
 };
 
-PostsCommentsThread.displayName = "PostsCommentsThread";
+PostsCommentsThread.displayName = 'PostsCommentsThread';
 
 PostsCommentsThread.propTypes = {
-  currentUser: React.PropTypes.object
+  currentUser: PropTypes.object
 };
 
 const options = {

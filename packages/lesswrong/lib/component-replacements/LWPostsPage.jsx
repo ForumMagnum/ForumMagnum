@@ -1,10 +1,13 @@
 import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { intlShape, FormattedMessage } from 'react-intl';
+import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import Posts from 'meteor/vulcan:posts';
+
+
+
 
 class LWPostsPage extends getRawComponent('PostsPage') {
 
@@ -67,8 +70,8 @@ class LWPostsPage extends getRawComponent('PostsPage') {
 
           {post.htmlBody ? <div className="posts-page-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
 
-          {/* Adding draftJS rendering here */}
-          {post.draftJS ? <Components.EditorWrapper initialState={post.draftJS} readOnly /> : null}
+          {/* Adding content rendering here */}
+          {post.content ? <div className="posts-page-content"> <Components.ContentRenderer state={post.content} /> </div> : null}
 
           {/* comment view selector and comment thread */}
           { this.renderCommentViewSelector() }

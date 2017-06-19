@@ -1,9 +1,11 @@
-import { Components, registerComponent, withCurrentUser, withMessages } from 'meteor/vulcan:core';
-import React, { PropTypes, Component } from 'react';
-import { intlShape, FormattedMessage, FormattedRelative } from 'react-intl';
+import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import Comments from 'meteor/vulcan:comments';
+import moment from 'moment';
 
-class CommentsItem extends Component{
+class CommentsItem extends PureComponent {
 
   constructor() {
     super();
@@ -104,7 +106,7 @@ class CommentsItem extends Component{
             </div>
             <Components.UsersAvatar size="small" user={comment.user}/>
             <Components.UsersName user={comment.user}/>
-            <div className="comments-item-date"><FormattedRelative value={comment.postedAt}/></div>
+            <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
             <Components.ShowIf check={Comments.options.mutations.edit.check} document={this.props.comment}>
               <div>
                 <a className="comment-edit" onClick={this.showEdit}><FormattedMessage id="comments.edit"/></a>
@@ -121,13 +123,13 @@ class CommentsItem extends Component{
 }
 
 CommentsItem.propTypes = {
-  comment: React.PropTypes.object.isRequired, // the current comment
-  currentUser: React.PropTypes.object,
+  comment: PropTypes.object.isRequired, // the current comment
+  currentUser: PropTypes.object,
 };
 
 CommentsItem.contextTypes = {
-  events: React.PropTypes.object,
+  events: PropTypes.object,
   intl: intlShape
 };
 
-registerComponent('CommentsItem', CommentsItem, withCurrentUser, withMessages);
+registerComponent('CommentsItem', CommentsItem);

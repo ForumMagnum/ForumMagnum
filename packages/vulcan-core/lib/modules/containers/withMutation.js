@@ -5,7 +5,7 @@ HoC that provides a simple mutation that expects a single JSON object in return
 Example usage:
 
 export default withMutation({
-  name: 'getEmbedlyData',
+  name: 'getEmbedData',
   args: {url: 'String'},
 })(EmbedlyURL);
 
@@ -35,6 +35,7 @@ export default function withMutation({name, args}) {
   }
 
   return graphql(gql`${mutation}`, {
+    alias: 'withMutation',
     props: ({ownProps, mutate}) => ({
       [name]: (vars) => {
         return mutate({ 

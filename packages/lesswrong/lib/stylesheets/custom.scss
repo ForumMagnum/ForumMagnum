@@ -1,3 +1,16 @@
+/*
+
+CSS File with general modifications. Usually stuff gets added here first and
+then moved to more specific files as it becomes necessary.
+
+
+*/
+
+
+// Variable Definitions. Used only in this file. Current setup sadly doesn't
+// allow for global scss variable definitions :(
+$lw-green: #588f27;
+
 $hmargin: 10px;
 $small-font: 0.9rem;
 
@@ -18,7 +31,7 @@ $red: #E04E4B;
 
 $header-bg: $light-blue;
 
-$active-color: $blue;
+$active-color: $lightest-grey !important;
 
 $lightest-border: $lightest-grey;
 $lighter-border: $lighter-grey;
@@ -27,30 +40,136 @@ $light-border: $light-grey;
 $light-text: $medium-grey;
 $medium-text: $dark-grey;
 
-
-.list-group,
-.list-group-item{
-display:block;
-width: 100%;
+@mixin flex-center{
+  display: flex;
+  align-items: center;
 }
 
-.viewed {
-  background-color: grey;
-}
-.unviewed {
-  background-color: blue;
-}
-.disabled {
-  background-color: #ddd;
-}
-.dropdown-menu {
-  padding: 15px;
+
+// Recent Comments Page CSS Modifications
+
+.recent-comments-page{
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+
+// Home Page CSS Modifications
+
+.home-welcomebox{
+  width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 60px;
+  margin-top: 30px;
+  font-size: 16px;
+}
+
+.posts-item.posts-sticky {
+    background: rgba(0, 0, 0, 0.03) !important;
+}
+
+// CSS modifications for adjusting font in various contexts
+
+.comments-item{
+  font-size: 14px;
+}
+
+.posts-home{
+  .recent-comments-item{
+    font-size: 13px ;
+  }
+}
+
+
+.posts-page{
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  .posts-page-content{
+    font-size: 20px;
+  }
+  .posts-page-body{
+    font-size: 20px;
+  }
+}
+
+
+
+// CSS Modifications for the New Post Page
+
+.posts-new-form{
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.posts-new-form{
+  .input-draft{
+    float: right;
+    width: 170px;
+    .control-label{
+      width: 10%;
+    }
+  }
+  .btn-primary{
+    float: right;
+  }
+}
+
+// CSS Modifications for the Edit Post Page
+.posts-edit-form{
+
+}
+
+.posts-edit-form{
+  .input-draft{
+    float: right;
+    width: 170px;
+    .control-label{
+      width: 10%;
+    }
+  }
+  .btn-primary{
+    float: right;
+  }
+}
+
+// CSS Modifications for Navbar buttons and styles
+
+.post-new-button{
+  a{
+    color: $lw-green !important;
+  }
+}
+
+// CSS modifications for notifications navbar
+.navbar-nav{
+  .dropdown-menu{
+    min-width: 300px;
+    padding: 15px;
+  }
+  .viewed {
+    background-color: $lightest-grey;
+  }
+  .disabled {
+    background-color: $lightest-grey;
+  }
+}
+
+
+// CSS modifications for notifications page
 .nav-notifications {
   background-color: transparent;
   margin-right: 20px;
 }
+
+.notification-filters{
+  margin-bottom: 20px;
+}
+
+// CSS modifications for comments
 
 .comments-item-meta{
   font-size: $small-font;
@@ -60,14 +179,137 @@ width: 100%;
   }
 }
 
+// CSS modifications for voting
+
+
 .upvoted{
   .upvote-button{
-    color: $blue !important;
+    color: $lw-green !important;
   }
 }
 
 .downvoted{
   .downvote-button{
-    color: $blue !important;
+    color: $lw-green !important;
   }
+}
+
+.posts-item-vote:hover{
+  color: $dark-grey;
+}
+
+
+//CSS modifications for sidebar
+
+.top-contributors{
+  .users-avatar{
+    margin-right: 5px;
+  }
+  .users-name{
+    margin-right: 5px;
+  }
+  @include flex-center;
+}
+
+// CSS modifications for the three different editor types: commentEditor, postEditor
+// and messageEditor. For now they are all equal, but we probably want to change
+// that in the future
+
+
+.commentEditor{
+  border: #d1d1d1;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.postEditor{
+  margin-bottom: 10px;
+}
+
+.messageEditor{
+  border: #d1d1d1;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+// CSS modifications for posts
+
+.posts-item-title{
+  margin-top: 0px;
+}
+
+.posts-actions{
+  margin-right: 10px;
+}
+
+// CSS modifications for header
+
+.logo-image{
+  font-size: 30px;
+  margin-top: 18px;
+  margin-bottom: 7px;
+}
+
+.page-header{
+  margin-top: 0px;
+}
+
+.header-wrapper{
+  background-color: rgb(247,247,247);
+  .header{
+    padding-top: 5px;
+    padding-bottom: 0px;
+  }
+}
+.navbar{
+  .container{
+    padding: 0;
+  }
+}
+
+.navbar-default{
+  background-color: rgb(247,247,247);
+}
+
+.tagline{
+  font-size: 1.1rem !important;
+}
+
+// CSS Modifications for RSS Feed integration
+.postFeedNickname{
+  font-size: 0.7rem;
+  font-color: $lighter-grey;
+  margin-left: 10px;
+}
+
+.displayFullContentTag{
+  margin-left: 10px;
+  color: $dark-grey;
+  float: right;
+}
+
+.ownedByUserTag{
+  margin-left: 10px;
+  color: $dark-grey;
+  float:right;
+}
+
+// General CSS modifications
+
+h1{
+  margin-top: 0px;
+}
+
+h2{
+  margin-top: 0px;
+}
+
+h3{
+  margin-top: 0px;
 }

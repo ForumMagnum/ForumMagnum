@@ -1,10 +1,39 @@
-import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
+import { Components, getRawComponent, replaceComponent, ModalTrigger } from 'meteor/vulcan:core';
 import React from 'react';
-import { FormattedMessage, FormattedRelative } from 'react-intl';
+import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router';
 import Posts from "meteor/vulcan:posts";
+import Users from "meteor/vulcan:users";
+import moment from 'moment';
 
 class LWPostsItem extends getRawComponent('PostsItem') {
+
+  renderActions() {
+    post = this.props.post;
+
+    return (
+      <div>
+        <div className="posts-actions">
+          <Link to={{pathname:'/editPost', query:{postId: post._id}}}>
+            Edit
+          </Link>
+        </div>
+      </div>
+
+    )
+  }
+
+  renderPostFeeds() {
+    feed = this.props.post.feed
+
+    if (!!feed && feed.user) {
+      return <Link to={this.props.post.feedLink} className="postFeedNickname">
+                {feed.nickname}
+             </Link>;
+    } else {
+      return null;
+    }
+  }
 
   render() {
 
@@ -29,20 +58,24 @@ class LWPostsItem extends getRawComponent('PostsItem') {
               {post.title}
             </Link>
             {this.renderCategories()}
+            {this.renderPostFeeds()}
           </h3>
 
           <div className="posts-item-meta">
             {post.user? <div className="posts-item-user"><Components.UsersAvatar user={post.user} size="small"/><Components.UsersName user={post.user}/></div> : null}
-            <div className="posts-item-date">{post.postedAt ? <FormattedRelative value={post.postedAt}/> : <FormattedMessage id="posts.dateNotDefined"/>}</div>
+            <div className="posts-item-date">{post.postedAt ? moment(new Date(post.postedAt)).fromNow() : <FormattedMessage id="posts.dateNotDefined"/>}</div>
             <div className="posts-item-comments">
               <Link to={Posts.getPageUrl(post)}>
-                <FormattedMessage id="comments.count" values={{count: post.commentCount}}/>
+                {!post.commentCount || post.commentCount === 0 ? <FormattedMessage id="comments.count_0"/> :
+                  post.commentCount === 1 ? <FormattedMessage id="comments.count_1" /> :
+                    <FormattedMessage id="comments.count_2" values={{count: post.commentCount}}/>
+                }
               </Link>
             </div>
             {this.props.currentUser && this.props.currentUser.isAdmin ? <Components.PostsStats post={post} /> : null}
             {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
             {/* Added subscribe-to functionality */}
-            <Components.SubscribeTo document={post} />
+            <Components.SubscribeTo className="posts-item-subscribe" document={post} />
           </div>
 
         </div>

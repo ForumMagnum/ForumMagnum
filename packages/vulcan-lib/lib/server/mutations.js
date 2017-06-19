@@ -37,7 +37,7 @@ export const newMutation = ({ collection, document, currentUser, validate, conte
 
   // we don't want to modify the original document
   let newDocument = Object.assign({}, document);
-  
+
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
 
@@ -58,16 +58,16 @@ export const newMutation = ({ collection, document, currentUser, validate, conte
     // run validation callbacks
     newDocument = runCallbacks(`${collectionName}.new.validate`, newDocument, currentUser);
   }
-  
+
   // check if userId field is in the schema and add it to document if needed
   const userIdInSchema = Object.keys(schema).find(key => key === 'userId');
   if (!!userIdInSchema && !newDocument.userId) newDocument.userId = currentUser._id;
 
-  // run autoValue step
+  // run onInsert step
   _.keys(schema).forEach(fieldName => {
-    if (!newDocument[fieldName] && schema[fieldName].autoValue) {
-      const autoValue = schema[fieldName].autoValue(newDocument);
-      if (autoValue && typeof autoValue.$setOnInsert === 'undefined') {
+    if (schema[fieldName].onInsert) {
+      const autoValue = schema[fieldName].onInsert(newDocument, currentUser);
+      if (autoValue) {
         newDocument[fieldName] = autoValue;
       }
     }
@@ -119,7 +119,7 @@ export const editMutation = ({ collection, documentId, set, unset, currentUser, 
   if (validate) {
 
     // validate modifiers
-    collection.simpleSchema().newContext().validate({$set: set, $unset: unset}, { modifier: true });
+    collection.simpleSchema().validate({$set: set, $unset: unset}, { modifier: true });
 
     // check that the current user has permission to edit each field
     const modifiedProperties = _.keys(set).concat(_.keys(unset));
@@ -134,12 +134,18 @@ export const editMutation = ({ collection, documentId, set, unset, currentUser, 
     modifier = runCallbacks(`${collectionName}.edit.validate`, modifier, document, currentUser);
   }
 
-  // run autoValue step
+  // run onEdit step
   _.keys(schema).forEach(fieldName => {
-    if (!modifier.$set[fieldName] && schema[fieldName].autoValue) {
-      const autoValue = schema[fieldName].autoValue(modifier);
-      if (autoValue && typeof autoValue.$setOnInsert === 'undefined') {
-        modifier.$set[fieldName] = autoValue;
+
+    if (schema[fieldName].onEdit) {
+      const autoValue = schema[fieldName].onEdit(modifier, document, currentUser);
+      if (typeof autoValue !== 'undefined') {
+        if (autoValue === null) {
+          // if any autoValue returns null, then unset the field
+          modifier.$unset[fieldName] = true;
+        } else {
+          modifier.$set[fieldName] = autoValue;
+        }
       }
     }
   });
@@ -154,12 +160,17 @@ export const editMutation = ({ collection, documentId, set, unset, currentUser, 
   if (_.isEmpty(modifier.$unset)) {
     delete modifier.$unset;
   }
-  
+
   // update document
   collection.update(documentId, modifier, {removeEmptyStrings: false});
 
   // get fresh copy of document from db
   const newDocument = collection.findOne(documentId);
+
+  // clear cache if needed
+  if (collection.loader) {
+    collection.loader.clear(documentId);
+  }
 
   // run async callbacks
   runCallbacksAsync(`${collectionName}.edit.async`, newDocument, document, currentUser, collection);
@@ -178,6 +189,7 @@ export const removeMutation = ({ collection, documentId, currentUser, validate, 
   // console.log(documentId)
 
   const collectionName = collection._name;
+  const schema = collection.simpleSchema()._schema;
 
   let document = collection.findOne(documentId);
 
@@ -186,9 +198,21 @@ export const removeMutation = ({ collection, documentId, currentUser, validate, 
     document = runCallbacks(`${collectionName}.remove.validate`, document, currentUser);
   }
 
+  // run onRemove step
+  _.keys(schema).forEach(fieldName => {
+    if (schema[fieldName].onRemove) {
+      schema[fieldName].onRemove(document, currentUser);
+    }
+  });
+
   runCallbacks(`${collectionName}.remove.sync`, document, currentUser);
 
   collection.remove(documentId);
+
+  // clear cache if needed
+  if (collection.loader) {
+    collection.loader.clear(documentId);
+  }
 
   runCallbacksAsync(`${collectionName}.remove.async`, document, currentUser, collection);
 

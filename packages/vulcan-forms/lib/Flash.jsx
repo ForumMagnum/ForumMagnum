@@ -1,5 +1,6 @@
-import React, { PropTypes, Component } from 'react';
-import { Alert } from 'react-bootstrap';
+import React from 'react';
+import PropTypes from 'prop-types';
+import Alert from 'react-bootstrap/lib/Alert'
 
 const Flash = ({message}) => {
   
@@ -14,7 +15,7 @@ const Flash = ({message}) => {
 }
 
 Flash.propTypes = {
-  message: React.PropTypes.object.isRequired
+  message: PropTypes.object.isRequired
 }
 
 export default Flash;

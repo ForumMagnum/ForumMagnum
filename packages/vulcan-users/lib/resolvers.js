@@ -1,9 +1,20 @@
 import { GraphQLSchema } from 'meteor/vulcan:lib';
+import Users from './collection.js';
 
 const specificResolvers = {
   User: {
     twitterUsername(user, args, context) {
       return context.Users.getTwitterName(context.Users.findOne(user._id));
+    },
+    async avatarUrl(user, args, context) {
+      if (user.avatarUrl) {
+        return user.avatarUrl;
+      } else {
+        // user has already been cleaned up by Users.restrictViewableFields, so we
+        // reload the full user object from the cache to access user.services
+        const fullUser = await Users.loader.load(user._id);
+        return Users.avatar.getUrl(fullUser);
+      }
     }
   },
   Query: {
@@ -31,14 +42,21 @@ const resolvers = {
 
     name: 'usersList',
 
-    resolver(root, {terms}, context, info) {
-      let {selector, options} = context.Users.getParameters(terms);
+    resolver(root, {terms}, {currentUser, Users}, info) {
 
+      // get selector and options from terms and perform Mongo query
+      let {selector, options} = Users.getParameters(terms);
       options.limit = (terms.limit < 1 || terms.limit > 100) ? 100 : terms.limit;
       options.skip = terms.offset;
-      options.fields = context.getViewableFields(context.currentUser, context.Users);
+      const users = Users.find(selector, options).fetch();
 
-      return context.Users.find(selector, options).fetch();
+      // restrict documents fields
+      const restrictedUsers = Users.restrictViewableFields(currentUser, Users, users);
+
+      // prime the cache
+      restrictedUsers.forEach(user => Users.loader.prime(user._id, user));
+
+      return restrictedUsers;
     },
 
   },
@@ -47,11 +65,10 @@ const resolvers = {
 
     name: 'usersSingle',
 
-    resolver(root, {documentId, slug}, context) {
-      const selector = documentId ? {_id: documentId} : {'slug': slug};
-      // get the user first so we can get a list of viewable fields specific to this user document
-      const user = context.Users.findOne(selector);
-      return context.Users.keepViewableFields(context.currentUser, context.Users, user);
+    async resolver(root, {documentId, slug}, {currentUser, Users}) {
+      // don't use Dataloader if user is selected by slug
+      const user = documentId ? await Users.loader.load(documentId) : Users.findOne({slug});
+      return Users.restrictViewableFields(currentUser, Users, user);
     },
 
   },

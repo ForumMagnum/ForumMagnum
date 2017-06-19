@@ -1,15 +1,13 @@
 import { Components, registerComponent, withCurrentUser, withList, withEdit } from 'meteor/vulcan:core';
 import React, { PropTypes, Component } from 'react';
 import { Link } from 'react-router';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Meteor } from 'meteor/meteor';
-import { Dropdown, MenuItem, DropdownButton } from 'react-bootstrap';
+import { NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
 import Notifications from '../collections/notifications/collection.js';
-
-//TODO: Clean up this code: Remove unecessary imports, restructure code below to be more readable
 
 class NotificationsMenu extends Component {
 
@@ -27,8 +25,9 @@ class NotificationsMenu extends Component {
       return (
         <div>
           <LinkContainer to={{pathname: '/inbox', query: {select: "Notifications"}}}>
-            <MenuItem> See all notifications in Inbox </MenuItem>
+            <MenuItem> See all your notifications and messages </MenuItem>
           </LinkContainer>
+          <MenuItem divider />
           {results.map(notification => <Components.NotificationsItem key={notification._id} currentUser={currentUser} notification={notification} />)}
           <MenuItem onClick={() => loadMore()}>Load More</MenuItem>
         </div>
@@ -50,14 +49,12 @@ class NotificationsMenu extends Component {
     }
 
     if(!currentUser){
-      return (<div></div>);
-    } else { //TODO: Replace DrodownButton with custom Dropdown component and replace notification count with badge
+      return null;
+    } else {
       return (
-        <div className="notifications-menu">
-          <DropdownButton id="notification-menu" onClick={() => this.viewNotifications(unreadNotifications)}  bsStyle='info' title={title + ' (' + unreadNotifications.length + ')'}>
-              {this.renderNotificationsList()}
-          </DropdownButton>
-        </div>
+        <NavDropdown id="notification-nav" onClick={() => this.viewNotifications(unreadNotifications)} title={title + ' (' + unreadNotifications.length + ')'}>
+            {this.renderNotificationsList()}
+        </NavDropdown>
       )
     }
   }

@@ -1,20 +1,21 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { registerComponent, Utils, getSetting, Headtags } from 'meteor/vulcan:core';
 
-class HeadTags extends Component {
+class HeadTags extends PureComponent {
 	render() {
 
 		const url = !!this.props.url ? this.props.url : Utils.getSiteUrl();
 		const title = !!this.props.title ? this.props.title : getSetting("title", "My App");
-		const description = !!this.props.description ? this.props.description : getSetting("tagline");
+		const description = !!this.props.description ? this.props.description : getSetting("tagline") || getSetting("description");
 
 		// default image meta: logo url, else site image defined in settings
 		let image = !!getSetting("siteImage") ? getSetting("siteImage"): getSetting("logoUrl");
-		
-		// overwrite default image if one is passed as props 
+
+		// overwrite default image if one is passed as props
 		if (!!this.props.image) {
-			image = this.props.image; 
+			image = this.props.image;
 		}
 
 		// add site url base if the image is stored locally
@@ -43,10 +44,9 @@ class HeadTags extends Component {
 
 		// add <link /> markup specific to the page rendered
 		const link = Headtags.link.concat([
-			{ rel: "canonical", href: Utils.getSiteUrl() },
+			{ rel: "canonical", href: url },
 			{ rel: "shortcut icon", href: getSetting("faviconUrl", "/img/favicon.ico") },
-		  { rel: 'stylesheet', type: 'text/css', href: 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css' },
-		  { rel: 'stylesheet', type: 'text/css', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' },
+			{ rel: 'stylesheet', type: 'text/css', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' },
 		]);
 
 		return (
@@ -58,10 +58,10 @@ class HeadTags extends Component {
 }
 
 HeadTags.propTypes = {
-	url: React.PropTypes.string,
-	title: React.PropTypes.string,
-	description: React.PropTypes.string,
-	image: React.PropTypes.string,
+	url: PropTypes.string,
+	title: PropTypes.string,
+	description: PropTypes.string,
+	image: PropTypes.string,
 };
 
 registerComponent('HeadTags', HeadTags);

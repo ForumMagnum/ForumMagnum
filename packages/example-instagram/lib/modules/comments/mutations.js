@@ -30,7 +30,7 @@ const mutations = {
     
     mutation(root, {document}, context) {
       
-      Utils.performCheck(this, context.currentUser, document);
+      Utils.performCheck(this.check, context.currentUser, document);
 
       return newMutation({
         collection: context.Comments,
@@ -49,13 +49,13 @@ const mutations = {
     
     check(user, document) {
       if (!user || !document) return false;
-      return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`);
+      return Users.canDo(user, `comments.edit.all`) || Users.owns(user, document) && Users.canDo(user, 'comments.edit.own');
     },
 
     mutation(root, {documentId, set, unset}, context) {
 
       const document = context.Comments.findOne(documentId);
-      Utils.performCheck(this, context.currentUser, document);
+      Utils.performCheck(this.check, context.currentUser, document);
 
       return editMutation({
         collection: context.Comments, 
@@ -82,7 +82,7 @@ const mutations = {
     mutation(root, {documentId}, context) {
 
       const document = context.Comments.findOne(documentId);
-      Utils.performCheck(this, context.currentUser, document);
+      Utils.performCheck(this.check, context.currentUser, document);
 
       return removeMutation({
         collection: context.Comments, 

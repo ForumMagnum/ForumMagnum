@@ -31,7 +31,7 @@ var toTitleCase = function (str) {
 };
 
 var createPost = function (slug, postedAt, username, thumbnail) {
-  
+
   const user = Users.findOne({username: username});
 
   var post = {
@@ -47,7 +47,7 @@ var createPost = function (slug, postedAt, username, thumbnail) {
     post.thumbnailUrl = "/packages/vulcan_getting-started/content/images/" + thumbnail;
 
   newMutation({
-    collection: Posts, 
+    collection: Posts,
     document: post,
     currentUser: user,
     validate: false
@@ -71,36 +71,32 @@ var createComment = function (slug, username, body, parentBody) {
     comment.parentCommentId = parentComment._id;
 
   newMutation({
-    collection: Comments, 
+    collection: Comments,
     document: comment,
     currentUser: user,
     validate: false
   });
 };
 
+const createUser = function (username, email) {
+  const user = {
+    username,
+    email,
+    services: {},
+    isDummy: true
+  };
+  newMutation({
+    collection: Users,
+    document: user,
+    validate: false
+  });
+}
+
 var createDummyUsers = function () {
   console.log('// inserting dummy users…');
-  Accounts.createUser({
-    username: 'Bruce',
-    email: 'dummyuser1@telescopeapp.org',
-    profile: {
-      isDummy: true
-    }
-  });
-  Accounts.createUser({
-    username: 'Arnold',
-    email: 'dummyuser2@telescopeapp.org',
-    profile: {
-      isDummy: true
-    }
-  });
-  Accounts.createUser({
-    username: 'Julia',
-    email: 'dummyuser3@telescopeapp.org',
-    profile: {
-      isDummy: true
-    }
-  });
+  createUser('Bruce', 'dummyuser1@telescopeapp.org');
+  createUser('Arnold', 'dummyuser2@telescopeapp.org');
+  createUser('Julia', 'dummyuser3@telescopeapp.org');
 };
 
 var createDummyPosts = function () {
@@ -133,10 +129,11 @@ var createDummyComments = function () {
 
 };
 
-const deleteDummyContent = function () {
+Vulcan.removeGettingStartedContent = () => {
   Users.remove({'profile.isDummy': true});
   Posts.remove({isDummy: true});
   Comments.remove({isDummy: true});
+  console.log('// Getting started content removed');
 };
 
 Meteor.startup(function () {

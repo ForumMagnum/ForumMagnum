@@ -9,8 +9,9 @@ import {
   Components,
   addRoute,
   addReducer, addMiddleware,
-  Routes, populateComponentsApp, populateRoutesApp, runCallbacks,
+  Routes, populateComponentsApp, populateRoutesApp, runCallbacks, initializeFragments,
   getRenderContext,
+  dynamicLoader,
 } from 'meteor/vulcan:lib';
 
 import { RouterClient } from './router.jsx';
@@ -20,6 +21,7 @@ Meteor.startup(() => {
   addRoute({name:"app.notfound", path:"*", componentName: 'Error404'});
 
   // init the application components and routes, including components & routes from 3rd-party packages
+  initializeFragments();
   populateComponentsApp();
   populateRoutesApp();
 
@@ -29,6 +31,13 @@ Meteor.startup(() => {
   if (indexRoute) {
     delete indexRoute.path; // delete the '/' path to avoid warning
   }
+
+  // go through each route and if it's a promise, wrap it with dynamicLoader
+  _.forEach(childRoutes, (route, routeName) => {
+    if (route.component && typeof route.component.then === 'function') {
+      route.component = dynamicLoader(route.component);
+    }
+  });
 
   const AppRoutes = {
     path: '/',

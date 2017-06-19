@@ -1,7 +1,7 @@
 import { Components, replaceComponent } from 'meteor/vulcan:core';
 import { registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { PropTypes, Component } from 'react';
-import { FormattedMessage, intlShape } from 'react-intl';
+import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withRouter } from 'react-router'
@@ -10,11 +10,11 @@ import Users from 'meteor/vulcan:users';
 const LWPostsViews = (props, context) => {
 
   let views = ["top", "new", "best"];
-  const adminViews = ["pending", "rejected", "scheduled", "all_draft"];
+  const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
 
   if (Users.canDo(props.currentUser, "posts.edit.own")
   || Users.canDo(props.currentUser, "posts.edit.all")) {
-    views = views.concat(["draft"]);
+    views = views.concat(["drafts"]);
   }
 
   if (Users.canDo(props.currentUser, "posts.edit.all")) {

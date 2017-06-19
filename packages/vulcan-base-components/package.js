@@ -1,8 +1,8 @@
 Package.describe({
   name: "vulcan:base-components",
-  summary: "Telescope components package",
-  version: '1.3.2',
-  git: "https://github.com/TelescopeJS/Telescope.git"
+  summary: "Vulcan components package",
+  version: '1.5.0',
+  git: "https://github.com/VulcanJS/Vulcan.git"
 });
 
 Package.onUse(function (api) {

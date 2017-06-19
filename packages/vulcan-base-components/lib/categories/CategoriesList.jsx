@@ -1,13 +1,42 @@
 import { ModalTrigger, Components, registerComponent, withList, Utils } from "meteor/vulcan:core";
-import React, { PropTypes, Component } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Button, DropdownButton, MenuItem } from 'react-bootstrap';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
+import Button from 'react-bootstrap/lib/Button';
+import DropdownButton from 'react-bootstrap/lib/DropdownButton';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import Categories from 'meteor/vulcan:categories';
 import { withApollo } from 'react-apollo';
 
-class CategoriesList extends Component {
+class CategoriesList extends PureComponent {
+
+  constructor() {
+    super();
+    this.getCurrentCategoriesArray = this.getCurrentCategoriesArray.bind(this);
+    this.getCategoryLink = this.getCategoryLink.bind(this);
+  }
+
+  getCurrentCategoriesArray() {
+    const currentCategories = _.clone(this.props.location.query.cat);
+    if (currentCategories) {
+      return Array.isArray(currentCategories) ? currentCategories : [currentCategories]
+    } else {
+      return [];
+    }
+  }
+
+  getCategoryLink(slug) {
+    const categories = this.getCurrentCategoriesArray();
+    return {
+      pathname: '/',
+      query: {
+        ...this.props.location.query,
+        cat: categories.includes(slug) ? _.without(categories, slug) : categories.concat([slug])
+      }
+    }
+  }
 
   getNestedCategories() {
     const categories = this.props.results;
@@ -26,7 +55,7 @@ class CategoriesList extends Component {
       };
     }); 
 
-    const nestedCategories = Utils.unflatten(categoriesClone, '_id', 'parentId');
+    const nestedCategories = Utils.unflatten(categoriesClone, {idProperty: '_id', parentIdProperty: 'parentId'});
 
     return nestedCategories;
   }
@@ -79,7 +108,7 @@ class CategoriesList extends Component {
 }
 
 CategoriesList.propTypes = {
-  results: React.PropTypes.array,
+  results: PropTypes.array,
 };
 
 

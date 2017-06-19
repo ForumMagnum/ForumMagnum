@@ -34,6 +34,7 @@ class ConversationWrapper extends Component {
     if (loading) {
       return (<Components.Loading/>)
     } else if (conversation) {
+      //TODO: Clean up the CSS for this component id:17
       return (
         <div>
           <PageHeader>

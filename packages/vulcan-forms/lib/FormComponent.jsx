@@ -1,23 +1,31 @@
-import React, { PropTypes, Component } from 'react';
-import Formsy from 'formsy-react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import FRC from 'formsy-react-components';
-import { intlShape } from 'react-intl';
+import { intlShape } from 'meteor/vulcan:i18n';
 import DateTime from './DateTime.jsx';
+import classNames from 'classnames';
 
 // import Utils from './utils.js';
 
 const Checkbox = FRC.Checkbox;
-// const CheckboxGroup = FRC.CheckboxGroup;
+const CheckboxGroup = FRC.CheckboxGroup;
 const Input = FRC.Input;
 const RadioGroup = FRC.RadioGroup;
 const Select = FRC.Select;
 const Textarea = FRC.Textarea;
 
-class FormComponent extends Component {
+class FormComponent extends PureComponent {
 
   constructor(props) {
     super(props);
     this.handleBlur = this.handleBlur.bind(this);
+    this.updateCharacterCount = this.updateCharacterCount.bind(this);
+
+    if (props.limit) {
+      this.state = {
+        limit: props.value ? props.limit - props.value.length : props.limit
+      }
+    }
   }
 
   handleBlur() {
@@ -27,15 +35,23 @@ class FormComponent extends Component {
     }
   }
 
+  updateCharacterCount(name, value) {
+    if (this.props.limit) {
+      this.setState({
+        limit: this.props.limit - value.length
+      });
+    }
+  }
+
   renderComponent() {
 
     // see https://facebook.github.io/react/warnings/unknown-prop.html
-    const { control, group, updateCurrentValues, document, beforeComponent, afterComponent, ...rest } = this.props; // eslint-disable-line
+    const { control, group, updateCurrentValues, document, beforeComponent, afterComponent, limit, ...rest } = this.props; // eslint-disable-line
 
-    const base = this.props.control === "function" ? this.props : rest;
+    // const base = typeof this.props.control === "function" ? this.props : rest;
 
     const properties = {
-      ...base,
+      ...rest,
       onBlur: this.handleBlur,
       ref: (ref) => this.formControl = ref
     };
@@ -49,16 +65,16 @@ class FormComponent extends Component {
 
       switch (this.props.control) {
         case "text":
-          return <Input         {...properties} type="text" />;
+          return <Input         {...properties} type="text" onChange={this.updateCharacterCount} />;
         case "textarea":
-          return <Textarea      {...properties} />;
+          return <Textarea      {...properties} onChange={this.updateCharacterCount} />;
         case "checkbox":
           return <Checkbox      {...properties} />;
-        // note: checkboxgroup cause React refs error
         case "checkboxgroup":
           return <CheckboxGroup  {...properties} />;
         case "radiogroup":
-          return <RadioGroup    {...properties} />;
+          // not sure why, but onChange needs to be specified here
+          return <RadioGroup    {...properties} onChange={(name, value) => {this.props.updateCurrentValues({[name]: value})}}/>;
         case "select":
           properties.options = [{label: this.context.intl.formatMessage({id: "forms.select_option"}), disabled: true}, ...properties.options];
           return <Select        {...properties} />;
@@ -73,9 +89,10 @@ class FormComponent extends Component {
 
   render() {
     return (
-      <div className={"input-"+this.props.name}>
+      <div className={classNames('form-input', `input-${this.props.name}`)}>
         {this.props.beforeComponent ? this.props.beforeComponent : null}
         {this.renderComponent()}
+        {this.props.limit ? <div className={classNames('form-control-limit', {danger: this.state.limit < 10})}>{this.state.limit}</div> : null}
         {this.props.afterComponent ? this.props.afterComponent : null}
       </div>
     )
@@ -84,17 +101,17 @@ class FormComponent extends Component {
 }
 
 FormComponent.propTypes = {
-  document: React.PropTypes.object,
-  name: React.PropTypes.string,
-  label: React.PropTypes.string,
-  value: React.PropTypes.any,
-  placeholder: React.PropTypes.string,
-  prefilledValue: React.PropTypes.any,
-  options: React.PropTypes.any,
-  control: React.PropTypes.any,
-  datatype: React.PropTypes.any,
-  disabled: React.PropTypes.bool,
-  updateCurrentValues: React.PropTypes.func
+  document: PropTypes.object,
+  name: PropTypes.string,
+  label: PropTypes.string,
+  value: PropTypes.any,
+  placeholder: PropTypes.string,
+  prefilledValue: PropTypes.any,
+  options: PropTypes.any,
+  control: PropTypes.any,
+  datatype: PropTypes.any,
+  disabled: PropTypes.bool,
+  updateCurrentValues: PropTypes.func
 }
 
 FormComponent.contextTypes = {
@@ -102,82 +119,3 @@ FormComponent.contextTypes = {
 };
 
 export default FormComponent;
-
-//-------------------------------------//
-
-// having the CheckboxGroup component in this file prevents a weird bug
-
-import ComponentMixin from './component';
-import Row from './row';
-
-const CheckboxGroup = React.createClass({
-
-    mixins: [Formsy.Mixin, ComponentMixin],
-
-    propTypes: {
-        name: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired
-    },
-
-    getDefaultProps: function() {
-        return {
-            label: '',
-            help: null
-        };
-    },
-
-    changeCheckbox: function() {
-        var value = [];
-        this.props.options.forEach(function(option, key) {
-            if (this.refs['element-' + key].checked) {
-                value.push(option.value);
-            }
-
-        }.bind(this));
-        this.setValue(value);
-        this.props.onChange(this.props.name, value);
-    },
-
-    renderElement: function() {
-        var _this = this;
-        var controls = this.props.options.map(function(checkbox, key) {
-            var checked = (_this.getValue().indexOf(checkbox.value) !== -1);
-            var disabled = _this.isFormDisabled() || checkbox.disabled || _this.props.disabled;
-            return (
-                <div className="checkbox" key={key}>
-                    <label>
-                        <input
-                            ref={'element-' + key}
-                            checked={checked}
-                            type="checkbox"
-                            value={checkbox.value}
-                            onChange={_this.changeCheckbox}
-                            disabled={disabled}
-                        /> {checkbox.label}
-                    </label>
-                </div>
-            );
-        });
-        return controls;
-    },
-
-    render: function() {
-
-        if (this.getLayout() === 'elementOnly') {
-            return (
-                <div>{this.renderElement()}</div>
-            );
-        }
-
-        return (
-            <Row
-                {...this.getRowProperties()}
-                fakeLabel={true}
-            >
-                {this.renderElement()}
-                {this.renderHelp()}
-                {this.renderErrorMessage()}
-            </Row>
-        );
-    }
-});

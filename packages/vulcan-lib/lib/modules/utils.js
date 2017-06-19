@@ -12,7 +12,7 @@ import getSlug from 'speakingurl';
 import { getSetting } from './settings.js';
 
 /**
- * @summary The global namespace for Telescope utils.
+ * @summary The global namespace for Vulcan utils.
  * @namespace Telescope.utils
  */
 export const Utils = {};
@@ -130,7 +130,7 @@ Utils.getSiteUrl = function () {
 };
 
 /**
- * @summary The global namespace for Telescope utils.
+ * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
  */
 Utils.getOutgoingUrl = function (url) {
@@ -308,7 +308,13 @@ Utils.findIndex = (array, predicate) => {
 }
 
 // adapted from http://stackoverflow.com/a/22072374/649299
-Utils.unflatten = function(array, idProperty, parentIdProperty, parent, level=0, tree){
+Utils.unflatten = function(array, options, parent, level=0, tree){
+
+  const {
+    idProperty = '_id',
+    parentIdProperty = 'parentId',
+    childrenProperty = 'childrenResults'
+  } = options;
 
   level++;
 
@@ -334,13 +340,13 @@ Utils.unflatten = function(array, idProperty, parentIdProperty, parent, level=0,
       tree = children;
     } else {
       // else, we add the children to the parent as the "childrenResults" property
-      parent.childrenResults = children;
+      parent[childrenProperty] = children;
     }
 
     // we call the function on each child
     children.forEach(child => {
       child.level = level;
-      Utils.unflatten(array, idProperty, parentIdProperty, child, level);
+      Utils.unflatten(array, options, child, level);
     });
   }
 
@@ -447,6 +453,14 @@ Utils.defineName = (o, name) => {
   return o;
 };
 
-Utils.performCheck = (operation, user, checkedObject, context) => {
-  if (!operation.check(user, checkedObject, context)) throw new Error(Utils.encodeIntlError({id: `app.operation_not_allowed`, value: operation.name}));
-};
+Utils.performCheck = (operation, user, checkedObject, context, documentId) => {
+
+  if (!checkedObject) {
+    throw new Error(Utils.encodeIntlError({id: `app.document_not_found`, value: documentId}))
+  } 
+
+  if (!operation(user, checkedObject, context)) {
+    throw new Error(Utils.encodeIntlError({id: `app.operation_not_allowed`, value: operation.name}));
+  }
+
+}

@@ -1,6 +1,6 @@
 import marked from 'marked';
 import Posts from '../collection.js'
-import { runCallbacksAsync, addCallback, getSetting, Utils } from 'meteor/vulcan:core';
+import { runCallbacks, runCallbacksAsync, addCallback, getSetting, Utils } from 'meteor/vulcan:core';
 
 //////////////////////////////////////////////////////
 // posts.edit.sync                                  //
@@ -10,7 +10,7 @@ import { runCallbacksAsync, addCallback, getSetting, Utils } from 'meteor/vulcan
 /**
  * @summary Check for duplicate links
  */
-const PostsEditDuplicateLinksCheck = (modifier, post) => {
+function PostsEditDuplicateLinksCheck (modifier, post) {
   if(post.url !== modifier.$set.url && !!modifier.$set.url) {
     Posts.checkForSameUrl(modifier.$set.url);
   }
@@ -38,15 +38,17 @@ addCallback("posts.edit.sync", PostsEditForceStickyToFalse);
  */
 function PostsEditSetIsFuture (modifier, post) {
   // if a post's postedAt date is in the future, set isFuture to true
-  modifier.$set.isFuture = modifier.$set.postedAt && new Date(modifier.$set.postedAt).getTime() > new Date().getTime() + 1000;
+  if (modifier.$set.postedAt && new Date(modifier.$set.postedAt).getTime() > new Date().getTime() + 1000) {
+    modifier.$set.isFuture = true;
+  }
   return modifier;
 }
 addCallback("posts.edit.sync", PostsEditSetIsFuture);
 
 
 function PostsEditRunPostApprovedSyncCallbacks (modifier, post) {
-  if (Posts.isApproved(modifier) && !Posts.isApproved(post)) {
-    modifier = runCallbacksAsync("posts.approve.sync", modifier, post);
+  if (modifier.$set && Posts.isApproved(modifier.$set) && !Posts.isApproved(post)) {
+    modifier = runCallbacks("posts.approve.sync", modifier, post);
   }
   return modifier;
 }
@@ -55,7 +57,7 @@ addCallback("posts.edit.sync", PostsEditRunPostApprovedSyncCallbacks);
 /**
  * @summary If title is changing, return new slug
  */
-const PostsEditSlugify = (modifier, post) => {
+function PostsEditSlugify (modifier, post) {
   if (modifier.$set && modifier.$set.title) {
     modifier.$set.slug = Utils.slugify(modifier.$set.title);
   }
@@ -67,7 +69,7 @@ addCallback("posts.edit.sync", PostsEditSlugify);
 /**
  * @summary If body is changing, update related fields (htmlBody & excerpt)
  */
-const PostsEditHTMLContent = (modifier, post) => {
+function PostsEditHTMLContent (modifier, post) {
   if (modifier.$set && typeof modifier.$set.body !== 'undefined') {
     // excerpt length is configurable via the settings (30 words by default, ~255 characters)
     const excerptLength = getSetting('postExcerptLength', 30); 

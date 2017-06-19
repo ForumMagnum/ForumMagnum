@@ -1,8 +1,8 @@
 Package.describe({
   name: "vulcan:kadira",
-  summary: "Telescope Kadira package",
-  version: '1.3.2',
-  git: "https://github.com/TelescopeJS/Telescope.git"
+  summary: "Vulcan Kadira package",
+  version: '1.5.0',
+  git: "https://github.com/VulcanJS/Vulcan.git"
 });
 
 Package.onUse(function (api) {
@@ -10,7 +10,7 @@ Package.onUse(function (api) {
   api.versionsFrom(['METEOR@1.0']);
 
   api.use([
-    'vulcan:core@1.3.2',
+    'vulcan:core@1.5.0',
     'meteorhacks:kadira@2.30.0',
     'kadira:debug@3.2.2',
     'meteorhacks:kadira-profiler@1.2.1'

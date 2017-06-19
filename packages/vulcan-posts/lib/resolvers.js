@@ -1,10 +1,22 @@
-import { GraphQLSchema, Utils } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { addGraphQLResolvers, Utils } from 'meteor/vulcan:core';
 
 const specificResolvers = {
+  User: {
+    async posts(user, args, { currentUser, Users, Posts }) {
+      const posts = Posts.find({userId: user._id}).fetch();
+
+      // restrict documents fields
+      const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
+      const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
+    
+      return restrictedPosts;
+    }
+  },
   Post: {
-    user(post, args, context) {
-      return context.Users.findOne({ _id: post.userId }, { fields: context.getViewableFields(context.currentUser, context.Users) });
+    async user(post, args, context) {
+      if (!post.userId) return null;
+      const user = await context.Users.loader.load(post.userId);
+      return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
     },
   },
   Mutation: {
@@ -14,7 +26,7 @@ const specificResolvers = {
   }
 };
 
-GraphQLSchema.addResolvers(specificResolvers);
+addGraphQLResolvers(specificResolvers);
 
 const resolvers = {
 
@@ -22,56 +34,51 @@ const resolvers = {
 
     name: 'postsList',
 
-    check(user, terms, collection) {
-      const {selector} = collection.getParameters(terms);
-      const status = _.findWhere(collection.statuses, {value: selector.status || 2});
-      return Users.canDo(user, `posts.view.${status.label}.all`);
-    },
+    resolver(root, {terms}, {currentUser, Users, Posts}, info) {
 
-    resolver(root, {terms}, context, info) {
-      let {selector, options} = context.Posts.getParameters(terms);
+      // get selector and options from terms and perform Mongo query
+      let {selector, options} = Posts.getParameters(terms);
       options.limit = (terms.limit < 1 || terms.limit > 100) ? 100 : terms.limit;
       options.skip = terms.offset;
-      options.fields = context.getViewableFields(context.currentUser, context.Posts);
+      const posts = Posts.find(selector, options).fetch();
 
-      Utils.performCheck(this, context.currentUser, terms, context.Posts);
+      // restrict documents fields
+      const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
+      const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
 
-      return context.Posts.find(selector, options).fetch();
+      // prime the cache
+      restrictedPosts.forEach(post => Posts.loader.prime(post._id, post));
+
+      return restrictedPosts;
     },
 
   },
 
   single: {
-    
+
     name: 'postsSingle',
 
-    check(user, document, collection) {
-      if (!document) return false;
-      const status = _.findWhere(collection.statuses, {value: document.status});
-      return Users.owns(user, document) ? Users.canDo(user, `posts.view.${status.label}.own`) : Users.canDo(user, `posts.view.${status.label}.all`);
+    async resolver(root, {documentId, slug}, {currentUser, Users, Posts}) {
+
+      // don't use Dataloader if post is selected by slug
+      const post = documentId ? await Posts.loader.load(documentId) : Posts.findOne({slug});
+
+      Utils.performCheck(Posts.checkAccess, currentUser, post, Posts, documentId);
+
+      return Users.restrictViewableFields(currentUser, Posts, post);
     },
 
-    resolver(root, {documentId, slug}, context) {
-
-      const selector = documentId ? {_id: documentId} : {'slug': slug};
-      const post = context.Posts.findOne(selector);
-
-      Utils.performCheck(this, context.currentUser, post, context.Posts);
-
-      return context.Users.keepViewableFields(context.currentUser, context.Posts, post);
-    },
-  
   },
 
   total: {
-    
+
     name: 'postsTotal',
-    
-    resolver(root, {terms}, context) {
-      const {selector} = context.Posts.getParameters(terms);
-      return context.Posts.find(selector).count();
+
+    resolver(root, {terms}, {Posts}) {
+      const {selector} = Posts.getParameters(terms);
+      return Posts.find(selector).count();
     },
-  
+
   }
 };
 

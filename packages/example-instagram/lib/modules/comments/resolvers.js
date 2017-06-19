@@ -30,7 +30,7 @@ const resolvers = {
 
     resolver(root, {documentId}, context) {
       const document = context.Comments.findOne({_id: documentId});
-      return context.Users.keepViewableFields(context.currentUser, context.Comments, document);
+      return context.Users.restrictViewableFields(context.currentUser, context.Comments, document);
     },
   
   },
@@ -50,8 +50,8 @@ const resolvers = {
 // add the "user" resolver for the Comment type separately
 const commentUserResolver = {
   Comment: {
-    user(movie, args, context) {
-      return context.Users.findOne({ _id: movie.userId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) });
+    user(comment, args, context) {
+      return context.Users.findOne({ _id: comment.userId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) });
     },
   },
 };

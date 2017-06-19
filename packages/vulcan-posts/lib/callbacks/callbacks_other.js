@@ -1,12 +1,13 @@
 import Posts from '../collection.js'
 import Users from 'meteor/vulcan:users';
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback, getSetting } from 'meteor/vulcan:core';
 import Events from 'meteor/vulcan:events';
 
 // ------------------------------------- posts.remove.sync -------------------------------- //
 
 function PostsRemoveOperations (post) {
   Users.update({_id: post.userId}, {$inc: {"postCount": -1}});
+  return post;
 }
 addCallback("posts.remove.sync", PostsRemoveOperations);
 
@@ -17,6 +18,9 @@ addCallback("posts.remove.sync", PostsRemoveOperations);
  */
 function PostsSetPostedAt (modifier, post) {
   modifier.$set.postedAt = new Date();
+  if (modifier.$unset) {
+    delete modifier.$unset.postedAt;
+  }
   return modifier;
 }
 addCallback("posts.approve.sync", PostsSetPostedAt);
@@ -40,28 +44,34 @@ addCallback("users.remove.async", UsersRemoveDeletePosts);
 //  * @param {string} postId – the ID of the post being edited
 //  * @param {string} ip – the IP of the current user
 //  */
-Posts.increaseClicks = (postId, ip) => {
+Posts.increaseClicks = (post, ip) => {
   const clickEvent = {
     name: 'click',
     properties: {
-      postId: postId,
+      postId: post._id,
       ip: ip
     }
   };
 
-  // make sure this IP hasn't previously clicked on this post
-  const existingClickEvent = Events.findOne({name: 'click', 'properties.postId': postId, 'properties.ip': ip});
+  if (getSetting('trackClickEvents', true)) {
+    // make sure this IP hasn't previously clicked on this post
+    const existingClickEvent = Events.findOne({name: 'click', 'properties.postId': post._id, 'properties.ip': ip});
 
-  if(!existingClickEvent) {
-    Events.log(clickEvent);
-    return Posts.update(postId, { $inc: { clickCount: 1 }}, {validate: false, bypassCollection2:true});
+    if(!existingClickEvent) {
+      Events.log(clickEvent);
+      return Posts.update(post._id, { $inc: { clickCount: 1 }});
+    }
+  } else {
+    return Posts.update(post._id, { $inc: { clickCount: 1 }});
   }
 };
+
+function PostsClickTracking(post, ip) {
+  return Posts.increaseClicks(post, ip);
+}
 
 // track links clicked, locally in Events collection
 // note: this event is not sent to segment cause we cannot access the current user 
 // in our server-side route /out -> sending an event would create a new anonymous 
 // user: the free limit of 1,000 unique users per month would be reached quickly
-addCallback('posts.click.async', function PostsClickTracking(postId, ip) {
-  return Posts.increaseClicks(postId, ip);
-});
+addCallback('posts.click.async', PostsClickTracking);

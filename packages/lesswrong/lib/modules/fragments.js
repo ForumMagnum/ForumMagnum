@@ -39,7 +39,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     createdAt
-    draftJS
+    content
     conversationId
   }
 `);
@@ -67,5 +67,122 @@ extendFragment('UsersCurrent', `
 `);
 
 extendFragment('PostsList', `
-  draftJS
+  content
+`);
+
+registerFragment(`
+  fragment PostsList on Post {
+    # vulcan:posts
+    _id
+    title
+    url
+    slug
+    postedAt
+    createdAt
+    sticky
+    status
+    body # We replaced this with content
+    htmlBody # We replaced this with content
+    # excerpt # This won't work with content
+    content # Our replacement for body
+    viewCount
+    clickCount
+    # vulcan:users
+    userId
+    user {
+      ...UsersMinimumInfo
+    }
+    # vulcan:embedly
+    thumbnailUrl
+    # vulcan:categories
+    categories {
+      ...CategoriesMinimumInfo
+    }
+    # vulcan:comments
+    commentCount
+    commenters {
+      ...UsersMinimumInfo
+    }
+    # vulcan:voting
+    upvoters {
+      _id
+    }
+    downvoters {
+      _id
+    }
+    upvotes
+    downvotes
+    baseScore
+    score
+    feedId
+    feedLink
+    feed {
+      ...RSSFeedMinimumInfo
+    }
+  }
+`);
+
+extendFragment('CommentsList', `
+  content
+`);
+
+registerFragment(`
+  fragment SelectCommentsList on Comment {
+    ...CommentsList
+    post {
+      title
+      _id
+      commentCount
+      commenters {
+        ...UsersMinimumInfo
+      }
+      slug
+    }
+  }
+`);
+
+registerFragment(`
+  fragment UsersList on User {
+    ...UsersMinimumInfo
+    karma
+  }
+`);
+
+registerFragment(`
+  fragment newRSSFeedFragment on RSSFeed {
+    _id
+    userId
+    createdAt
+    ownedByUser
+    displayFullContent
+    nickname
+    url
+    status
+  }
+`);
+
+registerFragment(`
+  fragment RSSFeedMinimumInfo on RSSFeed {
+    _id
+    userId
+    user {
+      ...UsersMinimumInfo
+    }
+    createdAt
+    ownedByUser
+    displayFullContent
+    nickname
+    url
+  }
+`);
+
+registerFragment(`
+  fragment RSSFeedMutationFragment on RSSFeed {
+    _id
+    userId
+    ownedByUser
+    displayFullContent
+    nickname
+    url
+  }
 `);

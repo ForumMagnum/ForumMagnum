@@ -5,11 +5,12 @@ import { addCallback, Utils, getSetting } from 'meteor/vulcan:core';
 
 const Cloudinary = cloudinary.v2;
 const uploadSync = Meteor.wrapAsync(Cloudinary.uploader.upload);
+const cloudinarySettings = getSetting("cloudinary");
 
 Cloudinary.config({
-  cloud_name: getSetting("cloudinaryCloudName"),
-  api_key: getSetting("cloudinaryAPIKey"),
-  api_secret: getSetting("cloudinaryAPISecret"),
+  cloud_name: cloudinarySettings.cloudName,
+  api_key: cloudinarySettings.apiKey,
+  api_secret: cloudinarySettings.apiSecret,
   secure: true,
 });
 
@@ -33,7 +34,7 @@ const CloudinaryUtils = {
 
   // generate signed URL for each format based off public_id
   getUrls(cloudinaryId) {
-    return getSetting("cloudinaryFormats").map(format => {
+    return cloudinarySettings.formats.map(format => {
       const url = Cloudinary.url(cloudinaryId, {
         width: format.width,
         height: format.height,
@@ -63,6 +64,8 @@ Meteor.methods({
 
     if (Users.isAdmin(Meteor.user())) {
 
+      console.log(`// caching ${limit} thumbnails…`)
+
       var postsWithUncachedThumbnails = Posts.find({
         thumbnailUrl: { $exists: true },
         originalThumbnailUrl: { $exists: false }
@@ -88,7 +91,7 @@ Meteor.methods({
 
 // post submit callback
 function cachePostThumbnailOnSubmit (post) {
-  if (getSetting("cloudinaryAPIKey")) {
+  if (cloudinarySettings) {
     if (post.thumbnailUrl) {
 
       const data = CloudinaryUtils.uploadImage(post.thumbnailUrl);
@@ -104,7 +107,7 @@ function cachePostThumbnailOnSubmit (post) {
 addCallback("posts.new.sync", cachePostThumbnailOnSubmit);
 
 function cachePostThumbnailOnEdit (modifier, oldPost) {
-  if (getSetting("cloudinaryAPIKey")) {
+  if (cloudinarySettings) {
     if (modifier.$set.thumbnailUrl && modifier.$set.thumbnailUrl !== oldPost.thumbnailUrl) {
       const data = CloudinaryUtils.uploadImage(modifier.$set.thumbnailUrl);
       modifier.$set.cloudinaryId = data.cloudinaryId;

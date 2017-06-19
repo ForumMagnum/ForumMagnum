@@ -1,8 +1,8 @@
 Package.describe({
   name: "vulcan:api",
-  summary: "Telescope API package",
-  version: '1.3.2',
-  git: "https://github.com/TelescopeJS/Telescope.git"
+  summary: "Vulcan API package",
+  version: '1.5.0',
+  git: "https://github.com/VulcanJS/Vulcan.git"
 });
 
 Package.onUse(function (api) {
@@ -10,9 +10,9 @@ Package.onUse(function (api) {
   api.versionsFrom(['METEOR@1.0']);
 
   api.use([
-    'vulcan:core@1.3.2',
-    'vulcan:posts@1.3.2',
-    'vulcan:comments@1.3.2'
+    'vulcan:core@1.5.0',
+    'vulcan:posts@1.5.0',
+    'vulcan:comments@1.5.0'
   ]);
 
   api.mainModule("lib/server.js", "server");
