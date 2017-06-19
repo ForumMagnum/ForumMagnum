@@ -29,6 +29,9 @@ import './i18n-en-us/en_US.js';
 import './modules/fragments.js';
 import './modules/callbacks.js';
 
+// Karma
+import Votes from './karma/collection.js';
+
 
 
 import './helpers.js'
@@ -37,4 +40,4 @@ import './routes.js';
 import './views.js';
 
 
-export { Conversations, Messages, Notifications }
+export { Conversations, Messages, Notifications, Votes }

@@ -14,7 +14,7 @@ Package.onUse(function (api) {
     'vulcan:core@1.3.2',
     'vulcan:posts@1.3.2',
     'vulcan:comments@1.3.2',
-    'vulcan:voting@1.3.2',
+    // 'vulcan:voting@1.3.2',
     'vulcan:accounts@1.3.2',
     'vulcan:categories@1.3.2',
   ]);

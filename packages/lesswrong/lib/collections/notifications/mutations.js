@@ -2,7 +2,7 @@
 
 Define the three default mutations:
 
-- new (e.g.: moviesNew(document: moviesInput) : Movie )
+- new (e.g.: New(document: moviesInput) : Movie )
 - edit (e.g.: moviesEdit(documentId: String, set: moviesInput, unset: moviesUnset) : Movie )
 - remove (e.g.: moviesRemove(documentId: String) : Movie )
 

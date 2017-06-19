@@ -1,6 +1,18 @@
 import { registerFragment, extendFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
+  fragment voteComponentFragment on Vote {
+    _id
+    votedAt
+    userId
+    documentId
+    documentType
+    weight
+    type
+  }
+`);
+
+registerFragment(`
   fragment conversationsListFragment on Conversation {
     _id
     title

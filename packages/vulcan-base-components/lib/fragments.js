@@ -124,16 +124,16 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     # vulcan:voting
-    upvoters {
-      _id
-    }
-    downvoters {
-      _id
-    }
-    upvotes
-    downvotes
-    baseScore
-    score
+    # upvoters {
+    #  _id
+    # }
+    # downvoters {
+    #   _id
+    # }
+    # upvotes
+    # downvotes
+    # baseScore
+    # score
   }
 `);
 
@@ -170,15 +170,15 @@ registerFragment(`
       }
     }
     # vulcan:voting
-    upvoters {
-      _id
-    }
-    downvoters {
-      _id
-    }
-    upvotes
-    downvotes
-    baseScore
-    score
+    # upvoters {
+    #   _id
+    # }
+    # downvoters {
+    #   _id
+    # }
+    # upvotes
+    # downvotes
+    # baseScore
+    # score
   }
 `);

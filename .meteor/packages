@@ -17,7 +17,7 @@ vulcan:newsletter
 # vulcan:notifications
 vulcan:getting-started
 vulcan:categories
-vulcan:voting
+# vulcan:voting
 vulcan:events
 vulcan:embedly
 vulcan:api

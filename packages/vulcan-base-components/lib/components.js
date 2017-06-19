@@ -11,7 +11,7 @@ import './common/FlashMessages.jsx';
 import './common/Newsletter.jsx';
 import './common/NewsletterButton.jsx';
 import './common/SearchForm.jsx';
-import './common/Vote.jsx';
+// import './common/Vote.jsx';
 
 // posts
 

@@ -16,7 +16,7 @@ Package.onUse( function(api) {
     'vulcan:base-styles',
     'vulcan:posts',
     'vulcan:users',
-    'vulcan:voting',
+    // 'vulcan:voting',
   ]);
 
   api.mainModule('server.js', 'server');

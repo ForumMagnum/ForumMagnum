@@ -7,7 +7,7 @@ import { Dropdown, MenuItem, DropdownButton } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
-import Notifications from '../collections/notifications/collection.js'
+import Notifications from '../collections/notifications/collection.js';
 
 //TODO: Clean up this code: Remove unecessary imports, restructure code below to be more readable
 

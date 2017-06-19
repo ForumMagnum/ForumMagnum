@@ -28,4 +28,5 @@ import './component-replacements/LWPostsNewForm.jsx';
 
 import './subscriptions/SubscribeTo.jsx';
 
-import './voting/LWVoting.jsx';
+// import './voting/LWVoting.jsx';
+import './karma/KarmaVoting.jsx';
