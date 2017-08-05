@@ -42,5 +42,5 @@ if (getSetting('mailUrl')) {
   process.env.MAIL_URL = getSetting('mailUrl');
 };
 
-let userId = Users.findOne({email: 'panisnecis+lesswrong@gmail.com'});
-Accounts.sendResetPasswordEmail(userId);
+// let userId = Users.findOne({email: 'panisnecis+lesswrong@gmail.com'});
+// Accounts.sendResetPasswordEmail(userId);

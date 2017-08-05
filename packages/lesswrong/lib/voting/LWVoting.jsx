@@ -1,5 +1,6 @@
 import {Components, getRawComponent, replaceComponent} from 'meteor/vulcan:core';
 import React, {PropTypes, Component} from 'react';
+import classNames from 'classnames';
 import {withCurrentUser, withMessages} from 'meteor/vulcan:core';
 import {withVote, hasUpvoted, hasDownvoted} from 'meteor/vulcan:voting';
 
@@ -13,8 +14,10 @@ class LWVote extends getRawComponent('Vote') {
 
   // CUSTOM CODE STARTS HERE
 
-  downvote(e) { //Downvote function. Copied functionality from upvote function in base-package
+  downvote(e) { // Downvote function. Copied functionality from upvote function in base-package
     e.preventDefault();
+
+    // this.startLoading();
 
     const document = this.props.document;
     const collection = this.props.collection;
@@ -22,9 +25,11 @@ class LWVote extends getRawComponent('Vote') {
 
     if(!user){
       this.props.flash(this.context.intl.formatMessage({id: 'users.please_log_in'}));
+      // this.stopLoading();
     } else {
       const voteType = hasDownvoted(user, document) ? "cancelDownvote" : "downvote";
       this.props.vote({document, voteType, collection, currentUser: this.props.currentUser}).then(result => {
+        // this.stopLoading();
       });
     }
   }

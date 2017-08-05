@@ -44,6 +44,7 @@ import './modules/callbacks.js';
 
 // Karma
 import Votes from './karma/collection.js';
+import './karma/views.js';
 
 
 // // Misc.

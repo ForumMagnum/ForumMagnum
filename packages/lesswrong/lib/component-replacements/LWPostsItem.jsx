@@ -46,7 +46,7 @@ class LWPostsItem extends getRawComponent('PostsItem') {
       <div className={postClass}>
 
         <div className="posts-item-vote">
-          <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
+          <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser} terms={{view: "votesForDocument", documentId:post._id}} />
         </div>
 
         {post.thumbnailUrl ? <Components.PostsThumbnail post={post}/> : null}

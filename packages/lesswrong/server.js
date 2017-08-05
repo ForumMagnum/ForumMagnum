@@ -10,4 +10,7 @@ import './lib/modules/indexes.js';
 // Closed Beta stuff
 import './lib/closed-beta/invites.js';
 
+// Load karma seeds
+import './lib/karma/seed.js';
+
 export * from './lib/index.js';
