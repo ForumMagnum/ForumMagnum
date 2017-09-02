@@ -7,7 +7,7 @@ const SequencesGrid = ({sequences}) =>
   <div className='sequences-grid'>
     <div className="sequences-grid-content">
         {sequences.map(sequence => {
-          return (<Link to={"/sequences/"+sequence._id}><Components.SequencesGridItem sequence={sequence} key={sequence._id} /></Link>);
+          return (<Link className="sequences-grid-item-link" to={"/sequences/"+sequence._id}><Components.SequencesGridItem sequence={sequence} key={sequence._id} /></Link>);
         })}
     </div>
   </div>

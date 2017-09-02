@@ -54,7 +54,7 @@ const SequencesNavigation = ({document, loading, post, router}) => {
           </IconButton> : null}
           <div className="sequences-navigation-title">{document.title}</div>
           {nextPostLink ? <IconButton
-            className="sequences-navigation-top-left"
+            className="sequences-navigation-top-right"
             iconClassName="material-icons"
             disabled={!nextPost}
             tooltip={nextPost && nextPost.title}

@@ -9,14 +9,6 @@ import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 
-const drawerStyle = {
-  backgroundColor: "none",
-  boxShadow: "none",
-  top: "80px",
-  width: "150px",
-  position: "absolute",
-}
-
 const appBarStyle = {
   boxShadow: "none",
 }
@@ -32,19 +24,13 @@ class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showNavigation: false,
+      open: false,
     };
   }
 
-  toggleNavigation = (event) => {
-    event.preventDefault();
-    this.setState({showNavigation: !this.state.showNavigation});
-  }
+  handleToggle = () => this.setState({open: !this.state.open});
 
-  closeNavigation = (event) => {
-    event.preventDefault();
-    this.setState({showNavigation: false});
-  }
+  handleClose = () => this.setState({open: false});
 
   renderAppBarElementRight = () => <div>
     <NoSSR><Components.SearchBar /></NoSSR>
@@ -52,23 +38,23 @@ class Header extends Component {
   </div>
 
   render() {
-    let { router, currentUser } = this.props;
+    let { router } = this.props;
     return (
       <div className="header-wrapper">
         <header className="header">
           <AppBar
             title="LESSWRONG"
-            onLeftIconButtonTouchTap={this.toggleNavigation}
+            onLeftIconButtonTouchTap={this.handleToggle}
             onTitleTouchTap={() => router.push("/")}
             iconElementRight = {this.renderAppBarElementRight()}
             style={appBarStyle}
             titleStyle={appBarTitleStyle}
           />
-        <Drawer open={this.state.showNavigation} containerStyle={drawerStyle} >
-          <MenuItem containerElement={<Link to={"/"}/>}> HOME </MenuItem>
-          <MenuItem containerElement={<Link to={"/sequences"}/>}> SEQUENCES </MenuItem>
-          <MenuItem containerElement={<Link to={"/codex"}/>}> CODEX </MenuItem>
-          <MenuItem containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
+        <Drawer docked={false} width={200} open={this.state.open} onRequestChange={(open) => this.setState({open})} containerClassName="menu-drawer" >
+          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
+          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> SEQUENCES </MenuItem>
+          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> CODEX </MenuItem>
+          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
           {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
         </Drawer>
         </header>
@@ -84,4 +70,4 @@ Header.propTypes = {
   currentUser: PropTypes.object,
 };
 
-replaceComponent('Header', Header, withCurrentUser, withRouter);
+replaceComponent('Header', Header, withRouter);

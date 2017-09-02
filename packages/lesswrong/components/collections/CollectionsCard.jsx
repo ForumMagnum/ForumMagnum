@@ -22,17 +22,17 @@ const cardSubtitleStyle = {
   lineHeight: "100%",
 }
 
-const CollectionsCard = ({collection = testCollection, big = false, float = 'none', url}) => {
+const CollectionsCard = ({collection = testCollection, big = false, url}) => {
   const cardContainerStyle = {display: 'flex', flexDirection: big ? 'row' : 'column'};
-  const cardItemStyle = {width: big ? 'auto' : '355px', float: float};
+  const cardItemStyle = {width: big ? 'auto' : '355px'};
   const cardMediaStyle = big ? {width: '335px', height: '271px'} : {order: 2, height: '90px', position: 'absolute', bottom: '20px'};
   const cardContentStyle = {borderTopColor: collection.color}
 
 
-  return <div className="collection-card-item" style={cardItemStyle}>
+  return <div className={"collection-card-item" + (big ? " big" : " small")} >
     <Link to={url} className="collection-card-link">
-      <Card className="collection-card" containerStyle={cardContainerStyle}>
-        <CardMedia style={cardMediaStyle} className="collection-card-media">
+      <Card className="collection-card" containerClassName="collection-card-container">
+        <CardMedia className="collection-card-media">
           <img src={collection.image} />
         </CardMedia>
         <div className="collection-card-content" style={cardContentStyle}>
