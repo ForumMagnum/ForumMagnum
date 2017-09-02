@@ -65,15 +65,19 @@ class EditorFormComponent extends Component {
     let editor = this.props.editor;
     return (
       <div className="commentEditor">
-        <div className="editor-form-component-description">{fieldName}</div>
-        <a onTouchTap={this.toggleEditor}>{this.state.active ? "Deactivate Editor" : "Activate Editor"}</a>
-        {this.state.active ?
-          <div>
-            <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
-            <Toolbar editor={editor} />
-            {this.props.name == "content" ? <div><Trash editor={editor} />
-            <DisplayModeToggle editor={editor} /></div> : null}
-          </div> : null}
+        <div className="row">
+          <div className="btn btn-primary pull-left" onTouchTap={this.toggleEditor}>{this.state.active ? "Deactivate Editor" : "Activate Editor"}</div>
+        </div>
+        <br/>
+        <div className="row">
+          {this.state.active ?
+            <div>
+              <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
+              <Toolbar editor={editor} />
+              {this.props.name == "content" ? <div><Trash editor={editor} />
+              <DisplayModeToggle editor={editor} /></div> : null}
+            </div> : null}
+        </div>
       </div>
     )
   }
