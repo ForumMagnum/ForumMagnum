@@ -34,6 +34,7 @@ class SequencesListEditor extends Component {
     const fieldName = props.name;
     let sequenceIds = [];
     if (props.document[fieldName]) {
+      console.log("Initiating sequencesList: ", props.document[fieldName]);
       sequenceIds = _.compact(JSON.parse(JSON.stringify(props.document[fieldName])));
     }
     this.state = {
