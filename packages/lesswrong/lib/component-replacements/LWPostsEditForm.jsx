@@ -32,7 +32,7 @@ class LWPostsEditForm extends PureComponent {
         <Components.SmartForm
           collection={Posts}
           documentId={postId}
-          mutationFragment={getFragment('PostsPage')}
+          mutationFragment={getFragment('LWPostsPage')}
           successCallback={post => {
             this.props.flash(this.context.intl.formatMessage({ id: 'posts.edit_success' }, 'success'));
             this.props.router.push({pathname: Posts.getPageUrl(post)});
