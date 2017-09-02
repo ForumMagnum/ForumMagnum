@@ -2,6 +2,129 @@
   margin-right: 90px; //eyeballed adjustment for properly balancing the page
 }
 
+.wrapper {
+  @include section-header-break {
+    .home, .collections-page {
+      margin-right: 0px;
+    }
+    .section {
+      width: 715px !important;
+      display: inherit !important;
+      .section-title {
+        width: auto !important;
+        display: inherit;
+        margin-right: inherit;
+        text-align: inherit;
+        width: inherit;
+        position: relative;
+        margin-bottom: 30px;
+        padding-left: 20px;
+        h2 {
+          font-size: 36px;
+          position: inherit;
+        }
+        h2:before {
+          left: inherit;
+          right: inherit;
+          width: 667px;
+        }
+      }
+    }
+  }
+  @include collection-card-break(){
+    .section {
+      width: 350px !important;
+      .section-title {
+        padding: 20px;
+        margin-bottom: 0px;
+        h2 {
+          &:before {
+            display: none;
+          }
+          width: 315px;
+          display: inline-block;
+          padding-top: 5px;
+          border-top-style: solid;
+          border-top-width: 4px;
+        }
+      }
+      .section-content {
+        width: inherit !important;
+        .collection-card-item {
+          &.big {
+            width: auto;
+            .collection-card {
+              & > div {
+                flex-direction: column;
+              }
+            }
+            .collection-card-media {
+              position: absolute !important;
+              order: 2;
+              bottom: 20px;
+              width: 313px;
+              height: 90px;
+            }
+            .collection-card-content {
+              margin-left: auto;
+            }
+          }
+        }
+      }
+    }
+  }
+  @include very-small-break() {
+    .section {
+      width: 312px !important;
+      .section-content {
+        margin-top: 0px !important;
+      }
+      .section-title {
+        padding: 0px;
+      }
+    }
+    .collection-card {
+      padding: 0px !important;
+    }
+    .posts-list {
+      .posts-list-content {
+        margin-left: 0px;
+        .posts-item {
+          padding: 0px;
+          margin-top: 10px;
+        }
+      }
+    }
+    .recent-comments-list {
+      margin-left: 0px;
+      .comments-item {
+        padding: 0px !important;
+        margin-top: 10px;
+      }
+    }
+  }
+}
+
+.wrapper {
+  @include section-header-break {
+    .header {
+      z-index: 1000;
+      position: fixed;
+      top: 0px;
+      width: 100vw;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+    .main {
+      padding-top: 60px;
+    }
+  }
+  @include very-small-break {
+    .main {
+      padding: 60px 5px;
+    }
+  }
+}
+
 .section {
   clear: both;
   margin-left: auto;
@@ -12,7 +135,10 @@
     margin-right: 10px;
     text-align: right;
     padding-top: 8px;
-    padding-left: 10px;
+    padding-left: 0px;
+    a {
+      @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3));
+    }
     h2 {
       padding-top: 5px;
       font-family: "ETBook";
@@ -20,7 +146,7 @@
       font-weight: bold;
       position: relative;
       display: inline;
-      padding-left: 10px;
+      padding-left: 0px;
     }
     h2:before {
       position:absolute;
@@ -32,4 +158,5 @@
       content:"";
     }
   }
+
 }

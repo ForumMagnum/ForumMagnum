@@ -1,13 +1,5 @@
 .header-wrapper{
-  margin-bottom: 20px;
-}
-
-.header{
-  @include medium-large{
-    @include flex-center;
-    justify-content: space-between;
-  }
-  padding-bottom: $vmargin;
+  margin-bottom: 35px;
 }
 
 .logo{

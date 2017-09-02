@@ -307,6 +307,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+      hidden: false,
+      control: "textfield"
     }
   },
 

@@ -36,3 +36,12 @@
     text-align: center;
   }
 }
+
+@include very-small-break() {
+  .posts-item {
+    margin-top: 20px !important; 
+  }
+  .posts-item-vote {
+    bottom: -3px !important;
+  }
+}

@@ -46,6 +46,14 @@
 }
 
 .recent-comments-item {
+  .recent-comments-item-meta {
+    .users-name {
+      color: rgba(0,0,0,0.87);
+    }
+    .comments-item-date {
+      color: rgba(0,0,0,0.87);
+    }
+  }
   .comments-more-actions-menu {
     top: 10px;
   }
@@ -64,7 +72,6 @@
 }
 
 .comments-item-meta{
-  @include flex-center;
   margin-bottom: $vmargin;
   color: rgba(0,0,0,0.5);
   a:hover, a:active, a:focus {
@@ -79,9 +86,11 @@
     margin-right: $hmargin;
   }
   .comments-item-date{
+    display: inline-block;
     margin-right: $hmargin;
     color: $medium-text;
     font-size: $small-font;
+    margin-right: 8px;
   }
   .comment-edit, .comment-delete {
     font-size: $small-font;
@@ -90,7 +99,7 @@
     margin-left: 8px;
   }
   .comments-item-origin {
-    margin-left: 8px;
+    display: inline-block;
     .comments-item-origin-post-title {
       color: rgba(0,0,0,0.5);
     }

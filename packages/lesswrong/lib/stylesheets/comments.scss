@@ -43,6 +43,7 @@ $medium-text: $dark-grey;
     border-style: none;
     padding: 0px;
     .comments-item-text {
+      overflow-wrap: break-word;
       font-size: 18px;
       p {
         margin-bottom: 0.5em;
@@ -55,6 +56,9 @@ $medium-text: $dark-grey;
     font-weight: 500;
   }
   .comments-item-meta {
+    & > div {
+      display: inline-block; 
+    }
     margin-bottom: 8px;
     .users-name {
       margin-right: 10px;
