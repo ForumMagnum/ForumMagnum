@@ -45,6 +45,14 @@
   a:hover {
     color: rgba(0,0,0,0.4) !important;
   }
+  @include section-header-break {
+    br {
+      display: none;
+    }
+    margin-top: 0px;
+    margin-left: 11px;
+    display: inline;
+  }
 }
 
 .posts-list-content {
@@ -54,8 +62,74 @@
     background-image: none;
     text-shadow: none;
   }
+}
 
-
+@include collection-card-break {
+  .posts-item {
+    position: relative;
+  }
+  .posts-item-content {
+    display: inherit !important;
+    position: inherit !important;
+    .posts-item-title {
+      display: inline;
+    }
+    .posts-item-meta {
+      display: block;
+      .posts-item-vote {
+        position: absolute;
+        bottom: 8px;
+        right: 0px;
+        .upvote-button, .downvote-button {
+          .material-icons {
+            font-size: 22px !important;
+          }
+        }
+      }
+    }
+    .posts-item-summary {
+      white-space: inherit !important;
+    }
+    .posts-item-comments {
+      height: 20px;
+      margin-top: 5px;
+      .posts-item-comment-count {
+        position: relative;
+        display: inline-block;
+        padding: 0px;
+        top: inherit !important;
+        left: inherit !important;
+        transform: none !important;
+        & > object {
+          padding: 0px !important;
+          width: auto !important;
+          height: auto !important;
+        }
+        svg {
+          height: 20px !important;
+          width: 20px !important;
+        }
+        span {
+          color: rgba(0,0,0,0.6) !important;
+          display: inline !important;
+          position: relative !important;
+          top: -4px !important;
+          right: inherit !important;
+          margin-left: 5px;
+          font-size: 14px !important;
+          width: auto !important;
+          height: auto !important;
+          vertical-align: top !important;
+          &:after {
+            content: "comments";
+            display: inline;
+            margin-left: 4px;
+            vertical-align: top;
+          }
+        }
+      }
+    }
+  }
 }
 
 .posts-views, .comments-views{
@@ -515,6 +589,115 @@
     }
     .section-content {
       display: relative;
+    }
+  }
+  @include posts-page-section-header-break() {
+    .section {
+      border-top-style: solid;
+      border-top-width: 4px;
+      padding-top: 4px;
+      .section-title {
+        position: relative;
+        padding: 0px;
+        margin-bottom: 0px;
+        width: auto !important;
+        text-align: inherit;
+        right: inherit;
+        h2 {
+          &:before {
+            display: none;
+          }
+          display: inline;
+          margin-right: 10px;
+          border-top-style: none;
+        }
+        .sequences-navigation-title-subtitle {
+          display: inline-block;
+        }
+        .comments-title-component {
+          margin-left: 0px;
+        }
+        .highlight-date-selector {
+          margin-top: 10px;
+          margin-bottom: 10px;
+        }
+      }
+      .section-content {
+        margin-top: 20px;
+        .sequences-navigation-bottom-content {
+          margin-top: 0px;
+        }
+        .sequences-navigation-bottom-previous-post, .sequences-navigation-bottom-next-post {
+          width: inherit !important;
+          float: none;
+          .posts-item {
+            padding: 0px;
+            .posts-item-summary {
+              white-space: nowrap;
+            }
+          }
+        }
+        .sequences-navigation-bottom-previous-post {
+          margin-bottom: 20px;
+        }
+        .sequences-navigation-bottom-divider {
+          display: none;
+        }
+      }
+      .posts-page-comments-title-component {
+        margin-left: 0px;
+        display: inline;
+        & > br {
+          display: none;
+        }
+      }
+    }
+    .posts-page-content-header {
+      margin-bottom: -8px;
+      .posts-page-content-header-author {
+        font-size: 16px;
+        font-weight: bold;
+        color: rgba(0,0,0,0.7);
+      }
+    }
+    .posts-page-content-body-metadata {
+      position: inherit !important;
+      right: inherit !important;
+      top: inherit !important;
+      width: inherit !important;
+      padding-right: 0px !important;
+      text-align: center !important;
+      margin-bottom: 40px !important;
+      color: rgba(0,0,0,0.5) !important;
+      .posts-page-content-body-metadata-comments {
+        line-height: 100%;
+        font-size: 14px;
+      }
+    }
+  }
+  @include collection-card-break() {
+    .section {
+      width: inherit !important;
+      .section-content {
+        width: inherit !important;
+      }
+    }
+    .posts-page-content-body {
+      width: inherit;
+    }
+    .posts-item-summary {
+      white-space: inherit !important;
+    }
+    .posts-page-recommended-reading {
+      height: inherit;
+    }
+    .sequences-navigation-top-left, .sequences-navigation-top-right {
+      position: static !important;
+    }
+    .sequences-navigation-title {
+      max-width: 60%;
+      height: inherit;
+      margin-bottom: 10px;
     }
   }
 }

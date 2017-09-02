@@ -5,8 +5,13 @@
     "npm": "^3.0"
   },
   "scripts": {
+<<<<<<< HEAD
     "prestart": "sh prestart_lesswrong.sh",
     "start": "MONGO_URL='mongodb://dev:lukemuehlhauser23@ds155813-a0.mlab.com:55813,ds155813-a1.mlab.com:55813/lesswrong2?replicaSet=rs-ds155813' meteor --settings settings.json",
+=======
+    "prestart": "bash prestart_lesswrong.sh",
+    "start": "OPTICS_API_KEY='service:Discordius-LessWrong20:4KljYDBhERGjFvBOUPEwRA' meteor --settings settings.json",
+>>>>>>> 345ac1218ee240a80b2ba226d9f9f46a906a9f80
     "lint": "eslint --cache --ext .jsx,js packages"
   },
   "dependencies": {
@@ -58,7 +63,7 @@
     "meteor-node-stubs": "^0.2.3",
     "mingo": "^0.8.1",
     "moment": "^2.13.0",
-    "optics-agent": "^1.0.5",
+    "optics-agent": "^1.1.6",
     "ory-editor": "^0.2.10",
     "pg": "^6.1.5",
     "pg-promise": "^5.6.7",

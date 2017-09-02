@@ -62,6 +62,10 @@
     }
     .sequences-grid-item-image {
       width: 203px;
+      img {
+        width: 203px;
+        height: 80px;
+      }
     }
     .sequences-grid-item-author {
       margin-top: 3px;
@@ -480,4 +484,62 @@ svg.drag-handle {
   padding: 15px;
   font-size: 20px;
   color: rgba(0,0,0,0.7);
+}
+
+@include section-header-break() {
+  .sequences-page {
+    margin-right: 0px;
+  }
+  .sequences-image-scrim-overlay {
+    height: 200px;
+  }
+  .sequences-title-wrapper {
+    width: 100vw !important;
+    left: inherit !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    .sequences-title {
+      left: inherit !important;
+      width: inherit !important;
+      text-align: center;
+    }
+  }
+  .sequences-meta {
+    text-align: center;
+  }
+  .sequences-page-content-footer {
+    margin-left: 0px;
+  }
+}
+
+@include collection-card-break() {
+  .sequences-grid-item {
+    width: 335px !important;
+    .sequences-grid-item-image {
+      img {
+        width: 305px !important;
+        height: auto !important;
+      }
+    }
+  }
+}
+
+@include very-small-break() {
+  .sequences-grid-item {
+    width: 300px !important;
+    .sequences-grid-item-image {
+      img {
+        width: 270px !important;
+      }
+    }
+  }
+  .collections-page {
+    .section-title {
+      padding-left: 20px !important;
+      margin-bottom: 20px !important; 
+      h2 {
+        width: inherit !important;
+      }
+    }
+  }
 }

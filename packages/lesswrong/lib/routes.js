@@ -10,7 +10,7 @@ addRoute({ name: 'sequencesHome', path: '/library', componentName: 'SequencesHom
 addRoute({ name: 'sequences', path: '/sequences/:_id', componentName: 'SequencesSingle' });
 addRoute({ name: 'sequencesEdit', path: '/sequencesEdit/:_id', componentName: 'SequencesEditForm'});
 addRoute({ name: 'sequencesNew', path: '/sequencesNew', componentName: 'SequencesNewForm'});
-addRoute({ name: 'sequencesPost', path: '/s/:sequenceId/p/:postId', componentName: 'SequencesPost'}); 
+addRoute({ name: 'sequencesPost', path: '/s/:sequenceId/p/:postId', componentName: 'SequencesPost'});
 
 
 addRoute({ name: 'chaptersEdit', path: '/chaptersEdit/:_id', componentName: 'ChaptersEditForm'});
@@ -19,7 +19,8 @@ addRoute({ name: 'chaptersEdit', path: '/chaptersEdit/:_id', componentName: 'Cha
 addRoute({ name: 'collections', path: '/collections/:_id', componentName: 'CollectionsSingle' });
 addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences'})
 addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR'})
-addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex'})
+addRoute({ name: 'CodexComingSoon', path: '/codex', componentName: 'ComingSoon'})
+addRoute({ name: 'Codex', path: '/codexHidden', componentName: 'Codex'})
 
 
 //Route for testing the editor. Useful for debugging
