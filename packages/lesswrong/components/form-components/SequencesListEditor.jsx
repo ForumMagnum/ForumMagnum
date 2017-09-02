@@ -34,7 +34,7 @@ class SequencesListEditor extends Component {
     const fieldName = props.name;
     let sequenceIds = [];
     if (props.document[fieldName]) {
-      sequenceIds = JSON.parse(JSON.stringify(props.document[fieldName]));
+      sequenceIds = _.compact(JSON.parse(JSON.stringify(props.document[fieldName])));
     }
     this.state = {
       sequenceIds: sequenceIds,
@@ -56,7 +56,7 @@ class SequencesListEditor extends Component {
     addValues({[fieldName]: newIds});
   };
   addSequenceId = (sequenceId) => {
-    const newIds = [...this.state.sequenceIds, sequenceId];
+    const newIds = _.compact([...this.state.sequenceIds, sequenceId]);
     this.setState({
       sequenceIds: newIds,
     })
