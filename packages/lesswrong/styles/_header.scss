@@ -1,0 +1,260 @@
+.header-wrapper{
+  margin-bottom: 20px;
+}
+
+.header{
+  @include medium-large{
+    @include flex-center;
+    justify-content: space-between;
+  }
+  padding-bottom: $vmargin;
+}
+
+.logo{
+  @include small{
+    text-align: center;
+  }
+  @include medium-large{
+    display: flex;
+    align-items: baseline;
+    .logo-text{
+      margin-right: $hmargin;
+    }
+    .logo-image{
+      margin-right: $hmargin;
+      img{
+        max-width: 150px;
+        max-height: 100px;
+      }
+    }
+  }
+  .tagline{
+    font-size: 1.35rem;
+  }
+}
+
+.nav{
+  @include flex-center;
+  @include small{
+    border-top: 1px solid $medium-grey;
+    margin-top: $vmargin;
+    padding-top: $vmargin;
+    justify-content: space-between;
+  }
+  @include medium-large{
+    .nav-user{
+      margin-right: $hmargin;
+    }
+  }
+  .nav-new-post{
+    @include small{
+
+    }
+  }
+}
+
+.users-account-menu, .users-menu{
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-top: 5px;
+  color: rgba(0,0,0,0.5) !important;
+  .dropdown-toggle{
+    @include flex-center;
+    padding: 0;
+    background: none;
+    img{
+      margin-right: 5px;
+    }
+  }
+}
+
+.accounts-ui{
+  padding: $vmargin;
+  min-width: 240px;
+  .buttons{
+    .btn{
+      display: block;
+      width: 100%;
+      text-align: center;
+      margin-bottom: $vmargin;
+      &:last-child{
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.search {
+  display: inline-block;
+}
+
+.search-bar {
+  display: inline-block;
+  position: relative;
+  .search-bar-box {
+    display: inline-block;
+  }
+  .search-bar-close {
+    display: none;
+    position: absolute;
+    top: 15px;
+    right: 5px;
+    cursor: pointer;
+  }
+
+  .ais-SearchBox__submit {
+    display: none;
+  }
+  .ais-SearchBox__input {
+    background: url(https://static.tumblr.com/ftv85bp/MIXmud4tx/search-icon.png) no-repeat 9px center;
+    padding-top: 3px;
+    padding-right: 0px;
+    padding-left: 31px;
+    vertical-align: bottom;
+    border-style: none;
+    background-color: transparent;
+    box-shadow: none;
+    width: 10px;
+    cursor: pointer;
+  }
+  &.open .search-bar-close {
+    display: inline-block;
+  }
+  &.open .ais-SearchBox__input {
+    width: 100%;
+    cursor: text;
+  }
+}
+
+.search-results {
+  transition: opacity .1s ease-in-out;
+  height: 0px;
+  overflow: hidden;
+  opacity: 0;
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  top: 64px;
+  background-color: white;
+  .search-results-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-flow: row wrap;
+    margin-top: 30px;
+    width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    .search-results-container-left {
+      max-width:720px;
+      float: left;
+    }
+    .search-results-container-right {
+      max-width: 380px;
+      float: right;
+    }
+    .search-results-posts-content, .search-results-comments-content {
+      margin-top: -10px;
+    }
+    .section {
+      margin-left: inherit;
+    }
+  }
+
+  .ais-Pagination__root {
+    box-shadow: none;
+    border: none;
+    width: auto;
+    display: block;
+    border-radius: 4px;
+    padding: 0;
+    margin-top: 10px;
+    padding-left: 0px;
+  }
+
+  .ais-Pagination__itemSelected {
+    color: inherit;
+    font-weight: bold;
+    text-decoration: underline;
+    background: inherit;
+  }
+
+  .ais-Pagination__item:hover {
+    background: transparent;
+    text-decoration: underline;
+    .ais-Pagination__itemLink {
+      color: rgba(0,0,0,0.87);
+    }
+  }
+
+  .ais-Pagination__itemPage {
+    display: none;
+  }
+
+  .ais-Pagination__itemPrevious {
+    font-size: 0px;
+    .ais-Pagination__itemLink:before {
+    font-size: 14px;
+    content: "<";
+    }
+  }
+
+  .ais-Pagination__itemNext {
+    font-size: 0px;
+    .ais-Pagination__itemLink:before {
+    font-size: 14px;
+    content: ">";
+    }
+  }
+
+  &.open {
+    height: 2000px;
+    opacity: 1;
+  }
+  .posts-item {
+    width: 550px;
+    .posts-item-score {
+      display: inline;
+      margin-right: 5px;
+    }
+    .posts-item-summary {
+      max-width: 440px;
+    }
+  }
+  .search-results-comments-item {
+    width: 550px;
+    padding: 10px;
+  }
+
+  .search-results-users {
+    margin-left: 10px;
+    padding-left: 30px;
+    border-left-style: solid;
+    border-left-color: rgba(0,0,0,0.1);
+    border-left-width: 1px;
+    .search-results-users-heading {
+      h2 {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 0px;
+      }
+    }
+    .users-item-name {
+      font-size: 16px;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .users-item-meta{
+      display: inline-block;
+      .users-item-karma {
+        font-size: 14px;
+        display: inline-block;
+        margin-right: 5px;
+      }
+      .users-item-created-date {
+        display: inline-block;
+      }
+    }
+  }
+
+}

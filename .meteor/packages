@@ -1,44 +1,54 @@
-############ Nova Core ############
+# see http://docs.vulcanjs.org/packages
 
-nova:core # do not remove!
+############ Core Packages ############
 
-############ Optional Packages ############
+vulcan:core                       # core components and wrappers
+vulcan:forms                      # auto-generated forms
+vulcan:routing                    # routing and server-side rendering
+vulcan:users                      # user management and permissions
 
-nova:settings
-nova:users
-nova:posts
-nova:comments
-nova:newsletter
-nova:search
-nova:notifications
-nova:getting-started
-nova:categories
-nova:voting
-nova:forms
-nova:embedly
-nova:api
-nova:email
-nova:rss
-# nova:subscribe
-# nova:cloudinary
+############ Features Packages ############
 
-############ Customizable Packages ############
+vulcan:admin
+# vulcan:email
+vulcan:posts
+vulcan:comments
+# vulcan:newsletter
+# vulcan:notifications
+vulcan:getting-started
+# vulcan:categories
+vulcan:voting
+vulcan:events
+vulcan:embedly
+vulcan:api
+vulcan:rss
+# vulcan:subscribe
 
-nova:base-components
-nova:base-styles
-nova:base-routes
-nova:email-templates
-nova:i18n-en-us
+############ Theme Packages ############
 
-accounts-password@1.3.3
+vulcan:base-components        # default ui components
+# vulcan:base-styles            # default styling
+# vulcan:email-templates        # default email templates for notifications
+
+############ Language Packages ############
+
+vulcan:i18n-en-us
+
+############ Accounts Packages ############
+
+accounts-password@1.4.0
 # accounts-twitter
 # accounts-facebook
-
-############ Debug Packages ############
-
-nova:debug
-# nova:kadira
+# accounts-google
 
 ############ Your Packages ############
 
-# my-custom-package
+# example-simple
+# example-movies
+# example-instagram
+example-forum
+lesswrong
+# example-customization
+# example-permissions
+# example-membership
+# example-interfaces

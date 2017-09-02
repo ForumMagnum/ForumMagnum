@@ -1,0 +1,50 @@
+body{
+  font-family: "ETBook", serif;
+  color: rgba(0,0,0,0.87)
+}
+
+.main, .footer {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 $hmargin;
+  max-width: 1200px;
+}
+
+.main{
+  margin-bottom: $vmargin;
+}
+
+a{
+  cursor: pointer;
+  color: inherit;
+}
+
+p a {
+  @include link-underline(#fff, rgba(0,0,0,0.87), #b4d5f3, rgba(0,0,0,0.3))
+}
+
+
+.page-title{
+  margin-bottom: $vmargin*2;
+}
+
+.message.error {
+  color: $red;
+}
+
+.ais-InstantSearch__root {
+  font-family: inherit !important;
+}
+
+h1 {
+  font-size: 40px;
+}
+// a {
+//   @include link-underline(#fff, rgba(0,0,0,0.87), #b4d5fe )
+// }
+
+.section-title {
+  a {
+    @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3));
+  }
+}

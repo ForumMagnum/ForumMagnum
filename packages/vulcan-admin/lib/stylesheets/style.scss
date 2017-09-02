@@ -1,0 +1,41 @@
+.datatable-users{
+  .datatable-search{
+    margin-bottom: 10px;
+    padding: 2px 7px;
+  }
+
+  .datatable-item-name{
+    .modal-trigger{
+      display: inline-block;
+      cursor: pointer;
+    }
+    .avatar{
+      display: inline-block;
+      margin-right: 5px;
+    }
+    a{
+      display: flex;
+      align-items: center;
+      div{
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .datatable-item-groups{
+    code{
+      display: inline-block;
+      margin-right: 5px;
+    }
+  }
+
+  .datatable-load-more{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .avatar img{
+    width: 20px;
+  }
+}
