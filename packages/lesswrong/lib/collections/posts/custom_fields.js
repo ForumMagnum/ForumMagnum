@@ -1,6 +1,8 @@
 import Posts from "meteor/vulcan:posts";
 import PostEditor from '../../editor/PostEditor.jsx';
 import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
+import EditTitle from '../../editor/EditTitle.jsx';
+import EditUrl from '../../editor/EditUrl.jsx';
 
 const formGroups = {
   admin: {
@@ -16,7 +18,9 @@ Posts.addField([
   {
     fieldName: "url",
     fieldSchema: {
-      order: 20,
+      order: 40,
+      placeholder: "URL",
+      control: EditUrl,
     }
   },
   /**
@@ -26,7 +30,9 @@ Posts.addField([
     fieldName: "title",
     fieldSchema: {
       order: 10,
-    }
+      placeholder: "Title",
+      control: EditTitle,
+    },
   },
   /**
     Categories (Overwriting original schema)
@@ -81,7 +87,7 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: ['admins'],
       control: "textarea",
     }
   },
@@ -94,11 +100,12 @@ Posts.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      hidden: true,
+      hidden: false,
       defaultValue: false,
       viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      editableBy: ['admin'],
+      insertableBy: ['admin'],
+      control: "checkbox",
     }
   },
 

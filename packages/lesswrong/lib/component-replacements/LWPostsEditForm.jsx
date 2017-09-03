@@ -25,7 +25,6 @@ class LWPostsEditForm extends PureComponent {
   render() {
 
     const postId = this.props.location.query.postId;
-
     return (
       <div className="posts-edit-form">
         {Users.isAdmin(this.props.currentUser) ? this.renderAdminArea() : null}
