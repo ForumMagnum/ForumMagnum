@@ -42,7 +42,7 @@ class BooksItem extends Component {
              <Components.ContentRenderer state={book.description} />
             </div> : null}
 
-          {book.posts ? <div className="books-item-posts">
+          {book.posts & book.posts.length ? <div className="books-item-posts">
             <Components.SequencesPostsList posts={book.posts} />
           </div> : null}
 
