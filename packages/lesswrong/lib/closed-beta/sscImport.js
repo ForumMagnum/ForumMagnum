@@ -9,7 +9,7 @@ const sscImport = false;
 const url = "http://slatestarcodex.com/feed/?paged=";
 let sscPageImports = [];
 async function importSSC () {
-  for (let i of _.range(1,77)) {
+  for (let i of _.range(1,80)) {
     const newPosts = await feedparser.parse(url+i)
     console.log("Importing Slatestarcodex posts page " + i);
     const scottId = "XgYW5s8njaYrtyP7q";
@@ -32,6 +32,7 @@ async function importSSC () {
       var post = {
         title: newPost.title,
         postedAt: newPost.pubdate,
+        draft: true,
         userId: scottId,
         htmlBody: body,
       };

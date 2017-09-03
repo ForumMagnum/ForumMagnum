@@ -38,6 +38,7 @@ class Header extends Component {
   </div>
 
   render() {
+    //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing. 
     let { router } = this.props;
     return (
       <div className="header-wrapper">
@@ -50,7 +51,6 @@ class Header extends Component {
             style={appBarStyle}
             titleStyle={appBarTitleStyle}
           />
-        //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing. 
         <Drawer docked={false} width={200} open={this.state.open} onRequestChange={(open) => this.setState({open})} containerClassName="menu-drawer" >
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> SEQUENCES </MenuItem>
