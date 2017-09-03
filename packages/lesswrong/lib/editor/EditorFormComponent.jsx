@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Editable, createEmptyState } from 'ory-editor-core';
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui'
 import withEditor from './withEditor.jsx'
-
+import FlatButton from 'material-ui/FlatButton';
 
 class EditorFormComponent extends Component {
   constructor(props, context) {
@@ -66,7 +66,7 @@ class EditorFormComponent extends Component {
     return (
       <div className="commentEditor">
         <div className="row">
-          <div className="btn btn-primary pull-left" onTouchTap={this.toggleEditor}>{this.state.active ? "Deactivate Editor" : "Activate Editor"}</div>
+          <FlatButton label={this.state.active ? "Deactivate Editor" : "Activate Editor"} onTouchTap={this.toggleEditor}/>
         </div>
         <br/>
         <div className="row">
