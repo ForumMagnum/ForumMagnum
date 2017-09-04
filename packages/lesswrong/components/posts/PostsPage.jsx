@@ -47,6 +47,16 @@ class PostsPage extends Component {
     // default to top
     return 'postCommentsTop';
   }
+  
+  getCommentCountStr = (count) => {
+    if (!count) {
+        return "No comments"
+    } else if (count == 1) {
+        return "1 comment"
+    } else {
+        return count + " comments"  
+    }
+  }
 
   render() {
     if (this.props.loading) {
@@ -73,7 +83,7 @@ class PostsPage extends Component {
       if (commentHash && commentHash.substring(commentHash.length - 7, commentHash.length) === "context") {
         commentHash = commentHash.slice(0,-7);
       }
-
+      
       const sequenceId = this.props.params.sequenceId;
 
       return (
@@ -101,7 +111,7 @@ class PostsPage extends Component {
                   {moment(post.postedAt).format('MMM D, YYYY')}
                 </div>
                 <div className="posts-page-content-body-metadata-comments">
-                  <a href="#comments">{post.commentCount + " comments"}</a>
+                  <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
                 </div>
                 <div className="posts-page-content-body-metadata-actions">
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ?

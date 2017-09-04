@@ -14,9 +14,11 @@ class EditorFormComponent extends Component {
     let state = (document && !_.isEmpty(document[fieldName]) && document[fieldName]) || createEmptyState();
     console.log("constructor state", state);
     state = JSON.parse(JSON.stringify(state));
+    
     this.state = {
       [fieldName]: state,
-      active: !!document[fieldName],
+      active: !document.legacy,
+      displayModeOpen: false,
     };
     editor.trigger.editable.add(state);
   }
@@ -59,25 +61,36 @@ class EditorFormComponent extends Component {
   deactivateEditor = () => {this.setState({active: false})}
 
   toggleEditor = () => {this.setState({active: !this.state.active})}
-
+  
+  toggleDisplayMode = () => {this.setState({displayModeOpen: !this.state.displayModeOpen})}
+  
   render() {
     const fieldName = this.props.name;
     let editor = this.props.editor;
     return (
       <div className="commentEditor">
-        <div className="row">
-          <FlatButton label={this.state.active ? "Deactivate Editor" : "Activate Editor"} onTouchTap={this.toggleEditor}/>
-        </div>
+        {this.props.document.legacy ? 
+          <div className="row">
+            <FlatButton 
+              backgroundColor={this.state.active ? "#555" : "#999"}
+              hoverColor={this.state.active ? "#666" : "#aaa"}
+              style={{color: "#fff"}}
+              label={this.state.active ? "Deactivate Editor" : "Activate Editor"} 
+              onTouchTap={this.toggleEditor}/>
+          </div> : null
+        }
         <br/>
         <div className="row">
           {this.state.active ?
             <div>
               <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
-              <Toolbar editor={editor} />
+              <Toolbar editor={editor}></Toolbar>
               {this.props.name == "content" ? <div><Trash editor={editor} />
-              <DisplayModeToggle editor={editor} /></div> : null}
+              {this.state.displayModeOpen ? <DisplayModeToggle editor={editor} /> : null }
+              </div> : null}
             </div> : null}
         </div>
+        <hr/>
       </div>
     )
   }
