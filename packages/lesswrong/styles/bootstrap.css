@@ -268,8 +268,6 @@ th {
   font-style: normal;
   font-weight: normal;
   line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 .glyphicon-asterisk:before {
   content: "\002a";
@@ -5875,7 +5873,7 @@ button.close {
   position: relative;
   width: auto;
   margin: 10px;
-  margin-top: 100px !important; 
+  margin-top: 100px !important;
 }
 .modal-content {
   position: relative;
@@ -7067,7 +7065,6 @@ fieldset[disabled] .btn-default:focus {
   margin-top: 0;
 }
 body {
-  -webkit-font-smoothing: antialiased;
   letter-spacing: .1px;
 }
 p {
@@ -7075,7 +7072,6 @@ p {
 }
 input,
 button {
-  -webkit-font-smoothing: antialiased;
   letter-spacing: .1px;
 }
 a {

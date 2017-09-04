@@ -106,6 +106,12 @@ registerFragment(`
     # vulcan:voting
     upvotes
     downvotes
+    upvoters {
+      _id
+    }
+    downvoters {
+      _id
+    }
     baseScore
     score
     feedId
