@@ -56,9 +56,9 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
               </div>
               <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
-              <div className="comments-item-origin">
+              <Link to={Posts.getPageUrl(comment.post)}> <div className="comments-item-origin">
                 on <span className="comments-item-origin-post-title">{comment.post.title}</span>
-              </div>
+              </div> </Link>
             </div></object>
           {this.state.showEdit ? this.renderEdit() : this.renderComment()}
 

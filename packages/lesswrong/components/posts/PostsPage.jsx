@@ -47,14 +47,14 @@ class PostsPage extends Component {
     // default to top
     return 'postCommentsTop';
   }
-  
+
   getCommentCountStr = (count) => {
     if (!count) {
         return "No comments"
     } else if (count == 1) {
         return "1 comment"
     } else {
-        return count + " comments"  
+        return count + " comments"
     }
   }
 
@@ -83,7 +83,7 @@ class PostsPage extends Component {
       if (commentHash && commentHash.substring(commentHash.length - 7, commentHash.length) === "context") {
         commentHash = commentHash.slice(0,-7);
       }
-      
+
       const sequenceId = this.props.params.sequenceId;
 
       return (
@@ -105,7 +105,7 @@ class PostsPage extends Component {
                 <Components.UsersName user={post.user} />
               </div>
             </div>
-            <div className="posts-page-content-body">
+            <div className="posts-page-content-body content-body">
               <div className="posts-page-content-body-metadata">
                 <div className="posts-page-content-body-metadata-date">
                   {moment(post.postedAt).format('MMM D, YYYY')}
