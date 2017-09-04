@@ -1,10 +1,34 @@
 import { Components, registerComponent, withCurrentUser, withList, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { NavDropdown, MenuItem } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import IconButton from 'material-ui/IconButton';
+import Popover from 'material-ui/Popover';
+import Menu from 'material-ui/Menu';
+import MenuItem from 'material-ui/MenuItem';
+// import { NavDropdown, MenuItem } from 'react-bootstrap';
+import { Link } from 'react-router';
 import Notifications from '../collections/notifications/collection.js'
 
 class NotificationsMenu extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+    }
+  }
+
+  handleTouchTap = (event) => {
+    event.preventDefault();
+    this.setState({
+      open:true,
+      anchorEl: event.currentTarget,
+    });
+  };
+
+  handleRequestClose = () => {
+    this.setState({
+      open: false,
+    });
+  }
 
   render() {
       const results = this.props.results;
@@ -27,29 +51,47 @@ class NotificationsMenu extends Component {
         return null;
       } else if (results && results.length) {
         return (
-          <NavDropdown className="notification-nav" id="notification-nav" onClick={this.viewNotifications(unreadNotifications)} title={title+' ('+unreadNotifications.length+')'}>
-            <LinkContainer to={{pathname: '/inbox', query: {select: "Notifications"}}}>
-              <MenuItem> See all your notifications and messages </MenuItem>
-            </LinkContainer>
-            <MenuItem divider />
-            {results.map(notification => <Components.NotificationsItem key={notification._id} currentUser={currentUser} notification={notification} />)}
-            <MenuItem divider />
-            <MenuItem onClick={() => loadMore()}>Load More</MenuItem>
-          </NavDropdown>
+          <div className="users-menu">
+            <IconButton onTouchTap={this.handleTouchTap} iconClassName="notifications_none" />
+            <Popover
+              open={this.state.open}
+              anchorEl={this.state.anchorEl}
+              anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+              targetOrigin={{horizontal: 'right', vertical: 'top'}}
+              onRequestClose={this.handleRequestClose}
+            >
+              <Menu>
+                <MenuItem primaryText="All Notifications" containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
+                {results.map(notification => <MenuItem key={notification._id} primaryText={notification.notificationMessage} currentUser={currentUser} notification={notification} />)}
+              </Menu>
+            </Popover>
+          </div>
         )
       } else if (loading) {
           return (<Components.Loading/>)
       } else {
           return (
-          <NavDropdown className="notification-nav" id="notification-nav" onClick={this.viewNotifications(unreadNotifications)} title={title+' ('+unreadNotifications.length+')'}>
-              <div> No results </div>
-          </NavDropdown>)
+            <div className="users-menu">
+              <IconButton onTouchTap={this.handleTouchTap} iconClassName="notifications_none" />
+              <Popover
+                open={this.state.open}
+                anchorEl={this.state.anchorEl}
+                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                onRequestClose={this.handleRequestClose}
+              >
+                <Menu>
+                  <MenuItem primaryText="All Notifications" containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
+                  <MenuItem primaryText="No Results" disabled={true} containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
+                </Menu>
+              </Popover>
+            </div>)
       }
   }
 
   isNotViewed(notification) {
     return (!notification.viewed);
-  };
+  }
 
   viewNotifications(results) {
     const VIEW_NOTIFICATIONS_DELAY = 500;
@@ -65,9 +107,9 @@ class NotificationsMenu extends Component {
         }
       }, VIEW_NOTIFICATIONS_DELAY)
     }
-  };
+  }
+}
 
-};
 
 const withListOptions = {
   collection: Notifications,

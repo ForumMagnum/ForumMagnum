@@ -32,13 +32,18 @@ class Header extends Component {
 
   handleClose = () => this.setState({open: false});
 
-  renderAppBarElementRight = () => <div>
+  renderAppBarElementRight = () => {
+  const notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
+  return <div>
     <NoSSR><Components.SearchBar /></NoSSR>
+    {this.props.currentUser ? <Components.NotificationsMenu title="Notifications" terms={notificationTerms}/> : null}
     {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
-  </div>
+  </div>}
 
   render() {
-    //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing. 
+    //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing.
+
+
     let { router } = this.props;
     return (
       <div className="header-wrapper">
