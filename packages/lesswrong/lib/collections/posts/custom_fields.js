@@ -1,8 +1,8 @@
 import Posts from "meteor/vulcan:posts";
 import PostEditor from '../../editor/PostEditor.jsx';
 import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
-import EditTitle from '../../editor/EditTitle.jsx';
-import EditUrl from '../../editor/EditUrl.jsx';
+// import EditTitle from '../../editor/EditTitle.jsx';
+// import EditUrl from '../../editor/EditUrl.jsx';
 
 const formGroups = {
   admin: {
@@ -20,7 +20,7 @@ Posts.addField([
     fieldSchema: {
       order: 40,
       placeholder: "URL",
-      control: EditUrl,
+      // control: EditUrl,
     }
   },
   /**
@@ -31,7 +31,7 @@ Posts.addField([
     fieldSchema: {
       order: 10,
       placeholder: "Title",
-      control: EditTitle,
+      // control: EditTitle,
     },
   },
   /**
