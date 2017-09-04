@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Editable, createEmptyState } from 'ory-editor-core';
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui'
 import withEditor from './withEditor.jsx'
-
+import FlatButton from 'material-ui/FlatButton';
 
 class EditorFormComponent extends Component {
   constructor(props, context) {
@@ -14,9 +14,11 @@ class EditorFormComponent extends Component {
     let state = (document && !_.isEmpty(document[fieldName]) && document[fieldName]) || createEmptyState();
     console.log("constructor state", state);
     state = JSON.parse(JSON.stringify(state));
+    
     this.state = {
       [fieldName]: state,
-      active: !!document[fieldName],
+      active: !document.legacy,
+      displayModeOpen: false,
     };
     editor.trigger.editable.add(state);
   }
@@ -59,21 +61,36 @@ class EditorFormComponent extends Component {
   deactivateEditor = () => {this.setState({active: false})}
 
   toggleEditor = () => {this.setState({active: !this.state.active})}
-
+  
+  toggleDisplayMode = () => {this.setState({displayModeOpen: !this.state.displayModeOpen})}
+  
   render() {
     const fieldName = this.props.name;
     let editor = this.props.editor;
     return (
       <div className="commentEditor">
-        <div className="editor-form-component-description">{fieldName}</div>
-        <a onTouchTap={this.toggleEditor}>{this.state.active ? "Deactivate Editor" : "Activate Editor"}</a>
-        {this.state.active ?
-          <div>
-            <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
-            <Toolbar editor={editor} />
-            {this.props.name == "content" ? <div><Trash editor={editor} />
-            <DisplayModeToggle editor={editor} /></div> : null}
-          </div> : null}
+        {this.props.document.legacy ? 
+          <div className="row">
+            <FlatButton 
+              backgroundColor={this.state.active ? "#555" : "#999"}
+              hoverColor={this.state.active ? "#666" : "#aaa"}
+              style={{color: "#fff"}}
+              label={this.state.active ? "Deactivate Editor" : "Activate Editor"} 
+              onTouchTap={this.toggleEditor}/>
+          </div> : null
+        }
+        <br/>
+        <div className="row">
+          {this.state.active ?
+            <div>
+              <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
+              <Toolbar editor={editor}></Toolbar>
+              {this.props.name == "content" ? <div><Trash editor={editor} />
+              {this.state.displayModeOpen ? <DisplayModeToggle editor={editor} /> : null }
+              </div> : null}
+            </div> : null}
+        </div>
+        <hr/>
       </div>
     )
   }
