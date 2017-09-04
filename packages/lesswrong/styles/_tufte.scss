@@ -54,12 +54,14 @@
          counter-reset: sidenote-counter; }
 
   h1 { font-weight: 400;
+       color: rgba(0,0,0,0.93);
        margin-top: 4rem;
        margin-bottom: 1.5rem;
        font-size: 3.2rem;
        line-height: 1; }
 
   h2 { font-style: italic;
+       color: rgba(0,0,0,0.93);
        font-weight: 400;
        margin-top: 2.1rem;
        margin-bottom: 0;
@@ -67,6 +69,7 @@
        line-height: 1; }
 
   h3 { font-style: italic;
+       color: rgba(0,0,0,0.93);
        font-weight: 400;
        font-size: 1.7rem;
        margin-top: 2rem;
@@ -106,6 +109,11 @@
       padding-right: 0;
       vertical-align: baseline; }
 
+  a:hover {
+      text-decoration: none;
+      color: rgba(0, 0, 0, 0.5);
+  }
+
   /* Chapter Epigraphs */
   div.epigraph { margin: 5em 0; }
 
@@ -119,10 +127,18 @@
   div.epigraph > blockquote > footer > cite { font-style: italic; }
   /* end chapter epigraphs styles */
 
-  blockquote { font-size: 1.4rem; }
+  blockquote { font-size: 1.2rem;
+               padding: inherit;
+               margin:inherit;
+               border-left: none;
+               -webkit-margin-before: 1em;
+               -webkit-margin-after: 1em;
+               -webkit-margin-start: 40px; }
 
-  blockquote p { width: 55%;
-                 margin-right: 40px; }
+  blockquote p { /* width: 55%; */
+                 margin-right: 40px;
+                 line-height: 1.8rem;
+                 font-size: 1.3rem; }
 
   blockquote footer { width: 55%;
                       font-size: 1.1rem;
