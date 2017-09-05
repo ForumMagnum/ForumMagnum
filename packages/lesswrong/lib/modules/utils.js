@@ -24,7 +24,6 @@ export const flatten = function(data) {
 }
 
 export const editorHasContent = (content) => {
-  console.log("editorHasContent is called", content)
   return (
       content &&
       content.length &&
