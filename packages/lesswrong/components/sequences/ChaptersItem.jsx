@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { registerComponent, ModalTrigger, Components } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { editorHasContent } from '../../lib/modules/utils'
 
 class ChaptersItem extends Component {
   constructor(props) {
@@ -37,7 +38,7 @@ class ChaptersItem extends Component {
         <Components.Section title={chapter.title}
           titleComponent={this.renderTitleComponent(chapter, this.props.canEdit)}
         >
-          {chapter.description ? <div className="chapters-item-description">
+          {editorHasContent(chapter.description) ? <div className="chapters-item-description">
               <Components.ContentRenderer state={chapter.description} />
             </div> : null}
 
