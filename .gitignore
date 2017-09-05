@@ -34,7 +34,7 @@ scratch
 mup.json
 
 packages_update.py
-
+package.json
 versions
 
 get_file_list.sh
