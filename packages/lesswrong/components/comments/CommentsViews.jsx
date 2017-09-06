@@ -58,18 +58,17 @@ class CommentsViews extends Component {
   handleChange = (event, index, value) => this.setState({view: value});
 
   render() {
-    console.log("CommentsViews state", this.state);
-    console.log("CommentsViews viewNames", viewNames[this.state.view]);
     const props = this.props;
+    const router = props.router;
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsBest"];
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"];
+
+    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
+    const currentLocation = router.location;
 
     if (Users.canDo(props.currentUser, "comments.edit.all")) {
       views = views.concat(adminViews);
     }
-
-    const query = _.clone(props.router.location.query);
-    const pathname = _.clone(props.router.location.pathname);
     return (
       <div className="comments-views">
         <DropDownMenu
@@ -84,17 +83,11 @@ class CommentsViews extends Component {
           className="comments-views-dropdown"
           >
           {views.map(view => {
-              const link = <Link
-                to={
-                  (props.currentUser) ?
-                  {pathname: pathname, query: {...query, view: view, postId: props.postId, userId: props.currentUser._id}} :
-                  {pathname: pathname, query: {...query, view: view, postId: props.postId}}
-                }/>
               return <MenuItem
                 key={view}
                 value={view}
                 primaryText={viewNames[view]}
-                containerElement={link}
+                onTouchTap={() => router.replace({...currentLocation, query: {...currentQuery, view: view, postId: props.postId}})}
                 />
             }
           )}

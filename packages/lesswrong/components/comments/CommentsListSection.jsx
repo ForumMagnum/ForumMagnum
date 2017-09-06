@@ -38,18 +38,23 @@ class CommentsListSection extends Component {
       />
     </div>
 
+  renderTitleComponent = () => <div className="posts-page-comments-title-component">
+      sorted by<br /> <Components.CommentsViews postId={this.props.postId} />
+      <div className="posts-page-comments-highlight-select">{this.renderHighlightDateSelector()}</div>
+      {this.props.commentCount < this.props.totalComments ?
+        <div className="posts-page-comments-load-all-comment">
+          Rendering {this.props.commentCount}/{this.props.totalComments} comments &nbsp;
+          {this.props.loadingMoreComments ? <Components.Loading /> : <a onTouchTap={() => this.props.loadMoreComments()}>show more</a>}
+        </div> : "All comments loaded"}
+  </div>
+
   render() {
     const {currentUser, comments, postId, router} = this.props;
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
-    console.log("currentQuery: ", currentQuery);
     const currentLocation = router.location;
     return (
       <Components.Section title="Comments"
-        titleComponent= {<div className="posts-page-comments-title-component">
-          sorted by<br /> <Components.CommentsViews postId={postId} />
-        <div className="posts-page-comments-highlight-select">{this.renderHighlightDateSelector()}</div>
-        {router.location.query && router.location.query.limit && router.location.query.limit != 0 ? <div className="posts-page-comments-load-all-comment">Rendering top 50 comments <a onTouchTap={(() => router.replace({...currentLocation, query: {...currentQuery, limit: 0}}))}>show all</a></div> : <div>All comments loaded</div>}
-        </div>}>
+        titleComponent={this.renderTitleComponent()}>
         <div className="posts-comments-thread">
           <Components.CommentsList currentUser={currentUser} comments={comments} highlightDate={this.state.highlightDate}/>
           {!!currentUser ?

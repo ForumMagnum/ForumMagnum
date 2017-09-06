@@ -31,7 +31,7 @@ const CollectionsCard = ({collection = testCollection, big = false, url}) => {
 
   return <div className={"collection-card-item" + (big ? " big" : " small")} >
     <Link to={url} className="collection-card-link">
-      <Card className="collection-card" containerClassName="collection-card-container">
+      <Card className="collection-card">
         <CardMedia className="collection-card-media">
           <img src={collection.image} />
         </CardMedia>

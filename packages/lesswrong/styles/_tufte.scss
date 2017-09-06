@@ -39,6 +39,17 @@
              font-style: normal; }
 
 .content-body {
+  p:first-of-type {
+    margin-top: 0px !important;
+  }
+
+  li > p:last-child {
+    margin-bottom: 0px;
+  }
+
+  li > p:first-child {
+    margin-top: 0px;
+  }
   /* Tufte CSS styles */
   html { font-size: 15px; }
 
@@ -63,7 +74,7 @@
   h2 { font-style: italic;
        color: rgba(0,0,0,0.93);
        font-weight: 400;
-       margin-top: 2.1rem;
+       margin-top: 5rem;
        margin-bottom: 0;
        font-size: 2.2rem;
        line-height: 1; }
@@ -101,7 +112,7 @@
   section { padding-top: 1rem;
             padding-bottom: 1rem; }
 
-  p, ol, ul { font-size: 1.4rem; }
+  p, ol, ul { font-size: 1.2rem; }
 
   p { line-height: 2rem;
       margin-top: 1.4rem;
@@ -127,7 +138,7 @@
   div.epigraph > blockquote > footer > cite { font-style: italic; }
   /* end chapter epigraphs styles */
 
-  blockquote { font-size: 1.2rem;
+  blockquote { font-size: 1.1rem;
                padding: inherit;
                margin:inherit;
                border-left: none;
@@ -138,10 +149,10 @@
   blockquote p { /* width: 55%; */
                  margin-right: 40px;
                  line-height: 1.8rem;
-                 font-size: 1.3rem; }
+                 font-size: 1.1rem; }
 
   blockquote footer { width: 55%;
-                      font-size: 1.1rem;
+                      font-size: 1.0rem;
                       text-align: right; }
 
   section>ol, section>ul { width: 45%;

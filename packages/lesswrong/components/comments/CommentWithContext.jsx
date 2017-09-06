@@ -15,7 +15,6 @@ class CommentWithContext extends getRawComponent('CommentsItem') {
     const comment = this.props.comment;
     const params = this.props.router.params;
     const commentLink = "/posts/"+params._id+"/"+params.slug+"/"+comment._id;
-    const showReplyButton = !this.props.comment.isDeleted && !!this.props.currentUser;
 
     return (
       <div className="comments-item comments-item-context" id={comment._id+"top"}>
@@ -48,8 +47,7 @@ class CommentWithContext extends getRawComponent('CommentsItem') {
     const showReplyButton = !comment.isDeleted && !!this.props.currentUser;
 
     return (
-      <div className="comments-item-text">
-        {comment.parentCommentId ? <Components.CommentInlineWrapper documentId={comment.parentCommentId} /> : null}
+      <div className="comments-item-text content-body">
         {content ? <Components.ContentRenderer state={content} /> :
         null}
         {htmlBody && !content ? <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}

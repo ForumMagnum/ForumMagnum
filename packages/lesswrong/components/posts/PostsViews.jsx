@@ -97,6 +97,7 @@ class PostsViews extends Component {
                 }/>
               return <MenuItem
                 value={view}
+                key={view}
                 primaryText={viewNames[view]}
                 containerElement={link}
                 />

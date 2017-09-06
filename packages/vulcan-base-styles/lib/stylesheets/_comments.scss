@@ -56,6 +56,9 @@
 }
 
 .comments-item-text{
+  p:last-of-type {
+    margin-bottom: 0px;
+  }
 }
 
 .comments-edit-form, .comments-new-form{

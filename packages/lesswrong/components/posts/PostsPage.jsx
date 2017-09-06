@@ -137,6 +137,7 @@ class PostsPage extends Component {
           </div>
           {this.renderRecommendedReading()}
           <div className="posts-page-comments" id="comments">
+            {console.log("posts-page-comments: ", commentTerms)}
             <Components.PostsCommentsThreadWrapper terms={{...commentTerms, postId: post._id}} userId={userId} />
           </div>
         </div>
