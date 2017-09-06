@@ -71,6 +71,13 @@
   padding: $hmargin $vmargin;
 }
 
+.comments-item-text {
+  p {
+    margin-top: 0.4rem !important;
+    margin-bottom: 0px !important;
+  }
+}
+
 .comments-item-meta{
   margin-bottom: $vmargin;
   color: rgba(0,0,0,0.5);
