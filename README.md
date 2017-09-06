@@ -86,7 +86,7 @@ To create your own package, create a folder named after the concept it's associa
 
 ### Getting Started
 
-To set up the project, navigate into the `.draft-js-plugins folder`, then run `npm install`. Then navigate to the top level directory and run `npm install` there as well. Then run npm start and you should be good to go.
+To set up the project, navigate to the project folder in terminal, then run `npm install`. Then run npm start and you should be good to go.
 
 ### Iteration
 * Prefer `_.range(n).forEach(i => my_function())` over `for (var i=0; i<n; i++)...`
@@ -107,6 +107,15 @@ To set up the project, navigate into the `.draft-js-plugins folder`, then run `n
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
 * If you fix a bug, **write a test for it**.
+
+## Creating a user ##
+
+In the future, it will be possible to create a user using the website itself, but for now they must be created manually in the meteor shell.
+
+```
+meteor shell
+Accounts.createUser({username:'<USERNAME>', email:'<EMAIL ADDRESS>', password:'<PASSWORD>'})
+```
 
 ## CFAR Hackathon: Feature Roadmap
 

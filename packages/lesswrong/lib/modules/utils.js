@@ -23,6 +23,28 @@ export const flatten = function(data) {
   return result;
 }
 
+export const editorHasContent = (content) => {
+  return (
+      content &&
+      content.length &&
+      content[0] &&
+      content[0].cells[0] &&
+      content[0].cells[0].length &&
+      content[0].cells[0].content &&
+      content[0].cells[0].content.state &&
+      content[0].cells[0].content.state.serialized &&
+      content[0].cells[0].content.state.serialized.nodes &&
+      content[0].cells[0].content.state.serialized.nodes.length &&
+      content[0].cells[0].content.state.serialized.nodes[0] &&
+      content[0].cells[0].content.state.serialized.nodes[0].length &&
+      content[0].cells[0].content.state.serialized.nodes[0].nodes &&
+      content[0].cells[0].content.state.serialized.nodes[0].nodes.length &&
+      content[0].cells[0].content.state.serialized.nodes[0].nodes[0] &&
+      content[0].cells[0].content.state.serialized.nodes[0].nodes[0].text
+      )
+}
+
+
 export const contentIsEmpty = (content) => {
   console.log("Content Is Empty called", content);
   return !(content && content.state && content.state.serialized && content.state.serialized.nodes && content.state.serialized.nodes.length == 1 && content.state.serialized.nodes[0].nodes && content.state.serialized.nodes[0].nodes.length == 1 && content.state.serialized.nodes[0].nodes[0].text !== "")
