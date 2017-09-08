@@ -1,5 +1,6 @@
 import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Comments from "meteor/vulcan:comments";
@@ -32,8 +33,47 @@ const moreActionsMenuIconStyle = {
   color: 'rgba(0,0,0,0.5)',
 }
 
+class CommentsItem extends PureComponent {
 
-class CommentsItem extends getRawComponent('CommentsItem') {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showReply: false,
+      showEdit: false
+    };
+  }
+
+  showReply = (event) => {
+    event.preventDefault();
+    this.setState({showReply: true});
+  }
+
+  replyCancelCallback = (event) => {
+    event.preventDefault();
+    this.setState({showReply: false});
+  }
+
+  replySuccessCallback = () => {
+    this.setState({showReply: false});
+  }
+
+  showEdit = (event) => {
+    event.preventDefault();
+    this.setState({showEdit: true});
+  }
+
+  editCancelCallback = (event) => {
+    event.preventDefault();
+    this.setState({showEdit: false});
+  }
+
+  editSuccessCallback = () => {
+    this.setState({showEdit: false});
+  }
+
+  removeSuccessCallback = ({documentId}) => {
+    this.props.flash("Successfully deleted comment", "success");
+  }
 
   // TODO: Make comments collapsible id:18
   // TODO: Create unique comment-links id:14
@@ -83,19 +123,34 @@ class CommentsItem extends getRawComponent('CommentsItem') {
 
   renderComment() {
     let content = this.props.comment.content;
-
     const htmlBody = {__html: this.props.comment.htmlBody};
-
     return (
       <div className="comments-item-text content-body">
         {content ? <Components.ContentRenderer state={content} /> :
         null}
         {htmlBody && !content ? <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
-
       </div>
     )
   }
 
+  renderReply = () =>
+      <div className="comments-item-reply">
+        <Components.CommentsNewForm
+          postId={this.props.comment.postId}
+          parentComment={this.props.comment}
+          successCallback={this.replySuccessCallback}
+          cancelCallback={this.replyCancelCallback}
+          type="reply"
+        />
+      </div>
+
+  renderEdit = () =>
+      <Components.CommentsEditForm
+        comment={this.props.comment}
+        successCallback={this.editSuccessCallback}
+        cancelCallback={this.editCancelCallback}
+        removeSuccessCallback={this.removeSuccessCallback}
+      />
 }
 
 replaceComponent('CommentsItem', CommentsItem, withRouter);

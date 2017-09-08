@@ -2,6 +2,8 @@ import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:cor
 import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
+import Users from 'meteor/vulcan:users';
+import { Link } from 'react-router';
 
 
 const SequencesGridItem = ({sequence, currentUser}) => {
@@ -12,7 +14,13 @@ const SequencesGridItem = ({sequence, currentUser}) => {
     <div className="sequences-grid-item-top" style={{borderTopColor: sequence.color}}>
       <div className="sequences-grid-item-title">{sequence.title}</div>
       <div className="sequences-grid-item-progress" style={{color: sequence.color}}>{totalPostsNumber} articles</div>
-      <div className="sequences-grid-item-author">by {sequence.user.displayName}</div>
+      <object>
+        <Link to={Users.getProfileUrl(sequence.user)}>
+          <div className="sequences-grid-item-author">
+            by {Users.getDisplayName(sequence.user)}
+          </div>
+        </Link>
+      </object>
     </div>
     <div className="sequences-grid-item-bottom">
       <div className="sequences-grid-item-image">

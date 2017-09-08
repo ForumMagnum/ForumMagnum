@@ -6,8 +6,8 @@ const testCollections = [
   {
     title: "The Core Sequences",
     id: "dummyId",
-    user: {displayName: "EliezerYudkowsky"},
-    summary: "The Core Sequences contain many of the formative ideas behind the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruism community.",
+    user: {userName: "Eliezer_Yudkowsky", displayName: "EliezerYudkowsky", slug: "eliezer_yudkowsky"},
+    summary: '". . . in modern society so little is taught of the skills of rational belief and decision-making, so little of the mathematics and sciences underlying them . . . that it turns out that just reading through a massive brain-dump full of problems in philosophy and science can, yes, be surprisingly good for you. Walking through all of that, from a dozen different angles, can sometimes convey a glimpse of the central rhythm."',
     image: "http://i.imgur.com/dVXiZtw.png",
     color: "#B1D4B4",
     big: true,
@@ -15,7 +15,7 @@ const testCollections = [
   {
     title: "The Codex",
     id: "dummyId2",
-    user: {displayName: "Yvain"},
+    user: {username: "Yvain", displayName: "Yvain", slug: "yvain"},
     summary: "The Codex contains essays about science, medicine, philosophy, politics, and futurism. (There’s also one post about hallucinatory cactus-people, but it’s not representative)",
     image: "http://i.imgur.com/ItFKgn4.png",
     color: "#88ACB8",
@@ -24,7 +24,7 @@ const testCollections = [
   {
     title: "Harry Potter and the Methods of Rationality",
     id: "dummyId3",
-    user: {displayName: "EliezerYudkowsky"},
+    user: {userName: "Eliezer_Yudkowsky", displayName: "EliezerYudkowsky", slug: "eliezer_yudkowsky"},
     summary: "In an Alternate Universe, Petunia married a scientist. Now Rationalist!Harry enters the wizarding world armed with Enlightenment ideals and the experimental spirit.",
     image: "http://i.imgur.com/uu4fJ5R.png",
     color: "#757AA7",

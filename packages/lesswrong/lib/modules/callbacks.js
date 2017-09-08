@@ -270,11 +270,11 @@ function sequencesNewPlaintextDescription(sequence) {
     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={sequence.description} />);
     const plaintextBody = h2p(html);
     Sequences.update(sequence._id, {$set: {plaintextDescription: plaintextBody}});
-  } 
+  }
 }
 
-addCallback("comments.new.async", commentsNewHTMLBodyAndPlaintextBody);
-addCallback("comments.edit.async", commentsNewHTMLBodyAndPlaintextBody);
+addCallback("sequences.new.async", sequencesNewPlaintextDescription);
+addCallback("sequences.edit.async", sequencesNewPlaintextDescription);
 
 function reactRouterAnchorTags(unusedItem) {
   anchorate();
