@@ -38,11 +38,13 @@ const CollectionsCard = ({collection = testCollection, big = false, url}) => {
         <div className="collection-card-content" style={cardContentStyle}>
           <CardTitle
             title={collection.title}
-            subtitle={"by " + collection.user.displayName}
             className="collection-card-title"
             titleStyle={cardTitleStyle}
+            subtitle={<object><div>
+              by <Components.UsersName user={collection.user}/>
+            </div></object>}
             subtitleStyle={cardSubtitleStyle}
-            />
+          />
           <CardText
             className="collection-card-text"
             >
