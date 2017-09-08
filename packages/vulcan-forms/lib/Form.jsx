@@ -135,7 +135,7 @@ class Form extends Component {
 
         // convert value type if needed
         if (fieldSchema.type.definitions[0].type === Number) field.value = Number(field.value);
-        
+
         // if value is an array of objects ({_id: '123'}, {_id: 'abc'}), flatten it into an array of strings (['123', 'abc'])
         // fallback to item itself if item._id is not defined (ex: item is not an object or item is just {slug: 'xxx'})
         if (Array.isArray(field.value)) {
@@ -291,14 +291,16 @@ class Form extends Component {
   }
 
   // manually update the current values of one or more fields(i.e. on blur). See above for on change instead
-  updateCurrentValues(newValues) {
+  updateCurrentValues(newValues, submit = false) {
     // keep the previous ones and extend (with possible replacement) with new ones
     this.setState(prevState => ({
       currentValues: {
         ...prevState.currentValues,
         ...newValues,
       }
-    }));
+    }),
+    // When submit is set to true, submit form after updating
+    submit ? () => this.submitForm(this.refs.form.getModel()) : null);
   }
 
   // key down handler
@@ -353,9 +355,9 @@ class Form extends Component {
                 content: this.getErrorMessage(error)
               }
             });
-          
+
           } else { // this is a regular error
-            
+
             message = {content: error.message || this.context.intl.formatMessage({id: error.id, defaultMessage: error.id}, error.data)}
 
           }
@@ -387,6 +389,7 @@ class Form extends Component {
 
   // add something to autofilled values
   addToAutofilledValues(property) {
+    console.log("this.submitFormContext", this.submitFormContext);
     this.setState(prevState => ({
       autofilledValues: {
         ...prevState.autofilledValues,
@@ -557,6 +560,7 @@ class Form extends Component {
       if (unsetKeys.length > 0) {
         args.unset = _.object(unsetKeys, unsetKeys.map(() => true));
       }
+      console.log("Form.jsx editMutation args", args);
       // call method with _id of document being edited and modifier
       this.props.editMutation(args).then(this.editMutationSuccessCallback).catch(this.mutationErrorCallback);
     }
@@ -676,7 +680,7 @@ Form.childContextTypes = {
   setFormState: PropTypes.func,
   throwError: PropTypes.func,
   clearForm: PropTypes.func,
-  getDocument: PropTypes.func
+  getDocument: PropTypes.func,
 }
 
 module.exports = Form
