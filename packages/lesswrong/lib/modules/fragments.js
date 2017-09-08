@@ -46,8 +46,8 @@ registerFragment(`
     userId
     createdAt
     link
-    notificationMessage
-    notificationType
+    message
+    type
     viewed
   }
 `);

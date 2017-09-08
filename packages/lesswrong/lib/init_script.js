@@ -69,7 +69,7 @@ if(Notifications.find().fetch().length === 0) {
         notificationType = _.sample(["newPost", "newPendingPost", "postApproved"]);
         notificationSeed = {
           userId: user._id,
-          notificationType: notificationType,
+          type: notificationType,
           notificationMessage: notificationMessage(notificationType, "post", post._id),
           documentType: "post",
           documentId: post._id,
@@ -87,7 +87,7 @@ if(Notifications.find().fetch().length === 0) {
         notificationType = _.sample(["newComment", "newReply"]);
         notificationSeed = {
           userId: user._id,
-          notificationType: notificationType,
+          type: notificationType,
           notificationMessage: notificationMessage(notificationType, "comment", comment._id),
           documentType: "comment",
           documentId: comment._id,
@@ -105,7 +105,7 @@ if(Notifications.find().fetch().length === 0) {
         notificationType = "newUser";
         notificationSeed = {
           userId: user._id,
-          notificationType: notificationType,
+          type: notificationType,
           notificationMessage: notificationMessage(notificationType, "user", user2._id),
           documentType: "user",
           documentId: user2._id,
