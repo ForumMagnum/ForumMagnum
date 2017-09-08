@@ -18,7 +18,7 @@ Posts.addField([
   {
     fieldName: "url",
     fieldSchema: {
-      order: 40,
+      order: 20,
       placeholder: "URL",
       control: EditUrl,
     }

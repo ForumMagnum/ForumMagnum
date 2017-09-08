@@ -1,0 +1,50 @@
+.posts-edit-form {
+    position:absolute;
+    padding-bottom:25px;
+    width:80%;
+    margin:0 10% 150px;
+
+    @include small {
+        width:90%;
+        margin:0 5% 150px;
+    }
+}
+
+.document-edit {
+    position:normal;
+}
+
+.document-edit .input-draft, .form-submit, .posts-delete-link {
+    position:absolute;
+    bottom:0;
+}
+
+.document-edit .posts-delete-link {
+    left:0;
+    bottom:6px;
+}
+.document-edit .input-draft {
+    right:115px;
+    width:125px;
+    margin:0;
+    @include small {
+        width:125px;
+    }
+
+    .form-group.row {
+        margin-bottom:0;
+    }
+
+    .checkbox {
+        width:125px;
+        margin:0 0 6px 0;
+    }
+}
+
+.document-edit .form-submit {
+    right:0;
+}
+
+.commentEditor .content-body {
+    padding:0 18px;
+}
