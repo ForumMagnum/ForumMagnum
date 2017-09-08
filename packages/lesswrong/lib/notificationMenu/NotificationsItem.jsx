@@ -19,7 +19,7 @@ class NotificationsItem extends Component {
     return (
       <LinkContainer to={notification.link ? notification.link : "/"}>
         <MenuItem key={notification._id} className={className}>
-            {notification.notificationMessage}
+            {notification.message}
         </MenuItem>
       </LinkContainer>
     )

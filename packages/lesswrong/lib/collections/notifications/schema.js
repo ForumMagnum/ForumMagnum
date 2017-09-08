@@ -15,6 +15,7 @@ const schema = {
   },
   userId: {
     type: String,
+    optional: true,
     viewableBy: Users.owns,
   },
   createdAt: {
@@ -40,12 +41,17 @@ const schema = {
     optional: true,
     viewableBy: Users.owns,
   },
-  notificationMessage: {
+  title: {
     type: String,
     optional: true,
     viewableBy: Users.owns,
   },
-  notificationType: {
+  message: {
+    type: String,
+    optional: true,
+    viewableBy: Users.owns,
+  },
+  type: {
     type: String,
     optional: true,
     viewableBy: Users.owns,
@@ -54,9 +60,9 @@ const schema = {
     type: Boolean,
     optional: true,
     defaultValue: false,
-    viewableBy: Users.owns,
-    insertableBy: Users.owns,
-    editableBy: Users.owns,
+    viewableBy: ['members'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
   },
 };
 

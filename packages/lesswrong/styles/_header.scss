@@ -98,10 +98,9 @@
     display: none;
   }
   .ais-SearchBox__input {
-    background: url(https://static.tumblr.com/ftv85bp/MIXmud4tx/search-icon.png) no-repeat 9px center;
     padding-top: 3px;
     padding-right: 0px;
-    padding-left: 31px;
+    padding-left: 48px;
     vertical-align: bottom;
     border-style: none;
     background-color: transparent;
@@ -249,4 +248,27 @@
     }
   }
 
+}
+
+.notifications-menu {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.notifications-menu-inbox-button {
+  height: 40px;
+  font-size: 14px;
+  width: 100%;
+  text-align: center;
+  color: rgba(100, 169, 105, 0.9);
+  &:hover {
+    text-decoration: none !important;
+    color: rgba(100, 169, 105, 0.5) !important;
+  }
+}
+
+.notifications-menu-inbox-button-text {
+  height: 40px;
+  font-size: 14px;
+  padding-top: 5px;
 }
