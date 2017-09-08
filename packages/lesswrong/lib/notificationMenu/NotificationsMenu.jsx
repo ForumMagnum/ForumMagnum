@@ -4,9 +4,11 @@ import IconButton from 'material-ui/IconButton';
 import Popover from 'material-ui/Popover';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
+import {List, ListItem} from 'material-ui/List';
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import Notifications from '../collections/notifications/collection.js'
+import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
 
 class NotificationsMenu extends Component {
   constructor(props) {
@@ -30,6 +32,42 @@ class NotificationsMenu extends Component {
     });
   }
 
+  renderNotificationResults = () => {
+    const {currentUser, results, loadMore, loading, totalCount} = this.props;
+    return <div>
+      {results.map(notification =>
+        <ListItem
+          containerElement={<Link to={notification.link} />}
+          key={notification._id}
+          primaryText={notification.message}
+          currentUser={currentUser}
+          style={{backgroundColor: notification.viewed ? 'rgba(0,0,0,0.04)' : 'inherit'}}
+        />)}
+
+      {results.length < totalCount ?
+        loading ?
+          <Components.Loading /> :
+          <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />
+        : null
+      }
+    </div>
+  }
+
+  viewNotifications = (results) => {
+    console.log("viewNotifications results", results);
+    const VIEW_NOTIFICATIONS_DELAY = 500;
+    setTimeout(() => {
+      if(results && results.length){
+        let editMutation = this.props.editMutation;
+        let set = {viewed: true};
+        results.forEach((notification) => {
+          console.log(notification);
+          editMutation({documentId: notification._id, set: set, unset: {}});
+        });
+      }
+    }, VIEW_NOTIFICATIONS_DELAY)
+  }
+
   render() {
       const results = this.props.results;
       const currentUser = this.props.currentUser;
@@ -39,75 +77,42 @@ class NotificationsMenu extends Component {
       const totalCount = this.props.totalCount;
       const title = this.props.title;
 
-      let unreadNotifications = [];
-      if (results && results.length) {
-        unreadNotifications = results.filter(this.isNotViewed);
-      }
-      // console.log(currentUser);
-      // console.log(refetch);
-
-      //TODO: Display Load More button only when not all notifications are loaded already
       if (!currentUser) {
         return null;
-      } else if (results && results.length) {
+      } else if (loading) {
+          return (<Components.Loading/>)
+      } else {
         return (
-          <div className="users-menu">
-            <IconButton onTouchTap={this.handleTouchTap} iconClassName="notifications_none" />
+          <div className="notifications-menu">
+            <IconButton onTouchTap={(e) => {this.handleTouchTap(e); this.viewNotifications(results)}}> <NotificationsIcon color="rgba(0,0,0,0.5)" /> </IconButton>
             <Popover
               open={this.state.open}
               anchorEl={this.state.anchorEl}
               anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
               targetOrigin={{horizontal: 'right', vertical: 'top'}}
               onRequestClose={this.handleRequestClose}
+              autoCloseWhenOffScreen={false}
             >
-              <Menu>
-                <MenuItem primaryText="All Notifications" containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
-                {results.map(notification => <MenuItem key={notification._id} primaryText={notification.notificationMessage} currentUser={currentUser} notification={notification} />)}
-              </Menu>
+              <div className="notifications-menu-content">
+                <List style={{width: '300px', maxHeight: '50vh', overflowY: 'scroll'}}>
+                  { results && results.length ?
+                    this.renderNotificationResults() :
+                    <ListItem primaryText="No Results" disabled={true} containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
+                  }
+                </List>
+                <Link to={{pathname: '/inbox', query: {select: "Notifications"}}} className="notifications-menu-inbox-button" onTouchTap={() => this.setState({open: false})}>
+                  <div className="notifications-menu-inbox-button-text">
+                    All Notifications
+                  </div>
+                </Link>
+              </div>
             </Popover>
           </div>
         )
-      } else if (loading) {
-          return (<Components.Loading/>)
-      } else {
-          return (
-            <div className="users-menu">
-              <IconButton onTouchTap={this.handleTouchTap} iconClassName="notifications_none" />
-              <Popover
-                open={this.state.open}
-                anchorEl={this.state.anchorEl}
-                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-                targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                onRequestClose={this.handleRequestClose}
-              >
-                <Menu>
-                  <MenuItem primaryText="All Notifications" containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
-                  <MenuItem primaryText="No Results" disabled={true} containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
-                </Menu>
-              </Popover>
-            </div>)
       }
   }
 
-  isNotViewed(notification) {
-    return (!notification.viewed);
-  }
 
-  viewNotifications(results) {
-    const VIEW_NOTIFICATIONS_DELAY = 500;
-    return () => {
-      return setTimeout(() => {
-        if(results && results.length){
-          let editMutation = this.props.editMutation;
-          let set = {viewed: true};
-          results.forEach((notification) => {
-            // console.log(notification);
-            editMutation({documentId: notification._id, set: set, unset: {}});
-          });
-        }
-      }, VIEW_NOTIFICATIONS_DELAY)
-    }
-  }
 }
 
 
@@ -115,8 +120,8 @@ const withListOptions = {
   collection: Notifications,
   queryName: 'notificationsListQuery',
   fragmentName: 'notificationsNavFragment',
-  limit: 5,
-  totalResolver: false,
+  limit: 10,
+  totalResolver: true,
 };
 
 const withEditOptions = {

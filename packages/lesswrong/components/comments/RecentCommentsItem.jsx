@@ -88,7 +88,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     const htmlBody = {__html: this.props.comment.htmlBody};
 
     return (
-      <div className="recent-comments-item-text comments-item-text">
+      <div className="recent-comments-item-text comments-item-text content-body">
         {content ? <object><Components.ContentRenderer state={content} /></object> :
         null}
         {htmlBody && !content ? <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}

@@ -10,6 +10,12 @@ const closeIconStyle = {
   fontSize: '14px',
 }
 
+const searchIconStyle = {
+  color: 'rgba(0, 0, 0, 0.6)',
+  position: 'absolute',
+  padding: '12px',
+}
+
 
 class SearchBar extends Component {
   constructor(props){
@@ -64,8 +70,9 @@ class SearchBar extends Component {
         onSearchStateChange={this.queryStateControl}
         >
         <div className={"search-bar " + inputOpenClass}>
-          <div className="search-bar-box">
-            <SearchBox onTouchTap={this.handleSearchTap} resetComponent={<div className="search-box-reset"></div>} />
+          <div className="search-bar-box" onTouchTap={this.handleSearchTap}>
+            <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
+            <SearchBox resetComponent={<div className="search-box-reset"></div>} />
           </div>
           <div className="search-bar-close" onTouchTap={this.closeSearch}>
             <FontIcon className="material-icons" style={closeIconStyle}>close</FontIcon>

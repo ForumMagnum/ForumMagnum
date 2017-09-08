@@ -9,11 +9,11 @@ Notifications.addDefaultView(function (terms) {
 
 // notifications for a specific user (what you see in the notifications menu)
 Notifications.addView("userNotifications", function (terms) {
-  if (!!terms.notificationType) {
+  if (!!terms.type) {
     return {
       selector: {
         userId: terms.userId,
-        notificationType: terms.notificationType,
+        type: terms.type,
       },
       options: {sort: {createdAt: -1}}
     };

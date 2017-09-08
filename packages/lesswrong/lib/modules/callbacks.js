@@ -40,8 +40,8 @@ const createNotifications = (userIds, notificationType, documentType, documentId
       userId: userId,
       documentId: documentId,
       documentType: documentType,
-      notificationMessage: notificationMessage(notificationType, documentType, documentId),
-      notificationType: notificationType,
+      message: notificationMessage(notificationType, documentType, documentId),
+      type: notificationType,
       link: getLink(documentType, documentId),
     }
 
@@ -270,7 +270,7 @@ function sequencesNewPlaintextDescription(sequence) {
     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={sequence.description} />);
     const plaintextBody = h2p(html);
     Sequences.update(sequence._id, {$set: {plaintextDescription: plaintextBody}});
-  } 
+  }
 }
 
 addCallback("comments.new.async", commentsNewHTMLBodyAndPlaintextBody);
