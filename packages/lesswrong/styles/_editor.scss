@@ -1,4 +1,4 @@
-.posts-edit-form {
+.posts-edit-form, .posts-new-form {
     position:absolute;
     padding-bottom:25px;
     width:80%;
@@ -10,20 +10,27 @@
     }
 }
 
-.document-edit {
+.document-edit, .document-new {
     position:normal;
 }
 
-.document-edit .input-draft, .form-submit, .posts-delete-link {
+.document-edit .input-draft, 
+.document-edit .form-submit, 
+.document-edit .posts-delete-link,
+.document-new .input-draft, 
+.document-new .form-submit, 
+.document-new .posts-delete-link {
     position:absolute;
     bottom:0;
 }
 
-.document-edit .posts-delete-link {
+.document-edit .posts-delete-link, 
+.document-new .form-submit {
     left:0;
     bottom:6px;
 }
-.document-edit .input-draft {
+.document-edit .input-draft, 
+.document-new .input-draft {
     right:115px;
     width:125px;
     margin:0;
@@ -41,7 +48,8 @@
     }
 }
 
-.document-edit .form-submit {
+.document-edit .form-submit, 
+.document-new .form-submit {
     right:0;
 }
 
