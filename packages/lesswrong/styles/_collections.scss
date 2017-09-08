@@ -50,6 +50,9 @@ $card-padding: 20px;
       padding: 0px !important;
       line-height: 120% !important;
       padding-bottom: 10px !important;
+      .users-name:hover {
+        color: rgba(0,0,0,0.3);
+      }
     }
     .collection-card-text {
       padding: 0px !important;
@@ -123,6 +126,6 @@ $card-padding: 20px;
 
 @include collection-card-break() {
   .posts-item {
-    margin-top: 20px; 
+    margin-top: 20px;
   }
 }

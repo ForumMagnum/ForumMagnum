@@ -70,6 +70,15 @@
     .sequences-grid-item-author {
       margin-top: 3px;
       color: rgba(0,0,0,0.6);
+      a {
+        transition: inherit;
+      }
+      &:hover {
+        color: rgba(0,0,0,0.3);
+        a {
+          color: rgba(0,0,0,0.3);
+        }
+      }
     }
   }
 }
@@ -536,7 +545,7 @@ svg.drag-handle {
   .collections-page {
     .section-title {
       padding-left: 20px !important;
-      margin-bottom: 20px !important; 
+      margin-bottom: 20px !important;
       h2 {
         width: inherit !important;
       }
