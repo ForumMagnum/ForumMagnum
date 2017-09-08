@@ -22,7 +22,7 @@ class NotificationsWrapper extends Component {
 
     const views = ["newPost", "newPendingPost", "postApproved", "newComment", "newReply", "newUser"];
 
-    const terms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0"), notificationType: this.state.notificationsFilter};
+    const terms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0"), type: this.state.notificationsFilter};
 
     return (
 

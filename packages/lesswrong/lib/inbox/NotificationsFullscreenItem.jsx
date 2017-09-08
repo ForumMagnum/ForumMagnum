@@ -15,7 +15,7 @@ class NotificationsFullscreenItem extends Component {
     return (
       <LinkContainer to={notification.link ? notification.link : "/"}>
         <ListGroupItem>
-            {notification.notificationMessage + ": (" + notification.notificationType + ")"}
+            {notification.message + ": (" + notification.type + ")"}
         </ListGroupItem>
       </LinkContainer>
     )

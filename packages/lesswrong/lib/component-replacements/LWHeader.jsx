@@ -20,7 +20,7 @@ class LWHeader extends Component {
     tagline = getSetting("tagline");
 
     notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
-    messageTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0"), notificationType: 'newMessage'};
+    messageTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0"), type: 'newMessage'};
 
 
     return (

@@ -40,8 +40,8 @@ const createNotifications = (userIds, notificationType, documentType, documentId
       userId: userId,
       documentId: documentId,
       documentType: documentType,
-      notificationMessage: notificationMessage(notificationType, documentType, documentId),
-      notificationType: notificationType,
+      message: notificationMessage(notificationType, documentType, documentId),
+      type: notificationType,
       link: getLink(documentType, documentId),
     }
 

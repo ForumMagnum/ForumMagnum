@@ -242,6 +242,7 @@
   // margin-bottom: 15px;
   .posts-item-comments {
     margin-left: auto;
+    width: 35px;
     position: relative;
     .posts-item-comment-count {
       @include vertical-center;
