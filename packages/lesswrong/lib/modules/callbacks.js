@@ -273,8 +273,8 @@ function sequencesNewPlaintextDescription(sequence) {
   }
 }
 
-addCallback("comments.new.async", commentsNewHTMLBodyAndPlaintextBody);
-addCallback("comments.edit.async", commentsNewHTMLBodyAndPlaintextBody);
+addCallback("sequences.new.async", sequencesNewPlaintextDescription);
+addCallback("sequences.edit.async", sequencesNewPlaintextDescription);
 
 function reactRouterAnchorTags(unusedItem) {
   anchorate();

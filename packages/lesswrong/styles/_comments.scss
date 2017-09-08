@@ -72,6 +72,7 @@
 }
 
 .comments-item-text {
+  white-space: pre-wrap;
   p {
     margin-top: 0.4rem !important;
     margin-bottom: 0px !important;
@@ -81,10 +82,7 @@
 .comments-item-meta{
   margin-bottom: $vmargin;
   color: rgba(0,0,0,0.5);
-  a:hover, a:active, a:focus {
-    text-decoration: none;
-    color: rgba(0,0,0,0.3);
-  }
+
 
   .avatar{
     margin-right: 5px;
@@ -107,9 +105,20 @@
   }
   .comments-item-origin {
     display: inline-block;
+    color: rgba(0,0,0,0.4);
     .comments-item-origin-post-title {
-      color: rgba(0,0,0,0.5);
+      color: rgba(0,0,0,0.5)
     }
+  }
+  .comments-item-origin:hover {
+    .comments-item-origin-post-title {
+      color: rgba(0,0,0,0.3);
+    }
+    color: rgba(0,0,0,0.3);
+  }
+  a:hover, a:active, a:focus {
+    text-decoration: none;
+    color: rgba(0,0,0,0.3) !important;
   }
 }
 
@@ -221,6 +230,25 @@
   }
 }
 
+.comments-item-text.collapsed {
+  .ory-cell-inner.ory-cell-leaf {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+  }
+}
+
 .comments-load-more {
   margin-left: 10px;
+}
+
+.read-more {
+  color: rgba(0, 0, 0, 0.5) !important;
+  background-image: none !important;
+  margin-left: 2px;
+  &:hover {
+    color: rgba(0, 0, 0, 0.3) !important;
+  }
 }
