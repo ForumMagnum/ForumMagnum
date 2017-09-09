@@ -29,6 +29,12 @@
     left:0;
     bottom:6px;
 }
+
+.commentEditor {
+    margin-bottom:35px;
+    border-bottom:solid 1px $light-grey;
+}
+
 .document-edit .input-draft, 
 .document-new .input-draft {
     right:115px;
@@ -46,6 +52,9 @@
         width:125px;
         margin:0 0 6px 0;
     }
+}
+.document-edit div hr {
+    display:none;
 }
 
 .document-edit .form-submit, 

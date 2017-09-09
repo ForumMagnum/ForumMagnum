@@ -18,7 +18,7 @@ class EditUrl extends Component {
     
   render() {
     return (
-      <div className="commentEditor">
+      <div className="posts-edit-url">
         <div className="row">
           <div className="col-md-3">
             <FlatButton 
