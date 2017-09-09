@@ -1,6 +1,17 @@
 import { registerFragment, extendFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
+  fragment UsersMinimumInfo on User {
+    # vulcan:users
+    _id
+    slug
+    username
+    displayName
+    emailHash
+  }
+`);
+
+registerFragment(`
   fragment conversationsListFragment on Conversation {
     _id
     title
@@ -294,6 +305,48 @@ registerFragment(`
     userId
     user {
       ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment UsersMinimumInfo on User {
+    # vulcan:users
+    _id
+    slug
+    username
+    displayName
+    emailHash
+  }
+`);
+
+registerFragment(`
+  fragment UsersProfile on User {
+    # vulcan:users
+    ...UsersMinimumInfo
+    createdAt
+    isAdmin
+    bio
+    htmlBio
+    website
+    groups
+    karma
+    # vulcan:posts
+    postCount
+    # vulcan:comments
+    commentCount
+    # vulcan:voting
+    downvotedComments {
+      ...VotedItem
+    }
+    downvotedPosts {
+      ...VotedItem
+    }
+    upvotedComments {
+      ...VotedItem
+    }
+    upvotedPosts {
+      ...VotedItem
     }
   }
 `);
