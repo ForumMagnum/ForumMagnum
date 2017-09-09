@@ -75,7 +75,7 @@
        color: rgba(0,0,0,0.93);
        font-weight: 400;
        margin-top: 5rem;
-       margin-bottom: 0;
+       margin-bottom: 1.4rem;
        font-size: 2.2rem;
        line-height: 1; }
 
@@ -84,12 +84,12 @@
        font-weight: 400;
        font-size: 1.7rem;
        margin-top: 2rem;
-       margin-bottom: 0;
+       margin-bottom: 1.4rem;
        line-height: 1; }
 
   hr { display: block;
        height: 1px;
-       width: 55%;
+      //  width: 55%;
        border: 0;
        border-top: 1px solid #ccc;
        margin: 1em 0;

@@ -76,7 +76,7 @@ class PostsItem extends PureComponent {
       >
        <Link to={postLink} className="posts-item-title-link" target={Posts.getLinkTarget(post)}>
          <div className="posts-item-content">
-          <div>
+          <div className="posts-item-body">
             <h3 className="posts-item-title">
                 {post.title}
             </h3>
