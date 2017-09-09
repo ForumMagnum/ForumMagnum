@@ -270,5 +270,21 @@
 .notifications-menu-inbox-button-text {
   height: 40px;
   font-size: 14px;
-  padding-top: 5px;
+  padding-top: 8px;
+}
+
+.notifications-menu-top {
+  padding: 10px;
+}
+
+.notifications-menu-actions {
+  float: right;
+  a {
+    color: rgba(0,0,0,0.5) !important;
+    margin-left:8px;
+  }
+  a:hover {
+    color: rgba(0,0,0,0.3) !important;
+    text-decoration: none;
+  }
 }

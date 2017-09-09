@@ -252,3 +252,14 @@
     color: rgba(0, 0, 0, 0.3) !important;
   }
 }
+
+.recent-comments-item {
+  p {
+    font-size: 1.1rem;
+    line-height: 1.6rem;
+  }
+  blockquote, blockquote p {
+    font-size: 1rem !important;
+    line-height: 1.4rem !important;
+  }
+}

@@ -1,4 +1,5 @@
 import { Components, registerComponent, withCurrentUser, withList, withEdit } from 'meteor/vulcan:core';
+import Users from "meteor/vulcan:users";
 import React, { Component } from 'react';
 import IconButton from 'material-ui/IconButton';
 import Popover from 'material-ui/Popover';
@@ -38,6 +39,7 @@ class NotificationsMenu extends Component {
       {results.map(notification =>
         <ListItem
           containerElement={<Link to={notification.link} />}
+          onTouchTap={() => this.viewNotifications([notification])}
           key={notification._id}
           primaryText={notification.message}
           currentUser={currentUser}
@@ -55,21 +57,19 @@ class NotificationsMenu extends Component {
 
   viewNotifications = (results) => {
     console.log("viewNotifications results", results);
-    const VIEW_NOTIFICATIONS_DELAY = 500;
-    setTimeout(() => {
-      if(results && results.length){
-        let editMutation = this.props.editMutation;
-        let set = {viewed: true};
-        results.forEach((notification) => {
-          console.log(notification);
-          editMutation({documentId: notification._id, set: set, unset: {}});
-        });
-      }
-    }, VIEW_NOTIFICATIONS_DELAY)
+    if(results && results.length){
+      let editMutation = this.props.editMutation;
+      let set = {viewed: true};
+      results.forEach((notification) => {
+        console.log(notification);
+        editMutation({documentId: notification._id, set: set, unset: {}});
+        notification.viewed = true;
+      });
+    }
   }
 
   render() {
-      const results = this.props.results;
+      let results = this.props.results.map(_.clone); //We don't want to modify the original results we get
       const currentUser = this.props.currentUser;
       const refetch = this.props.refetch;
       const loading = this.props.loading;
@@ -84,7 +84,7 @@ class NotificationsMenu extends Component {
       } else {
         return (
           <div className="notifications-menu">
-            <IconButton onTouchTap={(e) => {this.handleTouchTap(e); this.viewNotifications(results)}}> <NotificationsIcon color="rgba(0,0,0,0.5)" /> </IconButton>
+            <IconButton onTouchTap={(e) => {this.handleTouchTap(e)}}> <NotificationsIcon color="rgba(0,0,0,0.5)" /> </IconButton>
             <Popover
               open={this.state.open}
               anchorEl={this.state.anchorEl}
@@ -94,7 +94,14 @@ class NotificationsMenu extends Component {
               autoCloseWhenOffScreen={false}
             >
               <div className="notifications-menu-content">
-                <List style={{width: '300px', maxHeight: '50vh', overflowY: 'scroll'}}>
+                <div className="notifications-menu-top">
+                  <span className="notifications-menu-header">Notifications</span>
+                  <span className="notifications-menu-actions">
+                    {results && results.length ? <a className="notifications-menu-read-all" onTouchTap={() => this.viewNotifications(results)}>Mark All as Read</a> : null}
+                    <Link to={Users.getProfileUrl(currentUser) + "/edit"} className="notifications-menu-settings">Settings</Link>
+                  </span>
+                </div>
+                <List style={{width: '300px', maxHeight: '50vh', overflowY: 'auto', padding: '0px'}}>
                   { results && results.length ?
                     this.renderNotificationResults() :
                     <ListItem primaryText="No Results" disabled={true} containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
