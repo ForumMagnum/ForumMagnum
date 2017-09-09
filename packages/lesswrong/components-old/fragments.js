@@ -23,7 +23,6 @@ registerFragment(`
     username
     displayName
     emailHash
-    avatarUrl
   }
 `);
 
