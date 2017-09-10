@@ -90,7 +90,6 @@ class EditorFormComponent extends Component {
               </div> : null}
             </div> : null}
         </div>
-        <hr/>
       </div>
     )
   }
