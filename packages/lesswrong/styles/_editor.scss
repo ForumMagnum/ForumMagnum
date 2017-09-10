@@ -8,64 +8,64 @@
         width:90%;
         margin:0 5% 150px;
     }
-}
 
-.document-edit, .document-new {
-    position:normal;
-}
+    .document-edit, .document-new {
+        position:normal;
+    }
 
-.document-edit .input-draft, 
-.document-edit .form-submit, 
-.document-edit .posts-delete-link,
-.document-new .input-draft, 
-.document-new .form-submit, 
-.document-new .posts-delete-link {
-    position:absolute;
-    bottom:0;
-}
+    .document-edit .input-draft, 
+    .document-edit .form-submit, 
+    .document-edit .posts-delete-link,
+    .document-new .input-draft, 
+    .document-new .form-submit, 
+    .document-new .posts-delete-link {
+        position:absolute;
+        bottom:0;
+    }
 
-.document-edit .posts-delete-link, 
-.document-new .form-submit {
-    left:0;
-    bottom:6px;
-}
+    .document-edit .posts-delete-link, 
+    .document-new .form-submit {
+        left:0;
+        bottom:6px;
+    }
 
-.commentEditor {
-    margin-bottom:35px;
-    border-bottom:solid 1px $light-grey;
-}
+    .commentEditor {
+        margin-bottom:30px;
+        border-bottom:solid 1px $light-grey;
+    }
 
-.document-edit .input-draft, 
-.document-new .input-draft {
-    right:115px;
-    width:125px;
-    margin:0;
-    @include small {
+    .document-edit .input-draft, 
+    .document-new .input-draft {
+        right:115px;
         width:125px;
+        margin:0;
+        @include small {
+            width:125px;
+        }
+
+        .form-group.row {
+            margin-bottom:0;
+        }
+
+        .checkbox {
+            width:125px;
+            margin:0 0 6px 0;
+        }
     }
 
-    .form-group.row {
-        margin-bottom:0;
+    .document-edit div hr {
+    // Ray Sept 2017: 
+    // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
+    // path: /packages/vulcan-forms/lib/Form.jsx
+        display:none;
     }
 
-    .checkbox {
-        width:125px;
-        margin:0 0 6px 0;
+    .document-edit .form-submit, 
+    .document-new .form-submit {
+        right:0;
     }
-}
 
-.document-edit div hr {
-// Ray Sept 2017: 
-// This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
-// path: /packages/vulcan-forms/lib/Form.jsx
-    display:none;
-}
-
-.document-edit .form-submit, 
-.document-new .form-submit {
-    right:0;
-}
-
-.commentEditor .content-body {
-    padding:0 18px;
+    .commentEditor .content-body {
+        padding:0 18px;
+    }
 }
