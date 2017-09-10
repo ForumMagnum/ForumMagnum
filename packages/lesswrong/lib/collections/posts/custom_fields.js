@@ -3,6 +3,7 @@ import PostEditor from '../../editor/PostEditor.jsx';
 import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
 import EditTitle from '../../editor/EditTitle.jsx';
 import EditUrl from '../../editor/EditUrl.jsx';
+import SaveDraftButton from '../../editor/SaveDraftButton/SaveDraftButton.jsx';
 
 const formGroups = {
   admin: {
@@ -57,7 +58,7 @@ Posts.addField([
       insertableBy: ['members'],
       editableBy: ['members'],
       order: 30,
-      control: "checkbox",
+      control: SaveDraftButton,
     }
   },
 
