@@ -44,6 +44,13 @@
     opacity: 1;
   }
 }
+.comments-item.deleted {
+  background-color: #ffefef;
+  padding: $vmargin $hmargin;
+  .comments-item-text.content-body {
+    text-decoration: line-through;
+  }
+}
 
 .recent-comments-item {
   .recent-comments-item-meta {
@@ -78,6 +85,8 @@
 
 .comments-item-meta{
   margin-bottom: $vmargin;
+  border-bottom:solid 1px $lighter-border;
+  padding:5px 0;
   color: rgba(0,0,0,0.5);
   & > div {
     margin-right: 5px;

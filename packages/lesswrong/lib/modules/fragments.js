@@ -160,6 +160,7 @@ registerFragment(`
     # example-forum
     _id
     postId
+    deleted
     parentCommentId
     topLevelCommentId
     body
