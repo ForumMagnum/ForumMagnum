@@ -120,7 +120,7 @@ This will return the _id of the new user. If you'd like to make that user an adm
 
 ```
 meteor mongo
-db.users.update({_id:'[newuser _id]'}, {$set: {isAdmin:true}})
+db.users.update({_id:'<EXAMPLE_USER_ID>'}, {$set: {isAdmin:true}})
 ```
 
 ## CFAR Hackathon: Feature Roadmap
