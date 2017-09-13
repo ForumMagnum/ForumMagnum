@@ -116,11 +116,11 @@ In the future, it will be possible to create a user using the website itself, bu
 meteor shell
 Accounts.createUser({username:'<USERNAME>', email:'<EMAIL ADDRESS>', password:'<PASSWORD>'})
 ```
-If you'd like to make that user an admin, then exit the meteor shell and enter the mongo shell:
+This will return the _id of the new user. If you'd like to make that user an admin, then exit the meteor shell and enter the mongo shell, using the new _id to 
 
 ```
 meteor mongo
-db.users.update({_id:'TnEKzi4uFFWW7f8Hi'}, {$set: {isAdmin:true}})
+db.users.update({_id:'[newuser _id]'}, {$set: {isAdmin:true}})
 ```
 
 ## CFAR Hackathon: Feature Roadmap
