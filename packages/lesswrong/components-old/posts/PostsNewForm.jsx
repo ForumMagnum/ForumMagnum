@@ -1,5 +1,5 @@
 import { Components, registerComponent, getRawComponent, getFragment, withMessages } from 'meteor/vulcan:core';
-import Posts from "meteor/vulcan:posts";
+import { Posts } from "meteor/example-forum";
 import React from 'react';
 import PropTypes from 'prop-types';
 import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';

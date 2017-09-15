@@ -1,4 +1,4 @@
-import Categories from '../../modules/categories/index.js';
+import { Categories } from '../../modules/categories/index.js';
 import { Utils, newMutation } from 'meteor/vulcan:core';
 
 // Load categories from settings, if there are any

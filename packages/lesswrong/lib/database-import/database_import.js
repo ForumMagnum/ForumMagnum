@@ -1,6 +1,6 @@
 import Users from 'meteor/vulcan:users';
-import Posts from 'meteor/vulcan:posts';
-import Comments from 'meteor/vulcan:comments';
+import { Posts } from 'meteor/example-forum';
+import Comments from 'meteor/example-forum';
 import { newMutation, editMutation, runCallbacks, Utils } from 'meteor/vulcan:core';
 import moment from 'moment';
 import marked from 'marked';

@@ -1,6 +1,6 @@
 import { newMutation } from 'meteor/vulcan:core';
 import moment from 'moment';
-import Posts from '../../modules/posts/index.js';
+import { Posts } from '../../modules/posts/index.js';
 import Comments from '../../modules/comments/index.js';
 import Users from 'meteor/vulcan:users';
 

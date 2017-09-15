@@ -106,5 +106,3 @@ SequencesListEditor.contextTypes = {
 };
 
 registerComponent("SequencesListEditor", SequencesListEditor, withCurrentUser);
-
-export default withCurrentUser(SequencesListEditor);

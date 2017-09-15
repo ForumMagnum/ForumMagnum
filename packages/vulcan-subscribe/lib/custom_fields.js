@@ -1,8 +1,8 @@
 import Users from "meteor/vulcan:users";
 
 // note: leverage weak dependencies on packages
-const Posts = Package['vulcan:posts'] ? Package['vulcan:posts'].default : null;
-const Categories = Package['vulcan:categories'] ? Package['vulcan:categories'].default : null;
+const Posts = Package['example-forum'] ? Package['example-forum'].default : null;
+const Categories = Package['example-forum'] ? Package['example-forum'].default : null;
 
 Users.addField([
   {
@@ -40,7 +40,7 @@ Users.addField([
   }
 ]);
 
-// check if vulcan:posts exists, if yes, add the custom fields to Posts
+// check if example-forum exists, if yes, add the custom fields to Posts
 if (!!Posts) {
 
   Posts.addField([
@@ -72,7 +72,7 @@ if (!!Posts) {
 
 }
 
-// check if vulcan:categories exists, if yes, add the custom fields to Categories
+// check if example-forum exists, if yes, add the custom fields to Categories
 if (!!Categories) {
 
   Categories.addField([

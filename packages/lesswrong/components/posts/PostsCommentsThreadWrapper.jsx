@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withList, Components, registerComponent, Utils} from 'meteor/vulcan:core';
-import Comments from 'meteor/vulcan:comments';
+import Comments from 'meteor/example-forum';
 
 const PostsCommentsThreadWrapper = (props, /* context*/) => {
 

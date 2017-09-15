@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
-import Categories from "meteor/vulcan:categories";
+import { Categories } from "meteor/example-forum";
 
 const CategoriesEditForm = (props, context) => {
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withList, withCurrentUser, Loading } from 'meteor/vulcan:core';
-import Comments from 'meteor/vulcan:comments';
+import Comments from 'meteor/example-forum';
 
 const RecentComments = (props) => {
     const results = props.results;

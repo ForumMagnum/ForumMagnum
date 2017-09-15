@@ -39,9 +39,9 @@ registerFragment(`
     website
     groups
     karma
-    # vulcan:posts
+    # example-forum
     postCount
-    # vulcan:comments
+    # example-forum
     commentCount
     # vulcan:voting
     downvotedComments {

@@ -1,6 +1,6 @@
 import { Redirect, withRouter } from 'react-router'
 import { Components, registerComponent, withList } from 'meteor/vulcan:core'
-import Posts from 'meteor/vulcan:posts'
+import { Posts } from 'meteor/example-forum'
 import React from 'react'
 
 const LegacyPostWrapper = (props) => {

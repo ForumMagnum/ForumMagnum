@@ -2,7 +2,7 @@ import { Components, getRawComponent, replaceComponent, ModalTrigger } from 'met
 import React from 'react';
 import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router';
-import Posts from "meteor/vulcan:posts";
+import { Posts } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 import moment from 'moment';
 

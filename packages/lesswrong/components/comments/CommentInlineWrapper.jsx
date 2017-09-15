@@ -1,7 +1,7 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Comments from 'meteor/vulcan:comments';
+import Comments from 'meteor/example-forum';
 
 const CommentInlineWrapper = ({ document, currentUser}) => {
   if (document) {
