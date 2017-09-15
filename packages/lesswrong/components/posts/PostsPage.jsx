@@ -1,4 +1,13 @@
-import { Components, getRawComponent, replaceComponent, withDocument, registerComponent, getActions, withCurrentUser, withMutation } from 'meteor/vulcan:core';
+import {
+  Components,
+  getRawComponent,
+  replaceComponent,
+  withDocument,
+  registerComponent,
+  getActions,
+  withCurrentUser,
+  withMutation } from 'meteor/vulcan:core';
+
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
@@ -9,6 +18,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import Posts from 'meteor/vulcan:posts';
 import moment from 'moment';
+
 
 class PostsPage extends Component {
   renderCommentViewSelector() {
@@ -117,7 +127,11 @@ class PostsPage extends Component {
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ?
                     <Link to={{pathname:'/editPost', query:{postId: post._id}}}>
                       Edit
-                    </Link> : null}
+                    </Link> : null
+                  }
+                  <Components.DialogGroup title="Stats" trigger={<a>Stats</a>}>
+                    <Components.VotesList document={post} />
+                  </Components.DialogGroup>
                 </div>
               </div>
               {post.htmlBody && !post.content ? <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div> : null}
