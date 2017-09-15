@@ -1,7 +1,7 @@
 import Users from 'meteor/vulcan:users';
-import Posts from 'meteor/vulcan:posts';
-import Comments from 'meteor/vulcan:comments';
-import Categories from 'meteor/vulcan:categories';
+import { Posts } from 'meteor/example-forum';
+import Comments from 'meteor/example-forum';
+import { Categories } from 'meteor/example-forum';
 import { Utils, GraphQLSchema } from 'meteor/vulcan:core';
 
 /**

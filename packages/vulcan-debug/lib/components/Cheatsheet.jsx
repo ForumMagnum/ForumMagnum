@@ -1,6 +1,6 @@
 import React from 'react';
-import Posts from "meteor/vulcan:posts";
-import Comments from "meteor/vulcan:comments";
+import { Posts } from "meteor/example-forum";
+import Comments from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
 import { Callbacks, Utils, registerComponent } from 'meteor/vulcan:core';
 

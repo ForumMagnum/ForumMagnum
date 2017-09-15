@@ -2,7 +2,7 @@ import { registerFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
   fragment PostsList on Post {
-    # vulcan:posts
+    # example-forum
     _id
     title
     url
@@ -21,11 +21,11 @@ registerFragment(`
     }
     # vulcan:embedly
     thumbnailUrl
-    # vulcan:categories
+    # example-forum
     categories {
       ...CategoriesMinimumInfo
     }
-    # vulcan:comments
+    # example-forum
     commentCount
     commenters {
       ...UsersMinimumInfo

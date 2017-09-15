@@ -1,4 +1,4 @@
-import Categories from './collection.js';
+import { Categories } from './collection.js';
 
 // will be common to all other view unless specific properties are overwritten
 Categories.addDefaultView(function (terms) {

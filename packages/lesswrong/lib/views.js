@@ -1,4 +1,4 @@
-import Comments from 'meteor/vulcan:comments';
+import Comments from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
 import LWEvents from "./collections/lwevents/collection.js";
 

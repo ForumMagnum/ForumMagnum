@@ -4,7 +4,7 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
-import Posts from 'meteor/vulcan:posts';
+import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
 class SequencesPage extends Component {

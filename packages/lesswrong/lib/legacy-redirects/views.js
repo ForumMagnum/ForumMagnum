@@ -1,4 +1,4 @@
-import Posts from 'meteor/vulcan:posts'
+import { Posts } from 'meteor/example-forum'
 
 Posts.addView("legacyPostUrl", function (terms) {
   return {

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withList, withCurrentUser, Components, registerComponent, Utils } from 'meteor/vulcan:core';
-import Comments from 'meteor/vulcan:comments';
+import Comments from 'meteor/example-forum';
 
 const PostsCommentsThread = (props, /* context*/) => {
 

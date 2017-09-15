@@ -1,4 +1,4 @@
-import Posts from '../modules/posts/index.js';
+import { Posts } from '../modules/posts/index.js';
 import Comments from '../modules/comments/index.js';
 import Users from 'meteor/vulcan:users';
 import { Utils } from 'meteor/vulcan:core';

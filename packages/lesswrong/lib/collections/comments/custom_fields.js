@@ -1,6 +1,7 @@
-import Comments from "meteor/vulcan:comments";
+import { Components } from "meteor/vulcan:core";
+
+import { Comments } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
-import CommentEditor from '../../editor/CommentEditor.jsx';
 
 Comments.addField([
   /**
@@ -14,7 +15,7 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      control: CommentEditor,
+      control: Components.CommentEditor,
       blackbox: true,
       order: 25,
     }

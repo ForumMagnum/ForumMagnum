@@ -1,6 +1,6 @@
 import { Picker } from 'meteor/meteorhacks:picker';
-import Posts from 'meteor/vulcan:posts';
-import Comments from 'meteor/vulcan:comments';
+import { Posts } from 'meteor/example-forum';
+import Comments from 'meteor/example-forum';
 
 //Route for redirecting LessWrong legacy posts
 // addRoute({ name: 'lessWrongLegacy', path: 'lw/:id/:slug/:commentId', componentName: 'LegacyPostRedirect'});

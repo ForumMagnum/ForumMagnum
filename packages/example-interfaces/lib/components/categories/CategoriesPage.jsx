@@ -7,7 +7,7 @@
 import React from 'react';
 import { Components, withCurrentUser } from 'meteor/vulcan:core';
 
-import Categories from '../../modules/categories/collection.js';
+import { Categories } from '../../modules/categories/collection.js';
 import CategoriesList from './CategoriesList';
 import CategoriesNewForm from './CategoriesNewForm.jsx';
 
