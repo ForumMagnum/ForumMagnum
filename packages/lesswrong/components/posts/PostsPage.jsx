@@ -129,9 +129,11 @@ class PostsPage extends Component {
                       Edit
                     </Link> : null
                   }
-                  <Components.DialogGroup title="Stats" trigger={<a>Stats</a>}>
-                    <Components.VotesList document={post} />
-                  </Components.DialogGroup>
+                  {Posts.options.mutations.softRemove.check(this.props.currentUser, post) ?
+                    <Components.DialogGroup title="Stats" trigger={<a>Stats</a>}>
+                      <Components.VotesList document={post} />
+                    </Components.DialogGroup>
+                  }
                 </div>
               </div>
               {post.htmlBody && !post.content ? <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div> : null}
