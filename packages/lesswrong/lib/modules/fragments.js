@@ -119,9 +119,13 @@ registerFragment(`
     downvotes
     upvoters {
       _id
+      slug
+      username
     }
     downvoters {
       _id
+      slug
+      username
     }
     baseScore
     score
