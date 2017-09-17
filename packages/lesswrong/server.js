@@ -24,7 +24,8 @@ export * from './lib/index.js';
 
 import './lib/collections/sequences/seed.js';
 
-Meteor.AppCache.config({
-  chrome: true,
-  firefox: true
-});
+
+// Meteor.AppCache.config({
+//   chrome: true,
+//   firefox: true
+// });
