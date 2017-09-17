@@ -6,7 +6,7 @@ import FRC from 'formsy-react-components';
 
 const Input = FRC.Input;
 
-class EmbedlyURL extends Component {
+class EmbedURL extends Component {
 
   constructor(props) {
     super(props);
@@ -69,7 +69,7 @@ class EmbedlyURL extends Component {
         // extract the relevant data, for easier consumption
         const { data: { getEmbedData: { title, description, thumbnailUrl } } } = result;
         const body = description;
-        
+
         // update the form
         if (title && !this.context.getDocument().title) {
           this.context.updateCurrentValues({title});
@@ -150,7 +150,7 @@ class EmbedlyURL extends Component {
     loadingStyle.display = this.state.loading ? "block" : "none";
 
     // see https://facebook.github.io/react/warnings/unknown-prop.html
-    const {document, control, getEmbedData, ...rest} = this.props; // eslint-disable-line
+    const {document, control, getEmbedData, refFunction, ...rest} = this.props; // eslint-disable-line
 
     return (
       <div className="form-group row embedly-form-group" style={wrapperStyle}>
@@ -182,13 +182,13 @@ class EmbedlyURL extends Component {
   }
 }
 
-EmbedlyURL.propTypes = {
+EmbedURL.propTypes = {
   name: PropTypes.string,
   value: PropTypes.any,
   label: PropTypes.string
 }
 
-EmbedlyURL.contextTypes = {
+EmbedURL.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToDeletedValues: PropTypes.func,
   throwError: PropTypes.func,
@@ -202,6 +202,6 @@ const options = {
   args: {url: 'String'},
 }
 
-export default withMutation(options)(EmbedlyURL);
+export default withMutation(options)(EmbedURL);
 
-registerComponent('EmbedlyURL', EmbedlyURL, [withMutation, options]);
+registerComponent('EmbedURL', EmbedURL, [withMutation, options]);

@@ -17,9 +17,7 @@ Package.onUse(function (api) {
     // Vulcan packages
 
     'vulcan:core@1.7.0',
-    // 'example-forum@1.7.0',
     'vulcan:email@1.7.0',
-    // 'example-forum@1.7.0'
 
   ]);
 

@@ -13,7 +13,7 @@ vulcan:admin
 # vulcan:newsletter
 vulcan:voting
 vulcan:events
-vulcan:embedly
+vulcan:embed
 # vulcan:subscribe
 
 ############ Theme Packages ############

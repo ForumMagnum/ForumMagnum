@@ -47,7 +47,6 @@ var getSchedule = function (parser) {
 Meteor.methods({
   getNextJob: function () {
     var nextJob = SyncedCron.nextScheduledAtDate('scheduleNewsletter');
-    console.log("Test"); 
     console.log(nextJob); // eslint-disable-line
     return nextJob;
   }
@@ -72,7 +71,7 @@ var addJob = function () {
 };
 
 Meteor.startup(function () {
-  if (getSetting('enableNewsletter', true)) {
+  if (getSetting('enableNewsletter', false)) {
     addJob();
   }
 });
