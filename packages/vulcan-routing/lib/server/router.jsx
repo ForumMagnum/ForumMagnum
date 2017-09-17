@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server'
 import { ServerStyleSheet } from 'styled-components'
 import moment from 'moment';
 import { RoutePolicy } from 'meteor/routepolicy';
-
+import SSRCaching from "react-ssr-caching";
 import { withRenderContextEnvironment, InjectData } from 'meteor/vulcan:lib';
 
 function isAppUrl(req) {
@@ -125,7 +125,17 @@ export const RouterServer = {
     if (!options) {
       options = {};
     }
-
+    //please check doc and example for more control on what to cache https://www.npmjs.com/package/react-ssr-caching
+    const cacheConfig = {
+      enabled: false,
+      profiling: false,
+      caching: false,
+      hashKey: true,
+      stripUrlProtocol: true
+    };
+    SSRCaching.enableCaching();
+    SSRCaching.setCachingConfig(cacheConfig);
+    
     withRenderContextEnvironment(function routerMiddleware(context, req, res, next) {
       if (!isAppUrl(req)) {
         next();

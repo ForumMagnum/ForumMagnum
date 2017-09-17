@@ -42,7 +42,6 @@ example-forum
 # example-permissions
 # example-membership
 # example-interfaces
-
 vulcan:debug
-
 lesswrong
+appcache

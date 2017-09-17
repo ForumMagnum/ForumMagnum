@@ -50,7 +50,6 @@ export const getComponent = (name) => {
   if (!component) {
     throw new Error(`Component ${name} not registered.`)
   }
-  console.log("getComponent", name);
   const hocs = component.hocs.map(hoc => Array.isArray(hoc) ? hoc[0](hoc[1]) : hoc);
   return compose(...hocs)(component.rawComponent)
 };

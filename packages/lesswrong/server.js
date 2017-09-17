@@ -23,3 +23,9 @@ import './lib/legacy-redirects/routes.js';
 export * from './lib/index.js';
 
 import './lib/collections/sequences/seed.js';
+
+
+// Meteor.AppCache.config({
+//   chrome: true,
+//   firefox: true
+// });

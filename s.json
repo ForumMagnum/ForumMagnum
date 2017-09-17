@@ -1,0 +1,81 @@
+{
+  "public": {
+    "title": "LessWrong Development Server",
+    "tagline":"A community blog devoted to refining the art of rationality",
+
+    "logoUrl": "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1498011194/LessWrong_Logo_skglnw.svg",
+    "logoHeight": "50",
+    "logoWidth": "200",
+    "faviconUrl": "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
+
+    "siteUrl": "https://bjj-ucefkh.c9users.io/",
+    "developmentServerIp": "https://bjj-ucefkh.c9users.io/",
+    "requirePostsApproval":false,
+    "requireViewInvite":false,
+    "requirePostInvite":false,
+    "enableNewsletter":false,
+    "autoSubscribe":false,
+    "emailNotifications":true,
+    "postInterval": 20,
+    "RSSLinksPointTo": "post",
+    "commentInterval": 20,
+    "maxPostsPerDay": 10,
+    "startInvitesCount": 5,
+    "postsPerPage": 10,
+
+    "language": "en",
+    "locale": "en",
+
+    "twitterAccount": "foo",
+    "facebookPage": "http://facebook.com/foo",
+
+    "googleAnalyticsId":"UA-60844744-4"
+  },
+
+  "defaultEmail": "no-reply@lesserwrong.com",
+  "mailUrl": "smtp://postmaster@mg.lesserwrong.com:a09aec2342e75bd4c859851ed883b361@smtp.mailgun.org:587/",
+  "scoreUpdateInterval": "30",
+
+  "embedlyKey":"e5e9e0e63822471a8dbe111043b4f297",
+  "mailChimpAPIKey": "123foo",
+  "mailChimpListId": "123foo",
+
+  "algoliaAppId": "Z0GR6EXQHD",
+  "algoliaAdminKey": "4d66392c9aae3ac014f171eea0e97617",
+
+  "intercomToken":"dG9rOjE1N2Q1NDExXzMyM2ZfNDBkMl9iNzc4XzViYzg2Yzk5YThhZToxOjA=",
+
+  "newsletterExcerptLength": 20,
+  "postExcerptLength": 30,
+
+  "categories": [
+    {
+      "name": "Test Category 1",
+      "description": "The first test category",
+      "order": 4,
+      "slug": "testcat1"
+    },
+    {
+      "name": "Test Category 2",
+      "description": "The second test category",
+      "order": 7,
+      "slug": "testcat2"
+    },
+    {
+      "name": "Test Category 3",
+      "description": "The third test category",
+      "order": 10,
+      "slug": "testcat3"
+    }
+  ],
+  "oAuth": {
+    "twitter": {
+      "consumerKey": "foo",
+      "secret": "bar"
+    },
+    "facebook": {
+      "appId": "foo",
+      "secret": "bar"
+    }
+  }
+}

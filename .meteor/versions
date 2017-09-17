@@ -1,6 +1,7 @@
 accounts-base@1.3.1
 accounts-password@1.4.0
-allow-deny@1.0.6
+allow-deny@1.0.9
+appcache@1.0.12
 autoupdate@1.3.12
 babel-compiler@6.19.4
 babel-runtime@1.0.1
@@ -22,7 +23,7 @@ ecmascript@0.8.2
 ecmascript-runtime@0.4.1
 ecmascript-runtime-client@0.4.3
 ecmascript-runtime-server@0.4.1
-ejson@1.0.13
+ejson@1.0.14
 email@1.2.3
 example-forum@1.7.0
 fourseven:scss@4.5.4
