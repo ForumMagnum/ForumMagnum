@@ -35,24 +35,28 @@ class NotificationsMenu extends Component {
 
   renderNotificationResults = () => {
     const {currentUser, results, loadMore, loading, totalCount} = this.props;
-    return <div>
-      {results.map(notification =>
-        <ListItem
-          containerElement={<Link to={notification.link} />}
-          onTouchTap={() => this.viewNotifications([notification])}
-          key={notification._id}
-          primaryText={notification.message}
-          currentUser={currentUser}
-          style={{backgroundColor: notification.viewed ? 'rgba(0,0,0,0.04)' : 'inherit'}}
-        />)}
+    if (results && !loading) {
+      return <div>
+        {results.map(notification =>
+          <ListItem
+            containerElement={<Link to={notification.link} />}
+            onTouchTap={() => this.viewNotifications([notification])}
+            key={notification._id}
+            primaryText={notification.message}
+            currentUser={currentUser}
+            style={{backgroundColor: notification.viewed ? 'rgba(0,0,0,0.04)' : 'inherit'}}
+          />)}
 
-      {results.length < totalCount ?
-        loading ?
-          <Components.Loading /> :
-          <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />
-        : null
-      }
-    </div>
+        {results.length < totalCount ?
+          loading ?
+            <Components.Loading /> :
+            <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />
+          : null
+        }
+      </div>
+    } else {
+      return <Components.Loading />
+    }
   }
 
   viewNotifications = (results) => {
@@ -69,7 +73,7 @@ class NotificationsMenu extends Component {
   }
 
   render() {
-      let results = this.props.results.map(_.clone); //We don't want to modify the original results we get
+      let results = this.props.results;
       const currentUser = this.props.currentUser;
       const refetch = this.props.refetch;
       const loading = this.props.loading;
@@ -79,9 +83,10 @@ class NotificationsMenu extends Component {
 
       if (!currentUser) {
         return null;
-      } else if (loading) {
+      } else if (loading || !results) {
           return (<Components.Loading/>)
       } else {
+        results = this.props.results.map(_.clone); //We don't want to modify the original results we get
         return (
           <div className="notifications-menu">
             <IconButton onTouchTap={(e) => {this.handleTouchTap(e)}}> <NotificationsIcon color="rgba(0,0,0,0.5)" /> </IconButton>
