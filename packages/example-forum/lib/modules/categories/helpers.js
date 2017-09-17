@@ -1,5 +1,5 @@
-import { Posts } from '../posts/index.js';
-import { Categories } from './collection.js';
+import Posts from '../posts/index.js';
+import Categories from './collection.js';
 import { Utils } from 'meteor/vulcan:core';
 
 /**
@@ -64,4 +64,3 @@ Categories.getUrl = function (category, isAbsolute) {
 Categories.getCounterName = function (category) {
   return category._id + '-postsCount';
 }
-

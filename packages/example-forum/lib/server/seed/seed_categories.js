@@ -1,4 +1,4 @@
-import { Categories } from '../../modules/categories/index.js';
+import Categories from '../../modules/categories/index.js';
 import { Utils, newMutation } from 'meteor/vulcan:core';
 
 // Load categories from settings, if there are any
@@ -29,10 +29,10 @@ if (Meteor.settings && Meteor.settings.categories) {
       // if not, create it
       newMutation({
         collection: Categories,
-        document: category, 
+        document: category,
         validate: false,
       });
-      
+
       // Categories.insert(category);
       console.log(`// Creating category “${category.name}”`); // eslint-disable-line
     }

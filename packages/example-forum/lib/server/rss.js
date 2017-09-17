@@ -1,5 +1,5 @@
 import RSS from 'rss';
-import { Posts } from '../modules/posts/index.js';
+import Posts from '../modules/posts/index.js';
 import Comments from '../modules/comments/index.js';
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';

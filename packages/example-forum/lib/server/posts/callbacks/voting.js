@@ -1,4 +1,4 @@
-import { Posts } from '../../../modules/posts/index.js'
+import Posts from '../../../modules/posts/index.js'
 import Users from 'meteor/vulcan:users';
 import { addCallback } from 'meteor/vulcan:core';
 import { operateOnItem } from 'meteor/vulcan:voting';

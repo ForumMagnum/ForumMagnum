@@ -1,6 +1,5 @@
 import React from 'react';
-import { Posts } from "meteor/example-forum";
-import Comments from "meteor/example-forum";
+import { Posts, Comments } from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
 import { Callbacks, Utils, registerComponent } from 'meteor/vulcan:core';
 
@@ -56,7 +55,7 @@ const Cheatsheet = props => {
             {_.map(Posts, (item, key) => (key[0] !== "_" ? renderFunction(item, key) : null) )}
           </ul>
         </div>
-        
+
         <div className="cheatsheet-block">
           <h2>Comments</h2>
           <h3>Helpers (<code>Comments.*</code>)</h3>
@@ -89,7 +88,7 @@ const Cheatsheet = props => {
         </div>
 
       </div>
-    
+
     </div>
   )
 }

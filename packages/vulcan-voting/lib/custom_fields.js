@@ -1,8 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 
 import Users from "meteor/vulcan:users";
-import { Posts } from "meteor/example-forum";
-import Comments from "meteor/example-forum";
+import { Posts, Comments } from "meteor/example-forum";
 
 /**
  * @summary Vote schema

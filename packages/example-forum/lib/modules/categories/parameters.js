@@ -4,7 +4,7 @@ Categories parameter
 
 */
 
-import { Categories } from './index.js';
+import Categories from './index.js';
 import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { getCategories } from './schema.js';
 

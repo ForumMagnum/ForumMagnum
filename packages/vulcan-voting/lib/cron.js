@@ -1,5 +1,4 @@
-import { Posts } from "meteor/example-forum";
-import Comments from "meteor/example-forum";
+import { Posts, Comments } from "meteor/example-forum";
 import { getSetting } from 'meteor/vulcan:core';
 import { updateScore } from './scoring.js';
 
