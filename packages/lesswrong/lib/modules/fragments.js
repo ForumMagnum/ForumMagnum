@@ -84,7 +84,7 @@ registerFragment(`
 
 registerFragment(`
   fragment LWPostsList on Post {
-    # vulcan:posts
+    # example-forum
     _id
     title
     url
@@ -107,11 +107,11 @@ registerFragment(`
     }
     # vulcan:embedly
     thumbnailUrl
-    # vulcan:categories
+    # example-forum
     categories {
       ...CategoriesMinimumInfo
     }
-    # vulcan:comments
+    # example-forum
     commentCount
     lastCommentedAt
     # vulcan:voting
@@ -155,7 +155,7 @@ registerFragment(`
 
 registerFragment(`
   fragment CommentsList on Comment {
-    # vulcan:comments
+    # example-forum
     _id
     postId
     parentCommentId
@@ -169,7 +169,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    # vulcan:posts
+    # example-forum
     post {
       _id
       commentCount
@@ -266,7 +266,7 @@ registerFragment(`
 
 registerFragment(`
   fragment commentWithContextFragment on Comment {
-    # vulcan:comments
+    # example-forum
     _id
     parentCommentId
     topLevelCommentId
@@ -279,7 +279,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    # vulcan:posts
+    # example-forum
     # vulcan:voting
     upvoters {
       _id
@@ -296,7 +296,7 @@ registerFragment(`
 
 registerFragment(`
   fragment commentInlineFragment on Comment {
-    # vulcan:comments
+    # example-forum
     _id
     body
     htmlBody
@@ -331,9 +331,9 @@ registerFragment(`
     website
     groups
     karma
-    # vulcan:posts
+    # example-forum
     postCount
-    # vulcan:comments
+    # example-forum
     commentCount
     # vulcan:voting
     downvotedComments {

@@ -1,7 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import Posts from 'meteor/vulcan:posts';
-import Comments from 'meteor/vulcan:comments';
-import Categories from 'meteor/vulcan:categories';
+import { Posts, Comments, Categories } from 'meteor/example-forum';
 import { Utils, GraphQLSchema } from 'meteor/vulcan:core';
 
 /**
@@ -122,7 +120,7 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
     });
 
     const updatedUser = Users.findOne({_id: user._id}, {fields: {_id:1, subscribedItems: 1}});
-    
+
     return updatedUser;
   } else {
     throw Error(Utils.encodeIntlError({id: 'app.something_bad_happened'}))

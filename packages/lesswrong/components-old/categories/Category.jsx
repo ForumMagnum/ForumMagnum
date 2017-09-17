@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { LinkContainer } from 'react-router-bootstrap';
 import MenuItem from 'react-bootstrap/lib/MenuItem'
 import { withRouter } from 'react-router'
-import Categories from 'meteor/vulcan:categories';
+import { Categories } from 'meteor/example-forum';
 
 class Category extends PureComponent {
 

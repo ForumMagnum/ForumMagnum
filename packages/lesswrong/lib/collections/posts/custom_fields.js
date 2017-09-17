@@ -1,4 +1,4 @@
-import Posts from "meteor/vulcan:posts";
+import { Posts } from "meteor/example-forum";
 import PostEditor from '../../editor/PostEditor.jsx';
 import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
 import EditTitle from '../../editor/EditTitle.jsx';

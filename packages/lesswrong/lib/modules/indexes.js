@@ -1,6 +1,4 @@
-import Comments from 'meteor/vulcan:comments';
-import Users from "meteor/vulcan:users";
-import Posts from 'meteor/vulcan:posts';
+import { Comments, Posts } from 'meteor/example-forum';
 
 
 // Recent Comments query index\

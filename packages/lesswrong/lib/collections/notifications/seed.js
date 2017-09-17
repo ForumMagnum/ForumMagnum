@@ -2,8 +2,7 @@ import Conversations from '../conversations/collection.js';
 import Notifications from '../notifications/collection.js';
 
 import Users from 'meteor/vulcan:users';
-import Posts from 'meteor/vulcan:posts';
-import Comments from 'meteor/vulcan:comments';
+import { Posts, Comments } from 'meteor/example-forum';
 
 import { newMutation, editMutation } from 'meteor/vulcan:core';
 
