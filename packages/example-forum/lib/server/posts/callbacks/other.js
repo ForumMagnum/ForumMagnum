@@ -1,4 +1,4 @@
-import { Posts } from '../../../modules/posts/index.js'
+import Posts from '../../../modules/posts/index.js'
 import Users from 'meteor/vulcan:users';
 import { addCallback, getSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import Events from 'meteor/vulcan:events';

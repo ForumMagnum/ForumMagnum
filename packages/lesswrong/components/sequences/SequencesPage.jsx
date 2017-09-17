@@ -95,4 +95,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, withDocument(options), withCurrentUser);
+registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser);

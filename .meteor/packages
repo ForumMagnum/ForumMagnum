@@ -37,10 +37,12 @@ accounts-password@1.4.0
 # example-movies
 # example-instagram
 example-forum
-lesswrong
+
 # example-customization
 # example-permissions
 # example-membership
 # example-interfaces
 
 vulcan:debug
+
+lesswrong

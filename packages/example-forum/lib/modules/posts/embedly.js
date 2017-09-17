@@ -1,4 +1,4 @@
-import { Posts } from '../posts/index.js';
+import Posts from '../posts/index.js';
 import { EmbedlyURL } from 'meteor/vulcan:embedly';
 
 Posts.addField([

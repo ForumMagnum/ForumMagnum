@@ -47,6 +47,7 @@ var getSchedule = function (parser) {
 Meteor.methods({
   getNextJob: function () {
     var nextJob = SyncedCron.nextScheduledAtDate('scheduleNewsletter');
+    console.log("Test"); 
     console.log(nextJob); // eslint-disable-line
     return nextJob;
   }

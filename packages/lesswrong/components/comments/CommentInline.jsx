@@ -1,7 +1,7 @@
 import { Components, registerComponent, withDocument, getRawComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Comments from 'meteor/example-forum'
+import { Comments } from 'meteor/example-forum'
 import { Well } from 'react-bootstrap';
 
 

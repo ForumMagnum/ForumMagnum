@@ -1,5 +1,4 @@
-import { Posts } from 'meteor/example-forum';
-import Comments from 'meteor/example-forum';
+import { Posts, Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import RSSFeeds from '../collections/rssfeeds/collection.js';
 import Sequences from '../collections/sequences/collection.js';

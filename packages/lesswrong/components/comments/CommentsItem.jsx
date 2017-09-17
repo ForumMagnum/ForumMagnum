@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import Comments from "meteor/example-forum";
+import { Comments } from "meteor/example-forum";
 import moment from 'moment';
 
 import IconMenu from 'material-ui/IconMenu';

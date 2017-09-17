@@ -1,7 +1,7 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import Comments from "meteor/example-forum";
+import { Comments } from "meteor/example-forum";
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
 
