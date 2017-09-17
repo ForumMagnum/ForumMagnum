@@ -4,7 +4,7 @@ Lesswrong2 is a clean-slate overhaul of the [lesswrong](http://lesswrong.com) di
 
 The old lesswrong is [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
 
-Lesswrong2 on the other hand is based on [contemporary](http://vulcanjs.org/) [web](https://facebook.github.io/react/) [technologies](http://genomearchitect.github.io/) designed to make rapid development much easier. It solves the problems that caused the old codebase to stagnate by being written with tools that are meticulously well-documented. We hope that this will allow us to rapidly improve the site and bring it up to date with what tools for [creating](https://medium.com/) [intellectual](https://www.quora.com/) [progress](https://stackexchange.com/) look like in 2017.
+Lesswrong2 on the other hand is based on [contemporary](http://vulcanjs.org/) [web](https://facebook.github.io/react/) [technologies](http://dev.apollodata.com/) designed to make rapid development much easier. It solves the problems that caused the old codebase to stagnate by being written with tools that are meticulously well-documented. We hope that this will allow us to rapidly improve the site and bring it up to date with what tools for [creating](https://medium.com/) [intellectual](https://www.quora.com/) [progress](https://stackexchange.com/) look like in 2017.
 
 # Technologies
 
