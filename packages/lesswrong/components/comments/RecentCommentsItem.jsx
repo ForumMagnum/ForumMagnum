@@ -2,8 +2,7 @@ import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:co
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import moment from 'moment';
-import Comments from "meteor/vulcan:comments";
-import Posts from 'meteor/vulcan:posts';
+import { Comments, Posts } from "meteor/example-forum";
 import { Link } from 'react-router';
 
 import Paper from 'material-ui/Paper';

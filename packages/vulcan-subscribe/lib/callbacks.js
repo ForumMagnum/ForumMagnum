@@ -6,9 +6,9 @@ import { addCallback } from 'meteor/vulcan:core';
 // note: even if all these callbacks are async, they are imported on the client so they pop in the cheatsheet when debug is enabled
 
 // note: leverage weak dependencies on packages
-const Comments = Package['vulcan:comments'] ? Package['vulcan:comments'].default : null;
-const Posts = Package['vulcan:posts'] ? Package['vulcan:posts'].default : null;
-const Categories = Package['vulcan:categories'] ? Package['vulcan:categories'].default : null;
+const Comments = Package['example-forum'] ? Package['example-forum'].default : null;
+const Posts = Package['example-forum'] ? Package['example-forum'].default : null;
+const Categories = Package['example-forum'] ? Package['example-forum'].default : null;
 
 /**
  * @summary Notify users subscribed to 'another user' whenever another user posts

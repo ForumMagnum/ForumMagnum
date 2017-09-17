@@ -102,5 +102,3 @@ EditorFormComponent.contextTypes = {
 };
 
 registerComponent("EditorFormComponent", EditorFormComponent, withEditor);
-
-export default withEditor(EditorFormComponent);

@@ -17,9 +17,9 @@ Package.onUse(function (api) {
   ]);
   
   api.use([
-    'vulcan:posts@1.7.0',
-    'vulcan:comments@1.7.0',
-    'vulcan:categories@1.7.0',
+    'example-forum@1.7.0',
+    'example-forum@1.7.0',
+    'example-forum@1.7.0',
   ], {weak: true});
 
   api.mainModule("lib/modules.js", ["client"]);

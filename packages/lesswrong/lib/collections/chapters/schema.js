@@ -1,6 +1,6 @@
+import { Components } from 'meteor/vulcan:core';
+
 import Users from 'meteor/vulcan:users';
-import PostsListEditor from '../../../components/form-components/PostsListEditor.jsx';
-import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
 
 const schema = {
 
@@ -44,7 +44,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ["admins"],
     insertableBy: ['members'],
-    control: EditorFormComponent,
+    control: Components.EditorFormComponent,
   },
 
   number: {
@@ -93,7 +93,7 @@ const schema = {
       // },
       addOriginalField: true,
     },
-    control: PostsListEditor,
+    control: Components.PostsListEditor,
   },
 
   "postIds.$": {

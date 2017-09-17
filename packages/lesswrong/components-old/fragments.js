@@ -38,9 +38,9 @@ registerFragment(`
     website
     groups
     karma
-    # vulcan:posts
+    # example-forum
     postCount
-    # vulcan:comments
+    # example-forum
     commentCount
     # vulcan:voting
     downvotedComments {
@@ -63,7 +63,7 @@ registerFragment(`
 // note: fragment used by default on CategoriesList & PostsList fragments
 registerFragment(`
   fragment CategoriesMinimumInfo on Category {
-    # vulcan:categories
+    # example-forum
     _id
     name
     slug
@@ -72,7 +72,7 @@ registerFragment(`
 
 registerFragment(`
   fragment CategoriesList on Category {
-    # vulcan:categories
+    # example-forum
     ...CategoriesMinimumInfo
     description
     order
@@ -88,7 +88,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsList on Post {
-    # vulcan:posts
+    # example-forum
     _id
     title
     url
@@ -109,11 +109,11 @@ registerFragment(`
     }
     # vulcan:embedly
     thumbnailUrl
-    # vulcan:categories
+    # example-forum
     categories {
       ...CategoriesMinimumInfo
     }
-    # vulcan:comments
+    # example-forum
     commentCount
     commenters {
       ...UsersMinimumInfo
@@ -143,7 +143,7 @@ registerFragment(`
 
 registerFragment(`
   fragment CommentsList on Comment {
-    # vulcan:comments
+    # example-forum
     _id
     postId
     parentCommentId
@@ -156,7 +156,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    # vulcan:posts
+    # example-forum
     post {
       _id
       commentCount

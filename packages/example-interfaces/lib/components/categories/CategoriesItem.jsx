@@ -8,7 +8,7 @@ Wrapped with the "withCurrentUser" container.
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
-import Categories from '../../modules/categories/collection.js';
+import { Categories } from '../../modules/categories/collection.js';
 import CategoriesEditForm from './CategoriesEditForm.jsx';
 import CategoriesNewForm from './CategoriesNewForm.jsx';
 import CategoriesList from './CategoriesList.jsx';

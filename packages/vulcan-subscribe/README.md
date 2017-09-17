@@ -5,11 +5,11 @@ This optional package for Vulcan lets your users subscribe to the different doma
 ### Dependencies & usage
 Explicit dependency on `vulcan:users` to enable permissions.
 
-If `vulcan:posts` is enabled, your users will be able to subscribe to:
+If `example-forum` is enabled, your users will be able to subscribe to:
 * new posts from users they follow (subscribed to)
 * new comments on a post they are subscribed to
 
-If `vulcan:categories` is enabled, your users will be able to subscribe to new posts in a category.
+If `example-forum` is enabled, your users will be able to subscribe to new posts in a category.
 
 ### Basic usage
 

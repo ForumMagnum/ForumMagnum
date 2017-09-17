@@ -3,9 +3,9 @@ import React, { PropTypes, Component } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { MenuItem } from 'react-bootstrap';
 import { withRouter } from 'react-router'
-import Categories from 'meteor/vulcan:categories';
+import { Categories } from 'meteor/example-forum';
 
-class LWCategory extends getRawComponent('Category') {
+class LWCategory extends Component {
 
   render() {
 

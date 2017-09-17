@@ -11,9 +11,7 @@ Package.onUse( function(api) {
   api.use([
     'fourseven:scss',
     'vulcan:core',
-    'vulcan:base-components',
-    'vulcan:base-styles',
-    'vulcan:posts',
+    'example-forum',
     'vulcan:users',
     'vulcan:voting',
   ]);

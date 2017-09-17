@@ -61,4 +61,4 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('CollectionsPage', CollectionsPage, withDocument(options), withCurrentUser);
+registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withCurrentUser);

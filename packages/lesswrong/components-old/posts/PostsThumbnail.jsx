@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import Posts from "meteor/vulcan:posts";
+import { Posts } from "meteor/example-forum";
 
 const PostsThumbnail = ({post}) => 
   <a className="posts-thumbnail" href={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>
