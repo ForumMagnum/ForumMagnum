@@ -8,6 +8,7 @@ registerFragment(`
     username
     displayName
     emailHash
+    karma
   }
 `);
 
@@ -65,6 +66,7 @@ registerFragment(`
 
 extendFragment('UsersCurrent', `
   subscribedItems
+  karma
 `);
 
 registerFragment(`
