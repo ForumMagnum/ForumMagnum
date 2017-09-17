@@ -14,12 +14,12 @@ registerFragment(`
     excerpt
     viewCount
     clickCount
-    # vulcan:users
+    # users
     userId
     user {
       ...UsersMinimumInfo
     }
-    # vulcan:embedly
+    # embedly
     thumbnailUrl
     # example-forum
     categories {
@@ -30,17 +30,17 @@ registerFragment(`
     commenters {
       ...UsersMinimumInfo
     }
-    # vulcan:voting
+    # voting
     upvoters {
       _id
     }
     downvoters {
       _id
     }
-    #upvotes
-    #downvotes
-    #baseScore
-    #score
+    upvotes
+    downvotes
+    baseScore
+    score
   }
 `);
 
@@ -51,4 +51,3 @@ registerFragment(`
     htmlBody
   }
 `);
-

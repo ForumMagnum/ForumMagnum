@@ -30,12 +30,15 @@ to the client.
 import { runCallbacks, runCallbacksAsync } from '../modules/index.js';
 import { createError } from 'apollo-errors';
 import { validateDocument, validateModifier } from '../modules/validation.js';
+import { debug } from '../modules/debug.js';
 
 export const newMutation = async ({ collection, document, currentUser, validate, context }) => {
 
-  // console.log("// newMutation")
-  // console.log(collection._name)
-  // console.log(document)
+  debug('//------------------------------------//');
+  debug('// newMutation');
+  debug(collection._name);
+  debug(`validate: ${validate}`);
+  debug(document);
 
   // we don't want to modify the original document
   let newDocument = Object.assign({}, document);
@@ -76,7 +79,7 @@ export const newMutation = async ({ collection, document, currentUser, validate,
   // TODO: find that info in GraphQL mutations
   // if (Meteor.isServer && this.connection) {
   //   post.userIP = this.connection.clientAddress;
-  //   post.userAgent = this.connection.httpHeaders["user-agent"];
+  //   post.userAgent = this.connection.httpHeaders['user-agent'];
   // }
 
   // run sync callbacks
@@ -92,19 +95,21 @@ export const newMutation = async ({ collection, document, currentUser, validate,
   // note: query for document to get fresh document with collection-hooks effects applied
   runCallbacksAsync(`${collectionName}.new.async`, insertedDocument, currentUser, collection);
 
-  // console.log("// new mutation finished:")
-  // console.log(newDocument)
+  debug('// new mutation finished:');
+  debug(newDocument);
+  debug('//------------------------------------//');
 
   return newDocument;
 }
 
 export const editMutation = async ({ collection, documentId, set, unset, currentUser, validate, context }) => {
 
-  // console.log("// editMutation")
-  // console.log(collection._name)
-  // console.log(documentId)
-  // console.log(set)
-  // console.log(unset)
+  debug('//------------------------------------//');
+  debug('// editMutation');
+  debug(collection._name);
+  debug(documentId);
+  debug(set);
+  debug(unset);
 
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
@@ -171,19 +176,22 @@ export const editMutation = async ({ collection, documentId, set, unset, current
   // run async callbacks
   runCallbacksAsync(`${collectionName}.edit.async`, newDocument, document, currentUser, collection);
 
-  // console.log("// edit mutation finished")
-  // console.log(modifier)
-  // console.log(newDocument)
+  debug('// edit mutation finished')
+  debug(modifier)
+  debug(newDocument)
+  debug('//------------------------------------//');
 
   return newDocument;
 }
 
 export const removeMutation = async ({ collection, documentId, currentUser, validate, context }) => {
 
-  // console.log("// removeMutation")
-  // console.log(collection._name)
-  // console.log(documentId)
-
+  debug('//------------------------------------//');
+  debug('// removeMutation')
+  debug(collection._name)
+  debug(documentId)
+  debug('//------------------------------------//');
+  
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
 

@@ -5,6 +5,8 @@ Comments schema
 */
 
 import Users from 'meteor/vulcan:users';
+import marked from 'marked';
+import { Utils } from 'meteor/vulcan:core';
 
 /**
  * @summary Comments schema
@@ -105,6 +107,16 @@ const schema = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
+    onInsert: (comment) => {
+      if (comment.body) {
+        return Utils.sanitize(marked(comment.body));
+      }
+    },
+    onEdit: (modifier, comment) => {
+      if (modifier.$set.body) {
+        return Utils.sanitize(marked(modifier.$set.body));
+      }
+    }
   },
   /**
     The comment author's name
