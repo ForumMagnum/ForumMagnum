@@ -50,9 +50,6 @@
     .users-name {
       color: rgba(0,0,0,0.87);
     }
-    .comments-item-date {
-      color: rgba(0,0,0,0.87);
-    }
   }
   .comments-more-actions-menu {
     top: 10px;
@@ -82,6 +79,9 @@
 .comments-item-meta{
   margin-bottom: $vmargin;
   color: rgba(0,0,0,0.5);
+  & > div {
+    margin-right: 5px;
+  }
 
 
   .avatar{
