@@ -179,14 +179,14 @@ subscribeMutationsGenerator(Users);
 
 
 // note: leverage weak dependencies on packages
-const Posts = Package['vulcan:posts'] ? Package['vulcan:posts'].default : null;
-// check if vulcan:posts exists, if yes, add the mutations to Posts
+const Posts = Package['example-forum'] ? Package['example-forum'].default : null;
+// check if example-forum exists, if yes, add the mutations to Posts
 if (!!Posts) {
   subscribeMutationsGenerator(Posts);
 }
 
-// check if vulcan:categories exists, if yes, add the mutations to Categories
-const Categories = Package['vulcan:categories'] ? Package['vulcan:categories'].default : null;
+// check if example-forum exists, if yes, add the mutations to Categories
+const Categories = Package['example-forum'] ? Package['example-forum'].default : null;
 if (!!Categories) {
   subscribeMutationsGenerator(Categories);
 }

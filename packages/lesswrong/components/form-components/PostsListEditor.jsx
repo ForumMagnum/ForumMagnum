@@ -100,5 +100,3 @@ PostsListEditor.contextTypes = {
 };
 
 registerComponent("PostsListEditor", PostsListEditor, withCurrentUser);
-
-export default withCurrentUser(PostsListEditor);

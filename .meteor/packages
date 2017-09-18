@@ -10,25 +10,15 @@ vulcan:users                      # user management and permissions
 ############ Features Packages ############
 
 vulcan:admin
-# vulcan:email
-vulcan:posts
-vulcan:comments
 # vulcan:newsletter
-# vulcan:notifications
-vulcan:getting-started
-# vulcan:categories
 vulcan:voting
 vulcan:events
-vulcan:embedly
-vulcan:api
-vulcan:rss
+vulcan:embed
 # vulcan:subscribe
 
 ############ Theme Packages ############
 
-vulcan:base-components        # default ui components
 # vulcan:base-styles            # default styling
-# vulcan:email-templates        # default email templates for notifications
 
 ############ Language Packages ############
 
@@ -47,8 +37,12 @@ accounts-password@1.4.0
 # example-movies
 # example-instagram
 example-forum
-lesswrong
+
 # example-customization
 # example-permissions
 # example-membership
 # example-interfaces
+
+vulcan:debug
+
+lesswrong

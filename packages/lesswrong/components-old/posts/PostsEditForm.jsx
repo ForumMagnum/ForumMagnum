@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment, withMessages, withCurrentUser } from 'meteor/vulcan:core';
 import { intlShape } from 'meteor/vulcan:i18n';
-import Posts from "meteor/vulcan:posts";
+import { Posts } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 import { withRouter } from 'react-router'
 

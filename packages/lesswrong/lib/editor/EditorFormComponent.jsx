@@ -90,7 +90,6 @@ class EditorFormComponent extends Component {
               </div> : null}
             </div> : null}
         </div>
-        <hr/>
       </div>
     )
   }
@@ -103,5 +102,3 @@ EditorFormComponent.contextTypes = {
 };
 
 registerComponent("EditorFormComponent", EditorFormComponent, withEditor);
-
-export default withEditor(EditorFormComponent);

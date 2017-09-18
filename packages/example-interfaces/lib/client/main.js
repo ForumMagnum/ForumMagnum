@@ -1,3 +1,3 @@
-import Categories from '../modules/index.js';
+import { Categories } from '../modules/index.js';
 
 export default Categories;

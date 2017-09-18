@@ -13,4 +13,4 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('SequencesPost', SequencesPost, withDocument(options));
+registerComponent('SequencesPost', SequencesPost, [withDocument, options]);

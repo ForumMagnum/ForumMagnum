@@ -1,4 +1,4 @@
-import Posts from 'meteor/vulcan:posts';
+import { Posts } from 'meteor/example-forum';
 import h2p from 'html2plaintext';
 
 const runFix = false;

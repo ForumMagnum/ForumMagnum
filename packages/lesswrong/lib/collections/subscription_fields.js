@@ -1,7 +1,5 @@
 import Users from "meteor/vulcan:users";
-import Posts from "meteor/vulcan:posts"
-import Comments from "meteor/vulcan:comments"
-import Categories from "meteor/vulcan:categories"
+import {Posts, Comments, Categories} from "meteor/example-forum"
 
 Users.addField([
   {

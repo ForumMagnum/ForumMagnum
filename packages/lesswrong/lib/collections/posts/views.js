@@ -1,4 +1,4 @@
-import Posts from 'meteor/vulcan:posts';
+import { Posts } from 'meteor/example-forum';
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten

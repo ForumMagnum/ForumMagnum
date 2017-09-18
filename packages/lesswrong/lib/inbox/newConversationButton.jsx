@@ -9,7 +9,7 @@ import { Button } from 'react-bootstrap';
 import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import {  withRouter } from 'react-router';
 import Conversations from '../collections/conversations/collection.js';
-import Posts from 'meteor/vulcan:posts'
+import { Posts } from 'meteor/example-forum'
 
 class newConversationButton extends Component {
 
