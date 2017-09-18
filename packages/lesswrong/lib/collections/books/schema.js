@@ -1,7 +1,17 @@
+import React from 'react'
 import { Components } from 'meteor/vulcan:core'
-import Users from 'meteor/vulcan:users'
 
+const PostEditor = (props) => <div>
+  <Components.EditorFormComponent {...props} />
+</div>
 
+const PostsListEditor = (props) => <div>
+  <Components.PostsListEditor {...props} />
+</div>
+
+const SequencesListEditor = (props) => <div>
+  <Components.SequencesListEditor {...props} />
+</div>
 
 const schema = {
 
@@ -54,7 +64,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: Components.EditorFormComponent,
+    control: PostEditor,
     blackbox: true,
   },
 
@@ -98,7 +108,7 @@ const schema = {
       },
       addOriginalField: true,
     },
-    control: Components.PostsListEditor,
+    control: PostsListEditor,
   },
 
   'postIds.$': {
@@ -127,7 +137,7 @@ const schema = {
       // },
       addOriginalField: true,
     },
-    control: Components.SequencesListEditor,
+    control: SequencesListEditor,
   },
 
   'sequenceIds.$': {
