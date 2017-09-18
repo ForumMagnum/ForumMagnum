@@ -9,7 +9,7 @@ import { Button } from 'react-bootstrap';
 import { Components, registerComponent, ModalTrigger, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import { Redirect, withRouter } from 'react-router';
 import RSSFeeds from '../collections/rssfeeds/collection.js';
-import Posts from 'meteor/vulcan:posts'
+import { Posts } from 'meteor/example-forum'
 
 class newFeedButton extends Component {
 

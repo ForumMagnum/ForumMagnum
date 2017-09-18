@@ -350,15 +350,7 @@
 // Post Page                                        //
 //////////////////////////////////////////////////////
 
-textarea.posts-edit-header-title {
-  font-size: 50px;
-  text-align: center;
-  font-weight: bold;
-  line-height: 52px;
-  width:100%;
-  height:114px;
-  resize:none;
-}
+
 
 .posts-page{
   margin-bottom: 100px;
@@ -367,15 +359,6 @@ textarea.posts-edit-header-title {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 40px;
-    .posts-page-content-header-title {
-      h1 {
-        font-size: 50px;
-        text-align: center;
-        font-weight: bold;
-        line-height: 52px;
-      }
-      margin-bottom: 25px;
-    }
     .posts-page-content-header-voting {
       text-align: center;
       margin-bottom: 15px;
@@ -696,6 +679,24 @@ textarea.posts-edit-header-title {
     }
   }
 }
+.posts-page-content-header-title h1, .posts-edit-header-title {
+  font-size: 50px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 52px;
+  @include small {
+      font-size: 32px;
+  }
+}
+.posts-page-content-header-title {
+  margin-bottom: 25px;
+}  
+textarea.posts-edit-header-title {
+  width:100%;
+  height:114px;
+  resize:none;
+}
+
 
 .posts-page-body{
   font-size: $large-font;

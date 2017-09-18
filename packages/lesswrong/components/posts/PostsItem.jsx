@@ -2,7 +2,7 @@ import { Components, replaceComponent, withCurrentUser} from 'meteor/vulcan:core
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
-import Posts from "meteor/vulcan:posts";
+import { Posts } from "meteor/example-forum";
 import moment from 'moment';
 
 import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';

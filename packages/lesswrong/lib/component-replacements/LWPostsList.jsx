@@ -1,7 +1,7 @@
 import { Components, replaceComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Posts from 'meteor/vulcan:posts';
+import { Posts } from 'meteor/example-forum';
 import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';

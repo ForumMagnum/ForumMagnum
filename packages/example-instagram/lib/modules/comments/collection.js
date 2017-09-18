@@ -13,7 +13,7 @@ const Comments = createCollection({
 
   collectionName: 'Comments',
   
-  // avoid conflicts with 'comments' collection in vulcan:comments
+  // avoid conflicts with 'comments' collection in example-forum
   dbCollectionName: 'commentsInstagram',
 
   typeName: 'Comment',

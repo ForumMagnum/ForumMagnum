@@ -7,7 +7,7 @@ import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
-import Posts from 'meteor/vulcan:posts';
+import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
 
 class PostsPage extends Component {
