@@ -55,5 +55,3 @@ CommentEditor.contextTypes = {
 };
 
 registerComponent('CommentEditor', CommentEditor, withEditor, withCurrentUser);
-
-export default withEditor(CommentEditor);
