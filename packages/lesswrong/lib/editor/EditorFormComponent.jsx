@@ -12,7 +12,6 @@ class EditorFormComponent extends Component {
     let editor = this.props.editor;
     const document = this.props.document;
     let state = (document && !_.isEmpty(document[fieldName]) && document[fieldName]) || createEmptyState();
-    console.log("constructor state", state);
     state = JSON.parse(JSON.stringify(state));
 
     this.state = {
@@ -41,7 +40,6 @@ class EditorFormComponent extends Component {
 
     const checkForActive = (data) => {
       if (!this.state.active) {
-        console.log("Editor component deactivated while submitting, resetting state");
         data[fieldName] = null;
       }
       return data;

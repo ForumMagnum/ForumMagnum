@@ -22,6 +22,9 @@ import './editor/PostEditor.jsx';
 import './editor/CommentEditor.jsx';
 import './editor/ContentRenderer.jsx';
 import './editor/EditorFormComponent.jsx';
+import './editor/EditTitle.jsx';
+import './editor/EditUrl.jsx';
+import './editor/SaveDraftButton.jsx';
 // Component for testing the editor. Useful for debugging
 import './editor/EditorTest.jsx';
 

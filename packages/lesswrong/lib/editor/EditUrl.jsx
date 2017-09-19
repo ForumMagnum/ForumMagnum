@@ -6,22 +6,20 @@ import { Input } from 'formsy-react-components';
 class EditUrl extends Component {
   constructor(props, context) {
     super(props,context);
-    const document = this.props.document;
-    const fieldName = this.props.name;
-        
+
     this.state = {
       active: false,
     };
   }
 
   toggleEditor = () => {this.setState({active: !this.state.active})}
-    
+
   render() {
     return (
       <div className="posts-edit-url">
         <div className="row">
           <div className="col-md-3">
-            <FlatButton 
+            <FlatButton
               backgroundColor={this.state.active ? "#555" : "#999"}
               hoverColor={this.state.active ? "#666" : "#aaa"}
               style={{color: "#fff"}}
@@ -29,7 +27,7 @@ class EditUrl extends Component {
               onTouchTap={this.toggleEditor}/>
           </div>
           <div className="col-md-9">
-            <Input {...this.props} hidden={ !this.state.active} layout="elementOnly" /> 
+            <Input {...this.props} hidden={ !this.state.active} layout="elementOnly" />
           </div>
         </div>
       </div>
@@ -44,5 +42,3 @@ EditUrl.contextTypes = {
 };
 
 registerComponent("EditUrl", EditUrl);
-
-export default EditUrl;

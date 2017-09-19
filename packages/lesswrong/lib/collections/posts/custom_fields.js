@@ -1,9 +1,4 @@
 import { Posts } from "meteor/example-forum";
-import PostEditor from '../../editor/PostEditor.jsx';
-import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
-import EditTitle from '../../editor/EditTitle.jsx';
-import EditUrl from '../../editor/EditUrl.jsx';
-import SaveDraftButton from '../../editor/SaveDraftButton/SaveDraftButton.jsx';
 
 const formGroups = {
   admin: {
@@ -21,7 +16,7 @@ Posts.addField([
     fieldSchema: {
       order: 20,
       placeholder: "URL",
-      control: EditUrl,
+      control: 'EditUrl',
     }
   },
   /**
@@ -32,7 +27,7 @@ Posts.addField([
     fieldSchema: {
       order: 10,
       placeholder: "Title",
-      control: EditTitle,
+      control: 'EditTitle',
     },
   },
   /**
@@ -58,7 +53,7 @@ Posts.addField([
       insertableBy: ['members'],
       editableBy: ['members'],
       order: 30,
-      control: SaveDraftButton,
+      control: 'SaveDraftButton',
     }
   },
 
@@ -73,7 +68,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      control: EditorFormComponent,
+      control: 'EditorFormComponent',
       blackbox: true,
       order: 25,
     }
@@ -315,7 +310,7 @@ Posts.addField([
       editableBy: ['admins'],
       insertableBy: ['admins'],
       hidden: false,
-      control: "textfield"
+      control: "text"
     }
   },
 
