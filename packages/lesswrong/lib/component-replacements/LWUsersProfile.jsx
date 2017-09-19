@@ -40,7 +40,7 @@ const LWUsersProfile = (props) => {
           {props.currentUser && props.currentUser.isAdmin ? <li> <ModalTrigger label="Register new RSS Feed">
               <Components.newFeedButton user={user} />
             </ModalTrigger> </li> : null}
-          {props.currentUser != null ? (
+          {props.currentUser ? (
             <li>
               <ModalTrigger label="Send Message" >
                 <Components.newConversationButton user={user} />
