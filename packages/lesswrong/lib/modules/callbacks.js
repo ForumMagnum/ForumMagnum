@@ -311,7 +311,7 @@ const reverseVote = (vote, collection, user, multiplier) => {
   if (item && item.baseScore) {
     collection.update({_id: vote.itemId}, {$set: {baseScore: (item.baseScore || 0) - (multiplier * vote.power)}})
     if (item.userId !== user._id) {
-      Users.update({_id: item.userId}, {inc: {karma: - (multiplier * vote.power)}})
+      Users.update({_id: item.userId}, {$inc: {karma: - (multiplier * vote.power)}})
     }
   } else {
     console.log("No item found corresponding to vote: ", vote);
