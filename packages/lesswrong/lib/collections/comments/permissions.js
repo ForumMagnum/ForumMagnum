@@ -2,6 +2,7 @@ import Users from 'meteor/vulcan:users';
 import { Comments } from "meteor/example-forum";
 
 const sunshineRegimentActions = [
-  'notifications.softRemove.all',
+  'comments.softRemove.all',
+  'comments.replyOnBlocked.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);

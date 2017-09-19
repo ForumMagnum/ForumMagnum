@@ -100,7 +100,6 @@ class CommentsItem extends PureComponent {
     const comment = this.props.comment;
     const params = this.props.router.params;
     const commentLink = "/posts/"+params._id+"/"+params.slug+"/"+comment._id;
-    const showReplyButton = !this.props.comment.isDeleted && !!this.props.currentUser;
     const deletedClass = this.props.comment.deleted ? " deleted" : "";
 
     return (
@@ -115,10 +114,10 @@ class CommentsItem extends PureComponent {
           </div>
           {this.state.showEdit ? this.renderEdit() : this.renderComment()}
           <div className="comments-item-bottom">
-            { showReplyButton ?
-              <a className="comments-item-reply-link" onClick={this.showReply}>
-                <FormattedMessage id="comments.reply"/>
-              </a> : null } <div className="comments-item-vote"><Components.Vote collection={Comments} document={this.props.comment} currentUser={this.props.currentUser}/></div>
+            { this.renderReplyButton() }
+            <div className="comments-item-vote">
+              <Components.Vote collection={Comments} document={this.props.comment} currentUser={this.props.currentUser}/>
+            </div>
           </div>
         </div>
         {this.state.showReply ? this.renderReply() : null}
@@ -137,6 +136,24 @@ class CommentsItem extends PureComponent {
         </div>
       </div>
     )
+  }
+
+  renderReplyButton = () => {
+    const comment = this.props.comment;
+    const currentUser = this.props.currentUser;
+    const showReplyButton = !comment.isDeleted && !!this.props.currentUser;
+    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    if (blockedReplies && showReplyButton && !Users.canDo('comments.replyOnBlocked.all', currentUser)) {
+      return <div className="comments-item-reply-link blockedReplies">
+        A moderator has deactivated replies on this comment until {moment(new Date(comment.repliesBlockedUntil)).calendar()}
+      </div>
+    } else if (showReplyButton) {
+      return <a className="comments-item-reply-link" onClick={this.showReply}>
+        <FormattedMessage id="comments.reply"/>
+      </a>
+    } else {
+      return null;
+    }
   }
 
   renderSubscribeMenuItem = () => {
