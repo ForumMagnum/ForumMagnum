@@ -125,6 +125,16 @@ meteor mongo
 db.users.update({_id:'<EXAMPLE_USER_ID>'}, {$set: {isAdmin:true}})
 ```
 
+If you are using the development database instead of a local database, then instead of using meteor mongo, you will need to log into the remote mongo database.
+
+First, install mongodb if you haven't already. On Mac this is:
+
+```brew install mongodb```
+
+Then, log into the development server (you'll need to ask Oliver for the password)
+
+```mongo ds155813-a0.mlab.com:55813/lesswrong2 -u lesswrong2 -p <password>```
+
 ## CFAR Hackathon: Feature Roadmap
 
 If you want to help with making LessWrong 2.0 happen, here are some of the features that we think are particularly well-suited to be built by newcomers to the project. If you want to work on any of these, feel free to ping either Oliver Habryka, Harmanas Chopra or Matthew Graves, or simply leave a message in our Slack.
