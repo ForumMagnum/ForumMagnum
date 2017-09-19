@@ -632,11 +632,6 @@
     }
     .posts-page-content-header {
       margin-bottom: -8px;
-      .posts-page-content-header-author {
-        font-size: 16px;
-        font-weight: bold;
-        color: rgba(0,0,0,0.7);
-      }
     }
     .posts-page-content-body-metadata {
       position: inherit !important;
@@ -648,6 +643,7 @@
       margin-bottom: 40px !important;
       color: rgba(0,0,0,0.5) !important;
       .posts-page-content-body-metadata-comments {
+        margin-top:3px;
         line-height: 100%;
         font-size: 14px;
       }
@@ -686,6 +682,15 @@
   line-height: 52px;
   @include small {
       font-size: 32px;
+  }
+}
+.posts-page-content-body-metadata-action {
+  display: inline;
+  padding:0 5px;
+  line-height: 20px;
+  @include large {
+      display:block;
+      padding:0;
   }
 }
 .posts-page-content-header-title {
@@ -831,6 +836,11 @@ svg.drag-handle {
   max-width: 620px;
 }
 
+.posts-page-content-header-author {
+  font-size: 16px;
+  font-weight: bold;
+  color: rgba(0,0,0,0.7);
+}
 
 //
 // .posts-list-editor-item-meta {
