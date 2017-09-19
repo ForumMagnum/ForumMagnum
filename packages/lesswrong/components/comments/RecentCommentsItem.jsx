@@ -46,6 +46,30 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     };
   }
 
+  renderRecentComment() {
+    let content = this.props.comment.content;
+    const htmlBody = {__html: this.props.comment.htmlBody};
+    const plaintext = this.props.comment.body;
+    console.log("renderRecentComment ", plaintext);
+    if (!this.state.expanded && plaintext && plaintext.length > 300) {
+      // Add ellipsis to last element of commentExcerpt
+      let commentExcerpt = plaintext.substring(0,300).split("\n\n");
+      const lastElement = commentExcerpt.slice(-1)[0];
+      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p>{text}</p>);
+      return <div className="recent-comments-item-text comments-item-text content-body">
+          {commentExcerpt}
+          <p>{lastElement + "..."}<a className="read-more" onTouchTap={() => this.setState({expanded: true})}>(read more)</a> </p>
+        </div>
+    } else {
+      return (
+        <div className="recent-comments-item-text comments-item-text content-body" >
+          {content ? <object><Components.ContentRenderer state={content} /></object> : null}
+          {htmlBody && !content ? <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+        </div>
+      )
+    }
+  }
+
   render() {
     const comment = this.props.comment;
 
@@ -67,8 +91,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
               on <span className="comments-item-origin-post-title">{comment.post.title}</span>
             </div> </Link>
           </div></object>
-        {this.state.showEdit ? this.renderEdit() : this.renderComment()}
-
+        {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
         </div>
         {this.state.showReply ? this.renderReply() : null}
         <div className="comments-more-actions-menu">
@@ -87,29 +110,6 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
         </div>
       </Paper>
     )
-  }
-
-  renderComment() {
-    let content = this.props.comment.content;
-    const htmlBody = {__html: this.props.comment.htmlBody};
-    const plaintext = this.props.comment.body;
-    if (!this.state.expanded && plaintext && plaintext.length > 300) {
-      // Add ellipsis to last element of commentExcerpt
-      let commentExcerpt = plaintext.substring(0,300).split("\n\n");
-      const lastElement = commentExcerpt.slice(-1)[0];
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p>{text}</p>);
-      return <div className="recent-comments-item-text comments-item-text content-body">
-          {commentExcerpt}
-          <p>{lastElement + "..."}<a className="read-more" onTouchTap={() => this.setState({expanded: true})}>(read more)</a> </p>
-        </div>
-    } else {
-      return (
-        <div className="recent-comments-item-text comments-item-text content-body" >
-          {content ? <object><Components.ContentRenderer state={content} /></object> : null}
-          {htmlBody && !content ? <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
-        </div>
-      )
-    }
   }
 }
 
