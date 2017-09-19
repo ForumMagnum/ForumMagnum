@@ -114,9 +114,23 @@ class CommentsItem extends PureComponent {
           </div>
           {this.state.showEdit ? this.renderEdit() : this.renderComment()}
           <div className="comments-item-bottom">
+<<<<<<< HEAD
             { this.renderReplyButton() }
+=======
+            { showReplyButton ?
+              <a className="comments-item-reply-link" onClick={this.showReply}>
+                <FormattedMessage id="comments.reply"/>
+<<<<<<< HEAD
+              </a> : null } 
+>>>>>>> Fixed design of comment editor, removed Actual Delete button
+=======
+              </a> : null }
+>>>>>>> wip
             <div className="comments-item-vote">
-              <Components.Vote collection={Comments} document={this.props.comment} currentUser={this.props.currentUser}/>
+              <Components.Vote
+                collection={Comments}
+                document={this.props.comment}
+                currentUser={this.props.currentUser}/>
             </div>
           </div>
         </div>
@@ -214,7 +228,6 @@ class CommentsItem extends PureComponent {
         comment={this.props.comment}
         successCallback={this.editSuccessCallback}
         cancelCallback={this.editCancelCallback}
-        removeSuccessCallback={this.removeSuccessCallback}
       />
 }
 
