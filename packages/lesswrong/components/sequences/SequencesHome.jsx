@@ -35,7 +35,6 @@ const testCollections = [
 ];
 
 const SequencesHome = ({document, currentUser, loading}) => {
-  console.log("// Rendering SequencesHome component.");
   // TODO: decide on terms for community sequences
   const communitySeqTerms = {};
   return <div className="sequences-home">

@@ -50,7 +50,6 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     let content = this.props.comment.content;
     const htmlBody = {__html: this.props.comment.htmlBody};
     const plaintext = this.props.comment.body;
-    console.log("renderRecentComment ", plaintext);
     if (!this.state.expanded && plaintext && plaintext.length > 300) {
       // Add ellipsis to last element of commentExcerpt
       let commentExcerpt = plaintext.substring(0,300).split("\n\n");
