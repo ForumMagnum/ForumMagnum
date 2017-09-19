@@ -5,7 +5,11 @@ import update from 'immutability-helper';
 
 // The equation to determine voting power. Defaults to returning 1 for everybody
 export const getVotePower = function (user) {
-  return Math.floor(1 + Math.log(1 + Math.min((user.karma || 0), 0)) / Math.log(5));
+  if (user.voteBanned) {
+    return 0;
+  } else {
+    return Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5));
+  }
 };
 
 const keepVoteProperties = item => _.pick(item, '__typename', '_id', 'upvoters', 'downvoters', 'upvotes', 'downvotes', 'baseScore');

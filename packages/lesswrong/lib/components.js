@@ -135,3 +135,4 @@ import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';
 import '../components/form-components/SequencesListEditorItem.jsx';
+import '../components/form-components/SubmitButton.jsx';
