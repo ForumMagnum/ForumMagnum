@@ -67,6 +67,9 @@ registerFragment(`
 extendFragment('UsersCurrent', `
   subscribedItems
   karma
+  voteBanned
+  banned
+  nullifyVotes
 `);
 
 registerFragment(`

@@ -46,6 +46,8 @@ Users.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['members'],
+      label: 'Delete this user',
+      control: 'checkbox'
     }
   },
 
@@ -94,7 +96,42 @@ Users.addField([
       viewableBy: ['guests'],
       editableBy: ['sunshine_regiment', 'admins'],
       insertableBy: ['admins'],
-      control: 'SubmitButton',
+      control: 'checkbox',
+      label: 'Ban this user'
     }
-  }
+  },
+
+  /**
+    voteBanned: All future votes of this user have weight 0
+  */
+
+  {
+    fieldName: 'voteBanned',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshine_regiment', 'admins'],
+      insertableBy: ['admins'],
+      control: 'checkbox',
+      label: 'Set all future votes of this user to have zero weight'
+    }
+  },
+
+  /**
+    nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
+  */
+
+  {
+    fieldName: 'nullifyVotes',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshine_regiment', 'admins'],
+      insertableBy: ['admins'],
+      control: 'checkbox',
+      label: 'Nullify all past votes'
+    }
+  },
 ]);

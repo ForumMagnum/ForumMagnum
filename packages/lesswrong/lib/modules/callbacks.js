@@ -4,7 +4,7 @@ import Conversations from '../collections/conversations/collection.js';
 import Sequences from '../collections/sequences/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
-import { addCallback, newMutation, editMutation, Utils } from 'meteor/vulcan:core';
+import { addCallback, newMutation, editMutation, Utils, runCallbacksAsync } from 'meteor/vulcan:core';
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
 import h2p from 'html2plaintext';
 import ReactDOMServer from 'react-dom/server';
@@ -281,26 +281,128 @@ function reactRouterAnchorTags(unusedItem) {
 
 addCallback("router.onUpdate", reactRouterAnchorTags);
 
+function userEditBanUserCallbacksAsync(user, oldUser) {
+  if (user.banned && !oldUser.banned) {
+    runCallbacksAsync('users.ban.async', user);
+  }
+  return user;
+}
+addCallback("users.edit.async", userEditBanUserCallbacksAsync);
 
-//
-// This used to be the draftJS parsing into plaintext that allowed full-text search.
-// Now that we moved to the Ory editor, this no longer works. We will want to write
-// our own ORY-Editor-JSON to plain-text parser, which shouldn't be too hard.
-//
-// function postsNewPlaintextBody (post) {
-//   content = post.content;
-//   bodyText = "";
-//   content.blocks.forEach((block) => {
-//     if (block.text) {
-//       bodyText += block.text;
-//     };
-//   });
-//
-//   post = {
-//     ...post,
-//     body: bodyText,
-//   };
-//   return post;
-// }
-//
-// addCallback("posts.new.sync", postsNewPlaintextBody);
+function userEditVoteBannedCallbacksAsync(user, oldUser) {
+  if (user.voteBanned && !oldUser.voteBanned) {
+    runCallbacksAsync('users.voteBanned.async', user);
+  }
+  return user;
+}
+addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
+
+function userEditNullifyVotesCallbacksAsync(user, oldUser) {
+  console.log("userEditNullifyVotesCallback", user, oldUser);
+  if (user.nullifyVotes && !oldUser.nullifyVotes) {
+    runCallbacksAsync('users.nullifyVotes.async', user);
+  }
+  return user;
+}
+addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
+
+const reverseVote = (vote, collection, user, multiplier) => {
+  const item = collection.findOne({_id: vote.itemId});
+  if (item && item.baseScore) {
+    collection.update({_id: vote.itemId}, {$set: {baseScore: (item.baseScore || 0) - (multiplier * vote.power)}})
+    if (item.userId !== user._id) {
+      Users.update({_id: item.userId}, {inc: {karma: - (multiplier * vote.power)}})
+    }
+  } else {
+    console.log("No item found corresponding to vote: ", vote);
+  }
+}
+
+const nullifyVotesForUserAndCollection = (user, collection) => {
+  const collectionName = Utils.capitalize(collection._name);
+
+  if (user[`upvoted${collectionName}`] && user[`upvoted${collectionName}`].length){
+    let voteArray = [];
+    user[`upvoted${collectionName}`].forEach((vote) => {
+      const newVote = { ...vote, nullified: true }
+      voteArray.push(newVote)
+      reverseVote(vote, collection, user, 1)
+    })
+    Users.update({_id: user._id}, {$set: {[`upvoted${collectionName}`]: voteArray}})
+    console.log("Nullified n upvotes for user X: ", voteArray.length, user.displayName)
+  }
+
+  if (user[`downvoted${collectionName}`] && user[`downvoted${collectionName}`].length){
+    let voteArray = [];
+    user[`downvoted${collectionName}`].forEach((vote) => {
+      const newVote = { ...vote, nullified: true }
+      voteArray.push(newVote)
+      reverseVote(vote, collection, user, -1)
+    })
+    Users.update({_id: user._id}, {$set: {[`downvoted${collectionName}`]: voteArray}})
+    console.log("Nullified n downvotes for user X: ", voteArray.length, user.displayName)
+  }
+}
+
+const undoNullifyVotesForUserAndCollection = (user, collection) => {
+
+  const collectionName = Utils.capitalize(collection._name);
+
+  if (user[`upvoted${collectionName}`] && user[`upvoted${collectionName}`].length){
+    let voteArray = [];
+    user[`upvoted${collectionName}`].forEach((vote) => {
+      const newVote = { ...vote, nullified: false }
+      voteArray.push(newVote)
+      reverseVote(vote, collection, user, -1)
+    })
+    Users.update({_id: user._id}, {$set: {[`upvoted${collectionName}`]: voteArray}})
+    console.log("Denullified n upvotes for user X: ", voteArray.length, user.displayName)
+  }
+
+  if (user[`downvoted${collectionName}`] && user[`downvoted${collectionName}`].length){
+    let voteArray = [];
+    user[`downvoted${collectionName}`].forEach((vote) => {
+      const newVote = { ...vote, nullified: false }
+      voteArray.push(newVote)
+      reverseVote(vote, collection, user, 1)
+    })
+    Users.update({_id: user._id}, {$set: {[`downvoted${collectionName}`]: voteArray}})
+    console.log("Denullified n downvotes for user X: ", voteArray.length, user.displayName)
+  }
+}
+
+function nullifyCommentVotes(user) {
+  nullifyVotesForUserAndCollection(user, Comments);
+  return user;
+}
+
+addCallback("users.nullifyVotes.async", nullifyCommentVotes)
+
+function nullifyPostVotes(user) {
+  nullifyVotesForUserAndCollection(user, Posts);
+  return user;
+}
+
+addCallback("users.nullifyVotes.async", nullifyPostVotes)
+
+function userEditUndoNullifyVotesCallbacksAsync(user, oldUser) {
+  if (!user.nullifyVotes && oldUser.nullifyVotes) {
+    runCallbacksAsync('users.undoNullifyVotes.async', user);
+  }
+  return user;
+}
+addCallback("users.edit.async", userEditUndoNullifyVotesCallbacksAsync);
+
+function undoNullifyCommentVotes(user) {
+  undoNullifyVotesForUserAndCollection(user, Comments);
+  return user;
+}
+
+addCallback("users.undoNullifyVotes.async", undoNullifyCommentVotes)
+
+function undoNullifyPostVotes(user) {
+  undoNullifyVotesForUserAndCollection(user, Posts);
+  return user;
+}
+
+addCallback("users.undoNullifyVotes.async", undoNullifyPostVotes)
