@@ -36,6 +36,7 @@ $very-small-break-width: 350px;
 
 $small-break:  600px;
 $medium-break: 800px;
+$large: 1200px;
 
 @mixin small(){ // smaller than small-break
   @media screen and (max-width: $small-break) {
@@ -58,7 +59,7 @@ $medium-break: 800px;
   }
 }
 @mixin large(){ // larger than medium-break
-  @media screen and (min-width: $medium-break) {
+  @media screen and (min-width: $large) {
     @content;
   }
 }
