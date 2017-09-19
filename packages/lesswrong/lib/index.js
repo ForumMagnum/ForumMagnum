@@ -1,6 +1,7 @@
 // Subscriptions
 import './collections/subscription_fields.js';
-//
+//// Permissions
+import './modules/permissions.js';
 // Notifications
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/custom_fields.js';
@@ -59,6 +60,8 @@ import './collections/users/custom_fields.js';
 
 // Comments
 import './collections/comments/custom_fields.js';
+import './collections/comments/permissions.js';
+import './collections/comments/callbacks.js';
 //
 //
 //
@@ -67,9 +70,6 @@ import './i18n-en-us/en_US.js';
 //
 // // General
 import './modules/callbacks.js';
-
-// Permissions
-import './modules/permissions.js';
 
 // Legacy Post Redirect
 import './legacy-redirects/views.js';
