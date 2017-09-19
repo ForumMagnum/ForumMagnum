@@ -1,6 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum';
 import { newMutation, editMutation, runCallbacks, Utils } from 'meteor/vulcan:core';
+import { operateOnItem, mutateItem, getVotePower } from 'meteor/vulcan:voting';
 import moment from 'moment';
 import marked from 'marked';
 // Import file-management library
@@ -413,8 +414,8 @@ if (postgresImport) {
         n = n + 1;
         if (n % 1000 == 0) {
           console.log("Processed Metadata on comment Nr.: " + n);
-        };
-      };
+        }
+      }
     });
   };
 
@@ -448,6 +449,132 @@ if (postgresImport) {
     });
   };
 
+  const processCollectionVotes = (data, collection) => {
+    console.log("Started processing collection votes");
+    let n = 0;
+    console.log("Setting scores, upvotes and downvotes of all legacy collection elements to 0");
+    console.log(collection.update({legacy: true}, {$set: {baseScore: 0, upvotes: 0, upvoters: [], downvotes: 0, downvoters: []}}, {multi: true}));
+
+    data = data.slice(0, 10000);
+
+    let legacyIdtoCollectionItemMap = {};
+    collection.find().fetch().forEach(item => {
+      if (item && item.legacyId) {
+        legacyIdtoCollectionItemMap[item.legacyId] = item;
+      }
+    });
+
+    let legacyIdtoUserMap = {};
+    Users.find().fetch().forEach(user => {
+      if (user && user.legacyId) {
+        legacyIdtoUserMap[user.legacyId] = user;
+      }
+    })
+
+    let item, user, itemOwner;
+    let upvotes = {};
+    let downvotes = {};
+    data.forEach((row) => {
+      if (row && row.name && row.name == "1") {
+        upvotes[row.rel_id] = row;
+      } else if (row && row.name && row.name == "-1") {
+        downvotes[row.rel_id] = row;
+      } else if (row && row.name && row.name == "0") {
+        delete upvotes[row.rel_id];
+        delete downvotes[row.rel_id];
+      } else {
+        console.log("Invalid vote type")
+      }
+    })
+
+    for (let key in downvotes) {
+      item = legacyIdtoCollectionItemMap[downvotes[key].thing2_id];
+      user = legacyIdtoUserMap[downvotes[key].thing1_id];
+      if (item && item.legacyData && item.legacyData.author_id) {
+        itemOwner = legacyIdtoUserMap[item.legacyData.author_id]
+      }
+      if (item && user && itemOwner) {
+        let votePower = getVotePower(user);
+        const collectionName = Utils.capitalize(collection._name);
+        const vote = {
+          itemId: item._id,
+          votedAt: new Date(),
+          power: votePower,
+          legacy: true,
+        };
+        if (item.legacyData && item.legacyData.sr_id === "2" && collectionName === "Posts") {
+          votePower = 10*votePower;
+        }
+        item = operateOnItem(collection, item, user, "downvote", false);
+        itemOwner.karma = itemOwner.karma - votePower;
+        if (user[`downvoted${collectionName}`]) {
+          user[`downvoted${collectionName}`].push(vote);
+        } else {
+          user[`downvoted${collectionName}`] = [vote];
+        }
+        legacyIdtoCollectionItemMap[downvotes[key].thing2_id] = item;
+        legacyIdtoUserMap[downvotes[key].thing1_id] = user;
+        n++;
+        if (n % 1000 === 0) {
+          console.log("processed n votes: ", n)
+        }
+      }
+    }
+
+    for (let key in upvotes) {
+      item = legacyIdtoCollectionItemMap[upvotes[key].thing2_id];
+      user = legacyIdtoUserMap[upvotes[key].thing1_id];
+      if (item && item.legacyData && item.legacyData.author_id) {
+        itemOwner = legacyIdtoUserMap[item.legacyData.author_id]
+      }
+      if (item && user && itemOwner) {
+        let votePower = getVotePower(user);
+        // Special case for legacy posts in main which had a vote multiplier of 10
+        const collectionName = Utils.capitalize(collection._name);
+        const vote = {
+          itemId: item._id,
+          votedAt: new Date(),
+          power: votePower,
+          legacy: true,
+        };
+        if (item.legacyData && item.legacyData.sr_id === "2" && collectionName === "Posts") {
+          votePower = 10*votePower;
+        }
+        item = operateOnItem(collection, item, user, "upvote", false);
+        user.karma = user.karma + votePower;
+        if (user[`upvoted${collectionName}`]) {
+          user[`upvoted${collectionName}`].push(vote);
+        } else {
+          user[`upvotes${collectionName}`] = [vote];
+        }
+        legacyIdtoCollectionItemMap[upvotes[key].thing2_id] = item;
+        legacyIdtoUserMap[upvotes[key].thing1_id] = user;
+        n++;
+        if (n % 1000 === 0) {
+          console.log("processed n votes: ", n)
+        }
+      }
+    }
+
+    let userCount = 0;
+    for (let userKey in legacyIdtoUserMap) {
+      const user = legacyIdtoUserMap[userKey];
+      Users.update({_id: user._id}, user, {bypassCollection2: true});
+      userCount++;
+      if (userCount % 1000) {
+        console.log("Updated n users: ", userCount)
+      }
+    }
+    let itemCount = 0;
+    for (let itemKey in legacyIdtoCollectionItemMap) {
+      const item = legacyIdtoCollectionItemMap[itemKey];
+      collection.update({_id: item._id}, item, {bypassCollection2: true});
+      itemCount++;
+      if (itemCount % 1000 == 0) {
+        console.log("Updated n users: ", itemCount)
+      }
+    }
+  }
   console.log('Importing LessWrong users...');
 
   function queryAndProcessUsers() {
@@ -522,7 +649,32 @@ if (postgresImport) {
       });
   }
 
-  queryAndProcessPostsMeta();
+  function queryAndProcessCommentVotes() {
+    db.any('SELECT rel_id, thing1_id, thing2_id, name, date FROM reddit_rel_vote_account_comment ORDER BY date', [true])
+      .then((data) => {
+        processCollectionVotes(data, Comments);
+        console.log("Finished importing comment votes")
+        queryAndProcessPostVotes()
+      })
+      .catch((err) => {
+        console.log("Welp, we failed at processing LessWrong 1.0 comment votes. I am sorry.", err);
+      });
+  }
+
+  function queryAndProcessPostVotes() {
+    db.any('SELECT rel_id, thing1_id, thing2_id, name, date FROM reddit_rel_vote_account_link ORDER BY date', [true])
+      .then((data) => {
+        processCollectionVotes(data, Posts);
+        console.log("Finished importing post votes")
+      })
+      .catch((err) => {
+        console.log("Welp, we failed at processing LessWrong 1.0 post votes. I am sorry.", err);
+      });
+  }
+
+
+  // queryAndProcessPostsMeta();
+  queryAndProcessCommentVotes();
 
   // db.any('SELECT thing_id, key, value from reddit_data_account', [true])
   //   .then((data) => {

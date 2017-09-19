@@ -9,8 +9,9 @@ function CreateVoteableUnionType() {
       itemId: String
       power: Float
       votedAt: String
+      legacy: Boolean
     }
-    
+
     ${VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : ''}
   `;
 
@@ -35,21 +36,21 @@ addGraphQLMutation('vote(documentId: String, voteType: String, collectionName: S
 const voteResolver = {
   Mutation: {
     vote(root, {documentId, voteType, collectionName}, context) {
-      
+
       const collection = context[Utils.capitalize(collectionName)];
       const document = collection.findOne(documentId);
-      
+
       if (context.Users.canDo(context.currentUser, `${collectionName.toLowerCase()}.${voteType}`)) {
-        
+
         const mutatedDocument = mutateItem(collection, document, context.currentUser, voteType, false);
         mutatedDocument.__typename = collection.typeName;
         return mutatedDocument;
 
       } else {
-        
+
         const VoteError = createError('cannot_vote');
         throw new VoteError();
-      
+
       }
     },
   },

@@ -16,6 +16,10 @@ const voteSchema = new SimpleSchema({
   votedAt: {
     type: Date,
     optional: true
+  },
+  legacy: {
+    type: Boolean,
+    optional: true,
   }
 });
 
@@ -129,5 +133,3 @@ Users.addField([
     }
   }
 ]);
-
-
