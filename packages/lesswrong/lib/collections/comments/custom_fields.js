@@ -169,6 +169,21 @@ Comments.addField([
       optional: true,
       viewableBy: ['guests']
     }
+  },
+
+  /**
+    blockedUntil: Deactivates replying to this post by anyone except admins and sunshineRegiment members until the specified time is reached.
+  */
+
+  {
+    fieldName: 'blockedUntil',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins']
+    }
   }
 
 
