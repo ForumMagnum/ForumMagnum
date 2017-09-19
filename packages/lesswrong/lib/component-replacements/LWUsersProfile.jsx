@@ -40,11 +40,13 @@ const LWUsersProfile = (props) => {
           {props.currentUser && props.currentUser.isAdmin ? <li> <ModalTrigger label="Register new RSS Feed">
               <Components.newFeedButton user={user} />
             </ModalTrigger> </li> : null}
-          <li>
-            <ModalTrigger label="Send Message" >
-              <Components.newConversationButton user={user} />
-            </ModalTrigger>
-          </li>
+          {props.currentUser ? (
+            <li>
+              <ModalTrigger label="Send Message" >
+                <Components.newConversationButton user={user} />
+              </ModalTrigger>
+            </li> 
+          ) : null}
         </ul>
         <h3>Users Feeds</h3>
         <Components.FeedList terms={feedTerms} />
