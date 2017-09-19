@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, replaceComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from "meteor/example-forum";
@@ -12,8 +12,7 @@ const CommentsEditForm = (props, context) => {
         documentId={props.comment._id}
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
-        removeSuccessCallback={props.removeSuccessCallback}
-        showRemove={true}
+        showRemove={false}
         mutationFragment={getFragment('CommentsList')}
       />
     </div>
@@ -26,4 +25,4 @@ CommentsEditForm.propTypes = {
   cancelCallback: PropTypes.func
 };
 
-registerComponent('CommentsEditForm', CommentsEditForm, withMessages);
+replaceComponent('CommentsEditForm', CommentsEditForm, withMessages);

@@ -82,6 +82,7 @@ import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsCommentsThreadWrapper.jsx';
 import '../components/comments/CommentsItem.jsx';
+import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
 import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsNode.jsx';
