@@ -124,9 +124,13 @@ registerFragment(`
     downvotes
     upvoters {
       _id
+      slug
+      username
     }
     downvoters {
       _id
+      slug
+      username
     }
     baseScore
     score
@@ -163,6 +167,7 @@ registerFragment(`
     # example-forum
     _id
     postId
+    deleted
     parentCommentId
     topLevelCommentId
     body
