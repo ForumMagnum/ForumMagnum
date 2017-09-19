@@ -5,6 +5,7 @@ import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
 import moment from 'moment';
+import Users from 'meteor/vulcan:users';
 
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
@@ -43,6 +44,22 @@ class CommentsItem extends PureComponent {
     };
   }
 
+  handleDelete = () => {
+    this.props.editMutation({
+      documentId: this.props.comment._id,
+      set: {deleted:true},
+      unset: {}
+    }).then(()=>console.log('comment deleted')).catch(/* error */);
+  }
+
+  handleUndoDelete = () => {
+    this.props.editMutation({
+      documentId: this.props.comment._id,
+      set: {deleted:false},
+      unset: {}
+    }).then(()=>console.log('comment undo deleted')).catch(/* error */);
+  }
+
   showReply = (event) => {
     event.preventDefault();
     this.setState({showReply: true});
@@ -79,18 +96,20 @@ class CommentsItem extends PureComponent {
   // TODO: Create unique comment-links id:14
 
   render() {
+    const currentUser = this.props.currentUser;
     const comment = this.props.comment;
     const params = this.props.router.params;
     const commentLink = "/posts/"+params._id+"/"+params.slug+"/"+comment._id;
     const showReplyButton = !this.props.comment.isDeleted && !!this.props.currentUser;
+    const deletedClass = this.props.comment.deleted ? " deleted" : "";
 
     return (
-      <div className="comments-item" id={comment._id}>
+      <div className={"comments-item" + deletedClass} id={comment._id}>
         <div className="comments-item-body">
           <div className="comments-item-meta">
             <Components.UsersName user={comment.user}/>
             <div className="comments-item-vote">
-              <Components.Vote collection={Comments} document={this.props.comment} currentUser={this.props.currentUser}/>
+              <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
             <div className="comments-item-date"><Link to={commentLink}>{moment(new Date(comment.postedAt)).fromNow()} </Link></div>
           </div>
@@ -111,17 +130,46 @@ class CommentsItem extends PureComponent {
             style={moreActionsMenuStyle}
             iconStyle={moreActionsMenuIconStyle}
           >
-            <Components.ShowIf check={Comments.options.mutations.edit.check} document={comment}>
-              <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
-            </Components.ShowIf>
-            <MenuItem><Components.SubscribeTo className="comments-subscribe" document={comment} /></MenuItem>
+            { this.renderEditMenuItem() }
+            { this.renderDeleteMenuItem() }
+            { this.renderSubscribeMenuItem() }
           </IconMenu></object>
         </div>
       </div>
     )
   }
 
-  renderComment() {
+  renderSubscribeMenuItem = () => {
+    return (
+      <MenuItem primaryText="Subscribe">
+        <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />
+      </MenuItem>
+    )
+  }
+
+  renderEditMenuItem = () => {
+    return (
+      <Components.ShowIf check={Comments.options.mutations.edit.check} document={this.props.comment}>
+        <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
+      </Components.ShowIf>
+    )
+  }
+
+  renderDeleteMenuItem = () =>  {
+    if (this.props.comment) {
+      let canDelete = Users.canDo(this.props.currentUser,"comments.softRemove.all");
+      let showDelete = !this.props.comment.deleted && canDelete;
+      let showUndoDelete = this.props.comment.deleted && canDelete;
+      return (
+        <div>
+          { showDelete && <MenuItem onTouchTap={ this.handleDelete } primaryText="Delete" /> }
+          { showUndoDelete && <MenuItem onTouchTap={ this.handleUndoDelete } primaryText="Undo Delete" /> }
+        </div>
+      )
+    }
+  }
+
+  renderComment = () =>  {
     let content = this.props.comment.content;
     const htmlBody = {__html: this.props.comment.htmlBody};
     return (
