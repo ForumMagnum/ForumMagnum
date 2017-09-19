@@ -27,7 +27,6 @@
   }
 }
 
-
 .comments-item{
   margin-bottom: $vmargin;
   position: relative;
@@ -165,7 +164,18 @@
 
 
 .comments-edit-form, .comments-new-form{
-
+  position:relative;
+  padding-bottom:17px;
+  .input-deleted, .input-spam {
+    position:absolute;
+    bottom:0;
+  }
+  .input-deleted {
+    left:15px;
+  }
+  .input-spam {
+    left:105px;
+  }
   .input-content {
     border-bottom-width: 1px;
     border-bottom-style: solid;
@@ -199,17 +209,24 @@
     }
   }
   .form-cancel {
-    float: left;
     position:absolute;
+    right:85px;
     margin-top: 10px;
     margin-left: 0px;
     font-size: 16px;
     text-transform: uppercase;
-    color: rgba(0,0,0,0.5);
+    color: rgba(0,0,0,0.35);
   }
   .input-body{
     margin-bottom: $hmargin;
   }
+}
+
+.comments-item-reply-link {
+  float:left;
+}
+.form-section {
+
 }
 
 .comments-item-reply{
