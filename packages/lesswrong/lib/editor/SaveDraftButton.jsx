@@ -9,7 +9,7 @@ class SaveDraftButton extends Component {
   constructor(props, context) {
     super(props,context);
   }
-    
+
   render() {
     return (
       <div className="posts-save-draft">
@@ -26,5 +26,3 @@ SaveDraftButton.contextTypes = {
 };
 
 registerComponent("SaveDraftButton", SaveDraftButton);
-
-export default SaveDraftButton;
