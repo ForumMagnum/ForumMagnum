@@ -80,5 +80,21 @@ Users.addField([
       optional: true,
       viewableBy: ['guests']
     }
+  },
+
+  /**
+    banned: Whether the user is banned or not. Can be set by moderators and admins.
+  */
+
+  {
+    fieldName: 'banned',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshine_regiment', 'admins'],
+      insertableBy: ['admins'],
+      control: 'SubmitButton',
+    }
   }
 ]);
