@@ -8,7 +8,6 @@ import { withRouter } from 'react-router'
 import Users from 'meteor/vulcan:users';
 
 
-
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
   'postCommentsNew': 'most recent',
@@ -63,10 +62,10 @@ class CommentsViews extends Component {
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsBest"];
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"];
 
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
+    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'};
     const currentLocation = router.location;
 
-    if (Users.canDo(props.currentUser, "comments.edit.all")) {
+    if (Users.canDo(props.currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
     }
     return (
@@ -112,4 +111,4 @@ CommentsViews.contextTypes = {
 
 CommentsViews.displayName = "PostsViews";
 
-registerComponent('CommentsViews', CommentsViews, withRouter);
+registerComponent('CommentsViews', CommentsViews, withRouter, withCurrentUser);
