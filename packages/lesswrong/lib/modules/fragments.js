@@ -174,6 +174,7 @@ registerFragment(`
     htmlBody
     content
     postedAt
+    repliesBlockedUntil
     # vulcan:users
     userId
     user {

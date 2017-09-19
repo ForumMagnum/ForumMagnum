@@ -94,7 +94,7 @@ Users.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['sunshine_regiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
       label: 'Ban this user'
@@ -111,7 +111,7 @@ Users.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['sunshine_regiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
       label: 'Set all future votes of this user to have zero weight'
@@ -128,7 +128,7 @@ Users.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['sunshine_regiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
       label: 'Nullify all past votes'
