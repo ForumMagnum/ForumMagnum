@@ -1,4 +1,5 @@
 import { Posts } from "meteor/example-forum";
+import Users from 'meteor/vulcan:users';
 
 const formGroups = {
   admin: {
@@ -313,5 +314,22 @@ Posts.addField([
       control: "text"
     }
   },
+
+  /**
+    unlisted: If true, the post is not featured on the frontpage and is not featured on the user page. Only accessible via it's ID
+  */
+
+  {
+    fieldName: 'unlisted',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['members'],
+      label: "Make only accessible via link",
+      control: "checkbox"
+    }
+  }
 
 ]);

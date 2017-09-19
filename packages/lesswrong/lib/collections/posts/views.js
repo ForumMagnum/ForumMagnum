@@ -7,7 +7,8 @@ Posts.addDefaultView(terms => ({
   selector: {
     status: Posts.config.STATUS_APPROVED,
     draft: {$ne: true},
-    isFuture: {$ne: true} // match both false and undefined
+    isFuture: {$ne: true}, // match both false and undefined
+    unlisted: {$ne: true}
   }
 }));
 
