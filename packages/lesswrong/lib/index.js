@@ -68,6 +68,9 @@ import './i18n-en-us/en_US.js';
 // // General
 import './modules/callbacks.js';
 
+// Permissions
+import './modules/permissions.js';
+
 // Legacy Post Redirect
 import './legacy-redirects/views.js';
 
