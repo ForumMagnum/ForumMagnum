@@ -2,6 +2,7 @@ import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum';
 import { newMutation, editMutation, runCallbacks, Utils } from 'meteor/vulcan:core';
 import { operateOnItem, mutateItem, getVotePower } from 'meteor/vulcan:voting';
+import update from 'immutability-helper';
 import moment from 'moment';
 import marked from 'marked';
 // Import file-management library
@@ -449,13 +450,11 @@ if (postgresImport) {
     });
   };
 
-  const processCollectionVotes = (data, collection) => {
+  const processCollectionVotes = (data, collection, resetLegacyVotes) => {
     console.log("Started processing collection votes");
     let n = 0;
     console.log("Setting scores, upvotes and downvotes of all legacy collection elements to 0");
     console.log(collection.update({legacy: true}, {$set: {baseScore: 0, upvotes: 0, upvoters: [], downvotes: 0, downvoters: []}}, {multi: true}));
-
-    data = data.slice(0, 10000);
 
     let legacyIdtoCollectionItemMap = {};
     collection.find().fetch().forEach(item => {
@@ -496,16 +495,20 @@ if (postgresImport) {
       if (item && user && itemOwner) {
         let votePower = getVotePower(user);
         const collectionName = Utils.capitalize(collection._name);
+        if (item.legacyData && item.legacyData.sr_id === "2" && collectionName === "Posts") {
+          votePower = 10*votePower;
+        }
         const vote = {
           itemId: item._id,
           votedAt: new Date(),
           power: votePower,
           legacy: true,
         };
-        if (item.legacyData && item.legacyData.sr_id === "2" && collectionName === "Posts") {
-          votePower = 10*votePower;
-        }
-        item = operateOnItem(collection, item, user, "downvote", false);
+        item = update(item, {
+          downvoters: {$push: [user._id]},
+          downvotes: {$set: item.downvotes + 1},
+          baseScore: {$set: item.baseScore - votePower},
+        });
         itemOwner.karma = itemOwner.karma - votePower;
         if (user[`downvoted${collectionName}`]) {
           user[`downvoted${collectionName}`].push(vote);
@@ -540,7 +543,11 @@ if (postgresImport) {
         if (item.legacyData && item.legacyData.sr_id === "2" && collectionName === "Posts") {
           votePower = 10*votePower;
         }
-        item = operateOnItem(collection, item, user, "upvote", false);
+        item = update(item, {
+          upvoters: {$push: [user._id]},
+          upvotes: {$set: item.upvotes + 1},
+          baseScore: {$set: item.baseScore + votePower},
+        });
         user.karma = user.karma + votePower;
         if (user[`upvoted${collectionName}`]) {
           user[`upvoted${collectionName}`].push(vote);
