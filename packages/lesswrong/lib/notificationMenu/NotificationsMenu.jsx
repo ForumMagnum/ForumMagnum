@@ -60,7 +60,6 @@ class NotificationsMenu extends Component {
   }
 
   viewNotifications = (results) => {
-    console.log("viewNotifications results", results);
     if(results && results.length){
       let editMutation = this.props.editMutation;
       let set = {viewed: true};

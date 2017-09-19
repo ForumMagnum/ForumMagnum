@@ -34,7 +34,6 @@ class SequencesListEditor extends Component {
     const fieldName = props.name;
     let sequenceIds = [];
     if (props.document[fieldName]) {
-      console.log("Initiating sequencesList: ", props.document[fieldName]);
       sequenceIds = _.compact(JSON.parse(JSON.stringify(props.document[fieldName])));
     }
     this.state = {
@@ -47,7 +46,6 @@ class SequencesListEditor extends Component {
     addToSuccessForm((results) => this.resetSequenceIds(results));
   }
   onSortEnd = ({oldIndex, newIndex}) => {
-    console.log("onSortEnd", oldIndex, newIndex, this.state.sequenceIds);
     const fieldName = this.props.name;
     const addValues = this.context.addToAutofilledValues;
     const newIds = arrayMove(this.state.sequenceIds, oldIndex, newIndex);
@@ -67,7 +65,6 @@ class SequencesListEditor extends Component {
   }
   removeSequenceId = (sequenceId) => {
     const newIds = _.without(this.state.sequenceIds, sequenceId);
-    console.log("removeSequenceId", newIds);
     this.setState({
       sequenceIds: newIds || [],
     })

@@ -5,7 +5,6 @@ import LWEvents from '../../lib/collections/lwevents/collection.js';
 
 const PostsCommentsThread = ({loading, terms: {postId}, results, comments, loadMoreComments, totalComments, commentCount, loadingMoreComments}) => {
     if (loading || !results) {
-      console.log("Loading & Results PostsCommentsThread: ", loading, results);
       return <div className="posts-comments-thread"><Components.CommentsListSection comments={comments} postId={postId} loadMoreComments={loadMoreComments} totalComments={totalComments} commentCount={commentCount} loadingMoreComments={loadingMoreComments}/></div>
     } else {
       const lastEvent = results && results[0]

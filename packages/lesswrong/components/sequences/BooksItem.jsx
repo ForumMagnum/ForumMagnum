@@ -28,7 +28,6 @@ class BooksItem extends Component {
 
   render() {
     const book = this.props.book;
-    console.log("book.posts: ", book.posts);
     if (this.state.edit) {
       return <Components.BooksEditForm
                 documentId={book._id}
