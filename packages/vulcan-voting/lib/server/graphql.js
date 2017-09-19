@@ -10,6 +10,7 @@ function CreateVoteableUnionType() {
       power: Float
       votedAt: String
       legacy: Boolean
+      nullified: Boolean
     }
 
     ${VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : ''}
