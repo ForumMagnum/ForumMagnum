@@ -61,6 +61,8 @@ class Header extends Component {
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> SEQUENCES </MenuItem>
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> CODEX </MenuItem>
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
+          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
+          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
           {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
         </Drawer>
         </header>

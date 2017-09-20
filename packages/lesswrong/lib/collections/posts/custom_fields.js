@@ -345,8 +345,28 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      hidden: true, 
+      hidden: true,
       label: "Publish to the frontpage",
+      control: "checkbox",
+      onInsert: (document, currentUser) => false,
+    }
+  },
+
+
+  /**
+    meta: The post is published to the meta section of the page
+  */
+
+  {
+    fieldName: 'meta',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      hidden: true,
+      label: "Publish to meta",
       control: "checkbox",
       onInsert: (document, currentUser) => false,
     }
