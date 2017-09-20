@@ -25,6 +25,7 @@ registerFragment(`
     chapters {
       _id
       title
+      number
       sequenceId
       posts {
         _id
