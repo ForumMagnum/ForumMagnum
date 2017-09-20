@@ -38,7 +38,7 @@ import './component-replacements/LWLayout.jsx';
 import './component-replacements/LWPostsHome.jsx';
 import './component-replacements/LWPostsList.jsx';
 // import './component-replacements/LWPostsItem.jsx';
-import './component-replacements/LWUsersProfile.jsx';
+
 
 import './component-replacements/LWPostsNewForm.jsx';
 import './component-replacements/LWPostsEditForm.jsx';
@@ -73,6 +73,8 @@ import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesList.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersAccountMenu.jsx';
+import '../components/users/UsersProfile.jsx';
+import '../components/users/UsersPostsList.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsPage.jsx';

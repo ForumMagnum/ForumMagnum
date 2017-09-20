@@ -344,6 +344,7 @@ registerFragment(`
     karma
     # example-forum
     postCount
+    frontpagePostCount
     # example-forum
     commentCount
     # vulcan:voting

@@ -54,7 +54,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
       // Add ellipsis to last element of commentExcerpt
       let commentExcerpt = plaintext.substring(0,300).split("\n\n");
       const lastElement = commentExcerpt.slice(-1)[0];
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p>{text}</p>);
+      let paragraphCounter = 0;
+      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p key={this.props.comment._id + paragraphCounter++}>{text}</p>);
       return <div className="recent-comments-item-text comments-item-text content-body">
           {commentExcerpt}
           <p>{lastElement + "..."}<a className="read-more" onTouchTap={() => this.setState({expanded: true})}>(read more)</a> </p>
