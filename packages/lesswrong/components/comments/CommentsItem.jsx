@@ -122,30 +122,7 @@ class CommentsItem extends PureComponent {
           { this.renderCommentBottom() }
         </div>
         {this.state.showReply ? this.renderReply() : null}
-        <div className="comments-more-actions-menu">
-          <object>
-            <IconMenu
-              iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
-              anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-              targetOrigin={{horizontal: 'right', vertical: 'top'}}
-              style={moreActionsMenuStyle}
-              iconStyle={moreActionsMenuIconStyle}
-            >
-              { this.renderEditMenuItem() }
-              { this.renderDeleteMenuItem() }
-              { this.renderSubscribeMenuItem() }
-              { this.renderReportMenuItem() }
-            </IconMenu>
-            { this.state.showReport &&
-              <Components.ReportForm
-                commentId={this.props.comment._id}
-                postId={this.props.comment.postId}
-                link={"/posts/" + this.props.comment.post._id + "/a/" + this.props.comment._id}
-                userId={currentUser._id}
-                open={true}
-              /> }
-          </object>
-        </div>
+        {this.renderMenu() }
       </div>
     )
   }
@@ -181,6 +158,35 @@ class CommentsItem extends PureComponent {
     )
   }
 
+  renderMenu = () => {
+    return (
+      <div className="comments-more-actions-menu">
+        <object>
+          <IconMenu
+            iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
+            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+            targetOrigin={{horizontal: 'right', vertical: 'top'}}
+            style={moreActionsMenuStyle}
+            iconStyle={moreActionsMenuIconStyle}
+          >
+            { this.renderEditMenuItem() }
+            { this.renderDeleteMenuItem() }
+            { this.renderSubscribeMenuItem() }
+            { this.renderReportMenuItem() }
+          </IconMenu>
+          { this.state.showReport &&
+            <Components.ReportForm
+              commentId={this.props.comment._id}
+              postId={this.props.comment.postId}
+              link={"/posts/" + this.props.comment.post._id + "/a/" + this.props.comment._id}
+              userId={currentUser._id}
+              open={true}
+            /> }
+        </object>
+      </div>
+    )
+  }
+
   renderSubscribeMenuItem = () => {
     return (
       <MenuItem primaryText="Subscribe">
@@ -205,14 +211,11 @@ class CommentsItem extends PureComponent {
   renderDeleteMenuItem = () =>  {
     if (this.props.comment) {
       let canDelete = Users.canDo(this.props.currentUser,"comments.softRemove.all");
-      let showDelete = !this.props.comment.deleted && canDelete;
-      let showUndoDelete = this.props.comment.deleted && canDelete;
-      return (
-        <div>
-          { showDelete && <MenuItem onTouchTap={ this.handleDelete } primaryText="Delete" /> }
-          { showUndoDelete && <MenuItem onTouchTap={ this.handleUndoDelete } primaryText="Undo Delete" /> }
-        </div>
-      )
+      if (!this.props.comment.deleted && canDelete) {
+        return <MenuItem onTouchTap={ this.handleDelete } primaryText="Delete" />
+      } else if (this.props.comment.deleted && canDelete) {
+        return <MenuItem onTouchTap={ this.handleUndoDelete } primaryText="Undo Delete" />
+      }
     }
   }
 

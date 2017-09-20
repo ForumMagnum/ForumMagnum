@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList, withCurrentUser, Loading } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withCurrentUser, Loading, withEdit } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 
-const RecentComments = ({results, currentUser, loading, fontSize, loadMore, loadingMore}) => {
+const RecentComments = ({results,
+                         currentUser,
+                         loading,
+                         fontSize,
+                         loadMore,
+                         loadingMore,
+                         editMutation}) => {
     return (
       <div>
         <div className="comments-list recent-comments-list">
@@ -10,7 +16,10 @@ const RecentComments = ({results, currentUser, loading, fontSize, loadMore, load
             <div className={"comments-items" + (fontSize == "small" ? " smalltext" : "")}>
               {results.map(comment =>
                   <div key={comment._id}>
-                    <Components.RecentCommentsItem comment={comment} currentUser={currentUser} />
+                    <Components.RecentCommentsItem
+                      currentUser={currentUser}
+                      comment={comment}
+                      editMutation={editMutation}/>
                   </div>
                 )}
                 <Components.CommentsLoadMore loading={loadingMore} loadMore={loadMore}  />
@@ -26,4 +35,9 @@ const commentsOptions = {
   totalResolver: false,
 };
 
-registerComponent('RecentComments', RecentComments, [withList, commentsOptions], withCurrentUser);
+const withEditOptions = {
+  collection: Comments,
+  fragmentName: 'SelectCommentsList',
+};
+
+registerComponent('RecentComments', RecentComments, [withList, commentsOptions], [withEdit, withEditOptions], withCurrentUser);
