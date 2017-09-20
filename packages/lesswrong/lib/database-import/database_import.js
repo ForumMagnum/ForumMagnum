@@ -563,24 +563,32 @@ if (postgresImport) {
       }
     }
 
-    let userCount = 0;
-    for (let userKey in legacyIdtoUserMap) {
-      const user = legacyIdtoUserMap[userKey];
-      Users.update({_id: user._id}, user, {bypassCollection2: true});
-      userCount++;
-      if (userCount % 1000) {
-        console.log("Updated n users: ", userCount)
+    let itemReplacement = Object.keys(legacyIdtoUserMap);
+    itemReplacement.map((key) => ({replaceOne: {
+      "filter": {"_id": legacyIdtoCollectionItemMap[key]._id},
+      "replacement": legacyIdtoCollectionItemMap[key],
       }
-    }
-    let itemCount = 0;
-    for (let itemKey in legacyIdtoCollectionItemMap) {
-      const item = legacyIdtoCollectionItemMap[itemKey];
-      collection.update({_id: item._id}, item, {bypassCollection2: true});
-      itemCount++;
-      if (itemCount % 1000 == 0) {
-        console.log("Updated n users: ", itemCount)
+    }))
+    collection.bulkWrite(itemReplacement);
+    console.log("Initiated user update, for n users: ", itemReplacement.length)
+
+    // let userCount = 0;
+    // for (let userKey in legacyIdtoUserMap) {
+    //   const user = legacyIdtoUserMap[userKey];
+    //   Users.update({_id: user._id}, user, {bypassCollection2: true});
+    //   userCount++;
+    //   if (userCount % 1000) {
+    //     console.log("Updated n users: ", userCount)
+    //   }
+    // }
+    itemReplacement = Object.keys(legacyIdtoCollectionItemMap);
+    itemReplacement.map((key) => ({replaceOne: {
+      "filter": {"_id": legacyIdtoCollectionItemMap[key]._id},
+      "replacement": legacyIdtoCollectionItemMap[key],
       }
-    }
+    }))
+    collection.bulkWrite(itemReplacement);
+    console.log("Initiated comment update, for n comments: ", itemReplacement.length)
   }
   console.log('Importing LessWrong users...');
 
