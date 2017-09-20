@@ -6,7 +6,7 @@
   },
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
-    "start": "meteor --settings settings.json",
+    "start": "bash launch_meteor.sh",
     "lint": "eslint --cache --ext .jsx,js packages",
     "test": "BABEL_ENV=test mocha 'packages/lesswrong/**/test.js' --require babel-polyfill --compilers js:babel-core/register"
   },
