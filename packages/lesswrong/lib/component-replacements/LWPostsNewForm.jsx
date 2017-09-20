@@ -10,9 +10,11 @@ const PostsNewForm = (props, context) =>
       failureComponent={<Components.AccountsLoginForm />}
     >
       <div className="posts-new-form">
+        {console.log("PostsNewForm query", props.router.location.query)}
         <Components.SmartForm
           collection={Posts}
           mutationFragment={getFragment('PostsPage')}
+          prefilledProps={{frontpage: props.router.location.query && !!props.router.location.query.frontpage}}
           successCallback={post => {
             props.router.push({pathname: Posts.getPageUrl(post)});
             props.flash(context.intl.formatMessage({id: "posts.created_message"}), "success");
@@ -34,4 +36,4 @@ PostsNewForm.contextTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-replaceComponent('PostsNewForm', PostsNewForm, withRouter, withMessages);
+replaceComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter);

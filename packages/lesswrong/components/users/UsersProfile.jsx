@@ -74,19 +74,19 @@ const UsersProfile = (props) => {
             {user.htmlBio ? <div className="users-profile-bio" dangerouslySetInnerHTML={{__html: user.htmlBio}}></div> : null }
           </Components.Section>
         </div>
-        <Components.Section title="Frontpage Posts"
+        {this.props.user.frontpagePostCount > 0 && <Components.Section title="Frontpage Posts"
           titleComponent= {
           <div className="recent-posts-title-component users-profile-recent-posts">
-          {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={"/newPost"}> new post </Link></div>}
+          {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {frontpage: true} }}> new frontpage post </Link></div>}
           </div>} >
           <Components.PostsList terms={frontpageTerms} showHeader={false} />
-        </Components.Section>
+        </Components.Section>}
         <Components.Section title="Blog Posts"
           titleComponent= {
           <div className="recent-posts-title-component users-profile-recent-posts">
             <Components.SearchForm/>
             sorted by<br /> <Components.PostsViews />
-          {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={"/newPost"}> new post </Link></div>}
+          {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>}
           </div>} >
           <Components.PostsList terms={terms} showHeader={false} />
         </Components.Section>

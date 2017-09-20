@@ -12,6 +12,7 @@ const BooksEditForm = (props) => {
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
         prefilledProps={props.prefilledProps}
+        showRemove={true}
         fragment={getFragment('BookPageFragment')}
         queryFragment={getFragment('BookPageFragment')}
         mutationFragment={getFragment('BookPageFragment')}
