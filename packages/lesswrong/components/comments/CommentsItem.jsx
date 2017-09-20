@@ -40,7 +40,8 @@ class CommentsItem extends PureComponent {
     super(props);
     this.state = {
       showReply: false,
-      showEdit: false
+      showEdit: false,
+      showReport: false
     };
   }
 
@@ -58,6 +59,11 @@ class CommentsItem extends PureComponent {
       set: {deleted:false},
       unset: {}
     }).then(()=>console.log('comment undo deleted')).catch(/* error */);
+  }
+
+  showReport = (event) => {
+    event.preventDefault();
+    this.setState({showReport: true});
   }
 
   showReply = (event) => {
@@ -113,47 +119,66 @@ class CommentsItem extends PureComponent {
             <div className="comments-item-date"><Link to={commentLink}>{moment(new Date(comment.postedAt)).fromNow()} </Link></div>
           </div>
           {this.state.showEdit ? this.renderEdit() : this.renderComment()}
-          <div className="comments-item-bottom">
-            { this.renderReplyButton() }
-            <div className="comments-item-vote">
-              <Components.Vote collection={Comments} document={this.props.comment} currentUser={this.props.currentUser}/>
-            </div>
-          </div>
+          { this.renderCommentBottom() }
         </div>
         {this.state.showReply ? this.renderReply() : null}
         <div className="comments-more-actions-menu">
-          <object><IconMenu
-            iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
-            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-            targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            style={moreActionsMenuStyle}
-            iconStyle={moreActionsMenuIconStyle}
-          >
-            { this.renderEditMenuItem() }
-            { this.renderDeleteMenuItem() }
-            { this.renderSubscribeMenuItem() }
-          </IconMenu></object>
+          <object>
+            <IconMenu
+              iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
+              anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+              targetOrigin={{horizontal: 'right', vertical: 'top'}}
+              style={moreActionsMenuStyle}
+              iconStyle={moreActionsMenuIconStyle}
+            >
+              { this.renderEditMenuItem() }
+              { this.renderDeleteMenuItem() }
+              { this.renderSubscribeMenuItem() }
+              { this.renderReportMenuItem() }
+            </IconMenu>
+            { this.state.showReport &&
+              <Components.ReportForm
+                commentId={this.props.comment._id}
+                postId={this.props.comment.postId}
+                link={"/posts/" + this.props.comment.post._id + "/a/" + this.props.comment._id}
+                userId={currentUser._id}
+                open={true}
+              /> }
+          </object>
         </div>
       </div>
     )
   }
 
-  renderReplyButton = () => {
+  renderCommentBottom = () => {
     const comment = this.props.comment;
     const currentUser = this.props.currentUser;
-    const showReplyButton = !comment.isDeleted && !!this.props.currentUser;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
-    if (blockedReplies && showReplyButton && !Users.canDo('comments.replyOnBlocked.all', currentUser)) {
-      return <div className="comments-item-reply-link blockedReplies">
-        A moderator has deactivated replies on this comment until {moment(new Date(comment.repliesBlockedUntil)).calendar()}
+    const showReplyButton = !comment.isDeleted && !!this.props.currentUser && (
+      !blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all'))
+
+    return (
+      <div className="comments-item-bottom">
+        { blockedReplies &&
+          <div className="comment-blocked-replies">
+            A moderator has deactivated replies on this comment until {moment(new Date(comment.repliesBlockedUntil)).calendar()}
+          </div>
+        }
+        <div>
+          { showReplyButton &&
+            <a className="comments-item-reply-link" onClick={this.showReply}>
+              <FormattedMessage id="comments.reply"/>
+            </a>
+          }
+          <div className="comments-item-vote">
+            <Components.Vote
+              collection={Comments}
+              document={this.props.comment}
+              currentUser={this.props.currentUser}/>
+          </div>
+        </div>
       </div>
-    } else if (showReplyButton) {
-      return <a className="comments-item-reply-link" onClick={this.showReply}>
-        <FormattedMessage id="comments.reply"/>
-      </a>
-    } else {
-      return null;
-    }
+    )
   }
 
   renderSubscribeMenuItem = () => {
@@ -164,12 +189,17 @@ class CommentsItem extends PureComponent {
     )
   }
 
+  renderReportMenuItem = () => {
+    if (Users.canDo(this.props.currentUser, "reports.new")) {
+      return <MenuItem onTouchTap={this.showReport} primaryText="Report" />
+    }
+  }
+
   renderEditMenuItem = () => {
-    return (
-      <Components.ShowIf check={Comments.options.mutations.edit.check} document={this.props.comment}>
-        <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
-      </Components.ShowIf>
-    )
+    if (Users.canDo(this.props.currentUser, "comments.edit.all") ||
+        Users.owns(this.props.currentUser, this.props.comment)) {
+          return <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
+    }
   }
 
   renderDeleteMenuItem = () =>  {
@@ -214,7 +244,6 @@ class CommentsItem extends PureComponent {
         comment={this.props.comment}
         successCallback={this.editSuccessCallback}
         cancelCallback={this.editCancelCallback}
-        removeSuccessCallback={this.removeSuccessCallback}
       />
 }
 

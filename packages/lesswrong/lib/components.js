@@ -84,6 +84,7 @@ import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsCommentsThreadWrapper.jsx';
 import '../components/comments/CommentsItem.jsx';
+import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
 import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsNode.jsx';
@@ -101,6 +102,11 @@ import '../components/search/CommentsSearchHit.jsx';
 import '../components/search/UsersSearchHit.jsx';
 import '../components/search/SequencesSearchHit.jsx';
 import '../components/search/SequencesSearchAutoComplete.jsx';
+
+import '../components/sunshineDashboard/SunshineDashboard.jsx';
+import '../components/sunshineDashboard/ReportsList.jsx';
+import '../components/sunshineDashboard/ReportItem.jsx';
+import '../components/sunshineDashboard/ReportForm.jsx';
 
 // Sequences
 import '../components/sequences/SequencesPage.jsx';
