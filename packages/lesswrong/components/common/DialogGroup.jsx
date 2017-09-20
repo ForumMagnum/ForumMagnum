@@ -9,12 +9,9 @@ import { registerComponent } from 'meteor/vulcan:core';
 
 class DialogGroup extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: props.open,
-    };
-  }
+  state = {
+    open: false,
+  };
 
   handleOpen = () => {
     this.setState({open: true});
@@ -45,16 +42,14 @@ class DialogGroup extends Component {
 }
 
 DialogGroup.propTypes = {
-    title: PropTypes.string,
-    trigger: PropTypes.node,
+    title: PropTypes.string.isRequired,
+    trigger: PropTypes.node.isRequired,
     children: PropTypes.node,
-    actions: PropTypes.node.array,
-    open: PropTypes.bool
+    actions: PropTypes.node.array
 }
 DialogGroup.defaultProps = {
   children: undefined,
   actions: [ <FlatButton label="Okay" primary={true}/> ],
-  open: false,
 }
 
 registerComponent('DialogGroup', DialogGroup);
