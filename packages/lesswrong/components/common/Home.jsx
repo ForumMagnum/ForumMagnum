@@ -7,7 +7,7 @@ const testCollections = [
     title: "The Core Sequences",
     id: "dummyId",
     user: {userName: "Eliezer_Yudkowsky", displayName: "EliezerYudkowsky", slug: "eliezer_yudkowsky"},
-    summary: 'The Core Sequences are a set of sequences by Eliezer Yudkowsky on human rationality and irrationality in cognitive science. This collection serves as a long-form introduction to formative ideas behind Less Wrong, the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruism community.',
+    summary: 'A set of essays by Eliezer Yudkowsky that serve as a long-form introduction to formative ideas behind Less Wrong, the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruism community.',
     image: "http://i.imgur.com/dVXiZtw.png",
     color: "#B1D4B4",
     big: true,
