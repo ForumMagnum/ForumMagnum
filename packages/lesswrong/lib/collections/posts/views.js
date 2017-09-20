@@ -11,6 +11,7 @@ Posts.addDefaultView(terms => ({
     unlisted: {$ne: true},
     frontpage: true,
     ...(terms.userId ? {userId: terms.userId} : {}),
+    meta: {$ne: true},
   },
   options: {
     sort: {score: -1}
@@ -48,6 +49,30 @@ Posts.addView("featured", terms => ({
     limit: terms.limit || 3,
     sort: {
       featuredPriority: -1,
+    }
+  }
+}))
+
+Posts.addView("meta", terms => ({
+  selector: {
+    meta: true,
+  },
+  options: {
+    sort: {
+      score: -1,
+    }
+  }
+}))
+
+Posts.addView("metaFeatured", terms => ({
+  selector: {
+    meta: true,
+  },
+  options: {
+    limit: terms.limit || 3,
+    sort: {
+      featuredPriority: -1,
+      score: -1,
     }
   }
 }))
