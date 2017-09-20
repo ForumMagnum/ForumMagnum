@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, replaceComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from "meteor/example-forum";
@@ -25,4 +25,4 @@ CommentsEditForm.propTypes = {
   cancelCallback: PropTypes.func
 };
 
-registerComponent('CommentsEditForm', CommentsEditForm, withMessages);
+replaceComponent('CommentsEditForm', CommentsEditForm, withMessages);
