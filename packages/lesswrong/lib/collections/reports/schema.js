@@ -10,46 +10,94 @@ import GraphQLSchema from 'meteor/vulcan:core';
 const schema = {
   _id: {
     type: String,
-    viewableBy: Users.owns,
+    viewableBy: ['guests'],
     optional: true,
   },
   userId: {
     type: String,
-    viewableBy: ['members'],
-    insertableBy: Users.owns,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: (message, args, context) => {
-        return context.Users.findOne({_id: message.userId}, {fields: context.getViewableFields(context.currentUser, context.Users)});
+      resolver: (report, args, context) => {
+        return context.Users.findOne({_id: report.userId}, {fields: context.getViewableFields(context.currentUser, context.Users)});
       },
       addOriginalField: true,
     },
     optional: true,
   },
-  documentId: {
+  commentId: {
     type: String,
-    optional: true,
-    viewableBy: Users.owns,
+    optional: false,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    resolveAs: {
+      fieldName: 'comment',
+      type: 'Comment',
+      resolver: (report, args, context) => {
+        return context.Comments.findOne({_id: report.commentId}, {fields: context.getViewableFields(context.currentUser, context.Comments)});
+      },
+      addOriginalField: true,
+    },
   },
-  documentType: {
+  postId: {
     type: String,
-    optional: true,
-    viewableBy: Users.owns,
+    optional: false,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    resolveAs: {
+      fieldName: 'post',
+      type: 'Post',
+      resolver: (report, args, context) => {
+        return context.Posts.findOne({_id: report.postId}, {fields: context.getViewableFields(context.currentUser, context.Posts)});
+      },
+      addOriginalField: true,
+    },
   },
   link: {
     type: String,
+    optional: false,
+    insertableBy: ['members'],
+    viewableBy: ['guests'],
+  },
+  claimedUserId: {
+    type: String,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    resolveAs: {
+      fieldName: 'claimedUser',
+      type: 'User',
+      resolver: (report, args, context) => {
+        return context.Users.findOne({_id: report.claimedUserId}, {fields: context.getViewableFields(context.currentUser, context.Users)});
+      },
+      addOriginalField: true,
+    },
+  },
+  description: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
   },
   createdAt: {
     optional: true,
     type: Date,
-    viewableBy: ['members'],
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
     onInsert: (document, currentUser) => {
       return new Date();
     },
-  },v
+  },
+  closedAt: {
+    optional: true,
+    type: Date,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+  },
 };
 
 export default schema;

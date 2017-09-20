@@ -361,3 +361,33 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment unclaimedReportsList on Report {
+    _id
+    userId
+    user {
+      _id
+      displayName
+      username
+      slug
+    }
+    commentId
+    comment {
+      body
+    }
+    postId
+    post {
+      title
+    }
+    claimedUserId
+    claimedUser {
+      _id
+      displayName
+      username
+      slug
+    }
+    link
+    description
+  }
+`);
