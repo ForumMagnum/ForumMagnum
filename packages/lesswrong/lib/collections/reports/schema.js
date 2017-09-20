@@ -60,6 +60,7 @@ const schema = {
     optional: false,
     insertableBy: ['members'],
     viewableBy: ['guests'],
+    searchable: true,
   },
   claimedUserId: {
     type: String,
@@ -82,6 +83,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    searchable: true,
   },
   createdAt: {
     optional: true,
