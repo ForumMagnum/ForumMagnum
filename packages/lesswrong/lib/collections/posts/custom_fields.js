@@ -345,7 +345,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      label: "Publish to the frontpage",
+      label: "Publish to frontpage",
       control: "checkbox",
       onInsert: (document, currentUser) => false,
     }
