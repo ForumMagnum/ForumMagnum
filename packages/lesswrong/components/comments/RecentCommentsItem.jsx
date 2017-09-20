@@ -12,29 +12,10 @@ import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
 
-
 const paperStyle = {
   padding: '10px',
   backgroundColor: 'transparent',
 }
-
-const moreActionsMenuStyle = {
-  position: 'inherit',
-}
-
-const moreActionsMenuButtonStyle = {
-  padding: '0px',
-  width: 'auto',
-  height: 'auto',
-}
-
-const moreActionsMenuIconStyle = {
-  padding: '0px',
-  width: '16px',
-  height: '16px',
-  color: 'rgba(0,0,0,0.5)',
-}
-
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
   constructor(props) {
@@ -94,20 +75,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
         {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
         </div>
         {this.state.showReply ? this.renderReply() : null}
-        <div className="comments-more-actions-menu">
-          <object><IconMenu
-            iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
-            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-            targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            style={moreActionsMenuStyle}
-            iconStyle={moreActionsMenuIconStyle}
-          >
-            <Components.ShowIf check={Comments.options.mutations.edit.check} document={comment}>
-              <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
-            </Components.ShowIf>
-            <MenuItem><Components.SubscribeTo className="comments-subscribe" document={comment} /></MenuItem>
-          </IconMenu></object>
-        </div>
+        { this.renderMenu() }
       </Paper>
     )
   }
