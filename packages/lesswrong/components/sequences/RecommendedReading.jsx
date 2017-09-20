@@ -10,7 +10,7 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
         <Components.PostsItem post={previousPost} inlineCommentCount={true} chapter={chapter}/>
       </div> : null}
       <div className="sequences-navigation-bottom-divider"></div>
-      {nextTitle ? <div className="sequences-navigation-bottom-next-post next-only"><Link className="sequences-navigation-next-post" to={post.nextPageLink}>Next: {post.nextPageTitle}</Link></div> : (nextPost ? <div className="sequences-navigation-bottom-next-post">
+      {nextTitle ? <div className="sequences-navigation-bottom-next-post next-only"><Link className="sequences-navigation-next-post" to={nextLink || post.nextPageLink}>Next: {nextTitle || post.nextPageTitle}</Link></div> : (nextPost ? <div className="sequences-navigation-bottom-next-post">
         <Components.PostsItem post={nextPost} inlineCommentCount={true} chapter={chapter} />
       </div> : null) }
     </div>
