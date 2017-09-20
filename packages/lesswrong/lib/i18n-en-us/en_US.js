@@ -6,5 +6,9 @@ addStrings('en', {
 });
 
 addStrings('en', {
-  "Incorrect password": "Wrong password (LW 1.0 Account Login is disabled)"
+  "Incorrect password": "Wrong password (If you've just come from LW 1.0 you'll need to reset your password)",
+})
+
+addStrings('en', {
+  "User not found": "User not found (Use the intercom if you think that user should exist already)",
 })
