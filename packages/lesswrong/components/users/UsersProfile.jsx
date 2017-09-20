@@ -44,7 +44,7 @@ const UsersProfile = (props) => {
         {props.currentUser && props.currentUser._id != user._id && <ModalTrigger label="Send Message" >
           <div><Components.newConversationButton user={user} /></div>
         </ModalTrigger>}
-        { props.currentUser._id !== user._id && <div><Components.SubscribeTo document={user} /></div> }
+        { props.currentUser && props.currentUser._id !== user._id && <div><Components.SubscribeTo document={user} /></div> }
       </div>)
     }
 
@@ -74,7 +74,7 @@ const UsersProfile = (props) => {
             {user.htmlBio ? <div className="users-profile-bio" dangerouslySetInnerHTML={{__html: user.htmlBio}}></div> : null }
           </Components.Section>
         </div>
-        {this.props.user.frontpagePostCount > 0 && <Components.Section title="Frontpage Posts"
+        {user.frontpagePostCount > 0 && <Components.Section title="Frontpage Posts"
           titleComponent= {
           <div className="recent-posts-title-component users-profile-recent-posts">
           {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {frontpage: true} }}> new frontpage post </Link></div>}
