@@ -48,8 +48,7 @@ const Home = (props, context) => {
         <Components.Section title="Recent Posts"
           titleComponent= {<div className="recent-posts-title-component">
             sorted by<br /> <Components.PostsViews />
-          {props.currentUser ? <div className="new-post-link"><Link to={"/newPost"}> new post </Link></div>
-            : null}
+          {props.currentUser && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {frontpage: true}}}> new post </Link></div>}
           </div>} >
           <Components.PostsList terms={recentPostsTerms} showHeader={false} />
         </Components.Section>

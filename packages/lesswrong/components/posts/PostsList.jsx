@@ -29,8 +29,6 @@ const PostsList = ({className, results, loading, count, totalCount, loadMore,
     }
   }
 
-  console.log("PostsList terms", terms);
-
   return (
     <div className={classNames(className, 'posts-list')}>
       {showHeader ? <Components.PostsListHeader/> : null}
