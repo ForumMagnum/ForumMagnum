@@ -13,7 +13,7 @@ Users.addField([
       label: 'New users',
       type: Boolean,
       optional: true,
-      defaultValue: true,
+      onInsert: (document, currentUser) => false,
       control: "checkbox",
       viewableBy: ['guests'],
       insertableBy: ['admins'],
@@ -27,7 +27,7 @@ Users.addField([
       label: 'New posts',
       type: Boolean,
       optional: true,
-      defaultValue: true,
+      onInsert: (document, currentUser) => false,
       control: "checkbox",
       viewableBy: ['guests'],
       insertableBy: ['members'],
@@ -41,10 +41,10 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
-      label: 'Automatically subscribe to my posts (to be notified of comments)',
+      label: 'Comments on my posts',
       type: Boolean,
       optional: true,
-      defaultValue: true,
+      onInsert: (document, currentUser) => true,
       control: "checkbox",
       viewableBy: ['guests'],
       insertableBy: ['members'],
@@ -55,10 +55,10 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
-      label: 'Automatically subscribe to my comments (to be notified of replies)',
+      label: 'Replies to my comments',
       type: Boolean,
       optional: true,
-      defaultValue: true,
+      onInsert: (document, currentUser) => true,
       control: "checkbox",
       viewableBy: ['guests'],
       insertableBy: ['members'],

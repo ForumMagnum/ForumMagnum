@@ -328,7 +328,26 @@ Posts.addField([
       editableBy: ['admins', 'sunshineRegiment'],
       insertableBy: ['members'],
       label: "Make only accessible via link",
-      control: "checkbox"
+      control: "checkbox",
+      onInsert: (document, currentUser) => false,
+    }
+  },
+
+  /**
+    frontpage: The post is published to the frontpage
+  */
+
+  {
+    fieldName: 'frontpage',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      label: "Publish to the frontpage",
+      control: "checkbox",
+      onInsert: (document, currentUser) => false,
     }
   }
 

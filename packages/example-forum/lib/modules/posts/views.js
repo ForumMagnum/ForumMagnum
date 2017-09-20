@@ -87,7 +87,8 @@ Posts.addView("userPosts", terms => ({
   selector: {
     userId: terms.userId,
     status: Posts.config.STATUS_APPROVED,
-    isFuture: {$ne: true}
+    isFuture: {$ne: true},
+    frontpage: {$ne: true},
   },
   options: {
     limit: 5,

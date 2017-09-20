@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from 'meteor/example-forum';
@@ -10,7 +10,7 @@ const Error = ({error}) => <Alert className="flash-message" bsStyle="danger">
 <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </Alert>
 
-const PostsList = ({className, results, loading, count, totalCount, loadMore,
+const UsersPostsList = ({className, results, loading, count, totalCount, loadMore,
   showHeader = true, showLoadMore = true, networkStatus, currentUser, error,
   terms}) => {
 
@@ -29,22 +29,20 @@ const PostsList = ({className, results, loading, count, totalCount, loadMore,
     }
   }
 
-  console.log("PostsList terms", terms);
-
   return (
-    <div className={classNames(className, 'posts-list')}>
+    <div className={classNames(className, 'posts-list', 'users-posts-list')}>
       {showHeader ? <Components.PostsListHeader/> : null}
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
-      <div className="posts-list-content">
+      <div className="posts-list-content users-posts-list-content">
         { renderContent() }
       </div>
     </div>
   )
 };
 
-PostsList.displayName = "PostsList";
+UsersPostsList.displayName = "PostsList";
 
-PostsList.propTypes = {
+UsersPostsList.propTypes = {
   results: PropTypes.array,
   terms: PropTypes.object,
   hasMore: PropTypes.bool,
@@ -55,15 +53,11 @@ PostsList.propTypes = {
   showHeader: PropTypes.bool,
 };
 
-PostsList.contextTypes = {
-  intl: intlShape
-};
-
 const options = {
   collection: Posts,
-  queryName: 'postsListQuery',
+  queryName: 'usersPostsListQuery',
   fragmentName: 'LWPostsList',
-  totalResolver: false,
+  totalResolver: true,
 };
 
-replaceComponent('PostsList', PostsList, withCurrentUser, [withList, options]);
+registerComponent('UsersPostsList', UsersPostsList, withCurrentUser, [withList, options]);

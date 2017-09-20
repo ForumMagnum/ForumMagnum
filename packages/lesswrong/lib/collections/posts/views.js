@@ -8,7 +8,12 @@ Posts.addDefaultView(terms => ({
     status: Posts.config.STATUS_APPROVED,
     draft: {$ne: true},
     isFuture: {$ne: true}, // match both false and undefined
-    unlisted: {$ne: true}
+    unlisted: {$ne: true},
+    frontpage: true,
+    ...(terms.userId ? {userId: terms.userId} : {}),
+  },
+  options: {
+    sort: {score: -1}
   }
 }));
 

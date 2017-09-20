@@ -134,4 +134,59 @@ Users.addField([
       label: 'Nullify all past votes'
     }
   },
+
+  /**
+    Overwrite newsletter subscribe field to be hidden (for now) TODO: Get newsletter to run properly
+  */
+
+  {
+    fieldName: 'newsletter_subscribeToNewsletter',
+    fieldSchema: {
+      hidden: true,
+    }
+  },
+
+  /**
+    Overwrite email notification settings to be hidden (for now) TODO: Get email notifications to run properly
+  */
+  {
+    fieldName: 'notifications_comments',
+    fieldSchema: {
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'notifications_replies',
+    fieldSchema: {
+      hidden: true,
+    }
+  },
+
+  /**
+    Hide the option to change your displayName (for now) TODO: Create proper process for changing name
+  */
+
+  {
+    fieldName: 'displayName',
+    fieldSchema: {
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    }
+  },
+
+  /**
+    frontpagePostCount: count of how many posts of yours were posted on the frontpage
+  */
+
+  {
+    fieldName: 'frontpagePostCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      onInsert: (document, currentUser) => 0,
+    }
+  }
 ]);

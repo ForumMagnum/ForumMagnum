@@ -42,7 +42,7 @@ class SearchForm extends Component{
     const query = data.searchQuery === '' ? routerQuery : {...routerQuery, query: data.searchQuery};
 
     delay(() => {
-      router.push({pathname: Utils.getRoutePath('posts.list'), query: query});
+      router.replace({pathname: router.location.pathname, query: query});
     }, 700 );
 
   }
@@ -62,7 +62,7 @@ class SearchForm extends Component{
             type="text"
             layout="elementOnly"
           />
-          {this.state.search !== '' ? <Link className="search-form-reset" to={{pathname: '/', query: resetQuery}}><Components.Icon name="close" /></Link> : null}
+          {this.state.search !== '' ? <Link className="search-form-reset" to={{pathname: this.props.router.location.pathname, query: resetQuery}}><Components.Icon name="close" /></Link> : null}
         </Formsy.Form>
       </div>
     )
