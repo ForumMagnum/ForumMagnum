@@ -40,8 +40,7 @@ class CommentsItem extends PureComponent {
     super(props);
     this.state = {
       showReply: false,
-      showEdit: false,
-      showReport: false
+      showEdit: false
     };
   }
 
@@ -59,11 +58,6 @@ class CommentsItem extends PureComponent {
       set: {deleted:false},
       unset: {}
     }).then(()=>console.log('comment undo deleted')).catch(/* error */);
-  }
-
-  showReport = (event) => {
-    event.preventDefault();
-    this.setState({showReport: true});
   }
 
   showReply = (event) => {
@@ -123,28 +117,17 @@ class CommentsItem extends PureComponent {
         </div>
         {this.state.showReply ? this.renderReply() : null}
         <div className="comments-more-actions-menu">
-          <object>
-            <IconMenu
-              iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
-              anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-              targetOrigin={{horizontal: 'right', vertical: 'top'}}
-              style={moreActionsMenuStyle}
-              iconStyle={moreActionsMenuIconStyle}
-            >
-              { this.renderEditMenuItem() }
-              { this.renderDeleteMenuItem() }
-              { this.renderSubscribeMenuItem() }
-              { this.renderReportMenuItem() }
-            </IconMenu>
-            { this.state.showReport &&
-              <Components.ReportForm
-                commentId={this.props.comment._id}
-                postId={this.props.comment.postId}
-                link={"/posts/" + this.props.comment.post._id + "/a/" + this.props.comment._id}
-                userId={currentUser._id}
-                open={true}
-              /> }
-          </object>
+          <object><IconMenu
+            iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
+            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+            targetOrigin={{horizontal: 'right', vertical: 'top'}}
+            style={moreActionsMenuStyle}
+            iconStyle={moreActionsMenuIconStyle}
+          >
+            { this.renderEditMenuItem() }
+            { this.renderDeleteMenuItem() }
+            { this.renderSubscribeMenuItem() }
+          </IconMenu></object>
         </div>
       </div>
     )
@@ -156,7 +139,7 @@ class CommentsItem extends PureComponent {
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
     const showReplyButton = !comment.isDeleted && !!this.props.currentUser && (
       !blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all'))
-
+      
     return (
       <div className="comments-item-bottom">
         { blockedReplies &&
@@ -189,17 +172,12 @@ class CommentsItem extends PureComponent {
     )
   }
 
-  renderReportMenuItem = () => {
-    if (Users.canDo(this.props.currentUser, "reports.new")) {
-      return <MenuItem onTouchTap={this.showReport} primaryText="Report" />
-    }
-  }
-
   renderEditMenuItem = () => {
-    if (Users.canDo(this.props.currentUser, "comments.edit.all") ||
-        Users.owns(this.props.currentUser, this.props.comment)) {
-          return <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
-    }
+    return (
+      <Components.ShowIf check={Comments.options.mutations.edit.check} document={this.props.comment}>
+        <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
+      </Components.ShowIf>
+    )
   }
 
   renderDeleteMenuItem = () =>  {
