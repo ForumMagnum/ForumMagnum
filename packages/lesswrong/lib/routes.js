@@ -22,8 +22,7 @@ addRoute({ name: 'chaptersEdit', path: '/chaptersEdit/:_id', componentName: 'Cha
 addRoute({ name: 'collections', path: '/collections/:_id', componentName: 'CollectionsSingle' });
 addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences'})
 addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR'})
-addRoute({ name: 'CodexComingSoon', path: '/codex', componentName: 'ComingSoon'})
-addRoute({ name: 'Codex', path: '/codexHidden', componentName: 'Codex'})
+addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex'})
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta'})
 
 
