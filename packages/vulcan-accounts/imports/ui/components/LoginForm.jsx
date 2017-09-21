@@ -640,7 +640,7 @@ export class AccountsLoginForm extends Tracker.Component {
         if (error) {
           console.log(error);
           const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          this.showMessage(this.context.intl.formatMessage({id: errorId}) || error.reason || error.message || 'accounts.error_unknown', errorId, 'error');
+          this.showMessage(this.context.intl.formatMessage({id: errorId}) || error.reason || error.message || 'accounts.error_unknown', 'error');
         }
         else {
           loginResultCallback(() => this.state.onSignedInHook());
@@ -894,11 +894,11 @@ export class AccountsLoginForm extends Tracker.Component {
     if (messageId) {
       this.setState(({ messages = [] }) => {
         messages.push({
-          message: this.context.intl.formatMessage({id: messageId}),
+          message: this.context.intl.formatMessage({id: messageId, defaultMessage: messageId}),
           type,
           ...(field && { field }),
         });
-        return  { messages };
+        return { messages };
       });
       if (clearTimeout) {
         this.hideMessageTimout = setTimeout(() => {
