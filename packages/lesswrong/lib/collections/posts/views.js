@@ -12,9 +12,6 @@ Posts.addDefaultView(terms => ({
     frontpage: true,
     ...(terms.userId ? {userId: terms.userId} : {}),
     meta: {$ne: true},
-  },
-  options: {
-    sort: {score: -1}
   }
 }));
 
@@ -25,7 +22,8 @@ Posts.addView("drafts", terms => {
   return {
     selector: {
       userId: terms.userId,
-      draft: true
+      draft: true,
+      frontpage: {$ne: true},
     },
     options: {
       sort: {createdAt: -1}

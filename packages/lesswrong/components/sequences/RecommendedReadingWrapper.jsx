@@ -23,8 +23,6 @@ const RecommendedReadingWrapper = ({document, loading, post, router, nextTitle, 
       let previousPostLink = "";
       let previousPost = false;
       if (currentPostIndex || currentPostIndex === 0) {
-        console.log("currentChapterIndex < currentSequenceLength", currentChapterIndex, currentSequenceLength, nextPost.title);
-        console.log("RecommendedReadingWrapper document", document, chapters);
         if (currentPostIndex + 1 < currentChapter.posts.length) {
           nextPost = currentChapter.posts[currentPostIndex + 1]
           nextPostLink = "/s/" + document._id + "/p/" + nextPost._id;
