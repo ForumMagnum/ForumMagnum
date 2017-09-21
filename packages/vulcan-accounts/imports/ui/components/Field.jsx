@@ -42,6 +42,7 @@ export class AccountsField extends PureComponent {
       label,
       type = 'text',
       onChange,
+      autoFocus = false,
       required = false,
       className = "field",
       defaultValue = "",
@@ -53,7 +54,7 @@ export class AccountsField extends PureComponent {
     }
     return mount ? (
       <div className={ className } style={{marginBottom: '10px'}}>
-        <FormControl id={ id } type={ type } inputRef={ref => { this.input = ref; }} onChange={ onChange } placeholder={ hint } defaultValue={ defaultValue } />
+        <FormControl id={ id } type={ type } inputRef={ref => { this.input = ref; }} onChange={ onChange } autoFocus={ autoFocus } placeholder={ hint } defaultValue={ defaultValue } />
         {message && (
           <span className={['message', message.type].join(' ').trim()}>
             {message.message}</span>
