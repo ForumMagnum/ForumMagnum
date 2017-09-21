@@ -7,6 +7,7 @@
     @include small {
         width:90%;
         margin:0 5% 150px;
+        padding-bottom:75px;
     }
 
     .document-edit, .document-new {
@@ -25,13 +26,13 @@
         bottom:0;
     }
 
-    .document-edit .posts-delete-link,
-    .document-new .form-submit {
-        bottom:6px;
-    }
-
     .document-edit .posts-delete-link {
+        bottom:6px;
         left:0;
+        @include small {
+          bottom:56px;
+          width:100px;
+        }
     }
 
     .commentEditor {
@@ -68,12 +69,22 @@
     .document-new .input-draft {
         right:115px;
         width:125px;
+        @include small {
+          bottom:50px;
+          right:0px;
+          width:100px;
+        }
     }
 
     .document-edit .input-frontpage,
     .document-new .input-frontpage {
         right:255px;
         width:150px;
+        @include small {
+          bottom:50px;
+          right:150px;
+          width:100px;
+        }
     }
 
     .document-edit div hr {
