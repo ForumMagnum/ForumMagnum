@@ -173,6 +173,7 @@ export class AccountsLoginForm extends Tracker.Component {
       required: true,
       defaultValue: this.state.currentUsername || "",
       onChange: this.handleChange.bind(this, 'usernameOrEmail'),
+      autoFocus: true,
       message: this.getMessageForField('usernameOrEmail'),
     };
   }
