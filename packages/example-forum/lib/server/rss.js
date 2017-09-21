@@ -29,11 +29,10 @@ export const servePostRSS = (terms, url) => {
   const postsCursor = Posts.find(parameters.selector, parameters.options);
 
   postsCursor.forEach((post) => {
-
-    const description = !!post.body ? post.body+'</br></br>' : '';
+    const postLink = `<a href="${Posts.getPageUrl(post, true)}">Discuss</a>`;
     const feedItem = {
       title: post.title,
-      description: description + `<a href="${Posts.getPageUrl(post, true)}">Discuss</a>`,
+      description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
       author: post.author,
       date: post.postedAt,
       guid: post._id,
