@@ -39,6 +39,15 @@
              font-style: normal; }
 
 .content-body {
+
+  .ory-cell-leaf > div {
+    h1,h2,h3,h4,h5 {
+      &:first-child{
+        margin-top: 0px;
+      }
+    }
+  }
+
   p:first-of-type {
     margin-top: 0px !important;
   }
