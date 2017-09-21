@@ -22,7 +22,7 @@ const results = [
   {
     title: "Rationality and Rationalization",
     id: "dummyId2",
-    user: {displayName: "Yvain"},
+    user: {displayName: "Scott Alexander"},
     summary: "Welcome to Slate Star Codex, a blog about science, medicine, philosophy, politics, and futurism. (there’s also one post about hallucinatory cactus-people, but it’s not representative)",
     image: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
     color: "#88ACB8",

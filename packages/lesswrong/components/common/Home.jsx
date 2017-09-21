@@ -15,7 +15,7 @@ const testCollections = [
   {
     title: "The Codex",
     id: "dummyId2",
-    user: {username: "Yvain", displayName: "Yvain", slug: "yvain"},
+    user: {username: "Yvain", displayName: "Scott Alexander", slug: "yvain"},
     summary: "The Codex contains essays about science, medicine, philosophy, politics, and futurism. (There’s also one post about hallucinatory cactus-people, but it’s not representative)",
     image: "http://i.imgur.com/ItFKgn4.png",
     color: "#88ACB8",
