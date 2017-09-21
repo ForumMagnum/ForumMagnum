@@ -3,17 +3,38 @@ import { Posts } from 'meteor/example-forum';
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
-Posts.addDefaultView(terms => ({
+Posts.addDefaultView(terms => {
+  const validFields = _.pick(terms, 'frontpage', 'userId');
+  return ({
+    selector: {
+      status: Posts.config.STATUS_APPROVED,
+      draft: {$ne: true},
+      isFuture: {$ne: true}, // match both false and undefined
+      unlisted: {$ne: true},
+      frontpage: true,
+      ...validFields,
+      meta: {$ne: true},
+    }
+  });
+})
+
+
+/**
+ * @summary User posts view
+ */
+Posts.addView("userPosts", terms => ({
   selector: {
-    status: Posts.config.STATUS_APPROVED,
-    draft: {$ne: true},
-    isFuture: {$ne: true}, // match both false and undefined
-    unlisted: {$ne: true},
-    frontpage: true,
-    ...(terms.userId ? {userId: terms.userId} : {}),
-    meta: {$ne: true},
+    userId: terms.userId,
+    frontpage: {$ne: true},
+  },
+  options: {
+    limit: 5,
+    sort: {
+      score: -1,
+    }
   }
 }));
+
 
 /**
  * @summary Draft view
