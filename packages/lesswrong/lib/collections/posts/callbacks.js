@@ -1,4 +1,6 @@
 import { addCallback, runCallbacks } from 'meteor/vulcan:core';
+import { Posts } from 'meteor/example-forum';
+import { updateScore } from 'meteor/vulcan:voting';
 import Users from 'meteor/vulcan:users';
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
@@ -40,3 +42,8 @@ function postsEditDecreaseFrontpagePostCount (post, oldPost) {
   }
 }
 addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
+
+function postsNewInitialScoreCallback (post) {
+  updateScore({collection: Posts, item: post, forceUpdate: true});
+}
+addCallback("posts.new.async", postsNewInitialScoreCallback);

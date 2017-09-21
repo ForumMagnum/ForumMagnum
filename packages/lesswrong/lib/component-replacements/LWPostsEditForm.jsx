@@ -33,7 +33,7 @@ class LWPostsEditForm extends PureComponent {
           documentId={postId}
           mutationFragment={getFragment('LWPostsPage')}
           successCallback={post => {
-            this.props.flash(this.context.intl.formatMessage({ id: 'posts.edit_success' }, 'success'));
+            this.props.flash(this.context.intl.formatMessage({ id: 'posts.edit_success' }, { title: post.title }), 'success');
             this.props.router.push({pathname: Posts.getPageUrl(post)});
           }}
           removeSuccessCallback={({ documentId, documentTitle }) => {

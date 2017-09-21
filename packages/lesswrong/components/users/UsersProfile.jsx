@@ -17,13 +17,7 @@ const UsersProfile = (props) => {
 
     return <div className="page users-profile"><Components.Loading/></div>
 
-  } else if (!props.document) {
-
-    console.log(`// missing user (_id/slug: ${props.documentId || props.slug})`);
-    return <div className="page users-profile"><FormattedMessage id="app.404"/></div>
-
-  } else {
-
+  } else if (props.document && props.document._id) {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
@@ -92,6 +86,9 @@ const UsersProfile = (props) => {
         </Components.Section>
       </div>
     )
+  } else {
+    console.log(`// missing user (_id/slug: ${props.documentId || props.slug})`);
+    return <div className="page users-profile"><FormattedMessage id="app.404"/></div>
   }
 }
 
