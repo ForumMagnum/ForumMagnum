@@ -13,20 +13,25 @@
         position:normal;
     }
 
-    .document-edit .input-draft, 
-    .document-edit .form-submit, 
+    .document-edit .input-draft,
+    .document-edit .form-submit,
     .document-edit .posts-delete-link,
-    .document-new .input-draft, 
-    .document-new .form-submit, 
-    .document-new .posts-delete-link {
+    .document-new .input-draft,
+    .document-new .form-submit,
+    .document-new .posts-delete-link,
+    .document-edit .input-frontpage,
+    .document-new .input-frontpage {
         position:absolute;
         bottom:0;
     }
 
-    .document-edit .posts-delete-link, 
+    .document-edit .posts-delete-link,
     .document-new .form-submit {
-        left:0;
         bottom:6px;
+    }
+
+    .document-edit .posts-delete-link {
+        left:0;
     }
 
     .commentEditor {
@@ -34,10 +39,10 @@
         border-bottom:solid 1px $light-grey;
     }
 
-    .document-edit .input-draft, 
-    .document-new .input-draft {
-        right:115px;
-        width:125px;
+    .document-edit .input-draft,
+    .document-new .input-draft,
+    .document-edit .input-frontpage,
+    .document-new .input-frontpage {
         margin:0;
         @include small {
             width:125px;
@@ -48,19 +53,37 @@
         }
 
         .checkbox {
-            width:125px;
+            width:150px;
             margin:0 0 6px 0;
         }
     }
+    .document-new .input-frontpage .checkbox {
+      margin-bottom: 12px;
+    }
+    .document-new .input-draft .checkbox {
+      margin-bottom: 12px;
+    }
+
+    .document-edit .input-draft,
+    .document-new .input-draft {
+        right:115px;
+        width:125px;
+    }
+
+    .document-edit .input-frontpage,
+    .document-new .input-frontpage {
+        right:255px;
+        width:150px;
+    }
 
     .document-edit div hr {
-    // Ray Sept 2017: 
+    // Ray Sept 2017:
     // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
     // path: /packages/vulcan-forms/lib/Form.jsx
         display:none;
     }
 
-    .document-edit .form-submit, 
+    .document-edit .form-submit,
     .document-new .form-submit {
         right:0;
     }
