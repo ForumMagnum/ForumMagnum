@@ -56,7 +56,11 @@ class CommentsListSection extends Component {
       <Components.Section title="Comments"
         titleComponent={this.renderTitleComponent()}>
         <div className="posts-comments-thread">
-          <Components.CommentsList currentUser={currentUser} comments={comments} highlightDate={this.state.highlightDate}/>
+          <Components.CommentsList
+            currentUser={currentUser}
+            comments={comments}
+            highlightDate={this.state.highlightDate}
+          />
           {!!currentUser ?
             <div className="posts-comments-thread-new">
               <h4><FormattedMessage id="comments.new"/></h4>
@@ -66,7 +70,9 @@ class CommentsListSection extends Component {
               />
             </div> :
             <div>
-              <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="comments.please_log_in"/></a>}>
+              <Components.ModalTrigger
+                component={<a href="#"><FormattedMessage id="comments.please_log_in"/></a>}
+                size="small">
                 <Components.AccountsLoginForm/>
               </Components.ModalTrigger>
             </div>
