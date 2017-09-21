@@ -1,5 +1,3 @@
-import Users from 'meteor/vulcan:users';
-import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
 const schema = {
 
   // default properties
@@ -51,7 +49,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    control: EditorFormComponent,
+    control: 'EditorFormComponent',
     blackbox: true,
   },
 

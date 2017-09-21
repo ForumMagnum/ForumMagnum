@@ -1,14 +1,6 @@
 import React from 'react';
 import { Components } from 'meteor/vulcan:core';
 
-const PostsListEditor = (props) => <div>
-  <Components.PostsListEditor {...props} />
-</div>
-
-const DescriptionEditor = (props) => <div>
-  <Components.EditorFormComponent {...props} />
-</div>
-
 const schema = {
 
   _id: {
@@ -51,7 +43,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ["admins"],
     insertableBy: ['members'],
-    control: DescriptionEditor,
+    control: 'EditorFormComponent',
   },
 
   number: {
@@ -100,7 +92,7 @@ const schema = {
       // },
       addOriginalField: true,
     },
-    control: PostsListEditor,
+    control: 'PostsListEditor',
   },
 
   "postIds.$": {
