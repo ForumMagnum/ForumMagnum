@@ -1,6 +1,12 @@
-dbname="lesswrong2"
-password="imagingresidesenvelopecompact"
-server="ds155813-a0.mlab.com"
-port="55813"
+dbname=$(cat settings.json | jq -r .localServer.dbname)
+password=$(cat settings.json | jq -r .localServer.password)
+server=$(cat settings.json | jq -r .localServer.server)
+port=$(cat settings.json | jq -r .localServer.port)
 
-MONGO_URL="mongodb://$dbname:$password@$server:$port,$server:$port/$dbname?replicaSet=rs-ds155813" meteor --settings settings.json;
+if [ "$password" != "example" ]; then
+  url="mongodb://$dbname:$password@$server:$port,$server:$port/$dbname?replicaSet=rs-ds155813"
+  MONGO_URL="$url" meteor --settings settings.json;
+else
+  echo "Failed to launch server."
+  echo "Please ask for the development database password, and add it to settings.json under 'localServer'"
+fi
