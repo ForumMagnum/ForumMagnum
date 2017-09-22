@@ -171,7 +171,7 @@ Posts.addView("userPosts", terms => {
     status: Posts.config.STATUS_APPROVED,
     isFuture: {$ne: true},
   };
-  if (terms.karmaThreshold) {
+  if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     selector.baseScore = terms.karmaThreshold;
   }
   return {

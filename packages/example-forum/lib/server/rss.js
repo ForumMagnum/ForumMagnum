@@ -6,6 +6,7 @@ import { Utils, getSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
+Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
 
 const getMeta = (url) => {
   const siteUrl = getSetting('siteUrl', Meteor.absoluteUrl());
@@ -55,9 +56,16 @@ export const servePostRSS = (terms, url) => {
 };
 
 export const serveCommentRSS = (terms, url) => {
+  if (!url) {
+    url = rssTermsToUrl(terms);
+  }
   const feed = new RSS(getMeta(url));
 
-  const commentsCursor = Comments.find({isDeleted: {$ne: true}}, {sort: {postedAt: -1}, limit: 20});
+  let parameters = Comments.getParameters(terms);
+
+  parameters.options.limit = 50;
+
+  const commentsCursor = Comments.find(parameters.selector, parameters.options);
 
   commentsCursor.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
@@ -75,30 +83,13 @@ export const serveCommentRSS = (terms, url) => {
   return feed.xml();
 };
 
-
 Picker.route('/feed.xml', function(params, req, res, next) {
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }
-  res.end(servePostRSS(params.query));
-});
-
-Picker.route('/rss/posts/new.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'new'}, '/rss/posts/new.xml'));
-});
-
-Picker.route('/rss/posts/top.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'top'}, '/rss/posts/top.xml'));
-});
-
-Picker.route('/rss/posts/best.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'best'}, '/rss/posts/best.xml'));
-});
-
-Picker.route('/rss/category/:slug/feed.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'new', cat: params.slug}, '/rss/category/:slug/feed.xml'));
-});
-
-Picker.route('/rss/comments.xml', function(params, req, res, next) {
-  res.end(serveCommentRSS({}, '/rss/comments.xml'));
+  if (params.query.type && params.query.type === "comments") {
+    res.end(serveCommentRSS(params.query));
+  } else {
+    res.end(servePostRSS(params.query));
+  }
 });

@@ -25,8 +25,12 @@ Comments.addView("postCommentsTop", function (terms) {
 });
 
 Comments.addView("postCommentsNew", function (terms) {
+  selector = { postId: terms.postId, deleted: {$ne:true}};
+  if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
+    selector.baseScore = terms.karmaThreshold;
+  }
   return {
-    selector: { postId: terms.postId, deleted: {$ne:true}},
+    selector: selector,
     options: {sort: {postedAt: -1}}
   };
 });

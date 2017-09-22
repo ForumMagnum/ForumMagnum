@@ -124,6 +124,7 @@ class PostsPage extends Component {
                 <div className="posts-page-content-body-metadata-comments">
                   <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
                 </div>
+                <Components.RSSOutLinkbuilder commentsOn={post} />
                 <div className="posts-page-content-body-metadata-actions">
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ?
                     <div className="posts-page-content-body-metadata-action">
@@ -137,7 +138,7 @@ class PostsPage extends Component {
                       <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
                         <Components.VotesList document={post} />
                       </Components.DialogGroup>
-                    </div> : null 
+                    </div> : null
                   }
                 </div>
               </div>

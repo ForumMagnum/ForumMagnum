@@ -14,8 +14,10 @@ class RSSOutLinkbuilder extends Component {
     }
     if (props.user) {
       this.state.rssTerms = { view: "userPosts", userId: props.user._id, karmaThreshold: "0" };
+    } else if (props.document) {
+      this.state.rssTerms = { type: "comments", view: "postCommentsNew", postId: props.post._id, karmaThreshold: "0" };
     } else {
-      console.log("Confusion!");
+      console.log("Unclear how to build RSS links for:");
       console.log(props);
       this.state.rssTerms = { view: "rss", karmaThreshold: "0" };
     }
