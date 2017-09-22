@@ -5,6 +5,7 @@ port=$(cat settings.json | jq -r .localServer.port)
 
 if [ "$password" != "example" ]; then
   url="mongodb://$dbname:$password@$server:$port,$server:$port/$dbname?replicaSet=rs-ds155813"
+  echo $url
   MONGO_URL="$url" meteor --settings settings.json;
 else
   echo "Failed to launch server."
