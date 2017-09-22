@@ -11,3 +11,8 @@ Posts.checkAccess = (currentUser, post) => {
     return Users.canDo(currentUser, `posts.view.${status.label}`);
   }
 }
+
+const sunshineRegimentActions = [
+  'posts.edit.all',
+];
+Users.groups.sunshineRegiment.can(sunshineRegimentActions);
