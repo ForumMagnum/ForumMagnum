@@ -172,7 +172,7 @@ Posts.addView("userPosts", terms => {
     isFuture: {$ne: true},
   };
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    selector.baseScore = terms.karmaThreshold;
+    selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)};
   }
   return {
     selector: selector,

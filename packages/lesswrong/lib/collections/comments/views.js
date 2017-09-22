@@ -27,7 +27,8 @@ Comments.addView("postCommentsTop", function (terms) {
 Comments.addView("postCommentsNew", function (terms) {
   selector = { postId: terms.postId, deleted: {$ne:true}};
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    selector.baseScore = terms.karmaThreshold;
+    selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)};
+    console.log(selector);
   }
   return {
     selector: selector,
