@@ -596,8 +596,13 @@ export class AccountsLoginForm extends Tracker.Component {
       usernameOrEmail = null,
       password,
       formState,
+      waiting,
       onSubmitHook
     } = this.state;
+    if (waiting) {
+      return;
+    }
+
     let error = false;
     let loginSelector;
     this.clearMessages();
@@ -636,6 +641,7 @@ export class AccountsLoginForm extends Tracker.Component {
     }
 
     if (!error) {
+      this.setState({ waiting: true });
       Meteor.loginWithPassword(loginSelector, password, (error, result) => {
         onSubmitHook(error,formState);
         if (error) {
@@ -651,6 +657,7 @@ export class AccountsLoginForm extends Tracker.Component {
           });
           this.clearDefaultFieldValues();
         }
+        this.setState({ waiting: false });
       });
     }
   }
