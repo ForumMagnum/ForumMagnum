@@ -48,6 +48,7 @@ class UsersMenu extends PureComponent {
           onRequestClose={this.handleRequestClose}
         >
           <Menu>
+            <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
             <MenuItem primaryText="Profile" containerElement={<Link to={`/users/${currentUser.slug}`}/>} />
             <MenuItem primaryText="Edit Account" containerElement={<Link to={`/account`}/>} />
             <MenuItem primaryText="Log Out" onTouchTap={() => Meteor.logout(() => client.resetStore())} />
