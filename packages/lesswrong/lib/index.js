@@ -54,6 +54,7 @@ import './subscriptions/permissions.js';
 import './collections/posts/custom_fields.js';
 import './collections/posts/callbacks.js';
 import './collections/posts/views.js';
+import './collections/posts/permissions.js';
 //
 // Users
 import './collections/users/custom_fields.js';

@@ -24,6 +24,8 @@ addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences'
 addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR'})
 addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex'})
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta'})
+addRoute({ name: 'AllPosts', path: '/allPosts', componentName: 'AllPosts'})
+addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments'})
 
 
 //Route for testing the editor. Useful for debugging

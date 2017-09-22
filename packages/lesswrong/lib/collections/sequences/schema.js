@@ -1,6 +1,5 @@
 import Users from 'meteor/vulcan:users'
 import { Components } from 'meteor/vulcan:core';
-import EditorFormComponent from '../../editor/EditorFormComponent.jsx';
 import ImageUpload from '../../../components/form-components/ImageUpload.jsx';
 
 const schema = {
