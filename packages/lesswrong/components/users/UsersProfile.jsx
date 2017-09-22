@@ -21,8 +21,8 @@ const UsersProfile = (props) => {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
-    const frontpageTerms = {view: "top", userId: user._id}
-    const terms = {view: "top", ...query, userId: user._id, frontpage: false};
+    const frontpageTerms = {view: "top", userId: user._id, frontpage: true}
+    const terms = {view: "top", ...query, userId: user._id};
 
     const renderActions = (props) => {
       const user = props.document;
