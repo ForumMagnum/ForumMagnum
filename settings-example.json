@@ -45,12 +45,14 @@
 
   "newsletterExcerptLength": 20,
   "postExcerptLength": 30,
+
   "localServer": {
     "dbname": "lesswrong2",
-    "password": "imagingresidesenvelopecompact",
+    "password": "example",
     "server": "ds155813-a0.mlab.com",
     "port": "55813"
   },
+
   "categories": [
     {
       "name": "Test Category 1",
