@@ -63,6 +63,7 @@ import './collections/users/custom_fields.js';
 import './collections/comments/custom_fields.js';
 import './collections/comments/permissions.js';
 import './collections/comments/callbacks.js';
+import './collections/comments/views.js';
 //
 //
 //
