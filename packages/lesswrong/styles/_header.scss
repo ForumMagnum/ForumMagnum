@@ -25,6 +25,19 @@
   }
 }
 
+.header-title {
+  font-size: 19px;
+  position:absolute;
+  top:15px;
+  left:64px;
+  color:$medium-text;
+
+  &:hover {
+    text-decoration:none;
+    color:$light-text;
+  }
+}
+
 .nav{
   @include flex-center;
   @include small{
