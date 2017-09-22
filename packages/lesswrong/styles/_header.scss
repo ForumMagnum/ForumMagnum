@@ -25,6 +25,21 @@
   }
 }
 
+// This is an id instead of a class because the class wasn't rendering for weird reasons
+// If you can fix it, change it to a class
+#header-title {
+  font-size: 19px;
+  position:absolute;
+  top:15px;
+  left:64px;
+  color:$medium-text;
+
+  &:hover {
+    text-decoration:none;
+    color:$light-text;
+  }
+}
+
 .nav{
   @include flex-center;
   @include small{
