@@ -71,6 +71,7 @@ import '../components/common/AllPosts.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
 import '../components/common/Vote.jsx';
+import '../components/common/RSSOutLinkbuilder.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesList.jsx';

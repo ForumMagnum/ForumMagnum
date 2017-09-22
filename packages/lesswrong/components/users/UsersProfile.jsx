@@ -81,6 +81,7 @@ const UsersProfile = (props) => {
             <Components.SearchForm/>
             sorted by<br /> <Components.PostsViews />
           {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>}
+          <Components.RSSOutLinkbuilder user={user} />
           </div>} >
           <Components.PostsList terms={terms} showHeader={false} />
         </Components.Section>

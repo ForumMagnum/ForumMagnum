@@ -10,4 +10,6 @@ export { default as Categories } from './categories/index.js';
 export { default as Comments }  from './comments/index.js';
 export { default as Posts }  from './posts/index.js';
 
+export { rssTermsToUrl }  from './rss_urls.js';
+
 import './notifications/index.js';

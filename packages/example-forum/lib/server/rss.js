@@ -1,5 +1,6 @@
 import RSS from 'rss';
 import Posts from '../modules/posts/index.js';
+import { rssTermsToUrl } from '../modules/rss_urls.js';
 import Comments from '../modules/comments/index.js';
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
@@ -8,7 +9,7 @@ Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 
 const getMeta = (url) => {
   const siteUrl = getSetting('siteUrl', Meteor.absoluteUrl());
-  
+
   return {
     title: getSetting('title'),
     description: getSetting('tagline'),
@@ -19,6 +20,9 @@ const getMeta = (url) => {
 };
 
 export const servePostRSS = (terms, url) => {
+  if (!url) {
+    url = rssTermsToUrl(terms);
+  }
   const feed = new RSS(getMeta(url));
 
   let parameters = Posts.getParameters(terms);
@@ -54,10 +58,10 @@ export const serveCommentRSS = (terms, url) => {
   const feed = new RSS(getMeta(url));
 
   const commentsCursor = Comments.find({isDeleted: {$ne: true}}, {sort: {postedAt: -1}, limit: 20});
-  
+
   commentsCursor.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
-    
+
     feed.item({
      title: 'Comment on ' + post.title,
      description: `${comment.body}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
@@ -76,7 +80,7 @@ Picker.route('/feed.xml', function(params, req, res, next) {
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }
-  res.end(servePostRSS(params.query, 'feed.xml'));
+  res.end(servePostRSS(params.query));
 });
 
 Picker.route('/rss/posts/new.xml', function(params, req, res, next) {
