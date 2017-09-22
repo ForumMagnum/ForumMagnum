@@ -5,7 +5,7 @@ import { getSetting, Strings } from 'meteor/vulcan:lib';
 import { intlShape } from './shape.js';
 
 export default class IntlProvider extends Component{
-  
+
   constructor(){
     super();
     this.formatMessage = this.formatMessage.bind(this);
@@ -33,14 +33,14 @@ export default class IntlProvider extends Component{
         formatTime: this.formatStuff,
         formatRelative: this.formatStuff,
         formatNumber: this.formatStuff,
-        formatPlural: this.formatStuff, 
+        formatPlural: this.formatStuff,
         formatMessage: this.formatMessage,
         formatHTMLMessage: this.formatStuff,
         now: this.formatStuff,
       }
     };
   }
-  
+
   render(){
     return this.props.children;
   }

@@ -32,7 +32,7 @@ Accounts.ui._options = {
   onEnrollAccountHook: () => redirect(`${Accounts.ui._options.loginPath}`),
   onResetPasswordHook: () => redirect(`${Accounts.ui._options.loginPath}`),
   onVerifyEmailHook: () => redirect(`${Accounts.ui._options.profilePath}`),
-  onSignedInHook: () => redirect(`${Accounts.ui._options.homeRoutePath}`),
+  onSignedInHook: () => {},
   onSignedOutHook: () => redirect(`${Accounts.ui._options.homeRoutePath}`),
   emailPattern: new RegExp('[^@]+@[^@\.]{2,}\.[^\.@]+'),
 };
