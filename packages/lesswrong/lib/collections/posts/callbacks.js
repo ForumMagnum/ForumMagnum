@@ -34,6 +34,26 @@ function postsEditIncreaseFrontpagePostCount (post, oldPost) {
 addCallback("posts.edit.async", postsEditIncreaseFrontpagePostCount);
 
 /**
+ * @summary update frontpagePostCount when post is moved into frontpage
+ */
+function postsNewIncreaseFrontpageCount (post) {
+  if (post.frontpage) {
+    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
+  }
+}
+addCallback("posts.new.async", postsNewIncreaseFrontpageCount);
+
+/**
+ * @summary update frontpagePostCount when post is moved into frontpage
+ */
+function postsRemoveDecreaseFrontpageCount (post) {
+  if (post.frontpage) {
+    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
+  }
+}
+addCallback("posts.remove.async", postsRemoveDecreaseFrontpageCount);
+
+/**
  * @summary update frontpagePostCount when post is moved out of frontpage
  */
 function postsEditDecreaseFrontpagePostCount (post, oldPost) {

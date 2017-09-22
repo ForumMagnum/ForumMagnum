@@ -90,7 +90,6 @@ class PostsDailyList extends PureComponent {
 
     return (
       <div className="posts-daily">
-        <Components.PostsListHeader />
         {dates.map((date, index) => <Components.PostsDay key={index} number={index} date={date} posts={this.getDatePosts(posts, date)} networkStatus={this.props.networkStatus} currentUser={this.props.currentUser} />)}
         {this.state.loading? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
       </div>

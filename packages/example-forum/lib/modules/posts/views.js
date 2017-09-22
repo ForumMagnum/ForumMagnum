@@ -39,7 +39,7 @@ Posts.addView("new", terms => ({
  */
 Posts.addView("best", terms => ({
   options: {
-    sort: {sticky: -1, baseScore: -1}
+    sort: {sticky: -1, baseScore: -1},
   }
 }));
 
@@ -88,7 +88,6 @@ Posts.addView("userPosts", terms => ({
     userId: terms.userId,
     status: Posts.config.STATUS_APPROVED,
     isFuture: {$ne: true},
-    frontpage: {$ne: true},
   },
   options: {
     limit: 5,
