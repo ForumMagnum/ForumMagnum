@@ -51,7 +51,7 @@ class Header extends Component {
           <AppBar
             title="LESSWRONG"
             onLeftIconButtonTouchTap={this.handleToggle}
-            onTitleTouchTap={() => router.push("/")}
+            onTitleTouchTap={this.handleToggle}
             iconElementRight = {this.renderAppBarElementRight()}
             style={appBarStyle}
             titleStyle={appBarTitleStyle}
