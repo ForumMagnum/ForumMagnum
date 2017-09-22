@@ -13,13 +13,6 @@ const appBarStyle = {
   boxShadow: "none",
 }
 
-const appBarTitleStyle = {
-  paddingTop: '2px',
-  fontSize: '19px',
-  cursor: 'pointer',
-  flex: 'none',
-}
-
 class Header extends Component {
   constructor(props) {
     super(props);
@@ -49,13 +42,12 @@ class Header extends Component {
       <div className="header-wrapper">
         <header className="header">
           <AppBar
-            title="LESSWRONG"
             onLeftIconButtonTouchTap={this.handleToggle}
-            onTitleTouchTap={() => router.push("/")}
             iconElementRight = {this.renderAppBarElementRight()}
             style={appBarStyle}
-            titleStyle={appBarTitleStyle}
-          />
+          >
+            <a id="header-title" href="/">LESSWRONG</a>
+          </AppBar>
         <Drawer docked={false} width={200} open={this.state.open} onRequestChange={(open) => this.setState({open})} containerClassName="menu-drawer" >
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> RATIONALITY: A-Z </MenuItem>
@@ -66,6 +58,7 @@ class Header extends Component {
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
           {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
         </Drawer>
+
         </header>
       </div>
     )
