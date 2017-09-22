@@ -85,7 +85,7 @@ const UsersProfile = (props) => {
           <Components.PostsList terms={terms} showHeader={false} />
         </Components.Section>
         <Components.Section title="Recent Comments" >
-          <Components.RecentComments terms={{view: 'recentUserComments', limit: 10, userId: user._id}} fontSize="small" />
+          <Components.RecentComments terms={{view: 'recentComments', limit: 10, userId: user._id}} fontSize="small" />
         </Components.Section>
       </div>
     )
