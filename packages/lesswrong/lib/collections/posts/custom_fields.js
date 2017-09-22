@@ -364,6 +364,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
+      hidden: true,
       label: "Publish to meta",
       control: "checkbox",
       onInsert: (document, currentUser) => false,
