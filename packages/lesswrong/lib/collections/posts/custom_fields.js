@@ -330,6 +330,11 @@ Posts.addField([
       label: "Make only accessible via link",
       control: "checkbox",
       onInsert: (document, currentUser) => false,
+      onEdit: (modifier, post) => {
+        if (modifier.$set.unlisted === null) {
+          return false;
+        }
+      }
     }
   },
 
@@ -348,6 +353,11 @@ Posts.addField([
       label: "Publish to frontpage",
       control: "checkbox",
       onInsert: (document, currentUser) => false,
+      onEdit: (modifier, post) => {
+        if (modifier.$set.frontpage === null) {
+          return false;
+        }
+      }
     }
   },
 
@@ -368,6 +378,11 @@ Posts.addField([
       label: "Publish to meta",
       control: "checkbox",
       onInsert: (document, currentUser) => false,
+      onEdit: (modifier, post) => {
+        if (modifier.$set.meta === null) {
+          return false;
+        }
+      }
     }
   }
 
