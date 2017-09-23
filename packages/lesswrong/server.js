@@ -9,6 +9,7 @@ import './lib/closed-beta/fixBodyField.js';
 import './lib/closed-beta/fixKarmaField.js';
 import './lib/closed-beta/fixEmailField.js';
 
+
 // LW Events
 import './lib/events/server.js';
 
@@ -24,3 +25,5 @@ import './lib/legacy-redirects/routes.js';
 export * from './lib/index.js';
 
 import './lib/collections/sequences/seed.js';
+
+import './lib/closed-beta/fixSSCDrafts.js';
