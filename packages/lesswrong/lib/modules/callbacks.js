@@ -298,7 +298,6 @@ function userEditVoteBannedCallbacksAsync(user, oldUser) {
 addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
 
 function userEditNullifyVotesCallbacksAsync(user, oldUser) {
-  console.log("userEditNullifyVotesCallback", user, oldUser);
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
     runCallbacksAsync('users.nullifyVotes.async', user);
   }
