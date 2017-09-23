@@ -25,7 +25,8 @@ export let executableSchema;
 const defaultConfig = {
   path: '/graphql',
   maxAccountsCacheSizeInMB: 1,
-  graphiql: Meteor.isDevelopment,
+  graphiql: true,
+  // graphiql: Meteor.isDevelopment,
   graphiqlPath: '/graphiql',
   graphiqlOptions: {
     passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
