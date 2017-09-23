@@ -34,7 +34,7 @@ function onCreateUserCallback (options, user) {
       }
     }
   });
-  
+
   user = runCallbacks("users.new.sync", user);
 
   runCallbacksAsync("users.new.async", user);
