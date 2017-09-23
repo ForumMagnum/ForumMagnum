@@ -45,15 +45,15 @@ const UsersProfile = (props) => {
     const renderMeta = (props) => {
       const {karma, postCount, commentCount} = props.document;
       return <div className="users-profile-header-meta">
-        <div className="users-profile-header-meta-karma">
+        <div title="Karma" className="users-profile-header-meta-karma">
           <FontIcon className="material-icons" style={iconStyle}>star</FontIcon>
           {karma || 0}
         </div>
-        <div className="users-profile-header-meta-post-count">
+        <div title="Posts" className="users-profile-header-meta-post-count">
           <FontIcon className="material-icons" style={iconStyle}>description</FontIcon>
           {postCount || 0}
         </div>
-        <div className="users-profile-header-meta-comment-count">
+        <div title="Comments" className="users-profile-header-meta-comment-count">
           <FontIcon className="material-icons" style={iconStyle}>message</FontIcon>
           {commentCount || 0}
         </div>
