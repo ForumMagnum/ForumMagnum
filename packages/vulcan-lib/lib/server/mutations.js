@@ -52,25 +52,25 @@ export const newMutation = async ({ collection, document, currentUser, validate,
 
     // run validation callbacks
     newDocument = runCallbacks(`${collectionName}.new.validate`, newDocument, currentUser, validationErrors);
-  
+
     if (validationErrors.length) {
       const NewDocumentValidationError = createError('app.validation_error', {message: 'app.new_document_validation_error'});
       throw new NewDocumentValidationError({data: {break: true, errors: validationErrors}});
     }
 
   }
-  
+
   // check if userId field is in the schema and add it to document if needed
   const userIdInSchema = Object.keys(schema).find(key => key === 'userId');
   if (!!userIdInSchema && !newDocument.userId) newDocument.userId = currentUser._id;
 
   // run onInsert step
-  // note: cannot use forEach with async/await. 
+  // note: cannot use forEach with async/await.
   // See https://stackoverflow.com/a/37576787/649299
   for(let fieldName of _.keys(schema)) {
     if (schema[fieldName].onInsert) {
       const autoValue = await schema[fieldName].onInsert(newDocument, currentUser);
-      if (autoValue) {
+      if (autoValue !== null) {
         newDocument[fieldName] = autoValue;
       }
     }
@@ -119,7 +119,7 @@ export const editMutation = async ({ collection, documentId, set, unset, current
 
   // get original document from database
   let document = collection.findOne(documentId);
-  
+
   if (validate) {
 
     const validationErrors = validateModifier(modifier, document, collection, context);
@@ -161,7 +161,7 @@ export const editMutation = async ({ collection, documentId, set, unset, current
   if (_.isEmpty(modifier.$unset)) {
     delete modifier.$unset;
   }
-  
+
   // update document
   collection.update(documentId, modifier, {removeEmptyStrings: false});
 
@@ -191,7 +191,7 @@ export const removeMutation = async ({ collection, documentId, currentUser, vali
   debug(collection._name)
   debug(documentId)
   debug('//------------------------------------//');
-  
+
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
 
