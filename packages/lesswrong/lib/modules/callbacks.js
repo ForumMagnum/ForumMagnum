@@ -241,7 +241,7 @@ function postsNewHTMLBodyAndPlaintextBody(post) {
     const html = post.htmlBody;
     const plaintextBody = h2p(html);
     const excerpt = plaintextBody.slice(0,140);
-    Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
+    Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt, htmlBody: html}});
   }
 }
 
@@ -307,7 +307,7 @@ addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
 
 const reverseVote = (vote, collection, user, multiplier) => {
   const item = collection.findOne({_id: vote.itemId});
-  if (item && item.baseScore) {
+  if (item) {
     collection.update({_id: vote.itemId}, {$set: {baseScore: (item.baseScore || 0) - (multiplier * vote.power)}})
     if (item.userId !== user._id) {
       Users.update({_id: item.userId}, {$inc: {karma: - (multiplier * vote.power)}})

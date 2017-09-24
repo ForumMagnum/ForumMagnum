@@ -3,8 +3,9 @@ import React from 'react';
 import { Link } from 'react-router';
 
 const Meta = (props, context) => {
-  const recentPostsTerms = _.isEmpty(props.location && props.location.query) ? {view: 'meta', limit: 5}: props.location.query;
-  const featuredPostsTerms = {view: 'metaFeatured', limit: 3};
+  const query = props.location && props.location.query;
+  const recentPostsTerms = {view: 'top', limit: 5, ...query, meta: true}
+  const featuredPostsTerms = {view: 'featured', limit: 3, meta: true};
   return (
     <div className="home">
         <Components.Section title="Featured Meta Posts">

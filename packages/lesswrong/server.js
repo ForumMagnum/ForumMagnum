@@ -8,6 +8,7 @@ import './lib/closed-beta/algoliaExport.js';
 import './lib/closed-beta/fixBodyField.js';
 import './lib/closed-beta/fixKarmaField.js';
 import './lib/closed-beta/fixEmailField.js';
+import './lib/closed-beta/fixFrontpageCount.js';
 
 
 // LW Events
