@@ -1,5 +1,9 @@
 import { Posts } from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
+import ReactDOMServer from 'react-dom/server';
+import { Components } from 'meteor/vulcan:core';
+import h2p from 'html2plaintext';
+import React from 'react';
 
 const formGroups = {
   admin: {
@@ -86,6 +90,18 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       control: "textarea",
+      onInsert: (document) => {
+        if (document.content && !document.htmlBody) {
+          return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />);
+        } else {
+          return document.htmlBody;
+        }
+      },
+      onEdit: (modifier, document) => {
+        if (modifier.$set.content) {
+          return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)
+        }
+      },
     }
   },
 
@@ -179,7 +195,6 @@ Posts.addField([
   /**
     body: Changed original body attribute to be just a plain-text version of the
     original content, to allow for search.
-    TODO: Currently defunct because of lack of plaintext parser for ORY-Editor id:24
   */
   {
     fieldName: 'body',
@@ -189,9 +204,46 @@ Posts.addField([
       viewableBy: ['guests'],
       insertableBy: ['admins'],
       editableBy: ['admins'],
+      onInsert: (document) => {
+        if (document.content) {
+          return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />));
+        } else if (document.htmlBody) {
+          return h2p(document.htmlBody);
+        }
+      },
+      onEdit: (modifier, document) => {
+        if (modifier.$set.content) {
+          return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />))
+        } else if (modifier.$set.htmlBody) {
+          return h2p(modifier.$set.htmlBody);
+        }
+      },
       hidden: true,
     }
   },
+
+  /**
+   Post Excerpt
+   */
+   {
+     fieldName: 'excerpt',
+     fieldSchema: {
+       onInsert: (document) => {
+         if (document.content) {
+           return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />)).slice(0,200);
+         } else if (document.htmlBody) {
+           return h2p(document.htmlBody).slice(0,200);
+         }
+       },
+       onEdit: (modifier, document) => {
+         if (modifier.$set.content) {
+           return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)).slice(0,200)
+         } else if (modifier.$set.htmlBody) {
+           return h2p(modifier.$set.htmlBody).slice(0,200);
+         }
+       },
+     },
+   },
 
   /**
     legacyData: A complete dump of all the legacy data we have on this post in a
@@ -329,9 +381,13 @@ Posts.addField([
       insertableBy: ['admins', 'sunshineRegiment'],
       label: "Make only accessible via link",
       control: "checkbox",
-      onInsert: (document, currentUser) => false,
+      onInsert: (document, currentUser) => {
+        if (!document.unlisted) {
+          return false;
+        }
+      },
       onEdit: (modifier, post) => {
-        if (modifier.$set.unlisted === null) {
+        if (modifier.$set.unlisted === null || modifier.$unset.unlisted) {
           return false;
         }
       }
@@ -346,15 +402,19 @@ Posts.addField([
     fieldName: 'frontpage',
     fieldSchema: {
       type: Boolean,
-      optional: true,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
+      optional: true,
       label: "Publish to frontpage",
       control: "checkbox",
-      onInsert: (document, currentUser) => false,
+      onInsert: (document, currentUser) => {
+        if (!document.frontpage) {
+          return false
+        }
+      },
       onEdit: (modifier, post) => {
-        if (modifier.$set.frontpage === null) {
+        if (modifier.$set.frontpage === null || modifier.$unset.frontpage) {
           return false;
         }
       }
@@ -377,9 +437,13 @@ Posts.addField([
       hidden: true,
       label: "Publish to meta",
       control: "checkbox",
-      onInsert: (document, currentUser) => false,
+      onInsert: (document, currentUser) => {
+          if (!document.meta) {
+            return false
+          }
+      },
       onEdit: (modifier, post) => {
-        if (modifier.$set.meta === null) {
+        if (modifier.$set.meta === null || modifier.$unset.meta) {
           return false;
         }
       }

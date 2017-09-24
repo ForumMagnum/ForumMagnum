@@ -5,7 +5,7 @@ import Users from 'meteor/vulcan:users';
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'frontpage', 'userId');
+  const validFields = _.pick(terms, 'frontpage', 'userId', 'meta');
   return ({
     selector: {
       status: Posts.config.STATUS_APPROVED,

@@ -29,7 +29,7 @@ function onCreateUserCallback (options, user) {
   _.keys(schema).forEach(fieldName => {
     if (!user[fieldName] && schema[fieldName].onInsert) {
       const autoValue = schema[fieldName].onInsert(user, options);
-      if (autoValue) {
+      if (autoValue !== null) {
         user[fieldName] = autoValue;
       }
     }
