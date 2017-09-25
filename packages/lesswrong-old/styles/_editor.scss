@@ -1,0 +1,105 @@
+.posts-edit-form, .posts-new-form {
+    position:absolute;
+    padding-bottom:25px;
+    width:80%;
+    margin:0 10% 150px;
+
+    @include small {
+        width:90%;
+        margin:0 5% 150px;
+        padding-bottom:75px;
+    }
+
+    .document-edit, .document-new {
+        position:normal;
+    }
+
+    .document-edit .input-draft,
+    .document-edit .form-submit,
+    .document-edit .posts-delete-link,
+    .document-new .input-draft,
+    .document-new .form-submit,
+    .document-new .posts-delete-link,
+    .document-edit .input-frontpage,
+    .document-new .input-frontpage {
+        position:absolute;
+        bottom:0;
+    }
+
+    .document-edit .posts-delete-link {
+        bottom:6px;
+        left:0;
+        @include small {
+          bottom:56px;
+          width:100px;
+        }
+    }
+
+    .commentEditor {
+        margin-bottom:30px;
+        border-bottom:solid 1px $light-grey;
+    }
+
+    .document-edit .input-draft,
+    .document-new .input-draft,
+    .document-edit .input-frontpage,
+    .document-new .input-frontpage {
+        margin:0;
+        @include small {
+            width:125px;
+        }
+
+        .form-group.row {
+            margin-bottom:0;
+        }
+
+        .checkbox {
+            width:150px;
+            margin:0 0 6px 0;
+        }
+    }
+    .document-new .input-frontpage .checkbox {
+      margin-bottom: 12px;
+    }
+    .document-new .input-draft .checkbox {
+      margin-bottom: 12px;
+    }
+
+    .document-edit .input-draft,
+    .document-new .input-draft {
+        right:115px;
+        width:125px;
+        @include small {
+          bottom:50px;
+          right:0px;
+          width:100px;
+        }
+    }
+
+    .document-edit .input-frontpage,
+    .document-new .input-frontpage {
+        right:255px;
+        width:150px;
+        @include small {
+          bottom:50px;
+          right:150px;
+          width:100px;
+        }
+    }
+
+    .document-edit div hr {
+    // Ray Sept 2017:
+    // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
+    // path: /packages/vulcan-forms/lib/Form.jsx
+        display:none;
+    }
+
+    .document-edit .form-submit,
+    .document-new .form-submit {
+        right:0;
+    }
+
+    .commentEditor .content-body {
+        padding:0 18px;
+    }
+}

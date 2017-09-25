@@ -1,7 +1,7 @@
 Package.describe({
   name: "lesswrong",
   summary: "Lesswrong extensions and customizations package",
-  version: "0.1.0"
+  version: "0.2.0"
 });
 
 Package.onUse( function(api) {
@@ -20,10 +20,6 @@ Package.onUse( function(api) {
   api.mainModule('client.js', 'client');
 
   api.addFiles([
-    'lib/stylesheets/bootstrap.scss',
-    'lib/stylesheets/custom.scss',
-    'lib/stylesheets/comments.scss',
-    'lib/stylesheets/editor.scss',
     'styles/main.scss',
   ], ['client']);
 

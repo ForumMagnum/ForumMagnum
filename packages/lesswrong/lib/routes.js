@@ -1,5 +1,6 @@
 import { addRoute } from 'meteor/vulcan:core';
 
+/*
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper' });
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm' });
 addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' });
@@ -34,8 +35,7 @@ addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'})
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
 
-
-
 addRoute({name:'posts.single',   path:'posts/:_id(/:slug)(/:commentId)', componentName: 'PostsSingle'});
+*/
 
 addRoute({name: 'home', path: '/', componentName: 'Home'});

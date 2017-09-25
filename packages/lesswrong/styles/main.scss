@@ -1,5 +1,4 @@
-// @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
-
+/*
 @import "breakpoints";
 @import "colors";
 @import "variables";
@@ -25,6 +24,9 @@
 @import "sequences";
 
 
+// Thses two files are legacy files from lib/styles and should be refactored
+@import "custom";
+@import "editor";
 
 
 .new-post-button{
@@ -61,3 +63,4 @@ code{
 .posts-day h2{
   font-weight: bold;
 }
+*/

@@ -1,0 +1,97 @@
+.accounts-ui{
+  .field{
+    margin-bottom: $vmargin/2;
+  }
+}
+
+.users-menu{
+  .avatar{
+    margin-right: 5px;
+  }
+}
+
+.avatar-initials{
+  background: $light-grey;
+  color: $dark-grey;
+  text-align: center;
+  border-radius: 100%;
+  text-decoration: none;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span{
+    display: block;
+    line-height: 1;
+  }
+}
+
+.users-newsletter-settings {
+  @include flex-center;
+  margin-top: $vmargin;
+}
+
+.log-in-message{
+  h3{
+    text-align: center;
+  }
+}
+
+@include very-small-break() {
+  .posts-item {
+    margin-top: 20px !important;
+  }
+  .posts-item-vote {
+    bottom: -3px !important;
+  }
+}
+
+.users-profile {
+  margin-left: auto;
+  margin-right: 200px;
+  .page-title {
+    margin-bottom: 10px;
+    display: inline;
+  }
+}
+
+.users-profile-actions {
+  & > div {
+    margin-left: 8px;
+  }
+}
+
+.users-profile-bio {
+  font-size: 1.1rem;
+  padding-top: 28px;
+  padding-left: 20px;
+}
+
+.users-profile-recent-posts {
+  .search-form {
+    width: 120px;
+    margin-left: auto;
+    margin-bottom: 15px;
+  }
+}
+
+.users-profile-header {
+  h2:before {
+    display:none;
+  }
+}
+
+.users-profile-header-meta {
+  & > div {
+    display: inline;
+    margin-left: 5px;
+  }
+}
+
+.users-profile-actions {
+  margin-top: 8px;
+  & > div {
+    font-size: 18px;
+    font-style: italic;
+  }
+}

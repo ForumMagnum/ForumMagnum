@@ -1,4 +1,5 @@
 import './lib/index.js';
+/*
 // import './lib/init_script.js';
 import './lib/database-import/database_import.js';
 import './lib/rss-integration/cron.js';
@@ -24,3 +25,4 @@ import './lib/legacy-redirects/routes.js';
 export * from './lib/index.js';
 
 import './lib/collections/sequences/seed.js';
+*/

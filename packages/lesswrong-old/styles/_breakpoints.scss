@@ -1,0 +1,65 @@
+$section-width: 950px;
+$menu-width: 150px;
+
+$menu-break-width: 1100px;
+$posts-page-section-header-break-width: 1200px;
+$section-header-break-width: 950px;
+$collection-card-break-width: 715px;
+$very-small-break-width: 350px;
+
+
+@mixin menu-break(){ //Break that gives menu solid background
+  @media screen and (max-width: $menu-break-width) {
+    @content;
+  }
+}
+@mixin section-header-break(){ //Break for when section headers need to be moved on top
+  @media screen and (max-width: $section-header-break-width) {
+    @content;
+  }
+}
+@mixin collection-card-break(){ //Break for moving from 2-column to 1 column layout
+  @media screen and (max-width: $collection-card-break-width) {
+    @content;
+  }
+}
+@mixin posts-page-section-header-break(){
+  @media screen and (max-width: $posts-page-section-header-break-width) {
+    @content;
+  }
+}
+@mixin very-small-break() {
+  @media screen and (max-width: $very-small-break-width) {
+    @content;
+  }
+}
+
+$small-break:  600px;
+$medium-break: 800px;
+$large: 1200px;
+
+@mixin small(){ // smaller than small-break
+  @media screen and (max-width: $small-break) {
+    @content;
+  }
+}
+@mixin small-medium(){ // smaller than medium-break
+  @media screen and (max-width: $medium-break) {
+    @content;
+  }
+}
+@mixin medium(){ // between small and medium-break
+  @media screen and (min-width: $small-break) and (max-width: $medium-break) {
+    @content;
+  }
+}
+@mixin medium-large(){ // larger than small-break
+  @media screen and (min-width: $small-break) {
+    @content;
+  }
+}
+@mixin large(){ // larger than medium-break
+  @media screen and (min-width: $large) {
+    @content;
+  }
+}

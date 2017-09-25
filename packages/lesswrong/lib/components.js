@@ -1,3 +1,5 @@
+
+/*
 import './home/Sidebar.jsx';
 import './home/TopContributors.jsx';
 import './home/WelcomeBox.jsx';
@@ -152,3 +154,4 @@ import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';
 import '../components/form-components/SequencesListEditorItem.jsx';
 import '../components/form-components/SubmitButton.jsx';
+*/

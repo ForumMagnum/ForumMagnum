@@ -1,6 +1,6 @@
 
-import Users from "meteor/vulcan:users";
-import LWEvents from "./collections/lwevents/collection.js";
+//import Users from "meteor/vulcan:users";
+//import LWEvents from "./collections/lwevents/collection.js";
 
 // Comments.addDefaultView(function (terms) {
 //   return {
@@ -11,7 +11,7 @@ import LWEvents from "./collections/lwevents/collection.js";
 // TODO Please change this to "default view ignores deleted"
 
 
-
+/*
 Users.addView("topContributors", function (terms) {
   return {
     selector: { deleted: {$ne:true}},
@@ -30,3 +30,4 @@ LWEvents.addView("postVisits", function (terms) {
     options: {sort: {createdAt: -1}, limit: terms.limit || 1},
   };
 });
+*/
