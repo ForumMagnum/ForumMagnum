@@ -1,4 +1,6 @@
-import './lib/index.js';
+import './lib/fonts.js'
+
+import './lib/index.js'
 /*
 // Frontend Rework
 import './components/momentjs.js';

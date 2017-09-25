@@ -1,4 +1,3 @@
-/*
 @import "breakpoints";
 @import "colors";
 @import "variables";
@@ -23,12 +22,12 @@
 @import "collections";
 @import "sequences";
 
-
 // Thses two files are legacy files from lib/styles and should be refactored
 @import "custom";
 @import "editor";
 
 
+*/
 .new-post-button{
   margin-bottom: 15px;
 }
@@ -63,4 +62,3 @@ code{
 .posts-day h2{
   font-weight: bold;
 }
-*/

@@ -79,7 +79,9 @@ import './legacy-redirects/views.js';
 
 // // Misc.
 import './helpers.js'
+*/
 import './components.js';
+/*
 import './routes.js';
 import './views.js';
 //

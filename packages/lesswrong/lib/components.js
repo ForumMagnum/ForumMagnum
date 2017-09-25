@@ -1,4 +1,3 @@
-
 /*
 import './home/Sidebar.jsx';
 import './home/TopContributors.jsx';
@@ -63,8 +62,9 @@ import './legacy-redirects/LegacyPostWrapper.jsx'
 import './subscriptions/SubscribeTo.jsx';
 
 
-
+*/
 import '../components/Layout.jsx';
+/*
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/Home.jsx';
