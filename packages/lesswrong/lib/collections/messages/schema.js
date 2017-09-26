@@ -5,8 +5,6 @@ A SimpleSchema-compatible JSON schema
 */
 
 import Users from 'meteor/vulcan:users';
-import GraphQLSchema from 'meteor/vulcan:core';
-import MessageEditor from '../../editor/MessageEditor.jsx';
 
 const schema = {
   _id: {
@@ -41,7 +39,7 @@ const schema = {
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: Users.owns,
-    control: MessageEditor,
+    control: 'MessageEditor',
     order: 2,
     blackbox: true,
     optional: true,

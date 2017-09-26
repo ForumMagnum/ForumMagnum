@@ -6,7 +6,7 @@ import { Posts } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 import { withRouter } from 'react-router'
 
-class LWPostsEditForm extends PureComponent {
+class PostsEditForm extends PureComponent {
 
   renderAdminArea() {
     const postId = this.props.location.query.postId;
@@ -56,13 +56,13 @@ class LWPostsEditForm extends PureComponent {
   }
 }
 
-LWPostsEditForm.propTypes = {
+PostsEditForm.propTypes = {
   closeModal: PropTypes.func,
   flash: PropTypes.func,
 }
 
-LWPostsEditForm.contextTypes = {
+PostsEditForm.contextTypes = {
   intl: intlShape
 }
 
-registerComponent('PostsEditForm', LWPostsEditForm, withMessages, withRouter, withCurrentUser);
+registerComponent('PostsEditForm', PostsEditForm, withMessages, withRouter, withCurrentUser);

@@ -4,7 +4,7 @@ import Editor, { Editable, createEmptyState } from 'ory-editor-core';
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui'
 import withEditor from './withEditor.jsx'
 import { IntercomAPI } from 'react-intercom';
-import { isEmpty } from '../modules/utils.js';
+import { isEmpty } from '../../lib/modules/utils.js';
 
 const placeholderContent = {
     id: '2',

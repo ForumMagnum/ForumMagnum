@@ -1,16 +1,13 @@
 import React, { PropTypes, Component } from 'react';
-import { Button, Grid, Row, Col, ListGroup, ListGroupItem, PageHeader, Panel } from 'react-bootstrap';
-import { Components, registerComponent, ModalTrigger, withList, withCurrentUser } from 'meteor/vulcan:core';
-import Notifications from '../collections/notifications/collection.js';
+import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import Notifications from '../../lib/collections/notifications/collection.js';
 
 class NotificationsList extends Component {
 
   render() {
 
     const results = this.props.results;
-    const currentUser = this.props.currentUser;
-    const refetch = this.props.refetch;
-    const loading = this.props.loading;
     const loadMore = this.props.loadMore;
     const totalCount = this.props.totalCount;
 
