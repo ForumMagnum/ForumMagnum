@@ -8,6 +8,8 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import Intercom, { IntercomAPI } from 'react-intercom';
 
+import withNewEditor from './editor/withNewEditor.jsx';
+
 const muiTheme = getMuiTheme({
   "fontFamily": "ETBook",
   "palette": {
@@ -73,4 +75,4 @@ const Layout = ({currentUser, children, currentRoute}) =>
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout);
+replaceComponent('Layout', Layout, withNewEditor);
