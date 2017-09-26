@@ -3,12 +3,10 @@ import Users from "meteor/vulcan:users";
 import React, { Component } from 'react';
 import IconButton from 'material-ui/IconButton';
 import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
 import {List, ListItem} from 'material-ui/List';
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router';
-import Notifications from '../collections/notifications/collection.js'
+import Notifications from '../../lib/collections/notifications/collection.js'
 import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
 
 class NotificationsMenu extends Component {

@@ -71,7 +71,6 @@ url@1.1.0
 vulcan:accounts@1.7.0
 vulcan:admin@1.7.0
 vulcan:core@1.7.0
-vulcan:debug@1.7.0
 vulcan:email@1.7.0
 vulcan:embed@1.7.0
 vulcan:events@1.7.0

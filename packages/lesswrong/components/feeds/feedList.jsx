@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
-import { Button, Grid, Row, Col, ListGroup, ListGroupItem, PageHeader, Panel } from 'react-bootstrap';
-import { Components, registerComponent, ModalTrigger, withList, withCurrentUser } from 'meteor/vulcan:core';
-import RSSFeeds from '../collections/rssfeeds/collection.js';
+import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
 
 class FeedList extends Component {
 
