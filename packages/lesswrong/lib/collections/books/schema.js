@@ -64,7 +64,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: PostEditor,
+    control: 'EditorFormComponent',
     blackbox: true,
   },
 
@@ -108,7 +108,7 @@ const schema = {
       },
       addOriginalField: true,
     },
-    control: PostsListEditor,
+    control: 'PostsListEditor',
   },
 
   'postIds.$': {
@@ -137,7 +137,7 @@ const schema = {
       // },
       addOriginalField: true,
     },
-    control: SequencesListEditor,
+    control: 'SequencesListEditor',
   },
 
   'sequenceIds.$': {
