@@ -6,8 +6,7 @@ Display of a single message in the Conversation Wrapper
 
 import React, { PropTypes, Component } from 'react';
 import { Media } from 'react-bootstrap';
-import { Components, registerComponent, ModalTrigger, withList, withCurrentUser } from 'meteor/vulcan:core';
-import Messages from "../collections/messages/collection.js";
+import { Components, registerComponent } from 'meteor/vulcan:core';
 
 class MessageItem extends Component {
 

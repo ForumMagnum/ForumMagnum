@@ -43,6 +43,6 @@ example-forum
 # example-membership
 # example-interfaces
 
-vulcan:debug
+# vulcan:debug
 
 lesswrong

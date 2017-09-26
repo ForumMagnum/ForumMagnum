@@ -5,12 +5,8 @@ Component for displaying details about currently selected conversation
 */
 
 import React, { PropTypes, Component } from 'react';
-import { Button, Grid, Row, Col, ListGroup, ListGroupItem, PageHeader } from 'react-bootstrap';
-import { Components, registerComponent, ModalTrigger, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
-import Notifications from "../collections/notifications/collection.js";
-import Messages from "../collections/messages/collection.js";
-import Conversations from '../collections/conversations/collection.js';
-import SmartForm from "meteor/vulcan:forms";
+import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Components, registerComponent, ModalTrigger, withCurrentUser } from 'meteor/vulcan:core';
 
 class ConversationDetails extends Component {
 

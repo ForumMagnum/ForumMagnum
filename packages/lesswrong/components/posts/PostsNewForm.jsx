@@ -10,7 +10,6 @@ const PostsNewForm = (props, context) =>
       failureComponent={<Components.AccountsLoginForm />}
     >
       <div className="posts-new-form">
-        {console.log("PostsNewForm query", props.router.location.query)}
         <Components.SmartForm
           collection={Posts}
           mutationFragment={getFragment('PostsPage')}

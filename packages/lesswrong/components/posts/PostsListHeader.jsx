@@ -1,7 +1,7 @@
 import { Components, replaceComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
-const LWPostsListHeader = () => {
+const PostsListHeader = () => {
 
   return (
     <div>
@@ -13,6 +13,6 @@ const LWPostsListHeader = () => {
   )
 }
 
-LWPostsListHeader.displayName = "PostsListHeader";
+PostsListHeader.displayName = "PostsListHeader";
 
-replaceComponent('PostsListHeader', LWPostsListHeader);
+replaceComponent('PostsListHeader', PostsListHeader);
