@@ -1,9 +1,8 @@
 import { Components, registerComponent, ModalTrigger } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Panel, ListGroupItem } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { ListGroupItem } from 'react-bootstrap';
 
-
+//TODO: Migrate away from bootstrap
 
 class FeedItem extends Component {
 
