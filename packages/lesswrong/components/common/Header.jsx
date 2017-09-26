@@ -46,7 +46,7 @@ class Header extends Component {
             iconElementRight = {this.renderAppBarElementRight()}
             style={appBarStyle}
           >
-            <a id="header-title" href="/">LESSWRONG</a>
+            <Link className="header-title" href="/">LESSWRONG</Link>
           </AppBar>
         <Drawer docked={false} width={200} open={this.state.open} onRequestChange={(open) => this.setState({open})} containerClassName="menu-drawer" >
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
