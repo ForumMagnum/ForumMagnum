@@ -8,8 +8,7 @@ import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
 import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import {  withRouter } from 'react-router';
-import Conversations from '../collections/conversations/collection.js';
-import { Posts } from 'meteor/example-forum'
+import Conversations from '../../lib/collections/conversations/collection.js';
 
 class newConversationButton extends Component {
 

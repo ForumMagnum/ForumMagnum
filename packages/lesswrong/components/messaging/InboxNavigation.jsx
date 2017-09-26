@@ -7,12 +7,10 @@ The Navigation for the Inbox components
 import React, { PropTypes, Component } from 'react';
 import { withRouter } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Button, Grid, Row, Col, ListGroup, ListGroupItem } from 'react-bootstrap';
-import { Components, registerComponent, ModalTrigger, withList, withCurrentUser } from 'meteor/vulcan:core';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { Grid, Row, Col, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import moment from 'moment';
-import Notifications from '../collections/notifications/collection.js'
-import Conversations from '../collections/conversations/collection.js';
+import Conversations from '../../lib/collections/conversations/collection.js';
 
 class InboxNavigation extends Component {
 

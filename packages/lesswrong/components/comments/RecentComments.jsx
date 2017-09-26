@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent, withList, withCurrentUser, Loading, withEdit } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 
-const RecentComments = ({results,
-                         currentUser,
-                         loading,
-                         fontSize,
-                         loadMore,
-                         loadingMore,
-                         editMutation}) => {
+const RecentComments = ({results, currentUser, loading, fontSize, loadMore, loadingMore, editMutation}) => {
     return (
       <div>
         <div className="comments-list recent-comments-list">

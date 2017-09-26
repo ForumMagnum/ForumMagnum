@@ -1,11 +1,12 @@
-import { ModalTrigger, Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
+import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
 import React, { PropTypes, Component } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { MenuItem } from 'react-bootstrap';
-import { withRouter } from 'react-router'
 import { Categories } from 'meteor/example-forum';
+//TODO: Remove bootstrap dependency (replace with M-UI)
 
-class LWCategory extends Component {
+
+class Category extends Component {
 
   render() {
 
@@ -34,4 +35,4 @@ class LWCategory extends Component {
   }
 }
 
-replaceComponent('Category', LWCategory);
+replaceComponent('Category', Category);
