@@ -149,11 +149,9 @@
 
   blockquote { font-size: 1.1rem;
                padding: inherit;
-               margin:inherit;
-               border-left: none;
-               -webkit-margin-before: 1em;
-               -webkit-margin-after: 1em;
-               -webkit-margin-start: 40px; }
+               margin: inherit;
+               margin-left: 40px;
+               border-left: none; }
 
   blockquote p { /* width: 55%; */
                  margin-right: 40px;
