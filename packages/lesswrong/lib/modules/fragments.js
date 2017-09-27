@@ -153,6 +153,48 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostStats on Post {
+    upvoters {
+      _id
+      slug
+      username
+      karma
+    }
+    downvoters {
+      _id
+      slug
+      username
+      karma
+    }
+    baseScore
+    score
+    upvotes
+    downvotes
+  }
+`);
+
+registerFragment(`
+  fragment CommentStats on Comment {
+    upvoters {
+      _id
+      slug
+      username
+      karma
+    }
+    downvoters {
+      _id
+      slug
+      username
+      karma
+    }
+    baseScore
+    score
+    upvotes
+    downvotes
+  }
+`);
+
+registerFragment(`
   fragment CommentsList on Comment {
     # example-forum
     _id
