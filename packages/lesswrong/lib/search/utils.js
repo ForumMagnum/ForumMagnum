@@ -4,7 +4,7 @@ import RSSFeeds from '../collections/rssfeeds/collection.js';
 import Sequences from '../collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
-import h2p from 'html2plaintext';
+import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
@@ -48,7 +48,7 @@ Comments.toAlgolia = (comment) => {
   // TODO: Actually limit by encoding size as opposed to characters
   if (comment.content) {
     const html = oryToHtml(comment.content)
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     algoliaComment.body = plaintextBody.slice(0, 2000);
   } else if (comment.body) {
     algoliaComment.body = comment.body.slice(0,2000);
@@ -79,7 +79,7 @@ Sequences.toAlgolia = (sequence) => {
   // TODO: Actually limit by encoding size as opposed to characters
   if (sequence.description) {
     const html = oryToHtml(sequence.description);
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   } else if (sequence.plaintextDescription) {
     algoliaSequence.plaintextDescription = sequence.plaintextDescription.slice(0,2000);
@@ -137,7 +137,7 @@ Posts.toAlgolia = (post) => {
   let postBatch = [];
   let paragraphCounter =  0;
   let algoliaPost = {};
-  const body = (post.content ? h2p(oryToHtml(post.content)) : (post.htmlBody ? h2p(post.htmlBody) : post.body))
+  const body = (post.content ? htmlToText.fromString(oryToHtml(post.content)) : (post.htmlBody ? htmlToText.fromString(post.htmlBody) : post.body))
   if (body) {
     body.split("\n\n").forEach((paragraph) => {
       algoliaPost = {
