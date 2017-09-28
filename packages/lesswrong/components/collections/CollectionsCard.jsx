@@ -2,6 +2,7 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import {Card, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import { Link } from 'react-router';
+import { Image } from 'cloudinary-react';
 
 const testCollection = {
   title: "The Core Sequences",
@@ -33,7 +34,7 @@ const CollectionsCard = ({collection = testCollection, big = false, url}) => {
     <Link to={url} className="collection-card-link">
       <Card className="collection-card">
         <CardMedia className="collection-card-media">
-          <img src={collection.image} />
+          <Image publicId={collection.imageId} cloudName="lesswrong-2-0" quality="auto" />
         </CardMedia>
         <div className="collection-card-content" style={cardContentStyle}>
           <CardTitle

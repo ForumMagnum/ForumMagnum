@@ -65,7 +65,7 @@ registerFragment(`
 `);
 
 extendFragment('UsersCurrent', `
-  subscribedItems
+  # subscribedItems
   karma
   voteBanned
   banned
@@ -102,43 +102,43 @@ registerFragment(`
     # htmlBody # We replaced this with content
     excerpt # This won't work with content
     # content # Our replacement for body
-    lastVisitedAt
+    # lastVisitedAt
     viewCount
     clickCount
     # vulcan:users
     userId
-    user {
-      ...UsersMinimumInfo
-    }
+    # user {
+    #  ...UsersMinimumInfo
+    # }
     # vulcan:embedly
     thumbnailUrl
     # example-forum
-    categories {
-      ...CategoriesMinimumInfo
-    }
+    # categories {
+    #  ...CategoriesMinimumInfo
+    # }
     # example-forum
     commentCount
     lastCommentedAt
     # vulcan:voting
     upvotes
     downvotes
-    upvoters {
-      _id
-      slug
-      username
-    }
-    downvoters {
-      _id
-      slug
-      username
-    }
+    # upvoters {
+    #  _id
+    #  slug
+    #  username
+    # }
+    # downvoters {
+    #  _id
+    #  slug
+    #  username
+    # }
     baseScore
     score
-    feedId
-    feedLink
-    feed {
-      ...RSSFeedMinimumInfo
-    }
+    # feedId
+    # feedLink
+    # feed {
+    #  ...RSSFeedMinimumInfo
+    # }
     nextPageTitle
     nextPageLink
     collectionTitle
@@ -177,24 +177,24 @@ registerFragment(`
     repliesBlockedUntil
     # vulcan:users
     userId
-    user {
-      ...UsersMinimumInfo
-    }
+    # user {
+    #   ...UsersMinimumInfo
+    # }
     # example-forum
-    post {
-      _id
-      commentCount
-      commenters {
-        ...UsersMinimumInfo
-      }
-    }
+    # post {
+    #  _id
+    #  commentCount
+    #  commenters {
+    #    ...UsersMinimumInfo
+    #  }
+    # }
     # vulcan:voting
-    upvoters {
-      _id
-    }
-    downvoters {
-      _id
-    }
+    # upvoters {
+    #   _id
+    # }
+    # downvoters {
+    #   _id
+    # }
     upvotes
     downvotes
     baseScore
@@ -205,15 +205,15 @@ registerFragment(`
 registerFragment(`
   fragment SelectCommentsList on Comment {
     ...CommentsList
-    post {
-      title
-      _id
-      commentCount
-      commenters {
-        ...UsersMinimumInfo
-      }
-      slug
-    }
+    # post {
+    #  title
+    #  _id
+    #  commentCount
+    #  commenters {
+    #    ...UsersMinimumInfo
+    #  }
+    #  slug
+    #}
   }
 `);
 

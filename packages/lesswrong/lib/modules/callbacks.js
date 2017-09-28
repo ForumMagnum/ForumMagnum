@@ -6,7 +6,7 @@ import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
 import { addCallback, newMutation, editMutation, Utils, runCallbacksAsync } from 'meteor/vulcan:core';
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
-import h2p from 'html2plaintext';
+import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
@@ -234,12 +234,12 @@ addCallback("messages.new.async", messageNewNotification);
 function postsNewHTMLBodyAndPlaintextBody(post) {
   if (post.content) {
     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={post.content} />);
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     const excerpt =  plaintextBody.slice(0,140);
     Posts.update(post._id, {$set: {htmlBody: html, body: plaintextBody, excerpt: excerpt}});
   } else if (post.htmlBody) {
     const html = post.htmlBody;
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     const excerpt = plaintextBody.slice(0,140);
     Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt, htmlBody: html}});
   }
@@ -251,11 +251,11 @@ addCallback("posts.edit.async", postsNewHTMLBodyAndPlaintextBody);
 function commentsNewHTMLBodyAndPlaintextBody(comment) {
   if (comment.content) {
     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={comment.content} />);
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     Comments.update(comment._id, {$set: {htmlBody: html, body: plaintextBody}});
   } else if (comment.htmlBody){
     const html = comment.htmlBody;
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     Comments.update(comment._id, {$set: {body: plaintextBody}});
   }
 }
@@ -266,7 +266,7 @@ addCallback("comments.edit.async", commentsNewHTMLBodyAndPlaintextBody);
 function sequencesNewPlaintextDescription(sequence) {
   if (sequence.description) {
     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={sequence.description} />);
-    const plaintextBody = h2p(html);
+    const plaintextBody = htmlToText.fromString(html);
     Sequences.update(sequence._id, {$set: {plaintextDescription: plaintextBody}});
   }
 }

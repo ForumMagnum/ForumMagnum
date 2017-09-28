@@ -13,7 +13,6 @@ import { editMode } from 'ory-editor-core/lib/actions/display';
 
 // Require our ui components (optional). You can implement and use your own ui too!
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
-require('react-tap-event-plugin')(); // react-tap-event-plugin is required by material-ui which is used by ory-editor-ui so we need to call it here
 
 // The rich text area plugin
 import slate from 'ory-editor-plugins-slate'
