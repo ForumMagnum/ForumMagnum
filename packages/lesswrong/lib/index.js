@@ -1,11 +1,11 @@
 //// Permissions
 import './modules/permissions.js';
-// // Notifications
-// import Notifications from './collections/notifications/collection.js';
-// import './collections/notifications/custom_fields.js';
-// import './collections/notifications/views.js';
-// import './collections/notifications/permissions.js';
-// import './collections/notifications/seed.js';
+// Notifications
+import Notifications from './collections/notifications/collection.js';
+import './collections/notifications/custom_fields.js';
+import './collections/notifications/views.js';
+import './collections/notifications/permissions.js';
+import './collections/notifications/seed.js';
 // // Inbox
 // import Messages from './collections/messages/collection.js'
 // import './collections/messages/views.js';
@@ -24,23 +24,23 @@ import './modules/permissions.js';
 // import LWEvents from './collections/lwevents/collection.js';
 // import './collections/lwevents/permissions.js';
 // import './events/callbacks_sync.js';
-// // Chapters
-// import Sequences from './collections/sequences/collection.js';
-// import Chapters from './collections/chapters/collection.js';
-// import Books from './collections/books/collection.js';
-// import Collections from './collections/collections/collection.js';
+// Chapters
+import Sequences from './collections/sequences/collection.js';
+import Chapters from './collections/chapters/collection.js';
+import Books from './collections/books/collection.js';
+import Collections from './collections/collections/collection.js';
 //
 import './modules/fragments.js';
-// import './collections/chapters/fragments.js';
-// import './collections/sequences/fragments.js';
-// import './collections/books/fragments.js';
-// import './collections/collections/fragments.js';
-//
-// import './collections/chapters/views.js';
-//
-// import './collections/sequences/permissions.js';
-// import './collections/collections/permissions.js';
-// import './collections/books/permissions.js';
+import './collections/chapters/fragments.js';
+import './collections/sequences/fragments.js';
+import './collections/books/fragments.js';
+import './collections/collections/fragments.js';
+
+import './collections/chapters/views.js';
+
+import './collections/sequences/permissions.js';
+import './collections/collections/permissions.js';
+import './collections/books/permissions.js';
 //
 // // Subscriptions
 import './collections/subscription_fields.js';
