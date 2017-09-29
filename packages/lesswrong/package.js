@@ -23,9 +23,4 @@ Package.onUse( function(api) {
     'styles/main.scss',
   ], ['client']);
 
-  api.addAssets([
-    'assets/Logo.png',
-  ], ['client']);
-
-
 });

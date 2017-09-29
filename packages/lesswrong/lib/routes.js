@@ -36,6 +36,6 @@ import { addRoute } from 'meteor/vulcan:core';
 //
 //
 //
-// addRoute({name:'posts.single',   path:'posts/:_id(/:slug)(/:commentId)', componentName: 'PostsSingle'});
+addRoute({name:'posts.single',   path:'posts/:_id(/:slug)(/:commentId)', componentName: 'PostsSingle'});
 //
 addRoute({name: 'home', path: '/', componentName: 'Home'});

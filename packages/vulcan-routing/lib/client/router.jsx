@@ -6,6 +6,9 @@ import { Meteor } from 'meteor/meteor';
 
 import { InjectData } from 'meteor/vulcan:lib';
 
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+
 export const RouterClient = {
   run(routes, options) {
     if (!options) {
@@ -50,15 +53,38 @@ export const RouterClient = {
         history = options.historyHook(history);
       }
 
-      const appGenerator = addProps => (
-        <Router
-          history={history}
-          {...options.props}
-          {...addProps}
-        >
-          {routes}
-        </Router>
-      );
+      const appGenerator = addProps => {
+        const muiTheme = getMuiTheme({
+          "fontFamily": "ETBook",
+          "palette": {
+            "primary1Color": "#f5f5f5",
+            "accent1Color": "#43a047",
+            "primary2Color": "#eeeeee",
+            "accent2Color": "#81c784",
+            "accent3Color": "#c8e6c9",
+            "pickerHeaderColor": "#4caf50"
+          },
+          "appBar": {
+            "textColor": "rgba(0, 0, 0, 0.54)"
+          },
+          "datePicker": {
+            "color": "rgba(0,0,0,0.54)",
+            "selectTextColor": "rgba(0,0,0,0.54)",
+          },
+          "flatButton": {
+            "primaryTextColor": "rgba(0,0,0,0.54)"
+          }
+        });
+        return <MuiThemeProvider muiTheme={muiTheme}>
+          <Router
+            history={history}
+            {...options.props}
+            {...addProps}
+          >
+            {routes}
+          </Router>
+        </MuiThemeProvider>
+      };
 
       let app;
       if (typeof options.wrapperHook === 'function') {
