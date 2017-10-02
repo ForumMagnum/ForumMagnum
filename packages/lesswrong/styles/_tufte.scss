@@ -38,6 +38,9 @@
              font-weight: normal;
              font-style: normal; }
 
+/* Tufte CSS styles */
+html { font-size: 14px; }
+
 .content-body {
 
   .ory-cell-leaf > div {
@@ -59,8 +62,7 @@
   li > p:first-child {
     margin-top: 0px;
   }
-  /* Tufte CSS styles */
-  html { font-size: 15px; }
+
 
   body {
         //  width: 87.5%;
@@ -121,7 +123,7 @@
   section { padding-top: 1rem;
             padding-bottom: 1rem; }
 
-  p, ol, ul { font-size: 1.2rem; }
+  p, ol, ul { font-size: 1.4rem; }
 
   p { line-height: 2rem;
       margin-top: 1.4rem;
