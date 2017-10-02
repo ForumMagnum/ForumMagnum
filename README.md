@@ -22,6 +22,17 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 Despite being unstable and not yet at the stage where it can be operated by end users, Lesswrong2 is feature complete and ready for public development.
 
+To get LessWrong2 working on your local machine:
+
+```
+git clone https://github.com/Discordius/Lesswrong2.git
+cd Lesswrong2
+npm install
+npm start
+```
+
+This should get a server running for most common setups. If you run into any snags, let us know.
+
 ## Read the Docs
 
 The best way to get familiar with our stack is to read the Vulcan and GraphQL documentation pages.
