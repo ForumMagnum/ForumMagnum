@@ -9,7 +9,7 @@
 // import '../components/editor/MessageEditor.jsx';
 // import '../components/editor/PostEditor.jsx';
 // import '../components/editor/CommentEditor.jsx';
-import '../components/editor/ContentRenderer.jsx';
+// import '../components/editor/ContentRenderer.jsx'; // Deactivated because of performance
 // import '../components/editor/EditorFormComponent.jsx';
 // import '../components/editor/EditTitle.jsx';
 // import '../components/editor/EditUrl.jsx';
@@ -36,7 +36,7 @@ import '../components/common/Home.jsx';
 // import '../components/common/AllPosts.jsx';
 // import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
-// import '../components/common/Vote.jsx';
+import '../components/common/Vote.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesList.jsx';
