@@ -94,21 +94,23 @@ class PostsItem extends PureComponent {
               {post.url ? ("This is a linkpost for " + post.url) : post.excerpt}
             </div>
           </div>
+
           <div className="posts-item-comments">
-            <Badge
-              className="posts-item-comment-count"
-              badgeContent={post.commentCount || 0}
-              secondary={true}
-              badgeStyle={commentCountBadgeStyle}
-            >
-              <IconButton
-                iconStyle={commentCountIconStyle}
-                tooltip={newComments ? ("last comment " + moment(post.lastCommentedAt).calendar()) : "Comments"}
-                containerElement={<object><Link to={Posts.getPageUrl(post) + "#comments"} /></object>}
-                >
-                <CommentIcon />
-              </IconButton>
-            </Badge>
+            <object><Link to={Posts.getPageUrl(post) + "#comments"}>
+              <Badge
+                className="posts-item-comment-count"
+                badgeContent={post.commentCount || 0}
+                secondary={true}
+                badgeStyle={commentCountBadgeStyle}
+              >
+                <IconButton
+                  iconStyle={commentCountIconStyle}
+                  tooltip={newComments ? ("last comment " + moment(post.lastCommentedAt).calendar()) : "Comments"}
+                  >
+                  <CommentIcon />
+                </IconButton>
+              </Badge>
+            </Link></object>
           </div>
         </div>
       </Link>
