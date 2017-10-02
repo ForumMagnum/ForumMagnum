@@ -112,9 +112,9 @@ class PostsPage extends Component {
               <div className="posts-page-content-header-voting">
                 <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
               </div>
-              {/* <div className="posts-page-content-header-author">
+              <div className="posts-page-content-header-author">
                 <Components.UsersName user={post.user} />
-              </div> */}
+              </div>
             </div>
             <div className="posts-page-content-body content-body">
               <div className="posts-page-content-body-metadata">
@@ -141,8 +141,10 @@ class PostsPage extends Component {
                   }
                 </div>
               </div>
-              {post.htmlBody && !post.content ? <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div> : null}
-              {post.content ? <div className="posts-page-content-body-ory"> <Components.ContentRenderer state={post.content} /> </div> : null}
+              {post.htmlBody && <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div>}
+              {/* {post.content ? <div className="posts-page-content-body-ory"> <Components.ContentRenderer state={post.content} /> </div> : null}
+                Commented out for performance reasons.
+              */}
               {post.categories && post.categories.length > 0 ? <div className="posts-page-content-body-tags">
                 Tags: <span className="posts-page-content-body-tags-list"> {post.categories.map(category => <a href={"/categories/"+category.id +"/"+category.slug}>{category.name}</a>)} </span>
               </div> : null}
