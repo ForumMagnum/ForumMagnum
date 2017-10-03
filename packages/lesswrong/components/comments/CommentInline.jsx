@@ -19,9 +19,11 @@ class CommentInline extends getRawComponent('CommentsItem') {
             In reply to <Components.UsersName user={comment.user} />&rsquo;s:
           </div>
           <blockquote>
-            {content ? <Components.ContentRenderer state={content} /> :
-            null}
-            {htmlBody && !content ? <div className="comment-inline-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+            {/* {content ? <Components.ContentRenderer state={content} /> :
+              null}
+              // Commented out for performance reasons. Always renders html version now.
+            */}
+            {htmlBody && <div className="comment-inline-body" dangerouslySetInnerHTML={htmlBody}></div>}
           </blockquote>
         </div>
       </div>

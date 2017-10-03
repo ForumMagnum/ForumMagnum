@@ -12,7 +12,7 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import { DropdownButton, MenuItem } from 'react-bootstrap';

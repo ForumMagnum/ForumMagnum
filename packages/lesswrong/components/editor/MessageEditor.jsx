@@ -78,6 +78,6 @@ MessageEditor.contextTypes = {
   addToSubmitForm: React.PropTypes.func,
 }
 
-registerComponent('MessageEditor', MessageEditor, withEditor, withCurrentUser);
+// registerComponent('MessageEditor', MessageEditor, withEditor, withCurrentUser);
 
 export default withEditor(MessageEditor);

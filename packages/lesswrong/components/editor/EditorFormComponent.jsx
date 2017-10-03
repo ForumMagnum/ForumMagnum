@@ -99,4 +99,6 @@ EditorFormComponent.contextTypes = {
   addToSubmitForm: React.PropTypes.func,
 };
 
-registerComponent("EditorFormComponent", EditorFormComponent, withEditor);
+export default withEditor(EditorFormComponent)
+
+// registerComponent("EditorFormComponent", EditorFormComponent, withEditor); deactivated because of performance

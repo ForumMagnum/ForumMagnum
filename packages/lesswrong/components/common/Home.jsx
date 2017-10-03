@@ -52,9 +52,9 @@ const Home = (props, context) => {
         </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
-      {/* <Components.Section title="Recent Comments" titleComponent={<div><Link to={"/AllComments"}>see all comments</Link></div>}>
+      <Components.Section title="Recent Comments" titleComponent={<div><Link to={"/AllComments"}>see all comments</Link></div>}>
         <Components.RecentComments terms={{view: 'recentComments', limit: 10}} fontSize="small" />
-      </Components.Section> */}
+      </Components.Section>
     </div>
   )
 };

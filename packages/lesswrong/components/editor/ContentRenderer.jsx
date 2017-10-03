@@ -33,4 +33,4 @@ class ContentRenderer extends Component {
   }
 }
 
-registerComponent('ContentRenderer', ContentRenderer);
+// registerComponent('ContentRenderer', ContentRenderer);
