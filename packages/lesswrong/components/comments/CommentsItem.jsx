@@ -253,3 +253,5 @@ class CommentsItem extends PureComponent {
 }
 
 replaceComponent('CommentsItem', CommentsItem, withRouter);
+
+export default CommentsItem;
