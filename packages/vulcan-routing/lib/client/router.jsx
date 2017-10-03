@@ -55,7 +55,7 @@ export const RouterClient = {
 
       const appGenerator = addProps => {
         const muiTheme = getMuiTheme({
-          "fontFamily": "ETBook",
+          "fontFamily": "et-book",
           "palette": {
             "primary1Color": "#f5f5f5",
             "accent1Color": "#43a047",

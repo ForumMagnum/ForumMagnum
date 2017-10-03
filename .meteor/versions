@@ -8,7 +8,6 @@ base64@1.0.10
 binary-heap@1.0.10
 boilerplate-generator@1.1.2
 buffer@0.0.0
-bundle-visualizer@1.0.3
 caching-compiler@1.1.9
 callback-hook@1.0.10
 check@1.2.5
