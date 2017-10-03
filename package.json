@@ -11,6 +11,7 @@
     "test": "BABEL_ENV=test mocha 'packages/lesswrong/**/*test.js' --require babel-polyfill --compilers js:babel-core/register --timeout=15000"
   },
   "dependencies": {
+    "algoliasearch": "^3.24.3",
     "analytics-node": "^2.1.1",
     "anchorate": "^1.1.0",
     "apollo-client": "^1.2.2",
@@ -29,6 +30,7 @@
     "enzyme-adapter-react-16": "^1.0.0",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.14.0",
+    "feedparser-promised": "^1.2.2",
     "formsy-react": "^0.19.5",
     "formsy-react-components": "^0.10.1",
     "graphql": "^0.9.6",
@@ -53,6 +55,7 @@
     "marked": "^0.3.5",
     "material-ui": "^0.19.0",
     "metascraper": "^1.0.6",
+    "meteor-node-stubs": "^0.2.3",
     "mingo": "^0.8.1",
     "moment": "^2.13.0",
     "optics-agent": "^1.1.6",
