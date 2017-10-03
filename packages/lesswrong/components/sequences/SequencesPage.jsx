@@ -1,10 +1,9 @@
 import React, { PropTypes, Component } from 'react';
-import { Components, withDocument, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withDocument, registerComponent, withCurrentUser, getDynamicComponent } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
-import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
 class SequencesPage extends Component {
@@ -29,20 +28,21 @@ class SequencesPage extends Component {
       return <Components.Loading />
     } else if (this.state.edit) {
       return <Components.SequencesEditForm
-                documentId={document._id}
-                successCallback={this.showSequence}
-                cancelCallback={this.showSequence} />
+        documentId={document._id}
+        successCallback={this.showSequence}
+        cancelCallback={this.showSequence} />
     } else {
       const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
+      const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
       return (<div className="sequences-page">
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
             <NoSSR>
-            <div className="sequences-image">
-              <Image publicId={document.bannerImageId || "Group_ybgiy6.png"} cloudName="lesswrong-2-0" quality="auto" sizes="100vw" responsive={true} width="auto" height="380" dpr="auto" crop="fill" gravity="custom" />
-              <div className="sequences-image-scrim-overlay"></div>
-            </div>
+              <div className="sequences-image">
+                <Image publicId={document.bannerImageId || "Group_ybgiy6.png"} cloudName="lesswrong-2-0" quality="auto" sizes="100vw" responsive={true} width="auto" height="380" dpr="auto" crop="fill" gravity="custom" />
+                <div className="sequences-image-scrim-overlay"></div>
+              </div>
             </NoSSR>
             <div className="sequences-title-wrapper">
               <div className="sequences-title">
@@ -52,20 +52,20 @@ class SequencesPage extends Component {
           </div>
         </div>
         <Components.Section titleComponent={
-            <div className="sequences-meta">
-              <div className="sequences-date">
-                {date}
-              </div>
-              <div className="sequences-comment-count">
-                {document.commentCount || 0} comments
-              </div>
-              {document.userId ? <div className="sequences-author-top">
-                by <span className="sequences-author-top-name">{document.user.displayName}</span>
-              </div> : null}
-              {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
-            </div>}>
+          <div className="sequences-meta">
+            <div className="sequences-date">
+              {date}
+            </div>
+            <div className="sequences-comment-count">
+              {document.commentCount || 0} comments
+            </div>
+            {document.userId ? <div className="sequences-author-top">
+              by <span className="sequences-author-top-name">{document.user.displayName}</span>
+            </div> : null}
+            {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
+          </div>}>
           <div className="sequences-description">
-            {document.description ? <Components.ContentRenderer state={document.description} /> : null}
+            {document.description ? <ContentRenderer state={document.description} /> : null}
           </div>
         </Components.Section>
         <div className="sequences-chapters">

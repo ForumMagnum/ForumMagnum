@@ -17,7 +17,7 @@ const Layout = ({currentUser, children, currentRoute}) =>
       <Helmet>
         <title>LessWrong 2.0</title>
         <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-        <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
+        {/* <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/> */}
         <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
 
         {/* <link name="cardo-font" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cardo:400,400i,700" />*/}

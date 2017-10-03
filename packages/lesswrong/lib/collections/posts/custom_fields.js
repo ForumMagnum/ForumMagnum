@@ -1,7 +1,7 @@
 import { Posts } from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
 import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import React from 'react';
 
@@ -73,7 +73,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      control: 'EditorFormComponent',
+      control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
       blackbox: true,
       order: 25,
     }
@@ -91,15 +91,17 @@ Posts.addField([
       editableBy: ['admins'],
       control: "textarea",
       onInsert: (document) => {
+        const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
         if (document.content && !document.htmlBody) {
-          return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />);
+          return ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={document.content} />);
         } else {
           return document.htmlBody;
         }
       },
       onEdit: (modifier, document) => {
+        const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
         if (modifier.$set.content) {
-          return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)
+          return ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={modifier.$set.content} />)
         }
       },
     }
@@ -206,14 +208,16 @@ Posts.addField([
       editableBy: ['admins'],
       onInsert: (document) => {
         if (document.content) {
-          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />));
+          const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={document.content} />));
         } else if (document.htmlBody) {
           return htmlToText.fromString(document.htmlBody);
         }
       },
       onEdit: (modifier, document) => {
         if (modifier.$set.content) {
-          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />))
+          const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={modifier.$set.content} />))
         } else if (modifier.$set.htmlBody) {
           return htmlToText.fromString(modifier.$set.htmlBody);
         }
@@ -230,14 +234,16 @@ Posts.addField([
      fieldSchema: {
        onInsert: (document) => {
          if (document.content) {
-           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />)).slice(0,200);
+           const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={document.content} />)).slice(0,200);
          } else if (document.htmlBody) {
            return htmlToText.fromString(document.htmlBody).slice(0,200);
          }
        },
        onEdit: (modifier, document) => {
          if (modifier.$set.content) {
-           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)).slice(0,200)
+           const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={modifier.$set.content} />)).slice(0,200)
          } else if (modifier.$set.htmlBody) {
            return htmlToText.fromString(modifier.$set.htmlBody).slice(0,200);
          }

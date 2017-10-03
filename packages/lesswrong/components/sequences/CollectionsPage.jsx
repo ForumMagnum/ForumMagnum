@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { Components, withDocument, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withDocument, registerComponent, withCurrentUser, getDynamicComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
 import FlatButton from 'material-ui/FlatButton';
@@ -23,6 +23,7 @@ class CollectionsPage extends Component {
 
   render() {
     const {document, currentUser, loading} = this.props;
+    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {
@@ -39,7 +40,7 @@ class CollectionsPage extends Component {
           <div className="collections-header">
             <h1 className="collections-title">{collection.title}</h1>
             <div className="collections-description">
-              {collection.description ? <Components.ContentRenderer state={collection.description} /> : null}
+              {collection.description ? <ContentRenderer state={collection.description} /> : null}
             </div>
             <FlatButton backgroundColor="rgba(0,0,0,0.05)" label={startedReading ? "Continue Reading" : "Start Reading"} containerElement={<Link to={document.firstPageLink} />}/>
           </div>
