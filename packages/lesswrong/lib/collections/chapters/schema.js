@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 
 const schema = {
 
@@ -43,7 +43,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ["admins"],
     insertableBy: ['members'],
-    control: 'EditorFormComponent',
+    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
   },
 
   number: {

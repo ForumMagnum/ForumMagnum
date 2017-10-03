@@ -1,3 +1,5 @@
+import { getDynamicComponent } from 'meteor/vulcan:core';
+
 const schema = {
 
   // default properties
@@ -49,7 +51,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    control: 'EditorFormComponent',
+    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
     blackbox: true,
   },
 

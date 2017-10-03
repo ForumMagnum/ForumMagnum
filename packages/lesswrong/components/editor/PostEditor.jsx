@@ -139,6 +139,6 @@ PostEditor.contextTypes = {
   addToSubmitForm: React.PropTypes.func,
 };
 
-registerComponent('PostEditor', PostEditor, withEditor, withCurrentUser);
+// registerComponent('PostEditor', PostEditor, withEditor, withCurrentUser);
 
 export default withEditor(PostEditor);

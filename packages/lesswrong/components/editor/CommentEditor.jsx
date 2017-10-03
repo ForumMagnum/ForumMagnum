@@ -54,4 +54,4 @@ CommentEditor.contextTypes = {
   addToSuccessForm: React.PropTypes.func,
 };
 
-registerComponent('CommentEditor', CommentEditor, withEditor, withCurrentUser);
+// registerComponent('CommentEditor', CommentEditor, withEditor, withCurrentUser);

@@ -5,6 +5,7 @@ A SimpleSchema-compatible JSON schema
 */
 
 import Users from 'meteor/vulcan:users';
+import { getDynamicComponent } from 'meteor/vulcan:core';
 
 const schema = {
   _id: {
@@ -39,7 +40,7 @@ const schema = {
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: Users.owns,
-    control: 'MessageEditor',
+    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/MessageEditor.jsx')),
     order: 2,
     blackbox: true,
     optional: true,
