@@ -25,6 +25,10 @@ import './lib/index.js';
 
 export * from './lib/index.js';
 
+// // Server side callbacks
+import './lib/server/callbacks.js';
+import './lib/server/utils.js';
+
 // import './lib/collections/sequences/seed.js';
 
 // import './lib/closed-beta/fixSSCDrafts.js';

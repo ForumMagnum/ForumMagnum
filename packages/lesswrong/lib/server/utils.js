@@ -6,12 +6,13 @@ import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
 const oryToHtml = (content) => {
   if (content) {
-    return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={content} />);
+    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+    return ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={content} />);
   } else {
     return null;
   }

@@ -6,7 +6,7 @@ The Navigation for the Inbox components
 
 import React, { PropTypes, Component } from 'react';
 import { PageHeader } from 'react-bootstrap';
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withCurrentUser, getDynamicComponent } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";
 
 class ConversationWrapper extends Component {

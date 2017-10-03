@@ -6,25 +6,24 @@ import './collections/notifications/custom_fields.js';
 import './collections/notifications/views.js';
 import './collections/notifications/permissions.js';
 import './collections/notifications/seed.js';
-// // Inbox
-// import Messages from './collections/messages/collection.js'
-// import './collections/messages/views.js';
-// import './collections/messages/permissions.js';
+// Inbox
+import Messages from './collections/messages/collection.js'
+import './collections/messages/views.js';
+import './collections/messages/permissions.js';
+
+import Conversations from './collections/conversations/collection.js'
+import './collections/conversations/views.js';
+import './collections/conversations/permissions.js';
 //
-// import Conversations from './collections/conversations/collection.js'
-// import './collections/conversations/views.js';
-// import './collections/conversations/permissions.js';
-// //
-// RSSFeeds
-// import RSSFeeds from './collections/rssfeeds/collection.js'
-// import './collections/rssfeeds/views.js'
-// import './rss-integration/callbacks.js'
-// //
-// // LWEvents
-// import LWEvents from './collections/lwevents/collection.js';
-// import './collections/lwevents/permissions.js';
-// import './events/callbacks_sync.js';
-// Chapters
+RSSFeeds
+import RSSFeeds from './collections/rssfeeds/collection.js'
+import './collections/rssfeeds/views.js'
+//
+// LWEvents
+import LWEvents from './collections/lwevents/collection.js';
+import './collections/lwevents/permissions.js';
+import './events/callbacks_sync.js';
+Chapters
 import Sequences from './collections/sequences/collection.js';
 import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';
@@ -51,46 +50,41 @@ import './subscriptions/permissions.js';
 //
 // Posts
 import './collections/posts/custom_fields.js';
-// import './collections/posts/callbacks.js';
+import './collections/posts/callbacks.js';
 import './collections/posts/views.js';
 import './collections/posts/permissions.js';
 // //
 // // Users
 import './collections/users/custom_fields.js';
 //
-// // Comments
-// import './collections/comments/custom_fields.js';
-// import './collections/comments/permissions.js';
-// import './collections/comments/callbacks.js';
-// import './collections/comments/views.js';
-// //
-// //
-// //
-// // Internationalization
-// import './i18n-en-us/en_US.js';
-// //
-// // // General
-// import './modules/callbacks.js';
+// Comments
+import './collections/comments/custom_fields.js';
+import './collections/comments/permissions.js';
+import './collections/comments/callbacks.js';
+import './collections/comments/views.js';
 //
-// // Legacy Post Redirect
-// import './legacy-redirects/views.js';
+//
+//
+// Internationalization
+import './i18n-en-us/en_US.js';
+//
+
+// Legacy Post Redirect
+import './legacy-redirects/views.js';
 //
 // // // Misc.
-// import './helpers.js'
+import './helpers.js'
 import './components.js';
 import './routes.js';
-// import './views.js';
+import './views.js';
 // //
 // // Settings for Vulcan
-// import './modules/settings.js';
-// import './moment/momentjs.js';
+import './modules/settings.js';
+import './moment/momentjs.js';
 // //
-// // Closed Beta Stuff
-// import './closed-beta/configuration.js';
+// Closed Beta Stuff
+import './closed-beta/configuration.js';
 //
-// // Algolia Search Integration
-// import './search/utils.js';
-// import './search/callbacks.js';
 //
 // //
-// export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books }
+export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books }

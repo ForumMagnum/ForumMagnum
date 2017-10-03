@@ -28,7 +28,7 @@ class Header extends Component {
   renderAppBarElementRight = () => {
   const notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
   return <div>
-    <NoSSR><Components.SearchBar /></NoSSR>
+    {/* <NoSSR><Components.SearchBar /></NoSSR> */}
     {this.props.currentUser ? <Components.NotificationsMenu title="Notifications" terms={notificationTerms}/> : null}
     {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
   </div>}

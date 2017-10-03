@@ -44,8 +44,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     } else {
       return (
         <div className="recent-comments-item-text comments-item-text content-body" >
-          {content ? <object><Components.ContentRenderer state={content} /></object> : null}
-          {htmlBody && !content ? <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+          {/* {content ? <object><Components.ContentRenderer state={content} /></object> : null} // For performance reasons always rendering html version*/}
+          {htmlBody && <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         </div>
       )
     }
