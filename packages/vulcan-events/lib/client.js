@@ -3,6 +3,6 @@ import { initGoogleAnalytics } from './helpers.js';
 import './callbacks.js';
 
 // init google analytics on the client module
-initGoogleAnalytics();
+// initGoogleAnalytics();
 
 export default Events;

@@ -1,67 +1,30 @@
-import './home/Sidebar.jsx';
-import './home/TopContributors.jsx';
-import './home/WelcomeBox.jsx';
-
-
-import './notificationMenu/NotificationsMenu.jsx';
-import './notificationMenu/NotificationsItem.jsx';
-
-import './inbox/NotificationsFullscreenItem.jsx';
-import './inbox/NotificationsList.jsx';
-import './inbox/NotificationsWrapper.jsx';
-import './inbox/TitleEditForm.jsx';
-import './inbox/ConversationDetails.jsx';
-import './inbox/MessageItem.jsx';
-import './inbox/ConversationWrapper.jsx';
-import './inbox/InboxWrapper.jsx';
-import './inbox/InboxNavigation.jsx';
-import './inbox/newConversationButton.jsx';
-
-import './editor/MessageEditor.jsx';
-import './editor/PostEditor.jsx';
-import './editor/CommentEditor.jsx';
-import './editor/ContentRenderer.jsx';
-import './editor/EditorFormComponent.jsx';
-import './editor/EditTitle.jsx';
-import './editor/EditUrl.jsx';
-import './editor/SaveDraftButton.jsx';
-// Component for testing the editor. Useful for debugging
-import './editor/EditorTest.jsx';
-
-import './events/LastVisitDisplay.jsx';
-
-import './component-replacements/LWCategory.jsx';
-import './component-replacements/LWHeader.jsx';
-
-import './component-replacements/LWPostsNewButton.jsx';
-import './component-replacements/LWLayout.jsx';
-import './component-replacements/LWPostsHome.jsx';
-import './component-replacements/LWPostsList.jsx';
-// import './component-replacements/LWPostsItem.jsx';
-
-
-import './component-replacements/LWPostsNewForm.jsx';
-import './component-replacements/LWPostsEditForm.jsx';
-import './component-replacements/LWUsersAccountMenu.jsx';
-import './component-replacements/LWUsersMenu.jsx';
-import './component-replacements/LWPostsListHeader.jsx';
-
-
-
+import '../components/messaging/TitleEditForm.jsx';
+import '../components/messaging/ConversationDetails.jsx';
+import '../components/messaging/MessageItem.jsx';
+import '../components/messaging/ConversationWrapper.jsx';
+import '../components/messaging/InboxWrapper.jsx';
+import '../components/messaging/InboxNavigation.jsx';
+import '../components/messaging/newConversationButton.jsx';
+//
+// import '../components/editor/MessageEditor.jsx';
+// import '../components/editor/PostEditor.jsx';
+// import '../components/editor/CommentEditor.jsx';
+// import '../components/editor/ContentRenderer.jsx'; // Deactivated because of performance
+import '../components/editor/EditTitle.jsx';
+import '../components/editor/EditUrl.jsx';
+import '../components/editor/SaveDraftButton.jsx';
+//
 // RSS Feed Integration
-import './rss-integration/newFeedButton.jsx';
-import './rss-integration/editFeedButton.jsx';
-import './rss-integration/feedItem.jsx';
-import './rss-integration/feedList.jsx';
+import '../components/feeds/newFeedButton.jsx';
+import '../components/feeds/editFeedButton.jsx';
+import '../components/feeds/feedItem.jsx';
+import '../components/feeds/feedList.jsx';
 
-// Old LW Link Redirect
-import './legacy-redirects/LegacyPostRedirect.jsx'
-import './legacy-redirects/LegacyPostWrapper.jsx'
-
-import './subscriptions/SubscribeTo.jsx';
-
-
-
+import '../components/notifications/NotificationsMenu.jsx';
+import '../components/notifications/NotificationsFullscreenItem.jsx';
+import '../components/notifications/NotificationsList.jsx';
+import '../components/notifications/NotificationsWrapper.jsx';
+import '../components/notifications/SubscribeTo.jsx';
 import '../components/Layout.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
@@ -71,9 +34,10 @@ import '../components/common/AllPosts.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
 import '../components/common/Vote.jsx';
-import '../components/common/SearchBar.jsx';
+// import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesList.jsx';
+import '../components/common/Category.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
@@ -86,6 +50,9 @@ import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsCommentsThreadWrapper.jsx';
+import '../components/posts/PostsNewForm.jsx';
+import '../components/posts/PostsEditForm.jsx';
+import '../components/posts/PostsListHeader.jsx';
 import '../components/comments/CommentsItem.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
@@ -99,19 +66,19 @@ import '../components/comments/CommentInline.jsx';
 import '../components/comments/CommentInlineWrapper.jsx';
 import '../components/comments/CommentWithContext.jsx';
 import '../components/comments/CommentWithContextWrapper.jsx';
-import '../components/search/PostsSearchHit.jsx';
-import '../components/search/PostsSearchAutoComplete.jsx';
-import '../components/search/CommentsSearchHit.jsx';
-import '../components/search/UsersSearchHit.jsx';
-import '../components/search/SequencesSearchHit.jsx';
-import '../components/search/SequencesSearchAutoComplete.jsx';
-
+// import '../components/search/PostsSearchHit.jsx';
+// import '../components/search/PostsSearchAutoComplete.jsx';
+// import '../components/search/CommentsSearchHit.jsx';
+// import '../components/search/UsersSearchHit.jsx';
+// import '../components/search/SequencesSearchHit.jsx';
+// import '../components/search/SequencesSearchAutoComplete.jsx';
+//
 import '../components/sunshineDashboard/SunshineDashboard.jsx';
 import '../components/sunshineDashboard/ReportsList.jsx';
 import '../components/sunshineDashboard/ReportItem.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
-
-// Sequences
+//
+// // Sequences
 import '../components/sequences/SequencesPage.jsx';
 import '../components/sequences/SequencesPostsList.jsx';
 import '../components/sequences/SequencesSingle.jsx';
@@ -137,16 +104,16 @@ import '../components/sequences/CollectionsEditForm.jsx';
 import '../components/sequences/BooksNewForm.jsx';
 import '../components/sequences/BooksEditForm.jsx';
 import '../components/sequences/BooksItem.jsx';
-
+//
 import '../components/collections/CollectionsCard.jsx';
-
+//
 import '../components/sequences/CoreSequences.jsx';
 import '../components/sequences/HPMOR.jsx';
 import '../components/sequences/Codex.jsx';
 import '../components/sequences/ComingSoon.jsx';
-
-
-
+//
+//
+//
 import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';

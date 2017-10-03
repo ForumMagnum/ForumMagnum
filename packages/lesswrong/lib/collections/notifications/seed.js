@@ -61,6 +61,7 @@ const getDocument = (documentType, documentId) => {
 const userId = "XtphY3uYHwruKqDyG";
 
 if(Notifications.find({userId: userId}).fetch().length === 0) {
+  const user = Users.findOne();
   _.times(10, (i) => {
     Posts.find({},{limit: 10}).fetch().slice(0,10).forEach(post => {
       const notificationType = _.sample(["newPost", "newPendingPost", "postApproved"]);

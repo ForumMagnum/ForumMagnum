@@ -1,5 +1,4 @@
-import Users from 'meteor/vulcan:users'
-import { Components } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 import ImageUpload from '../../../components/form-components/ImageUpload.jsx';
 
 const schema = {
@@ -53,7 +52,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: 'EditorFormComponent',
+    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
     blackbox: true,
   },
 

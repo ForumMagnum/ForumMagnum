@@ -1,3 +1,7 @@
 {
-  "presets": ["env"]
+  "presets": ["env"],
+  "plugins": [
+    "transform-class-properties",
+    "transform-react-jsx"
+  ]
 }

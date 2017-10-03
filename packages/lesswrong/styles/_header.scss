@@ -25,9 +25,7 @@
   }
 }
 
-// This is an id instead of a class because the class wasn't rendering for weird reasons
-// If you can fix it, change it to a class
-#header-title {
+.header-title {
   font-size: 19px;
   position:absolute;
   top:15px;

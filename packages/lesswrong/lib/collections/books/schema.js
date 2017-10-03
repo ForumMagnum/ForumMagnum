@@ -1,17 +1,5 @@
 import React from 'react'
-import { Components } from 'meteor/vulcan:core'
-
-const PostEditor = (props) => <div>
-  <Components.EditorFormComponent {...props} />
-</div>
-
-const PostsListEditor = (props) => <div>
-  <Components.PostsListEditor {...props} />
-</div>
-
-const SequencesListEditor = (props) => <div>
-  <Components.SequencesListEditor {...props} />
-</div>
+import { Components, getDynamicComponent } from 'meteor/vulcan:core'
 
 const schema = {
 
@@ -64,7 +52,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: PostEditor,
+    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
     blackbox: true,
   },
 
@@ -108,7 +96,7 @@ const schema = {
       },
       addOriginalField: true,
     },
-    control: PostsListEditor,
+    control: 'PostsListEditor',
   },
 
   'postIds.$': {
@@ -137,7 +125,7 @@ const schema = {
       // },
       addOriginalField: true,
     },
-    control: SequencesListEditor,
+    control: 'SequencesListEditor',
   },
 
   'sequenceIds.$': {

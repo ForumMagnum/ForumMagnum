@@ -44,8 +44,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     } else {
       return (
         <div className="recent-comments-item-text comments-item-text content-body" >
-          {content ? <object><Components.ContentRenderer state={content} /></object> : null}
-          {htmlBody && !content ? <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+          {/* {content ? <object><Components.ContentRenderer state={content} /></object> : null} // For performance reasons always rendering html version*/}
+          {htmlBody && <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         </div>
       )
     }
@@ -68,8 +68,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
               <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
             </div>
             <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
-            <Link to={Posts.getPageUrl(comment.post) + "/" + comment._id}> <div className="comments-item-origin">
-              on <span className="comments-item-origin-post-title">{comment.post.title}</span>
+          <Link to={(comment.post && Posts.getPageUrl(comment.post)) + "/" + comment._id}> <div className="comments-item-origin">
+              on <span className="comments-item-origin-post-title">{comment.post && comment.post.title}</span>
             </div> </Link>
           </div></object>
         {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}

@@ -12,7 +12,7 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
@@ -100,9 +100,9 @@ class PostsPage extends Component {
       return (
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
-          {commentHash ? <div className="posts-comments-thread-linked-comment">
-              <Components.CommentWithContextWrapper documentId={commentHash} />
-          </div> : null}
+          {/* {commentHash ? <div className="posts-comments-thread-linked-comment">
+            <Components.CommentWithContextWrapper documentId={commentHash} />
+          </div> : null} */}
           <div className="posts-page-content">
             <div className="posts-page-content-header">
               <div className="posts-page-content-header-title">
@@ -137,12 +137,14 @@ class PostsPage extends Component {
                       <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
                         <Components.VotesList document={post} />
                       </Components.DialogGroup>
-                    </div> : null 
+                    </div> : null
                   }
                 </div>
               </div>
-              {post.htmlBody && !post.content ? <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div> : null}
-              {post.content ? <div className="posts-page-content-body-ory"> <Components.ContentRenderer state={post.content} /> </div> : null}
+              {post.htmlBody && <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div>}
+              {/* {post.content ? <div className="posts-page-content-body-ory"> <Components.ContentRenderer state={post.content} /> </div> : null}
+                Commented out for performance reasons.
+              */}
               {post.categories && post.categories.length > 0 ? <div className="posts-page-content-body-tags">
                 Tags: <span className="posts-page-content-body-tags-list"> {post.categories.map(category => <a href={"/categories/"+category.id +"/"+category.slug}>{category.name}</a>)} </span>
               </div> : null}
@@ -151,16 +153,16 @@ class PostsPage extends Component {
               <div className="posts-page-content-footer-voting">
                 <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
               </div>
-              <div className="posts-page-content-footer-author">
+              {/* <div className="posts-page-content-footer-author">
                 <Components.UsersName user={post.user} />
-              </div>
+              </div> */}
             </div>
           </div>
           {this.renderRecommendedReading()}
-          <div className="posts-page-comments" id="comments">
+          {/* <div className="posts-page-comments" id="comments">
             {console.log("posts-page-comments: ", commentTerms)}
             <Components.PostsCommentsThreadWrapper terms={{...commentTerms, postId: post._id}} userId={userId} />
-          </div>
+          </div> */}
         </div>
       );
     }
