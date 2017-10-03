@@ -14,7 +14,6 @@ Package.onUse( function(api) {
     'example-forum',
     'vulcan:users',
     'vulcan:voting',
-    'bundle-visualizer',
   ]);
 
   api.mainModule('server.js', 'server');
