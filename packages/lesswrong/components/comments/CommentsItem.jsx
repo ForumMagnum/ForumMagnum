@@ -117,12 +117,12 @@ class CommentsItem extends PureComponent {
               <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
             <div className="comments-item-date"><Link to={commentLink}>{moment(new Date(comment.postedAt)).fromNow()} </Link></div>
+            {this.renderMenu()}
           </div>
           {this.state.showEdit ? this.renderEdit() : this.renderComment()}
           { this.renderCommentBottom() }
         </div>
         {this.state.showReply ? this.renderReply() : null}
-        {this.renderMenu() }
       </div>
     )
   }
