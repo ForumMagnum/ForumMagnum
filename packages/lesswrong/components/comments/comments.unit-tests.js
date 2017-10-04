@@ -1,20 +1,10 @@
-import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { render, shallow, mount, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { chai } from 'meteor/practicalmeteor:chai';
+import { assert, should, expect } from 'meteor/practicalmeteor:chai';
 import CommentsItem from './CommentsItem.jsx'
 
-import { withRouter } from 'react-router'
 import { sinon } from 'meteor/practicalmeteor:sinon';
-
-const willMount = sinon.spy();
-const didMount = sinon.spy();
-const willUnmount = sinon.spy();
-
-const assert = chai.assert;
-const should = chai.should;
-const expect = chai.expect;
 
 configure({ adapter: new Adapter() })
 
