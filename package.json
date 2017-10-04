@@ -6,7 +6,7 @@
   },
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
-    "start": "MONGO_URL='mongodb://lesswrong2:imagingresidesenvelopecompact@ds155813-a0.mlab.com:55813,ds155813-a1.mlab.com:55813/lesswrong2?replicaSet=rs-ds155813' meteor --settings settings.json",
+    "start": "meteor --settings settings.json",
     "lint": "eslint --cache --ext .jsx,js packages",
     "test": "meteor test-packages ./packages/lesswrong --driver-package practicalmeteor:mocha --port 3200 --settings settings.json"
   },
