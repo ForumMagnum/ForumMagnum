@@ -142,10 +142,11 @@ class CommentsItem extends PureComponent {
           </div>
         }
         <div>
+          { showReplyButton &&
             <a className="comments-item-reply-link" onClick={this.showReply}>
               <FormattedMessage id="comments.reply"/>
             </a>
-
+          }
           <div className="comments-item-vote">
             <Components.Vote
               collection={Comments}
@@ -223,8 +224,7 @@ class CommentsItem extends PureComponent {
     const htmlBody = {__html: this.props.comment.htmlBody};
     return (
       <div className="comments-item-text content-body">
-        {content ? <Components.ContentRenderer state={content} /> :
-        null}
+        {content ? <Components.ContentRenderer state={content} /> : null}
         {htmlBody && !content ? <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
       </div>
     )
