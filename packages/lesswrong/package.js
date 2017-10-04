@@ -36,7 +36,9 @@ Package.onTest(function(api) {
     'example-forum',
     'vulcan:users',
     'vulcan:voting',
+    'practicalmeteor:mocha',
   ]);
+
   // Finally add an entry point for tests
-  api.mainModule('./components/comments/comments.app-tests.js', 'client');
+  api.mainModule('./unitTests.js', 'client');
 });
