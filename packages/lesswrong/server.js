@@ -27,6 +27,7 @@ export * from './lib/index.js';
 
 // // Server side callbacks
 import './lib/server/callbacks.js';
+import './lib/server/oryEditorCallbacks.js';
 import './lib/server/utils.js';
 
 // import './lib/collections/sequences/seed.js';

@@ -1,11 +1,7 @@
 import React from 'react'
-import { Components } from "meteor/vulcan:core";
+import { Components, getDynamicComponent } from "meteor/vulcan:core";
 import { Comments } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
-
-const CommentEditor = (props) => <div>
-    <Components.CommentEditor {...props} />
-</div>
 
 Comments.addField([
   /**
@@ -19,7 +15,7 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      control: CommentEditor,
+      control: (props) => getDynamicComponent(import('../../../components/async/CommentEditor.jsx')),
       blackbox: true,
       order: 25,
     }

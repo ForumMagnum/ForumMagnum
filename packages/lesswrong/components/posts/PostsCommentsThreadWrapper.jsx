@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent, Utils} from 'meteor/vulcan:core';
+import { withList, Components, registerComponent, Utils, getDynamicComponent} from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 
 
@@ -13,9 +13,12 @@ const PostsCommentsThreadWrapper = (props, /* context*/) => {
   } else {
     const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
     const nestedComments = Utils.unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
+    const InjectEditor = (props) => getDynamicComponent(import('../async/InjectEditor.jsx'), props);
     return (
       <div className="posts-comments-thread-wrapper">
-        <Components.PostsCommentsThread terms={{postId: postId, userId: userId, view: "postVisits", limit: 1}} comments={nestedComments} loadMoreComments={loadMore} totalComments={totalCount} commentCount={resultsClone.length} loadingMoreComments={loadingMore}/>
+        <InjectEditor>
+          <Components.PostsCommentsThread terms={{postId: postId, userId: userId, view: "postVisits", limit: 1}} comments={nestedComments} loadMoreComments={loadMore} totalComments={totalCount} commentCount={resultsClone.length} loadingMoreComments={loadingMore}/>
+        </InjectEditor>
       </div>
     );
   }

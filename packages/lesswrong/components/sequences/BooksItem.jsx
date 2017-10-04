@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { registerComponent, Components, getDynamicComponent } from 'meteor/vulcan:core';
-import { editorHasContent } from '../../lib/modules/utils'
+// import { editorHasContent } from '../../lib/modules/utils'
 
 class BooksItem extends Component {
   constructor(props) {
@@ -20,27 +20,28 @@ class BooksItem extends Component {
 
   renderTitleComponent = (book, canEdit) => <div>
     {book.subtitle ?   <div className="books-item-subtitle">
-        {book.subtitle}
-      </div> : null}
+      {book.subtitle}
+    </div> : null}
     {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
   </div>
 
   render() {
     const book = this.props.book;
-    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+    // const ContentRenderer = (props) => getDynamicComponent(import('../async/ContentRenderer.jsx'), props);
     if (this.state.edit) {
       return <Components.BooksEditForm
-                documentId={book._id}
-                successCallback={this.showBook}
-                cancelCallback={this.showBook} />
+        documentId={book._id}
+        successCallback={this.showBook}
+        cancelCallback={this.showBook} />
     } else {
       return <div className="books-item">
         <Components.Section title={book.title}
           titleComponent={this.renderTitleComponent(book, this.props.canEdit)}
         >
-          {editorHasContent(book.description) ? <div className="books-item-description">
+          {book.htmlDescription && <div className="content-body-html" dangerouslySetInnerHTML={book.htmlDescription}></div>}
+          {/* {editorHasContent(book.description) ? <div className="books-item-description">
             <ContentRenderer state={book.description} />
-            </div> : null}
+          </div> : null} */}
 
           {book.posts && book.posts.length ? <div className="books-item-posts">
             <Components.SequencesPostsList posts={book.posts} />

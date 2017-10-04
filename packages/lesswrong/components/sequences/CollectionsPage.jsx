@@ -23,24 +23,25 @@ class CollectionsPage extends Component {
 
   render() {
     const {document, currentUser, loading} = this.props;
-    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {
       return <Components.CollectionsEditForm
-                documentId={document._id}
-                successCallback={this.showCollection}
-                cancelCallback={this.showCollection} />
+        documentId={document._id}
+        successCallback={this.showCollection}
+        cancelCallback={this.showCollection} />
     } else {
       const startedReading = false; //TODO: Check whether user has started reading sequences
       const collection = document;
+      // const ContentRenderer = (props) => getDynamicComponent(import('../async/ContentRenderer.jsx'), props);
       const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
       return (<div className="collections-page">
         <Components.Section titleComponent={canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}>
           <div className="collections-header">
             <h1 className="collections-title">{collection.title}</h1>
             <div className="collections-description">
-              {collection.description ? <ContentRenderer state={collection.description} /> : null}
+              {collection.htmlDescription && <div className="content-body-html" dangerouslySetInnerHTML={collection.htmlDescription}></div>}
+              {/* {collection.description ? <ContentRenderer state={collection.description} /> : null} */}
             </div>
             <FlatButton backgroundColor="rgba(0,0,0,0.05)" label={startedReading ? "Continue Reading" : "Start Reading"} containerElement={<Link to={document.firstPageLink} />}/>
           </div>

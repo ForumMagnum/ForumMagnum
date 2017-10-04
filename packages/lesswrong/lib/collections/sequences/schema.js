@@ -1,5 +1,7 @@
 import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 import ImageUpload from '../../../components/form-components/ImageUpload.jsx';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
 
 const schema = {
 
@@ -52,8 +54,17 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
+    control: (props) => getDynamicComponent(import('../../../components/async/EditorFormComponent.jsx'), props),
     blackbox: true,
+  },
+
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    control: "textarea",
+    hidden: true,
   },
 
   descriptionPlaintext: {

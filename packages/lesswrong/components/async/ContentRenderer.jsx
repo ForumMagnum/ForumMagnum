@@ -20,17 +20,25 @@ import parallax from 'ory-editor-plugins-parallax-background'
 // The divider plugin
 import divider from 'ory-editor-plugins-divider'
 
+
+
 class ContentRenderer extends Component {
   render() {
-    const state = JSON.parse(JSON.stringify(this.props.state));
-    const plugins = {
-      content: [slate(), spacer, image, video, divider],
-      layout: [parallax({ defaultPlugin: slate() })] // Define plugins for layout cells
-    };
-    return (
-      <HTMLRenderer state={state} plugins={plugins} />
-    );
+    if (this.props.state) {
+      const state = JSON.parse(JSON.stringify(this.props.state));
+      const plugins = {
+        content: [slate(), spacer, image, video, divider],
+        layout: [parallax({ defaultPlugin: slate() })] // Define plugins for layout cells
+      };
+      return (
+        <HTMLRenderer state={state} plugins={plugins} />
+      );
+    } else {
+      return <Components.Loading />
+    }
   }
 }
 
 // registerComponent('ContentRenderer', ContentRenderer);
+
+export default ContentRenderer

@@ -209,6 +209,7 @@
     color: rgba(0,0,0,0.87);
     margin-right: 8px;
     text-decoration: none;
+    font-weight: normal;
     a:hover{
       color: inherit;
     }
@@ -222,7 +223,7 @@
     display: inline-block;
     color: rgba(0,0,0,0.5);
     div {
-      display: inline-block;
+      display: inline;
       margin-right: 5px;
     }
     .posts-item-user a {
@@ -819,6 +820,9 @@ svg.drag-handle {
     height: 42.5px;
     color: rgba(0,0,0,0.5);
     margin-top: -10p;
+    &:hover, &:active, &:focus {
+      color: rgba(0,0,0,0.3);
+    }
 }
 
 .sequences-navigation-top {

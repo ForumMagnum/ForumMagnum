@@ -5,11 +5,6 @@ import '../components/messaging/ConversationWrapper.jsx';
 import '../components/messaging/InboxWrapper.jsx';
 import '../components/messaging/InboxNavigation.jsx';
 import '../components/messaging/newConversationButton.jsx';
-//
-// import '../components/editor/MessageEditor.jsx';
-// import '../components/editor/PostEditor.jsx';
-// import '../components/editor/CommentEditor.jsx';
-// import '../components/editor/ContentRenderer.jsx'; // Deactivated because of performance
 import '../components/editor/EditTitle.jsx';
 import '../components/editor/EditUrl.jsx';
 import '../components/editor/SaveDraftButton.jsx';

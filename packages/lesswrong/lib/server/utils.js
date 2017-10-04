@@ -9,9 +9,9 @@ import ReactDOMServer from 'react-dom/server';
 import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
-const oryToHtml = (content) => {
+export const oryToHtml = (content) => {
   if (content) {
-    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+    const ContentRenderer = (props) => getDynamicComponent(import('../../components/async/ContentRenderer.jsx'), props);
     return ReactDOMServer.renderToStaticMarkup(<ContentRenderer state={content} />);
   } else {
     return null;

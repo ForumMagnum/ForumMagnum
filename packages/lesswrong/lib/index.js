@@ -15,7 +15,7 @@ import Conversations from './collections/conversations/collection.js'
 import './collections/conversations/views.js';
 import './collections/conversations/permissions.js';
 //
-RSSFeeds
+// RSSFeeds
 import RSSFeeds from './collections/rssfeeds/collection.js'
 import './collections/rssfeeds/views.js'
 //
@@ -23,7 +23,7 @@ import './collections/rssfeeds/views.js'
 import LWEvents from './collections/lwevents/collection.js';
 import './collections/lwevents/permissions.js';
 import './events/callbacks_sync.js';
-Chapters
+// Chapters
 import Sequences from './collections/sequences/collection.js';
 import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';

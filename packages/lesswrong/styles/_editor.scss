@@ -1,7 +1,8 @@
 .posts-edit-form, .posts-new-form {
     position:absolute;
     padding-bottom:25px;
-    width:80%;
+    max-width:800px;
+    width: 100%;
     margin:0 10% 150px;
 
     @include small {

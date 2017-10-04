@@ -20,14 +20,14 @@ class ChaptersItem extends Component {
 
   renderTitleComponent = (chapter, canEdit) => <div>
     {chapter.subtitle ?   <div className="chapters-item-subtitle">
-        {chapter.subtitle}
-      </div> : null}
+      {chapter.subtitle}
+    </div> : null}
     {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
   </div>
 
   render() {
     const chapter = this.props.chapter;
-    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+    // const ContentRenderer = (props) => getDynamicComponent(import('../asyns/ContentRenderer.jsx'), props);
     if (this.state.edit) {
       return <Components.ChaptersEditForm
         documentId={chapter._id}
@@ -38,9 +38,10 @@ class ChaptersItem extends Component {
         <Components.Section title={chapter.title}
           titleComponent={this.renderTitleComponent(chapter, this.props.canEdit)}
         >
-          {editorHasContent(chapter.description) ? <div className="chapters-item-description">
-            <ContentRenderer state={chapter.description} />
-          </div> : null}
+          {chapter.htmlDescription && <div className="content-body-html" dangerouslySetInnerHTML={chapter.htmlDescription}></div>}
+          {/* {editorHasContent(chapter.description) ? <div className="chapters-item-description">
+            <ContentRenderer state={chapter.description} /> //Commented out for performance reasons
+          </div> : null} */}
 
           <div className="chapters-item-posts">
             <Components.SequencesPostsList posts={chapter.posts} chapter={chapter} />

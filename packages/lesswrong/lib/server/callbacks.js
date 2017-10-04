@@ -6,7 +6,6 @@ import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
 import { addCallback, newMutation, editMutation, Utils, runCallbacksAsync } from 'meteor/vulcan:core';
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
-import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
@@ -232,48 +231,7 @@ function messageNewNotification(message) {
 }
 addCallback("messages.new.async", messageNewNotification);
 
-function postsNewHTMLBodyAndPlaintextBody(post) {
-  if (post.content) {
-    const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={post.content} />);
-    const plaintextBody = htmlToText.fromString(html);
-    const excerpt =  plaintextBody.slice(0,140);
-    Posts.update(post._id, {$set: {htmlBody: html, body: plaintextBody, excerpt: excerpt}});
-  } else if (post.htmlBody) {
-    const html = post.htmlBody;
-    const plaintextBody = htmlToText.fromString(html);
-    const excerpt = plaintextBody.slice(0,140);
-    Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt, htmlBody: html}});
-  }
-}
 
-addCallback("posts.new.async", postsNewHTMLBodyAndPlaintextBody);
-addCallback("posts.edit.async", postsNewHTMLBodyAndPlaintextBody);
-
-function commentsNewHTMLBodyAndPlaintextBody(comment) {
-  if (comment.content) {
-    const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={comment.content} />);
-    const plaintextBody = htmlToText.fromString(html);
-    Comments.update(comment._id, {$set: {htmlBody: html, body: plaintextBody}});
-  } else if (comment.htmlBody){
-    const html = comment.htmlBody;
-    const plaintextBody = htmlToText.fromString(html);
-    Comments.update(comment._id, {$set: {body: plaintextBody}});
-  }
-}
-
-addCallback("comments.new.async", commentsNewHTMLBodyAndPlaintextBody);
-addCallback("comments.edit.async", commentsNewHTMLBodyAndPlaintextBody);
-
-function sequencesNewPlaintextDescription(sequence) {
-  if (sequence.description) {
-    const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={sequence.description} />);
-    const plaintextBody = htmlToText.fromString(html);
-    Sequences.update(sequence._id, {$set: {plaintextDescription: plaintextBody}});
-  }
-}
-
-addCallback("sequences.new.async", sequencesNewPlaintextDescription);
-addCallback("sequences.edit.async", sequencesNewPlaintextDescription);
 
 function reactRouterAnchorTags(unusedItem) {
   anchorate();

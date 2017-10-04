@@ -1,7 +1,7 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import IconButton from 'material-ui/IconButton'
-import { withRouter } from 'react-router';
+import { withRouter, Link } from 'react-router';
 import React from 'react';
 
 const SequencesNavigation = ({document, loading, post, router}) => {
@@ -45,14 +45,14 @@ const SequencesNavigation = ({document, loading, post, router}) => {
 
         return <div className="sequences-navigation-top">
           {previousPostLink ? <IconButton
-          className="sequences-navigation-top-left"
-          iconClassName="material-icons"
-          disabled={!previousPost}
-          tooltip={previousPost && previousPost.title}
-          onTouchTap={() => router.push(previousPostLink)}>
-          navigate_before
+            className="sequences-navigation-top-left"
+            iconClassName="material-icons"
+            disabled={!previousPost}
+            tooltip={previousPost && previousPost.title}
+            onTouchTap={() => router.push(previousPostLink)}>
+            navigate_before
           </IconButton> : null}
-          <div className="sequences-navigation-title">{document.title}</div>
+          <Link to={"/sequences/"+document._id} className="sequences-navigation-title">{document.title}</Link>
           {nextPostLink ? <IconButton
             className="sequences-navigation-top-right"
             iconClassName="material-icons"

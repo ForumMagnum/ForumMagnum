@@ -1,8 +1,8 @@
 import React, { PropTypes, Component } from 'react';
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import { Editable, createEmptyState } from 'ory-editor-core';
+import withEditor from './withEditor.jsx';
 import { Toolbar } from 'ory-editor-ui'
-import withEditor from './withEditor.jsx'
 
 
 
@@ -53,5 +53,7 @@ CommentEditor.contextTypes = {
   addToAutofilledValues: React.PropTypes.func,
   addToSuccessForm: React.PropTypes.func,
 };
+
+export default withEditor(CommentEditor);
 
 // registerComponent('CommentEditor', CommentEditor, withEditor, withCurrentUser);

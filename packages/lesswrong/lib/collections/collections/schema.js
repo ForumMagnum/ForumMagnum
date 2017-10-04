@@ -1,4 +1,6 @@
+import React from 'react';
 import { getDynamicComponent } from 'meteor/vulcan:core';
+import ReactDOMServer from 'react-dom/server';
 
 const schema = {
 
@@ -51,8 +53,17 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    control: () => getDynamicComponent(import('packages/lesswrong/components/editor/EditorFormComponent.jsx')),
+    control: (props) => getDynamicComponent(import('../../../components/async/EditorFormComponent.jsx'), props),
     blackbox: true,
+  },
+
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    control: "textarea",
+    hidden: true, 
   },
 
   /*

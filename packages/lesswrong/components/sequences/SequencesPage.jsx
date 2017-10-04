@@ -34,7 +34,7 @@ class SequencesPage extends Component {
     } else {
       const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
-      const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+      // const ContentRenderer = (props) => getDynamicComponent(import('../async/ContentRenderer.jsx'), props);
       return (<div className="sequences-page">
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
@@ -65,7 +65,8 @@ class SequencesPage extends Component {
             {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
           </div>}>
           <div className="sequences-description">
-            {document.description ? <ContentRenderer state={document.description} /> : null}
+            {document.htmlDescription && <div className="content-body-html" dangerouslySetInnerHTML={document.htmlDescription}></div>}
+            {/* {document.description ? <ContentRenderer state={document.description} /> : null} */}
           </div>
         </Components.Section>
         <div className="sequences-chapters">

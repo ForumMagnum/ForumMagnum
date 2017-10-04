@@ -10,7 +10,7 @@ import { Components, registerComponent, getDynamicComponent } from 'meteor/vulca
 
 class MessageItem extends Component {
   render() {
-    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
+    // const ContentRenderer = (props) => getDynamicComponent(import('../async/ContentRenderer.jsx'), props); Commented out for performance
     const currentUser = this.props.currentUser;
     const message = this.props.message;
     if (message.content) {
@@ -18,7 +18,8 @@ class MessageItem extends Component {
         <Media>
           {(message.user && currentUser._id != message.user._id) ? <Media.Left> <Components.UsersAvatar user={message.user}/> </Media.Left> : <div></div>}
           <Media.Body>
-            <ContentRenderer state={message.content} />
+            {message.htmlBody && <div className="message-content-body-html" dangerouslySetInnerHTML={message.htmlBody}></div>}
+            {/* <ContentRenderer state={message.content} /> Commented out for performance reasons */}
           </Media.Body>
           {(message.user && currentUser._id == message.user._id) ? <Media.Right> <Components.UsersAvatar user={currentUser}/></Media.Right> : <div></div>}
         </Media>

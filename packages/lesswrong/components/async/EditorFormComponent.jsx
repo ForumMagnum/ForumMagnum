@@ -63,6 +63,7 @@ class EditorFormComponent extends Component {
   toggleDisplayMode = () => {this.setState({displayModeOpen: !this.state.displayModeOpen})}
 
   render() {
+    console.log("EditorFormComponent props", this.props);
     const fieldName = this.props.name;
     let editor = this.props.editor;
     return (
@@ -84,7 +85,7 @@ class EditorFormComponent extends Component {
               <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
               <Toolbar editor={editor}></Toolbar>
               {this.props.name == "content" ? <div><Trash editor={editor} />
-              {this.state.displayModeOpen ? <DisplayModeToggle editor={editor} /> : null }
+                {this.state.displayModeOpen ? <DisplayModeToggle editor={editor} /> : null }
               </div> : null}
             </div> : null}
         </div>
