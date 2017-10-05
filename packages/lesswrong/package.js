@@ -20,16 +20,10 @@ Package.onUse( function(api) {
   api.mainModule('client.js', 'client');
 
   api.addFiles([
-    'lib/stylesheets/bootstrap.scss',
-    'lib/stylesheets/custom.scss',
-    'lib/stylesheets/comments.scss',
-    'lib/stylesheets/editor.scss',
     'styles/main.scss',
   ], ['client']);
 
   api.addAssets([
     'assets/Logo.png',
   ], ['client']);
-
-
 });
