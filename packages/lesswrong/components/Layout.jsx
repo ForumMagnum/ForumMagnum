@@ -8,6 +8,9 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import Intercom, { IntercomAPI } from 'react-intercom';
 
+
+
+
 import withNewEditor from './editor/withNewEditor.jsx';
 
 const muiTheme = getMuiTheme({
@@ -32,6 +35,9 @@ const muiTheme = getMuiTheme({
   },
   userAgent: 'all',
 });
+
+import injectTapEventPlugin from 'react-tap-event-plugin';
+injectTapEventPlugin();
 
 const Layout = ({currentUser, children, currentRoute}) =>
 
