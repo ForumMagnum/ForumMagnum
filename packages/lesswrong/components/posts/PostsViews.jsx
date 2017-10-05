@@ -58,7 +58,13 @@ class PostsViews extends Component {
     }
   }
 
-  handleChange = (event, index, value) => this.setState({view: value});
+  handleChange = (event, index, view) => {
+    const { router } = this.props;
+    const query = { ...router.location.query, view };
+    const location = { pathname: router.location.pathname, query };
+    router.replace(location);
+    this.setState({ view });
+  };
 
   render() {
     const props = this.props;
@@ -74,7 +80,6 @@ class PostsViews extends Component {
       views = views.concat(adminViews);
     }
 
-    const query = _.clone(props.router.location.query);
     return (
       <div className="posts-views">
         <DropDownMenu
@@ -87,19 +92,10 @@ class PostsViews extends Component {
           labelStyle={DropdownLabelStyle}
           listStyle={DropdownListStyle}
           className="posts-views-dropdown"
-          >
-          {views.map(view => {
-              const link = <Link key={view}
-                to={{pathname: props.router.location.pathname, query: {...query, view: view}}}/>
-              return <MenuItem
-                value={view}
-                key={view}
-                primaryText={viewNames[view]}
-                containerElement={link}
-                />
-            }
-
-          )}
+        >
+          {views.map(view => (
+            <MenuItem value={view} key={view} primaryText={viewNames[view]} />
+          ))}
           <MenuItem value={'daily'} primaryText={'day'} containerElement={<Link to={"/daily"} />}/>
         </DropDownMenu>
       </div>
