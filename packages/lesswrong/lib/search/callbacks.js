@@ -5,7 +5,7 @@ import RSSFeeds from '../collections/rssfeeds/collection.js';
 import Sequences from '../collections/sequences/collection.js';
 import { algoliaDocumentExport } from './utils.js';
 import { Components } from 'meteor/vulcan:core';
-import h2p from 'html2plaintext';
+import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
 
 function newCommentAlgoliaIndex(comment) {
