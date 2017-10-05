@@ -224,9 +224,9 @@ class CommentsItem extends PureComponent {
     const htmlBody = {__html: this.props.comment.htmlBody};
     return (
       <div className="comments-item-text content-body">
-        {content ? <Components.ContentRenderer state={content} /> :
-        null}
-        {htmlBody && !content ? <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+        {/* {content ? <Components.ContentRenderer state={content} /> : // Commented out for performance reasons
+        null} */}
+        {htmlBody && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
       </div>
     )
   }
