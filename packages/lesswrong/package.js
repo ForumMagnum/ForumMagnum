@@ -27,3 +27,20 @@ Package.onUse( function(api) {
     'assets/Logo.png',
   ], ['client']);
 });
+
+Package.onTest(function(api) {
+  api.use('lesswrong');
+  
+  api.use([
+    'fourseven:scss',
+    'vulcan:core',
+    'example-forum',
+    'vulcan:users',
+    'vulcan:voting',
+    'practicalmeteor:mocha',
+    'practicalmeteor:sinon',
+  ]);
+
+  // Finally add an entry point for tests
+  api.mainModule('./unitTests.js', 'client');
+})
