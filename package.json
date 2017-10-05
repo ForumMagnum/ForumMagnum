@@ -8,7 +8,7 @@
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings.json",
     "lint": "eslint --cache --ext .jsx,js packages",
-    "test": "BABEL_ENV=test mocha 'packages/lesswrong/**/test.js' --require babel-polyfill --compilers js:babel-core/register"
+    "test": "meteor test-packages ./packages/lesswrong --driver-package practicalmeteor:mocha --port 3200 --settings settings.json"
   },
   "dependencies": {
     "algoliasearch": "^3.24.3",
@@ -116,7 +116,7 @@
     "eslint-plugin-react": "^6.7.1",
     "pg": "^6.1.5",
     "pg-promise": "^5.6.7",
-    "react-test-renderer": "^15.6.2"
+    "react-test-renderer": "^16.0.0"
   },
   "postcss": {
     "plugins": {
