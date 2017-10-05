@@ -9,7 +9,6 @@
 @import "underlines";
 @import "global";
 @import "tufte";
-
 @import "layout";
 @import "accounts";
 @import "categories";
@@ -30,13 +29,6 @@
 
 .new-post-button{
   margin-bottom: 15px;
-}
-
-code{
-  font-family: monospace;
-  background: #fafafa;
-  border: 1px solid #ddd;
-  padding: 3px 6px;
 }
 
 .avatar{
