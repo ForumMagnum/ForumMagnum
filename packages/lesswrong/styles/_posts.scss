@@ -205,7 +205,8 @@
   }
   .posts-item-title{
     display: inline;
-    font-size: $large-font;
+    font-size: 1.4rem;
+    color: rgba(0,0,0,0.87);
     margin-right: 8px;
     text-decoration: none;
     a:hover{

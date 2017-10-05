@@ -28,7 +28,7 @@ class Header extends Component {
   renderAppBarElementRight = () => {
   const notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
   return <div>
-    <NoSSR><Components.SearchBar /></NoSSR>
+    {/* <NoSSR><Components.SearchBar /></NoSSR> */}
     {this.props.currentUser ? <Components.NotificationsMenu title="Notifications" terms={notificationTerms}/> : null}
     {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
   </div>}
@@ -46,7 +46,7 @@ class Header extends Component {
             iconElementRight = {this.renderAppBarElementRight()}
             style={appBarStyle}
           >
-            <a id="header-title" href="/">LESSWRONG</a>
+            <Link className="header-title" to="/">LESSWRONG</Link>
           </AppBar>
         <Drawer docked={false} width={200} open={this.state.open} onRequestChange={(open) => this.setState({open})} containerClassName="menu-drawer" >
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>

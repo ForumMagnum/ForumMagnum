@@ -19,8 +19,8 @@ const PostsList = ({className, results, loading, count, totalCount, loadMore,
   const renderContent = () => {
     if (results && results.length) {
       return <div>
-          {results.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser} terms={terms} />)}
-          {showLoadMore ? <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
+        {results.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser} terms={terms} />)}
+        {showLoadMore ? <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
     } else if (loading) {
       return <Components.PostsLoading/>

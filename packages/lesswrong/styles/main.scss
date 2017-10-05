@@ -1,12 +1,10 @@
-// @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
-
+@import "kill_bootstrap";
 @import "breakpoints";
 @import "colors";
 @import "variables";
 @import "spinner";
 @import "underlines";
 @import "global";
-@import "fonts";
 @import "tufte";
 
 @import "layout";

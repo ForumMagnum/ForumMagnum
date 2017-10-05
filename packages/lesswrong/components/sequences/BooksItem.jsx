@@ -1,6 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { registerComponent, ModalTrigger, Components } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { registerComponent, Components, getDynamicComponent } from 'meteor/vulcan:core';
 import { editorHasContent } from '../../lib/modules/utils'
 
 class BooksItem extends Component {
@@ -28,6 +27,7 @@ class BooksItem extends Component {
 
   render() {
     const book = this.props.book;
+    const ContentRenderer = () => getDynamicComponent(import('packages/lesswrong/components/editor/ContentRenderer.jsx'));
     if (this.state.edit) {
       return <Components.BooksEditForm
                 documentId={book._id}
@@ -39,7 +39,7 @@ class BooksItem extends Component {
           titleComponent={this.renderTitleComponent(book, this.props.canEdit)}
         >
           {editorHasContent(book.description) ? <div className="books-item-description">
-             <Components.ContentRenderer state={book.description} />
+            <ContentRenderer state={book.description} />
             </div> : null}
 
           {book.posts && book.posts.length ? <div className="books-item-posts">

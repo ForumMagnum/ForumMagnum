@@ -1,5 +1,5 @@
 import { Posts } from 'meteor/example-forum';
-import h2p from 'html2plaintext';
+import htmlToText from 'html-to-text';
 
 const runFix = false;
 
@@ -9,7 +9,7 @@ if (runFix) {
   Posts.find().fetch().forEach((post) => {
     if (post.htmlBody) {
       const html = post.htmlBody;
-      const plaintextBody = h2p(html);
+      const plaintextBody = htmlToText.fromString(html);
       const excerpt =  plaintextBody.slice(0,140);
       Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
       postCount++;
