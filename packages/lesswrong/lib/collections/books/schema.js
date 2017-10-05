@@ -1,18 +1,6 @@
 import React from 'react'
 import { Components } from 'meteor/vulcan:core'
 
-const PostEditor = (props) => <div>
-  <Components.EditorFormComponent {...props} />
-</div>
-
-const PostsListEditor = (props) => <div>
-  <Components.PostsListEditor {...props} />
-</div>
-
-const SequencesListEditor = (props) => <div>
-  <Components.SequencesListEditor {...props} />
-</div>
-
 const schema = {
 
   // default properties
