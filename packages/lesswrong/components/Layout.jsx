@@ -8,6 +8,8 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import Intercom, { IntercomAPI } from 'react-intercom';
 
+import withNewEditor from './editor/withNewEditor.jsx';
+
 const muiTheme = getMuiTheme({
   "fontFamily": "ETBook",
   "palette": {
@@ -38,13 +40,11 @@ const Layout = ({currentUser, children, currentRoute}) =>
       <div>
         <Helmet>
           <title>LessWrong 2.0</title>
-          <link name="bootstrap" rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css"/>
-          <link name="font-awesome" rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+          {/* <link name="bootstrap" rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css"/> */}
+          {/* <link name="font-awesome" rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/> */}
           <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
           <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
           <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-          <script src="//widget.cloudinary.com/global/all.js" type="text/javascript"/>
-
           {/* <link name="cardo-font" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cardo:400,400i,700" />*/}
         </Helmet>
 
@@ -75,4 +75,4 @@ const Layout = ({currentUser, children, currentRoute}) =>
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout);
+replaceComponent('Layout', Layout, withNewEditor);
