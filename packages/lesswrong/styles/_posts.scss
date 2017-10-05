@@ -205,7 +205,7 @@
   }
   .posts-item-title{
     display: inline;
-    font-size: $large-font;
+    font-size: 1.4rem;
     margin-right: 8px;
     text-decoration: none;
     a:hover{
@@ -236,8 +236,9 @@
     max-width: 600px;
     white-space: nowrap;
     overflow: hidden;
-    font-size: 14px;
-    color: rgba(0,0,0,0.55);
+    font-size: 1rem;
+    line-height: 1.4rem;
+    color: rgba(0,0,0,0.7);
   }
   // margin-bottom: 15px;
   .posts-item-comments {
@@ -329,7 +330,8 @@
 
 .posts-item-meta{
   display: inline;
-  font-size: $small-font;
+  font-size: 1rem;
+  line-height: 1.4rem;
   .users-name, .posts-item-date, .posts-item-comments, .posts-item-admin, .posts-actions, .posts-item-user {
     display: inline;
   }

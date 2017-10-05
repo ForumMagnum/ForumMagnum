@@ -101,7 +101,7 @@ class PostsPage extends Component {
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
           {commentHash ? <div className="posts-comments-thread-linked-comment">
-              <Components.CommentWithContextWrapper documentId={commentHash} />
+            <Components.CommentWithContextWrapper documentId={commentHash} />
           </div> : null}
           <div className="posts-page-content">
             <div className="posts-page-content-header">
@@ -116,7 +116,7 @@ class PostsPage extends Component {
                 <Components.UsersName user={post.user} />
               </div>
             </div>
-            <div className="posts-page-content-body content-body">
+            <div className="posts-page-content-body">
               <div className="posts-page-content-body-metadata">
                 <div className="posts-page-content-body-metadata-date">
                   {moment(post.postedAt).format('MMM D, YYYY')}
@@ -137,12 +137,12 @@ class PostsPage extends Component {
                       <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
                         <Components.VotesList document={post} />
                       </Components.DialogGroup>
-                    </div> : null 
+                    </div> : null
                   }
                 </div>
               </div>
-              {post.htmlBody && !post.content ? <div className="posts-page-content-body-html" dangerouslySetInnerHTML={htmlBody}></div> : null}
-              {post.content ? <div className="posts-page-content-body-ory"> <Components.ContentRenderer state={post.content} /> </div> : null}
+              {post.htmlBody && !post.content ? <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+              {post.content ? <div className="posts-page-content-body-ory content-body"> <Components.ContentRenderer state={post.content} /> </div> : null}
               {post.categories && post.categories.length > 0 ? <div className="posts-page-content-body-tags">
                 Tags: <span className="posts-page-content-body-tags-list"> {post.categories.map(category => <a href={"/categories/"+category.id +"/"+category.slug}>{category.name}</a>)} </span>
               </div> : null}

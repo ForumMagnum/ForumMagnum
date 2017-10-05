@@ -38,6 +38,9 @@
              font-weight: normal;
              font-style: normal; }
 
+
+html { font-size: 14px; }
+
 .content-body {
 
   .ory-cell-leaf > div {
@@ -53,14 +56,13 @@
   }
 
   li > p:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0px !important;
   }
 
   li > p:first-child {
-    margin-top: 0px;
+    margin-top: 0px !important;
   }
   /* Tufte CSS styles */
-  html { font-size: 15px; }
 
   body {
         //  width: 87.5%;
@@ -121,10 +123,10 @@
   section { padding-top: 1rem;
             padding-bottom: 1rem; }
 
-  p, ol, ul { font-size: 1.2rem; }
+  p, ol, ul, div { font-size: 1.4rem;
+              line-height: 2rem; }
 
-  p { line-height: 2rem;
-      margin-top: 1.4rem;
+  p { margin-top: 1.4rem;
       margin-bottom: 1.4rem;
       padding-right: 0;
       vertical-align: baseline; }
@@ -147,7 +149,7 @@
   div.epigraph > blockquote > footer > cite { font-style: italic; }
   /* end chapter epigraphs styles */
 
-  blockquote { font-size: 1.1rem;
+  blockquote { font-size: 1.4rem;
                padding: inherit;
                margin: inherit;
                margin-left: 40px;
@@ -155,18 +157,17 @@
 
   blockquote p { /* width: 55%; */
                  margin-right: 40px;
-                 line-height: 1.8rem;
-                 font-size: 1.1rem; }
+                 margin-bottom: 0.7rem !important; }
 
   blockquote footer { width: 55%;
-                      font-size: 1.0rem;
+                      font-size: 1.1rem;
                       text-align: right; }
 
   section>ol, section>ul { width: 45%;
                            -webkit-padding-start: 5%;
                            -webkit-padding-end: 5%; }
 
-  li { padding: 0.5rem 0; }
+  // li { padding: 0.5rem 0; }
 
   figure { padding: 0;
            border: 0;

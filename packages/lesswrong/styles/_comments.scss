@@ -8,7 +8,7 @@ Old comments file TODO: Integrate this properly into the CSS file
 $lw-green: #588f27;
 
 $hmargin: 10px;
-$small-font: 0.9rem;
+$small-font: 1.1rem;
 
 $light-yellow: #FFFBDB;
 
@@ -84,7 +84,6 @@ $medium-text: $dark-grey;
     }
   }
   .comments-item-bottom {
-    margin-top: 10px;
     font-size: 12px;
     .vote {
       font-weight: 300;
@@ -112,10 +111,6 @@ $medium-text: $dark-grey;
   blockquote {
     color: rgba(0,0,0,0.7);
     margin-left: 20px !important;
-    p {
-      line-height: 1.5rem !important;
-      font-size: 1.1rem !important;
-    }
   }
 }
 
@@ -204,13 +199,13 @@ New CSS File
 }
 
 .comments-item-text {
-  font-size: 1rem !important;
-  line-height: 1.4rem !important;
-  p {
-    font-size: 1rem !important;
-    line-height: 1.4rem !important;
-    margin-top: 0.7rem !important;
-    margin-bottom: 0px !important;
+  font-size: 1.2rem !important;
+  line-height: 1.6rem !important;
+  p, li, ol, ul {
+    font-size: 1.2rem !important;
+    line-height: 1.6rem !important;
+    margin-top: 0px !important;
+    margin-bottom: 0.7rem !important;
   }
 }
 
