@@ -1,5 +1,7 @@
 // Subscriptions
 import './collections/subscription_fields.js';
+//MomentJS configuration
+import '../components/momentjs.js';
 //// Permissions
 import './modules/permissions.js';
 // Notifications
