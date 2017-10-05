@@ -2,7 +2,7 @@ import { Posts } from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
-import h2p from 'html2plaintext';
+import htmlToText from 'html-to-text';
 import React from 'react';
 
 const formGroups = {
@@ -206,16 +206,16 @@ Posts.addField([
       editableBy: ['admins'],
       onInsert: (document) => {
         if (document.content) {
-          return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />));
+          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />));
         } else if (document.htmlBody) {
-          return h2p(document.htmlBody);
+          return htmlToText.fromString(document.htmlBody);
         }
       },
       onEdit: (modifier, document) => {
         if (modifier.$set.content) {
-          return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />))
+          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />))
         } else if (modifier.$set.htmlBody) {
-          return h2p(modifier.$set.htmlBody);
+          return htmlToText.fromString(modifier.$set.htmlBody);
         }
       },
       hidden: true,
@@ -230,16 +230,16 @@ Posts.addField([
      fieldSchema: {
        onInsert: (document) => {
          if (document.content) {
-           return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />)).slice(0,200);
+           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />)).slice(0,200);
          } else if (document.htmlBody) {
-           return h2p(document.htmlBody).slice(0,200);
+           return htmlToText.fromString(document.htmlBody).slice(0,200);
          }
        },
        onEdit: (modifier, document) => {
          if (modifier.$set.content) {
-           return h2p(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)).slice(0,200)
+           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)).slice(0,200)
          } else if (modifier.$set.htmlBody) {
-           return h2p(modifier.$set.htmlBody).slice(0,200);
+           return htmlToText.fromString(modifier.$set.htmlBody).slice(0,200);
          }
        },
      },
