@@ -2,15 +2,7 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import {Card, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import { Link } from 'react-router';
-
-const testCollection = {
-  title: "The Core Sequences",
-  id: "dummyId",
-  user: {displayName: "EliezerYudkowsky"},
-  summary: "Rationality: From AI to Zombies serves as a long-form introduction to formative ideas behind LessWrong, the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruist community.",
-  image: "http://i.imgur.com/dVXiZtw.png",
-  color: "#B1D4B4",
-}
+import { Image } from 'cloudinary-react';
 
 const cardTitleStyle = {
   fontSize: "20px",
@@ -22,10 +14,7 @@ const cardSubtitleStyle = {
   lineHeight: "100%",
 }
 
-const CollectionsCard = ({collection = testCollection, big = false, url}) => {
-  const cardContainerStyle = {display: 'flex', flexDirection: big ? 'row' : 'column'};
-  const cardItemStyle = {width: big ? 'auto' : '355px'};
-  const cardMediaStyle = big ? {width: '335px', height: '271px'} : {order: 2, height: '90px', position: 'absolute', bottom: '20px'};
+const CollectionsCard = ({collection, big = false, url}) => {
   const cardContentStyle = {borderTopColor: collection.color}
 
 
@@ -33,7 +22,7 @@ const CollectionsCard = ({collection = testCollection, big = false, url}) => {
     <Link to={url} className="collection-card-link">
       <Card className="collection-card">
         <CardMedia className="collection-card-media">
-          <img src={collection.image} />
+          <Image publicId={collection.imageId} cloudName="lesswrong-2-0" quality="auto" />
         </CardMedia>
         <div className="collection-card-content" style={cardContentStyle}>
           <CardTitle
