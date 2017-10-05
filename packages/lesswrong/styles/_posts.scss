@@ -255,7 +255,6 @@
     .material-icons {
       vertical-align:middle;
       font-size: 16px !important;
-      color: rgba(0,0,0,0.2) !important;
       border-radius: 100%;
       &:hover {
         background-color: rgba(0,0,0,0.05);
@@ -266,7 +265,14 @@
   .upvoted {
     .upvote-button {
       .material-icons {
+        font-weight: 900;
         color: rgba(100, 169, 105, 0.9) !important;
+      }
+    }
+
+    .downvote-button {
+      .material-icons {
+        color: rgba(0, 0, 0, 0.3) !important;
       }
     }
   }
@@ -274,7 +280,14 @@
   .downvoted {
     .downvote-button {
       .material-icons {
-        color: rgba(100, 169, 105, 0.9) !important;
+        font-weight: 900;
+        color: rgba(160, 44, 44, 0.9) !important;
+      }
+    }
+
+    .upvote-button {
+      .material-icons {
+        color: rgba(0, 0, 0, 0.3) !important;
       }
     }
   }
@@ -422,7 +435,14 @@
       .upvoted {
         .upvote-button {
           .material-icons {
+            font-weight: 900;
             color: rgba(100, 169, 105, 0.9) !important;
+          }
+        }
+
+        .downvote-button {
+          .material-icons {
+            color: rgba(0, 0, 0, 0.3) !important;
           }
         }
       }
@@ -430,7 +450,14 @@
       .downvoted {
         .downvote-button {
           .material-icons {
-            color: rgba(100, 169, 105, 0.9) !important;
+            font-weight: 900;
+            color: rgba(160, 44, 44, 0.9) !important;
+          }
+        }
+
+        .upvote-button {
+          .material-icons {
+            color: rgba(0, 0, 0, 0.3) !important;
           }
         }
       }
@@ -533,7 +560,14 @@
       .upvoted {
         .upvote-button {
           .material-icons {
+            font-weight: 900;
             color: rgba(100, 169, 105, 0.9) !important;
+          }
+        }
+
+        .downvote-button {
+          .material-icons {
+            color: rgba(0, 0, 0, 0.3) !important;
           }
         }
       }
@@ -541,7 +575,14 @@
       .downvoted {
         .downvote-button {
           .material-icons {
-            color: rgba(100, 169, 105, 0.9) !important;
+            font-weight: 900;
+            color: rgba(160, 44, 44, 0.9) !important;
+          }
+        }
+
+        .upvote-button {
+          .material-icons {
+            color: rgba(0, 0, 0, 0.3) !important;
           }
         }
       }
