@@ -20,8 +20,6 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 # Contributing
 
-Despite being unstable and not yet at the stage where it can be operated by end users, Lesswrong2 is feature complete and ready for public development.
-
 To get LessWrong2 working on your local machine:
 
 ```
