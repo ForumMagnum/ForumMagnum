@@ -107,22 +107,28 @@ class CommentsItem extends PureComponent {
     const params = this.props.router.params;
     const commentLink = "/posts/"+params._id+"/"+params.slug+"/"+comment._id;
     const deletedClass = this.props.comment.deleted ? " deleted" : "";
+    const commentBody = this.props.collapsed ? "" : (
+      <div>
+        {this.state.showEdit ? this.renderEdit() : this.renderComment()}
+        {this.renderCommentBottom()}
+      </div>
+    )
 
     return (
       <div className={"comments-item" + deletedClass} id={comment._id}>
         <div className="comments-item-body">
           <div className="comments-item-meta">
+            <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
             <Components.UsersName user={comment.user}/>
             <div className="comments-item-vote">
               <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
             <div className="comments-item-date"><Link to={commentLink}>{moment(new Date(comment.postedAt)).fromNow()} </Link></div>
+            {this.renderMenu()}
           </div>
-          {this.state.showEdit ? this.renderEdit() : this.renderComment()}
-          { this.renderCommentBottom() }
+          {commentBody}
         </div>
-        {this.state.showReply ? this.renderReply() : null}
-        {this.renderMenu() }
+        {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
       </div>
     )
   }
