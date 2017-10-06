@@ -102,7 +102,6 @@ registerFragment(`
     # htmlBody # We replaced this with content
     excerpt # This won't work with content
     # content # Our replacement for body
-    lastVisitedAt
     viewCount
     clickCount
     # vulcan:users
@@ -111,26 +110,20 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     # vulcan:embedly
-    thumbnailUrl
     # example-forum
     categories {
       ...CategoriesMinimumInfo
     }
     # example-forum
     commentCount
-    lastCommentedAt
     # vulcan:voting
     upvotes
     downvotes
     upvoters {
       _id
-      slug
-      username
     }
     downvoters {
       _id
-      slug
-      username
     }
     baseScore
     score
@@ -139,9 +132,6 @@ registerFragment(`
     feed {
       ...RSSFeedMinimumInfo
     }
-    nextPageTitle
-    nextPageLink
-    collectionTitle
   }
 `);
 
@@ -180,14 +170,6 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    # example-forum
-    post {
-      _id
-      commentCount
-      commenters {
-        ...UsersMinimumInfo
-      }
-    }
     # vulcan:voting
     upvoters {
       _id
@@ -208,10 +190,6 @@ registerFragment(`
     post {
       title
       _id
-      commentCount
-      commenters {
-        ...UsersMinimumInfo
-      }
       slug
     }
   }
@@ -347,19 +325,6 @@ registerFragment(`
     frontpagePostCount
     # example-forum
     commentCount
-    # vulcan:voting
-    downvotedComments {
-      ...VotedItem
-    }
-    downvotedPosts {
-      ...VotedItem
-    }
-    upvotedComments {
-      ...VotedItem
-    }
-    upvotedPosts {
-      ...VotedItem
-    }
   }
 `);
 

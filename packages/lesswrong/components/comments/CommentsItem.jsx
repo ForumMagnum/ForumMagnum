@@ -184,8 +184,8 @@ class CommentsItem extends PureComponent {
             <Components.ReportForm
               commentId={this.props.comment._id}
               postId={this.props.comment.postId}
-              link={"/posts/" + this.props.comment.post._id + "/a/" + this.props.comment._id}
-              userId={currentUser._id}
+              link={"/posts/" + this.props.comment.postId + "/a/" + this.props.comment._id}
+              userId={this.props.currentUser._id}
               open={true}
             /> }
         </object>
