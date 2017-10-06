@@ -87,19 +87,20 @@ $medium-text: $dark-grey;
     font-size: 12px;
     .vote {
       font-weight: 300;
-      color: $dark-grey;
+      color: rgba(0,0,0,0.5);
     }
   }
 
   .comments-item-bottom, .comments-item-meta {
     a {
-      color: $dark-grey;
+      color: rgba(0,0,0,0.87);
       text-decoration: none;
     }
     .vote {
       display: inline;
     }
     .vote-count {
+      color: rgba(0,0,0,0.5);
       display: inline;
       margin-right: 5px;
     }
@@ -242,9 +243,12 @@ New CSS File
   .comments-item-date{
     display: inline-block;
     margin-right: $hmargin;
-    color: $medium-text;
+    color: rgba(0,0,0,0.5);
     font-size: $small-font;
     margin-right: 8px;
+    a {
+      color: rgba(0,0,0,0.5);
+    }
   }
   .comment-edit, .comment-delete {
     font-size: $small-font;
@@ -279,6 +283,7 @@ New CSS File
       vertical-align:middle;
       font-size: 16px !important;
       border-radius: 100%;
+      color: rgba(0,0,0,0.5) !important;
       &:hover {
         background-color: rgba(0,0,0,0.05);
       }
