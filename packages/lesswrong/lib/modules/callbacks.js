@@ -140,7 +140,7 @@ addCallback("comments.new.async", CommentsNewSubscriptions);
 /**
  * @summary Add notification callback when a post is approved
  */
-const PostsApprovedNotification = (post) => {
+function PostsApprovedNotification(post) {
   createNotifications([post.userId], 'postApproved', 'post', post._id);
 }
 addCallback("posts.approve.async", PostsApprovedNotification);
