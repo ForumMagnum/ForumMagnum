@@ -3,7 +3,7 @@ import Reports from './collection.js';
 import Conversations from '../conversations/collection.js'
 
 const membersActions = [
-  'reports.new.own',
+  'reports.new',
   'reports.view.own',
 ];
 Users.groups.members.can(membersActions);
