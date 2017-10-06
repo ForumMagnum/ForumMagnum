@@ -213,8 +213,9 @@
     }
   }
   .post-feed-nickname{
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     color: rgba(0,0,0,0.5);
+    margin-right: 5px;
   }
 
   .posts-item-meta {
@@ -483,7 +484,6 @@
     .posts-page-content-body-metadata {
       position: absolute;
       right: 100%;
-      top: 3px;
       width: 200px;
       padding-right: 30px;
       text-align: right;
