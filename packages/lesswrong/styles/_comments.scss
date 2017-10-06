@@ -86,7 +86,6 @@
 }
 
 .comments-item-meta{
-  display: flex;
   margin-bottom: $vmargin;
   border-bottom:solid 1px $light-border;
   padding:5px 0;
@@ -106,7 +105,10 @@
   .comments-collapse{
     margin-right: 5px;
     opacity: 0.8;
-    font-size: 10px;
+    font-size: 10.5px;
+    padding-top: 0.5px;
+    display: inline-block;
+    vertical-align: top;
 
     span {
       font-family: monospace;
