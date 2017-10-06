@@ -225,6 +225,20 @@ New CSS File
   .users-name{
     margin-right: $hmargin;
   }
+
+  .comments-collapse{
+    margin-right: 5px;
+    opacity: 0.8;
+    font-size: 10.5px;
+    padding-top: 0.5px;
+    display: inline-block;
+    vertical-align: top;
+
+    span {
+      font-family: monospace;
+    }
+  }
+
   .comments-item-date{
     display: inline-block;
     margin-right: $hmargin;
