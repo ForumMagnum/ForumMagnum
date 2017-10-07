@@ -18,7 +18,7 @@ class EditUrl extends Component {
     return (
       <div className="posts-edit-url">
         <div className="row">
-          <div className="col-md-3">
+          <div className="col-md-4">
             <FlatButton
               backgroundColor={this.state.active ? "#555" : "#999"}
               hoverColor={this.state.active ? "#666" : "#aaa"}
@@ -26,7 +26,7 @@ class EditUrl extends Component {
               label={this.state.active ? "Create Text Post" : "Create Link Post" }
               onTouchTap={this.toggleEditor}/>
           </div>
-          <div className="col-md-9">
+          <div className="col-md-8">
             <Input {...this.props} hidden={ !this.state.active} layout="elementOnly" />
           </div>
         </div>
