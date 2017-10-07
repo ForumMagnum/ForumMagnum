@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Editable, createEmptyState } from 'ory-editor-core';
-import { Toolbar } from 'ory-editor-ui'
+import { Toolbar, DisplayModeToggle } from 'ory-editor-ui'
 import withEditor from './withEditor.jsx'
 
 import ls from 'local-storage';
