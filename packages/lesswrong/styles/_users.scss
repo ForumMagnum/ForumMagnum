@@ -95,3 +95,77 @@
     font-style: italic;
   }
 }
+
+.users-edit-form {
+  width:60%;
+  margin:auto;
+  margin-bottom:100px;
+  @include small {
+    width:100%;
+  }
+
+  .change-password-link {
+    border:solid 1px $light-grey;
+    border-radius:3px;
+    padding:7px;
+    text-align:center;
+    width:40%;
+    margin-bottom:35px;
+    text-transform: uppercase;
+    @include small {
+      width:100%;
+    }
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+    &:hover {
+      background-color: $lighter-grey;
+      cursor: pointer;
+    }
+  }
+  .form-input.input-hideIntercom {
+    margin-left:5px;
+    .control-label.col-sm-3 {
+      display:none;
+    }
+  }
+  .form-group.email {
+    &:before {
+      content: ' ';
+      clear: right;
+      display: block;
+    }
+    width:100%;
+    float:right;
+  }
+  input.form-control {
+    padding-left:2px;
+  }
+
+  .form-input.input-bio .control-label.col-sm-3 {
+    position:relative;
+    top:3px;
+    text-transform: uppercase;
+  }
+
+  .control-label.col-sm-3 {
+    // TODO instead fix the col-sm-3 at a root level that isn't janky
+    width:90px;
+    position:relative;
+    top:8px;
+    text-transform: uppercase;
+  }
+  .form-input.input-notifications_posts,
+  .form-input.input-auto_subscribe_to_my_posts,
+  .form-input.input-auto_subscribe_to_my_comments {
+    margin-left:5px;
+    .control-label.col-sm-3 {
+      display:none;
+    }
+  }
+  .form-section-heading {
+    padding:1em 0;
+  }
+}
