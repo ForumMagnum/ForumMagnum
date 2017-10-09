@@ -7,10 +7,8 @@ import { Comments } from "meteor/example-forum";
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 
-import IconMenu from 'material-ui/IconMenu';
-import MenuItem from 'material-ui/MenuItem';
-import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import { IconMenu, IconButton, MenuItem, FlatButton, Dialog } from 'material-ui';
 
 const paperStyle = {
   padding: '10px',
@@ -41,7 +39,8 @@ class CommentsItem extends PureComponent {
     this.state = {
       showReply: false,
       showEdit: false,
-      showReport: false
+      showReport: false,
+      showStats: false,
     };
   }
 
@@ -64,6 +63,14 @@ class CommentsItem extends PureComponent {
   showReport = (event) => {
     event.preventDefault();
     this.setState({showReport: true});
+  }
+
+  showStats = (event) => {
+    event.preventDefault();
+    this.setState({showStats: true});
+  }
+  hideStats = (event) => {
+    this.setState({showStats: false});
   }
 
   showReply = (event) => {
@@ -179,6 +186,7 @@ class CommentsItem extends PureComponent {
             { this.renderDeleteMenuItem() }
             { this.renderSubscribeMenuItem() }
             { this.renderReportMenuItem() }
+            { this.renderStatsMenuItem() }
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
@@ -187,10 +195,27 @@ class CommentsItem extends PureComponent {
               link={"/posts/" + this.props.comment.postId + "/a/" + this.props.comment._id}
               userId={this.props.currentUser._id}
               open={true}
-            /> }
+            />
+          }
+          { this.state.showStats &&
+            <Dialog title="Comment Stats"
+                    modal={false}
+                    actions={<FlatButton label="Close" primary={true} onTouchTap={ this.hideStats }/>}
+                    open={this.state.showStats}
+                    onRequestClose={this.hideStats}
+            >
+              <Components.CommentVotesInfo documentId={this.props.comment._id} />
+            </Dialog>
+          }
         </object>
       </div>
     )
+  }
+
+  renderStatsMenuItem = () => {
+    if (Users.canDo(this.props.currentUser, "comments.edit.all")) {
+      return <MenuItem primaryText="Stats" onTouchTap={this.showStats} />
+    }
   }
 
   renderSubscribeMenuItem = () => {
