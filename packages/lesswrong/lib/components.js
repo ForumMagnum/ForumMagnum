@@ -7,7 +7,6 @@ import '../components/messaging/InboxNavigation.jsx';
 import '../components/messaging/newConversationButton.jsx';
 
 import '../components/editor/MessageEditor.jsx';
-import '../components/editor/PostEditor.jsx';
 import '../components/editor/CommentEditor.jsx';
 import '../components/editor/ContentRenderer.jsx';
 import '../components/editor/EditorFormComponent.jsx';
