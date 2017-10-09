@@ -391,7 +391,6 @@ class Form extends Component {
 
   // add something to autofilled values
   addToAutofilledValues(property) {
-    console.log("this.submitFormContext", this.submitFormContext);
     this.setState(prevState => ({
       autofilledValues: {
         ...prevState.autofilledValues,
