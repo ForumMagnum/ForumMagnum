@@ -51,13 +51,6 @@ $medium-text: $dark-grey;
     padding: 0px;
     .comments-item-text {
       overflow-wrap: break-word;
-      ul {
-        padding-left: 25px !important;
-        margin-top: 10px;
-        li {
-          padding: 0 3px !important;
-        }
-      }
     }
   }
   a {
