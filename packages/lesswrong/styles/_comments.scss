@@ -55,7 +55,7 @@ $medium-text: $dark-grey;
         padding-left: 25px !important;
         margin-top: 10px;
         li {
-          padding: 3px !important;
+          padding: 0 3px !important;
         }
       }
     }
@@ -202,7 +202,7 @@ New CSS File
 .comments-item-text {
   font-size: 1.2rem !important;
   line-height: 1.6rem !important;
-  p, li, ol, ul {
+  p, ol, ul {
     font-size: 1.2rem !important;
     line-height: 1.6rem !important;
     margin-top: 0px !important;
