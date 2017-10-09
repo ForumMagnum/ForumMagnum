@@ -38,7 +38,7 @@ import '../components/common/Section.jsx';
 import '../components/common/Vote.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
-import '../components/common/VotesList.jsx';
+import '../components/common/VotesInfo.jsx';
 import '../components/common/Category.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersAccountMenu.jsx';
