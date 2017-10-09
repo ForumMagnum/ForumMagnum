@@ -1,0 +1,15 @@
+.votes-info-reminder {
+  font-size:14px;
+  font-style:italic;
+  margin-left:5px;
+}
+.votes-info {
+  padding-left:.5em;
+  border-top:solid 1px $light-grey;
+}
+.votes-info-stats {
+  // TODO: Update Modal so it displays long content in a reasonable way
+  padding-left:1em;
+  max-height:200px;
+  overflow:scroll;
+}

@@ -135,7 +135,7 @@ class PostsPage extends Component {
                   {Users.canDo(this.props.currentUser, "posts.edit.all") ?
                     <div className="posts-page-content-body-metadata-action">
                       <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
-                        <Components.VotesList document={post} />
+                        <Components.PostVotesInfo documentId={ post._id } />
                       </Components.DialogGroup>
                     </div> : null
                   }
