@@ -41,6 +41,17 @@
 
 html { font-size: 14px; }
 
+body {
+      //  width: 87.5%;
+      //  margin-left: auto;
+      //  margin-right: auto;
+      //  padding-left: 12.5%;
+       font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+       background-color: #ffffff;
+       color: rgba(0,0,0,0.93);
+      //  max-width: 1400px;
+       counter-reset: sidenote-counter; }
+
 .content-body {
 
   .ory-cell-leaf > div {
@@ -63,17 +74,6 @@ html { font-size: 14px; }
     margin-top: 0px !important;
   }
   /* Tufte CSS styles */
-
-  body {
-        //  width: 87.5%;
-        //  margin-left: auto;
-        //  margin-right: auto;
-        //  padding-left: 12.5%;
-         font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
-         background-color: #ffffff;
-         color: rgba(0,0,0,0.93);
-        //  max-width: 1400px;
-         counter-reset: sidenote-counter; }
 
   h1 { font-weight: 400;
        color: rgba(0,0,0,0.93);
