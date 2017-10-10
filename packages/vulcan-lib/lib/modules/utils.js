@@ -475,7 +475,6 @@ Utils.performCheck = (operation, user, checkedObject, context, documentId) => {
   }
 
   if (!operation(user, checkedObject, context)) {
-    console.log("App Operation not allows", operation, checkedObject);
     throw new Error(Utils.encodeIntlError({id: `app.operation_not_allowed`, value: operation.name}));
   }
 
