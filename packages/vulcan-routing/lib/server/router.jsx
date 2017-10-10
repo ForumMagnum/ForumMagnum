@@ -7,8 +7,7 @@ import { RoutePolicy } from 'meteor/routepolicy';
 
 import { withRenderContextEnvironment, InjectData } from 'meteor/vulcan:lib';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
+
 
 function isAppUrl(req) {
   const url = req.url;
@@ -39,38 +38,14 @@ function generateSSRData(options, req, res, renderProps) {
 
   try {
     req.css = '';
-
     renderProps = {
+      userAgent: req.headers['user-agent'],
       ...renderProps,
       ...options.props,
     };
 
     const appGenerator = addProps => {
-      const muiTheme = getMuiTheme({
-        "fontFamily": "et-book",
-        "palette": {
-          "primary1Color": "#f5f5f5",
-          "accent1Color": "#43a047",
-          "primary2Color": "#eeeeee",
-          "accent2Color": "#81c784",
-          "accent3Color": "#c8e6c9",
-          "pickerHeaderColor": "#4caf50"
-        },
-        "appBar": {
-          "textColor": "rgba(0, 0, 0, 0.54)"
-        },
-        "datePicker": {
-          "color": "rgba(0,0,0,0.54)",
-          "selectTextColor": "rgba(0,0,0,0.54)",
-        },
-        "flatButton": {
-          "primaryTextColor": "rgba(0,0,0,0.54)"
-        },
-        userAgent: req.headers['user-agent'],
-      });
-      return <MuiThemeProvider muiTheme={muiTheme}>
-        <RouterContext {...renderProps} {...addProps} />
-      </MuiThemeProvider>
+      return <RouterContext {...renderProps} {...addProps} />
     };
 
     let app;

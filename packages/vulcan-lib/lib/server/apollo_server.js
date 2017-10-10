@@ -112,6 +112,12 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
     // merge with custom context
     options.context = deepmerge(options.context, GraphQLSchema.context);
 
+
+    //////////////////////////////////////////////////////////////
+    options.context.getRenderContext = () => req.renderContext; // !! Provide access to the render context. !!
+    //////////////////////////////////////////////////////////////
+
+
     // go over context and add Dataloader to each collection
     Collections.forEach(collection => {
       options.context[collection.options.collectionName].loader = new DataLoader(ids => findByIds(collection, ids, options.context), { cache: true });
