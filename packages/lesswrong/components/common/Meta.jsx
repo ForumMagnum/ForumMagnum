@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 
 const Meta = (props, context) => {
   const query = props.location && props.location.query;
-  const recentPostsTerms = {view: 'top', limit: 5, ...query, meta: true}
+  const recentPostsTerms = {view: 'top', limit: 10, ...query, meta: true}
   const featuredPostsTerms = {view: 'featured', limit: 3, meta: true};
   return (
     <div className="home">
