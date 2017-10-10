@@ -37,7 +37,7 @@ class CommentEditor extends Component {
     } else if (document && document.parentCommentId) {
       return ls.get('parent:' +  document.parentCommentId)
     } else if (document && document.postId) {
-      return ls.get(document.postId)
+      return ls.get('post:' + document.postId)
     } else {
       return null
     }
@@ -52,7 +52,7 @@ class CommentEditor extends Component {
     } else if (document && document.parentCommentId) {
       ls.set('parent:' + document.parentCommentId, state);
     } else if (document && document.postId, state) {
-      ls.set(document.postId, state);
+      ls.set('post:' + document.postId, state);
     }
   }
 
