@@ -5,6 +5,8 @@ import { getDataFromTree, ApolloProvider } from 'react-apollo';
 
 import { Meteor } from 'meteor/meteor';
 
+
+
 import {
   Components,
   addRoute,
@@ -23,7 +25,7 @@ Meteor.startup(() => {
   initializeFragments();
   populateComponentsApp();
   populateRoutesApp();
-  
+
   const indexRoute = _.filter(Routes, route => route.path === '/')[0];
   const childRoutes = _.reject(Routes, route => route.path === '/');
 

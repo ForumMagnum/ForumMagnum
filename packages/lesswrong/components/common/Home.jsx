@@ -33,6 +33,8 @@ const testCollections = [
   }
 ]
 
+
+
 const Home = (props, context) => {
   const recentPostsTerms = _.isEmpty(props.location && props.location.query) ? {view: 'top', limit: 10, frontpage: true}: props.location.query;
   const featuredPostsTerms = {view: 'featured', limit: 3, frontpage: true};
@@ -42,20 +44,20 @@ const Home = (props, context) => {
         <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/sequences"}/>
         <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
         <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
-        </Components.Section>
-        <Components.Section title="Featured Posts">
-          <Components.PostsList terms={featuredPostsTerms} showHeader={false} showLoadMore={false} />
-        </Components.Section>
-        <Components.Section title="Recent Frontpage Posts"
-          titleComponent= {<div className="recent-posts-title-component">
-            sorted by<br /> <Components.PostsViews />
+      </Components.Section>
+      <Components.Section title="Featured Posts">
+        <Components.PostsList terms={featuredPostsTerms} showHeader={false} showLoadMore={false} />
+      </Components.Section>
+      <Components.Section title="Recent Frontpage Posts"
+        titleComponent= {<div className="recent-posts-title-component">
+          sorted by<br /> <Components.PostsViews />
           {props.currentUser && <div className="new-post-link"><Link to={{pathname:"/daily"}}> see all posts </Link></div>}
-          </div>} >
-          <Components.PostsList terms={recentPostsTerms} showHeader={false} />
-        </Components.Section>
-         <Components.Section title="Recent Comments" titleComponent={<div><Link to={"/AllComments"}>see all comments</Link></div>}>
-          <Components.RecentComments terms={{view: 'recentComments', limit: 10}} fontSize="small" />
-        </Components.Section>
+        </div>} >
+        <Components.PostsList terms={recentPostsTerms} showHeader={false} />
+      </Components.Section>
+      <Components.Section title="Recent Comments" titleComponent={<div><Link to={"/AllComments"}>see all comments</Link></div>}>
+        <Components.RecentComments terms={{view: 'recentComments', limit: 10}} fontSize="small" />
+      </Components.Section>
     </div>
   )
 };

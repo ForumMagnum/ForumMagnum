@@ -18,7 +18,7 @@ class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties ? this.props.lastEvent.properties.startTime : new Date(),
+      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.startTime && new Date(this.props.lastEvent.properties.startTime) || new Date(),
     }
   }
 
@@ -35,6 +35,7 @@ class CommentsListSection extends Component {
       textFieldStyle={datePickerTextFieldStyle}
       ref="dp"
       maxDate={new Date()}
+      id="datepicker"
       />
     </div>
 
