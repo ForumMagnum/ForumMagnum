@@ -14,7 +14,8 @@ const Layout = ({currentUser, children, currentRoute}) =>
 
     <Components.HeadTags />
 
-    {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null}
+    {/* Deactivating this component for now, since it's been causing a bunch of bugs. TODO: Fix this properly. */}
+    {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 
     <Components.Header {...this.props}/>
 
