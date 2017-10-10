@@ -11,10 +11,11 @@ const Layout = ({currentUser, children, currentRoute}) =>
       <link name="bootstrap" rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css"/>
       <link name="font-awesome" rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     </Helmet>
-   
+
     <Components.HeadTags />
 
-    {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null}
+    {/* Deactivating this component for now, since it's been causing a bunch of bugs. TODO: Fix this properly. */}
+    {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 
     <Components.Header {...this.props}/>
 
