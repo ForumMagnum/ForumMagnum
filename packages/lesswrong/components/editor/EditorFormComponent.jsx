@@ -17,11 +17,10 @@ class EditorFormComponent extends Component {
     state = JSON.parse(JSON.stringify(state));
 
     //Check if we have a saved state in local-storage (from previous session)
-
-    const savedState = document ? ls.get(document._id) : ls.get(fieldName);
+    const savedState = document && document._id ? ls.get(document._id) : ls.get(fieldName);
     if (savedState) {
       //We can rely on window being available here since localStorage will never be accessed on the server
-      const result = window.confirm("We've found a previously saved state for this editor, would you like to restore it?")
+      const result = !document._id || window.confirm("We've found a previously saved state for this editor, would you like to restore it?")
       if (result) {state = savedState}
     }
 
@@ -36,6 +35,7 @@ class EditorFormComponent extends Component {
   componentWillMount() {
     //Add function for resetting form to form submit callbacks
     const fieldName = this.props.name;
+    const document = this.props.document;
     const resetEditor = (result) => {
       // On Form submit, create a new empty editable
       let editor = this.props.editor;
@@ -44,6 +44,10 @@ class EditorFormComponent extends Component {
       this.setState({
         [fieldName]: state,
       });
+      // On form success, remove cached version from localStorage
+      if (document._id) { ls.remove(document._id) }
+      else { ls.remove(fieldName) }
+
       return result;
     }
     this.context.addToSuccessForm(resetEditor);
@@ -64,7 +68,7 @@ class EditorFormComponent extends Component {
     const fieldName = this.props.name;
     const addValues = this.context.addToAutofilledValues;
     addValues({[fieldName]: state});
-    ls.set(document._id, state);
+    document && document._id ? ls.set(document._id, state) : ls.set(fieldName, state);
   }
 
   activateEditor = () => {this.setState({active: true})}
