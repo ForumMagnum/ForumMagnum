@@ -1,12 +1,11 @@
 import React from 'react';
 import { render, shallow, mount, configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
 import { assert, should, expect } from 'meteor/practicalmeteor:chai';
 import CommentsItem from './CommentsItem.jsx'
+import Adapter from 'enzyme-adapter-react-16';
+configure({ adapter: new Adapter() })
 
 import { sinon } from 'meteor/practicalmeteor:sinon';
-
-configure({ adapter: new Adapter() })
 
 const mockProps = {
   router: {params:""},

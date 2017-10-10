@@ -19,6 +19,51 @@ Users.addField([
   },
 
   /**
+    Intercom: Will the user display the intercom while logged in?
+  */
+  {
+    fieldName: 'hideIntercom',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'checkbox',
+      label: "Hide Intercom"
+    }
+  },
+  {
+    fieldName: 'email',
+    fieldSchema: {
+      order: 20,
+    }
+  },
+
+  {
+    fieldName: 'website',
+    fieldSchema: {
+      order: 30,
+    }
+  },
+
+  {
+    fieldName: 'bio',
+    fieldSchema: {
+      order: 40,
+    }
+  },
+
+  {
+    fieldName: 'twitterUsername',
+    fieldSchema: {
+      hidden: true,
+    }
+  },
+
+  /**
     Legacy ID: ID used in the original LessWrong database
   */
   {
@@ -162,6 +207,29 @@ Users.addField([
     }
   },
 
+  /**
+    New Notifications settings
+  */
+  {
+    fieldName: 'auto_subscribe_to_my_posts',
+    fieldSchema: {
+      group: null,
+      label: "Notifications for Comments on My Posts"
+    }
+  },
+  {
+    fieldName: 'auto_subscribe_to_my_comments',
+    fieldSchema: {
+      group: null,
+      label: "Notifications For Replies to My Comments"
+    }
+  },
+  {
+    fieldName: 'notifications_posts',
+    fieldSchema: {
+      group: null
+    }
+  },
   /**
     Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   */

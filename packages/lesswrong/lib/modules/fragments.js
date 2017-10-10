@@ -70,6 +70,7 @@ extendFragment('UsersCurrent', `
   voteBanned
   banned
   nullifyVotes
+  hideIntercom
 `);
 
 registerFragment(`
