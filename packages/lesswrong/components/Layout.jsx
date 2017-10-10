@@ -34,12 +34,12 @@ const Layout = ({currentUser, children, currentRoute}) =>
 
       {/* Sign up user for Intercom, if they do not yet have an account */}
 
-      { !currentUser && <Intercom appID="wtb8z7sj"/> }
+      { !currentUser && <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"/></div> }
       { currentUser && !currentUser.hideIntercom ? (
-        <Intercom appID="wtb8z7sj"
+        <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"
                   user_id={currentUser._id}
                   email={currentUser.email}
-                  name={currentUser.displayName}/>
+                  name={currentUser.displayName}/></div>
               ) : null }
 
       {currentUser && IntercomAPI('update', { "name" : currentUser.displayName, "email" : currentUser.email, "user_id" : currentUser._id, "createdAt" : currentUser.createdAt })}
