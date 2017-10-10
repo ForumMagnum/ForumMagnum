@@ -50,7 +50,8 @@ const Layout = ({currentUser, children, currentRoute, userAgent}) => {
             {/* <link name="cardo-font" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cardo:400,400i,700" />*/}
           </Helmet>
 
-          {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null}
+          {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
+          {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 
           {/* Sign up user for Intercom, if they do not yet have an account */}
 
