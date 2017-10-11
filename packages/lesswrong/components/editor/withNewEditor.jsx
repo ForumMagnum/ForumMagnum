@@ -10,7 +10,7 @@ import { Button } from 'react-bootstrap';
 import Editor, { Editable, createEmptyState } from 'ory-editor-core';
 import { editMode } from 'ory-editor-core/lib/actions/display';
 
-import HeadersPlugin from './editorPlugins/HeadingsPlugin.js';
+import HeadingsPlugin from './editorPlugins/HeadingsPlugin.js';
 
 // Require our ui components (optional). You can implement and use your own ui too!
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
@@ -54,7 +54,7 @@ function withNewEditor(WrappedComponent) {
 
       let slatePlugins = defaultPlugins;
       const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
-      slatePlugins[2] = new HeadersPlugin({ DEFAULT_NODE })
+      slatePlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
 
       const plugins = {
         content: [slate(slatePlugins), spacer, image, video, divider],
