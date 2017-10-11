@@ -43,12 +43,11 @@ import divider from 'ory-editor-plugins-divider'
   TODO: Figure out a way to do this without using context
 */
 
-const constructSlatePlugins = (defaultPlugins) => {
+export const constructSlatePlugins = (defaultPlugins) => {
   const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
   defaultPlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
   return defaultPlugins
 }
-
 
 function withNewEditor(WrappedComponent) {
 
