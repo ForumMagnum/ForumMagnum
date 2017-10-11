@@ -43,6 +43,12 @@ import divider from 'ory-editor-plugins-divider'
   TODO: Figure out a way to do this without using context
 */
 
+const constructSlatePlugins = (defaultPlugins) => {
+  const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
+  defaultPlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
+  return defaultPlugins
+}
+
 
 function withNewEditor(WrappedComponent) {
 
@@ -52,16 +58,12 @@ function withNewEditor(WrappedComponent) {
       let initialContent = this.props.initialContent;
       let editables = this.props.editables;
 
-      let slatePlugins = defaultPlugins;
-      const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
-      slatePlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
+      const slatePlugins = constructSlatePlugins(defaultPlugins)
 
       const plugins = {
         content: [slate(slatePlugins), spacer, image, video, divider],
         layout: [parallax({ defaultPlugin: slate(slatePlugins)}), image] // Define plugins for layout cells
       }
-      console.log("SLATE", slatePlugins)
-      console.log("SLATE", plugins)
       const editor = new Editor({
         plugins,
         // pass the content state - you can add multiple editables here
@@ -69,7 +71,6 @@ function withNewEditor(WrappedComponent) {
         defaultPlugin: slate(slatePlugins),
       })
       this.editor = editor;
-      console.log("ASDF", slatePlugins)
     }
 
     customSlatePlugins(defaultPlugins) {
