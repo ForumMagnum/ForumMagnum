@@ -30,9 +30,13 @@ class UsersAccountMenu extends PureComponent {
   render() {
     let { state } = this.props;
 
+    const labelStyle = {
+      color: this.props.color
+    }
+
     return (
       <div className="users-menu">
-        <FlatButton label="Login" onTouchTap={this.handleTouchTap} />
+        <FlatButton labelStyle={ labelStyle } label="Login" onTouchTap={this.handleTouchTap} />
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
@@ -45,6 +49,14 @@ class UsersAccountMenu extends PureComponent {
       </div>
     )
   }
+}
+
+UsersAccountMenu.propTypes = {
+  color: PropTypes.string,
+};
+
+UsersAccountMenu.defaultProps = {
+  color: "rgba(0, 0, 0, 0.6)"
 }
 
 registerComponent('UsersAccountMenu', UsersAccountMenu);

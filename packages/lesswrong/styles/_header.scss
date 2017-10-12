@@ -33,13 +33,33 @@
   top:15px;
   left:64px;
   color:$medium-text;
-
-  &:hover {
+  a {
+    text-decoration:none;
+  }
+  a:hover {
     text-decoration:none;
     color:$light-text;
   }
+  a.logo-user {
+    color:$medium-text;
+    &:hover {
+      color:$light-text;
+    }
+  }
 }
+.header-site-section {
+  margin-left: 1em;
+  padding-left: 1em;
+  text-transform: uppercase;
+  border-left:1px solid $dark-grey;
 
+  &.user {
+    color:$dark-text;
+    &:hover {
+      color:$light-text;
+    }
+  }
+}
 .nav{
   @include flex-center;
   @include small{
