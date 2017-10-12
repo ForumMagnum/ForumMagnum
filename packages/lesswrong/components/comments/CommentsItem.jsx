@@ -133,7 +133,7 @@ class CommentsItem extends PureComponent {
             <div className="comments-item-date"><Link to={commentLink}>{moment(new Date(comment.postedAt)).fromNow()} </Link></div>
             {this.renderMenu()}
           </div>
-          {commentBody}
+          { commentBody }
         </div>
         {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
       </div>

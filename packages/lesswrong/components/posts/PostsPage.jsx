@@ -96,7 +96,6 @@ class PostsPage extends Component {
       }
 
       const sequenceId = this.props.params.sequenceId;
-
       return (
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
