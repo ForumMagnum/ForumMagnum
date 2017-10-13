@@ -281,14 +281,6 @@ function reactRouterAnchorTags(unusedItem) {
 
 addCallback("router.onUpdate", reactRouterAnchorTags);
 
-function userEditBanUserCallbacksAsync(user, oldUser) {
-  if (user.banned && !oldUser.banned) {
-    runCallbacksAsync('users.ban.async', user);
-  }
-  return user;
-}
-addCallback("users.edit.async", userEditBanUserCallbacksAsync);
-
 function userEditVoteBannedCallbacksAsync(user, oldUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
     runCallbacksAsync('users.voteBanned.async', user);
@@ -314,14 +306,14 @@ function userEditDeleteContentCallbacksAsync(user, oldUser) {
 
 addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
 
-function userEditUserBannedCallbacksAsync(user, oldUser) {
-  if (user.banner && !oldUser.banned) {
-    runCallbacksAsync('users.banned.async', user);
+function userEditBannedCallbacksAsync(user, oldUser) {
+  if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
+    runCallbacksAsync('users.ban.async', user);
   }
   return user;
 }
 
-addCallback("users.edit.async", userEditUserBannedCallbacksAsync);
+addCallback("users.edit.async", userEditBannedCallbacksAsync);
 
 
 const reverseVote = (vote, collection, user, multiplier) => {
@@ -458,7 +450,7 @@ addCallback("users.deleteContent.async", userDeleteContent);
 
 function userResetLoginTokens(user) {
   console.log("Resetting users login tokens: ", user);
-  Users.update({_id: user._id}, {"services.resume.loginTokens": []});
+  Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
-addCallback("users.banned.async", userResetLoginTokens); 
+addCallback("users.ban.async", userResetLoginTokens);
