@@ -10,20 +10,20 @@ import ReactDOMServer from 'react-dom/server';
 
 function newCommentAlgoliaIndex(comment) {
   algoliaDocumentExport([comment], Comments, 'test_comments', Comments.toAlgolia, (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}}))
-  console.log("Indexed new comment into Algolia: ", comment);
+  // console.log("Indexed new comment into Algolia: ", comment);
 }
 addCallback("comments.new.async", newCommentAlgoliaIndex)
 
 function editCommentAlgoliaIndex(comment) {
   algoliaDocumentExport([comment], Comments, 'test_comments', Comments.toAlgolia, (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}}))
-  console.log("Updated Algolia index for edited comment", comment);
+  // console.log("Updated Algolia index for edited comment", comment);
 }
 addCallback("comments.edit.async", editCommentAlgoliaIndex)
 
 function newPostAlgoliaIndex(post) {
   if (!post.draft) {
     algoliaDocumentExport([post], Posts, 'test_posts', Posts.toAlgolia, (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}}))
-    console.log("Indexed new post into Algolia: ", post);
+    // console.log("Indexed new post into Algolia: ", post);
   }
 }
 addCallback("posts.new.async", newPostAlgoliaIndex)
@@ -31,7 +31,7 @@ addCallback("posts.new.async", newPostAlgoliaIndex)
 function editPostAlgoliaIndex(post) {
   if (!post.draft) {
     algoliaDocumentExport([post], Posts, 'test_posts', Posts.toAlgolia, (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}}))
-    console.log("Updated Algolia index for edited post ", post);
+    // console.log("Updated Algolia index for edited post ", post);
   }
 }
 addCallback("posts.edit.async", editPostAlgoliaIndex)
