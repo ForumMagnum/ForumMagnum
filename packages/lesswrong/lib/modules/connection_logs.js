@@ -57,5 +57,5 @@ Accounts.onLogin((login) => {
     currentUser: dummyUser,
     validate: false,
   })
-  console.log("New Login: ", login && login.user && login.user.username);
+  console.log("New Login: ", login && login.user && login.user.username, login && login.user && login.user.karma);
 })
