@@ -305,6 +305,16 @@ function userEditNullifyVotesCallbacksAsync(user, oldUser) {
 }
 addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
 
+function userEditDeleteContentCallbacksAsync(user, oldUser) {
+  if (user.deleteContent && !oldUser.deleteContent) {
+    runCallbacksAsync('users.deleteContent.async', user);
+  }
+  return user;
+}
+
+addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
+
+
 const reverseVote = (vote, collection, user, multiplier) => {
   const item = collection.findOne({_id: vote.itemId});
   if (item) {
@@ -405,3 +415,34 @@ function undoNullifyPostVotes(user) {
 }
 
 addCallback("users.undoNullifyVotes.async", undoNullifyPostVotes)
+
+function userDeleteContent(user) {
+  console.log("Deleting all content of user: ", user)
+  const posts = Posts.find({userId: user._id});
+  console.log("Deleting posts: ", posts);
+  posts.forEach((post) => {
+    editMutation({
+      collection: Posts,
+      documentId: post._id,
+      set: {status: 5},
+      unset: {},
+      currentUser: user,
+      validate: false,
+    })
+  })
+  const comments = Comments.find({userId: user._id});
+  console.log("Deleting comments: ", comments);
+  comments.forEach((comment) => {
+    editMutation({
+      collection: Comments,
+      documentId: comment._id,
+      set: {deleted: true},
+      unset: {},
+      currentUser: user,
+      validate: false,
+    })
+  })
+  console.log("Deleted n posts and m comments: ", posts.length, comments.length);
+}
+
+addCallback("users.deleteContent.async", userDeleteContent);
