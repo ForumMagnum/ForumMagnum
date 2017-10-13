@@ -79,7 +79,7 @@ const addJob = function () {
 
         }).catch( (error) => {
           // console.log(feed);
-          console.log('error: ', error);
+          console.log('RSS error: ', error);
         });
      })
     }
