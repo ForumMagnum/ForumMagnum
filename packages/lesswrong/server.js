@@ -1,3 +1,5 @@
+import { Accounts } from 'meteor/accounts-base';
+
 import './lib/SSR/resolvers.js';
 
 import './lib/index.js';
@@ -29,3 +31,5 @@ export * from './lib/index.js';
 import './lib/collections/sequences/seed.js';
 
 import './lib/closed-beta/fixSSCDrafts.js';
+
+import './lib/modules/connection_logs.js';
