@@ -2,10 +2,19 @@ import feedparser from 'feedparser-promised';
 import Users from 'meteor/vulcan:users';
 import { Posts } from 'meteor/example-forum';
 import { newMutation, editMutation } from 'meteor/vulcan:core';
+import RSSFeeds from '../collections/rssfeeds/collection.js';
 
-async function rssImport(userId, rssURL, pages = 100, overwrite = false) {
+async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
     let rssPageImports = [];
+    let rssFeed = RSSFeeds.findOne({nickname: feedName});
+    if (!rssFeed) {
+      rssFeed = newMutation({
+        collection: RSSFeeds,
+        document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
+      })
+    }
+    console.log(rssFeed);
     for (let i of _.range(1,pages)) {
       const newPosts = await feedparser.parse(rssURL+i)
       console.log("Importing RSS posts page " + i);
@@ -26,7 +35,10 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false) {
         var post = {
           title: newPost.title,
           postedAt: newPost.pubdate,
+          feedId: rssFeed._id,
+          feedLink: newPost.link,
           draft: false,
+          legacy: true,
           userId: userId,
           htmlBody: body,
         };
@@ -46,7 +58,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false) {
             editMutation({
               collection: Posts,
               documentId: oldPost._id,
-              set: {draft: false, htmlBody: body, postedAt: newPost.pubdate},
+              set: {...post},
               unset: {},
               currentUser: lwUser,
               validate: false,
@@ -75,4 +87,12 @@ let katjaImport = false;
 
 if (katjaImport) {
   rssImport(katjaId, katjaRSS, 40, true);
+}
+
+let putanumonitRSS = "https://putanumonit.com/feed/?paged=";
+let putanumonitId = "tzER8b2F9ofG5wq5p";
+let putanumonitImport = false;
+
+if (putanumonitImport) {
+  rssImport(putanumonitId, putanumonitRSS, 4, false, "putanumonit", "https://putanumonit.com/feed/");
 }
