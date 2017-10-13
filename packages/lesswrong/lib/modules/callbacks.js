@@ -314,6 +314,15 @@ function userEditDeleteContentCallbacksAsync(user, oldUser) {
 
 addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
 
+function userEditUserBannedCallbacksAsync(user, oldUser) {
+  if (user.banner && !oldUser.banned) {
+    runCallbacksAsync('users.banned.async', user);
+  }
+  return user;
+}
+
+addCallback("users.edit.async", userEditUserBannedCallbacksAsync);
+
 
 const reverseVote = (vote, collection, user, multiplier) => {
   const item = collection.findOne({_id: vote.itemId});
@@ -446,3 +455,10 @@ function userDeleteContent(user) {
 }
 
 addCallback("users.deleteContent.async", userDeleteContent);
+
+function userResetLoginTokens(user) {
+  console.log("Resetting users login tokens: ", user);
+  Users.update({_id: user._id}, {"services.resume.loginTokens": []});
+}
+
+addCallback("users.banned.async", userResetLoginTokens); 
