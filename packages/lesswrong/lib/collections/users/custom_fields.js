@@ -92,7 +92,8 @@ Users.addField([
       editableBy: ['admins'],
       insertableBy: ['members'],
       label: 'Delete this user',
-      control: 'checkbox'
+      control: 'checkbox',
+      hidden: true,
     }
   },
 
@@ -130,23 +131,6 @@ Users.addField([
   },
 
   /**
-    banned: Whether the user is banned or not. Can be set by moderators and admins.
-  */
-
-  {
-    fieldName: 'banned',
-    fieldSchema: {
-      type: Boolean,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['admins'],
-      control: 'checkbox',
-      label: 'Ban this user'
-    }
-  },
-
-  /**
     voteBanned: All future votes of this user have weight 0
   */
 
@@ -177,6 +161,40 @@ Users.addField([
       insertableBy: ['admins'],
       control: 'checkbox',
       label: 'Nullify all past votes'
+    }
+  },
+
+  /**
+    deleteContent: Flag all comments and posts from this user as deleted
+  */
+
+  {
+    fieldName: 'deleteContent',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['admins'],
+      control: 'checkbox',
+      label: 'Delete all user content'
+    }
+  },
+
+  /**
+    banned: Whether the user is banned or not. Can be set by moderators and admins.
+  */
+
+  {
+    fieldName: 'banned',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['admins'],
+      control: 'datetime',
+      label: 'Ban this user until'
     }
   },
 
