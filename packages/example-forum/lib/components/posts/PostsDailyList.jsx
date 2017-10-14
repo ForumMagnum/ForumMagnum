@@ -39,7 +39,9 @@ class PostsDailyList extends PureComponent {
     const mBefore = moment(before, 'YYYY-MM-DD');
     const daysCount = mBefore.diff(mAfter, 'days') + 1;
     const range = _.range(daysCount).map(
-      i => moment(before, 'YYYY-MM-DD').subtract(i, 'days').startOf('day')
+      ///XXX: Hotfix to avoid timezone issue, this should not be i-1,
+      // but should properly sync the timezones
+      i => moment(before, 'YYYY-MM-DD').subtract(i-1, 'days').startOf('day')
     );
     return range;
   }
