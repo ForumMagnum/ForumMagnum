@@ -28,8 +28,9 @@ vulcan:i18n-en-us
 
 accounts-password@1.4.0
 # accounts-twitter
-# accounts-facebook
-# accounts-google
+accounts-facebook
+accounts-google
+accounts-github
 
 ############ Your Packages ############
 

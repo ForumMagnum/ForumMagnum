@@ -6,6 +6,15 @@
 
 .accounts-ui{
   .buttons{
+    button {
+      background-color: rgba(0,0,0,0.1);
+      box-shadow: none;
+      color: rgba(0,0,0,0.87);
+      &:hover, &:active, &:focus {
+        background-color: rgba(0,0,0,0.2);
+        color: rgba(0,0,0,0.87);
+      }
+    }
     a{
       display:block;
       text-align: center;
@@ -20,16 +29,15 @@
     @include flex-center;
     justify-content: space-between;
     button{
-      margin-right: $hmargin;
+      padding: 0px;
+      background-color: transparent;
+      color: black;
+      box-shadow: none;
+      padding: 2px; 
+      &:hover, &:active, &:focus {
+        background-color: rgba(0,0,0,0.1);
+      }
       width: 100%;
-      &.btn-twitter{
-        background: #55acee;
-        border-color: #55acee;
-      }
-      &.btn-facebook{
-        background: #3b5998;
-        border-color: #3b5998;
-      }
       &:last-child{
         margin-right: 0 !important;
       }
