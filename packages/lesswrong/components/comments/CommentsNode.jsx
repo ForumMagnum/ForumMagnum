@@ -2,11 +2,13 @@ import { Components, replaceComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
+const KARMA_COLLAPSE_THRESHOLD = -4;
+
 class CommentsNode extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      collapsed: false
+      collapsed: props && props.comment && props.comment.baseScore < KARMA_COLLAPSE_THRESHOLD
     };
   }
 
