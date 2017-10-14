@@ -11,13 +11,15 @@ const schema = {
   _id: {
     optional: true,
     type: String,
+    viewableBy: ['guests'],
   },
   createdAt: {
     type: Date,
     optional: true,
     onInsert: (document, currentUser) => {
       return new Date();
-    }
+    },
+    viewableBy: ['members'],
   },
   userId: {
     type: String,

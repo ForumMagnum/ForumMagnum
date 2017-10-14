@@ -27,7 +27,15 @@ import './rss-integration/callbacks.js'
 // LWEvents
 import LWEvents from './collections/lwevents/collection.js';
 import './collections/lwevents/permissions.js';
+import './collections/lwevents/fragments.js';
+import './collections/lwevents/views.js';
 import './events/callbacks_sync.js';
+
+// Bans
+import Bans from './collections/bans/collection.js';
+import './collections/bans/permissions.js';
+import './collections/bans/fragments.js';
+import './collections/bans/admin.js';
 // Chapters
 import Sequences from './collections/sequences/collection.js';
 import Chapters from './collections/chapters/collection.js';
@@ -98,4 +106,4 @@ import './search/callbacks.js';
 import './SSR/withUserAgent.js';
 
 //
-export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books }
+export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books, Bans }
