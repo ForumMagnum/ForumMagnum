@@ -454,3 +454,24 @@ function userResetLoginTokens(user) {
 }
 
 addCallback("users.ban.async", userResetLoginTokens);
+
+function fixUsernameOnExternalLogin(user) {
+  console.log("New user being created: ", user)
+  if (!user.username) {
+    console.log("No username detected, replacing with slug");
+    user.username = user.slug;
+  }
+  return user;
+}
+
+addCallback("users.new.sync", fixUsernameOnExternalLogin);
+
+function fixUsernameOnGithubLogin(user) {
+  if (user.services && user.services.github) {
+    console.log("Github login detected, setting username and slug manually");
+    user.username = user.services.github.username;
+    user.slug = user.services.github.username;
+  }
+  return user;
+}
+addCallback("users.new.sync", fixUsernameOnGithubLogin);
