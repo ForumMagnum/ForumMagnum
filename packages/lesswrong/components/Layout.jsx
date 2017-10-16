@@ -15,6 +15,18 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { withUserAgent } from '../lib/SSR/withUserAgent.js';
 
 const Layout = ({currentUser, children, currentRoute, userAgent}) => {
+    const showIntercom = currentUser => {
+      if (currentUser && !currentUser.hideIntercom) {
+        return <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"
+          user_id={currentUser._id}
+          email={currentUser.email}
+          name={currentUser.displayName}/></div>
+      } else if (!currentUser) {
+        return<div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"/></div>
+      } else {
+        return null
+      }
+    }
     const muiTheme = getMuiTheme({
       "fontFamily": "et-book",
       "palette": {
@@ -54,25 +66,13 @@ const Layout = ({currentUser, children, currentRoute, userAgent}) => {
           {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 
           {/* Sign up user for Intercom, if they do not yet have an account */}
-
-          { !currentUser && <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"/></div> }
-          { currentUser && !currentUser.hideIntercom ? (
-            <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"
-              user_id={currentUser._id}
-              email={currentUser.email}
-              name={currentUser.displayName}/></div>
-          ) : null }
-
-          {currentUser && IntercomAPI('update', { "name" : currentUser.displayName, "email" : currentUser.email, "user_id" : currentUser._id, "createdAt" : currentUser.createdAt })}
+          {showIntercom(currentUser)}
 
           <Components.Header {...this.props}/>
 
           <div className="main">
-
             <Components.FlashMessages />
-
             {children}
-
           </div>
 
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
@@ -80,6 +80,8 @@ const Layout = ({currentUser, children, currentRoute, userAgent}) => {
       </MuiThemeProvider>
     </div>
   }
+
+
 
 
 Layout.displayName = "Layout";
