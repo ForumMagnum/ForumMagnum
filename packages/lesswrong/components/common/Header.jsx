@@ -9,6 +9,10 @@ import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 
+import { withApollo } from 'react-apollo';
+import { Posts } from 'meteor/example-forum';
+import Users from 'meteor/vulcan:users';
+
 const appBarStyle = {
   boxShadow: "none",
 }
@@ -33,11 +37,46 @@ class Header extends Component {
     {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
   </div>}
 
+  renderHeaderSection_UserProfile = (userSlug) => {
+    const user = Users.findInStore(this.props.client.store, {slug:userSlug}).fetch()[0]
+    console.log(user)
+    if (user && (user.displayName || user.slug)) {
+      return (
+        <Link className="header-site-section user" to={ Users.getProfileUrl(user) }>
+          { user.displayName || user.slug }
+        </Link>
+      )
+    }
+  }
+
+  renderHeaderSection_UserPost = (postId) => {
+    const post = Posts.findOneInStore(this.props.client.store, postId)
+    if (post && post.frontpage) {
+    } else if (post && post.userId) {
+      const user = Users.findOneInStore(this.props.client.store, post.userId)
+      if (user) {
+        return <Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
+      }
+    }
+  }
+
+  getSiteSection = () => {
+    const routeName = this.props.routes[1].name
+    if (routeName == "users.single") {
+      return this.renderHeaderSection_UserProfile(this.props.params.slug)
+    } else if (routeName == "posts.single") {
+      return this.renderHeaderSection_UserPost(this.props.params._id)
+    }
+  }
+
+  getHeaderBackgroundColor = (section) => section ? "#D5DFE5" : "#eee"
+
   render() {
     //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing.
+    const siteSection = this.getSiteSection()
 
+    appBarStyle.backgroundColor = this.getHeaderBackgroundColor(siteSection)
 
-    let { router } = this.props;
     return (
       <div className="header-wrapper">
         <header className="header">
@@ -46,9 +85,17 @@ class Header extends Component {
             iconElementRight = {this.renderAppBarElementRight()}
             style={appBarStyle}
           >
-            <Link className="header-title" to="/">LESSWRONG</Link>
+            <div className="header-title">
+              <Link to="/">LESSWRONG</Link>
+                { siteSection}
+            </div>
           </AppBar>
-        <Drawer docked={false} width={200} open={this.state.open} onRequestChange={(open) => this.setState({open})} containerClassName="menu-drawer" >
+        <Drawer docked={false}
+                width={200}
+                open={this.state.open}
+                onRequestChange={(open) => this.setState({open})}
+                containerClassName="menu-drawer" >
+
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> RATIONALITY: A-Z </MenuItem>
           <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> THE CODEX </MenuItem>
@@ -72,4 +119,4 @@ Header.propTypes = {
   currentUser: PropTypes.object,
 };
 
-replaceComponent('Header', Header, withRouter);
+replaceComponent('Header', Header, withRouter, withApollo);

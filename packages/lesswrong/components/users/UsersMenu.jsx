@@ -37,9 +37,15 @@ class UsersMenu extends PureComponent {
   render() {
     let { currentUser, client } = this.props;
 
+    const labelStyle = {
+      textTransform: 'none',
+      fontSize: '16px',
+      color: this.props.color
+    }
+
     return (
       <div className="users-menu">
-        <FlatButton labelStyle={{textTransform: 'none', fontSize: '16px', color: 'rgba(0,0,0,0.5)'}} label={Users.getDisplayName(currentUser)} onTouchTap={this.handleTouchTap} />
+        <FlatButton labelStyle={ labelStyle } label={Users.getDisplayName(currentUser)} onTouchTap={this.handleTouchTap} />
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
@@ -57,6 +63,14 @@ class UsersMenu extends PureComponent {
       </div>
     )
   }
+}
+
+UsersMenu.propTypes = {
+  color: PropTypes.string,
+};
+
+UsersMenu.defaultProps = {
+  color: "rgba(0, 0, 0, 0.6)"
 }
 
 replaceComponent('UsersMenu', UsersMenu, withCurrentUser, withApollo);

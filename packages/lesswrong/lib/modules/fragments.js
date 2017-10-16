@@ -99,6 +99,7 @@ registerFragment(`
     createdAt
     sticky
     status
+    frontpage
     # body # We replaced this with content
     # htmlBody # We replaced this with content
     excerpt # This won't work with content
