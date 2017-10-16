@@ -10,12 +10,13 @@ import { Button } from 'react-bootstrap';
 import Editor, { Editable, createEmptyState } from 'ory-editor-core';
 import { editMode } from 'ory-editor-core/lib/actions/display';
 
+import HeadingsPlugin from './editorPlugins/HeadingsPlugin.js';
 
 // Require our ui components (optional). You can implement and use your own ui too!
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
 
 // The rich text area plugin
-import slate from 'ory-editor-plugins-slate'
+import slate, { defaultPlugins } from 'ory-editor-plugins-slate'
 
 // The spacer plugin
 import spacer from 'ory-editor-plugins-spacer'
@@ -42,6 +43,11 @@ import divider from 'ory-editor-plugins-divider'
   TODO: Figure out a way to do this without using context
 */
 
+export const constructSlatePlugins = (defaultPlugins) => {
+  const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
+  defaultPlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
+  return defaultPlugins
+}
 
 function withNewEditor(WrappedComponent) {
 
@@ -50,18 +56,29 @@ function withNewEditor(WrappedComponent) {
       super(props);
       let initialContent = this.props.initialContent;
       let editables = this.props.editables;
+
+      const slatePlugins = constructSlatePlugins(defaultPlugins)
+
       const plugins = {
-        content: [slate(), spacer, image, video, divider],
-        layout: [parallax({ defaultPlugin: slate() })] // Define plugins for layout cells
+        content: [slate(slatePlugins), spacer, image, video, divider],
+        layout: [parallax({ defaultPlugin: slate(slatePlugins)}), image] // Define plugins for layout cells
       }
       const editor = new Editor({
         plugins,
         // pass the content state - you can add multiple editables here
         editables: editables,
-        defaultPlugin: slate(),
+        defaultPlugin: slate(slatePlugins),
       })
       this.editor = editor;
     }
+
+    customSlatePlugins(defaultPlugins) {
+      // Remove the H1, H3, H4 and H5
+
+
+      return defaultPlugins
+    }
+
     getChildContext() {
       return {editor: this.editor};
     }

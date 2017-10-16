@@ -1,17 +1,22 @@
 .posts-edit-form, .posts-new-form {
-    position:absolute;
-    padding-bottom:25px;
-    width:80%;
-    margin:0 10% 150px;
+    width:$post-width;
+    margin:0 auto;
 
-    @include small {
-        width:90%;
-        margin:0 5% 150px;
-        padding-bottom:75px;
+    .btn-primary{
+      float: right;
     }
-
+    @include small {
+        width:100%;
+    }
     .document-edit, .document-new {
-        position:normal;
+      position:absolute;
+      width:$post-width;
+      margin-bottom:150px;
+      padding-bottom:25px;
+      @include small {
+          width:calc(100% - 20px);
+          padding-bottom:75px;
+      }
     }
 
     .document-edit .input-draft,
@@ -56,6 +61,9 @@
         .checkbox {
             width:150px;
             margin:0 0 6px 0;
+            @include small {
+                width:150px;
+            }
         }
     }
     .document-new .input-frontpage .checkbox {
@@ -73,6 +81,10 @@
           bottom:50px;
           right:0px;
           width:100px;
+
+          .checkbox {
+              width:100px;
+          }
         }
     }
 
@@ -149,4 +161,23 @@ Old editor.scss file TODO: Refactor this properly into the main css
 .ory-controls-mode-toggle-control-group {
   padding: 13px !important;
   bottom: 75px !important;
+}
+
+.slate-h3-icon {
+  padding:4px 0 1px 0 !important;
+}
+.ory-cell-inner.ory-cell-leaf {
+  @include small {
+    > div > div > div > div {
+      padding-left:0 !important;
+      padding-top:0 !important;
+      padding-bottom:0 !important;
+    }
+
+    button {
+      width:20px !important;
+      height:20px !important;
+      margin:0 3px !important;
+    }
+  }
 }
