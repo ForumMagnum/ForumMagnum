@@ -2,7 +2,7 @@ import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:cor
 import React from 'react';
 
 const AllComments = (props, context) => {
-  const commentTerms = _.isEmpty(props.location && props.location.query) ? {view: 'recentComments', limit: 5}: props.location.query;
+  const commentTerms = _.isEmpty(props.location && props.location.query) ? {view: 'recentComments', limit: 20}: props.location.query;
   return (
     <div className="all-posts">
         <Components.Section title="All Recent Comments"
