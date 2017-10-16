@@ -8,8 +8,9 @@ import FontIcon from 'material-ui/FontIcon';
 
 const iconStyle = {
   color: 'rgba(0,0,0,0.5)',
-  fontSize: '16px',
-  verticalAlign: 'sub'
+  fontSize: '18px',
+  verticalAlign: 'sub',
+  marginRight: '3px'
 }
 
 const UsersProfile = (props) => {
@@ -60,14 +61,24 @@ const UsersProfile = (props) => {
       </div>
     }
 
+    const renderUserProfileHeader = (props) => {
+      return (
+        <Components.Section title="User Profile" titleComponent={ renderMeta(props) }>
+          { props.document.bio &&
+            <div className="content-body">
+              <div className="users-profile-bio">
+                <p>{ props.document.bio }</p>
+              </div>
+            </div>}
+          { renderActions(props) }
+        </Components.Section>
+      )
+    }
+
     return (
       <div className="page users-profile">
-        <Components.HeadTags url={Users.getProfileUrl(user, true)} title={Users.getDisplayName(user)} />
-        <div className="users-profile-header">
-          <Components.Section contentStyle={{marginTop: '-20px'}} title={Users.getDisplayName(user)} titleComponent={<div>{ renderMeta(props) }{ renderActions(props) }</div>}>
-            {user.htmlBio ? <div className="users-profile-bio" dangerouslySetInnerHTML={{__html: user.htmlBio}}></div> : null }
-          </Components.Section>
-        </div>
+        <div className="users-profile-header">{ renderUserProfileHeader(props) }</div>
+
         {user.frontpagePostCount > 0 && <Components.Section title="Frontpage Posts"
           titleComponent= {
           <div className="recent-posts-title-component users-profile-recent-posts">

@@ -2,8 +2,18 @@ import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import algoliaClient from 'algoliasearch/src/browser/builds/algoliasearch'
 import Paper from 'material-ui/Paper';
-
-import { InstantSearch, Hits, SearchBox, Highlight, RefinementList, Pagination, CurrentRefinements, ClearAll, Snippet, Configure, Index} from 'react-instantsearch/dom';
+import PropTypes from 'prop-types';
+import {
+  InstantSearch,
+  Hits, SearchBox,
+  Highlight,
+  RefinementList,
+  Pagination,
+  CurrentRefinements,
+  ClearAll,
+  Snippet,
+  Configure,
+  Index } from 'react-instantsearch/dom';
 import FontIcon from 'material-ui/FontIcon';
 
 const closeIconStyle = {
@@ -11,11 +21,9 @@ const closeIconStyle = {
 }
 
 const searchIconStyle = {
-  color: 'rgba(0, 0, 0, 0.6)',
   position: 'absolute',
   padding: '12px',
 }
-
 
 class SearchBar extends Component {
   constructor(props){
@@ -63,6 +71,10 @@ class SearchBar extends Component {
   render() {
     const inputOpenClass = this.state.inputOpen ? "open" : null;
     const resultsOpenClass = this.state.searchOpen ? "open" : null;
+
+    searchIconStyle.color = this.props.color;
+    closeIconStyle.color = this.props.color;
+    
     return <div className="search">
       <InstantSearch
         indexName="test_posts"
@@ -120,6 +132,14 @@ class SearchBar extends Component {
       </InstantSearch>
     </div>
   }
+}
+
+SearchBar.propTypes = {
+  color: PropTypes.string,
+};
+
+SearchBar.defaultProps = {
+  color: "rgba(0, 0, 0, 0.6)"
 }
 
 registerComponent("SearchBar", SearchBar);

@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import IconButton from 'material-ui/IconButton';
 import Popover from 'material-ui/Popover';
 import {List, ListItem} from 'material-ui/List';
+import PropTypes from 'prop-types';
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import Notifications from '../../lib/collections/notifications/collection.js'
@@ -78,6 +79,10 @@ class NotificationsMenu extends Component {
       const totalCount = this.props.totalCount;
       const title = this.props.title;
 
+      const notificationStyle = {
+        color: this.props.color
+      }
+
       if (!currentUser) {
         return null;
       } else if (loading || !results) {
@@ -86,7 +91,9 @@ class NotificationsMenu extends Component {
         results = this.props.results.map(_.clone); //We don't want to modify the original results we get
         return (
           <div className="notifications-menu">
-            <IconButton onTouchTap={(e) => {this.handleTouchTap(e)}}> <NotificationsIcon color="rgba(0,0,0,0.5)" /> </IconButton>
+            <IconButton onTouchTap={(e) => {this.handleTouchTap(e)}} iconStyle={ notificationStyle }>
+              <NotificationsIcon />
+            </IconButton>
             <Popover
               open={this.state.open}
               anchorEl={this.state.anchorEl}
@@ -124,6 +131,13 @@ class NotificationsMenu extends Component {
 
 }
 
+NotificationsMenu.propTypes = {
+  color: PropTypes.string,
+};
+
+NotificationsMenu.defaultProps = {
+  color: "rgba(0, 0, 0, 0.6)"
+}
 
 const withListOptions = {
   collection: Notifications,
