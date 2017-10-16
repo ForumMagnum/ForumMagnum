@@ -334,9 +334,13 @@ New CSS File
     border-bottom-color: rgba(0,0,0,0.1);
     font-size: 18px;
     .commentEditor {
-      font-size: 18px;
+      font-size: 16px;
       padding: 0px;
       margin-bottom: 0px;
+
+      p {
+        font-size: 16px;
+      }
     }
   }
   .input-deleted {
