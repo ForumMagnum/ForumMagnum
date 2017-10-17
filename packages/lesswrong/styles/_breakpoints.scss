@@ -1,11 +1,24 @@
 $section-width: 950px;
 $menu-width: 150px;
 
-$menu-break-width: 1100px;
-$posts-page-section-header-break-width: 1200px;
-$section-header-break-width: 950px;
-$collection-card-break-width: 715px;
-$very-small-break-width: 350px;
+// Vulcan Header Sections (Do not use)
+$small-break:  600px;
+$medium-break: 800px;
+$large: 1200px;
+
+// Our Header Sections
+
+$lw-tiny: 350px;
+$lw-small: 715px;
+$lw-medium: 950px;
+$lw-large: 1100px;
+$lw-huge: 1200px;
+
+$menu-break-width: $lw-large;
+$posts-page-section-header-break-width: $lw-huge;
+$section-header-break-width: $lw-medium;
+$collection-card-break-width: $lw-small;
+$very-small-break-width: $lw-tiny;
 
 
 @mixin menu-break(){ //Break that gives menu solid background
@@ -34,9 +47,61 @@ $very-small-break-width: 350px;
   }
 }
 
-$small-break:  600px;
-$medium-break: 800px;
-$large: 1200px;
+
+@mixin max-tiny(){
+  @media screen and (max-width: $lw-tiny) {
+    @content;
+  }
+}
+@mixin min-tiny(){
+  @media screen and (min-width: $lw-tiny) {
+    @content;
+  }
+}
+@mixin max-small(){
+  @media screen and (max-width: $lw-small) {
+    @content;
+  }
+}
+@mixin min-small(){
+  @media screen and (min-width: $lw-small) {
+    @content;
+  }
+}
+@mixin max-medium(){
+  @media screen and (max-width: $lw-medium) {
+    @content;
+  }
+}
+@mixin min-medium(){
+  @media screen and (min-width: $lw-medium) {
+    @content;
+  }
+}
+@mixin max-large(){
+  @media screen and (max-width: $lw-large) {
+    @content;
+  }
+}
+@mixin min-large(){
+  @media screen and (min-width: $lw-large) {
+    @content;
+  }
+}
+@mixin max-huge(){ // smaller than small-break
+  @media screen and (max-width: $lw-huge) {
+    @content;
+  }
+}
+@mixin min-huge(){ // smaller than small-break
+  @media screen and (min-width: $lw-huge) {
+    @content;
+  }
+}
+
+
+
+
 
 @mixin small(){ // smaller than small-break
   @media screen and (max-width: $small-break) {
