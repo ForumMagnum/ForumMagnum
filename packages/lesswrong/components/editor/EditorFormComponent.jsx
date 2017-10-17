@@ -80,11 +80,6 @@ class EditorFormComponent extends Component {
 
   toggleDisplayMode = () => {this.setState({displayModeOpen: !this.state.displayModeOpen})}
 
-  showAdvanced = () => {
-    console.log("ASDFASDF")
-    this.props.editor.trigger.mode.edit()
-  }
-
   render() {
     const fieldName = this.props.name;
     let editor = this.props.editor;
@@ -100,11 +95,6 @@ class EditorFormComponent extends Component {
               onTouchTap={this.toggleEditor}/>
           </div> : null
         }
-        <div>
-          <FlatButton
-            label={this.state.displayModeOpen ? "Hide Advanced tools" : "Show Advanced Tools"}
-            onTouchTap={this.toggleDisplayMode}/>
-        </div>
         <br/>
         <div className="row">
           {this.state.active ?
