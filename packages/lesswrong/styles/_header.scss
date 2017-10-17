@@ -46,13 +46,18 @@
       color:$light-text;
     }
   }
+  @include max-tiny {
+    display:none;
+  }
 }
 .header-site-section {
   margin-left: 1em;
   padding-left: 1em;
   text-transform: uppercase;
   border-left:1px solid $dark-grey;
-
+  @include max-tiny {
+    display:none;
+  }
   &.user {
     color:$dark-text;
     &:hover {
