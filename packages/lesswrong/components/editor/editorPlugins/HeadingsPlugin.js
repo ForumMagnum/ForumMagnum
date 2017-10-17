@@ -1,14 +1,13 @@
 /* eslint-disable prefer-reflect, default-case, react/display-name */
 import React from 'react'
 import H2Icon from 'material-ui/svg-icons/editor/title'
-import H3Icon from 'material-ui/svg-icons/editor/text-fields'
 // import { Data } from 'slate'
 import Plugin from './plugin'
 
 export const H2 = 'HEADINGS/HEADING-TWO'
 export const H3 = 'HEADINGS/HEADING-THREE'
+import { ToolbarButton } from './ToolbarButton'
 
-import IconButton from 'material-ui/IconButton'
 import {white, red500, greenA200} from 'material-ui/styles/colors';
 
 export type Props = {
@@ -49,23 +48,6 @@ export const makeTagMark = Tag => {
 
   return MarkComponent
 }
-
-export const ToolbarButton = ({
-  icon,
-  isActive,
-  onClick
-}: {
-  icon: string,
-  isActive: string,
-  onClick(): void
-}) => (
-  <IconButton
-    onTouchTap={onClick}
-    iconStyle={isActive ? { color: 'rgb(0, 188, 212)' } : { color: 'white' }}
-  >
-    {icon}
-  </IconButton>
-)
 
 const createNode = (type: string, el: any, next: any) => ({
   kind: 'block',

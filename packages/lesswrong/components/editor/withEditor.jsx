@@ -11,12 +11,13 @@ function withEditor(WrappedComponent) {
       this.context.editor.trigger.mode.edit();
     }
     render() {
-      return <WrappedComponent editor={this.context.editor} {...this.props} />
+      return <WrappedComponent editor={this.context.editor} showAdvanced={this.context.showAdvanced} {...this.props} />
     }
   }
 
   EditorWrapped.contextTypes = {
     editor: PropTypes.object,
+    showAdvanced: PropTypes.boolean,
   };
 
   return EditorWrapped;
