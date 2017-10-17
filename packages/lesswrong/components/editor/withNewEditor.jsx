@@ -12,7 +12,7 @@ import Editor, { Editable, createEmptyState } from 'ory-editor-core';
 import { editMode } from 'ory-editor-core/lib/actions/display';
 
 import HeadingsPlugin from './editorPlugins/HeadingsPlugin.js';
-import DisplayAdvancedPlugin from './editorPlugins/DisplayAdvancedPlugin.js';
+import DisplayAdvancedPlugin from './editorPlugins/DisplayAdvancedEditor/index.js';
 
 // Require our ui components (optional). You can implement and use your own ui too!
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
@@ -57,16 +57,12 @@ function withNewEditor(WrappedComponent) {
         defaultPlugin: slate(slatePlugins),
       })
       this.editor = editor;
-
-      this.state = {
-        showAdvancedEditor: false,
-      };
     }
 
     constructSlatePlugins = (defaultPlugins) => {
       const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
       defaultPlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
-      defaultPlugins.push(new DisplayAdvancedPlugin({onClick: this.props.toggle, isActive: this.props.showAdvancedEditor}))
+      defaultPlugins.push(new DisplayAdvancedPlugin({onClick: this.props.toggle}))
       return defaultPlugins
     }
 
@@ -74,7 +70,6 @@ function withNewEditor(WrappedComponent) {
       return {editor: this.editor};
     }
     render() {
-      console.log(this.props.showAdvancedEditor)
       return <WrappedComponent
                 editor={this.editor}
                 {...this.props} />
