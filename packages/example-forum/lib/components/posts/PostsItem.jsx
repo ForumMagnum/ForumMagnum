@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router';
-import Posts from '../../modules/posts/index.js';
+import { Posts } from '../../modules/posts/index.js';
 import moment from 'moment';
 
 class PostsItem extends PureComponent {
@@ -37,7 +37,7 @@ class PostsItem extends PureComponent {
       <div className={postClass}>
 
         <div className="posts-item-vote">
-          <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
+          <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser} />
         </div>
 
         {post.thumbnailUrl ? <Components.PostsThumbnail post={post}/> : null}

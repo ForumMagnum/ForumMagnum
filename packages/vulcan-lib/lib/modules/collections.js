@@ -3,10 +3,12 @@ import SimpleSchema from 'simpl-schema';
 import { addGraphQLCollection, addGraphQLQuery, addGraphQLMutation, addGraphQLResolvers, addToGraphQLContext } from './graphql.js';
 import { Utils } from './utils.js';
 import { runCallbacks } from './callbacks.js';
-import { getSetting } from './settings.js';
+import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import escapeStringRegexp from 'escape-string-regexp';
 import { debug } from './debug.js';
+
+registerSetting('maxDocumentsPerRequest', 1000, 'Maximum documents per request');
 
 export const Collections = [];
 
@@ -174,7 +176,8 @@ export const createCollection = options => {
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
-  registerFragment(getDefaultFragmentText(collection));
+  const defaultFragment = getDefaultFragmentText(collection);
+  if (defaultFragment) registerFragment(defaultFragment);
 
   // ------------------------------------- Parameters -------------------------------- //
 
@@ -194,11 +197,19 @@ export const createCollection = options => {
     // handle view option
     if (terms.view && collection.views[terms.view]) {
       const view = collection.views[terms.view];
-      parameters = Utils.deepExtend(true, parameters, view(terms, apolloClient));
+      parameters = Utils.deepExtend(true, parameters, view(terms, apolloClient, context));
     }
 
     // iterate over posts.parameters callbacks
     parameters = runCallbacks(`${collectionName.toLowerCase()}.parameters`, parameters, _.clone(terms), apolloClient, context);
+
+    if (Meteor.isClient) {
+      parameters = runCallbacks(`${collectionName.toLowerCase()}.parameters.client`, parameters, _.clone(terms), apolloClient);
+    }
+
+    if (Meteor.isServer) {
+      parameters = runCallbacks(`${collectionName.toLowerCase()}.parameters.server`, parameters, _.clone(terms), context);
+    }
 
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
     // NOTE: always do this last to avoid overriding another sort

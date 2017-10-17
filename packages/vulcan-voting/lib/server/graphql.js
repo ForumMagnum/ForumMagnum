@@ -1,26 +1,13 @@
-import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, Utils } from 'meteor/vulcan:core';
-import { mutateItem } from '../modules/vote.js';
+import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, Utils, registerSetting, getSetting } from 'meteor/vulcan:core';
+import { performVoteServer } from '../modules/vote.js';
 import { VoteableCollections } from '../modules/make_voteable.js';
-import { createError } from 'apollo-errors';
 
 function CreateVoteableUnionType() {
-  const voteSchema = `
-    type Vote {
-      itemId: String
-      power: Float
-      votedAt: String
-      legacy: Boolean
-      nullified: Boolean
-    }
-
-    ${VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : ''}
-  `;
-
-  addGraphQLSchema(voteSchema);
+  const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
+  addGraphQLSchema(voteableSchema);
   return {}
 }
 addCallback('graphql.init.before', CreateVoteableUnionType);
-
 
 const resolverMap = {
   Voteable: {
@@ -32,27 +19,18 @@ const resolverMap = {
 
 addGraphQLResolvers(resolverMap);
 
-addGraphQLMutation('vote(documentId: String, voteType: String, collectionName: String) : Voteable');
+addGraphQLMutation('vote(documentId: String, voteType: String, collectionName: String, voteId: String) : Voteable');
 
 const voteResolver = {
   Mutation: {
-    vote(root, {documentId, voteType, collectionName}, context) {
+    async vote(root, {documentId, voteType, collectionName, voteId}, context) {
 
-      const collection = context[Utils.capitalize(collectionName)];
-      const document = collection.findOne(documentId);
+      const { currentUser } = context;
+      const collection = context[collectionName];
 
-      if (context.Users.canDo(context.currentUser, `${collectionName.toLowerCase()}.${voteType}`)) {
+      const document = performVoteServer({documentId, voteType, collection, voteId, user: currentUser});
+      return document;
 
-        const mutatedDocument = mutateItem(collection, document, context.currentUser, voteType, false);
-        mutatedDocument.__typename = collection.typeName;
-        return mutatedDocument;
-
-      } else {
-
-        const VoteError = createError('cannot_vote');
-        throw new VoteError();
-
-      }
     },
   },
 };

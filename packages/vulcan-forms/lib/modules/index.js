@@ -8,11 +8,11 @@ if (typeof SimpleSchema !== "undefined") {
     'control', // SmartForm control (String or React component)
     'order', // order in the form
     'group', // form fieldset group
+    'hidden',
     'beforeComponent',
     'afterComponent',
     'placeholder',
   ]);
 }
 
-import FormWrapper from '../components/FormWrapper.jsx';
-export default FormWrapper;
+export {default as FormWrapper} from '../components/FormWrapper.jsx';

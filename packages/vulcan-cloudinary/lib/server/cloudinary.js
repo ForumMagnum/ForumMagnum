@@ -1,9 +1,11 @@
 import cloudinary from "cloudinary";
-import { Utils, getSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
+
+registerSetting('cloudinary', null, 'Cloudinary settings');
 
 const Cloudinary = cloudinary.v2;
 const uploadSync = Meteor.wrapAsync(Cloudinary.uploader.upload);
-const cloudinarySettings = getSetting("cloudinary");
+const cloudinarySettings = getSetting('cloudinary');
 
 Cloudinary.config({
   cloud_name: cloudinarySettings.cloudName,
@@ -12,7 +14,7 @@ Cloudinary.config({
   secure: true,
 });
 
-const CloudinaryUtils = {
+export const CloudinaryUtils = {
 
   // send an image URL to Cloudinary and get a cloudinary result object in return
   uploadImage(imageUrl) {
@@ -86,5 +88,3 @@ const CloudinaryUtils = {
 //     }
 //   }
 // });
-
-export default CloudinaryUtils;

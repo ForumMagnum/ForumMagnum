@@ -1,6 +1,5 @@
 import './graphql.js';
 import './cron.js';
-import './callbacks.js';
-export * from './scoring.js';
+import './scoring.js';
 
 export * from '../modules/index.js';

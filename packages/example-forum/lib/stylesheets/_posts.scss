@@ -108,7 +108,7 @@
   justify-content: center;
   padding: 3px 5px;
   @include small{
-    float: right;    
+    float: right;
   }
   @include medium-large{
     margin-right: $hmargin;
@@ -119,7 +119,13 @@
   }
 }
 
-.upvote-button{
+.vote-button{
+  @include border;
+  @include border-radius;
+  @include flex-center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3px 5px;
   .icon{
     text-align: center;
     display: block;
@@ -141,6 +147,19 @@
   }
   .voted &{
     color: $light-text;
+  }
+  &.show-downvote{
+    .icon{
+      &:hover{
+        color: $active-color;
+      }
+    }
+  }
+  &.hide-downvote{
+    @include activeHover;
+  }
+  &, &:active, &:hover{
+    text-decoration: none;
   }
 }
 
@@ -294,7 +313,7 @@
     &:hover{
       background: inherit;
       color: inherit;
-      border: inherit;      
+      border: inherit;
     }
   }
   .posts-no-results{

@@ -2,7 +2,19 @@ import VulcanEmail from '../namespace.js';
 import Juice from 'juice';
 import htmlToText from 'html-to-text';
 import Handlebars from 'handlebars';
-import { Utils, getSetting, runQuery } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core is not loaded yet
+import { Utils, getSetting, registerSetting, runQuery } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core is not loaded yet
+
+registerSetting('secondaryColor', '#444444');
+registerSetting('accentColor', '#DD3416');
+registerSetting('title', 'My App');
+registerSetting('tagline');
+registerSetting('emailFooter');
+registerSetting('logoUrl');
+registerSetting('logoHeight');
+registerSetting('logoWidth');
+registerSetting('defaultEmail', 'noreply@example.com');
+registerSetting('title', 'Vulcan');
+registerSetting('enableDevelopmentEmails', false);
 
 VulcanEmail.templates = {};
 
@@ -109,6 +121,7 @@ VulcanEmail.build = async ({ emailName, variables }) => {
   const data = email.data ? {...result.data, ...email.data(variables)} : result.data;
 
   const subject = typeof email.subject === 'function' ? email.subject(data) : email.subject;
+  
   const html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(data));
 
   return { data, subject, html };
@@ -116,8 +129,7 @@ VulcanEmail.build = async ({ emailName, variables }) => {
 
 VulcanEmail.buildAndSend = async ({ to, emailName, variables }) => {
 
-  const email = VulcanEmail.build({ to, emailName, variables });
-
+  const email = await VulcanEmail.build({ to, emailName, variables });
   return VulcanEmail.send(to, email.subject, email.html);
 
 };

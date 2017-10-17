@@ -34,7 +34,7 @@ accounts-github
 
 ############ Your Packages ############
 
-# example-simple
+example-simple
 # example-movies
 # example-instagram
 example-forum
@@ -43,6 +43,7 @@ example-forum
 # example-permissions
 # example-membership
 # example-interfaces
+# example-reactions
 
 # vulcan:debug
 

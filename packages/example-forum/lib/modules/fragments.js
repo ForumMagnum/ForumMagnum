@@ -6,7 +6,7 @@ import { registerFragment } from 'meteor/vulcan:core';
 registerFragment(`
   fragment VotedItem on Vote {
     # vulcan:voting
-    itemId
+    documentId
     power
     votedAt
   }
@@ -43,19 +43,6 @@ registerFragment(`
     postCount
     # example-forum
     commentCount
-    # vulcan:voting
-    downvotedComments {
-      ...VotedItem
-    }
-    downvotedPosts {
-      ...VotedItem
-    }
-    upvotedComments {
-      ...VotedItem
-    }
-    upvotedPosts {
-      ...VotedItem
-    }
   }
 `);
 

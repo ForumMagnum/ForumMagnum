@@ -647,7 +647,11 @@ export class AccountsLoginForm extends Tracker.Component {
         if (error) {
           console.log(error);
           const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          this.showMessage(this.context.intl.formatMessage({id: errorId}) || error.reason || error.message || 'accounts.error_unknown', 'error');
+          if (this.context.intl.formatMessage({id: errorId})) {
+            this.showMessage(errorId);
+          } else {
+            this.showMessage('accounts.error_unknown');
+          }
         }
         else {
           loginResultCallback(() => this.state.onSignedInHook());
@@ -707,11 +711,16 @@ export class AccountsLoginForm extends Tracker.Component {
     loginWithService(options, (error) => {
       onSubmitHook(error,formState);
       if (error) {
+        console.log(error)
         if (error instanceof Accounts.LoginCancelledError) {
           // do nothing
         } else {
           const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          this.showMessage((error.reason && this.context.intl.formatMessage({id: errorId})) || 'accounts.error_unknown' && errorId)
+          if (this.context.intl.formatMessage({id: errorId})) {
+            this.showMessage(errorId);
+          } else {
+            this.showMessage('accounts.error_unknown');
+          }
         }
       } else {
         this.setState({ formState: STATES.PROFILE });
