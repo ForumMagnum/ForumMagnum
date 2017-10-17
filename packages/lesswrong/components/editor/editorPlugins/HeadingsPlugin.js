@@ -90,11 +90,13 @@ export default class HeadingsPlugin extends Plugin {
   nodes = {
     [H2]: makeTagNode('h2'),
     [H3]: makeTagNode('h3'),
+    [H6]: makeTagNode('h6'),
   }
 
   toolbarButtons = [
     this.createButton(H2, <H2Icon className="slate-h2-icon"/>),
     this.createButton(H3, <H2Icon className="slate-h3-icon"/>),
+    this.createButton(H6, <H3Icon className="slate-h3-icon"/>),
   ]
 
   deserialize = (el, next) => {
@@ -103,6 +105,8 @@ export default class HeadingsPlugin extends Plugin {
         return createNode(H2, el, next)
       case 'h3':
         return createNode(H3, el, next)
+      case 'h6':
+        return createNode(H6, el, next)
     }
   }
 
@@ -120,6 +124,8 @@ export default class HeadingsPlugin extends Plugin {
         return <h2 style={style}>{children}</h2>
       case H3:
         return <h3 style={style}>{children}</h3>
+      case H6:
+        return <h6>{children}</h6>
     }
   }
 }

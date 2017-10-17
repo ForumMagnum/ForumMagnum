@@ -101,6 +101,51 @@ body {
        line-height: 1;
      }
 
+ h6 {
+     color: rgba(0,0,0,0.5);
+     font-weight: 100;
+     font-size: 1rem;
+     padding:1.5em 1.5em 1.5em 2em;
+     margin: 1.4rem;
+     line-height: 1.35rem;
+     border-top: solid 1px $lighter-grey;
+     border-bottom: solid 1px $lighter-grey;
+
+     @include max-small {
+       font-size:0em;
+       border-top: none;
+       border-bottom: none;
+       &:after {
+         font-size:1rem;
+         content: "Sidenote";
+       }
+       &:active {
+         font-size:1rem
+       }
+     }
+
+    @include min-small {
+      float:right;
+      width:50%;
+    }
+    //
+    @include min-large {
+      border-bottom:none;
+      padding:1.5em;
+      position: absolute;
+      width:180px;
+      left:calc(100% + 20px);
+
+    }
+    @include min-huge {
+      width:250px;
+    }
+
+     a {
+       font-weight:bold;
+     }
+   }
+
   hr { display: block;
        height: 1px;
       //  width: 55%;
