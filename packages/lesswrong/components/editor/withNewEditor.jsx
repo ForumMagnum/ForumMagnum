@@ -16,7 +16,8 @@ import HeadingsPlugin from './editorPlugins/HeadingsPlugin.js';
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
 
 // The rich text area plugin
-import slate, { defaultPlugins } from 'ory-editor-plugins-slate'
+import slate from 'ory-editor-plugins-slate'
+import { defaultPlugins } from 'ory-editor-plugins-slate/lib/hooks'
 
 // The spacer plugin
 import spacer from 'ory-editor-plugins-spacer'
