@@ -50,7 +50,7 @@ function withNewEditor(WrappedComponent) {
         content: [slate(slatePlugins), spacer, image, video, divider],
         layout: [parallax({ defaultPlugin: slate(slatePlugins)}), image] // Define plugins for layout cells
       }
-      let editor = new Editor({
+      const editor = new Editor({
         plugins,
         // pass the content state - you can add multiple editables here
         editables: editables,

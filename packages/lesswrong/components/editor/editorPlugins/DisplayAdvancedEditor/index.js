@@ -9,19 +9,14 @@ import { connect } from 'react-redux';
 
 import Plugin from '../plugin'
 
-export default class DisplayAdvancedPlugin extends Plugin {
+class DisplayAdvancedPlugin extends Plugin {
   constructor(props) {
     super(props)
     this.onClick = props.onClick
     this.isActive = true
   }
-  name = "DisplayAdvanced"
-
+  
   createButton = (icon) => ({ editorState, onChange }: Props) => {
-    const onClick = e => {
-      e.preventDefault()
-      this.onClick()
-    }
     return <ToggleAdvancedEditorButton
               onClick={this.onClick}
               icon={icon} />
@@ -31,3 +26,7 @@ export default class DisplayAdvancedPlugin extends Plugin {
     this.createButton(<PaletteIcon />)
   ]
 }
+
+DisplayAdvancedPlugin.name = "DisplayAdvanced"
+
+export default DisplayAdvancedPlugin;
