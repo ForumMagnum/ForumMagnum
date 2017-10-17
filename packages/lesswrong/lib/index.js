@@ -88,7 +88,6 @@ import './legacy-redirects/views.js';
 
 // // Misc.
 import './helpers.js'
-import './components.js';
 import './routes.js';
 import './views.js';
 //
@@ -105,5 +104,6 @@ import './search/callbacks.js';
 // SSR Stuff
 import './SSR/withUserAgent.js';
 
+import './components.js';
 //
 export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books, Bans }
