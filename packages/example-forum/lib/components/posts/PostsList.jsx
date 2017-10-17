@@ -1,7 +1,7 @@
 import { Components, registerComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Posts from '../../modules/posts/index.js';
+import { Posts } from '../../modules/posts/index.js';
 import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
@@ -17,7 +17,7 @@ const PostsList = ({className, results, loading, count, totalCount, loadMore, sh
     const hasMore = totalCount > results.length;
 
     return (
-      <div className={classNames(className, 'posts-list')}>
+      <div className={classNames(className, 'posts-list', `posts-list-${terms.view}`)}>
         {showHeader ? <Components.PostsListHeader/> : null}
         {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
         <div className="posts-list-content">
