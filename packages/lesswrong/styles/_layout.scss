@@ -160,3 +160,9 @@
   }
 
 }
+
+@include max-small {
+  #intercom-container {
+    display: none;
+  }
+}

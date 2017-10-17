@@ -166,7 +166,7 @@ Old editor.scss file TODO: Refactor this properly into the main css
   padding:4px 0 1px 0 !important;
 }
 .ory-cell-inner.ory-cell-leaf {
-  @include small {
+  @include max-small {
     > div > div > div > div {
       padding-left:0 !important;
       padding-top:0 !important;
@@ -177,6 +177,11 @@ Old editor.scss file TODO: Refactor this properly into the main css
       width:20px !important;
       height:20px !important;
       margin:0 3px !important;
+    }
+  }
+  @include max-small {
+    > div > div > div > div {
+      display:none !important;
     }
   }
 }
