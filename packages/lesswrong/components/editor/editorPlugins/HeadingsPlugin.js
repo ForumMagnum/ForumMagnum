@@ -55,7 +55,7 @@ const createNode = (type: string, el: any, next: any) => ({
   nodes: next(el.childNodes)
 })
 
-export default class HeadingsPlugin extends Plugin {
+class HeadingsPlugin extends Plugin {
   constructor(props: Props) {
     super(props)
 
@@ -70,7 +70,6 @@ export default class HeadingsPlugin extends Plugin {
       e.preventDefault()
 
       const isActive = editorState.blocks.some(block => block.type === type)
-      console.log(editorState)
       onChange(
         editorState
           .transform()
@@ -83,8 +82,6 @@ export default class HeadingsPlugin extends Plugin {
 
     return <ToolbarButton onClick={onClick} isActive={isActive} icon={icon} />
   }
-
-  name = 'headings'
 
   nodes = {
     [H2]: makeTagNode('h2'),
@@ -122,3 +119,7 @@ export default class HeadingsPlugin extends Plugin {
     }
   }
 }
+
+HeadingsPlugin.name = 'headings'
+
+export default HeadingsPlugin;
