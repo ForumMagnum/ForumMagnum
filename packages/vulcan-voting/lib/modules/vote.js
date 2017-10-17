@@ -20,8 +20,12 @@ export const addVoteType = (voteType, voteTypeOptions) => {
   voteTypes[voteType] = voteTypeOptions;
 }
 
-addVoteType('upvote', {power: 1, exclusive: true});
-addVoteType('downvote', {power: -1, exclusive: true});
+const userVotePower = (user, multiplier) => {
+    return multiplier * (Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5)))
+}
+
+addVoteType('upvote', {power: (user) => userVotePower(user, 1), exclusive: true});
+addVoteType('downvote', {power: (user) => userVotePower(user, -1), exclusive: true});
 
 /*
 
