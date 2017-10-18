@@ -22,8 +22,9 @@ const UsersProfile = (props) => {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
-    const frontpageTerms = {view: "top", userId: user._id, frontpage: true}
-    const terms = {view: "top", ...query, userId: user._id, frontpage: false};
+    const draftTerms = {view: "drafts", userId: user._id }
+    const terms = {view: "new", ...query, userId: user._id};
+    const topTerms = {view: "top", userId: user._id, limit: 3};
 
     const renderActions = (props) => {
       const user = props.document;
@@ -74,27 +75,44 @@ const UsersProfile = (props) => {
         </Components.Section>
       )
     }
+    const renderDrafts = (props) => {
+      return (
+        <div>
+          { props.currentUser && props.currentUser._id === user._id &&
+            <Components.Section title="My Drafts"
+              titleComponent= {
+                <div className="recent-posts-title-component users-profile-drafts">
+                <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>
+                </div>
+              }
+            >
+              <Components.PostsList terms={draftTerms} showHeader={false}/>
+            </Components.Section>
+          }
+        </div>
+      )
+    }
+
+    const renderBlogPosts = (props) => {
+      return (
+        <Components.Section title="Recent Blog Posts"
+          titleComponent= {
+          <div className="recent-posts-title-component users-profile-recent-posts">
+            <Components.SearchForm/>
+            sorted by<br /> <Components.PostsViews />
+          </div>}
+        >
+          <Components.PostsList terms={terms} showHeader={false} />
+        </Components.Section>
+      )
+    }
 
     return (
       <div className="page users-profile">
         <div className="users-profile-header">{ renderUserProfileHeader(props) }</div>
 
-        {user.frontpagePostCount > 0 && <Components.Section title="Frontpage Posts"
-          titleComponent= {
-          <div className="recent-posts-title-component users-profile-recent-posts">
-          {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {frontpage: true} }}> new frontpage post </Link></div>}
-          </div>} >
-          <Components.PostsList terms={frontpageTerms} showHeader={false} />
-        </Components.Section>}
-        <Components.Section title="Blog Posts"
-          titleComponent= {
-          <div className="recent-posts-title-component users-profile-recent-posts">
-            <Components.SearchForm/>
-            sorted by<br /> <Components.PostsViews />
-          {props.currentUser && props.currentUser._id === user._id && <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>}
-          </div>} >
-          <Components.PostsList terms={terms} showHeader={false} />
-        </Components.Section>
+        { renderDrafts(props) }
+        { renderBlogPosts(props) }
         <Components.Section title="Recent Comments" >
           <Components.RecentComments terms={{view: 'recentComments', limit: 10, userId: user._id}} fontSize="small" />
         </Components.Section>

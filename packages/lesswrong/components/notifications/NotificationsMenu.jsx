@@ -86,7 +86,7 @@ class NotificationsMenu extends Component {
       if (!currentUser) {
         return null;
       } else if (loading || !results) {
-          return (<Components.Loading/>)
+          return null
       } else {
         results = this.props.results.map(_.clone); //We don't want to modify the original results we get
         return (
