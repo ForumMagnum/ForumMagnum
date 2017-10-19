@@ -190,7 +190,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     # vulcan:voting
-    currentUserVotes{
+    currentUserVotes {
       ...VoteFragment
     }
     baseScore

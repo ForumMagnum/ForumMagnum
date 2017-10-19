@@ -13,6 +13,7 @@ import './lib/closed-beta/fixBodyField.js';
 import './lib/closed-beta/fixKarmaField.js';
 import './lib/closed-beta/fixEmailField.js';
 import './lib/closed-beta/fixFrontpageCount.js';
+import './lib/closed-beta/voteMigration.js';
 
 // LW Events
 import './lib/events/server.js';

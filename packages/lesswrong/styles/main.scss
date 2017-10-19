@@ -273,3 +273,13 @@ h2{
 h3{
   margin-top: 0px;
 }
+
+
+// Deactivate intercom on smaller devices
+
+
+@include section-header-break {
+  #intercom-container {
+    display: none;
+  }
+}
