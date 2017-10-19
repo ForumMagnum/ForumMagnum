@@ -48,5 +48,5 @@ example-forum
 # vulcan:debug
 
 lesswrong
-webtoken-session
-internal-graphql
+# webtoken-session
+# internal-graphql

@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { getDataFromTree, ApolloProvider } from 'react-apollo';
 // import styleSheet from 'styled-components/lib/models/StyleSheet';
 
 import { Meteor } from 'meteor/meteor';
 
+class UserAgentProvider extends Component {
+  getChildContext() {
+    return { userAgent: this.props.userAgent }
+  }
 
+  render() {
+    const { children } = this.props
+    return React.cloneElement(children, {
+      ...this.props,
+    })
+  }
+}
+
+UserAgentProvider.childContextTypes = {
+  userAgent: PropTypes.string, 
+}
 
 import {
   Components,
@@ -52,7 +67,9 @@ Meteor.startup(() => {
       store.reload();
       store.dispatch({ type: '@@vulcan/INIT' }) // the first dispatch will generate a newDispatch function from middleware
       const app = appGenerator();
-      return <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>;
+      return <UserAgentProvider userAgent={req.headers['user-agent']}>
+        <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>
+      </UserAgentProvider>;
     },
     preRender(req, res, app) {
       return Promise.await(getDataFromTree(app));
