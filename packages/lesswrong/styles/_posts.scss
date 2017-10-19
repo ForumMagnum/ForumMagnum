@@ -768,11 +768,12 @@ textarea.posts-edit-header-title {
       }
     }
   }
-  .posts-no-results{
-    margin-top: $vmargin;
-  }
-}
 
+}
+.posts-no-results{
+  margin-left:10px;
+  margin-top: $vmargin;
+}
 .posts-edit-form-header{
   @include flex-center;
   justify-content: space-between;
