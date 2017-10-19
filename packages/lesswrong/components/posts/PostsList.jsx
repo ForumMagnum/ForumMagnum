@@ -10,8 +10,18 @@ const Error = ({error}) => <Alert className="flash-message" bsStyle="danger">
 <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </Alert>
 
-const PostsList = ({className, results, loading, count, totalCount, loadMore,
-  showHeader = true, showLoadMore = true, networkStatus, currentUser, error,
+const PostsList = ({
+  className,
+  results,
+  loading,
+  count,
+  totalCount,
+  loadMore,
+  showHeader = true,
+  showLoadMore = true,
+  networkStatus,
+  currentUser,
+  error,
   terms}) => {
 
   const loadingMore = networkStatus === 2;
@@ -28,7 +38,6 @@ const PostsList = ({className, results, loading, count, totalCount, loadMore,
       return <Components.PostsNoResults/>
     }
   }
-
   return (
     <div className={classNames(className, 'posts-list')}>
       {showHeader ? <Components.PostsListHeader/> : null}

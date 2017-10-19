@@ -5,6 +5,7 @@ import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui'
 import withEditor from './withEditor.jsx'
 import FlatButton from 'material-ui/FlatButton';
 
+import { connect } from 'react-redux';
 import ls from 'local-storage';
 
 class EditorFormComponent extends Component {
@@ -98,11 +99,13 @@ class EditorFormComponent extends Component {
         <div className="row">
           {this.state.active ?
             <div className="content-body">
-              <Editable editor={editor} id={this.state[fieldName].id} onChange={this.onChange} />
+              <Editable
+                id={this.state[fieldName].id}
+                editor={editor}
+                onChange={this.onChange} />
               <Toolbar editor={editor}></Toolbar>
-              {this.props.name == "content" ? <div><Trash editor={editor} />
-              {this.state.displayModeOpen ? <DisplayModeToggle editor={editor} /> : null }
-              </div> : null}
+              { this.props.name == "content" && <div><Trash editor={editor} /></div> }
+              { this.props.showAdvancedEditor && <DisplayModeToggle editor={editor} /> }
             </div> : null}
         </div>
       </div>
@@ -116,4 +119,7 @@ EditorFormComponent.contextTypes = {
   addToSubmitForm: React.PropTypes.func,
 };
 
-registerComponent("EditorFormComponent", EditorFormComponent, withEditor);
+
+const mapStateToProps = state => ({ showAdvancedEditor: state.showAdvancedEditor });
+
+registerComponent("EditorFormComponent", EditorFormComponent, withEditor, connect(mapStateToProps));
