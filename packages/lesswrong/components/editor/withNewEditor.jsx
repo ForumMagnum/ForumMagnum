@@ -1,16 +1,18 @@
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, getActions } from 'meteor/vulcan:core';
 
 import { Button } from 'react-bootstrap';
 
-
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 // The editor core
 import Editor, { Editable, createEmptyState } from 'ory-editor-core';
 import { editMode } from 'ory-editor-core/lib/actions/display';
 
 import HeadingsPlugin from './editorPlugins/HeadingsPlugin.js';
+import DisplayAdvancedPlugin from './editorPlugins/DisplayAdvancedEditor/index.js';
 
 // Require our ui components (optional). You can implement and use your own ui too!
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
@@ -19,19 +21,10 @@ import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
 import slate from 'ory-editor-plugins-slate'
 import { defaultPlugins } from 'ory-editor-plugins-slate/lib/hooks'
 
-// The spacer plugin
 import spacer from 'ory-editor-plugins-spacer'
-
-// The image plugin
 import image from 'ory-editor-plugins-image'
-
-// The video plugin
 import video from 'ory-editor-plugins-video'
-
-// The parallax plugin
 import parallax from 'ory-editor-plugins-parallax-background'
-
-// The divider plugin
 import divider from 'ory-editor-plugins-divider'
 
 /*
@@ -44,12 +37,6 @@ import divider from 'ory-editor-plugins-divider'
   TODO: Figure out a way to do this without using context
 */
 
-export const constructSlatePlugins = (defaultPlugins) => {
-  const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
-  defaultPlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
-  return defaultPlugins
-}
-
 function withNewEditor(WrappedComponent) {
 
   class EditorWrapped extends Component {
@@ -58,7 +45,7 @@ function withNewEditor(WrappedComponent) {
       let initialContent = this.props.initialContent;
       let editables = this.props.editables;
 
-      const slatePlugins = constructSlatePlugins(defaultPlugins)
+      const slatePlugins = this.constructSlatePlugins(defaultPlugins)
 
       const plugins = {
         content: [slate(slatePlugins), spacer, image, video, divider],
@@ -73,10 +60,10 @@ function withNewEditor(WrappedComponent) {
       this.editor = editor;
     }
 
-    customSlatePlugins(defaultPlugins) {
-      // Remove the H1, H3, H4 and H5
-
-
+    constructSlatePlugins = (defaultPlugins) => {
+      const DEFAULT_NODE = 'PARAGRAPH/PARAGRAPH'
+      defaultPlugins[2] = new HeadingsPlugin({ DEFAULT_NODE })
+      defaultPlugins.push(new DisplayAdvancedPlugin({onClick: this.props.toggle}))
       return defaultPlugins
     }
 
@@ -84,12 +71,18 @@ function withNewEditor(WrappedComponent) {
       return {editor: this.editor};
     }
     render() {
-      return <WrappedComponent editor={this.editor} {...this.props} />
+      return <WrappedComponent
+                editor={this.editor}
+                {...this.props} />
     }
   }
   EditorWrapped.childContextTypes = {
     editor: PropTypes.object,
   };
-  return EditorWrapped;
+  const mapStateToProps = state => ({ showAdvancedEditor: state.showAdvancedEditor });
+  const mapDispatchToProps = dispatch => bindActionCreators(getActions().showAdvancedEditor, dispatch);
+
+  return connect(mapStateToProps, mapDispatchToProps)(EditorWrapped);
 }
+
 export default withNewEditor;

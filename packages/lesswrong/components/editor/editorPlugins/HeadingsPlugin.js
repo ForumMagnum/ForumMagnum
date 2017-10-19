@@ -1,15 +1,13 @@
 /* eslint-disable prefer-reflect, default-case, react/display-name */
 import React from 'react'
 import H2Icon from 'material-ui/svg-icons/editor/title'
-import H3Icon from 'material-ui/svg-icons/editor/text-fields'
-// import { Data } from 'slate'
+import {white, red500, greenA200} from 'material-ui/styles/colors';
+
 import Plugin from './plugin'
+import { ToolbarButton } from './ToolbarButton'
 
 export const H2 = 'HEADINGS/HEADING-TWO'
 export const H3 = 'HEADINGS/HEADING-THREE'
-
-import IconButton from 'material-ui/IconButton'
-import {white, red500, greenA200} from 'material-ui/styles/colors';
 
 export type Props = {
   editorState: any,
@@ -50,23 +48,6 @@ export const makeTagMark = Tag => {
   return MarkComponent
 }
 
-export const ToolbarButton = ({
-  icon,
-  isActive,
-  onClick
-}: {
-  icon: string,
-  isActive: string,
-  onClick(): void
-}) => (
-  <IconButton
-    onTouchTap={onClick}
-    iconStyle={isActive ? { color: 'rgb(0, 188, 212)' } : { color: 'white' }}
-  >
-    {icon}
-  </IconButton>
-)
-
 const createNode = (type: string, el: any, next: any) => ({
   kind: 'block',
   type,
@@ -74,7 +55,7 @@ const createNode = (type: string, el: any, next: any) => ({
   nodes: next(el.childNodes)
 })
 
-export default class HeadingsPlugin extends Plugin {
+class HeadingsPlugin extends Plugin {
   constructor(props: Props) {
     super(props)
 
@@ -89,7 +70,6 @@ export default class HeadingsPlugin extends Plugin {
       e.preventDefault()
 
       const isActive = editorState.blocks.some(block => block.type === type)
-
       onChange(
         editorState
           .transform()
@@ -102,8 +82,6 @@ export default class HeadingsPlugin extends Plugin {
 
     return <ToolbarButton onClick={onClick} isActive={isActive} icon={icon} />
   }
-
-  name = 'headings'
 
   nodes = {
     [H2]: makeTagNode('h2'),
@@ -141,3 +119,7 @@ export default class HeadingsPlugin extends Plugin {
     }
   }
 }
+
+HeadingsPlugin.name = 'headings'
+
+export default HeadingsPlugin;
