@@ -48,8 +48,7 @@ function withNewEditor(WrappedComponent) {
       const slatePlugins = this.constructSlatePlugins(defaultPlugins)
 
       const plugins = {
-        content: [slate(slatePlugins), spacer, image, video, divider],
-        layout: [parallax({ defaultPlugin: slate(slatePlugins)}), image] // Define plugins for layout cells
+        content: [slate(slatePlugins), spacer, image, video, divider]
       }
       const editor = new Editor({
         plugins,
