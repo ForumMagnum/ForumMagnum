@@ -99,7 +99,7 @@
         }
     }
 
-    .document-edit div hr {
+    .document-edit > div > hr {
     // Ray Sept 2017:
     // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
     // path: /packages/vulcan-forms/lib/Form.jsx

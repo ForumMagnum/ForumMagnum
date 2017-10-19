@@ -28,7 +28,9 @@
     "twitterAccount": "foo",
     "facebookPage": "http://facebook.com/foo",
 
-    "googleAnalyticsId":"UA-60844744-4"
+    "googleAnalyticsId":"UA-60844744-4",
+    "runVoteMigration": true,
+    "resetVotesBeforeMigration": true
   },
 
   "defaultEmail": "no-reply@lesserwrong.com",

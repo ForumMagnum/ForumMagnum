@@ -14,7 +14,7 @@ export const getDefaultResolvers = collectionName => ({
 
     name: `${collectionName}List`,
 
-    resolver(root, {terms = {}}, context, info) {
+    async resolver(root, {terms = {}}, context, info) {
 
       debug(`//--------------- start ${collectionName} list resolver ---------------//`);
       debug(terms);
@@ -26,7 +26,7 @@ export const getDefaultResolvers = collectionName => ({
       const collection = context[collectionName];
 
       // get selector and options from terms and perform Mongo query
-      let {selector, options} = collection.getParameters(terms, {}, context);
+      let {selector, options} = await collection.getParameters(terms, {}, context);
       options.skip = terms.offset;
 
       debug({ selector, options });
@@ -42,6 +42,7 @@ export const getDefaultResolvers = collectionName => ({
       // prime the cache
       restrictedDocs.forEach(doc => collection.loader.prime(doc._id, doc));
 
+      debug(`// ${restrictedDocs.length} documents returned`);
       debug(`//--------------- end ${collectionName} list resolver ---------------//`);
 
       // return results
@@ -73,11 +74,12 @@ export const getDefaultResolvers = collectionName => ({
         Utils.performCheck(collection.checkAccess, currentUser, doc, collection, documentId);
       }
 
+      const restrictedDoc = Users.restrictViewableFields(currentUser, collection, doc);
+
       debug(`//--------------- end ${collectionName} single resolver ---------------//`);
 
-
       // filter out disallowed properties and return resulting document
-      return Users.restrictViewableFields(currentUser, collection, doc);
+      return restrictedDoc;
     },
   
   },
@@ -88,11 +90,11 @@ export const getDefaultResolvers = collectionName => ({
     
     name: `${collectionName}Total`,
     
-    resolver(root, {terms}, context) {
+    async resolver(root, {terms}, context) {
       
       const collection = context[collectionName];
 
-      const {selector} = collection.getParameters(terms, {}, context);
+      const {selector} = await collection.getParameters(terms, {}, context);
 
       return collection.find(selector).count();
     },

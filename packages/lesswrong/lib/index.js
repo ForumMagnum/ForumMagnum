@@ -101,9 +101,6 @@ import './closed-beta/configuration.js';
 import './search/utils.js';
 import './search/callbacks.js';
 
-// SSR Stuff
-import './SSR/withUserAgent.js';
-
 import './components.js';
 //
 export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books, Bans }

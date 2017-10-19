@@ -2,42 +2,21 @@ import { Components, registerComponent, withMessages } from 'meteor/vulcan:core'
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withVote, hasUpvoted, hasDownvoted } from 'meteor/vulcan:voting';
-import { /*FormattedMessage,*/ intlShape } from 'meteor/vulcan:i18n';
+import { withVote, hasVotedClient } from 'meteor/vulcan:voting';
+import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 
 class Vote extends PureComponent {
 
   constructor() {
     super();
-    this.upvote = this.upvote.bind(this);
+    this.vote = this.vote.bind(this);
     this.getActionClass = this.getActionClass.bind(this);
-    // this.startLoading = this.startLoading.bind(this);
-    // this.stopLoading = this.stopLoading.bind(this);
-    this.state = {
-      loading: false
-    }
+    this.hasVoted = this.hasVoted.bind(this);
   }
 
-  /*
+  vote(e) {
 
-  note: with optimisitc UI, loading functions are not needed
-  also, setState triggers issues when the component is unmounted
-  before the vote mutation returns. 
-
-  */
-
-  // startLoading() {
-  //   this.setState({ loading: true });
-  // }
-
-  // stopLoading() {
-  //   this.setState({ loading: false });
-  // }
-
-  upvote(e) {
     e.preventDefault();
-
-    // this.startLoading();
 
     const document = this.props.document;
     const collection = this.props.collection;
@@ -45,26 +24,20 @@ class Vote extends PureComponent {
 
     if(!user){
       this.props.flash(this.context.intl.formatMessage({id: 'users.please_log_in'}));
-      // this.stopLoading();
     } else {
-      const voteType = hasUpvoted(user, document) ? 'cancelUpvote' : 'upvote';
-      this.props.vote({document, voteType, collection, currentUser: this.props.currentUser}).then(result => {
-        // this.stopLoading();
-      });
+      this.props.vote({document, voteType: 'upvote', collection, currentUser: this.props.currentUser});
     } 
   }
 
-  getActionClass() {
-    const document = this.props.document;
-    const user = this.props.currentUser;
+  hasVoted() {
+    return hasVotedClient({document: this.props.document, voteType: 'upvote'})
+  }
 
-    const isUpvoted = hasUpvoted(user, document);
-    const isDownvoted = hasDownvoted(user, document);
+  getActionClass() {
+
     const actionsClass = classNames(
-      'vote', 
-      {voted: isUpvoted || isDownvoted},
-      {upvoted: isUpvoted},
-      {downvoted: isDownvoted}
+      'vote-button',
+      {upvoted: this.hasVoted()},
     );
 
     return actionsClass;
@@ -73,9 +46,9 @@ class Vote extends PureComponent {
   render() {
     return (
       <div className={this.getActionClass()}>
-        <a className="upvote-button" onClick={this.upvote}>
-          {this.state.loading ? <Components.Icon name="spinner" /> : <Components.Icon name="upvote" /> }
-          <div className="sr-only">Upvote</div>
+        <a className="upvote-button" onClick={this.vote}>
+          <Components.Icon name="upvote" />
+          <div className="sr-only"><FormattedMessage id="voting.upvote"/></div>
           <div className="vote-count">{this.props.document.baseScore || 0}</div>
         </a>
       </div>

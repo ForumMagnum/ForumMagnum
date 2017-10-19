@@ -113,9 +113,9 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
     options.context = deepmerge(options.context, GraphQLSchema.context);
 
 
-    //////////////////////////////////////////////////////////////
-    options.context.getRenderContext = () => req.renderContext; // !! Provide access to the render context. !!
-    //////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////////
+    // options.context.getRenderContext = () => req.renderContext; // !! Provide access to the render context. !!
+    // //////////////////////////////////////////////////////////////
 
 
     // go over context and add Dataloader to each collection

@@ -1,157 +1,313 @@
+import { runCallbacksAsync, runCallbacks, addCallback } from 'meteor/vulcan:core';
+import { createError } from 'apollo-errors';
+import Votes from './votes/collection.js';
 import Users from 'meteor/vulcan:users';
-import { hasUpvoted, hasDownvoted } from './helpers.js';
-import { runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import update from 'immutability-helper';
+import { recalculateScore } from './scoring.js';
 
-// The equation to determine voting power. Defaults to returning 1 for everybody
-export const getVotePower = function (user) {
-  if (user.voteBanned) {
-    return 0;
+/*
+
+Define voting operations
+
+*/
+const voteTypes = {}
+
+/*
+
+Add new vote types
+
+*/
+export const addVoteType = (voteType, voteTypeOptions) => {
+  voteTypes[voteType] = voteTypeOptions;
+}
+
+const userVotePower = (user, multiplier) => {
+    return multiplier * (Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5)))
+}
+
+addVoteType('upvote', {power: (user) => userVotePower(user, 1), exclusive: true});
+addVoteType('downvote', {power: (user) => userVotePower(user, -1), exclusive: true});
+
+/*
+
+Test if a user has voted on the client
+
+*/
+export const hasVotedClient = ({ document, voteType }) => {
+  const userVotes = document.currentUserVotes;
+  if (voteType) {
+    return _.where(userVotes, { voteType }).length
   } else {
-    return Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5));
+    return userVotes && userVotes.length
   }
-};
-
-const keepVoteProperties = item => _.pick(item, '__typename', '_id', 'upvoters', 'downvoters', 'upvotes', 'downvotes', 'baseScore');
+}
 
 /*
 
-Runs all the operation and returns an objects without affecting the db.
+Calculate total power of all a user's votes on a document
 
 */
-export const operateOnItem = function (collection, originalItem, user, operation, isClient = false) {
+const calculateTotalPower = votes => _.pluck(votes, 'power').reduce((a, b) => a + b, 0);
 
-  user = typeof user === "undefined" ? Meteor.user() : user;
+/*
 
-  let item = {
-    upvotes: 0,
-    downvotes: 0,
-    upvoters: [],
-    downvoters: [],
-    baseScore: 0,
-    ...originalItem,
-  }; // we do not want to affect the original item directly
+Test if a user has voted on the server
 
-  const votePower = getVotePower(user);
-  const hasUpvotedItem = hasUpvoted(user, item);
-  const hasDownvotedItem = hasDownvoted(user, item);
-  const collectionName = collection._name;
-  const canDo = Users.canDo(user, `${collectionName}.${operation}`);
+*/
+const hasVotedServer = ({ document, voteType, user }) => {
+  const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType});
+  return vote;
+}
 
-  // console.log('// operateOnItem')
-  // console.log('isClient: ', isClient)
-  // console.log('collection: ', collectionName)
-  // console.log('operation: ', operation)
-  // console.log('item: ', item)
-  // console.log('user: ', user)
-  // console.log('hasUpvotedItem: ', hasUpvotedItem)
-  // console.log('hasDownvotedItem: ', hasDownvotedItem)
-  // console.log('canDo: ', canDo)
+/*
 
-  // make sure item and user are defined, and user can perform the operation
-  if (
-    !item ||
-    !user ||
-    !canDo ||
-    operation === "upvote" && hasUpvotedItem ||
-    operation === "downvote" && hasDownvotedItem ||
-    operation === "cancelUpvote" && !hasUpvotedItem ||
-    operation === "cancelDownvote" && !hasDownvotedItem
-  ) {
-    throw new Error(`Cannot perform operation "${collectionName}.${operation}"`);
+Add a vote of a specific type on the client
+
+*/
+const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
+
+  const newDocument = {
+    ...document,
+    baseScore: document.baseScore || 0,
+    __typename: collection.options.typeName,
+    currentUserVotes: document.currentUserVotes || [],
+  };
+
+  // create new vote and add it to currentUserVotes array
+  const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
+  newDocument.currentUserVotes = [...newDocument.currentUserVotes, vote];
+
+  // increment baseScore
+  newDocument.baseScore += vote.power;
+  newDocument.score = recalculateScore(newDocument);
+
+  return newDocument;
+}
+
+/*
+
+Add a vote of a specific type on the server
+
+*/
+const addVoteServer = ({ document, collection, voteType, user, voteId }) => {
+
+  const newDocument = _.clone(document);
+
+  // create vote and insert it
+  const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
+  delete vote.__typename;
+  Votes.insert(vote);
+
+  // update document score
+  collection.update({_id: document._id}, {$inc: {baseScore: vote.power }});
+
+  newDocument.baseScore += vote.power;
+  newDocument.score = recalculateScore(newDocument);
+
+  return newDocument;
+}
+
+/*
+
+Cancel votes of a specific type on a given document (client)
+
+*/
+const cancelVoteClient = ({ document, voteType }) => {
+  const vote = _.findWhere(document.currentUserVotes, { voteType });
+  const newDocument = _.clone(document);
+  if (vote) {
+    // subtract vote scores
+    newDocument.baseScore -= vote.power;
+    newDocument.score = recalculateScore(newDocument);
+
+    const newVotes = _.reject(document.currentUserVotes, vote => vote.voteType === voteType);
+
+    // clear out vote of this type
+    newDocument.currentUserVotes = newVotes;
+
   }
+  return newDocument;
+}
 
-  // ------------------------------ Sync Callbacks ------------------------------ //
+/*
 
-  item = runCallbacks(operation, item, user, operation, isClient);
+Clear *all* votes for a given document and user (client)
 
-  /*
+*/
+const clearVotesClient = ({ document }) => {
+  const newDocument = _.clone(document);
+  newDocument.baseScore -= calculateTotalPower(document.currentUserVotes);
+  newDocument.score = recalculateScore(newDocument);
+  newDocument.currentUserVotes = [];
+  return newDocument
+}
 
-  voters arrays have different structures on client and server:
+/*
 
-  - client: [{__typename: "User", _id: 'foo123'}]
-  - server: ['foo123']
+Clear all votes for a given document and user (server)
 
-  */
-
-  const voter = isClient ? {__typename: "User", _id: user._id} : user._id;
-  const filterFunction = isClient ? u => u._id !== user._id : u => u !== user._id;
-
-  // console.log('// Karma Update Before');
-  // console.log('basescore: ', item.baseScore);
-  // console.log('upvotes: ', item.upvotes);
-  // console.log('downvotes: ', item.downvotes);
-
-  switch (operation) {
-
-    case "upvote":
-      if (hasDownvotedItem) {
-        item = operateOnItem(collection, item, user, "cancelDownvote", isClient);
-      }
-
-      item = update(item, {
-        upvoters: {$push: [voter]},
-        upvotes: {$set: item.upvotes + 1},
-        baseScore: {$set: item.baseScore + votePower},
-      });
-
-      break;
-
-    case "downvote":
-      if (hasUpvotedItem) {
-        item = operateOnItem(collection, item, user, "cancelUpvote", isClient);
-      }
-
-      item = update(item, {
-        downvoters: {$push: [voter]},
-        downvotes: {$set: item.downvotes + 1},
-        baseScore: {$set: item.baseScore - votePower},
-      });
-
-      break;
-
-    case "cancelUpvote":
-      item = update(item, {
-        upvoters: {$set: item.upvoters.filter(filterFunction)},
-        upvotes: {$set: item.upvotes - 1},
-        baseScore: {$set: item.baseScore - votePower},
-      });
-      break;
-
-    case "cancelDownvote":
-
-      item = update(item, {
-        downvoters: {$set: item.downvoters.filter(filterFunction)},
-        downvotes: {$set: item.downvotes - 1},
-        baseScore: {$set: item.baseScore + votePower},
-      });
-
-      break;
+*/
+const clearVotesServer = ({ document, user, collection }) => {
+  const newDocument = _.clone(document);
+  const votes = Votes.find({ documentId: document._id, userId: user._id}).fetch();
+  if (votes.length) {
+    Votes.remove({documentId: document._id});
+    collection.update({_id: document._id}, {$inc: {baseScore: -calculateTotalPower(votes) }});
+    newDocument.baseScore -= calculateTotalPower(votes);
+    newDocument.score = recalculateScore(newDocument);
   }
+  return newDocument;
+}
 
-  // console.log('new item', item);
+/*
 
-  // console.log('// Karma Update After');
-  // console.log('basescore: ', item.baseScore);
-  // console.log('upvotes: ', item.upvotes);
-  // console.log('downvotes: ', item.downvotes);
+Cancel votes of a specific type on a given document (server)
 
-  return item;
+*/
+const cancelVoteServer = ({ document, voteType, collection, user }) => {
+
+  const newDocument = _.clone(document);
+
+  const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType})
+
+  // remove vote object
+  Votes.remove({_id: vote._id});
+
+  // update document score
+  collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }});
+
+  newDocument.baseScore -= vote.power;
+  newDocument.score = recalculateScore(newDocument);
+
+  return newDocument;
+}
+
+/*
+
+Determine a user's voting power for a given operation.
+If power is a function, call it on user
+
+*/
+const getVotePower = ({ user, voteType, document }) => {
+  const power = voteTypes[voteType] && voteTypes[voteType].power || 1;
+  return typeof power === 'function' ? power(user, document) : power;
 };
 
 /*
 
-Call operateOnItem, update the db with the result, run callbacks.
+Create new vote object
 
 */
-export const mutateItem = function (collection, originalItem, user, operation) {
-  const newItem = operateOnItem(collection, originalItem, user, operation, false);
-  newItem.inactive = false;
+const createVote = ({ document, collectionName, voteType, user, voteId }) => {
 
-  collection.update({_id: newItem._id}, newItem, {bypassCollection2:true});
+  const vote = {
+    documentId: document._id,
+    collectionName,
+    userId: user._id,
+    voteType: voteType,
+    power: getVotePower({user, voteType, document}),
+    votedAt: new Date(),
+    __typename: 'Vote'
+  }
 
-  // --------------------- Server-Side Async Callbacks --------------------- //
-  runCallbacksAsync(operation+".async", newItem, user, collection, operation);
+  // when creating a vote from the server, voteId can sometimes be undefined
+  if (voteId) vote._id = voteId;
 
-  return newItem;
+  return vote;
+
+};
+
+/*
+
+Optimistic response for votes
+
+*/
+export const performVoteClient = ({ document, collection, voteType = 'upvote', user, voteId }) => {
+
+  const collectionName = collection.options.collectionName;
+  let returnedDocument;
+
+  // console.log('// voteOptimisticResponse')
+  // console.log('collectionName: ', collectionName)
+  // console.log('document:', document)
+  // console.log('voteType:', voteType)
+
+  // make sure item and user are defined
+  if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
+    throw new Error(`Cannot perform operation '${collectionName.toLowerCase()}.${voteType}'`);
+  }
+
+  const voteOptions = {document, collection, voteType, user, voteId};
+
+  if (hasVotedClient({document, voteType})) {
+
+    // console.log('action: cancel')
+    returnedDocument = cancelVoteClient(voteOptions);
+    // returnedDocument = runCallbacks(`votes.cancel.client`, returnedDocument, collection, user);
+
+  } else {
+
+    // console.log('action: vote')
+
+    if (voteTypes[voteType].exclusive) {
+      clearVotesClient({document, collection, voteType, user, voteId})
+    }
+
+    returnedDocument = addVoteClient(voteOptions);
+    // returnedDocument = runCallbacks(`votes.${voteType}.client`, returnedDocument, collection, user);
+
+  }
+
+  // console.log('returnedDocument:', returnedDocument)
+
+  return returnedDocument;
+}
+
+/*
+
+Server-side database operation
+
+*/
+export const performVoteServer = ({ documentId, document, voteType = 'upvote', collection, voteId, user }) => {
+
+  const collectionName = collection.options.collectionName;
+  document = document || collection.findOne(documentId);
+
+  console.log('// performVoteMutation')
+  console.log('collectionName: ', collectionName)
+  console.log('document: ', document)
+  console.log('voteType: ', voteType)
+
+  const voteOptions = {document, collection, voteType, user, voteId};
+
+  if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
+    const VoteError = createError('voting.no_permission', {message: 'voting.no_permission'});
+    throw new VoteError();
+  }
+
+  if (hasVotedServer({document, voteType, user})) {
+
+    // console.log('action: cancel')
+
+    // runCallbacks(`votes.cancel.sync`, document, collection, user);
+    document = cancelVoteServer(voteOptions);
+    // runCallbacksAsync(`votes.cancel.async`, vote, document, collection, user);
+
+  } else {
+
+    // console.log('action: vote')
+
+    if (voteTypes[voteType].exclusive) {
+      document = clearVotesServer(voteOptions)
+    }
+
+    // runCallbacks(`votes.${voteType}.sync`, document, collection, user);
+    document = addVoteServer(voteOptions);
+    // runCallbacksAsync(`votes.${voteType}.async`, vote, document, collection, user);
+
+  }
+
+  // const newDocument = collection.findOne(documentId);
+  document.__typename = collection.options.typeName;
+  return document;
+
 }

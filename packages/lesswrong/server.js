@@ -1,7 +1,3 @@
-import { Accounts } from 'meteor/accounts-base';
-
-import './lib/SSR/resolvers.js';
-
 import './lib/index.js';
 // import './lib/init_script.js';
 import './lib/database-import/database_import.js';
@@ -13,6 +9,7 @@ import './lib/closed-beta/fixBodyField.js';
 import './lib/closed-beta/fixKarmaField.js';
 import './lib/closed-beta/fixEmailField.js';
 import './lib/closed-beta/fixFrontpageCount.js';
+import './lib/closed-beta/voteMigration.js';
 
 // LW Events
 import './lib/events/server.js';

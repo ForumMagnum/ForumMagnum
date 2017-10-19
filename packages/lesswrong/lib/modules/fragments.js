@@ -119,13 +119,8 @@ registerFragment(`
     # example-forum
     commentCount
     # vulcan:voting
-    upvotes
-    downvotes
-    upvoters {
-      _id
-    }
-    downvoters {
-      _id
+    currentUserVotes{
+      ...VoteFragment
     }
     baseScore
     score
@@ -156,17 +151,8 @@ registerFragment(`
 
 registerFragment(`
   fragment PostStats on Post {
-    upvoters {
-      _id
-      slug
-      username
-      karma
-    }
-    downvoters {
-      _id
-      slug
-      username
-      karma
+    allVotes {
+      ...VoteFragment
     }
     baseScore
     score
@@ -177,22 +163,11 @@ registerFragment(`
 
 registerFragment(`
   fragment CommentStats on Comment {
-    upvoters {
-      _id
-      slug
-      username
-      karma
-    }
-    downvoters {
-      _id
-      slug
-      username
-      karma
+    currentUserVotes{
+      ...VoteFragment
     }
     baseScore
     score
-    upvotes
-    downvotes
   }
 `);
 
@@ -215,14 +190,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     # vulcan:voting
-    upvoters {
-      _id
+    currentUserVotes {
+      ...VoteFragment
     }
-    downvoters {
-      _id
-    }
-    upvotes
-    downvotes
     baseScore
     score
   }
@@ -314,14 +284,9 @@ registerFragment(`
     }
     # example-forum
     # vulcan:voting
-    upvoters {
-      _id
+    currentUserVotes{
+      ...VoteFragment
     }
-    downvoters {
-      _id
-    }
-    upvotes
-    downvotes
     baseScore
     score
   }

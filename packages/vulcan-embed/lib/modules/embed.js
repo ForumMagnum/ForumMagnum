@@ -1,3 +1,6 @@
-const Embed = {};
+import { registerSetting } from 'meteor/vulcan:core';
 
-export default Embed;
+export const Embed = {};
+
+registerSetting('thumbnailWidth', 400, 'Image thumbnails width');
+registerSetting('thumbnailHeight', 300, 'Image thumbnails height');
