@@ -176,3 +176,20 @@
     padding:1em 0;
   }
 }
+
+.users-profile .posts-no-results {
+  font-size:18px;
+  font-style:italic;
+}
+
+.user-profile-posts-title {
+  padding-left:1em;
+  padding-bottom:1.5em;
+  font-size:18px;
+  font-style:italic;
+
+  span.wing {
+    width:100px;
+    border-bottom:solid 1px $light-grey;
+  }
+}

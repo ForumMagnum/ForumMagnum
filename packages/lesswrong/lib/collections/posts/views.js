@@ -99,7 +99,6 @@ Posts.addView("scheduled", terms => ({
 }));
 
 
-
 /**
  * @summary Draft view
  */
