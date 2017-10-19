@@ -17,6 +17,7 @@ Meteor.startup(() => {
     resolvers: GraphQLSchema.resolvers,
   });
   withRenderContextEnvironment(function (renderContext, req, res, next) {
+    const context = renderContext;
     // const context = deepmerge({
     //   // My own extension to Vulcan.js.
     //   // It's really useful when you have access to the ApolloClient inside resolvers.

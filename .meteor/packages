@@ -43,9 +43,10 @@ example-forum
 # example-permissions
 # example-membership
 # example-interfaces
+# example-reactions
 
 # vulcan:debug
 
 lesswrong
-webtoken-session
-internal-graphql
+# webtoken-session
+# internal-graphql

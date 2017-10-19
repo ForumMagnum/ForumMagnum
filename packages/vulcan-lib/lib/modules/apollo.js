@@ -1,11 +1,11 @@
 import ApolloClient, { createNetworkInterface, createBatchingNetworkInterface } from 'apollo-client';
-import 'isomorphic-fetch';
-
+import 'cross-fetch/polyfill';
 import { Meteor } from 'meteor/meteor';
-
-import { getSetting } from './settings.js';
+import { getSetting, registerSetting } from './settings.js';
 import { getFragmentMatcher } from './fragment_matcher.js';
 import { Callbacks, runCallbacks } from './callbacks.js';
+
+registerSetting('developmentServerIp', Meteor.absoluteUrl(), 'Development server IP');
 
 const defaultNetworkInterfaceConfig = {
   path: '/graphql', // default graphql server endpoint
@@ -97,7 +97,7 @@ const meteorClientConfig = networkInterfaceConfig => {
 };
 
 export const createApolloClient = options => {
-  
+
   runCallbacks('apolloclient.init.before');
 
   return new ApolloClient(meteorClientConfig(options));

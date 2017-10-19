@@ -12,9 +12,7 @@ injectTapEventPlugin();
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
-import { withUserAgent } from '../lib/SSR/withUserAgent.js';
-
-const Layout = ({currentUser, children, currentRoute, userAgent}) => {
+const Layout = ({currentUser, children, currentRoute }, { userAgent }) => {
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"
@@ -79,11 +77,12 @@ const Layout = ({currentUser, children, currentRoute, userAgent}) => {
         </div>
       </MuiThemeProvider>
     </div>
-  }
+}
 
-
-
+Layout.contextTypes = {
+  userAgent: PropTypes.string,
+}
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withNewEditor, withUserAgent);
+replaceComponent('Layout', Layout, withNewEditor );

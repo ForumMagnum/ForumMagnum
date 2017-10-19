@@ -64,7 +64,7 @@ class SequencesPage extends Component {
               </div> : null}
               {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
             </div>}>
-          <div className="sequences-description">
+          <div className="sequences-description content-body">
             {document.description ? <Components.ContentRenderer state={document.description} /> : null}
           </div>
         </Components.Section>
