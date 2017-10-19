@@ -59,7 +59,6 @@ async function runVoteMigration(collectionName) {
 }
 
 if (getSetting('runVoteMigration')) {
-  if (getSetting('resetVotesBeforeMigration')) {Votes.remove({});}
   runVoteMigration("Posts")
   runVoteMigration("Comments")
 }
