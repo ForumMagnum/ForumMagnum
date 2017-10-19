@@ -27,11 +27,11 @@ Meteor.startup(() => {
     //   userId: req.loginContext ? req.loginContext.userId : undefined
     // }, GraphQLSchema.context);
     // go over context and add Dataloader to each collection
-    Collections.forEach(collection => {
-      context[collection.options.collectionName].loader = new DataLoader(ids => findByIds(collection, ids, context), {
-        cache: true
-      });
-    });
+    // Collections.forEach(collection => {
+    //   context[collection.options.collectionName].loader = new DataLoader(ids => findByIds(collection, ids, context), {
+    //     cache: true
+    //   });
+    // });
     renderContext.apolloClient.networkInterface = {
       query: (request) => {
         return graphql(schema, print(request.query), {}, context, request.variables, request.debugName);
