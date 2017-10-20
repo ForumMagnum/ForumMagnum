@@ -4,6 +4,8 @@ import { addCallback, runCallbacksAsync, removeMutation } from 'meteor/vulcan:co
 import { Posts } from '../../../modules/posts/index.js';
 import { Comments } from '../../../modules/comments/index.js';
 
+import { performVoteClient } from 'meteor/vulcan:voting';
+
 //////////////////////////////////////////////////////
 // comments.new.sync                                //
 //////////////////////////////////////////////////////
@@ -28,6 +30,14 @@ function CommentsNewOperations (comment) {
 }
 addCallback('comments.new.sync', CommentsNewOperations);
 
+
+function CommentsNewUpvoteOwnCommentSync(comment, commentAuthor) {
+  const clientVote = performVoteClient({ document: comment, voteType: 'upvote', collection: Comments, user: commentAuthor });
+  console.log("CommentsNewUpvoteOwnCommentSync clientVote", clientVote);
+  return {...comment, ...clientVote};
+}
+
+addCallback('comments.new.sync', CommentsNewUpvoteOwnCommentSync);
 //////////////////////////////////////////////////////
 // comments.new.async                               //
 //////////////////////////////////////////////////////
@@ -62,7 +72,7 @@ function CommentsRemovePostCommenters (comment, currentUser) {
   const commenters = _.uniq(postComments.map(comment => comment.userId));
   const lastCommentedAt = postComments[0] && postComments[0].postedAt;
 
-  // update post with a decremented comment count, a unique list of commenters and corresponding last commented at date 
+  // update post with a decremented comment count, a unique list of commenters and corresponding last commented at date
   Posts.update(postId, {
     $inc: {commentCount: -1},
     $set: {lastCommentedAt, commenters},
@@ -81,7 +91,7 @@ function CommentsRemoveChildrenComments (comment, currentUser) {
     removeMutation({
       action: 'comments.remove',
       collection: Comments,
-      documentId: childComment._id, 
+      documentId: childComment._id,
       currentUser: currentUser,
       validate: false
     });
