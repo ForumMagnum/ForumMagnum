@@ -2,24 +2,25 @@ import React, { Component } from 'react';
 import { Components, registerComponent, withList, withCurrentUser, Loading, withEdit } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 
-const RecentComments = ({results, currentUser, loading, fontSize, loadMore, loadingMore, editMutation}) => {
-    return (
-      <div>
-        <div className="comments-list recent-comments-list">
-          {loading || !results ? <Loading /> :
-            <div className={"comments-items" + (fontSize == "small" ? " smalltext" : "")}>
-              {results.map(comment =>
-                  <div key={comment._id}>
-                    <Components.RecentCommentsItem
-                      currentUser={currentUser}
-                      comment={comment}
-                      editMutation={editMutation}/>
-                  </div>
-                )}
-                <Components.CommentsLoadMore loading={loadingMore} loadMore={loadMore}  />
-            </div>}
-        </div>
-      </div>)
+const RecentComments = ({results, currentUser, loading, fontSize, loadMore, networkStatus, editMutation}) => {
+  const loadingMore = networkStatus === 2;
+  return (
+    <div>
+      <div className="comments-list recent-comments-list">
+        {loading || !results ? <Loading /> :
+        <div className={"comments-items" + (fontSize == "small" ? " smalltext" : "")}>
+          {results.map(comment =>
+            <div key={comment._id}>
+              <Components.RecentCommentsItem
+                currentUser={currentUser}
+                comment={comment}
+                editMutation={editMutation}/>
+            </div>
+          )}
+          <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />
+        </div>}
+      </div>
+    </div>)
   }
 
 const commentsOptions = {
