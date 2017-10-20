@@ -78,8 +78,7 @@ class CommentsItem extends PureComponent {
     this.setState({showReply: true});
   }
 
-  replyCancelCallback = (event) => {
-    event.preventDefault();
+  replyCancelCallback = () => {
     this.setState({showReply: false});
   }
 
