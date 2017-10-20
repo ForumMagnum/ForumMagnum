@@ -87,22 +87,23 @@ class Header extends Component {
           >
             <div className="header-title">
               <Link to="/">LESSWRONG</Link>
-                { siteSection}
+              { siteSection}
             </div>
           </AppBar>
-        <Drawer docked={false}
-                width={200}
-                open={this.state.open}
-                onRequestChange={(open) => this.setState({open})}
-                containerClassName="menu-drawer" >
+          <Drawer docked={false}
+            width={200}
+            open={this.state.open}
+            onRequestChange={(open) => this.setState({open})}
+          containerClassName="menu-drawer" >
 
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> RATIONALITY: A-Z </MenuItem>
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> THE CODEX </MenuItem>
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
-          <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> RATIONALITY: A-Z </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> THE CODEX </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
+
           {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
         </Drawer>
 
