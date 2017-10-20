@@ -18,8 +18,8 @@ import DisplayAdvancedPlugin from './editorPlugins/DisplayAdvancedEditor/index.j
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui';
 
 // The rich text area plugin
-import slate from 'ory-editor-plugins-slate'
-import { defaultPlugins } from 'ory-editor-plugins-slate/lib/hooks'
+import slate, { defaultPlugins } from 'ory-editor-plugins-slate'
+// import { defaultPlugins } from 'ory-editor-plugins-slate/lib/hooks'
 
 import spacer from 'ory-editor-plugins-spacer'
 import image from 'ory-editor-plugins-image'
