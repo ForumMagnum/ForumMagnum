@@ -45,10 +45,10 @@ const Home = (props, context) => {
         <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
         <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
       </Components.Section>
-      <Components.Section title="Featured Posts">
+      <Components.Section title="Featured">
         <Components.PostsList terms={featuredPostsTerms} showHeader={false} showLoadMore={false} />
       </Components.Section>
-      <Components.Section title="Recent Frontpage Posts"
+      <Components.Section title="Frontpage Posts"
         titleComponent= {<div className="recent-posts-title-component">
           sorted by<br /> <Components.PostsViews />
           {props.currentUser && <div className="new-post-link"><Link to={{pathname:"/daily"}}> see all posts </Link></div>}
