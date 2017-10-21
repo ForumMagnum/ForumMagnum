@@ -87,8 +87,8 @@ class Header extends Component {
           >
             <div className="header-title">
               <Link to="/">
-                <span className="min-tiny">LESSWRONG</span>
-                <span className="max-tiny">LW</span>
+                <span className="min-small">LESSWRONG</span>
+                <span className="max-small">LW</span>
               </Link>
               <span className="min-small">{ siteSection}</span>
             </div>
