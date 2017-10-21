@@ -91,8 +91,7 @@ class CommentsItem extends PureComponent {
     this.setState({showEdit: true});
   }
 
-  editCancelCallback = (event) => {
-    event.preventDefault();
+  editCancelCallback = () => {
     this.setState({showEdit: false});
   }
 

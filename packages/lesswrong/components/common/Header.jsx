@@ -39,7 +39,6 @@ class Header extends Component {
 
   renderHeaderSection_UserProfile = (userSlug) => {
     const user = Users.findInStore(this.props.client.store, {slug:userSlug}).fetch()[0]
-    console.log(user)
     if (user && (user.displayName || user.slug)) {
       return (
         <Link className="header-site-section user" to={ Users.getProfileUrl(user) }>
@@ -51,7 +50,8 @@ class Header extends Component {
 
   renderHeaderSection_UserPost = (postId) => {
     const post = Posts.findOneInStore(this.props.client.store, postId)
-    if (post && post.frontpage) {
+    if (post && (post.frontpage || post.meta)) {
+      return null
     } else if (post && post.userId) {
       const user = Users.findOneInStore(this.props.client.store, post.userId)
       if (user) {

@@ -58,6 +58,9 @@ class CommentEditor extends Component {
 
   componentWillMount() {
     //Add function for resetting form to form submit callbacks
+    const document = this.props.document;
+    const fieldName = this.props.name;
+    
     const resetEditor = (result) => {
       // On Form submit, create a new empty editable
       let editor = this.props.editor;
@@ -66,6 +69,10 @@ class CommentEditor extends Component {
       this.setState({
         contentState: state,
       });
+
+      if (document._id) { ls.remove(document._id) }
+      else { ls.remove(fieldName) }
+
       return result;
     }
     this.context.addToSuccessForm(resetEditor);
