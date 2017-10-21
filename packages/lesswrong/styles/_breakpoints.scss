@@ -8,7 +8,7 @@ $large: 1200px;
 
 // Our Header Sections
 
-$lw-tiny: 350px;
+$lw-tiny: 400px;
 $lw-small: 715px;
 $lw-medium: 950px;
 $lw-large: 1100px;
@@ -58,6 +58,9 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
+.max-tiny { @include min-tiny { display:none }}
+.min-tiny { @include max-tiny { display:none }}
+
 @mixin max-small(){
   @media screen and (max-width: $lw-small) {
     @content;
@@ -68,6 +71,9 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
+.max-small { @include min-small { display:none }}
+.min-small { @include max-small { display:none }}
+
 @mixin max-medium(){
   @media screen and (max-width: $lw-medium) {
     @content;
