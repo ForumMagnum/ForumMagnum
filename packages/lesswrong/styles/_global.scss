@@ -8,9 +8,14 @@ body{
   margin-right: auto;
   padding: 0 $hmargin;
   max-width: 1200px;
+
+  @include max-small {
+    padding-left:0;
+    padding-right:0;
+  }
 }
 
-.main{
+.main {
   margin-bottom: $vmargin;
 }
 
