@@ -63,7 +63,7 @@ function postsEditDecreaseFrontpagePostCount (post, oldPost) {
 }
 addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 
-function postsNewInitialScoreCallback (post) {
-  updateScore({collection: Posts, item: post, forceUpdate: true});
-}
-addCallback("posts.new.async", postsNewInitialScoreCallback);
+// function postsNewInitialScoreCallback (post) {
+//   updateScore({collection: Posts, item: post, forceUpdate: true});
+// }
+// addCallback("posts.new.async", postsNewInitialScoreCallback);
