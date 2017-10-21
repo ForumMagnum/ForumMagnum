@@ -127,6 +127,34 @@
             vertical-align: top;
           }
         }
+        @include max-small {
+          button {
+            position:absolute !important;
+            left:0 !important;
+            bottom:0 !important;
+            margin: 0 !important;
+            height:28px !important;
+            width:28px !important;
+            padding:0 !important;
+
+            svg {
+              width:28px !important;
+              height:28px !important;
+            }
+          }
+        }
+      }
+      @include max-small {
+        margin-top:10px;
+        clear:both;
+        width:50% !important;
+        margin-right:50% !important;
+        position:relative;
+        span {
+          position: absolute;
+          bottom:0 !important;
+          left:35px !important;
+        }
       }
     }
   }
