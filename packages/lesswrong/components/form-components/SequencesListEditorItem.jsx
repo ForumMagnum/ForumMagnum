@@ -5,7 +5,7 @@ import DragIcon from 'material-ui/svg-icons/editor/drag-handle';
 import RemoveIcon from 'material-ui/svg-icons/navigation/close';
 
 
-const SequencesListEditorItem = ({document, loading, ...props, documentId}) => {
+const SequencesListEditorItem = ({document, loading, documentId, ...props}) => {
   if (document && !loading) {
     return <div>
       <DragIcon className="drag-handle"/>
