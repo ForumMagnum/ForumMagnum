@@ -2,9 +2,16 @@
   @include max-tiny {
     height:43px !important;
 
-    > div {
-      padding:0 !important;
+    > div:nth-child(1) {
       height:43px !important;
+      padding-left:0 !important;
+
+      > div {
+        > div {
+          height:32px;
+        }
+
+      }
 
       > button {
         padding: 10px !important;
@@ -114,8 +121,9 @@
   margin-top: 5px;
 
   @include max-tiny {
+    position:relative;
     top:-10px;
-    padding-right:15px;
+    right:-2px;
   }
 
   color: rgba(0,0,0,0.5) !important;
@@ -148,7 +156,8 @@
 .search {
   display: inline-block;
   @include max-tiny {
-    width:32px !important;
+    padding:0 !important;
+    height:32px !important;
   }
 }
 
@@ -157,13 +166,11 @@
   position: relative;
   .search-bar-box {
     display: inline-block;
-
     @include max-tiny {
+      padding-right:7px;
       span {
         padding:0 !important;
-        margin:0 !important;
-        height:24px !important;
-        width:24px !important;
+        top:-12px !important;
       }
     }
   }
@@ -174,7 +181,11 @@
     right: 5px;
     cursor: pointer;
   }
-
+  .ais-SearchBox__root {
+    @include max-tiny {
+      height:32px;
+    }
+  }
   .ais-SearchBox__submit {
     display: none;
   }
@@ -184,17 +195,36 @@
     padding-left: 48px;
     vertical-align: bottom;
     border-style: none;
-    background-color: transparent;
     box-shadow: none;
-    width: 10px;
+    background-color: transparent;
     cursor: pointer;
+    width:0;
+    @include max-tiny {
+      position:relative !important;
+      top:-14px !important;
+      padding-left:24px;
+    }
   }
   &.open .search-bar-close {
     display: inline-block;
+    @include max-tiny {
+      top:0 !important;
+      right:8px;
+    }
   }
   &.open .ais-SearchBox__input {
-    width: 100%;
     cursor: text;
+    width:100%;
+
+    border-radius:5px;
+
+    @include max-tiny {
+      background-color: #eee;
+      z-index: 100000;
+      width:110px;
+      height:36px;
+      padding-left:10px !important;
+    }
   }
 }
 
