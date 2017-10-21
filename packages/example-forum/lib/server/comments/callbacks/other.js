@@ -29,15 +29,6 @@ function CommentsNewOperations (comment) {
   return comment;
 }
 addCallback('comments.new.sync', CommentsNewOperations);
-
-
-function CommentsNewUpvoteOwnCommentSync(comment, commentAuthor) {
-  const clientVote = performVoteClient({ document: comment, voteType: 'upvote', collection: Comments, user: commentAuthor });
-  console.log("CommentsNewUpvoteOwnCommentSync clientVote", clientVote);
-  return {...comment, ...clientVote};
-}
-
-addCallback('comments.new.sync', CommentsNewUpvoteOwnCommentSync);
 //////////////////////////////////////////////////////
 // comments.new.async                               //
 //////////////////////////////////////////////////////
