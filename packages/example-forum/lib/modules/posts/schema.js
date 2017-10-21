@@ -198,10 +198,15 @@ const schema = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'select',
-    onInsert: document => {
-      if (document.userId && !document.status) {
-        const user = Users.findOne(document.userId);
-        return Posts.getDefaultStatus(user);
+    onInsert: (document, currentUser) => {
+      if (!document.status) {
+        return Posts.getDefaultStatus(currentUser);
+      }
+    },
+    onEdit: (modifier, document, currentUser) => {
+      // if for some reason post status has been removed, give it default status
+      if (modifier.$unset && modifier.$unset.status) {
+        return Posts.getDefaultStatus(currentUser);
       }
     },
     form: {
@@ -367,8 +372,8 @@ const schema = {
     optional: true,
     resolveAs: {
       type: 'String',
-      resolver: (booking, args, context) => {
-        return moment(booking.endAt).format('dddd, MMMM Do YYYY');
+      resolver: (post, args, context) => {
+        return moment(post.postedAt).format('dddd, MMMM Do YYYY');
       }
     }  
   },

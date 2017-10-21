@@ -25,12 +25,9 @@ This component expects:
 import { Components, Utils, runCallbacks } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
+import { intlShape } from 'meteor/vulcan:i18n';
 import Formsy from 'formsy-react';
-import Button from 'react-bootstrap/lib/Button';
-import Flash from "./Flash.jsx";
-import FormGroup from "./FormGroup.jsx";
-import { flatten, deepValue, getEditableFields, getInsertableFields } from '../modules/utils.js';
+import { getEditableFields, getInsertableFields } from '../modules/utils.js';
 
 /*
 
@@ -163,6 +160,11 @@ class Form extends Component {
       // add options if they exist
       if (fieldSchema.form && fieldSchema.form.options) {
         field.options = typeof fieldSchema.form.options === "function" ? fieldSchema.form.options.call(fieldSchema, this.props) : fieldSchema.form.options;
+      
+        // in case of checkbox groups, check "checked" option to populate value
+        if (!field.value) {
+          field.value = _.where(field.options, {checked: true}).map(option => option.value);
+        }
       }
 
       if (fieldSchema.form && fieldSchema.form.disabled) {
@@ -364,8 +366,8 @@ class Form extends Component {
             message = {content: error.message || this.context.intl.formatMessage({id: error.id, defaultMessage: error.id}, error.data)}
 
           }
-
-          return <Flash key={index} message={message} type="error"/>
+  
+          return <Components.FormFlash key={index} message={message} type="error"/>;
         })}
       </div>
     )
@@ -617,25 +619,20 @@ class Form extends Component {
           ref="form"
         >
           {this.renderErrors()}
-          {fieldGroups.map(group => <FormGroup key={group.name} {...group} updateCurrentValues={this.updateCurrentValues} />)}
-
-          <div className="form-submit">
-            <Button type="submit" bsStyle="primary">{this.props.submitLabel ? this.props.submitLabel : <FormattedMessage id="forms.submit"/>}</Button>
-            {this.props.cancelCallback ? <a className="form-cancel" onClick={(e) => {e.preventDefault(); this.props.cancelCallback(this.getDocument())}}>{this.props.cancelLabel ? this.props.cancelLabel : <FormattedMessage id="forms.cancel"/>}</a> : null}
-          </div>
+          {fieldGroups.map(group => <Components.FormGroup key={group.name} {...group} updateCurrentValues={this.updateCurrentValues} />)}
+  
+          <Components.FormSubmit submitLabel={this.props.submitLabel}
+                                 cancelLabel={this.props.cancelLabel}
+                                 cancelCallback={this.props.cancelCallback}
+                                 document={this.getDocument()}
+                                 deleteDocument={(this.props.formType === 'edit'
+                                   && this.props.showRemove
+                                   && this.deleteDocument)
+                                 || null}
+                                 collectionName={collectionName}
+          />
 
         </Formsy.Form>
-
-        {
-          this.props.formType === 'edit' && this.props.showRemove
-            ? <div>
-                <hr/>
-                <a href="javascript:void()" onClick={this.deleteDocument} className={`delete-link ${collectionName}-delete-link`}>
-                  <Components.Icon name="close"/> <FormattedMessage id="forms.delete"/>
-                </a>
-              </div>
-            : null
-        }
       </div>
     )
   }
