@@ -86,8 +86,11 @@ class Header extends Component {
             style={appBarStyle}
           >
             <div className="header-title">
-              <Link to="/">LESSWRONG</Link>
-              { siteSection}
+              <Link to="/">
+                <span className="min-tiny">LESSWRONG</span>
+                <span className="max-tiny">LW</span>
+              </Link>
+              <span className="min-small">{ siteSection}</span>
             </div>
           </AppBar>
           <Drawer docked={false}

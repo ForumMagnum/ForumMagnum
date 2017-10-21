@@ -1,3 +1,22 @@
+.header {
+  @include max-tiny {
+    height:43px !important;
+
+    > div {
+      padding:0 !important;
+      height:43px !important;
+
+      > button {
+        padding: 10px !important;
+        width:26px !important;
+        height:26px !important;
+        color: red !important;
+        margin:0 !important;
+      }
+    }
+  }
+}
+
 .header-wrapper{
   margin-bottom: 35px;
 }
@@ -32,6 +51,12 @@
   position:absolute;
   top:15px;
   left:64px;
+
+  @include max-tiny {
+    top:5px;
+    left:46px;
+  }
+
   color:$medium-text;
   a {
     text-decoration:none;
@@ -45,9 +70,6 @@
     &:hover {
       color:$light-text;
     }
-  }
-  @include max-tiny {
-    display:none;
   }
 }
 .header-site-section {
@@ -85,10 +107,17 @@
   }
 }
 
+
 .users-account-menu, .users-menu{
   display: inline-block;
   vertical-align: text-bottom;
   margin-top: 5px;
+
+  @include max-tiny {
+    top:-10px;
+    padding-right:15px;
+  }
+
   color: rgba(0,0,0,0.5) !important;
   .dropdown-toggle{
     @include flex-center;
@@ -118,6 +147,9 @@
 
 .search {
   display: inline-block;
+  @include max-tiny {
+    width:32px !important;
+  }
 }
 
 .search-bar {
@@ -125,6 +157,15 @@
   position: relative;
   .search-bar-box {
     display: inline-block;
+
+    @include max-tiny {
+      span {
+        padding:0 !important;
+        margin:0 !important;
+        height:24px !important;
+        width:24px !important;
+      }
+    }
   }
   .search-bar-close {
     display: none;
@@ -293,6 +334,15 @@
 .notifications-menu {
   display: inline-block;
   vertical-align: top;
+
+  @include max-tiny {
+    button {
+      padding:0 !important;
+      margin:0 !important;
+      width:24px !important;
+      height:24px !important;
+    }
+  }
 }
 
 .notifications-menu-inbox-button {
