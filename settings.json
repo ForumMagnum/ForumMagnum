@@ -29,7 +29,7 @@
     "facebookPage": "http://facebook.com/foo",
 
     "googleAnalyticsId":"UA-60844744-4",
-    "runVoteMigration": false,
+    "runVoteMigration": false
   },
 
   "defaultEmail": "no-reply@lesserwrong.com",
