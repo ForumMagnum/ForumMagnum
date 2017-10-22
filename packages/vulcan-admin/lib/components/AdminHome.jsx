@@ -7,6 +7,15 @@ import moment from 'moment';
 
 import '../modules/columns.js';
 
+import { addAdminColumn } from 'meteor/vulcan:core';
+
+const UserIPsDisplay = ({column, document}) => {
+  console.log("document.IPs: ", document.IPs);
+  return <div>
+    {document.IPs && document.IPs.map(ip => <div>{ip}</div>)}
+  </div>
+}
+
 const DateDisplay = ({document, name}) => <div>
   {moment(document[name].date)}
 </div>
@@ -20,8 +29,13 @@ const EventPropertiesDisplay = ({column, document}) => {
 }
 
 const UserDisplay = ({column, document}) => <div>
-  {document[column.name] && document[column.name].username}
+  <Components.UsersName user={document[column.name]} />
 </div>
+
+addAdminColumn([{
+  name: 'ips',
+  component: UserIPsDisplay,
+}])
 
 const eventColumns = [
   'createdAt',
