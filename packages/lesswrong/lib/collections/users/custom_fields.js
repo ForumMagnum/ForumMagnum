@@ -199,6 +199,37 @@ Users.addField([
   },
 
   /**
+    IPDummy: All Ips that this user has ever logged in with
+  */
+
+  {
+    fieldName: 'IPDummy',
+    fieldSchema: {
+      type: Array,
+      optional: true,
+      viewableBy: ['sunshineRegiment', 'admins'],
+      resolveAs: {
+        fieldName: 'IPs',
+        type: '[String]',
+        resolver: (user, args, context) => {
+            const IPs = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch().map(event => event.properties && event.properties.ip);
+            const uniqueIPs = _.uniq(IPs);
+            return uniqueIPs;
+        },
+        addOriginalField: false,
+      },
+    }
+  },
+
+  {
+    fieldName: 'IPDummy.$',
+    fieldSchema: {
+      type: String,
+      optional: true,
+    }
+  },
+
+  /**
     Overwrite newsletter subscribe field to be hidden (for now) TODO: Get newsletter to run properly
   */
 
