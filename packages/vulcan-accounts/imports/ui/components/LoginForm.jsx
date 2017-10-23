@@ -650,7 +650,7 @@ export class AccountsLoginForm extends Tracker.Component {
           if (this.context.intl.formatMessage({id: errorId})) {
             this.showMessage(errorId);
           } else {
-            this.showMessage('accounts.error_unknown');
+            this.showMessage(error.reason || 'accounts.error_unknown');
           }
         }
         else {
