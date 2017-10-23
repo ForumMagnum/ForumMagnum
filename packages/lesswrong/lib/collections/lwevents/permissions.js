@@ -2,8 +2,8 @@ import Users from 'meteor/vulcan:users';
 import LWevents from './collection.js';
 
 const membersActions = [
-  'events.new',
-  'events.view',
+  'events.new.own',
+  'events.view.own',
 ];
 Users.groups.members.can(membersActions);
 

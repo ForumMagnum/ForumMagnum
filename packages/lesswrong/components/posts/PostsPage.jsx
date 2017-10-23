@@ -219,18 +219,16 @@ class PostsPage extends Component {
         };
 
         if(this.props.document) {
-          const post = this.props.document;
-          eventProperties.documentId = post._id;
-          eventProperties.postTitle = post.title;
+          eventProperties.documentId = this.props.document._id;
+          eventProperties.postTitle = this.props.document.title;
+        } else if (this.props.documentId){
+          eventProperties.documentId = this.props.documentId;
         }
         // console.log("Registered event: ", eventProperties);
         registerEvent('post-view', eventProperties);
       }
-
-
-
     } catch(error) {
-      console.log(error); // eslint-disable-line
+      console.log("PostPage componentDidMount error:", error); // eslint-disable-line
     }
   }
 }
