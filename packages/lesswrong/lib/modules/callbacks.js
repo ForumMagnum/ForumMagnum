@@ -2,9 +2,10 @@ import Notifications from '../collections/notifications/collection.js';
 import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
 import Sequences from '../collections/sequences/collection.js';
+import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
-import { addCallback, newMutation, editMutation, Utils, runCallbacksAsync } from 'meteor/vulcan:core';
+import { addCallback, newMutation, editMutation, Utils, runCallbacksAsync, runQuery } from 'meteor/vulcan:core';
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
 import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
@@ -454,6 +455,43 @@ function userResetLoginTokens(user) {
 }
 
 addCallback("users.ban.async", userResetLoginTokens);
+
+async function userIPBan(user) {
+  const query = `
+    query UserIPBan($userId:String) {
+      UsersSingle(documentId: $userId) {
+        IPs
+      }
+    }
+  `;
+  const IPs = await runQuery(query, {userId: user._id});
+  console.log("userIPBan IPs", IPs);
+  if (IPs) {
+    IPs.data.UsersSingle.IPs.forEach(ip => {
+      console.log("Banning IP", ip);
+      let dayAfterTomorrow = new Date();
+      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+      const ban = {
+        expirationDate: dayAfterTomorrow,
+        userId: user._id,
+        reason: "User account banned",
+        comment: "Automatic IP ban",
+        ip: ip,
+      }
+      console.log("New Ban: ", ban);
+      newMutation({
+        action: 'bans.new',
+        collection: Bans,
+        document: ban,
+        currentUser: user,
+        validate: false,
+      })
+    })
+  }
+
+}
+
+addCallback("users.ban.async", userIPBan);
 
 function fixUsernameOnExternalLogin(user) {
   console.log("New user being created: ", user)

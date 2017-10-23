@@ -212,9 +212,9 @@ Users.addField([
         fieldName: 'IPs',
         type: '[String]',
         resolver: (user, args, context) => {
-            const IPs = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch().map(event => event.properties && event.properties.ip);
-            const uniqueIPs = _.uniq(IPs);
-            return uniqueIPs;
+          const IPs = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch().map(event => event.properties && event.properties.ip);
+          const uniqueIPs = _.uniq(IPs);
+          return uniqueIPs;
         },
         addOriginalField: false,
       },

@@ -11,7 +11,7 @@ extendFragment('UsersAdmin', `
   posts(limit: 5){
     ...PostsPage
   }
-  IP
+  IPs
 `);
 
 addAdminColumn({
