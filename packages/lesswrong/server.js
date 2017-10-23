@@ -32,3 +32,5 @@ import './lib/closed-beta/fixSSCDrafts.js';
 import './lib/modules/connection_logs.js';
 import './lib/collections/users/validate_login.js';
 import './lib/collections/bans/callbacks.js';
+
+import './lib/collections/lwevents/indexes.js';
