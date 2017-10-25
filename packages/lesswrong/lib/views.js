@@ -18,15 +18,3 @@ Users.addView("topContributors", function (terms) {
     options: {sort: {karma: -1}, limit: 5},
   };
 });
-
-LWEvents.addView("postVisits", function (terms) {
-  return {
-    selector: {
-      documentId: terms.postId,
-      userId: terms.userId,
-      name: "post-view",
-      deleted: {$ne:true}
-    },
-    options: {sort: {createdAt: -1}, limit: terms.limit || 1},
-  };
-});
