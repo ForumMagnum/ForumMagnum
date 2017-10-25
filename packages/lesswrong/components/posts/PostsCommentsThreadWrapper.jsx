@@ -15,7 +15,13 @@ const PostsCommentsThreadWrapper = (props, /* context*/) => {
     const nestedComments = Utils.unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
     return (
       <div className="posts-comments-thread-wrapper">
-        <Components.PostsCommentsThread terms={{postId: postId, userId: userId, view: "postVisits", limit: 1}} comments={nestedComments} loadMoreComments={loadMore} totalComments={totalCount} commentCount={resultsClone.length} loadingMoreComments={loadingMore}/>
+        <Components.PostsCommentsThread
+          terms={{postId: postId, userId: userId, view: "postVisits", limit: 1}}
+          comments={nestedComments}
+          loadMoreComments={loadMore}
+          totalComments={totalCount}
+          commentCount={resultsClone.length}
+          loadingMoreComments={loadingMore}/>
       </div>
     );
   }

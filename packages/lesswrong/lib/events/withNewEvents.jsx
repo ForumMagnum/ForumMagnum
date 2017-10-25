@@ -19,6 +19,7 @@ function withNewEvents(WrappedComponent) {
       this.closeEvent = this.closeEvent.bind(this);
     }
     registerEvent(name, properties) {
+      const newMutation = this.props.newMutation;
       const { userId, documentId, important, intercom, ...rest} = properties;
       let event = {
         userId,
@@ -38,6 +39,7 @@ function withNewEvents(WrappedComponent) {
         prevState.events[eventId] = event;
         return prevState;
       });
+      newMutation({document: event});
       return eventId;
     }
 
@@ -57,7 +59,6 @@ function withNewEvents(WrappedComponent) {
         prevState.events = _.omit(prevState.events, eventId);
         return prevState;
       });
-
       return eventId;
     }
 

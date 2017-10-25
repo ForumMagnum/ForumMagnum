@@ -56,7 +56,7 @@ class PostsItem extends PureComponent {
     const commentCountIconStyle = {
       width: '30px',
       height: '30px',
-      color: read ? (newComments ? 'rgba(100, 169, 105, 0.9)' : 'rgba(100, 169, 105, 0.5)') : 'rgba(0,0,0,0.1)',
+      color: read ? (newComments ? 'rgba(100, 169, 105, 1)' : 'rgba(100, 169, 105, 0.5)') : 'rgba(0,0,0,0.1)',
     }
 
     const commentCountBadgeStyle = {
@@ -94,7 +94,6 @@ class PostsItem extends PureComponent {
               {post.url ? ("This is a linkpost for " + post.url) : post.excerpt}
             </div>
           </div>
-
           <div className="posts-item-comments">
             <object><Link to={Posts.getPageUrl(post) + "#comments"}>
               <Badge
