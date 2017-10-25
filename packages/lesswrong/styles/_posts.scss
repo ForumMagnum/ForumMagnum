@@ -911,6 +911,11 @@ svg.drag-handle {
   .material-icons {
     color: rgba(0,0,0,0.5) !important;
   }
+  &:disabled {
+    .material-icons {
+      color: rgba(0,0,0,0.2) !important;
+    }
+  }
 }
 
 .posts-item-body {

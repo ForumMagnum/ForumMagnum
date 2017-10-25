@@ -25,8 +25,20 @@ function BooksEditHTMLSerializeCallback (modifier, book) {
   } else if (modifier.$unset && modifier.$unset.description) {
     modifier.$unset.htmlDescription = true;
     modifier.$unset.plaintextDescription = true;
-  } 
+  }
   return modifier
 }
 
 addCallback("books.edit.sync", BooksEditHTMLSerializeCallback);
+
+// import { Books } from "./collection";
+// import { addCallback, editMutation, runCallbacksAsync } from 'meteor/vulcan:core';
+//
+// function BooksUpdateLinks (book) {
+//   const collectionId = book.collectionId
+//   console.log("BOOKS UPDATE!!!")
+//   console.log(collectionId)
+//   const books = Books.find({collectionId:collectionId}).fetch()
+//   console.log(books)
+// }
+// addCallback("books.edit.async", CommentsEditSoftDeleteCallback);

@@ -28,7 +28,14 @@ class EditUrl extends Component {
               onTouchTap={this.toggleEditor}/>
           </div>
           <div className="col-md-8">
-            <Input {...this.props} value={this.state.active ? this.state.url : ""} type={this.state.active ? "url" : "hidden"} layout="elementOnly" />
+            <Input {...this.props}
+              name={ this.props.name }
+              label={ this.props.label }
+              placeholder={ this.props.placeholder }
+              hidden={ !this.state.active}
+              value={this.state.active ? this.state.url : ""}
+              type={this.state.active ? "url" : "hidden"}
+              layout="elementOnly" />
           </div>
         </div>
       </div>

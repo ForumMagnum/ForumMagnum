@@ -132,6 +132,10 @@ registerFragment(`
     }
     lastVisitedAt
     lastCommentedAt
+    canonicalCollectionId
+    canonicalCollection {
+      slug
+    }
   }
 `);
 
@@ -141,6 +145,23 @@ registerFragment(`
     body
     htmlBody
     content
+    canonicalPrevPostId
+    canonicalNextPostId
+    canonicalCollectionId
+    canonicalSequenceId
+    collectionTitle
+  }
+`);
+
+registerFragment(`
+  fragment SequencesPostNavigationLink on Post {
+    _id
+    title
+    url
+    slug
+    canonicalCollection {
+      slug
+    }
   }
 `);
 

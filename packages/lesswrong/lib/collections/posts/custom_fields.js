@@ -255,29 +255,6 @@ Posts.addField([
     }
   },
 
-
-  {
-    fieldName: 'nextPageTitle',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins']
-    }
-  },
-
-  {
-    fieldName: 'nextPageLink',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins']
-    }
-  },
-
   {
     fieldName: 'collectionTitle',
     fieldSchema: {
@@ -291,6 +268,75 @@ Posts.addField([
 
   {
     fieldName: 'userId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      hidden: false,
+      control: "text"
+    }
+  },
+
+  {
+    fieldName: 'canonicalSequenceId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      // resolveAs: {
+      //   fieldName: 'canonicalSequence',
+      //   addOriginalField: true,
+      //   type: "Sequence",
+      //   resolver: (post, args, context) => {
+      //     return context.Sequences.findOne({_id:post.canonicalSequenceId})
+      //   }
+      // },
+      hidden: false,
+      control: "text"
+    }
+  },
+
+  {
+    fieldName: 'canonicalCollectionId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      hidden: false,
+      control: "text",
+      resolveAs: {
+        fieldName: 'canonicalCollection',
+        addOriginalField: true,
+        type: "Collection",
+        resolver: (post, args, context) => {
+          if (!post.canonicalCollectionId) return null;
+          return context.Collections.findOne({_id: post.canonicalCollectionId})
+        }
+      }
+    }
+  },
+
+  {
+    fieldName: 'canonicalNextPostId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      hidden: false,
+      control: "text"
+    }
+  },
+
+  {
+    fieldName: 'canonicalPrevPostId',
     fieldSchema: {
       type: String,
       optional: true,

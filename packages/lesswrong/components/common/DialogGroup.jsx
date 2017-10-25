@@ -48,7 +48,7 @@ DialogGroup.propTypes = {
     title: PropTypes.string,
     trigger: PropTypes.node,
     children: PropTypes.node,
-    actions: PropTypes.node.array,
+    actions: PropTypes.array,
     open: PropTypes.bool
 }
 DialogGroup.defaultProps = {
