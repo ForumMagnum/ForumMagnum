@@ -157,8 +157,6 @@ registerFragment(`
     }
     baseScore
     score
-    upvotes
-    downvotes
   }
 `);
 
