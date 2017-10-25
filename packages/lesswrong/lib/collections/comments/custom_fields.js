@@ -3,10 +3,6 @@ import { Components } from "meteor/vulcan:core";
 import { Comments } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 
-const CommentEditor = (props) => <div>
-    <Components.CommentEditor {...props} />
-</div>
-
 Comments.addField([
   /**
     Ory Editor content JSON
@@ -19,7 +15,7 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      control: CommentEditor,
+      control: 'CommentEditor',
       blackbox: true,
       order: 25,
     }

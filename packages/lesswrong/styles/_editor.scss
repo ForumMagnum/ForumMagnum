@@ -122,13 +122,19 @@ Old editor.scss file TODO: Refactor this properly into the main css
 
 */
 
-@import '../../node_modules/ory-editor-core/lib/index.css';
-@import '../../node_modules/ory-editor-ui/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-slate/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-parallax-background/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-spacer/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-image/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-video/lib/index.css';
+// @import '../../node_modules/ory-editor-core/lib/index.css';
+// @import '../../node_modules/ory-editor-ui/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-slate/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-parallax-background/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-spacer/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-image/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-video/lib/index.css';
+
+@import '../../node_modules/draft-js/dist/Draft.css';
+@import '../../node_modules/draft-js-inline-toolbar-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-image-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-alignment-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-focus-plugin/lib/plugin.css';
 
 
 // Preventing material bootstrap from duplicating decorative elements on the
@@ -183,5 +189,40 @@ Old editor.scss file TODO: Refactor this properly into the main css
     > div > div > div > div {
       display:none !important;
     }
+  }
+}
+
+
+.editor {
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  cursor: text;
+  padding: 16px;
+  border-radius: 2px;
+  margin-bottom: 2em;
+}
+
+.editor :global(.public-DraftEditor-content) {
+  min-height: 140px;
+}
+
+// Editor clearfix
+
+figure:after {
+  content: "Foo";
+  visibility: hidden;
+  display: block;
+  height: 0px;
+  clear: both;
+}
+
+.draft-image {
+  display: block;
+  &.center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  &.right {
+    float: right;
   }
 }
