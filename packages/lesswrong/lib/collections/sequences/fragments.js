@@ -38,8 +38,6 @@ registerFragment(`
         commentCount
         viewCount
         clickCount
-        upvotes
-        downvotes
       }
     }
   }
