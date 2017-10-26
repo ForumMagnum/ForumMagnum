@@ -226,3 +226,14 @@ figure:after {
     float: right;
   }
 }
+
+
+//Hotfix for inline-Toolbar alignment
+
+.form-component-CommentEditor {
+  position: static !important;
+}
+
+.comments-new-form {
+  position: static !important;
+}
