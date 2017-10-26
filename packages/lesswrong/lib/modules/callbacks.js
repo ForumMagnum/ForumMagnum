@@ -456,10 +456,10 @@ async function userIPBan(user) {
   if (IPs) {
     IPs.data.UsersSingle.IPs.forEach(ip => {
       console.log("Banning IP", ip);
-      let dayAfterTomorrow = new Date();
-      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+      let tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {
-        expirationDate: dayAfterTomorrow,
+        expirationDate: tomorrow,
         userId: user._id,
         reason: "User account banned",
         comment: "Automatic IP ban",

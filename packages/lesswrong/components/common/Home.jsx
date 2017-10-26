@@ -45,7 +45,7 @@ const Home = (props, context) => {
         <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
         <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
       </Components.Section>
-      <Components.Section title="Featured">
+      <Components.Section title="Featured" titleLink="/featured">
         <Components.PostsList terms={featuredPostsTerms} showHeader={false} showLoadMore={false} />
       </Components.Section>
       <Components.Section title="Frontpage Posts"
@@ -55,7 +55,7 @@ const Home = (props, context) => {
         </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
-      <Components.Section title="Recent Comments" titleComponent={<div><Link to={"/AllComments"}>see all comments</Link></div>}>
+      <Components.Section title="Recent Comments" titleLink="/AllComments">
         <Components.RecentComments terms={{view: 'recentComments', limit: 10}} fontSize="small" />
       </Components.Section>
     </div>

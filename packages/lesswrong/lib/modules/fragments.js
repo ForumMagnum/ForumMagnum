@@ -130,6 +130,8 @@ registerFragment(`
     feed {
       ...RSSFeedMinimumInfo
     }
+    lastVisitedAt
+    lastCommentedAt
   }
 `);
 

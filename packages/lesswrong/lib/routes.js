@@ -25,6 +25,7 @@ addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR'})
 addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex'})
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta'})
 addRoute({ name: 'AllPosts', path: '/allPosts', componentName: 'AllPosts'})
+addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments'})
 
 
