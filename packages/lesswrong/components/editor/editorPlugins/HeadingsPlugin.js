@@ -6,8 +6,12 @@ import {white, red500, greenA200} from 'material-ui/styles/colors';
 import Plugin from './plugin'
 import { ToolbarButton } from './ToolbarButton'
 
+export const H1 = 'HEADINGS/HEADING-ONE'
 export const H2 = 'HEADINGS/HEADING-TWO'
 export const H3 = 'HEADINGS/HEADING-THREE'
+export const H4 = 'HEADINGS/HEADING-FOUR'
+export const H5 = 'HEADINGS/HEADING-FIVE'
+export const H6 = 'HEADINGS/HEADING-SIX'
 
 export type Props = {
   editorState: any,
@@ -84,8 +88,12 @@ class HeadingsPlugin extends Plugin {
   }
 
   nodes = {
+    [H1]: makeTagNode('h1'),
     [H2]: makeTagNode('h2'),
     [H3]: makeTagNode('h3'),
+    [H4]: makeTagNode('h4'),
+    [H5]: makeTagNode('h5'),
+    [H6]: makeTagNode('h6'),
   }
 
   toolbarButtons = [
@@ -95,10 +103,18 @@ class HeadingsPlugin extends Plugin {
 
   deserialize = (el, next) => {
     switch (el.tagName.toLowerCase()) {
+      case 'h1':
+        return createNode(H1, el, next)
       case 'h2':
         return createNode(H2, el, next)
       case 'h3':
         return createNode(H3, el, next)
+      case 'h4':
+        return createNode(H4, el, next)
+      case 'h5':
+        return createNode(H5, el, next)
+      case 'h6':
+        return createNode(H6, el, next)
     }
   }
 
@@ -112,10 +128,18 @@ class HeadingsPlugin extends Plugin {
     const style = { textAlign: object.data.get('align') }
 
     switch (object.type) {
+      case H1:
+        return <h1 style={style}>{children}</h1>
       case H2:
         return <h2 style={style}>{children}</h2>
       case H3:
         return <h3 style={style}>{children}</h3>
+      case H4:
+        return <h4 style={style}>{children}</h4>
+      case H5:
+        return <h5 style={style}>{children}</h5>
+      case H6:
+        return <h6 style={style}>{children}</h6>
     }
   }
 }
