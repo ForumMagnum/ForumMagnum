@@ -7,9 +7,13 @@ const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, tit
   return (
     <div className="section" style={{width: `${titleWidth+contentWidth+5}px`, display: 'flex'}}>
       <div className="section-title" style={{width: `${titleWidth}px`}}>
-        {title && !titleLink && <h2>{title}</h2> }
-        {title && titleLink && <Link to={titleLink}><h2>{title}</h2></Link>}
-        {titleComponent ? titleComponent : null}
+        <div className="header">
+          {title && !titleLink && <h2 className="header">{title}</h2> }
+          {title && titleLink && <Link to={titleLink}><h2>{title}</h2></Link> }
+        </div>
+        <div className="body">
+          {titleComponent ? titleComponent : null}
+        </div>
       </div>
       <div className="section-content" style={{width: `${contentWidth}`, ...contentStyle}}>
         {children}

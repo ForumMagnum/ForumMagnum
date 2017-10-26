@@ -57,6 +57,7 @@ import '../components/posts/PostsCommentsThreadWrapper.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
 import '../components/posts/PostsListHeader.jsx';
+import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/comments/CommentsItem.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
