@@ -211,11 +211,5 @@ Posts.addView("slugPost", terms => ({
   },
   options: {
     limit: 1,
-<<<<<<< HEAD
-=======
-    sort: {
-      slug: -1,
-    }
->>>>>>> collectionsRouting
   }
 }));
