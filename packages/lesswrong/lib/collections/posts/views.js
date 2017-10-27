@@ -204,3 +204,12 @@ Posts.addView("userDownvotedPosts", (terms, apolloClient) => {
     options: {limit: 5, sort: {postedAt: -1}}
   };
 });
+
+Posts.addView("slugPost", terms => ({
+  selector: {
+    slug: terms.slug,
+  },
+  options: {
+    limit: 1,
+  }
+}));
