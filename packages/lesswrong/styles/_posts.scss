@@ -205,10 +205,11 @@
 .posts-load-more {
   margin-left: 10px;
   .posts-load-more-link{
+    opacity:.6;
     &:hover, &:focus, &:active{
       text-decoration: none !important;
       background: inherit;
-      color: rgba(100, 169, 105, 0.9);
+      opacity:1;
     }
   }
 }

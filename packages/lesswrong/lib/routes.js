@@ -22,13 +22,13 @@ addRoute({ name: 'chaptersEdit', path: '/chaptersEdit/:_id', componentName: 'Cha
 addRoute({ name: 'collections', path: '/collections/:_id', componentName: 'CollectionsSingle' });
 addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences'})
 addRoute({ name: 'Rationality', path: '/rationality', componentName: 'CoreSequences'})
-addRoute({ name: 'Rationality.post.single', path: '/rationality/:slug', componentName: 'PostsSingleSlugWrapper'})
+addRoute({ name: 'Rationality.posts.single', path: '/rationality/:slug', componentName: 'PostsSingleSlugWrapper'})
 
 addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR'})
-addRoute({ name: 'HPMOR.post.single', path: '/hpmor/:slug', componentName: 'PostsSingleSlugWrapper'})
+addRoute({ name: 'HPMOR.posts.single', path: '/hpmor/:slug', componentName: 'PostsSingleSlugWrapper'})
 
 addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex'})
-addRoute({ name: 'Codex.post.single', path: '/codex/:slug', componentName: 'PostsSingleSlugWrapper'})
+addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'PostsSingleSlugWrapper'})
 
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta'})
 addRoute({ name: 'AllPosts', path: '/allPosts', componentName: 'AllPosts'})
