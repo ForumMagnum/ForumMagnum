@@ -54,18 +54,3 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
 }
 
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
-
-// function commentsNewHTMLBodyAndPlaintextBody(comment) {
-//   if (comment.content) {
-//     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={comment.content} />);
-//     const plaintextBody = htmlToText.fromString(html);
-//     Comments.update(comment._id, {$set: {htmlBody: html, body: plaintextBody}});
-//   } else if (comment.htmlBody){
-//     const html = comment.htmlBody;
-//     const plaintextBody = htmlToText.fromString(html);
-//     Comments.update(comment._id, {$set: {body: plaintextBody}});
-//   }
-// }
-//
-// addCallback("comments.new.async", commentsNewHTMLBodyAndPlaintextBody);
-// addCallback("comments.edit.async", commentsNewHTMLBodyAndPlaintextBody);

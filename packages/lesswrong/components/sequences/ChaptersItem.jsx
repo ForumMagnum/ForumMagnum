@@ -38,11 +38,7 @@ class ChaptersItem extends Component {
         <Components.Section title={chapter.title}
           titleComponent={this.renderTitleComponent(chapter, this.props.canEdit)}
         >
-          {chapter.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: chapter.htmlDescription}}/>}
-          {editorHasContent(chapter.description) ? <div className="chapters-item-description">
-            <Components.ContentRenderer state={chapter.description} />
-          </div> : null}
-
+          {chapter.htmlDescription && <div className="chapters-item-description"> <div className="content-body" dangerouslySetInnerHTML={{__html: chapter.htmlDescription}}/> </div>}
           <div className="chapters-item-posts">
             <Components.SequencesPostsList posts={chapter.posts} chapter={chapter} />
           </div>

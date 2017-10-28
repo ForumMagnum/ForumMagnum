@@ -77,28 +77,6 @@ function postsEditDecreaseFrontpagePostCount (post, oldPost) {
 }
 addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 
-// function postsNewInitialScoreCallback (post) {
-//   updateScore({collection: Posts, item: post, forceUpdate: true});
-// }
-// addCallback("posts.new.async", postsNewInitialScoreCallback);
-
-// function postsNewHTMLBodyAndPlaintextBody(post) {
-//   if (post.content) {
-//     const html = ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={post.content} />);
-//     const plaintextBody = htmlToText.fromString(html);
-//     const excerpt =  plaintextBody.slice(0,140);
-//     Posts.update(post._id, {$set: {htmlBody: html, body: plaintextBody, excerpt: excerpt}});
-//   } else if (post.htmlBody) {
-//     const html = post.htmlBody;
-//     const plaintextBody = htmlToText.fromString(html);
-//     const excerpt = plaintextBody.slice(0,140);
-//     Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt, htmlBody: html}});
-//   }
-// }
-//
-// addCallback("posts.new.async", postsNewHTMLBodyAndPlaintextBody);
-// addCallback("posts.edit.async", postsNewHTMLBodyAndPlaintextBody);
-
 function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
     const contentState = convertFromRaw(post.content);
