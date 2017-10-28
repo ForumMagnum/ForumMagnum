@@ -5,7 +5,6 @@ import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 
 import Intercom, { IntercomAPI } from 'react-intercom';
-import withNewEditor from './editor/withNewEditor.jsx';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
@@ -66,4 +65,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withNewEditor, withApollo);
+replaceComponent('Layout', Layout, withApollo);

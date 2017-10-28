@@ -141,7 +141,6 @@ class PostsPage extends Component {
                 </div>
               </div>
               {post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div>}
-              {/* {post.content ? <div className="posts-page-content-body-ory content-body"> <Components.ContentRenderer state={post.content} /> </div> : null} Commented out for performance reasons */}
               {post.categories && post.categories.length > 0 ? <div className="posts-page-content-body-tags">
                 Tags: <span className="posts-page-content-body-tags-list"> {post.categories.map(category => <a href={"/categories/"+category.id +"/"+category.slug}>{category.name}</a>)} </span>
               </div> : null}

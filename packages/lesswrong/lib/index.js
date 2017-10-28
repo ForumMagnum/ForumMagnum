@@ -48,6 +48,11 @@ import './collections/sequences/fragments.js';
 import './collections/books/fragments.js';
 import './collections/collections/fragments.js';
 
+import './collections/chapters/callbacks.js';
+import './collections/sequences/callbacks.js';
+import './collections/books/callbacks.js';
+import './collections/collections/callbacks.js';
+
 import './collections/chapters/views.js';
 
 import './collections/sequences/permissions.js';

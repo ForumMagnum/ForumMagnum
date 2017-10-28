@@ -63,6 +63,12 @@ const schema = {
     viewableBy: ['guests'],
   },
 
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
   commentCount:{
     type: Number,
     optional: true,

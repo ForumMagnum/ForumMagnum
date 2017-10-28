@@ -160,7 +160,7 @@ class Form extends Component {
       // add options if they exist
       if (fieldSchema.form && fieldSchema.form.options) {
         field.options = typeof fieldSchema.form.options === "function" ? fieldSchema.form.options.call(fieldSchema, this.props) : fieldSchema.form.options;
-      
+
         // in case of checkbox groups, check "checked" option to populate value
         if (!field.value) {
           field.value = _.where(field.options, {checked: true}).map(option => option.value);
@@ -366,7 +366,7 @@ class Form extends Component {
             message = {content: error.message || this.context.intl.formatMessage({id: error.id, defaultMessage: error.id}, error.data)}
 
           }
-  
+
           return <Components.FormFlash key={index} message={message} type="error"/>;
         })}
       </div>
@@ -620,7 +620,7 @@ class Form extends Component {
         >
           {this.renderErrors()}
           {fieldGroups.map(group => <Components.FormGroup key={group.name} {...group} updateCurrentValues={this.updateCurrentValues} />)}
-  
+
           <Components.FormSubmit submitLabel={this.props.submitLabel}
                                  cancelLabel={this.props.cancelLabel}
                                  cancelCallback={this.props.cancelCallback}

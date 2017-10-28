@@ -29,7 +29,8 @@
     "facebookPage": "http://facebook.com/foo",
 
     "googleAnalyticsId":"UA-60844744-4",
-    "runVoteMigration": false
+    "runVoteMigration": false,
+    "embedProvider": "builtin"
   },
 
   "defaultEmail": "no-reply@lesserwrong.com",
@@ -76,5 +77,13 @@
       "appId": "foo",
       "secret": "bar"
     }
+  },
+  "galaxy.meteor.com": {
+       "env": {
+          "MONGO_URL": "mongodb://lesswrong2:probableceilingwallsdrastic@ds139042-a0.mlab.com:39042,ds139042-a1.mlab.com:39042/lesswrong2?replicaSet=rs-ds139042",
+          "MONGO_OPLOG_URL": "mongodb://oplog-reader:probableceilingwallsdrastic@ds139042-a0.mlab.com:39042,ds139042-a1.mlab.com:39042/local?replicaSet=rs-ds139042&authSource=admin",
+          "MAIL_URL": "smtp://postmaster@mg.lesserwrong.com:a09aec2342e75bd4c859851ed883b361@smtp.mailgun.org:587/",
+          "ROOT_URL": "https://www.lesserwrong.com"
+        }
   }
 }
