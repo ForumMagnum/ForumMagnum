@@ -7,6 +7,7 @@ import { Image } from 'cloudinary-react';
 const cardTitleStyle = {
   fontSize: "20px",
   lineHeight: "120%",
+  fontWeight: "600",
 };
 
 const cardSubtitleStyle = {
@@ -29,7 +30,7 @@ const CollectionsCard = ({collection, big = false, url}) => {
             title={collection.title}
             className="collection-card-title"
             titleStyle={cardTitleStyle}
-            subtitle={<object><div>
+            subtitle={<object><div className="collection-card-author">
               by <Components.UsersName user={collection.user}/>
             </div></object>}
             subtitleStyle={cardSubtitleStyle}

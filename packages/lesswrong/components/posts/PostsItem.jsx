@@ -12,7 +12,7 @@ import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
 const paperStyle = {
-  backgroundColor: 'transparent',
+  backgroundColor: 'inherit',
 }
 
 
@@ -63,11 +63,12 @@ class PostsItem extends PureComponent {
     }
 
     const commentCountBadgeStyle = {
-      top: '13px',
+      top: '12px',
       right: '9px',
       pointerEvents: 'none',
       backgroundColor: 'transparent',
       color: read ? 'white' : 'rgba(0,0,0,0.6)',
+      fontFamily: "Futura-pt",
       zIndex: 2,
     }
 
@@ -77,12 +78,12 @@ class PostsItem extends PureComponent {
         style={paperStyle}
         zDepth={0}
       >
-       <Link to={postLink} className="posts-item-title-link" target={Posts.getLinkTarget(post)}>
-         <div className="posts-item-content">
-          <div className="posts-item-body">
-            <h3 className="posts-item-title">
+        <Link to={postLink} className="posts-item-title-link" target={Posts.getLinkTarget(post)}>
+          <div className="posts-item-content">
+            <div className="posts-item-body">
+              <h3 className="posts-item-title">
                 {post.title}
-            </h3>
+              </h3>
             {this.renderPostFeeds()}
 
             <object><div className="posts-item-meta">
