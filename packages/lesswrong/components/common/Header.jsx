@@ -75,7 +75,7 @@ class Header extends Component {
 
   codexSubtitle = () => {
     return <Link className="header-site-subtitle" to={ "/codex" }>
-              Slatestar Codex
+      SlateStarCodex
            </Link>
   }
 
