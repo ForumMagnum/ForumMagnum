@@ -103,7 +103,7 @@ const addVoteServer = ({ document, collection, voteType, user, voteId }) => {
   newDocument.baseScore += vote.power;
   newDocument.score = recalculateScore(newDocument);
 
-  return newDocument;
+  return {newDocument, vote};
 }
 
 /*
@@ -178,7 +178,7 @@ const cancelVoteServer = ({ document, voteType, collection, user }) => {
   newDocument.baseScore -= vote.power;
   newDocument.score = recalculateScore(newDocument);
 
-  return newDocument;
+  return {newDocument, vote};
 }
 
 /*
@@ -289,8 +289,10 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
     // console.log('action: cancel')
 
     // runCallbacks(`votes.cancel.sync`, document, collection, user);
-    document = cancelVoteServer(voteOptions);
-    // runCallbacksAsync(`votes.cancel.async`, vote, document, collection, user);
+    let voteDocTuple = cancelVoteServer(voteOptions);
+    document = voteDocTuple.newDocument;
+    runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
+
 
   } else {
 
@@ -301,13 +303,13 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
     }
 
     // runCallbacks(`votes.${voteType}.sync`, document, collection, user);
-    document = addVoteServer(voteOptions);
-    // runCallbacksAsync(`votes.${voteType}.async`, vote, document, collection, user);
+    let voteDocTuple = addVoteServer(voteOptions);
+    document = voteDocTuple.newDocument;
+    runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
 
   }
 
   // const newDocument = collection.findOne(documentId);
   document.__typename = collection.options.typeName;
   return document;
-
 }
