@@ -8,7 +8,7 @@ const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, tit
     <div className="section" style={{width: `${titleWidth+contentWidth+5}px`, display: 'flex'}}>
       <div className="section-title" style={{width: `${titleWidth}px`}}>
         <div className="section-title-top">
-          {title && !titleLink && <h2 className="header">{title}</h2> }
+          {title && !titleLink && <h2>{title}</h2> }
           {title && titleLink && <Link to={titleLink}><h2>{title}</h2></Link> }
         </div>
         <div className="section-title-bottom">

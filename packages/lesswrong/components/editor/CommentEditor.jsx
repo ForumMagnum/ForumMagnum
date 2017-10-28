@@ -1,26 +1,107 @@
 import React, { PropTypes, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Editable, createEmptyState } from 'ory-editor-core';
-import { Toolbar } from 'ory-editor-ui'
-import withEditor from './withEditor.jsx'
+
+import classNames from 'classnames';
 
 import ls from 'local-storage';
+
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import Editor, { composeDecorators } from 'draft-js-plugins-editor';
+import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
+import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
+import createImagePlugin from 'draft-js-image-plugin';
+import createAlignmentPlugin from 'draft-js-alignment-plugin';
+import createFocusPlugin from 'draft-js-focus-plugin';
+import createResizeablePlugin from 'draft-js-resizeable-plugin';
+import createLinkPlugin from 'draft-js-anchor-plugin';
+import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
+import createLinkifyPlugin from 'draft-js-linkify-plugin';
+import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
+import createDividerPlugin from 'draft-js-divider-plugin';
+
+
+import {
+  ItalicButton,
+  BoldButton,
+  UnderlineButton,
+  HeadlineOneButton,
+  HeadlineTwoButton,
+  BlockquoteButton,
+} from 'draft-js-buttons';
+
+
+import { htmlToDraft } from '../../lib/editor/utils.js'
 
 class CommentEditor extends Component {
   constructor(props, context) {
     super(props,context);
-    let editor = this.props.editor;
     const document = this.props.document;
-    let state = document && document.content ? document.content : createEmptyState();
+    let state = {};
+    if (document && document.content) {
+      try {
+        state = EditorState.createWithContent(convertFromRaw(document.content));
+      } catch(e) {
+        console.log("Invalid comment content, restoring from HTML instead", document);
+        state = document && document.htmlBody && EditorState.createWithContent(htmlToDraft(document.htmlBody, {flat: true}))
+      }
+    } else if (document && document.htmlBody) {
+      state = EditorState.createWithContent(htmlToDraft(document.htmlBody, {flat: true}));
+    } else {
+      state = EditorState.createEmpty();
+    }
 
     // Check whether we have a state from a previous session saved (in localstorage)
     const savedState = this.getSavedState();
-    if (savedState) { state = savedState }
+    if (savedState) {
+      try {
+        console.log("Restoring saved comment state: ", savedState);
+        state = EditorState.createWithContent(convertFromRaw(savedState))
+      } catch(e) {
+        console.log(e)
+      }
+    }
 
     this.state = {
-      contentState: state,
+      editorState: state,
     };
-    editor.trigger.editable.add(state);
+
+    this.initializePlugins();
+
+  }
+
+  initializePlugins = () => {
+    const linkPlugin = createLinkPlugin();
+    const alignmentPlugin = createAlignmentPlugin();
+    const focusPlugin = createFocusPlugin();
+    const resizeablePlugin = createResizeablePlugin();
+
+    const decorator = composeDecorators(
+      resizeablePlugin.decorator,
+      alignmentPlugin.decorator,
+      focusPlugin.decorator,
+    );
+
+    const dividerPlugin = createDividerPlugin({decorator});
+
+    const inlineToolbarPlugin = createInlineToolbarPlugin({
+      structure: [
+        BoldButton,
+        ItalicButton,
+        UnderlineButton,
+        linkPlugin.LinkButton,
+        Separator,
+        HeadlineOneButton,
+        HeadlineTwoButton,
+        BlockquoteButton,
+      ]
+    });
+
+    const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
+    const richButtonsPlugin = createRichButtonsPlugin();
+    const linkifyPlugin = createLinkifyPlugin();
+    const blockBreakoutPlugin = createBlockBreakoutPlugin()
+    const imagePlugin = createImagePlugin({ decorator });
+    this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, linkifyPlugin, blockBreakoutPlugin, dividerPlugin];
   }
 
   // Tries to retrieve a saved state from localStorage, depending on the available information
@@ -28,9 +109,9 @@ class CommentEditor extends Component {
     const document = this.props.document;
     if (document && document._id) { // When restoring the edit state for a specific comment, ask for permission
       const savedState = ls.get(document._id);
-      if (savedState && window) {
+      if (savedState && Meteor.isClient && window) {
         const result = window.confirm("We've found a previously saved state for this comment, would you like to restore it?")
-        if (result) { return ls.get(document._id) }
+        if (result) { return savedState }
       } else {
         return null;
       }
@@ -57,17 +138,12 @@ class CommentEditor extends Component {
   }
 
   componentWillMount() {
-    //Add function for resetting form to form submit callbacks
     const document = this.props.document;
     const fieldName = this.props.name;
-    
     const resetEditor = (result) => {
       // On Form submit, create a new empty editable
-      let editor = this.props.editor;
-      let state = createEmptyState();
-      editor.trigger.editable.add(state);
       this.setState({
-        contentState: state,
+        editorState: EditorState.createEmpty(),
       });
 
       if (document._id) { ls.remove(document._id) }
@@ -76,20 +152,42 @@ class CommentEditor extends Component {
       return result;
     }
     this.context.addToSuccessForm(resetEditor);
+
+    const submitRawContentState = (data) => {
+      data.content = convertToRaw(this.state.editorState.getCurrentContent())
+      return data;
+    }
+    this.context.addToSubmitForm(submitRawContentState);
+  }
+
+  focus = () => {
+    this.editor.focus();
+  }
+
+  onChange = (editorState) => {
+    const contentState = editorState.getCurrentContent();
+    this.setSavedState(convertToRaw(contentState));
+    this.setState({editorState: editorState})
+    return editorState;
   }
 
   render() {
-    const addValues = this.context.addToAutofilledValues;
-    let editor = this.props.editor;
-    const onChange = (state) => {
-      this.setSavedState(state);
-      addValues({content: state});
-      return state;
-    }
+    const InlineToolbar = this.plugins[0].InlineToolbar;
+    const AlignmentTool = this.plugins[1].AlignmentTool;
+
+    const contentState = this.state.editorState.getCurrentContent();
+    const className = classNames("commentEditor", "editor", "content-body", "comments-item-text", {"content-editor-is-empty": !contentState.hasText()})
+
     return (
-      <div className="commentEditor">
-        <Editable editor={editor} id={this.state.contentState.id} onChange={onChange} />
-        <Toolbar editor={editor} />
+      <div className={className} onClick={this.focus}>
+        <Editor
+          editorState={this.state.editorState}
+          onChange={this.onChange}
+          plugins={this.plugins}
+          ref={(element) => { this.editor = element; }}
+        />
+        <InlineToolbar />
+        <AlignmentTool />
       </div>
     )
   }
@@ -98,6 +196,7 @@ class CommentEditor extends Component {
 CommentEditor.contextTypes = {
   addToAutofilledValues: React.PropTypes.func,
   addToSuccessForm: React.PropTypes.func,
+  addToSubmitForm: React.PropTypes.func,
 };
 
-registerComponent('CommentEditor', CommentEditor, withEditor);
+registerComponent('CommentEditor', CommentEditor);

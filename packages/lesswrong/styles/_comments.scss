@@ -116,10 +116,6 @@ New CSS File
 
 */
 
-.posts-comments-thread{
-  margin-top: $vmargin;
-}
-
 .posts-comments-thread-title{
   margin-bottom: $vmargin;
 }
@@ -195,12 +191,31 @@ New CSS File
 .comments-item-text {
   font-size: 1.2rem !important;
   line-height: 1.6rem !important;
-  p, ol, ul {
+  p, ol, ul, blockquote, .public-DraftStyleDefault-block {
     font-size: 1.2rem !important;
     line-height: 1.6rem !important;
     margin-top: 0px !important;
     margin-bottom: 0.7rem !important;
   }
+  h1, h2, h3, h4, h5, h6 {
+    .public-DraftStyleDefault-block {
+      font-size: inherit !important;
+      line-height: inherit !important;
+      margin-top: inherit !important;
+      margin-bottom: inherit !important;
+    }
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-top: 2rem;
+    margin-bottom: 1.4rem;
+  }
+  h2, h3, h4 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
 }
 
 .comments-item-meta{
@@ -347,26 +362,11 @@ New CSS File
     font-size:14px;
   }
   .form-submit {
-    display: flex;
-    .btn-primary {
-      color: rgba(100, 169, 105, 0.9);
-      padding: 0px;
-      font-size: 16px;
-      font-weight: bold;
-      margin-left: auto;
-      margin-right: 0px;
-      margin-top: 5px;
-      background-color: transparent;
-      box-shadow: none;
-      &:hover {
-        background-color: transparent;
-        color: rgba(100, 169, 105, 0.5);
-      }
-    }
+    text-align: right;
   }
   .form-cancel {
     position:absolute;
-    right:85px;
+    right:105px;
     margin-top: 10px;
     margin-left: 0px;
     font-size: 16px;
