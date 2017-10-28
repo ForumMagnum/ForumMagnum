@@ -5,6 +5,7 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
 
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
@@ -37,45 +38,78 @@ class Header extends Component {
     {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
   </div>}
 
-  renderHeaderSection_UserProfile = (userSlug) => {
+  profileSubtitle = (userSlug) => {
     const user = Users.findInStore(this.props.client.store, {slug:userSlug}).fetch()[0]
     if (user && (user.displayName || user.slug)) {
       return (
-        <Link className="header-site-section user" to={ Users.getProfileUrl(user) }>
+        <Link className="header-site-subtitle" to={ Users.getProfileUrl(user) }>
           { user.displayName || user.slug }
         </Link>
       )
     }
   }
 
-  renderHeaderSection_UserPost = (postId) => {
+  userPostSubtitle = (postId) => {
     const post = Posts.findOneInStore(this.props.client.store, postId)
     if (post && (post.frontpage || post.meta)) {
+      if (post.meta) {
+        return this.renderHeaderSection_Meta()
+      }
       return null
     } else if (post && post.userId) {
       const user = Users.findOneInStore(this.props.client.store, post.userId)
       if (user) {
-        return <Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
+        return <Link className="header-site-subtitle" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
       }
     }
   }
 
-  getSiteSection = () => {
+  rationalitySubtitle = () => {
+    return <Link className="header-site-subtitle" to={ "/rationality" }>
+              Rationality: A-Z
+           </Link>
+  }
+
+  hpmorSubtitle = () => {
+    return <Link className="header-site-subtitle" to={ "/hpmor" }>
+              HPMoR
+           </Link>
+  }
+
+  codexSubtitle = () => {
+    return <Link className="header-site-subtitle" to={ "/codex" }>
+              Slatestar Codex
+           </Link>
+  }
+
+  metaSubtitle = () => {
+    return <Link className="header-site-subtitle" to={ "/meta" }>
+              Meta
+           </Link>
+  }
+
+  getSubtitle = () => {
     const routeName = this.props.routes[1].name
     if (routeName == "users.single") {
-      return this.renderHeaderSection_UserProfile(this.props.params.slug)
+      return this.profileSubtitle(this.props.params.slug)
     } else if (routeName == "posts.single") {
-      return this.renderHeaderSection_UserPost(this.props.params._id)
+      return this.userPostSubtitle(this.props.params._id)
+    } else if (routeName == "Rationality.posts.single" || routeName == "Rationality") {
+      return this.rationalitySubtitle()
+    } else if (routeName == "HPMOR.posts.single" || routeName == "HPMOR") {
+      return this.hpmorSubtitle()
+    } else if (routeName == "Codex.posts.single" || routeName == "Codex") {
+      return this.codexSubtitle()
+    } else if (routeName == "Meta") {
+      return this.metaSubtitle()
     }
   }
 
-  getHeaderBackgroundColor = (section) => section ? "#D5DFE5" : "#eee"
-
   render() {
     //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing.
-    const siteSection = this.getSiteSection()
+    const siteSection = this.getSubtitle()
 
-    appBarStyle.backgroundColor = this.getHeaderBackgroundColor(siteSection)
+    appBarStyle.backgroundColor = this.props.muiTheme.palette.header
 
     return (
       <div className="header-wrapper">
@@ -123,4 +157,4 @@ Header.propTypes = {
   currentUser: PropTypes.object,
 };
 
-replaceComponent('Header', Header, withRouter, withApollo);
+replaceComponent('Header', Header, withRouter, withApollo, muiThemeable());
