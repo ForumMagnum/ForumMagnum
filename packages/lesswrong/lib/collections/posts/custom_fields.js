@@ -74,18 +74,6 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       control: "textarea",
-      onInsert: (document) => {
-        if (document.content && !document.htmlBody) {
-          return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />);
-        } else {
-          return document.htmlBody;
-        }
-      },
-      onEdit: (modifier, document) => {
-        if (modifier.$set.content) {
-          return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)
-        }
-      },
     }
   },
 

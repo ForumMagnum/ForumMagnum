@@ -5,7 +5,6 @@ import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 
 import Intercom, { IntercomAPI } from 'react-intercom';
-import withNewEditor from './editor/withNewEditor.jsx';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();

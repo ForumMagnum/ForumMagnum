@@ -8,10 +8,15 @@ import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import { draftToHTML } from '../editor/utils.js';
 
-const oryToHtml = (content) => {
+const contentToHtml = (content) => {
   if (content) {
-    return ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={content} />);
+    try {
+      return draftToHTML(content);
+    } catch(e) {
+      console.log("Failed to convert content to html", content);
+    }
   } else {
     return null;
   }
@@ -47,7 +52,7 @@ Comments.toAlgolia = (comment) => {
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
   if (comment.content) {
-    const html = oryToHtml(comment.content)
+    const html = contentToHtml(comment.content)
     const plaintextBody = htmlToText.fromString(html);
     algoliaComment.body = plaintextBody.slice(0, 2000);
   } else if (comment.body) {
@@ -78,7 +83,7 @@ Sequences.toAlgolia = (sequence) => {
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
   if (sequence.description) {
-    const html = oryToHtml(sequence.description);
+    const html = contentToHtml(sequence.description);
     const plaintextBody = htmlToText.fromString(html);
     algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   } else if (sequence.plaintextDescription) {
@@ -137,7 +142,7 @@ Posts.toAlgolia = (post) => {
   let postBatch = [];
   let paragraphCounter =  0;
   let algoliaPost = {};
-  const body = (post.content ? htmlToText.fromString(oryToHtml(post.content)) : (post.htmlBody ? htmlToText.fromString(post.htmlBody) : post.body))
+  const body = (post.content ? htmlToText.fromString(contentToHtml(post.content)) : (post.htmlBody ? htmlToText.fromString(post.htmlBody) : post.body))
   if (body) {
     body.split("\n\n").forEach((paragraph) => {
       algoliaPost = {
