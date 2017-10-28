@@ -37,7 +37,6 @@ addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComment
 
 
 //Route for testing the editor. Useful for debugging
-addRoute({ name: 'editorTest', path: '/editorTest', componentName: 'EditorTest' });
 addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});

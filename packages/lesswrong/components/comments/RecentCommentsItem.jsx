@@ -38,14 +38,13 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
       let paragraphCounter = 0;
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p key={this.props.comment._id + paragraphCounter++}>{text}</p>);
       return <div className="recent-comments-item-text comments-item-text content-body">
-          {commentExcerpt}
-          <p>{lastElement + "..."}<a className="read-more" onTouchTap={() => this.setState({expanded: true})}>(read more)</a> </p>
-        </div>
+        {commentExcerpt}
+        <p>{lastElement + "..."}<a className="read-more" onTouchTap={() => this.setState({expanded: true})}>(read more)</a> </p>
+      </div>
     } else {
       return (
         <div className="recent-comments-item-text comments-item-text content-body" >
-          {content ? <object><Components.ContentRenderer state={content} /></object> : null}
-          {htmlBody && !content ? <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+          {htmlBody && <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         </div>
       )
     }

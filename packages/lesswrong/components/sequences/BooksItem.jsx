@@ -38,9 +38,9 @@ class BooksItem extends Component {
         <Components.Section title={book.title}
           titleComponent={this.renderTitleComponent(book, this.props.canEdit)}
         >
-          {editorHasContent(book.description) ? <div className="books-item-description">
-             <Components.ContentRenderer state={book.description} />
-            </div> : null}
+          {book.htmlDescription && <div className="books-item-description">
+            <div className="content-body" dangerouslySetInnerHTML={{__html: book.htmlDescription}}/>
+          </div>}
 
           {book.posts && book.posts.length ? <div className="books-item-posts">
             <Components.SequencesPostsList posts={book.posts} />

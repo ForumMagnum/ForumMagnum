@@ -18,9 +18,7 @@ class CommentWithContext extends getRawComponent('CommentsItem') {
 
     return (
       <div className="comments-item-text content-body">
-        {content ? <Components.ContentRenderer state={content} /> :
-        null}
-        {htmlBody && !content ? <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div> : null}
+        {htmlBody && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         { showReplyButton ?
           <a className="comments-item-reply-link" onClick={this.showReply}>
             <Components.Icon name="reply"/> <FormattedMessage id="comments.reply"/>

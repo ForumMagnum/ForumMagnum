@@ -2,33 +2,8 @@
     width:$post-width;
     margin:0 auto;
 
-    .btn-primary{
-      float: right;
-    }
     @include small {
         width:100%;
-    }
-    .document-edit, .document-new {
-      position:absolute;
-      width:$post-width;
-      margin-bottom:150px;
-      padding-bottom:25px;
-      @include small {
-          width:calc(100% - 20px);
-          padding-bottom:75px;
-      }
-    }
-
-    .document-edit .input-draft,
-    .document-edit .form-submit,
-    .document-edit .posts-delete-link,
-    .document-new .input-draft,
-    .document-new .form-submit,
-    .document-new .posts-delete-link,
-    .document-edit .input-frontpage,
-    .document-new .input-frontpage {
-        position:absolute;
-        bottom:0;
     }
 
     .document-edit .posts-delete-link {
@@ -106,9 +81,8 @@
         display:none;
     }
 
-    .document-edit .form-submit,
-    .document-new .form-submit {
-        right:0;
+    .form-submit {
+        text-align: right;
     }
 
     .commentEditor .content-body {
@@ -122,13 +96,20 @@ Old editor.scss file TODO: Refactor this properly into the main css
 
 */
 
-@import '../../node_modules/ory-editor-core/lib/index.css';
-@import '../../node_modules/ory-editor-ui/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-slate/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-parallax-background/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-spacer/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-image/lib/index.css';
-@import '../../node_modules/ory-editor-plugins-video/lib/index.css';
+// @import '../../node_modules/ory-editor-core/lib/index.css';
+// @import '../../node_modules/ory-editor-ui/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-slate/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-parallax-background/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-spacer/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-image/lib/index.css';
+// @import '../../node_modules/ory-editor-plugins-video/lib/index.css';
+
+@import '../../node_modules/draft-js/dist/Draft.css';
+@import '../../node_modules/draft-js-inline-toolbar-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-image-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-alignment-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-focus-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-divider-plugin/lib/plugin.css';
 
 
 // Preventing material bootstrap from duplicating decorative elements on the
@@ -184,4 +165,106 @@ Old editor.scss file TODO: Refactor this properly into the main css
       display:none !important;
     }
   }
+}
+
+
+.editor {
+  min-height: 80px;
+  border-radius: 2px;
+  margin-bottom: 2em;
+}
+
+.editor :global(.public-DraftEditor-content) {
+  min-height: 140px;
+}
+
+// Editor clearfix
+
+figure:after {
+  content: "Foo";
+  visibility: hidden;
+  display: block;
+  height: 0px;
+  clear: both;
+}
+
+.draft-image {
+  display: block;
+  &.center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  &.right {
+    float: right;
+  }
+}
+
+
+//Hotfix for inline-Toolbar alignment TODO: Fix this in a more systematic way
+
+.form-component-CommentEditor {
+  position: static !important;
+}
+
+.comments-new-form {
+  position: static !important;
+}
+
+.public-DraftStyleDefault-block a {
+  @include link-underline(#fff, rgba(0,0,0,0.87), #b4d5f3, rgba(0,0,0,0.3))
+}
+
+
+.image-form-invalid {
+  color: #e65757;
+}
+
+.image-form {
+  height: 34px;
+  width: 220px;
+  padding: 0 12px;
+  font-size: 15px;
+  font-family: inherit;
+  background-color: transparent;
+  border: none;
+  color: #444;
+}
+
+.content-editor-is-empty:before {
+    content: "Write here (we support Markdown!)";
+    position: absolute;
+    color: rgba(0,0,0,0.2);
+}
+
+.form-component-EditorFormComponent {
+  padding-top: 16px;
+  position: static !important;
+}
+
+.public-DraftStyleDefault-block {
+  margin-top: 1.4rem;
+  margin-bottom: 1.4rem;
+  padding-right: 0;
+  vertical-align: baseline;
+}
+
+// Divider plugin styles
+
+.dividerBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 32px 0;
+  border: none; /* strip default hr styling */
+  text-align: center;
+}
+
+.dividerBlock::after {
+  margin-left: 12px;
+  color: rgba(0, 0, 0, 0.26); /* pick a color */
+  font-size: 1rem;
+  letter-spacing: 12px; /* increase space between dots */
+  content: '•••';
 }

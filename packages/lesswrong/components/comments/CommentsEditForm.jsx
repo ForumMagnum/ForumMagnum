@@ -13,6 +13,7 @@ const CommentsEditForm = (props, context) => {
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
         showRemove={false}
+        queryFragment={getFragment('CommentsList')}
         mutationFragment={getFragment('CommentsList')}
       />
     </div>

@@ -33,7 +33,7 @@ class CommentsNode extends PureComponent {
         <div className={"comments-node"}
           onMouseEnter={this.toggleHover}
           onMouseLeave={this.toggleHover}
-          style={{borderColor:borderColor}}>
+          style={newComment ? {borderColor:borderColor} : {}}>
 
           <Components.CommentsItem
             collapsed={this.state.collapsed}

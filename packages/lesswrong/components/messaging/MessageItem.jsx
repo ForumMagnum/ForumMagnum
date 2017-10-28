@@ -19,7 +19,7 @@ class MessageItem extends Component {
         <Media>
           {(message.user && currentUser._id != message.user._id) ? <Media.Left> <Components.UsersAvatar user={message.user}/> </Media.Left> : <div></div>}
           <Media.Body>
-            <Components.ContentRenderer state={message.content} />
+            {/* TODO: Fix messages by translating the old content fields to draft js content fields */}
           </Media.Body>
           {(message.user && currentUser._id == message.user._id) ? <Media.Right> <Components.UsersAvatar user={currentUser}/></Media.Right> : <div></div>}
         </Media>
