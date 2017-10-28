@@ -128,7 +128,7 @@ body {
   section { padding-top: 1rem;
             padding-bottom: 1rem; }
 
-  p, ol, ul { font-size: 1.4rem;
+  p, ol, ul, .public-DraftEditor-content > div > div > .public-DraftStyleDefault-block, blockquote > .public-DraftStyleDefault-block, blockquote { font-size: 1.4rem;
               line-height: 2rem; }
 
   p { margin-top: 1.4rem;

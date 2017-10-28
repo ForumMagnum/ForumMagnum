@@ -104,10 +104,12 @@ function PostsNewHTMLSerializeCallback (post) {
     const contentState = convertFromRaw(post.content);
     const html = draftToHTML(contentState);
     post.htmlBody = html;
-    post.plaintextBody = contentState.getPlainText();
-    console.log("Comments New HTML serialization", html)
+    post.body = contentState.getPlainText();
+    post.excerpt = post.body.slice(0,140);
+    console.log("Comments New HTML serialization", post.excerpt)
   } else if (post.htmlBody) {
-    post.plaintextBody = htmlToText.fromString(post.htmlBody);
+    post.body = htmlToText.fromString(post.htmlBody);
+    post.excerpt = post.body.slice(0,140);
   }
   return post
 }
@@ -119,10 +121,12 @@ function PostsEditHTMLSerializeCallback (modifier, post) {
     const contentState = convertFromRaw(modifier.$set.content);
     console.log("Comment Edit callback: ", modifier.$set.content);
     modifier.$set.htmlBody = draftToHTML(contentState);
-    modifier.$set.plaintextBody = contentState.getPlainText();
-    console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.plaintextBody)
+    modifier.$set.body = contentState.getPlainText();
+    modifier.$set.excerpt = modifier.$set.body.slice(0,140);
+    console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.body)
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    modifier.$set.plaintextBody = htmlToText.fromString(modifier.$set.htmlBody);
+    modifier.$set.body = htmlToText.fromString(modifier.$set.htmlBody);
+    modifier.$set.exerpt = modifier.$set.body.slice(0,140);
   }
   return modifier
 }
