@@ -31,7 +31,7 @@ import { updateScore } from './scoring.js';
  * @param {string} operation - The operation being performed
  */
 // function updateUser(item, user, collection, operation, context) {
-  
+
 //   // uncomment for debug
 //   // console.log(item);
 //   // console.log(user);
@@ -45,7 +45,7 @@ import { updateScore } from './scoring.js';
 //     votedAt: new Date(),
 //     power: votePower
 //   };
-  
+
 //   const collectionName = Utils.capitalize(collection._name);
 
 //   switch (operation) {
@@ -79,19 +79,37 @@ import { updateScore } from './scoring.js';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-// function updateKarma(item, user, collection, operation, context) {
+function updateKarma({newDocument, vote}, collection, user, context) {
+  let karmaAmount = 0;
+  if (vote.voteType === 'upvote') {
+    karmaAmount = vote.power;
+  } else if (vote.voteType === 'downvote') {
+    karmaAmount = -vote.power;
+  }
+  console.log('updateKarma', newDocument, vote);
+  // only update karma is the operation isn't done by the item's author
+  if (newDocument.userId !== vote.userId) {
+    console.log("Increasing user x karma by y", newDocument.userId, karmaAmount)
+    Users.update({_id: newDocument.userId}, {$inc: {"karma": karmaAmount}});
+  }
+}
 
-//   const votePower = getVotePower(user);
-//   const karmaAmount = (operation === "upvote" || operation === "cancelDownvote") ? votePower : -votePower;
+addCallback("votes.upvote.async", updateKarma);
+addCallback("votes.downvote.async", updateKarma);
 
-//   // only update karma is the operation isn't done by the item's author
-//   if (item.userId !== user._id) {
-//     Users.update({_id: item.userId}, {$inc: {"karma": karmaAmount}});
-//   }
+function cancelVoteKarma({newDocument, vote}, collection, user, context) {
+  let karmaAmount = 0;
+  if (vote.voteType === 'upvote') {
+    karmaAmount = -vote.power;
+  } else if (vote.voteType === 'downvote') {
+    karmaAmount = vote.power;
+  }
+  console.log('cancelVoteKarma', newDocument, vote);
+  // only update karma is the operation isn't done by the item's author
+  if (newDocument.userId !== vote.userId) {
+    console.log("Increasing user x karma by y", newDocument.userId, karmaAmount)
+    Users.update({_id: newDocument.userId}, {$inc: {"karma": karmaAmount}});
+  }
+}
 
-// }
-
-// addCallback("upvote.async", updateKarma);
-// addCallback("downvote.async", updateKarma);
-// addCallback("cancelUpvote.async", updateKarma);
-// addCallback("cancelDownvote.async", updateKarma);
+addCallback("votes.cancel.async", cancelVoteKarma);
