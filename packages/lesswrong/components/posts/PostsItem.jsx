@@ -9,6 +9,7 @@ import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
 import IconButton from 'material-ui/IconButton';
 import Badge from 'material-ui/Badge';
 import Paper from 'material-ui/Paper';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 const paperStyle = {
   backgroundColor: 'transparent',
@@ -56,7 +57,9 @@ class PostsItem extends PureComponent {
     const commentCountIconStyle = {
       width: '30px',
       height: '30px',
-      color: read ? (newComments ? 'rgba(100, 169, 105, 1)' : 'rgba(100, 169, 105, 0.5)') : 'rgba(0,0,0,0.1)',
+      color: read ? (
+        newComments ? this.props.muiTheme.palette.accent2Color : this.props.muiTheme.palette.accent1Color
+      ) :  this.props.muiTheme.palette.primary2Color,
     }
 
     const commentCountBadgeStyle = {
@@ -124,4 +127,4 @@ PostsItem.propTypes = {
   terms: PropTypes.object,
 };
 
-replaceComponent('PostsItem', PostsItem, withCurrentUser);
+replaceComponent('PostsItem', PostsItem, withCurrentUser, muiThemeable());

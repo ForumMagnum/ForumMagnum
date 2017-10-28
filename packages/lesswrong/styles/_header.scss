@@ -79,7 +79,7 @@
     }
   }
 }
-.header-site-section {
+.header-site-subtitle {
   margin-left: 1em;
   padding-left: 1em;
   text-transform: uppercase;
@@ -87,11 +87,9 @@
   @include max-tiny {
     display:none;
   }
-  &.user {
-    color:$dark-text;
-    &:hover {
-      color:$light-text;
-    }
+  color:$dark-text;
+  &:hover {
+    color:$light-text;
   }
 }
 .nav{
