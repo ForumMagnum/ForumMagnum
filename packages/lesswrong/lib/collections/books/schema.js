@@ -62,6 +62,12 @@ const schema = {
     viewableBy: ['guests'],
   },
 
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
   collectionId: {
     type: String,
     optional: false,

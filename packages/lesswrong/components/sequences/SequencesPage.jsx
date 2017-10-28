@@ -39,10 +39,10 @@ class SequencesPage extends Component {
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
             <NoSSR>
-            <div className="sequences-image">
-              <Image publicId={document.bannerImageId || "Group_ybgiy6.png"} cloudName="lesswrong-2-0" quality="auto" sizes="100vw" responsive={true} width="auto" height="380" dpr="auto" crop="fill" gravity="custom" />
-              <div className="sequences-image-scrim-overlay"></div>
-            </div>
+              <div className="sequences-image">
+                <Image publicId={document.bannerImageId || "Group_ybgiy6.png"} cloudName="lesswrong-2-0" quality="auto" sizes="100vw" responsive={true} width="auto" height="380" dpr="auto" crop="fill" gravity="custom" />
+                <div className="sequences-image-scrim-overlay"></div>
+              </div>
             </NoSSR>
             <div className="sequences-title-wrapper">
               <div className="sequences-title">
@@ -52,20 +52,20 @@ class SequencesPage extends Component {
           </div>
         </div>
         <Components.Section titleComponent={
-            <div className="sequences-meta">
-              <div className="sequences-date">
-                {date}
-              </div>
-              <div className="sequences-comment-count">
-                {document.commentCount || 0} comments
-              </div>
-              {document.userId ? <div className="sequences-author-top">
-                by <span className="sequences-author-top-name">{document.user.displayName}</span>
-              </div> : null}
-              {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
-            </div>}>
+          <div className="sequences-meta">
+            <div className="sequences-date">
+              {date}
+            </div>
+            <div className="sequences-comment-count">
+              {document.commentCount || 0} comments
+            </div>
+            {document.userId ? <div className="sequences-author-top">
+              by <span className="sequences-author-top-name">{document.user.displayName}</span>
+            </div> : null}
+            {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
+          </div>}>
           <div className="sequences-description content-body">
-            {document.description ? <Components.ContentRenderer state={document.description} /> : null}
+            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
           </div>
         </Components.Section>
         <div className="sequences-chapters">

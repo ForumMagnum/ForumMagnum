@@ -628,11 +628,8 @@
     }
   }
   .section {
-    width: 715px !important;
-    position: relative;
-    display: inherit !important;
+    margin-right: 235px;
     .section-title {
-      position: absolute;
       top: 0px;
       padding-right: 15px;
       right: 100%;
@@ -644,6 +641,9 @@
   @include posts-page-section-header-break() {
     .section {
       border-top-style: solid;
+      width: 715px !important;
+      display: inherit !important;
+      margin-right: auto;
       border-top-width: 4px;
       padding-top: 4px;
       .section-title {
@@ -652,6 +652,7 @@
         margin-bottom: 0px;
         width: auto !important;
         text-align: inherit;
+        display: block;
         right: inherit;
         h2 {
           &:before {
