@@ -186,48 +186,11 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
-      onInsert: (document) => {
-        if (document.content) {
-          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />));
-        } else if (document.htmlBody) {
-          return htmlToText.fromString(document.htmlBody);
-        }
-      },
-      onEdit: (modifier, document) => {
-        if (modifier.$set.content) {
-          return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />))
-        } else if (modifier.$set.htmlBody) {
-          return htmlToText.fromString(modifier.$set.htmlBody);
-        }
-      },
+      insertableBy: ['members'],
+      editableBy: ['members'],
       hidden: true,
     }
   },
-
-  /**
-   Post Excerpt
-   */
-   {
-     fieldName: 'excerpt',
-     fieldSchema: {
-       onInsert: (document) => {
-         if (document.content) {
-           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={document.content} />)).slice(0,200);
-         } else if (document.htmlBody) {
-           return htmlToText.fromString(document.htmlBody).slice(0,200);
-         }
-       },
-       onEdit: (modifier, document) => {
-         if (modifier.$set.content) {
-           return htmlToText.fromString(ReactDOMServer.renderToStaticMarkup(<Components.ContentRenderer state={modifier.$set.content} />)).slice(0,200)
-         } else if (modifier.$set.htmlBody) {
-           return htmlToText.fromString(modifier.$set.htmlBody).slice(0,200);
-         }
-       },
-     },
-   },
 
   /**
     legacyData: A complete dump of all the legacy data we have on this post in a
