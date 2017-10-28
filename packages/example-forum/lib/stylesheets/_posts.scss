@@ -211,6 +211,8 @@
   @include medium-large{
     @include flex-center;
   }
+  font-family: "Futura-pt";
+  font-weight: 400;
   font-size: $small-font;
   .avatar{
     margin-right: 5px;
