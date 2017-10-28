@@ -17,8 +17,9 @@ const datePickerTextFieldStyle = {
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
+    console.log("CommentsListSection props", props);
     this.state = {
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.startTime && new Date(this.props.lastEvent.properties.startTime) || new Date(),
+      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
     }
   }
 

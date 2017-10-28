@@ -6,7 +6,7 @@ import { Comments } from 'meteor/example-forum';
 
 const PostsCommentsThreadWrapper = (props, /* context*/) => {
 
-  const {loading, results, loadMore, networkStatus, totalCount, terms: {postId}, userId} = props;
+  const {loading, results, loadMore, networkStatus, totalCount, terms: {postId}, userId, post} = props;
   const loadingMore = networkStatus === 2;
   if (loading || !results) {
     return <div className="posts-comments-thread"><Components.Loading/></div>
@@ -21,7 +21,9 @@ const PostsCommentsThreadWrapper = (props, /* context*/) => {
           loadMoreComments={loadMore}
           totalComments={totalCount}
           commentCount={resultsClone.length}
-          loadingMoreComments={loadingMore}/>
+          loadingMoreComments={loadingMore}
+          post={post}
+        />
       </div>
     );
   }

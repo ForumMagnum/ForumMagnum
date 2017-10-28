@@ -12,7 +12,7 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
@@ -83,7 +83,7 @@ class PostsPage extends Component {
       const post = this.props.document;
       const userId = this.props.currentUser && this.props.currentUser._id;
       const htmlBody = {__html: post.htmlBody};
-      const commentTerms = _.isEmpty(this.props.location && this.props.location.query) ? {view: 'postCommentsTop', limit: 50}: this.props.location.query;
+      const commentTerms = _.isEmpty(this.props.location && this.props.location.query) ? {view: 'postCommentsTop', limit: 100}: this.props.location.query;
 
       let commentHash = this.props.params.commentId;
       if (commentHash){
@@ -156,7 +156,7 @@ class PostsPage extends Component {
           </div>
           {this.renderRecommendedReading()}
           <div className="posts-page-comments" id="comments">
-            <Components.PostsCommentsThreadWrapper terms={{...commentTerms, postId: post._id}} userId={userId} />
+            <Components.PostsCommentsThreadWrapper terms={{...commentTerms, postId: post._id}} userId={userId} post={post}/>
           </div>
         </div>
       );

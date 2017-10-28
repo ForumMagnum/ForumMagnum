@@ -10,7 +10,7 @@ const PostsCommentsThread = ({loading,
                               loadMoreComments,
                               totalComments,
                               commentCount,
-                              loadingMoreComments}) => {
+                              loadingMoreComments, post}) => {
 
     if (loading || !results) {
       return (
@@ -22,6 +22,7 @@ const PostsCommentsThread = ({loading,
             totalComments={totalComments}
             commentCount={commentCount}
             loadingMoreComments={loadingMoreComments}
+            post={post}
           />
         </div>
       )
@@ -33,6 +34,7 @@ const PostsCommentsThread = ({loading,
             comments={comments}
             lastEvent={lastEvent}
             postId={postId}
+            post={post}
             loadMoreComments={loadMoreComments}
             totalComments={totalComments}
             commentCount={commentCount}
