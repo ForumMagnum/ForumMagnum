@@ -2,6 +2,7 @@ import { Components, replaceComponent} from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch/dom';
 import React, { PropTypes, Component } from 'react';
 import Helmet from 'react-helmet';
+import { withApollo } from 'react-apollo';
 
 import Intercom, { IntercomAPI } from 'react-intercom';
 import withNewEditor from './editor/withNewEditor.jsx';
@@ -10,9 +11,10 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import { customizeTheme } from '../lib/modules/utils/theme';
 
-const Layout = ({currentUser, children, currentRoute }, { userAgent }) => {
+const Layout = ({currentUser, children, currentRoute, params, client}, { userAgent }) => {
+
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"
@@ -25,30 +27,9 @@ const Layout = ({currentUser, children, currentRoute }, { userAgent }) => {
         return null
       }
     }
-    const muiTheme = getMuiTheme({
-      "fontFamily": "et-book",
-      "palette": {
-        "primary1Color": "#f5f5f5",
-        "accent1Color": "#43a047",
-        "primary2Color": "#eeeeee",
-        "accent2Color": "#81c784",
-        "accent3Color": "#c8e6c9",
-        "pickerHeaderColor": "#4caf50"
-      },
-      "appBar": {
-        "textColor": "rgba(0, 0, 0, 0.54)"
-      },
-      "datePicker": {
-        "color": "rgba(0,0,0,0.54)",
-        "selectTextColor": "rgba(0,0,0,0.54)",
-      },
-      "flatButton": {
-        "primaryTextColor": "rgba(0,0,0,0.54)"
-      },
-      userAgent: userAgent,
-    });
+
     return <div className="wrapper" id="wrapper">
-      <MuiThemeProvider muiTheme={muiTheme}>
+      <MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <Helmet>
             <title>LessWrong 2.0</title>
@@ -85,4 +66,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout );
+replaceComponent('Layout', Layout, withApollo);
