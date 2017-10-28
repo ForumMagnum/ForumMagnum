@@ -52,9 +52,6 @@ class Header extends Component {
   userPostSubtitle = (postId) => {
     const post = Posts.findOneInStore(this.props.client.store, postId)
     if (post && (post.frontpage || post.meta)) {
-      if (post.meta) {
-        return this.renderHeaderSection_Meta()
-      }
       return null
     } else if (post && post.userId) {
       const user = Users.findOneInStore(this.props.client.store, post.userId)
