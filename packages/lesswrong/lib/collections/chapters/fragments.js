@@ -7,6 +7,7 @@ registerFragment(`
     title
     subtitle
     description
+    htmlDescription
     number
     sequenceId
     postIds

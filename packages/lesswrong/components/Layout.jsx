@@ -85,4 +85,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withNewEditor );
+replaceComponent('Layout', Layout );
