@@ -52,7 +52,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
     palette.accent2Color = "rgba(163,152,152,1)"
   }
   const muiTheme = getMuiTheme({
-    "fontFamily": "et-book",
+    "fontFamily": "garamond-premier-pro",
     "palette": palette,
     "appBar": {
       "textColor": "rgba(0, 0, 0, 0.54)"
