@@ -46,6 +46,18 @@ const schema = {
     control: 'EditorFormComponent',
   },
 
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
+  plaintextDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
   number: {
     type: Number,
     optional: true,

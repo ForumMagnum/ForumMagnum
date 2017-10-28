@@ -53,6 +53,18 @@ const schema = {
     blackbox: true,
   },
 
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
+  plaintextDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
   /*
     Dummy field that resolves to the array of books that belong to a sequence
   */

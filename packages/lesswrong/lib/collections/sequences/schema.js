@@ -57,7 +57,13 @@ const schema = {
     blackbox: true,
   },
 
-  descriptionPlaintext: {
+  htmlDescription: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
+  plaintextDescription: {
     type: String,
     optional: true,
     viewableBy: ['guests'],
