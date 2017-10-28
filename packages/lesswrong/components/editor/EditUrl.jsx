@@ -9,6 +9,7 @@ class EditUrl extends Component {
 
     this.state = {
       active: false,
+      url: "",
     };
   }
 
@@ -20,14 +21,14 @@ class EditUrl extends Component {
         <div className="row">
           <div className="col-md-4">
             <FlatButton
-              backgroundColor={this.state.active ? "#555" : "#999"}
-              hoverColor={this.state.active ? "#666" : "#aaa"}
+              backgroundColor={"#bbb"}
+              hoverColor={"#ccc"}
               style={{color: "#fff"}}
               label={this.state.active ? "Create Text Post" : "Create Link Post" }
               onTouchTap={this.toggleEditor}/>
           </div>
           <div className="col-md-8">
-            <Input {...this.props} hidden={ !this.state.active} layout="elementOnly" />
+            <Input {...this.props} value={this.state.active ? this.state.url : ""} type={this.state.active ? "url" : "hidden"} layout="elementOnly" />
           </div>
         </div>
       </div>

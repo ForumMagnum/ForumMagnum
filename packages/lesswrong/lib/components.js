@@ -15,7 +15,6 @@ import '../components/editor/EditUrl.jsx';
 import '../components/editor/SaveDraftButton.jsx';
 // Component for testing the editor. Useful for debugging
 import '../components/editor/EditorTest.jsx';
-import '../components/editor/editorPlugins/redux.js';
 
 // RSS Feed Integration
 import '../components/feeds/newFeedButton.jsx';
@@ -125,3 +124,4 @@ import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';
 import '../components/form-components/SequencesListEditorItem.jsx';
 import '../components/form-components/SubmitButton.jsx';
+import '../components/form-components/FormSubmit.jsx';

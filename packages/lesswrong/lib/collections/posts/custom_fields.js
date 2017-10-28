@@ -44,23 +44,7 @@ Posts.addField([
       hidden: true,
     }
   },
-  /**
-    Drafts
-  */
-  {
-    fieldName: "draft",
-    fieldSchema: {
-      label: 'Save to Drafts',
-      type: Boolean,
-      optional: true,
-      defaultValue: false,
-      viewableBy: ['members'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      order: 30,
-      control: 'SaveDraftButton',
-    }
-  },
+
 
   /**
     Ory Editor JSON
@@ -408,6 +392,7 @@ Posts.addField([
       optional: true,
       label: "Publish to frontpage",
       control: "checkbox",
+      hidden: true,
       onInsert: (document, currentUser) => {
         if (!document.frontpage) {
           return false
@@ -418,6 +403,23 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  /**
+    Drafts
+  */
+  {
+    fieldName: "draft",
+    fieldSchema: {
+      label: 'Save to Drafts',
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      viewableBy: ['members'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
     }
   },
 

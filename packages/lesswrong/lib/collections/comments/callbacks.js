@@ -3,7 +3,8 @@ import { Comments } from "meteor/example-forum";
 import { addCallback, editMutation, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { convertToHTML, convertFromHTML } from 'draft-convert';
 import { convertFromRaw } from 'draft-js';
-
+import { draftToHTML } from '../../editor/utils.js';
+import htmlToText from 'html-to-text';
 
 // function commentsSoftRemoveChildrenComments(comment) {
 //     const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
@@ -15,38 +16,6 @@ import { convertFromRaw } from 'draft-js';
 //       }).then(()=>console.log('comment softRemoved')).catch(/* error */);
 //     });
 // }
-
-const draftToHTML = convertToHTML({
-  entityToHTML: (entity, originalText) => {
-    if (entity.type === 'image') {
-      let classNames = 'draft-image '
-      if (entity.data.alignment) {
-        classNames = classNames + entity.data.alignment;
-      }
-      let style = ""
-      if (entity.data.width) {
-        style = "width:" + entity.data.width + "%";
-      }
-      return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
-    }
-    if (entity.type === 'LINK') {
-      return <a href={entity.data.url}>{originalText}</a>;
-    }
-    return originalText;
-  },
-  blockToHTML: (block) => {
-     const type = block.type;
-     if (type === 'atomic') {
-       return {start: '<span>', end: '</span>'};
-     }
-     if (type === 'blockquote') {
-       return <blockquote />
-     }
-    //  return <span/>;
-   },
-});
-
-
 
 
 function CommentsEditSoftDeleteCallback (comment, oldComment) {
@@ -61,7 +30,10 @@ function CommentsNewHTMLSerializeCallback (comment) {
     const contentState = convertFromRaw(comment.content);
     const html = draftToHTML(contentState);
     comment.htmlBody = html;
+    comment.body = contentState.getPlainText();
     console.log("Comments New HTML serialization", html)
+  } else if (comment.htmlBody) {
+    comment.body = htmlToText.fromString(comment.htmlBody);
   }
   return comment
 }
@@ -73,11 +45,10 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
     const contentState = convertFromRaw(modifier.$set.content);
     console.log("Comment Edit callback: ", modifier.$set.content);
     modifier.$set.htmlBody = draftToHTML(contentState);
-    modifier.$set.plaintextBody = contentState.getPlainText();
+    modifier.$set.body = contentState.getPlainText();
     console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.plaintextBody)
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    const contentState = convertFromRaw(modifier.$set.content);
-    modifier.$set.plaintextBody = contentState.getPlainText();
+    modifier.$set.body = htmlToText.fromString(modifier.$set.htmlBody);
   }
   return modifier
 }

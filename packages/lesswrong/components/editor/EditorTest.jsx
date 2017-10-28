@@ -43,4 +43,4 @@ class EditorTest extends Component {
   }
 }
 
-registerComponent('EditorTest', EditorTest, withEditor, withCurrentUser);
+registerComponent('EditorTest', EditorTest, withCurrentUser);

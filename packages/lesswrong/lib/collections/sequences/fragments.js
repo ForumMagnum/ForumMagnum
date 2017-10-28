@@ -10,6 +10,7 @@ registerFragment(`
     }
     title
     description
+    htmlDescription
     gridImageId
     bannerImageId
     color

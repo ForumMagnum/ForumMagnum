@@ -39,7 +39,7 @@ class CollectionsPage extends Component {
           <div className="collections-header">
             <h1 className="collections-title">{collection.title}</h1>
             <div className="collections-description">
-              {collection.description ? <Components.ContentRenderer state={collection.description} /> : null}
+              {collection.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: collection.htmlDescription}}/>}
             </div>
             <FlatButton backgroundColor="rgba(0,0,0,0.05)" label={startedReading ? "Continue Reading" : "Start Reading"} containerElement={<Link to={document.firstPageLink} />}/>
           </div>
