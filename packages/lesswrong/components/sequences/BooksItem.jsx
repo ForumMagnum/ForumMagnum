@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { registerComponent, ModalTrigger, Components } from 'meteor/vulcan:core';
+import htmlToText from 'html-to-text';
 import Users from 'meteor/vulcan:users';
 import { editorHasContent } from '../../lib/modules/utils'
 
@@ -38,7 +39,7 @@ class BooksItem extends Component {
         <Components.Section title={book.title}
           titleComponent={this.renderTitleComponent(book, this.props.canEdit)}
         >
-          {book.htmlDescription && <div className="books-item-description">
+          {book.htmlDescription && book.plaintextDescription && <div className="books-item-description">
             <div className="content-body" dangerouslySetInnerHTML={{__html: book.htmlDescription}}/>
           </div>}
 
