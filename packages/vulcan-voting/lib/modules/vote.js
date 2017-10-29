@@ -150,7 +150,9 @@ const clearVotesServer = ({ document, user, collection }) => {
   const newDocument = _.clone(document);
   const votes = Votes.find({ documentId: document._id, userId: user._id}).fetch();
   if (votes.length) {
-    Votes.remove({documentId: document._id});
+    console.log("clearing " + votes.length + " votes on document " + document._id );
+    console.log("For user")
+    Votes.remove({documentId: document._id, userId: user._id});
     collection.update({_id: document._id}, {$inc: {baseScore: -calculateTotalPower(votes) }});
     newDocument.baseScore -= calculateTotalPower(votes);
     newDocument.score = recalculateScore(newDocument);
