@@ -164,9 +164,21 @@ class CommentEditor extends Component {
     this.editor.focus();
   }
 
+  changeCount = 0;
+
   onChange = (editorState) => {
-    const contentState = editorState.getCurrentContent();
-    this.setSavedState(convertToRaw(contentState));
+    const currentContent = this.state.editorState.getCurrentContent()
+    const newContent = editorState.getCurrentContent()
+
+    if (currentContent !== newContent) {
+      // Only save to localStorage on every 10th content change
+      this.changeCount = this.changeCount + 1;
+      if (this.changeCount % 10 === 0) {
+        console.log("saving...");
+        const contentState = editorState.getCurrentContent();
+        this.setSavedState(convertToRaw(contentState));
+      }
+    }
     this.setState({editorState: editorState})
     return editorState;
   }
