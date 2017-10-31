@@ -7,7 +7,6 @@ import { Image } from 'cloudinary-react';
 const cardTitleStyle = {
   fontSize: "20px",
   lineHeight: "120%",
-  fontWeight: "600",
 };
 
 const cardSubtitleStyle = {

@@ -20,17 +20,14 @@ class HeadTags extends PureComponent {
 
     // default image meta: logo url, else site image defined in settings
     let image = getSetting('siteImage')
-    console.log("HeadTags image1", image)
     // overwrite default image if one is passed as props
     if (!!this.props.image) {
       image = this.props.image;
     }
-    console.log("HeadTags image2", image)
     // add site url base if the image is stored locally
     if (!!image && image.indexOf('//') === -1) {
       image = Utils.getSiteUrl() + image;
     }
-    console.log("HeadTags image3", image) 
     return (
       <div>
         <Helmet>

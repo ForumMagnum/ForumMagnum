@@ -5,14 +5,14 @@
 
 @charset "UTF-8";
 
-html { font-size: 14px; }
+html { font-size: 13px; }
 
 body {
       //  width: 87.5%;
       //  margin-left: auto;
       //  margin-right: auto;
       //  padding-left: 12.5%;
-       font-family: "garamond-premier-pro", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+       font-family: "warnock-pro", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
        font-weight: 500;
        background-color: #ffffff;
        color: rgba(0,0,0,0.93);
@@ -64,10 +64,27 @@ body {
   h3 { color: rgba(0,0,0,0.93);
        font-weight: 400;
        font-size: 1.7rem;
-       margin-top: 2rem;
+       margin-top: 3rem;
        margin-bottom: 1.4rem;
        font-weight:bold;
        line-height: 1;
+     }
+
+   h4 { color: rgba(0,0,0,0.93);
+        font-weight: 400;
+        font-size: 1.5rem;
+        margin-top: 3rem;
+        margin-bottom: 1.4rem;
+        line-height: 1;
+    }
+
+    h5 { color: rgba(0,0,0,0.93);
+         font-weight: 400;
+         font-size: 1.4rem;
+         margin-top: 2rem;
+         margin-bottom: 1.4rem;
+         font-style: italic;
+         line-height: 1;
      }
 
   // hr { display: block;
@@ -85,7 +102,7 @@ body {
                display: block;
                line-height: 1; }
 
-  .numeral { font-family: "garamond-premier-pro"; }
+  .numeral { font-family: "warnock-pro"; }
 
   .danger { color: red; }
 
@@ -179,7 +196,7 @@ body {
   .sidenote-number { counter-increment: sidenote-counter; }
 
   .sidenote-number:after, .sidenote:before { content: counter(sidenote-counter) " ";
-                                             font-family: "garamond-premier-pro";
+                                             font-family: "warnock-pro";
                                              position: relative;
                                              vertical-align: baseline; }
 

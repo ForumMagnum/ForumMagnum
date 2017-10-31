@@ -29,7 +29,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
       }
     }
 
-    return <div className="wrapper tk-garamond-premier-pro" id="wrapper">
+    return <div className="wrapper tk-warnock-pro" id="wrapper">
       <MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <Helmet>
@@ -41,7 +41,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
             {/* <link name="cardo-font" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cardo:400,400i,700" />*/}
           </Helmet>
-          <Typekit kitId="kgg4vtp" />
+          <Typekit kitId="gus4xlc" />
           {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
           {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 

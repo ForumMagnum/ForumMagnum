@@ -20,7 +20,6 @@ const viewNames = {
 const DropdownStyle = {
   textShadow: 'inherit',
   display: 'inline-block',
-  lineHeight: 'normal',
   fontSize: 'inherit',
   height: 'auto',
 };
@@ -80,9 +79,9 @@ class CommentsViews extends Component {
           labelStyle={DropdownLabelStyle}
           listStyle={DropdownListStyle}
           className="comments-views-dropdown"
-          >
+        >
           {views.map(view => {
-              return <MenuItem
+            return <MenuItem
                 key={view}
                 value={view}
                 primaryText={viewNames[view]}

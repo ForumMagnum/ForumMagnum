@@ -29,8 +29,8 @@
 .recent-posts-title-component, .posts-page-comments-title-component {
   font-style: italic;
   margin-top: 20px;
-  font-size: 20px;
-  line-height: normal;
+  font-size: 1.2rem;
+  line-height: 1.6rem;
   color: rgba(0,0,0,0.6);
   .new-post-link {
     margin-top: 20px;
@@ -56,6 +56,9 @@
 }
 
 .posts-list-content {
+  & > div > div:first-of-type {
+    border-top: none;
+  }
   margin-top: -10px;
   margin-left: 10px;
   a {
@@ -205,11 +208,10 @@
 .posts-load-more {
   margin-left: 10px;
   .posts-load-more-link{
-    opacity:.6;
     &:hover, &:focus, &:active{
       text-decoration: none !important;
       background: inherit;
-      opacity:1;
+      opacity:0.6;
     }
   }
 }
@@ -220,7 +222,7 @@
 
 .posts-item{
   padding: 10px;
-  border-bottom: rgba(0,0,0,0.1) solid 0.5px;
+  border-top: rgba(0,0,0,0.1) solid 0.5px;
   &:hover {
     background-color: rgba(0, 0, 0, 0.025) !important;
     text-decoration: none;
@@ -252,7 +254,6 @@
   .posts-item-meta {
     display: block;
     color: rgba(0,0,0,0.5);
-    font-family: "Futura-pt";
     font-weight: 400;
     margin-top: -1px;
     margin-bottom: 2px;
@@ -453,7 +454,7 @@
           margin-right: auto;
           left: 0px;
           right: 0px;
-          top: -14px;
+          top: -17px;
           width: 30px;
           height: 20px;
         }
@@ -918,7 +919,6 @@ svg.drag-handle {
 
 .posts-page-content-header-author {
   font-size: 16px;
-  font-weight: bold;
   color: rgba(0,0,0,0.7);
 }
 
