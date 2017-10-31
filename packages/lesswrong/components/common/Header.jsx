@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withCurrentUser, Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components, replaceComponent } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
@@ -15,7 +15,7 @@ import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
-  boxShadow: "none",
+  boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
 }
 
 class Header extends Component {
