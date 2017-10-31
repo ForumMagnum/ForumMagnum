@@ -146,8 +146,10 @@ class CommentEditor extends Component {
         editorState: EditorState.createEmpty(),
       });
 
-      if (document._id) { ls.remove(document._id) }
-      else { ls.remove(fieldName) }
+      if (document && document._id) { ls.remove(document._id) }
+      else if (document && document.parentCommentId) { ls.remove("parent:" + document.parentCommentId) }
+      else if (document && document.postId) { ls.remove("post"+document.postId)}
+      else {ls.remove(fieldName)}
 
       return result;
     }
