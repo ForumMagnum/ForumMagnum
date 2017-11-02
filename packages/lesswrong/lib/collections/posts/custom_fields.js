@@ -325,7 +325,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalBookSlug',
+    fieldName: 'canonicalBookId',
     fieldSchema: {
       type: String,
       optional: true,
@@ -339,8 +339,8 @@ Posts.addField([
         addOriginalField: true,
         type: "Book",
         resolver: (post, args, context) => {
-          if (!post.canonicalBookSlug) return null;
-          return context.Books.findOne({slug: post.canonicalBookSlug})
+          if (!post.canonicalBookId) return null;
+          return context.Books.findOne({_id: post.canonicalBookId})
         }
       }
     }

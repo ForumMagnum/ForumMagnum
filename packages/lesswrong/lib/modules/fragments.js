@@ -146,6 +146,10 @@ registerFragment(`
     canonicalNextPostId
     canonicalCollectionSlug
     canonicalSequenceSlug
+    canonicalBookId
+    canonicalBook {
+      title
+    }
     collectionTitle
   }
 `);

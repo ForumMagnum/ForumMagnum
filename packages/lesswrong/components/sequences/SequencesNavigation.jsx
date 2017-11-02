@@ -21,7 +21,7 @@ const SequencesNavigation = ({
       document = results[0]
     }
 
-    if (document) {
+    if (document && !title) {
       title = document.title
     }
     if (document && post) {
