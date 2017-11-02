@@ -5,6 +5,8 @@ import { useScroll } from 'react-router-scroll';
 
 import { Meteor } from 'meteor/meteor';
 
+import { actions as idleActions } from 'meteor/vulcan:lib';
+
 import {
   Components,
   addRoute,
@@ -67,10 +69,12 @@ Meteor.startup(() => {
           runCallbacks('router.onUpdate', {}, store, apolloClient);
         },
         render: applyRouterMiddleware(useScroll((prevRouterProps, nextRouterProps) => {
-          // if the action is REPLACE, or this is the initialization of the router, return false so that we don't jump back to top of page
-          return !(nextRouterProps.location.action === 'REPLACE' || !prevRouterProps);
+          // if the action is REPLACE, return false so that we don't jump back to top of page
+          return !(nextRouterProps.location.action === 'REPLACE');
         }))
       }));
+      //Initialize redux-idle-monitor
+      store.dispatch(idleActions.start())
       return <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>;
     },
   };

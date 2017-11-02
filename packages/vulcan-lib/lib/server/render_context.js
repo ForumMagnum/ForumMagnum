@@ -8,6 +8,10 @@ import { Accounts } from 'meteor/accounts-base';
 import { RoutePolicy } from 'meteor/routepolicy';
 import { WebApp } from 'meteor/webapp';
 
+import { reducer as idle, middleware as idleMiddleware } from '../modules/redux-idle-monitor'
+import { thunk, readyStatePromise, createLogger, crashReporter } from 'redux-middleware'
+
+
 import {
   createApolloClient,
   configureStore, getActions, getReducers, getMiddlewares,
@@ -74,13 +78,15 @@ webAppConnectHandlersUse(Meteor.bindEnvironment(function initRenderContextMiddle
     return;
   }
 
+
+
   // init
   const history = createMemoryHistory(req.url);
   const loginToken = req.cookies && req.cookies.meteor_login_token;
   const apolloClient = createApolloClient({ loginToken: loginToken });
   let actions = {};
-  let reducers = { apollo: apolloClient.reducer() };
-  let middlewares = [Utils.defineName(apolloClient.middleware(), 'apolloClientMiddleware')];
+  let reducers = { apollo: apolloClient.reducer() , idle};
+  let middlewares = [thunk, idleMiddleware, readyStatePromise, crashReporter, Utils.defineName(apolloClient.middleware(), 'apolloClientMiddleware')];
 
   // renderContext object
   req.renderContext = {
@@ -114,7 +120,7 @@ webAppConnectHandlersUse(Meteor.bindEnvironment(function initRenderContextMiddle
   // create store
   req.renderContext.store = configureStore(req.renderContext.getReducers, {}, (store) => {
     let chain, newDispatch;
-     
+
     return next => (action) => {
       try {
         if (!chain) {
