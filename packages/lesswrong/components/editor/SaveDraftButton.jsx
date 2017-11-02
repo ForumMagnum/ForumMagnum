@@ -13,7 +13,10 @@ class SaveDraftButton extends Component {
   render() {
     return (
       <div className="posts-save-draft">
-        <Checkbox {...this.props} />
+        <Checkbox name={this.props.name}
+                  value={this.props.value}
+                  placeholder={this.props.placeholder}
+                  label={this.props.label} />
       </div>
     )
   }

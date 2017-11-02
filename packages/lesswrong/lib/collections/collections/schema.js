@@ -43,6 +43,14 @@ const schema = {
     insertableBy: ['admins'],
   },
 
+  slug: {
+    type: String,
+    optional: false,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
+
   description: {
     type: Object,
     optional: true,

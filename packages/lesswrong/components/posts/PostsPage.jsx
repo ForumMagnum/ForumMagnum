@@ -69,6 +69,25 @@ class PostsPage extends Component {
     }
   }
 
+  renderSequenceNavigation = () => {
+    const post = this.props.document
+    const sequenceId = this.props.params.sequenceId;
+    const canonicalCollectionSlug = post.canonicalCollectionSlug;
+    if (canonicalCollectionSlug) {
+
+      return <Components.SequencesNavigation
+                title={ post.collectionTitle }
+                nextPostId={ post.canonicalNextPostId }
+                prevPostId={ post.canonicalPrevPostId }
+              />
+    }
+    if (sequenceId) {
+      return <Components.SequencesNavigation
+                documentId={sequenceId}
+                post={post} />
+    }
+  }
+
   render() {
     if (this.props.loading) {
 
@@ -94,8 +113,6 @@ class PostsPage extends Component {
       if (commentHash && commentHash.substring(commentHash.length - 7, commentHash.length) === "context") {
         commentHash = commentHash.slice(0,-7);
       }
-
-      const sequenceId = this.props.params.sequenceId;
       return (
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
@@ -107,7 +124,7 @@ class PostsPage extends Component {
               <div className="posts-page-content-header-title">
                 <h1>{post.title}</h1>
               </div>
-              {sequenceId ? <Components.SequencesNavigation documentId={sequenceId} post={post} /> : null}
+              { this.renderSequenceNavigation() }
               <div className="posts-page-content-header-voting">
                 <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
               </div>

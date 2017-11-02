@@ -44,12 +44,21 @@ class PostsItem extends PureComponent {
   }
 
 
+  getPostLink() {
+    const {post, chapter} = this.props
+    if (post.canonicalCollectionSlug) {
+      return "/" + post.canonicalCollectionSlug + "/" + post.slug
+    } else {
+      return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getLink(post)
+    }
+  }
+
   render() {
 
     const {post, chapter, inlineCommentCount} = this.props;
     const read = post.lastVisitedAt;
     const newComments = post.lastVisitedAt < post.lastCommentedAt;
-    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getLink(post)
+    const postLink = this.getPostLink()
 
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";

@@ -46,7 +46,7 @@ class CollectionsPage extends Component {
         </Components.Section>
         <div className="collections-page-content">
           {/* For each book, print a section with a grid of sequences */}
-          {collection.books.map(book => <Components.BooksItem collection={collection} book={book} canEdit={canEdit} />)}
+          {collection.books.map(book => <Components.BooksItem key={book._id} collection={collection} book={book} canEdit={canEdit} />)}
         </div>
         {canEdit ? <Components.BooksNewForm prefilledProps={{collectionId: collection._id}} /> : null}
       </div>);

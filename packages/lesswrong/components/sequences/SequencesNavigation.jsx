@@ -1,73 +1,84 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import IconButton from 'material-ui/IconButton'
 import { withRouter } from 'react-router';
 import React from 'react';
 
-const SequencesNavigation = ({document, loading, post, router}) => {
-  if (document && !loading) {
-    if (document.chapters) {
-      let currentChapter = false;
-      let currentPostIndex = false;
-      let currentChapterIndex = false;
-      let currentSequenceLength = document.chapters.length;
-      document.chapters.forEach((c) => {
-        if(c.posts && _.pluck(c.posts, '_id').indexOf(post._id) > -1) {
-          currentChapter = c
-          currentPostIndex = _.pluck(c.posts, '_id').indexOf(post._id);
-          currentChapterIndex = _.pluck(document.chapters, '._id').indexOf(c._id);
-        }
-      })
-      let nextPostLink = "";
-      let nextPost = false;
-      let previousPostLink = "";
-      let previousPost = false;
-      if (currentPostIndex || currentPostIndex === 0) {
-        if (currentPostIndex + 1 < currentChapter.posts.length) {
-          nextPost = currentChapter.posts[currentPostIndex + 1]
-          nextPostLink = "/s/" + document._id + "/p/" + nextPost._id;
-        } else if (currentChapterIndex + 1 < currentSequenceLength) {
-          nextPost = document.chapters[currentChapterIndex + 1].posts[0]
-          nextPostLink = "/s/" + document._id + "/p/" + nextPost._id;
-        } else {
-          nextPostLink = "/sequences/" + document._id;
-        }
+const SequencesNavigation = ({
+    results,
+    loading,
+    post,
+    router,
+    nextPostId,
+    prevPostId,
+    title
+  }) => {
+    let document = null
+    let prevPostUrl = ""
+    let nextPostUrl = ""
 
-        if (currentPostIndex > 0) {
-          previousPost = currentChapter.posts[currentPostIndex - 1]
-          previousPostLink = "/s/" + document._id + "/p/" + previousPost._id;
-        } else if (currentChapterIndex > 1) {
-          previousPost = document.chapters[currentChapterIndex - 1].posts[document.chapters[currentChapterIndex-1].length - 1];
-          previousPostLink = "/s/" + document._id + "/p/" + previousPost._id;
-        } else {
-          previousPostLink = "/s/" + document._id + "/p/" + document._id;
-        }
+    if (results && results[0]._id) {
+      document = results[0]
+    }
 
-        return <div className="sequences-navigation-top">
-          {previousPostLink ? <IconButton
-          className="sequences-navigation-top-left"
-          iconClassName="material-icons"
-          disabled={!previousPost}
-          tooltip={previousPost && previousPost.title}
-          onTouchTap={() => router.push(previousPostLink)}>
-          navigate_before
-          </IconButton> : null}
-          <div className="sequences-navigation-title">{document.title}</div>
-          {nextPostLink ? <IconButton
-            className="sequences-navigation-top-right"
-            iconClassName="material-icons"
-            disabled={!nextPost}
-            tooltip={nextPost && nextPost.title}
-            onTouchTap={() => router.push(nextPostLink)}>
-            navigate_next
-          </IconButton> : null}
-        </div>
+    if (document) {
+      title = document.title
+    }
+    if (document && post) {
+      if (document.chapters) {
+        let currentChapter = false;
+        let currentPostIndex = false;
+        let currentChapterIndex = false;
+        let currentSequenceLength = document.chapters.length;
+        document.chapters.forEach((c) => {
+          if(c.posts && _.pluck(c.posts, '_id').indexOf(post._id) > -1) {
+            currentChapter = c
+            currentPostIndex = _.pluck(c.posts, '_id').indexOf(post._id);
+            currentChapterIndex = _.pluck(document.chapters, '._id').indexOf(c._id);
+          }
+        })
+        if (currentPostIndex || currentPostIndex === 0) {
+          if (currentPostIndex + 1 < currentChapter.posts.length) {
+            nextPostId = currentChapter.posts[currentPostIndex + 1]._id
+            nextPostUrl = "/s/" + document._id + "/p/" + nextPostId;
+          } else if (currentChapterIndex + 1 < currentSequenceLength) {
+            nextPostId = document.chapters[currentChapterIndex + 1].posts[0]._id
+            nextPostUrl = "/s/" + document._id + "/p/" + nextPostId;
+          } else {
+            nextPostUrl = "/sequences/" + document._id;
+          }
+
+          if (currentPostIndex > 0) {
+            prevPostId = currentChapter.posts[currentPostIndex - 1]._id
+            prevPostUrl = "/s/" + document._id + "/p/" + prevPostId;
+          } else if (currentChapterIndex > 1) {
+            prevPostId = document.chapters[currentChapterIndex - 1].posts[document.chapters[currentChapterIndex-1].length - 1]._id
+            prevPostUrl = "/s/" + document._id + "/p/" + prevPostId;
+          } else {
+            prevPostUrl = "/s/" + document._id + "/p/" + document._id;
+          }
+        }
       }
     }
-  } else {
-    return <Components.Loading />
+    return (
+      <div className="sequences-navigation-top">
+        <Components.SequencesNavigationLink
+                          documentId={prevPostId}
+                          documentUrl={prevPostUrl}
+                          direction="left" />
+
+                        <div className="sequences-navigation-title">
+                          {title ? title : <Components.Loading/>}
+                        </div>
+
+        <Components.SequencesNavigationLink
+                          documentId={nextPostId}
+                          documentUrl={nextPostUrl}
+                          direction="right" />
+      </div>
+    )
   }
-};
+
 
 const options = {
   collection: Sequences,
@@ -76,4 +87,39 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options], withRouter);
+registerComponent('SequencesNavigation', SequencesNavigation, [withList, options], withRouter);
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//
+//
+// const PostsSingleSlug = (props) => {
+//   if (props.results && props.results[0]._id) {
+//     return <Components.PostsPage documentId={props.results[0]._id } />
+//   } else {
+//     return props.loading ? <Components.Loading/> : <Error404 />
+//   }
+// };
+//
+// PostsSingleSlug.displayName = "PostsSingleSlug";
+//
+// const options = {
+//   collection: Posts,
+//   queryName: 'LWPostsPageSlugQuery',
+//   fragmentName: 'LWPostsPage',
+//   limit: 1,
+//   totalResolver: false,
+// };
+//
+// registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);

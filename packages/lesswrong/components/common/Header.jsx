@@ -105,8 +105,9 @@ class Header extends Component {
   render() {
     //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing.
     const siteSection = this.getSubtitle()
+    const header = this.props.muiTheme.palette.header
 
-    appBarStyle.backgroundColor = this.props.muiTheme.palette.header
+    appBarStyle.backgroundColor = header ? header : "#F0F4F7"
 
     return (
       <div className="header-wrapper">
@@ -131,7 +132,7 @@ class Header extends Component {
           containerClassName="menu-drawer" >
 
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> RATIONALITY: A-Z </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/rationality"}/>}> RATIONALITY: A-Z </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> THE CODEX </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
