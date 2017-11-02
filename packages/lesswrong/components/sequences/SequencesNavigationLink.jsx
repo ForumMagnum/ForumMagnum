@@ -17,8 +17,8 @@ const SequencesNavigationLink = ({
 
     if (post && !loading) {
       if (!documentUrl) {
-        if (post.canonicalCollection && post.canonicalCollection.slug) {
-          documentUrl = "/" + post.canonicalCollection.slug + "/" + post.slug
+        if (post.canonicalCollectionSlug) {
+          documentUrl = "/" + post.canonicalCollectionSlug + "/" + post.slug
         } else {
           documentUrl = "/posts/" + post._id
         }

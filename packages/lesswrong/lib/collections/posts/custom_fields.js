@@ -280,28 +280,29 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalSequenceId',
+    fieldName: 'canonicalSequenceSlug',
     fieldSchema: {
       type: String,
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
-      // resolveAs: {
-      //   fieldName: 'canonicalSequence',
-      //   addOriginalField: true,
-      //   type: "Sequence",
-      //   resolver: (post, args, context) => {
-      //     return context.Sequences.findOne({_id:post.canonicalSequenceId})
-      //   }
-      // },
+      resolveAs: {
+        fieldName: 'canonicalSequence',
+        addOriginalField: true,
+        type: "Sequence",
+        resolver: (post, args, context) => {
+          if (!post.canonicalSequenceSlug) return null;
+          return context.Sequences.findOne({slug: post.canonicalSequenceSlug})
+        }
+      },
       hidden: false,
       control: "text"
     }
   },
 
   {
-    fieldName: 'canonicalCollectionId',
+    fieldName: 'canonicalCollectionSlug',
     fieldSchema: {
       type: String,
       optional: true,
@@ -315,8 +316,8 @@ Posts.addField([
         addOriginalField: true,
         type: "Collection",
         resolver: (post, args, context) => {
-          if (!post.canonicalCollectionId) return null;
-          return context.Collections.findOne({_id: post.canonicalCollectionId})
+          if (!post.canonicalCollectionSlug) return null;
+          return context.Collections.findOne({slug: post.canonicalCollectionSlug})
         }
       }
     }

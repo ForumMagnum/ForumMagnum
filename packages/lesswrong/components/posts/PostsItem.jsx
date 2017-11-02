@@ -46,8 +46,8 @@ class PostsItem extends PureComponent {
 
   getPostLink() {
     const {post, chapter} = this.props
-    if (post.canonicalCollection) {
-      return "/" + post.canonicalCollection.slug + "/" + post.slug
+    if (post.canonicalCollectionSlug) {
+      return "/" + post.canonicalCollectionSlug + "/" + post.slug
     } else {
       return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getLink(post)
     }

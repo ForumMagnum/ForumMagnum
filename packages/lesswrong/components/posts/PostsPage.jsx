@@ -72,11 +72,10 @@ class PostsPage extends Component {
   renderSequenceNavigation = () => {
     const post = this.props.document
     const sequenceId = this.props.params.sequenceId;
-    const canonicalCollectionId = post.canonicalCollectionId;
-    if (canonicalCollectionId) {
+    const canonicalCollectionSlug = post.canonicalCollectionSlug;
+    if (canonicalCollectionSlug) {
 
       return <Components.SequencesNavigation
-                documentId={sequenceId}
                 title={ post.collectionTitle }
                 nextPostId={ post.canonicalNextPostId }
                 prevPostId={ post.canonicalPrevPostId }

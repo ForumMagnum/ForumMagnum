@@ -132,7 +132,7 @@ class Header extends Component {
           containerClassName="menu-drawer" >
 
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/sequences"}/>}> RATIONALITY: A-Z </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/rationality"}/>}> RATIONALITY: A-Z </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> THE CODEX </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>

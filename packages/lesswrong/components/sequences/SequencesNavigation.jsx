@@ -1,11 +1,11 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import IconButton from 'material-ui/IconButton'
 import { withRouter } from 'react-router';
 import React from 'react';
 
 const SequencesNavigation = ({
-    document,
+    results,
     loading,
     post,
     router,
@@ -13,8 +13,13 @@ const SequencesNavigation = ({
     prevPostId,
     title
   }) => {
+    let document = null
     let prevPostUrl = ""
     let nextPostUrl = ""
+
+    if (results && results[0]._id) {
+      document = results[0]
+    }
 
     if (document) {
       title = document.title
@@ -82,4 +87,39 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options], withRouter);
+registerComponent('SequencesNavigation', SequencesNavigation, [withList, options], withRouter);
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//
+//
+// const PostsSingleSlug = (props) => {
+//   if (props.results && props.results[0]._id) {
+//     return <Components.PostsPage documentId={props.results[0]._id } />
+//   } else {
+//     return props.loading ? <Components.Loading/> : <Error404 />
+//   }
+// };
+//
+// PostsSingleSlug.displayName = "PostsSingleSlug";
+//
+// const options = {
+//   collection: Posts,
+//   queryName: 'LWPostsPageSlugQuery',
+//   fragmentName: 'LWPostsPage',
+//   limit: 1,
+//   totalResolver: false,
+// };
+//
+// registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);

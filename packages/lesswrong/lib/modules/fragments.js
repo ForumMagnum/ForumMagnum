@@ -132,10 +132,7 @@ registerFragment(`
     }
     lastVisitedAt
     lastCommentedAt
-    canonicalCollectionId
-    canonicalCollection {
-      slug
-    }
+    canonicalCollectionSlug
   }
 `);
 
@@ -147,8 +144,8 @@ registerFragment(`
     content
     canonicalPrevPostId
     canonicalNextPostId
-    canonicalCollectionId
-    canonicalSequenceId
+    canonicalCollectionSlug
+    canonicalSequenceSlug
     collectionTitle
   }
 `);
@@ -159,9 +156,7 @@ registerFragment(`
     title
     url
     slug
-    canonicalCollection {
-      slug
-    }
+    canonicalCollectionSlug
   }
 `);
 
