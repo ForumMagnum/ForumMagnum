@@ -2,7 +2,7 @@ import { Categories } from '../../modules/categories/index.js';
 import { Utils, newMutation, getSetting } from 'meteor/vulcan:core';
 
 if (getSetting('forum.seedOnStart')) {
-
+  
   const dummyFlag = {
     fieldName: 'isDummy',
     fieldSchema: {
@@ -64,10 +64,10 @@ if (getSetting('forum.seedOnStart')) {
         // if not, create it
         newMutation({
           collection: Categories,
-          document: category,
+          document: category, 
           validate: false,
         });
-
+        
         // Categories.insert(category);
         console.log(`// Creating category “${category.name}”`); // eslint-disable-line
       }
@@ -78,7 +78,7 @@ if (getSetting('forum.seedOnStart')) {
     dummyCategories.forEach(category => {
       newMutation({
         collection: Categories,
-        document: category,
+        document: category, 
         validate: false,
       });
     });

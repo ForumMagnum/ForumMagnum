@@ -50,15 +50,15 @@ export const RouterClient = {
         history = options.historyHook(history);
       }
 
-      const appGenerator = addProps => {
-        return <Router
-            history={history}
-            {...options.props}
-            {...addProps}
-          >
-            {routes}
-          </Router>
-      };
+      const appGenerator = addProps => (
+        <Router
+          history={history}
+          {...options.props}
+          {...addProps}
+        >
+          {routes}
+        </Router>
+      );
 
       let app;
       if (typeof options.wrapperHook === 'function') {

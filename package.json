@@ -20,6 +20,7 @@
     "bcrypt": "^0.8.7",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
+    "chalk": "^2.3.0",
     "classnames": "^2.2.3",
     "cloudinary-react": "^1.0.4",
     "cookie-parser": "^1.4.3",

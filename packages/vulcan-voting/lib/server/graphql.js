@@ -24,7 +24,7 @@ addGraphQLMutation('vote(documentId: String, voteType: String, collectionName: S
 const voteResolver = {
   Mutation: {
     async vote(root, {documentId, voteType, collectionName, voteId}, context) {
-
+      
       const { currentUser } = context;
       const collection = context[collectionName];
 

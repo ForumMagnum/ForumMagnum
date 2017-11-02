@@ -32,8 +32,8 @@ addStrings('en', {
   "accounts.sign_out": "Sign out",
   "accounts.cancel": "Cancel",
   "accounts.or_use": "or use",
-  "accounts.info_email_sent": "Email sent",
-  "accounts.info_password_changed": "Password changed",
+  "accounts.info_email_sent": "Email sent.",
+  "accounts.info_password_changed": "Password changed.",
   "accounts.logging_in": "Logging in…",
 
   "forms.submit": "Submit",
@@ -41,7 +41,7 @@ addStrings('en', {
   "forms.select_option": "-- select option --",
   "forms.delete": "Delete",
   "forms.delete_confirm": "Delete document?",
-
+  
   "users.profile": "Profile",
   "users.complete_profile": "Complete your Profile",
   "users.profile_completed": "Profile completed.",
@@ -124,10 +124,10 @@ addStrings('en', {
   "app.required_field_missing": "{fieldName} is required.",
   "app.field_is_too_long": "{fieldName} cannot exceed {limit} characters.",
   "app.schema_validation_error": "Schema validation error",
-
+  
   "cards.edit": "Edit",
   "datatable.edit": "Edit",
-
+  
   "admin": "Admin",
   "notifications": "Notifications",
 });

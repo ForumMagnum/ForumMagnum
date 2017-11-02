@@ -53,9 +53,9 @@ function addTimeParameter (parameters, terms, apolloClient) {
         // console.log('// startOfDay  ', startOfDay.toDate(), startOfDay.valueOf());
 
       if (Meteor.isClient) {
-        startOfDay.add(timeDifference, "minutes");
-        // console.log("// after add   ", startOfDay.toDate(), startOfDay.valueOf());
-        // note: on the client, dates are stored as strings,
+        startOfDay.add(timeDifference, 'minutes');
+        // console.log('// after add   ', startOfDay.toDate(), startOfDay.valueOf());
+        // note: on the client, dates are stored as strings, 
         // so use strings for MongoDB filtering options too
         postedAt.$gte = startOfDay.toISOString();
       } else {

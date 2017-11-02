@@ -1,5 +1,5 @@
 // import { getSetting } from 'meteor/vulcan:core';
-// import { Posts } from 'meteor/example-forum';
+// import Posts from 'meteor/vulcan:posts';
 
 // Meteor.methods({
 //   testgetEmbedData: function (url) {

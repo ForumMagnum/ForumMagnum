@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import Charges from '../../modules/charges/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Products } from '../../modules/products.js';
+import { webAppConnectHandlersUse } from 'meteor/vulcan:core';
 
 registerSetting('stripe', null, 'Stripe settings');
 
@@ -53,26 +54,7 @@ export const performAction = async (args) => {
   // get the user performing the transaction
   const user = Users.findOne(userId);
 
-  let customer;
-
-  if (user.stripeCustomerId) {
-    // if user has a stripe id already, retrieve customer from Stripe
-    customer = await stripe.customers.retrieve(user.stripeCustomerId);
-  } else {
-    // else create new Stripe customer
-    customer = await stripe.customers.create({
-      email: token.email,
-      source: token.id
-    });
-
-    // add stripe customer id to user object
-    await editMutation({
-      collection: Users,
-      documentId: user._id,
-      set: {stripeCustomerId: customer.id},
-      validate: false
-    });
-  }
+  const customer = await getCustomer(user, token.id);
 
   // create metadata object
   const metadata = {
@@ -97,6 +79,41 @@ export const performAction = async (args) => {
   }
 
   return returnDocument;
+}
+
+/*
+
+Retrieve or create a Stripe customer
+
+*/
+export const getCustomer = async (user, id) => {
+
+  let customer;
+
+  try {
+    
+    // try retrieving customer from Stripe
+    customer = await stripe.customers.retrieve(user.stripeCustomerId);
+
+  } catch (error) {
+    
+    // if user doesn't have a stripeCustomerId; or if id doesn't match up with Stripe
+    // create new customer object
+    const customerOptions = { email: user.email };
+    if (id) { customerOptions.source = id; }
+    customer = await stripe.customers.create(customerOptions);
+
+    // add stripe customer id to user object
+    await editMutation({
+      collection: Users,
+      documentId: user._id,
+      set: {stripeCustomerId: customer.id},
+      validate: false
+    });
+    
+  }
+
+  return customer;
 }
 
 /*
@@ -203,29 +220,23 @@ export const processCharge = async ({collection, document, charge, args}) => {
 
 /*
 
-Create new subscription plan
-
-*/
-export const createPlan = async (options) => {
-  try {
-    await stripe.plans.create(options);
-  } catch (error) {
-    console.log('// Stripe createPlan error')
-    console.log(error)
-  }
-}
-
-/*
-
 Subscribe a user to a Stripe plan
 
 */
 export const subscribeUser = async ({user, customer, product, collection, document, metadata, args }) => {
-
-  console.log('////////////// subscribeUser')
-  console.log(product)
-
   try {
+    // if product has an initial cost, 
+    // create an invoice item and attach it to the customer first
+    // see https://stripe.com/docs/subscriptions/invoices#adding-invoice-items
+    if (product.initialAmount) {
+      const initialInvoiceItem = await stripe.invoiceItems.create({
+        customer: customer.id,
+        amount: product.initialAmount,
+        currency: product.currency,
+        description: product.initialAmountDescription,
+      });
+    }
+
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       items: [
@@ -233,7 +244,7 @@ export const subscribeUser = async ({user, customer, product, collection, docume
       ],
       metadata,
     });
-    console.log(subscription)
+
   } catch (error) {
     console.log('// Stripe subscribeUser error')
     console.log(error)
@@ -243,81 +254,180 @@ export const subscribeUser = async ({user, customer, product, collection, docume
 
 /*
 
-Webhooks with Picker
+Webhooks with Express
 
 */
 
-// const app = express()
+// see https://github.com/stripe/stripe-node/blob/master/examples/webhook-signing/express.js
 
+const app = express()
 
-// app.post('/stripe', function(req, res) {
-//   // Retrieve the request's body and parse it as JSON
-//   console.log('////////////// stripe webhook')
+// Add the raw text body of the request to the `request` object
+function addRawBody(req, res, next) {
+  req.setEncoding('utf8');
 
-//   var event_json = JSON.parse(req.body);
+  var data = '';
 
-//   console.log(event_json)
+  req.on('data', function(chunk) {
+    data += chunk;
+  });
 
-//   res.send(200);
-// });
+  req.on('end', function() {
+    req.rawBody = data;
 
-Picker.middleware(bodyParser.json());
+    next();
+  });
+}
 
-Picker.route('/stripe', async function(params, req, res, next) {
+app.use(addRawBody);
+
+app.post('/stripe', async function(req, res) {
 
   console.log('////////////// stripe webhook')
 
-  const body = req.body;
+  const sig = req.headers['stripe-signature'];
 
+  try {
 
-   // Retrieve the request's body and parse it as JSON
-   switch (body.type) {
+    const event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeSettings.endpointSecret);
 
-    case 'charge.succeeded':
+    console.log('event ///////////////////')
+    console.log(event)
 
-      console.log('////// charge body')
-      console.log(body)
+    switch (event.type) {
 
-      const charge = body.data.object;
+      case 'charge.succeeded':
 
-      try {
+        console.log('////// charge succeeded')
 
-        // look up corresponding invoice
-        const invoice = await stripe.invoices.retrieve(body.data.object.invoice);
-        console.log('////// invoice')
+        const charge = event.data.object;
 
-        // look up corresponding subscription
-        const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
-        console.log('////// subscription')
-        console.log(subscription)
+        console.log(charge)
 
-        const { userId, productKey, associatedCollection, associatedId } = subscription.metadata;
+        try {
 
-        if (associatedCollection && associatedId) {
-          const collection = _.findWhere(Collections, {_name: associatedCollection});
-          const document = collection.findOne(associatedId);
+          // look up corresponding invoice
+          const invoice = await stripe.invoices.retrieve(charge.invoice);
+          console.log('////// invoice')
+          console.log(invoice)
 
-          const args = {
-            userId, 
-            productKey,
-            associatedCollection,
-            associatedId,
-            livemode: subscription.livemode,
-          }
+          // look up corresponding subscription
+          const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+          console.log('////// subscription')
+          console.log(subscription)
 
-          processCharge({ collection, document, charge, args});
+          const { userId, productKey, associatedCollection, associatedId } = subscription.metadata;
 
-        }      
-      } catch (error) {
-        console.log('// Stripe webhook error')
-        console.log(error)
-      }
+          if (associatedCollection && associatedId) {
+            const collection = _.findWhere(Collections, {_name: associatedCollection});
+            const document = collection.findOne(associatedId);
 
-      break;
+            const args = {
+              userId, 
+              productKey,
+              associatedCollection,
+              associatedId,
+              livemode: subscription.livemode,
+            }
 
-   }
+            processCharge({ collection, document, charge, args});
 
-  res.statusCode = 200;
-  res.end();
+          }      
+        } catch (error) {
+          console.log('// Stripe webhook error')
+          console.log(error)
+        }
 
+        break;
+
+     }
+
+  } catch (error) {
+    console.log('///// Stripe webhook error')
+    console.log(error)
+  }
+
+  res.sendStatus(200);
 });
+
+webAppConnectHandlersUse(Meteor.bindEnvironment(app), {name: 'stripe_endpoint', order: 100});
+
+// Picker.middleware(bodyParser.json());
+
+// Picker.route('/stripe', async function(params, req, res, next) {
+
+//   console.log('////////////// stripe webhook')
+
+//   console.log(req)
+//   const sig = req.headers['stripe-signature'];
+//   const body = req.body;
+
+//   console.log('sig ///////////////////')
+//   console.log(sig)
+
+//   console.log('body ///////////////////')
+//   console.log(body)
+
+//   console.log('rawBody ///////////////////')
+//   console.log(req.rawBody)
+
+//   try {
+//     const event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeSettings.endpointSecret);
+//     console.log('event ///////////////////')
+//     console.log(event)
+//   } catch (error) {
+//     console.log('///// Stripe webhook error')
+//     console.log(error)
+//   }
+
+//    // Retrieve the request's body and parse it as JSON
+//    switch (body.type) {
+
+//     case 'charge.succeeded':
+
+//       console.log('////// charge succeeded')
+//       // console.log(body)
+
+//       const charge = body.data.object;
+
+//       try {
+
+//         // look up corresponding invoice
+//         const invoice = await stripe.invoices.retrieve(body.data.object.invoice);
+//         console.log('////// invoice')
+
+//         // look up corresponding subscription
+//         const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+//         console.log('////// subscription')
+//         console.log(subscription)
+
+//         const { userId, productKey, associatedCollection, associatedId } = subscription.metadata;
+
+//         if (associatedCollection && associatedId) {
+//           const collection = _.findWhere(Collections, {_name: associatedCollection});
+//           const document = collection.findOne(associatedId);
+
+//           const args = {
+//             userId, 
+//             productKey,
+//             associatedCollection,
+//             associatedId,
+//             livemode: subscription.livemode,
+//           }
+
+//           processCharge({ collection, document, charge, args});
+
+//         }      
+//       } catch (error) {
+//         console.log('// Stripe webhook error')
+//         console.log(error)
+//       }
+
+//       break;
+
+//    }
+
+//   res.statusCode = 200;
+//   res.end();
+
+// });

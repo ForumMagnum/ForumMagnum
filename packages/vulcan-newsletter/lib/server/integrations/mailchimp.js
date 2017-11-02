@@ -19,7 +19,7 @@ API
 const settings = getSetting('mailchimp');
 
 if (settings) {
-
+  
   const { apiKey, listId, fromName, fromEmail } = settings;
   const mailChimpAPI = new MailChimpNPM.MailChimpAPI(apiKey, { version : '2.0' });
 

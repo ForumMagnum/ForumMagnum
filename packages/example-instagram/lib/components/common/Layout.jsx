@@ -1,9 +1,9 @@
-/*
+/* 
 
-The Layout component.
+The Layout component. 
 
-In other words, the template used to display every page in the app.
-Specific pages will be displayed in place of the "children" property.
+In other words, the template used to display every page in the app. 
+Specific pages will be displayed in place of the "children" property. 
 
 Note: the Helmet library is used to insert meta tags and link tags in the <head>
 
@@ -13,7 +13,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { replaceComponent, Components } from 'meteor/vulcan:core';
 
-// note: modal popups won't work with anything above bootstrap alpha.5.
+// note: modal popups won't work with anything above bootstrap alpha.5. 
 // see https://github.com/twbs/bootstrap/issues/21876#issuecomment-276181539
 
 const Layout = ({children}) =>
@@ -27,13 +27,13 @@ const Layout = ({children}) =>
     </Helmet>
 
     <Components.Header/>
-
+  
     <div className="main">
 
       {children}
 
     </div>
-
+  
     <div className="footer">&copy; Vulcanstagram</div>
 
   </div>

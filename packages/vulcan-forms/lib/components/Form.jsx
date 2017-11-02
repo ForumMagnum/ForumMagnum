@@ -160,7 +160,7 @@ class Form extends Component {
       // add options if they exist
       if (fieldSchema.form && fieldSchema.form.options) {
         field.options = typeof fieldSchema.form.options === "function" ? fieldSchema.form.options.call(fieldSchema, this.props) : fieldSchema.form.options;
-
+      
         // in case of checkbox groups, check "checked" option to populate value
         if (!field.value) {
           field.value = _.where(field.options, {checked: true}).map(option => option.value);
@@ -296,16 +296,14 @@ class Form extends Component {
   }
 
   // manually update the current values of one or more fields(i.e. on blur). See above for on change instead
-  updateCurrentValues(newValues, submit = false) {
+  updateCurrentValues(newValues) {
     // keep the previous ones and extend (with possible replacement) with new ones
     this.setState(prevState => ({
       currentValues: {
         ...prevState.currentValues,
         ...newValues,
       }
-    }),
-    // When submit is set to true, submit form after updating
-    submit ? () => this.submitForm(this.refs.form.getModel()) : null);
+    }));
   }
 
   // key down handler
@@ -366,7 +364,7 @@ class Form extends Component {
             message = {content: error.message || this.context.intl.formatMessage({id: error.id, defaultMessage: error.id}, error.data)}
 
           }
-
+  
           return <Components.FormFlash key={index} message={message} type="error"/>;
         })}
       </div>
@@ -575,7 +573,6 @@ class Form extends Component {
       if (unsetKeys.length > 0) {
         args.unset = _.object(unsetKeys, unsetKeys.map(() => true));
       }
-      console.log("Form.jsx editMutation args", args);
       // call method with _id of document being edited and modifier
       this.props.editMutation(args).then(this.editMutationSuccessCallback).catch(this.mutationErrorCallback);
     }
@@ -620,7 +617,7 @@ class Form extends Component {
         >
           {this.renderErrors()}
           {fieldGroups.map(group => <Components.FormGroup key={group.name} {...group} updateCurrentValues={this.updateCurrentValues} />)}
-
+  
           <Components.FormSubmit submitLabel={this.props.submitLabel}
                                  cancelLabel={this.props.cancelLabel}
                                  cancelCallback={this.props.cancelCallback}

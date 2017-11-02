@@ -1,7 +1,7 @@
 // import Users from 'meteor/vulcan:users';
 // 
-// if (typeof Package['example-forum'] !== "undefined") {
-//   import { Posts } from "meteor/example-forum";
+// if (typeof Package['vulcan:posts'] !== "undefined") {
+//   import Posts from "meteor/vulcan:posts";
 // 
 //   Posts.views.add("userSubscribedPosts", function (terms) {
 //     var user = Users.findOne(terms.userId),

@@ -49,8 +49,8 @@ class Newsletter extends PureComponent {
 
     this.setState({showBanner: false});
 
-    // set cookie to keep the banner dismissed persistently
-    Cookie.save('showBanner', "no");
+    // set cookie to keep the banner dismissed persistently 
+    Cookie.save('showBanner', 'no');
   }
 
   renderButton() {

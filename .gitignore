@@ -22,7 +22,6 @@ dump/*
 settings.json
 settings-dev.json
 settings.json.not-used
-.settings.json
 .idea
 
 scratch
