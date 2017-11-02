@@ -1,4 +1,5 @@
 import { Posts } from "meteor/example-forum";
+import Books from '../books/collection.js';
 import Users from 'meteor/vulcan:users';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
@@ -318,6 +319,28 @@ Posts.addField([
         resolver: (post, args, context) => {
           if (!post.canonicalCollectionSlug) return null;
           return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        }
+      }
+    }
+  },
+
+  {
+    fieldName: 'canonicalBookId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      hidden: false,
+      control: "text",
+      resolveAs: {
+        fieldName: 'canonicalBook',
+        addOriginalField: true,
+        type: "Book",
+        resolver: (post, args, context) => {
+          if (!post.canonicalBookId) return null;
+          return context.Books.findOne({_id: post.canonicalBookId})
         }
       }
     }

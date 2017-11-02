@@ -73,10 +73,10 @@ class PostsPage extends Component {
     const post = this.props.document
     const sequenceId = this.props.params.sequenceId;
     const canonicalCollectionSlug = post.canonicalCollectionSlug;
-    if (canonicalCollectionSlug) {
+    if (canonicalCollectionSlug && post && post.canonicalBook && post.canonicalBook.title) {
 
       return <Components.SequencesNavigation
-                title={ post.collectionTitle }
+                title={ post.canonicalBook.title }
                 nextPostId={ post.canonicalNextPostId }
                 prevPostId={ post.canonicalPrevPostId }
               />

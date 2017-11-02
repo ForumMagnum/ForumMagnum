@@ -21,7 +21,7 @@ const SequencesNavigation = ({
       document = results[0]
     }
 
-    if (document) {
+    if (document && !title) {
       title = document.title
     }
     if (document && post) {
@@ -88,38 +88,3 @@ const options = {
 }
 
 registerComponent('SequencesNavigation', SequencesNavigation, [withList, options], withRouter);
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-// const PostsSingleSlug = (props) => {
-//   if (props.results && props.results[0]._id) {
-//     return <Components.PostsPage documentId={props.results[0]._id } />
-//   } else {
-//     return props.loading ? <Components.Loading/> : <Error404 />
-//   }
-// };
-//
-// PostsSingleSlug.displayName = "PostsSingleSlug";
-//
-// const options = {
-//   collection: Posts,
-//   queryName: 'LWPostsPageSlugQuery',
-//   fragmentName: 'LWPostsPage',
-//   limit: 1,
-//   totalResolver: false,
-// };
-//
-// registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);
