@@ -1,5 +1,7 @@
 import { browserHistory } from 'react-router';
 import { compose } from 'redux';
+import { reducer as idle, middleware as idleMiddleware } from '../modules/redux-idle-monitor'
+import { thunk, readyStatePromise } from 'redux-middleware'
 
 import {
   createApolloClient,
@@ -15,8 +17,13 @@ export const initContext = () => {
   const history = browserHistory;
   const loginToken = global.localStorage['Meteor.loginToken'];
   const apolloClient = createApolloClient();
+  addReducer({ idle })
   addReducer({ apollo: apolloClient.reducer() });
+  addMiddleware(thunk);
+  addMiddleware(idleMiddleware);
+  addMiddleware(readyStatePromise);
   addMiddleware(apolloClient.middleware());
+
 
   // init context
   context = {
@@ -45,7 +52,7 @@ export const initContext = () => {
 }
 
 // render context object
-export const renderContext = { 
+export const renderContext = {
   get: () => {
 
     if (typeof context === 'undefined') {
@@ -54,7 +61,7 @@ export const renderContext = {
 
     return context
 
-  } 
+  }
 };
 
 // render context get function

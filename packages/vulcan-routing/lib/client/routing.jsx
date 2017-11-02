@@ -5,6 +5,8 @@ import { useScroll } from 'react-router-scroll';
 
 import { Meteor } from 'meteor/meteor';
 
+import { actions as idleActions } from 'meteor/vulcan:lib';
+
 import {
   Components,
   addRoute,
@@ -71,6 +73,8 @@ Meteor.startup(() => {
           return !(nextRouterProps.location.action === 'REPLACE' || !prevRouterProps);
         }))
       }));
+      //Initialize redux-idle-monitor
+      store.dispatch(idleActions.start())
       return <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>;
     },
   };
