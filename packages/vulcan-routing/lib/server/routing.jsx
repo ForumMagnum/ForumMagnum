@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { getDataFromTree, ApolloProvider } from 'react-apollo';
 import { actions as idleActions } from 'meteor/vulcan:lib';
 
 import { Meteor } from 'meteor/meteor';
+
+class UserAgentProvider extends Component {
+  getChildContext() {
+    return { userAgent: this.props.userAgent }
+  }
+
+  render() {
+    const { children } = this.props
+    return React.cloneElement(children, {
+      ...this.props,
+    })
+  }
+}
+
+UserAgentProvider.childContextTypes = {
+  userAgent: PropTypes.string,
+}
 
 import {
   Components,
@@ -53,7 +70,7 @@ Meteor.startup(() => {
       //Initialize redux-idle-monitor
       store.dispatch(idleActions.start())
       const app = runCallbacks('router.server.wrapper', appGenerator(), { req, res, store, apolloClient });
-      return <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>;
+      return <UserAgentProvider userAgent={req.headers['user-agent']}><ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider></UserAgentProvider>;
     },
     preRender(req, res, app) {
       runCallbacks('router.server.preRender', { req, res, app });
