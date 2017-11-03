@@ -310,7 +310,7 @@ const queryReducer = (previousResults, action, collection, mergedTerms, listReso
     case 'vote':
       // console.log('** vote **')
       // reorder results in case vote changed the order
-      newResults = reorderResults(newResults, options.sort);
+      // newResults = reorderResults(newResults, options.sort);
       break;
 
     default:
