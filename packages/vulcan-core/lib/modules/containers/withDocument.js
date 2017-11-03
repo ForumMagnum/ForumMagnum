@@ -57,7 +57,7 @@ export default function withDocument (options) {
         return {
           startPolling: data.startPolling,
           stopPolling: data.stopPolling,
-          loading: data.loading,
+          loading: data.networkStatus === 1,
           // document: Utils.convertDates(collection, data[singleResolverName]),
           [ propertyName ]: data[singleResolverName],
           fragmentName,
@@ -67,31 +67,4 @@ export default function withDocument (options) {
     }),
     withIdlePollingStopper(stopPollingIdleStatus)
 )
-}
-
-// Function that outputs a HoC that starts and stops polling based on the passed stopPollingIdleStatus
-const idlePollingStoper = (stopPollingIdleStatus) => (WrappedComponent) => {
-  class IdleStopper extends Component {
-    constructor(props, context) {
-      super(props, context);
-      this.state = {
-        polling: true,
-      }
-    }
-
-    componentWillReceiveProps() {
-      if (stopPollingIdleStatus === this.props.idleStatus && this.state.polling) {
-        this.props.stopPolling();
-        this.setState({polling: false});
-      } else if (this.props.idleStatus === "ACTIVE" && !this.state.polling) {
-        this.props.startPolling(20000);
-        this.setState({polling: true});
-      }
-    }
-
-    render() {
-      return <WrappedComponent {...this.props} />
-    }
-  }
-  return IdleStopper
 }
