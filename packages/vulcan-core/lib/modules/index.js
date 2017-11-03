@@ -12,6 +12,7 @@ export { default as Icon } from "./components/Icon.jsx";
 export { default as Loading } from "./components/Loading.jsx";
 export { default as ShowIf } from "./components/ShowIf.jsx";
 export { default as ModalTrigger } from './components/ModalTrigger.jsx';
+export { default as EditButton } from './components/EditButton.jsx';
 export { default as Error404 } from './components/Error404.jsx';
 export { default as DynamicLoading } from './components/DynamicLoading.jsx';
 export { default as HeadTags } from './components/HeadTags.jsx';
@@ -30,5 +31,5 @@ export { default as withEdit } from './containers/withEdit.js';
 export { default as withRemove } from './containers/withRemove.js';
 export { default as withCurrentUser } from './containers/withCurrentUser.js';
 export { default as withMutation } from './containers/withMutation.js';
-
-export { findResultsState } from './components/App.jsx';
+export { default as withIdle } from './containers/withIdle.jsx';
+export { default as withIdlePollingStoper } from './containers/withIdlePollingStopper.jsx';

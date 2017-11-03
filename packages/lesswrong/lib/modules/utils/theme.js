@@ -42,7 +42,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
     },
     userAgent: userAgent,
   });
-  muiTheme.palette.header = "#F0F4F7"
+  muiTheme.palette.header = "#FCFCFC"
 
   if (routeName == "users.single") {
     muiTheme.palette.header = "#F0F4F7"

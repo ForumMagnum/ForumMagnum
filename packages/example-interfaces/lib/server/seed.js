@@ -4,7 +4,7 @@ Seed the database with some dummy content.
 
 */
 
-import { Categories } from '../modules/categories/collection.js';
+import Categories from '../modules/categories/collection.js';
 import Users from 'meteor/vulcan:users';
 import { newMutation } from 'meteor/vulcan:core';
 

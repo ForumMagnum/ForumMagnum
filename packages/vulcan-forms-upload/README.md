@@ -76,7 +76,7 @@ Let's say you want to enhance your posts with a custom image. In your custom pac
 ```js
 // ... your imports
 import { getComponent, getSetting } from 'meteor/nova:lib';
-import { Posts } from 'meteor/nova:posts';
+import Posts from 'meteor/nova:posts';
 
 // extends Posts schema with a new field: 'image' 🏖
 Posts.addField({

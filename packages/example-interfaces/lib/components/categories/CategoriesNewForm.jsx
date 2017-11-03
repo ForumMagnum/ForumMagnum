@@ -7,7 +7,7 @@ A component to configure the "new category" form.
 import React from 'react';
 import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 
-import { Categories } from '../../modules/categories/collection.js';
+import Categories from '../../modules/categories/collection.js';
 
 const CategoriesNewForm = ({currentUser, closeModal, parentId}) =>
 

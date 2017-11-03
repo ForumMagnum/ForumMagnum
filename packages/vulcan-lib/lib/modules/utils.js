@@ -258,7 +258,7 @@ _.mixin({
     var clone = _.clone(object);
     _.each(clone, function(value, key) {
       /*
-
+        
         Remove a value if:
         1. it's not a boolean
         2. it's not a number
@@ -323,9 +323,9 @@ Utils.findIndex = (array, predicate) => {
 // adapted from http://stackoverflow.com/a/22072374/649299
 Utils.unflatten = function(array, options, parent, level=0, tree){
 
-  const {
-    idProperty = '_id',
-    parentIdProperty = 'parentId',
+  const { 
+    idProperty = '_id', 
+    parentIdProperty = 'parentId', 
     childrenProperty = 'childrenResults'
   } = options;
 

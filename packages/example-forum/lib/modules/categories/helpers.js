@@ -64,3 +64,4 @@ Categories.getUrl = function (category, isAbsolute) {
 Categories.getCounterName = function (category) {
   return category._id + '-postsCount';
 }
+

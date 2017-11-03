@@ -4,7 +4,6 @@ import { Picker } from 'meteor/meteorhacks:picker';
 import { Posts } from '../../modules/posts/index.js';
 
 Picker.route('/out', ({ query}, req, res, next) => {
-  console.log('Route Function Called');
   if(query.url){ // for some reason, query.url doesn't need to be decoded
     /*
     If the URL passed to ?url= is in plain text, any hash fragment

@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { getDataFromTree, ApolloProvider } from 'react-apollo';
+import { idleActions } from 'meteor/vulcan:lib';
 
 import { Meteor } from 'meteor/meteor';
 
@@ -66,6 +67,8 @@ Meteor.startup(() => {
       const { apolloClient, store } = getRenderContext();
       store.reload();
       store.dispatch({ type: '@@nova/INIT' }) // the first dispatch will generate a newDispatch function from middleware
+      //Initialize redux-idle-monitor
+      store.dispatch(idleActions.start())
       const app = runCallbacks('router.server.wrapper', appGenerator(), { req, res, store, apolloClient });
       return <UserAgentProvider userAgent={req.headers['user-agent']}><ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider></UserAgentProvider>;
     },

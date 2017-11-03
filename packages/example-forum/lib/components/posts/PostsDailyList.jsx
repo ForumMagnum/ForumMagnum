@@ -39,9 +39,7 @@ class PostsDailyList extends PureComponent {
     const mBefore = moment(before, 'YYYY-MM-DD');
     const daysCount = mBefore.diff(mAfter, 'days') + 1;
     const range = _.range(daysCount).map(
-      ///XXX: Hotfix to avoid timezone issue, this should not be i-1,
-      // but should properly sync the timezones
-      i => moment(before, 'YYYY-MM-DD').subtract(i-1, 'days').startOf('day')
+      i => moment(before, 'YYYY-MM-DD').subtract(i, 'days').startOf('day')
     );
     return range;
   }
@@ -55,7 +53,7 @@ class PostsDailyList extends PureComponent {
     e.preventDefault();
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-
+    
     this.props.loadMore({
       ...this.props.terms,
       after: loadMoreAfter,
@@ -73,13 +71,13 @@ class PostsDailyList extends PureComponent {
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
     const loadMoreBefore = moment(this.state.after, 'YYYY-MM-DD').subtract(1, 'days').format('YYYY-MM-DD');
-
+    
     this.props.loadMoreInc({
       ...this.props.terms,
       before: loadMoreBefore,
       after: loadMoreAfter,
     });
-
+    
     this.setState({
       days: this.state.days + this.props.increment,
       after: loadMoreAfter,
@@ -92,6 +90,7 @@ class PostsDailyList extends PureComponent {
 
     return (
       <div className="posts-daily">
+        <Components.PostsListHeader />
         {dates.map((date, index) => <Components.PostsDay key={index} number={index} date={date} posts={this.getDatePosts(posts, date)} networkStatus={this.props.networkStatus} currentUser={this.props.currentUser} />)}
         {this.state.loading? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
       </div>
@@ -115,7 +114,6 @@ const options = {
   queryName: 'postsDailyListQuery',
   fragmentName: 'PostsList',
   limit: 0,
-  totalResolver: false,
 };
 
 registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options]);

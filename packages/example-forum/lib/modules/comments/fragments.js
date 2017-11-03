@@ -4,7 +4,7 @@ import { registerFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
   fragment CommentsList on Comment {
-    # example-forum
+    # vulcan:comments
     _id
     postId
     parentCommentId
@@ -17,7 +17,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    # example-forum
+    # vulcan:posts
     post {
       _id
       commentCount

@@ -11,10 +11,10 @@ import { registerComponent, Components, withList, withCurrentUser, Loading } fro
 import Categories from '../../modules/categories/collection.js';
 
 const CategoriesList = ({results = [], terms: { parentId }, currentUser, loading, loadMore, count, totalCount}) =>
-
+  
   <div className="category-list" >
 
-    {loading ?
+    {loading ? 
 
       <Loading /> :
 

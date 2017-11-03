@@ -14,7 +14,7 @@ Package.onUse(function (api) {
     'vulcan:core@1.8.0',
     // dependencies on posts, categories are done with nested imports to reduce explicit dependencies
   ]);
-
+  
   api.use([
     'vulcan:posts@1.8.0',
     'vulcan:comments@1.8.0',

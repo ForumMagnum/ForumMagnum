@@ -7,7 +7,7 @@ const Logo = ({logoUrl, siteTitle}) => {
     return (
       <h1 className="logo-image ">
         <IndexLink to={{pathname: "/"}}>
-          <img src={logoUrl} />
+          <img src={logoUrl} alt={siteTitle} />
         </IndexLink>
       </h1>
     )

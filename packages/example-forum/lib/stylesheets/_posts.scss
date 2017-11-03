@@ -101,21 +101,11 @@
 }
 
 .posts-item-vote{
-  @include border;
-  @include border-radius;
-  @include flex-center;
-  flex-direction: column;
-  justify-content: center;
-  padding: 3px 5px;
   @include small{
-    float: right;
+    float: right;    
   }
   @include medium-large{
     margin-right: $hmargin;
-  }
-  @include activeHover;
-  &, &:active, &:hover{
-    text-decoration: none;
   }
 }
 
@@ -130,18 +120,7 @@
     text-align: center;
     display: block;
   }
-  .voted &{
-    color: $light-text;
-  }
-}
-
-.vote-count{
-  text-align: center;
-  display: block;
-}
-
-.downvote-button{
-  .icon{
+  .vote-count{
     text-align: center;
     display: block;
   }
@@ -211,8 +190,6 @@
   @include medium-large{
     @include flex-center;
   }
-  font-family: "Futura-pt";
-  font-weight: 400;
   font-size: $small-font;
   .avatar{
     margin-right: 5px;
@@ -315,7 +292,7 @@
     &:hover{
       background: inherit;
       color: inherit;
-      border: inherit;
+      border: inherit;      
     }
   }
   .posts-no-results{

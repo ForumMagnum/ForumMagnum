@@ -20,7 +20,7 @@ class EmbedURL extends Component {
       thumbnailUrl: props.document.thumbnailUrl || ''
     };
   }
-
+  
   // clean the media property of the document if it exists: this field is handled server-side in an async callback
   async componentDidMount() {
     try {
@@ -53,7 +53,7 @@ class EmbedURL extends Component {
     try {
       // value from formsy input ref
       const url = this.input.getValue();
-
+      
       // start the mutation only if the input has a value
       if (url.length) {
 
@@ -62,14 +62,14 @@ class EmbedURL extends Component {
 
         // the URL has changed, get new title, body, thumbnail & media for this url
         const result = await this.props.getEmbedData({url});
-
+        
         // uncomment for debug
         // console.log('Embedly Data', result);
-
+        
         // extract the relevant data, for easier consumption
         const { data: { getEmbedData: { title, description, thumbnailUrl } } } = result;
         const body = description;
-
+        
         // update the form
         if (title && !this.context.getDocument().title) {
           this.context.updateCurrentValues({title});
@@ -83,18 +83,18 @@ class EmbedURL extends Component {
 
         // embedly component is done
         this.setState({loading: false});
-
-        // remove errors & keep the current values
-        this.context.clearForm({clearErrors: true});
+        
+        // remove errors & keep the current values 
+        this.context.clearForm({clearErrors: true}); 
       }
     } catch(error) {
-
+      
       console.error(error); // eslint-disable-line
-      const errorMessage = error.message.includes('401') ? Utils.encodeIntlError({id: "app.embedly_not_authorized"}) : error.message;
-
+      const errorMessage = error.message.includes('401') ? Utils.encodeIntlError({id: "app.embedly_not_authorized"}) : error.message; 
+      
       // embedly component is done
       this.setState({loading: false});
-
+      
       // something bad happened
       this.context.throwError(errorMessage);
     }

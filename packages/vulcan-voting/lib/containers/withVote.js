@@ -30,9 +30,9 @@ export const withVote = component => {
 
         const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
-        return mutate({
+        return mutate({ 
           variables: {
-            documentId: document._id,
+            documentId: document._id, 
             voteType,
             collectionName: collection.options.collectionName,
             voteId,

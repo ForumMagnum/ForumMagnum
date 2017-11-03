@@ -68,3 +68,4 @@ function usersCheckCompletion (newUser, oldUser) {
   }
 }
 addCallback("users.edit.async", usersCheckCompletion);
+
