@@ -5,7 +5,7 @@ import { useScroll } from 'react-router-scroll';
 
 import { Meteor } from 'meteor/meteor';
 
-import { actions as idleActions } from 'meteor/vulcan:lib';
+import { idleActions } from 'meteor/vulcan:lib';
 
 import {
   Components,

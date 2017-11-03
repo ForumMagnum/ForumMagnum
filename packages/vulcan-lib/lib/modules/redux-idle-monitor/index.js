@@ -17,4 +17,4 @@ const opts =  { appName: getSetting('title')
               }
 
 const { middleware, reducer, actions } = configure(opts)
-export { middleware, reducer, actions }
+export { middleware, reducer, actions, IDLE_STATUSES }

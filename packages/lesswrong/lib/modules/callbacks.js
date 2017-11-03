@@ -481,3 +481,19 @@ function fixUsernameOnGithubLogin(user) {
   return user;
 }
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
+
+// cut Meteor connection after client is expired (2min 20sec)
+function disconnectUserOnExpired() {
+  console.log("Disconnecting meteor connection");
+  Meteor.disconnect();
+}
+
+addCallback("idleStatus.expired.async", disconnectUserOnExpired);
+
+// Reconnect client after he becomes active again
+function reconnectUserOnActive() {
+  console.log("Reconnecting user to Meteor");
+  Meteor.reconnect();
+}
+
+addCallback("idleStatus.active.async", reconnectUserOnActive);

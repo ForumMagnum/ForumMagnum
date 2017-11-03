@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { getDataFromTree, ApolloProvider } from 'react-apollo';
-import { actions as idleActions } from 'meteor/vulcan:lib';
+import { idleActions } from 'meteor/vulcan:lib';
 
 import { Meteor } from 'meteor/meteor';
 

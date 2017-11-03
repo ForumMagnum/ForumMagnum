@@ -18,7 +18,7 @@ export const idleStatusDelay = idleStatus => (dispatch, getState) => {
 }
 
 registerCallback({
-  name: 'idleStatus.active',
+  name: 'idleStatus.active.async',
   arguments: [{dispatch: 'The current redux dispatch'}, {getState: 'function to get the current redux state'}],
   runs: 'sync',
   returns: 'void',
@@ -26,42 +26,42 @@ registerCallback({
 });
 
 export const activeStatusAction = (dispatch, getState) => {
-    runCallbacks('idleStatus.active', getState);
+    runCallbacks('idleStatus.active.async', getState);
     debug('User idleStatus is ACTIVE');
 }
 
 registerCallback({
-  name: 'idleStatus.away',
+  name: 'idleStatus.away.async',
   arguments: [{getState: 'function to get the current redux state'}],
-  runs: 'sync',
+  runs: 'async',
   returns: 'void',
   description: `Run on the client. Allows you to call functions when the user enters idle status 'AWAY'`
 });
 
 registerCallback({
-  name: 'idleStatus.inactive',
+  name: 'idleStatus.inactive.async',
   arguments: [{getState: 'function to get the current redux state'}],
-  runs: 'sync',
+  runs: 'async',
   returns: 'void',
   description: `Run on the client. Allows you to call functions when the user enters idle status 'INACTIVE'`
 });
 
 registerCallback({
-  name: 'idleStatus.expired',
+  name: 'idleStatus.expired.async',
   arguments: [{getState: 'function to get the current redux state'}],
-  runs: 'sync',
+  runs: 'async',
   returns: 'void',
   description: `Run on the client. Allows you to call functions when the user enters idle status 'EXPIRED'`
 });
 
 export const idleStatusAction = idleStatus => (dispatch, getState) => {
   if(idleStatus === IDLESTATUS_AWAY)
-    runCallbacks('idleStatus.away', getState)
+    runCallbacks('idleStatus.away.async', getState)
     debug('User idleStatus is ' + idleStatus);
   if(idleStatus === IDLESTATUS_INACTIVE)
-    runCallbacks('idleStatus.inactive', getState)
+    runCallbacks('idleStatus.inactive.async', getState)
     debug('User idleStatus is ' + idleStatus);
   if(idleStatus === IDLESTATUS_EXPIRED)
-    runCallbacks('idleStatus.expired', getState)
+    runCallbacks('idleStatus.expired.async', getState)
     debug('User idleStatus is ' + idleStatus);
 }
