@@ -3,9 +3,9 @@ import { registerSetting, getSetting } from '../settings.js';
 import { runCallbacks, registerCallback } from '../callbacks.js';
 import { debug } from '../debug.js';
 
-registerSetting('idleStatus.timeout.away', 20000, 'Time after which user is marked as "AWAY" by `withIdle`')
-registerSetting('idleStatus.timeout.inactive', 60000, 'Time after which user is marked as "INACTIVE" by `withIdle`')
-registerSetting('idleStatus.timeout.expired', 5 * 60000, 'Time after which user is marked as "EXPIRED" by `withIdle`')
+registerSetting('idleStatus.timeout.away', 10000, 'Time after which user is marked as "AWAY" by `withIdle`')
+registerSetting('idleStatus.timeout.inactive', 20000, 'Time after which user is marked as "INACTIVE" by `withIdle`')
+registerSetting('idleStatus.timeout.expired', 20000, 'Time after which user is marked as "EXPIRED" by `withIdle`')
 
 
 export const idleStatusDelay = idleStatus => (dispatch, getState) => {

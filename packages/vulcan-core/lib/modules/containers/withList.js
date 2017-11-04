@@ -118,7 +118,7 @@ const withList = (options) => {
               terms: mergedTerms,
             },
             // note: pollInterval can be set to 0 to disable polling (20s by default)
-            pollInterval,
+            // pollInterval: 0,
             reducer: (previousResults, action) => {
 
               // see queryReducer function defined below
