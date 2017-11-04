@@ -77,8 +77,10 @@ class PostsPage extends Component {
 
       return <Components.SequencesNavigation
                 title={ post.canonicalBook.title }
-                nextPostId={ post.canonicalNextPostId }
-                prevPostId={ post.canonicalPrevPostId }
+                nextPostSlug={ post.canonicalNextPostSlug }
+                prevPostSlug={ post.canonicalPrevPostSlug }
+                nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+                prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
               />
     }
     if (sequenceId) {

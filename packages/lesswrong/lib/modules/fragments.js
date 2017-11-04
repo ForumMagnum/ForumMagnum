@@ -142,8 +142,8 @@ registerFragment(`
     body
     htmlBody
     content
-    canonicalPrevPostId
-    canonicalNextPostId
+    canonicalPrevPostSlug
+    canonicalNextPostSlug
     canonicalCollectionSlug
     canonicalSequenceSlug
     canonicalBookId

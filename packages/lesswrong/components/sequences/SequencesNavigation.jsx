@@ -63,7 +63,7 @@ const SequencesNavigation = ({
     return (
       <div className="sequences-navigation-top">
         <Components.SequencesNavigationLink
-                          documentId={prevPostId}
+                          slug={prevPostSlug}
                           documentUrl={prevPostUrl}
                           direction="left" />
 
@@ -72,13 +72,12 @@ const SequencesNavigation = ({
                         </div>
 
         <Components.SequencesNavigationLink
-                          documentId={nextPostId}
+                          slug={nextPostSlug}
                           documentUrl={nextPostUrl}
                           direction="right" />
       </div>
     )
   }
-
 
 const options = {
   collection: Sequences,
