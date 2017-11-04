@@ -103,6 +103,12 @@ async function UpdateCollectionLinks (book) {
   console.log(`Updating Collection Links for ${collectionId}...`)
   _.range(results.posts.length).forEach((i) => {
     const currentPost = results.posts[i]
+    if (i==0) {
+      Collections.update(collectionId, { $set: {
+        firstPageLink: "/" + results.collectionSlug + "/" + currentPost.slug
+      }})
+    }
+
     let prevPost = {slug:""}
     let nextPost = {slug:""}
     if (i-1>=0) {
