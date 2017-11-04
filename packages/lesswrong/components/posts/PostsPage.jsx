@@ -69,24 +69,48 @@ class PostsPage extends Component {
     }
   }
 
+  getNavTitle = () => {
+    const post = this.props.document
+    if (post && post.canonicalSequence && post.canonicalSequence.title) {
+      return post.canonicalSequence.title
+    } else if (post && post.canonicalBook && post.canonicalBook.title) {
+      return post.canonicalBook.title
+    } else if (post && post.canonicalCollection && post.canonicalCollection.title) {
+      return post.canonicalCollection.title
+    }
+  }
+
   renderSequenceNavigation = () => {
     const post = this.props.document
     const sequenceId = this.props.params.sequenceId;
     const canonicalCollectionSlug = post.canonicalCollectionSlug;
-    if (canonicalCollectionSlug && post && post.canonicalBook && post.canonicalBook.title) {
+    const canonicalSequenceId = post.canonicalSequenceId;
+    const title = this.getNavTitle()
 
-      return <Components.SequencesNavigation
-                title={ post.canonicalBook.title }
-                nextPostSlug={ post.canonicalNextPostSlug }
-                prevPostSlug={ post.canonicalPrevPostSlug }
-                nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
-                prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-              />
-    }
     if (sequenceId) {
       return <Components.SequencesNavigation
                 documentId={sequenceId}
                 post={post} />
+    } if (canonicalCollectionSlug && title) {
+      return (
+        <Components.CollectionsNavigation
+                  title={ title }
+                  nextPostSlug={ post.canonicalNextPostSlug }
+                  prevPostSlug={ post.canonicalPrevPostSlug }
+                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+                />
+      )
+    } else if (canonicalSequenceId && post && post.canonicalSequence && post.canonicalSequence.title) {
+      return (
+        <Components.CollectionsNavigation
+                  title={ post.canonicalSequence.title }
+                  nextPostSlug={ post.canonicalNextPostSlug }
+                  prevPostSlug={ post.canonicalPrevPostSlug }
+                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+                />
+      )
     }
   }
 

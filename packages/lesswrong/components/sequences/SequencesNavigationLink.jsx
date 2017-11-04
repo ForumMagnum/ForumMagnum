@@ -7,6 +7,7 @@ import { withRouter } from 'react-router';
 const SequencesNavigationLink = ({
     slug,
     document,
+    documentId,
     documentUrl,
     loading,
     direction,
@@ -14,12 +15,12 @@ const SequencesNavigationLink = ({
   ) => {
     const post = slug && document
     const className = "sequences-navigation-top-" + direction
-    const iconStyle = !slug ? {color: "rgba(0,0,0,.2)"} : {}
+    const iconStyle = !slug && !documentId ? {color: "rgba(0,0,0,.2)"} : {}
     return (
       <IconButton
           iconStyle={ iconStyle }
           className={ className }
-          disabled={ !slug }
+          disabled={ !slug && !documentId }
           iconClassName="material-icons"
           tooltip={post && post.title}
           onTouchTap={() => router.push(documentUrl)}>

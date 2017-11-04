@@ -10,15 +10,7 @@ const CollectionsNavigation = ({
     prevPostUrl,
     title
   }) => {
-    let document = null
 
-    if (results && results[0]._id) {
-      document = results[0]
-    }
-
-    if (document && !title) {
-      title = document.title
-    }
     return (
       <div className="sequences-navigation-top">
         <Components.SequencesNavigationLink

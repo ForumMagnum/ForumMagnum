@@ -1,30 +1,25 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import IconButton from 'material-ui/IconButton'
-import { withRouter } from 'react-router';
 import React from 'react';
 
 const SequencesNavigation = ({
-    results,
+    document,
+    documentId,
     loading,
     post,
-    router,
-    nextPostId,
-    prevPostId,
     title
   }) => {
-    let document = null
     let prevPostUrl = ""
     let nextPostUrl = ""
 
-    if (results && results[0]._id) {
-      document = results[0]
-    }
+    let prevPostId = ""
+    let nextPostId = ""
 
     if (document && !title) {
       title = document.title
     }
-    if (document && post) {
+    if (document && post && !loading) {
       if (document.chapters) {
         let currentChapter = false;
         let currentPostIndex = false;
@@ -63,8 +58,8 @@ const SequencesNavigation = ({
     return (
       <div className="sequences-navigation-top">
         <Components.SequencesNavigationLink
-                          slug={prevPostSlug}
-                          documentUrl={prevPostUrl}
+                          documentId={ prevPostId }
+                          documentUrl={ prevPostUrl }
                           direction="left" />
 
                         <div className="sequences-navigation-title">
@@ -72,8 +67,8 @@ const SequencesNavigation = ({
                         </div>
 
         <Components.SequencesNavigationLink
-                          slug={nextPostSlug}
-                          documentUrl={nextPostUrl}
+                          documentId={ nextPostId }
+                          documentUrl={ nextPostUrl }
                           direction="right" />
       </div>
     )
@@ -86,4 +81,4 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('SequencesNavigation', SequencesNavigation, [withList, options], withRouter);
+registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options]);

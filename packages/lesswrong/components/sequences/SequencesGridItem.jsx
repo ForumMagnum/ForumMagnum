@@ -9,11 +9,12 @@ import { Link } from 'react-router';
 const SequencesGridItem = ({sequence, currentUser}) => {
   // const allPostsList = sequence.chapters && _.reduce(sequence.chapters, (memo, c) => [...memo, ...c.posts], []);
   const totalPostsNumber = _.reduce(sequence.chapters, (memo, c) => [...memo, ...c.postIds], []).length;
+  // <div className="sequences-grid-item-progress" style={{color: sequence.color}}>{totalPostsNumber} articles</div>
+
   // const readPostsNumber = allPostsList && _.filter(allPostsList, (p) => p && p.lastVisitedAt).length;
   return <div className="sequences-grid-item" >
     <div className="sequences-grid-item-top" style={{borderTopColor: sequence.color}}>
       <div className="sequences-grid-item-title">{sequence.title}</div>
-      <div className="sequences-grid-item-progress" style={{color: sequence.color}}>{totalPostsNumber} articles</div>
       <object>
         <Link to={Users.getProfileUrl(sequence.user)}>
           <div className="sequences-grid-item-author">

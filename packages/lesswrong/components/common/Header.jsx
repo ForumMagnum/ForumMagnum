@@ -12,6 +12,7 @@ import MenuItem from 'material-ui/MenuItem';
 
 import { withApollo } from 'react-apollo';
 import { Posts } from 'meteor/example-forum';
+import Sequences from '../../lib/collections/sequences/collection'
 import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
@@ -85,12 +86,27 @@ class Header extends Component {
            </Link>
   }
 
+  sequenceSubtitle = (sequenceId) => {
+    if (this.props.client.store && sequenceId) {
+      const sequence = Sequences.findOneInStore(this.props.client.store, sequenceId)
+      if (sequence && sequence.canonicalCollectionSlug == "rationality") {
+        return this.rationalitySubtitle()
+      } else if (sequence && sequence.canonicalCollectionSlug == "hpmor") {
+        return this.hpmorSubtitle()
+      } else if (sequence && sequence.canonicalCollectionSlug == "codex") {
+        return this.codexSubtitle()
+      }
+    }
+  }
+
   getSubtitle = () => {
     const routeName = this.props.routes[1].name
     if (routeName == "users.single") {
       return this.profileSubtitle(this.props.params.slug)
     } else if (routeName == "posts.single") {
       return this.userPostSubtitle(this.props.params._id)
+    } else if (routeName == "sequences.single") {
+      return this.sequenceSubtitle(this.props.params._id)
     } else if (routeName == "Rationality.posts.single" || routeName == "Rationality") {
       return this.rationalitySubtitle()
     } else if (routeName == "HPMOR.posts.single" || routeName == "HPMOR") {
