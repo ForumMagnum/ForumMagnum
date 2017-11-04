@@ -347,7 +347,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalNextPostId',
+    fieldName: 'canonicalNextPostSlug',
     fieldSchema: {
       type: String,
       optional: true,
@@ -360,7 +360,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalPrevPostId',
+    fieldName: 'canonicalPrevPostSlug',
     fieldSchema: {
       type: String,
       optional: true,
