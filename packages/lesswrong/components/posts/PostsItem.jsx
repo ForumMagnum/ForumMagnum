@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { Posts } from "meteor/example-forum";
 import moment from 'moment';
+import classNames from 'classnames';
 
 import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
 import IconButton from 'material-ui/IconButton';
@@ -81,6 +82,11 @@ class PostsItem extends PureComponent {
       zIndex: 2,
     }
 
+    let tooltipText1 = "last visit: ";
+    let tooltipText2 = "last comment: ";
+    tooltipText1 = tooltipText1 + (read ? moment(post.lastVisitedAt).fromNow() : "never");
+    tooltipText2 = tooltipText2 + (post.lastCommentedAt ? moment(post.lastCommentedAt).fromNow() : "never");
+
     return (
       <Paper
         className={postClass}
@@ -93,31 +99,33 @@ class PostsItem extends PureComponent {
               <h3 className="posts-item-title">
                 {post.title}
               </h3>
-            {this.renderPostFeeds()}
+              {this.renderPostFeeds()}
 
-            <object><div className="posts-item-meta">
-              {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
-              {post.user ? <div className="posts-item-user"><Components.UsersName user={post.user}/></div> : null}
-              <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
-              {inlineCommentCount ? <div className="posts-item-comments"> {post.commentCount} comments </div> : null}
-              {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
-              {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
-            </div></object>
-            <div className="posts-item-summary">
-              {post.url ? ("This is a linkpost for " + post.url) : post.excerpt}
+              <object><div className="posts-item-meta">
+                {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
+                {post.user ? <div className="posts-item-user"><Components.UsersName user={post.user}/></div> : null}
+                <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
+                {inlineCommentCount ? <div className="posts-item-comments"> {post.commentCount} comments </div> : null}
+                {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
+                {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
+              </div></object>
+              <div className="posts-item-summary">
+                {post.url ? ("This is a linkpost for " + post.url) : post.excerpt}
+              </div>
             </div>
-          </div>
-          <div className="posts-item-comments">
-            <object><Link to={Posts.getPageUrl(post) + "#comments"}>
-              <Badge
-                className="posts-item-comment-count"
-                badgeContent={post.commentCount || 0}
-                secondary={true}
-                badgeStyle={commentCountBadgeStyle}
-              >
-                <IconButton
-                  iconStyle={commentCountIconStyle}
-                  tooltip={newComments ? ("last comment " + moment(post.lastCommentedAt).calendar()) : "Comments"}
+            <div className="posts-item-comments">
+              <object><Link to={Posts.getPageUrl(post) + "#comments"}>
+                <Badge
+                  className="posts-item-comment-count"
+                  badgeContent={post.commentCount || 0}
+                  secondary={true}
+                  badgeStyle={commentCountBadgeStyle}
+                >
+                  <IconButton
+                    iconStyle={commentCountIconStyle}
+                    tooltip={<div className={classNames("posts-item-tooltip-text", {"read": read, "newComments": newComments})}>
+                      <span className="visit-indicator">{tooltipText1}</span><br/><span className="comment-indicator">{tooltipText2}</span>
+                    </div>}
                   >
                   <CommentIcon />
                 </IconButton>
