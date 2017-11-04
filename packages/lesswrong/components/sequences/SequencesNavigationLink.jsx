@@ -5,46 +5,27 @@ import React from 'react';
 import { withRouter } from 'react-router';
 
 const SequencesNavigationLink = ({
-    documentId,
+    slug,
     document,
     documentUrl,
     loading,
     direction,
     router}
   ) => {
-    const post = documentId && document
+    const post = slug && document
     const className = "sequences-navigation-top-" + direction
-
-    if (post && !loading) {
-      if (!documentUrl) {
-        if (post.canonicalCollectionSlug) {
-          documentUrl = "/" + post.canonicalCollectionSlug + "/" + post.slug
-        } else {
-          documentUrl = "/posts/" + post._id
-        }
-      }
-
-      return (
-        <IconButton
-            className={ className }
-            iconClassName="material-icons"
-            disabled={!post}
-            tooltip={post && post.title}
-            onTouchTap={() => router.push(documentUrl)}>
-            { direction === "left" ? "navigate_before" : "navigate_next" }
-         </IconButton>
-      )
-    } else {
-      return (
-        <IconButton
-            iconStyle={{color:"rgba(0,0,0,.2)"}}
-            className={ className }
-            iconClassName="material-icons"
-            disabled={true}>
-            { direction === "left" ? "navigate_before" : "navigate_next" }
-         </IconButton>
-      )
-    }
+    const iconStyle = !slug ? {color: "rgba(0,0,0,.2)"} : {}
+    return (
+      <IconButton
+          iconStyle={ iconStyle }
+          className={ className }
+          disabled={ !slug }
+          iconClassName="material-icons"
+          tooltip={post && post.title}
+          onTouchTap={() => router.push(documentUrl)}>
+          { direction === "left" ? "navigate_before" : "navigate_next" }
+       </IconButton>
+     )
 };
 
 const options = {

@@ -4,6 +4,7 @@ registerFragment(`
   fragment CollectionsPageFragment on Collection {
     _id
     createdAt
+    slug
     user {
       ...UsersMinimumInfo
     }

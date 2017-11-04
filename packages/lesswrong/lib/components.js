@@ -92,6 +92,7 @@ import '../components/sequences/SequencesGrid.jsx';
 import '../components/sequences/SequencesGridWrapper.jsx';
 import '../components/sequences/SequencesListItem.jsx';
 import '../components/sequences/SequencesNavigation.jsx';
+import '../components/sequences/CollectionsNavigation.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
 import '../components/sequences/RecommendedReading.jsx';
 import '../components/sequences/RecommendedReadingWrapper.jsx';
