@@ -142,12 +142,18 @@ registerFragment(`
     body
     htmlBody
     content
-    canonicalPrevPostId
-    canonicalNextPostId
+    canonicalPrevPostSlug
+    canonicalNextPostSlug
     canonicalCollectionSlug
-    canonicalSequenceSlug
+    canonicalSequenceId
     canonicalBookId
+    canonicalSequence {
+      title
+    }
     canonicalBook {
+      title
+    }
+    canonicalCollection {
       title
     }
     collectionTitle
