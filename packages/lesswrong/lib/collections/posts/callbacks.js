@@ -104,7 +104,7 @@ function PostsEditHTMLSerializeCallback (modifier, post) {
     console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.body)
   } else if (modifier.$set && modifier.$set.htmlBody) {
     modifier.$set.body = htmlToText.fromString(modifier.$set.htmlBody);
-    modifier.$set.exerpt = modifier.$set.body.slice(0,140);
+    modifier.$set.excerpt = modifier.$set.body.slice(0,140);
   }
   return modifier
 }
