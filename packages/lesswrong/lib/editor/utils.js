@@ -1,6 +1,29 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 
+let mjAPI = {};
+
+if (Meteor.isServer) {
+  mjAPI = require('mathjax-node')
+  const MATHJAX_OPTIONS = {
+    jax: ['input/TeX', 'output/CommonHTML'],
+    TeX: {
+      extensions: ['autoload-all.js'],
+    },
+    messageStyles: 'none',
+    showProcessingMessages: false,
+    showMathMenu: false,
+    showMathMenuMSIE: false,
+    preview: 'none',
+    delayStartupTypeset: true,
+  }
+
+  mjAPI.config({
+    MathJax: MATHJAX_OPTIONS
+  });
+  mjAPI.start();
+}
+
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
     if (nodeName === 'a') {
@@ -49,6 +72,15 @@ export const draftToHTML = convertToHTML({
     if (entity.type === 'IMG') {
       const className = 'draft-inline-image';
       return `<img src="${entity.data.src}" class="${className}" alt="${entity.data.alt}"/>`
+    }
+    if (entity.type === 'INLINETEX') {
+      const mathJax = await mjAPI.typeset({
+        math: entity.data.teX,
+        format: "TeX",
+        html: true,
+      })
+      console.log("Doing mathjax magic", mathJax);
+      return mathJax.html;
     }
     return originalText;
   },

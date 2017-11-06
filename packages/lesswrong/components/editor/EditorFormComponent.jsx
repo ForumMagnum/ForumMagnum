@@ -18,6 +18,7 @@ import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createLinkifyPlugin from 'draft-js-linkify-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
+import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 
 
 import {
@@ -27,6 +28,25 @@ import {
   UnderlineButton,
   BlockquoteButton,
 } from 'draft-js-buttons';
+
+const HeadlineOneButton = createBlockStyleButton({
+  blockType: 'header-one',
+  children: (
+    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 4v3h5.5v12h3V7H19V4z"/>
+      <path d="M0 0h24v24H0V0z" fill="none"/>
+    </svg>),
+});
+
+const HeadlineTwoButton = createBlockStyleButton({
+  blockType: 'header-two',
+  children: (
+    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 4v3h5.5v12h3V7H19V4z"/>
+      <path d="M0 0h24v24H0V0z" fill="none"/>
+    </svg>),
+});
+
 
 
 import { htmlToDraft } from '../../lib/editor/utils.js'
@@ -87,25 +107,8 @@ class EditorFormComponent extends Component {
       focusPlugin.decorator,
     );
 
-    const HeadlineOneButton = createBlockStyleButton({
-      blockType: 'header-one',
-      children: (
-        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 4v3h5.5v12h3V7H19V4z"/>
-          <path d="M0 0h24v24H0V0z" fill="none"/>
-        </svg>),
-    });
-
-    const HeadlineTwoButton = createBlockStyleButton({
-      blockType: 'header-two',
-      children: (
-        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 4v3h5.5v12h3V7H19V4z"/>
-          <path d="M0 0h24v24H0V0z" fill="none"/>
-        </svg>),
-    });
-
     const dividerPlugin = createDividerPlugin({decorator});
+
 
     const inlineToolbarPlugin = createInlineToolbarPlugin({
       structure: [
@@ -128,6 +131,10 @@ class EditorFormComponent extends Component {
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const imagePlugin = createImagePlugin({ decorator });
     this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, linkifyPlugin, blockBreakoutPlugin, dividerPlugin];
+    if (Meteor.isClient) {
+      const mathjaxPlugin = createMathjaxPlugin()
+      this.plugins.push(mathjaxPlugin);
+    }
   }
 
   // Tries to retrieve a saved state from localStorage, depending on the available information
@@ -200,8 +207,9 @@ class EditorFormComponent extends Component {
       this.changeCount = this.changeCount + 1;
       if (this.changeCount % 30 === 0) {
         console.log("saving...");
-        const contentState = editorState.getCurrentContent();
-        this.setSavedState(convertToRaw(contentState));
+        const rawContent = convertToRaw(editorState.getCurrentContent());
+        console.log(rawContent);
+        this.setSavedState(rawContent);
       }
     }
     this.setState({editorState: editorState})
