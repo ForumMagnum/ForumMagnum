@@ -1,6 +1,7 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import IconButton from 'material-ui/IconButton'
+import { Link } from 'react-router';
 import React from 'react';
 
 const CollectionsNavigation = ({
@@ -8,7 +9,8 @@ const CollectionsNavigation = ({
     prevPostSlug,
     nextPostUrl,
     prevPostUrl,
-    title
+    title,
+    titleUrl
   }) => {
 
     return (
@@ -19,7 +21,7 @@ const CollectionsNavigation = ({
                           direction="left" />
 
                         <div className="sequences-navigation-title">
-                          {title ? title : <Components.Loading/>}
+                          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
                         </div>
 
         <Components.SequencesNavigationLink

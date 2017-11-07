@@ -774,7 +774,7 @@
   }
 }
 .posts-page-content-header-title {
-  margin-bottom: 25px;
+  margin: 25px 0;
 }
 textarea.posts-edit-header-title {
   width:100%;
@@ -899,6 +899,10 @@ svg.drag-handle {
     height: 42.5px;
     color: rgba(0,0,0,0.5);
     margin-top: -10p;
+
+    a {
+      text-decoration: none;
+    }
 }
 
 .sequences-navigation-top {
