@@ -1,14 +1,14 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import IconButton from 'material-ui/IconButton'
+import { Link } from 'react-router';
 import React from 'react';
 
 const SequencesNavigation = ({
     document,
     documentId,
     loading,
-    post,
-    title
+    post
   }) => {
     let prevPostUrl = ""
     let nextPostUrl = ""
@@ -16,9 +16,9 @@ const SequencesNavigation = ({
     let prevPostId = ""
     let nextPostId = ""
 
-    if (document && !title) {
-      title = document.title
-    }
+    let title = document ? document.title : ""
+    let titleUrl = documentId ? "/sequences/" + documentId : ""
+
     if (document && post && !loading) {
       if (document.chapters) {
         let currentChapter = false;
@@ -63,7 +63,7 @@ const SequencesNavigation = ({
                           direction="left" />
 
                         <div className="sequences-navigation-title">
-                          {title ? title : <Components.Loading/>}
+                          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
                         </div>
 
         <Components.SequencesNavigationLink

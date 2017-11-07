@@ -80,31 +80,34 @@ class PostsPage extends Component {
     }
   }
 
+  getNavTitleUrl = () => {
+    const post = this.props.document
+    if (post && post.canonicalSequence && post.canonicalSequence.title) {
+      return "/sequences/" + post.canonicalSequenceId
+    } else if (post && post.canonicalCollectionSlug) {
+      return "/" + post.canonicalCollectionSlug
+    }
+  }
+
   renderSequenceNavigation = () => {
     const post = this.props.document
-    const sequenceId = this.props.params.sequenceId;
+    const sequenceId = this.props.params.sequenceId || post && post.canonicalSequenceId;
     const canonicalCollectionSlug = post.canonicalCollectionSlug;
     const canonicalSequenceId = post.canonicalSequenceId;
     const title = this.getNavTitle()
+    const titleUrl = this.getNavTitleUrl()
 
     if (sequenceId) {
-      return <Components.SequencesNavigation
-                documentId={sequenceId}
-                post={post} />
-    } if (canonicalCollectionSlug && title) {
+      return (
+        <Components.SequencesNavigation
+                  documentId={sequenceId}
+                  post={post} />
+      )
+    } else if (canonicalCollectionSlug && title && titleUrl) {
       return (
         <Components.CollectionsNavigation
                   title={ title }
-                  nextPostSlug={ post.canonicalNextPostSlug }
-                  prevPostSlug={ post.canonicalPrevPostSlug }
-                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
-                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-                />
-      )
-    } else if (canonicalSequenceId && post && post.canonicalSequence && post.canonicalSequence.title) {
-      return (
-        <Components.CollectionsNavigation
-                  title={ post.canonicalSequence.title }
+                  titleUrl={ titleUrl }
                   nextPostSlug={ post.canonicalNextPostSlug }
                   prevPostSlug={ post.canonicalPrevPostSlug }
                   nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
