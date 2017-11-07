@@ -12,6 +12,12 @@ import './lib/closed-beta/fixFrontpageCount.js';
 import './lib/closed-beta/voteMigration.js';
 import './lib/closed-beta/slugDeduplication.js';
 
+import './lib/collections/posts/callbacks.js';
+import './lib/collections/chapters/callbacks.js';
+import './lib/collections/sequences/callbacks.js';
+import './lib/collections/books/callbacks.js';
+import './lib/collections/collections/callbacks.js';
+
 // LW Events
 import './lib/events/server.js';
 

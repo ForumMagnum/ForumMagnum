@@ -1,10 +1,10 @@
 import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
-import { updateScore } from 'meteor/vulcan:voting';
 import Users from 'meteor/vulcan:users';
 
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML, preProcessLatex } from '../../editor/utils.js';
+import { draftToHTML } from '../../editor/utils.js';
+import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
@@ -101,9 +101,12 @@ Posts.convertFromContent = (content) => {
 
 Posts.convertFromHTML = (html) => {
   const body = htmlToText.fromString(html);
+  console.log("Posts.convertFromHTML body", html, body);
+  const excerpt = body.slice(0,140);
+  console.log("Posts.convertFromHTML", excerpt);
   return {
     body,
-    excerpt: body.slice(0,140)
+    excerpt
   }
 }
 
@@ -125,6 +128,7 @@ function PostsEditHTMLSerializeCallback (modifier, post) {
   if (modifier.$set && modifier.$set.content) {
     const newPostFields = Posts.convertFromContent(modifier.$set.content)
     modifier.$set = {...modifier.$set, ...newPostFields}
+    delete modifier.$unset.htmlBody;
     console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.body)
   } else if (modifier.$set && modifier.$set.htmlBody) {
     const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody);
@@ -140,7 +144,7 @@ async function PostsEditHTMLSerializeCallbackAsync (post) {
     const newPostFields = await Posts.convertFromContentAsync(post.content);
     Posts.update({_id: post._id}, {$set: newPostFields})
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.content);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody);
     Posts.update({_id: post._id}, {$set: newPostFields})
   }
 }
