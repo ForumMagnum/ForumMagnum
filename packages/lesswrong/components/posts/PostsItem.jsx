@@ -60,6 +60,8 @@ class PostsItem extends PureComponent {
     const read = post.lastVisitedAt;
     const newComments = post.lastVisitedAt < post.lastCommentedAt;
     const postLink = this.getPostLink()
+    const commentCount = post.commentCount ? post.commentCount : 0
+
 
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";
@@ -105,7 +107,7 @@ class PostsItem extends PureComponent {
                 {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
                 {post.user ? <div className="posts-item-user"><Components.UsersName user={post.user}/></div> : null}
                 <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
-                {inlineCommentCount ? <div className="posts-item-comments"> {post.commentCount} comments </div> : null}
+                {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                 {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
                 {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
               </div></object>
