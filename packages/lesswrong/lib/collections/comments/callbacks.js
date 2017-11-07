@@ -1,9 +1,9 @@
 import React from 'react';
 import { Comments } from "meteor/example-forum";
 import { addCallback, editMutation, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import { convertToHTML, convertFromHTML } from 'draft-convert';
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML, preProcessLatex } from '../../editor/utils.js';
+import { draftToHTML } from '../../editor/utils.js';
+import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
 
 // function commentsSoftRemoveChildrenComments(comment) {

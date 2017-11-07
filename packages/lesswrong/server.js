@@ -12,6 +12,7 @@ import './lib/closed-beta/fixFrontpageCount.js';
 import './lib/closed-beta/voteMigration.js';
 import './lib/closed-beta/slugDeduplication.js';
 
+import './lib/collections/comments/callbacks.js';
 import './lib/collections/posts/callbacks.js';
 import './lib/collections/chapters/callbacks.js';
 import './lib/collections/sequences/callbacks.js';
