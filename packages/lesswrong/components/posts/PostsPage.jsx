@@ -148,7 +148,7 @@ class PostsPage extends Component {
           <div className="posts-page-content">
             <div className="posts-page-content-header">
               <div className="posts-page-content-header-title">
-                <h1>{post.title}</h1>
+                <h1>{post.draft && <span className="posts-page-content-header-title-draft">[Draft] </span>}{post.title}</h1>
               </div>
               { this.renderSequenceNavigation() }
               <div className="posts-page-content-header-voting">

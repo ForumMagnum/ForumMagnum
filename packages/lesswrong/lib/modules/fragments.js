@@ -142,6 +142,7 @@ registerFragment(`
     body
     htmlBody
     content
+    draft
     canonicalPrevPostSlug
     canonicalNextPostSlug
     canonicalCollectionSlug
