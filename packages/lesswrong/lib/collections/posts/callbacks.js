@@ -146,3 +146,4 @@ async function PostsEditHTMLSerializeCallbackAsync (post) {
 }
 
 addCallback("posts.edit.async", PostsEditHTMLSerializeCallbackAsync);
+addCallback("posts.new.async", PostsEditHTMLSerializeCallbackAsync);

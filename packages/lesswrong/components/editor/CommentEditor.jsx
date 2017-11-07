@@ -18,6 +18,7 @@ import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createLinkifyPlugin from 'draft-js-linkify-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from 'draft-js-divider-plugin';
+import createMathjaxPlugin from 'draft-js-mathjax-plugin';
 
 
 import {
@@ -102,6 +103,10 @@ class CommentEditor extends Component {
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const imagePlugin = createImagePlugin({ decorator });
     this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, linkifyPlugin, blockBreakoutPlugin, dividerPlugin];
+    if (Meteor.isClient) {
+      const mathjaxPlugin = createMathjaxPlugin()
+      this.plugins.push(mathjaxPlugin);
+    }
   }
 
   // Tries to retrieve a saved state from localStorage, depending on the available information

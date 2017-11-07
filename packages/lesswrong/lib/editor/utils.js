@@ -63,7 +63,7 @@ export const preProcessLatex = async (content) => {
       console.log("preprocess inlineTex: ", value);
       const mathJax = await mjAPI.typeset({
             math: value.data.teX,
-            format: "TeX",
+            format: "inline-TeX",
             html: true,
             css: true,
       })
@@ -73,6 +73,23 @@ export const preProcessLatex = async (content) => {
     }
   }
   content.entityMap = entityMap;
+
+  let blocks = content.blocks;
+  for (let key in blocks) {
+    const block = blocks[key];
+    console.log("preprocessing LaTeX block: ", block);
+    if (block.type === "atomic" && block.data.mathjax) {
+      const mathJax = await mjAPI.typeset({
+        math: block.data.teX,
+        format: "TeX",
+        html: true,
+        css: true,
+      })
+      block.data = {...block.data, html: mathJax.html, css: mathJax.css};
+    }
+  }
+  content.blocks = blocks;
+
   return content;
 }
 
@@ -98,14 +115,25 @@ export const draftToHTML = convertToHTML({
     }
     if (entity.type === 'INLINETEX') {
       console.log("INLINETEX entity detected: ", entity);
-      return entity.data.html || "<span>LaTeX is being processed...</span>";
+      if (entity.data.html) {
+        return `<span><style>${entity.data.css}</style>${entity.data.html}</span>`
+      } else {
+        return `<span class="draft-latex-placeholder">refresh to render LaTeX</span>`
+      }
     }
     return originalText;
   },
   blockToHTML: (block) => {
      const type = block.type;
      if (type === 'atomic') {
-       return {start: '<span>', end: '</span>'};
+       console.log("Atomic element detected: ", block);
+       if (block.data && block.data.mathjax && block.data.html) {
+         return `<div><style>${block.data.css}</style>${block.data.html}</div>`
+       } else if (block.data && block.data.mathjax) {
+         return `<div class="draft-latex-placeholder-block">refresh to render LaTeX</div>`
+       } else {
+         return {start: '<span>', end: '</span>'};
+       }
      }
      if (type === 'blockquote') {
        return <blockquote />
