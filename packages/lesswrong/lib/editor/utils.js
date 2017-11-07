@@ -1,5 +1,6 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
+import { convertFromRaw, convertToRaw } from 'draft-js';
 
 let mjAPI = {};
 
@@ -53,6 +54,28 @@ export const htmlToDraft = convertFromHTML({
   }
 })
 
+export const preProcessLatex = async (content) => {
+  console.log("Preprocessing LaTeX", content);
+  let entityMap = content.entityMap;
+  for (let key in entityMap) { // Can't use forEach with await
+    let value = entityMap[key];
+    if(value.type === "INLINETEX" && value.data.teX) {
+      console.log("preprocess inlineTex: ", value);
+      const mathJax = await mjAPI.typeset({
+            math: value.data.teX,
+            format: "TeX",
+            html: true,
+            css: true,
+      })
+      console.log("MathJax result: ", mathJax);
+      value.data = {...value.data, html: mathJax.html, css: mathJax.css};
+      entityMap[key] = value;
+    }
+  }
+  content.entityMap = entityMap;
+  return content;
+}
+
 export const draftToHTML = convertToHTML({
   entityToHTML: (entity, originalText) => {
     if (entity.type === 'image') {
@@ -74,13 +97,8 @@ export const draftToHTML = convertToHTML({
       return `<img src="${entity.data.src}" class="${className}" alt="${entity.data.alt}"/>`
     }
     if (entity.type === 'INLINETEX') {
-      const mathJax = await mjAPI.typeset({
-        math: entity.data.teX,
-        format: "TeX",
-        html: true,
-      })
-      console.log("Doing mathjax magic", mathJax);
-      return mathJax.html;
+      console.log("INLINETEX entity detected: ", entity);
+      return entity.data.html || "<span>LaTeX is being processed...</span>";
     }
     return originalText;
   },
