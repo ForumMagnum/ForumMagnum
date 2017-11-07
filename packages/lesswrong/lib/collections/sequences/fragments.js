@@ -14,6 +14,7 @@ registerFragment(`
     gridImageId
     bannerImageId
     color
+    canonicalCollectionSlug
   }
 `);
 
@@ -23,6 +24,7 @@ registerFragment(`
     createdAt
     title
     color
+    canonicalCollectionSlug
     chapters {
       _id
       title

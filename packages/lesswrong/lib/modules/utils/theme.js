@@ -1,8 +1,9 @@
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Users from 'meteor/vulcan:users';
 import { Posts } from 'meteor/example-forum';
+import Sequences from '../../collections/sequences/collection'
 
-const getHeaderColor_Post = (postId, store) => {
+const getHeaderColorPost = (postId, store) => {
   const post = Posts.findOneInStore(store, postId)
   if (post && (post.frontpage || post.meta)) {
     if (post.meta) {
@@ -13,6 +14,19 @@ const getHeaderColor_Post = (postId, store) => {
     const user = Users.findOneInStore(store, post.userId)
     if (user) {
       return "#F0F4F7" //<Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
+    }
+  }
+}
+
+const getHeaderColorSequence = (sequenceId, store) => {
+  if (store && sequenceId) {
+    const sequence = Sequences.findOneInStore(store, sequenceId)
+    if (sequence && sequence.canonicalCollectionSlug == "rationality") {
+      return "#F0F7F1"
+    } else if (sequence && sequence.canonicalCollectionSlug == "hpmor") {
+      return "#E8E8FA"
+    } else if (sequence && sequence.canonicalCollectionSlug == "codex") {
+      return "#EBF0F2"
     }
   }
 }
@@ -49,7 +63,9 @@ export const customizeTheme = (router, userAgent, params, store) => {
     muiTheme.palette.accent1Color = "rgba(130,195,246,.5)"
     muiTheme.palette.accent2Color = "rgba(130,195,246,1)"
   } else if (routeName == "posts.single") {
-    muiTheme.palette.header = getHeaderColor_Post(params._id, store)
+    muiTheme.palette.header = getHeaderColorPost(params._id, store)
+  } else if (routeName == "sequences.single") {
+    muiTheme.palette.header = getHeaderColorSequence(params._id, store)
   } else if (routeName == "Rationality.posts.single" || routeName == "Rationality") {
     muiTheme.palette.header = "#F0F7F1"
   } else if (routeName == "HPMOR.posts.single" || routeName == "HPMOR") {

@@ -69,22 +69,51 @@ class PostsPage extends Component {
     }
   }
 
+  getNavTitle = () => {
+    const post = this.props.document
+    if (post && post.canonicalSequence && post.canonicalSequence.title) {
+      return post.canonicalSequence.title
+    } else if (post && post.canonicalBook && post.canonicalBook.title) {
+      return post.canonicalBook.title
+    } else if (post && post.canonicalCollection && post.canonicalCollection.title) {
+      return post.canonicalCollection.title
+    }
+  }
+
+  getNavTitleUrl = () => {
+    const post = this.props.document
+    if (post && post.canonicalSequence && post.canonicalSequence.title) {
+      return "/sequences/" + post.canonicalSequenceId
+    } else if (post && post.canonicalCollectionSlug) {
+      return "/" + post.canonicalCollectionSlug
+    }
+  }
+
   renderSequenceNavigation = () => {
     const post = this.props.document
-    const sequenceId = this.props.params.sequenceId;
+    const sequenceId = this.props.params.sequenceId || post && post.canonicalSequenceId;
     const canonicalCollectionSlug = post.canonicalCollectionSlug;
-    if (canonicalCollectionSlug && post && post.canonicalBook && post.canonicalBook.title) {
+    const canonicalSequenceId = post.canonicalSequenceId;
+    const title = this.getNavTitle()
+    const titleUrl = this.getNavTitleUrl()
 
-      return <Components.SequencesNavigation
-                title={ post.canonicalBook.title }
-                nextPostId={ post.canonicalNextPostId }
-                prevPostId={ post.canonicalPrevPostId }
-              />
-    }
     if (sequenceId) {
-      return <Components.SequencesNavigation
-                documentId={sequenceId}
-                post={post} />
+      return (
+        <Components.SequencesNavigation
+                  documentId={sequenceId}
+                  post={post} />
+      )
+    } else if (canonicalCollectionSlug && title && titleUrl) {
+      return (
+        <Components.CollectionsNavigation
+                  title={ title }
+                  titleUrl={ titleUrl }
+                  nextPostSlug={ post.canonicalNextPostSlug }
+                  prevPostSlug={ post.canonicalPrevPostSlug }
+                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+                />
+      )
     }
   }
 
@@ -122,7 +151,7 @@ class PostsPage extends Component {
           <div className="posts-page-content">
             <div className="posts-page-content-header">
               <div className="posts-page-content-header-title">
-                <h1>{post.title}</h1>
+                <h1>{post.draft && <span className="posts-page-content-header-title-draft">[Draft] </span>}{post.title}</h1>
               </div>
               { this.renderSequenceNavigation() }
               <div className="posts-page-content-header-voting">

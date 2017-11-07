@@ -281,7 +281,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalSequenceSlug',
+    fieldName: 'canonicalSequenceId',
     fieldSchema: {
       type: String,
       optional: true,
@@ -293,8 +293,8 @@ Posts.addField([
         addOriginalField: true,
         type: "Sequence",
         resolver: (post, args, context) => {
-          if (!post.canonicalSequenceSlug) return null;
-          return context.Sequences.findOne({slug: post.canonicalSequenceSlug})
+          if (!post.canonicalSequenceId) return null;
+          return context.Sequences.findOne({_id: post.canonicalSequenceId})
         }
       },
       hidden: false,
@@ -347,7 +347,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalNextPostId',
+    fieldName: 'canonicalNextPostSlug',
     fieldSchema: {
       type: String,
       optional: true,
@@ -360,7 +360,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'canonicalPrevPostId',
+    fieldName: 'canonicalPrevPostSlug',
     fieldSchema: {
       type: String,
       optional: true,

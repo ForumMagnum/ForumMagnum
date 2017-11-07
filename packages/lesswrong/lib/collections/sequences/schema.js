@@ -107,7 +107,7 @@ const schema = {
       fieldName: 'chapters',
       type: '[Chapter]',
       resolver: (sequence, args, context) => {
-        const books = context.Chapters.find({sequenceId: sequence._id}, {fields: context.Users.getViewableFields(context.currentUser, context.Chapters)}).fetch();
+        const books = context.Chapters.find({sequenceId: sequence._id}, {fields: context.Users.getViewableFields(context.currentUser, context.Chapters), sort: {number: 1}}).fetch();
         return books;
       }
     }
@@ -164,6 +164,24 @@ const schema = {
     viewableBy: ['guests'],
   },
 
+  canonicalCollectionSlug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    hidden: false,
+    control: "text",
+    resolveAs: {
+      fieldName: 'canonicalCollection',
+      addOriginalField: true,
+      type: "Collection",
+      resolver: (sequence, args, context) => {
+        if (!sequence.canonicalCollectionSlug) return null;
+        return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
+      }
+    }
+  }
 }
 
 

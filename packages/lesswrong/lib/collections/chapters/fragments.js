@@ -33,6 +33,7 @@ registerFragment(`
       score
       __typename
       lastVisitedAt
+      canonicalCollectionSlug
     }
   }
 `);
