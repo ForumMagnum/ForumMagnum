@@ -91,13 +91,13 @@ class PostsPage extends Component {
 
   renderSequenceNavigation = () => {
     const post = this.props.document
-    const sequenceId = this.props.params.sequenceId || post && post.canonicalSequenceId;
+    const sequenceId = this.props.params.sequenceId;
     const canonicalCollectionSlug = post.canonicalCollectionSlug;
     const canonicalSequenceId = post.canonicalSequenceId;
     const title = this.getNavTitle()
     const titleUrl = this.getNavTitleUrl()
 
-    if (sequenceId) {
+    if (sequenceId || canonicalSequenceId && !canonicalCollectionSlug) {
       return (
         <Components.SequencesNavigation
                   documentId={sequenceId}
@@ -211,21 +211,11 @@ class PostsPage extends Component {
 
   renderRecommendedReading = () => {
     const post = this.props.document;
-    const sequenceId = this.props.params.sequenceId;
-    if (post.nextPageTitle && sequenceId) {
-      return <div className="posts-page-recommended-reading">
-        <Components.RecommendedReadingWrapper documentId={sequenceId} post={post} nextTitle={post.nextPageTitle} nextLink={post.nextPageLink} collectionTitle={post.collectionTitle}/>
-      </div>
-    } else if (post.nextPageTitle) {
-      return <div className="posts-page-recommended-reading">
-        <Components.RecommendedReading post={post} nextTitle={post.nextPageTitle} nextLink={post.nextPageLink} collectionTitle={post.collectionTitle} />
-      </div>
-    } else if (sequenceId) {
+    const sequenceId = this.props.params.sequenceId || post.canonicalSequenceId;
+    if (sequenceId) {
       return <div className="posts-page-recommended-reading">
         <Components.RecommendedReadingWrapper documentId={sequenceId} post={post}/>
       </div>
-    } else {
-      return null
     }
   }
 
