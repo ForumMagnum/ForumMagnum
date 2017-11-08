@@ -29,7 +29,7 @@ const SequencesNavigation = ({
           if(c.posts && _.pluck(c.posts, '_id').indexOf(post._id) > -1) {
             currentChapter = c
             currentPostIndex = _.pluck(c.posts, '_id').indexOf(post._id);
-            currentChapterIndex = _.pluck(document.chapters, '._id').indexOf(c._id);
+            currentChapterIndex = _.pluck(document.chapters, '_id').indexOf(c._id);
           }
         })
         if (currentPostIndex || currentPostIndex === 0) {
@@ -58,18 +58,18 @@ const SequencesNavigation = ({
     return (
       <div className="sequences-navigation-top">
         <Components.SequencesNavigationLink
-                          documentId={ prevPostId }
-                          documentUrl={ prevPostUrl }
-                          direction="left" />
+          documentId={ prevPostId }
+          documentUrl={ prevPostUrl }
+        direction="left" />
 
-                        <div className="sequences-navigation-title">
-                          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
-                        </div>
+        <div className="sequences-navigation-title">
+          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
+        </div>
 
         <Components.SequencesNavigationLink
-                          documentId={ nextPostId }
-                          documentUrl={ nextPostUrl }
-                          direction="right" />
+          documentId={ nextPostId }
+          documentUrl={ nextPostUrl }
+        direction="right" />
       </div>
     )
   }
