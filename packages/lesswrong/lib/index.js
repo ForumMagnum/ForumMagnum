@@ -48,11 +48,6 @@ import './collections/sequences/fragments.js';
 import './collections/books/fragments.js';
 import './collections/collections/fragments.js';
 
-import './collections/chapters/callbacks.js';
-import './collections/sequences/callbacks.js';
-import './collections/books/callbacks.js';
-import './collections/collections/callbacks.js';
-
 import './collections/chapters/views.js';
 
 import './collections/sequences/permissions.js';
@@ -67,7 +62,6 @@ import './subscriptions/permissions.js';
 
 // Posts
 import './collections/posts/custom_fields.js';
-import './collections/posts/callbacks.js';
 import './collections/posts/views.js';
 import './collections/posts/permissions.js';
 //
@@ -77,7 +71,7 @@ import './collections/users/custom_fields.js';
 // Comments
 import './collections/comments/custom_fields.js';
 import './collections/comments/permissions.js';
-import './collections/comments/callbacks.js';
+
 import './collections/comments/views.js';
 //
 //

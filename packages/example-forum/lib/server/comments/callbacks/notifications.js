@@ -25,7 +25,7 @@ function CommentsNewNotifications (comment) {
     // 1. Notify author of post (if they have new comment notifications turned on)
     //    but do not notify author of post if they're the ones posting the comment
     if (Users.getSetting(postAuthor, 'notifications_comments', false) && comment.userId !== postAuthor._id) {
-      createNotification(post.userId, 'newComment', {documentId: comment._id});
+      // createNotification(post.userId, 'newComment', {documentId: comment._id});
       userIdsNotified.push(post.userId);
     }
 
@@ -42,7 +42,7 @@ function CommentsNewNotifications (comment) {
 
         // do not notify parent comment author if they have reply notifications turned off
         if (Users.getSetting(parentCommentAuthor, 'notifications_replies', false)) {
-          createNotification(parentComment.userId, 'newReply', {documentId: parentComment._id});
+          // createNotification(parentComment.userId, 'newReply', {documentId: parentComment._id});
           userIdsNotified.push(parentComment.userId);
         }
       }

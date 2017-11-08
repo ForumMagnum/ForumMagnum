@@ -110,6 +110,7 @@ Old editor.scss file TODO: Refactor this properly into the main css
 @import '../../node_modules/draft-js-alignment-plugin/lib/plugin.css';
 @import '../../node_modules/draft-js-focus-plugin/lib/plugin.css';
 @import '../../node_modules/draft-js-divider-plugin/lib/plugin.css';
+@import '../../node_modules/draft-js-katex-plugin/lib/plugin.css';
 
 
 // Preventing material bootstrap from duplicating decorative elements on the
@@ -231,7 +232,8 @@ figure:after {
 }
 
 .content-editor-is-empty:before {
-    content: "Write here (we support Markdown!)";
+    content: "Write here. We support Markdown and LaTeX! ($ for inline equations, CTRL+M for block-level equations)";
+    width: 700px;
     position: absolute;
     color: rgba(0,0,0,0.2);
 }

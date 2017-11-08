@@ -1,10 +1,10 @@
 import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
-import { updateScore } from 'meteor/vulcan:voting';
 import Users from 'meteor/vulcan:users';
 
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
+import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
@@ -77,17 +77,47 @@ function postsEditDecreaseFrontpagePostCount (post, oldPost) {
 }
 addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 
+Posts.convertFromContentAsync = async function(content) {
+  content = await preProcessLatex(content);
+  return Posts.convertFromContent(content)
+}
+
+/*
+ * @summary Takes in a content field, returns object with {htmlBody, body, excerpt}
+*/
+
+Posts.convertFromContent = (content) => {
+  const contentState = convertFromRaw(content);
+  return {
+    htmlBody: draftToHTML(contentState),
+    body: contentState.getPlainText(),
+    excerpt: contentState.getPlainText().slice(0,140),
+  }
+}
+
+/*
+ * @summary Input is html, returns object with {body, excerpt}
+*/
+
+Posts.convertFromHTML = (html) => {
+  const body = htmlToText.fromString(html);
+  console.log("Posts.convertFromHTML body", html, body);
+  const excerpt = body.slice(0,140);
+  console.log("Posts.convertFromHTML", excerpt);
+  return {
+    body,
+    excerpt
+  }
+}
+
 function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
-    const contentState = convertFromRaw(post.content);
-    const html = draftToHTML(contentState);
-    post.htmlBody = html;
-    post.body = contentState.getPlainText();
-    post.excerpt = post.body.slice(0,140);
+    const newPostFields = Posts.convertFromContent(post.content);
+    post = {...post, ...newPostFields}
     console.log("Comments New HTML serialization", post.excerpt)
   } else if (post.htmlBody) {
-    post.body = htmlToText.fromString(post.htmlBody);
-    post.excerpt = post.body.slice(0,140);
+    const newPostFields = Posts.convertFromHTML(post.content);
+    post = {...post, ...newPostFields}
   }
   return post
 }
@@ -96,17 +126,28 @@ addCallback("posts.new.sync", PostsNewHTMLSerializeCallback);
 
 function PostsEditHTMLSerializeCallback (modifier, post) {
   if (modifier.$set && modifier.$set.content) {
-    const contentState = convertFromRaw(modifier.$set.content);
-    console.log("Comment Edit callback: ", modifier.$set.content);
-    modifier.$set.htmlBody = draftToHTML(contentState);
-    modifier.$set.body = contentState.getPlainText();
-    modifier.$set.excerpt = modifier.$set.body.slice(0,140);
+    const newPostFields = Posts.convertFromContent(modifier.$set.content)
+    modifier.$set = {...modifier.$set, ...newPostFields}
+    delete modifier.$unset.htmlBody;
     console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.body)
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    modifier.$set.body = htmlToText.fromString(modifier.$set.htmlBody);
-    modifier.$set.excerpt = modifier.$set.body.slice(0,140);
+    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody);
+    modifier.$set = {...modifier.$set, ...newPostFields}
   }
   return modifier
 }
 
 addCallback("posts.edit.sync", PostsEditHTMLSerializeCallback);
+
+async function PostsEditHTMLSerializeCallbackAsync (post) {
+  if (post.content) {
+    const newPostFields = await Posts.convertFromContentAsync(post.content);
+    Posts.update({_id: post._id}, {$set: newPostFields})
+  } else if (post.htmlBody) {
+    const newPostFields = Posts.convertFromHTML(post.htmlBody);
+    Posts.update({_id: post._id}, {$set: newPostFields})
+  }
+}
+
+addCallback("posts.edit.async", PostsEditHTMLSerializeCallbackAsync);
+addCallback("posts.new.async", PostsEditHTMLSerializeCallbackAsync);

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Comments } from "meteor/example-forum";
 import { addCallback, editMutation, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import { convertToHTML, convertFromHTML } from 'draft-convert';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
+import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
 
 // function commentsSoftRemoveChildrenComments(comment) {
@@ -18,6 +18,34 @@ import htmlToText from 'html-to-text';
 // }
 
 
+Comments.convertFromContentAsync = async function(content) {
+  content = await preProcessLatex(content);
+  return Comments.convertFromContent(content)
+}
+
+/*
+ * @summary Takes in a content field, returns object with {htmlBody, body, excerpt}
+*/
+
+Comments.convertFromContent = (content) => {
+  const contentState = convertFromRaw(content);
+  return {
+    htmlBody: draftToHTML(contentState),
+    body: contentState.getPlainText(),
+  }
+}
+
+/*
+ * @summary Input is html, returns object with {body, excerpt}
+*/
+
+Comments.convertFromHTML = (html) => {
+  const body = htmlToText.fromString(html);
+  return {
+    body
+  }
+}
+
 function CommentsEditSoftDeleteCallback (comment, oldComment) {
   if (comment.deleted && !oldComment.deleted) {
     runCallbacksAsync('comments.softDelete.async', comment);
@@ -27,13 +55,11 @@ addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 
 function CommentsNewHTMLSerializeCallback (comment) {
   if (comment.content) {
-    const contentState = convertFromRaw(comment.content);
-    const html = draftToHTML(contentState);
-    comment.htmlBody = html;
-    comment.body = contentState.getPlainText();
-    console.log("Comments New HTML serialization", html)
+    const newFields = Comments.convertFromContent(comment.content);
+    comment = {...comment, ...newFields}
   } else if (comment.htmlBody) {
-    comment.body = htmlToText.fromString(comment.htmlBody);
+    const newFields = Comments.convertFromHTML(comment.content);
+    comment = {...comment, ...newFields}
   }
   return comment
 }
@@ -42,15 +68,26 @@ addCallback("comments.new.sync", CommentsNewHTMLSerializeCallback);
 
 function CommentsEditHTMLSerializeCallback (modifier, comment) {
   if (modifier.$set && modifier.$set.content) {
-    const contentState = convertFromRaw(modifier.$set.content);
-    console.log("Comment Edit callback: ", modifier.$set.content);
-    modifier.$set.htmlBody = draftToHTML(contentState);
-    modifier.$set.body = contentState.getPlainText();
-    console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.plaintextBody)
+    const newFields = Comments.convertFromContent(modifier.$set.content)
+    modifier.$set = {...modifier.$set, ...newFields}
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    modifier.$set.body = htmlToText.fromString(modifier.$set.htmlBody);
+    const newFields = Comments.convertFromHTML(modifier.$set.htmlBody);
+    modifier.$set = {...modifier.$set, ...newFields}
   }
   return modifier
 }
 
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
+
+async function CommentsEditHTMLSerializeCallbackAsync (comment) {
+  if (comment.content) {
+    const newFields = await Comments.convertFromContentAsync(comment.content);
+    Comments.update({_id: comment._id}, {$set: newFields})
+  } else if (comment.htmlBody) {
+    const newFields = Comments.convertFromHTML(comment.content);
+    Comments.update({_id: comment._id}, {$set: newFields})
+  }
+}
+
+addCallback("comments.edit.async", CommentsEditHTMLSerializeCallbackAsync);
+addCallback("comments.new.async", CommentsEditHTMLSerializeCallbackAsync);

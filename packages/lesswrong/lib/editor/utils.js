@@ -1,6 +1,7 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 
+
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
     if (nodeName === 'a') {
@@ -50,12 +51,27 @@ export const draftToHTML = convertToHTML({
       const className = 'draft-inline-image';
       return `<img src="${entity.data.src}" class="${className}" alt="${entity.data.alt}"/>`
     }
+    if (entity.type === 'INLINETEX') {
+      console.log("INLINETEX entity detected: ", entity);
+      if (entity.data.html) {
+        return `<span><style>${entity.data.css}</style>${entity.data.html}</span>`
+      } else {
+        return `<span class="draft-latex-placeholder">refresh to render LaTeX</span>`
+      }
+    }
     return originalText;
   },
   blockToHTML: (block) => {
      const type = block.type;
      if (type === 'atomic') {
-       return {start: '<span>', end: '</span>'};
+       console.log("Atomic element detected: ", block);
+       if (block.data && block.data.mathjax && block.data.html) {
+         return `<div><style>${block.data.css}</style>${block.data.html}</div>`
+       } else if (block.data && block.data.mathjax) {
+         return `<div class="draft-latex-placeholder-block">refresh to render LaTeX</div>`
+       } else {
+         return {start: '<span>', end: '</span>'};
+       }
      }
      if (type === 'blockquote') {
        return <blockquote />
