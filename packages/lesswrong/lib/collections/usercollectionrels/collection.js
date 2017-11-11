@@ -10,12 +10,12 @@ const options = {
 
   newCheck: (user, document) => {
     if (!user || !document) return false;
-    return Users.owns(user, document) ? Users.canDo(user, 'userdocrels.new.own') : Users.canDo(user, `userdocrels.new.all`)
+    return Users.owns(user, document) ? Users.canDo(user, 'usercollectionrels.new.own') : Users.canDo(user, `usercollectionrels.new.all`)
   },
 
   editCheck: (user, document) => {
     if (!user || !document) return false;
-    return Users.owns(user, document) ? Users.canDo(user, 'userdocrels.edit.own') : Users.canDo(user, `userdocrels.edit.all`)
+    return Users.owns(user, document) ? Users.canDo(user, 'usercollectionrels.edit.own') : Users.canDo(user, `usercollectionrels.edit.all`)
   },
 
   removeCheck: (user, document) => {
