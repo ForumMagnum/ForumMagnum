@@ -25,7 +25,7 @@ const FormSubmit = ({
         hoverColor={"#ccc"}
         style={{color: "#fff",marginLeft: "5px"}}
         label={document.frontpage ? "Move to personal blog" : "Submit to frontpage" }
-        onTouchTap={() => addToAutofilledValues({frontpage: !document.frontpage})}/>
+        onTouchTap={() => addToAutofilledValues({frontpage: !document.frontpage, draft: false})}/>
       <FlatButton
         type="submit"
         backgroundColor={"#bbb"}
