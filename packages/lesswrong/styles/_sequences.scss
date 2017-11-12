@@ -39,10 +39,14 @@
     width: 233px;
     padding: 15px;
     .sequences-grid-item-top {
-      height: 70px;
+      height: 46px;
       line-height: 1.1;
       border-top-style: solid;
       padding-top: 7px;
+
+      &.author {
+        height:70px;
+      }
     }
     .sequences-grid-item-title {
       font-size: 16px;

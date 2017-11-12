@@ -4,24 +4,29 @@ import NoSSR from 'react-no-ssr';
 import React from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
+import classNames from 'classnames';
 
 
-const SequencesGridItem = ({sequence, currentUser}) => {
+const SequencesGridItem = ({
+  sequence,
+  currentUser,
+  showAuthor=false
+}) => {
   // const allPostsList = sequence.chapters && _.reduce(sequence.chapters, (memo, c) => [...memo, ...c.posts], []);
   const totalPostsNumber = _.reduce(sequence.chapters, (memo, c) => [...memo, ...c.postIds], []).length;
   // <div className="sequences-grid-item-progress" style={{color: sequence.color}}>{totalPostsNumber} articles</div>
 
   // const readPostsNumber = allPostsList && _.filter(allPostsList, (p) => p && p.lastVisitedAt).length;
   return <div className="sequences-grid-item" >
-    <div className="sequences-grid-item-top" style={{borderTopColor: sequence.color}}>
+    <div className={classNames("sequences-grid-item-top", {author: showAuthor})} style={{borderTopColor: sequence.color}}>
       <div className="sequences-grid-item-title">{sequence.title}</div>
-      <object>
+      { showAuthor && <object>
         <Link to={Users.getProfileUrl(sequence.user)}>
           <div className="sequences-grid-item-author">
             by {Users.getDisplayName(sequence.user)}
           </div>
         </Link>
-      </object>
+      </object> }
     </div>
     <div className="sequences-grid-item-bottom">
       <div className="sequences-grid-item-image">
