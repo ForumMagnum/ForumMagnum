@@ -410,11 +410,15 @@ svg.drag-handle {
 }
 
 .sequences-navigation-bottom-previous-post, .sequences-navigation-bottom-next-post {
-  width: 300px;
+  width: 330px;
   display: inline-block;
   margin-top: -15px;
   .posts-item-summary {
     white-space: inherit;
+  }
+
+  .posts-item-content {
+    display: inherit;
   }
 
   .posts-item {
