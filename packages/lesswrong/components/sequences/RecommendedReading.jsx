@@ -1,5 +1,4 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withRouter, Link } from 'react-router';
 import React from 'react';
 

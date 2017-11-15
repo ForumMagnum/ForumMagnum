@@ -1,6 +1,4 @@
-import Users from 'meteor/vulcan:users'
 import { Components } from 'meteor/vulcan:core';
-import ImageUpload from '../../../components/form-components/ImageUpload.jsx';
 
 const schema = {
 
@@ -25,8 +23,9 @@ const schema = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
@@ -43,11 +42,15 @@ const schema = {
     type: String,
     optional: false,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['members'],
     insertableBy: ['members'],
+    order: 10,
+    placeholder: "Sequence Title",
+    control: 'EditSequenceTitle',
   },
 
   description: {
+    order:20,
     type: Object,
     optional: true,
     viewableBy: ['guests'],
@@ -55,6 +58,7 @@ const schema = {
     insertableBy: ['members'],
     control: 'EditorFormComponent',
     blackbox: true,
+    placeholder:"Sequence Description (Supports Markdown and LaTeX)"
   },
 
   descriptionPlaintext: {
@@ -122,22 +126,25 @@ const schema = {
 
   gridImageId: {
     type: String,
-    optional: true,
+    optional: false,
+    order:25,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['members'],
     insertableBy: ['members'],
-    control: ImageUpload,
+    control: "ImageUpload",
+    label: "Card Image"
   },
 
   //Cloudinary image id for the banner image (high resolution)
 
   bannerImageId: {
     type: String,
-    optional: true,
+    optional: false,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['members'],
     insertableBy: ['members'],
-    control: ImageUpload,
+    label: "Banner Image",
+    control: "ImageUpload",
   },
 
   draft: {
@@ -172,6 +179,8 @@ const schema = {
     insertableBy: ['admins'],
     hidden: false,
     control: "text",
+    order: 30,
+    label: "Collection Slug",
     resolveAs: {
       fieldName: 'canonicalCollection',
       addOriginalField: true,

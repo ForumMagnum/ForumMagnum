@@ -1,5 +1,4 @@
 import Users from 'meteor/vulcan:users';
-import Sequences from './collection.js'
 
 const membersActions = [
   'sequences.edit.own',
@@ -8,13 +7,13 @@ const membersActions = [
   'chapters.new.own',
   'chapters.remote.own',
   'chapters.edit.own',
-  'sequences.view.own',
 ];
 Users.groups.members.can(membersActions);
 
 const adminActions= [
   'sequences.edit.all',
-  'sequences.view.all'
+  'sequences.view.all',
+  'sequences.new.all'
 ]
 Users.groups.admins.can(adminActions);
 

@@ -1,5 +1,4 @@
 import Users from 'meteor/vulcan:users';
-import { Posts } from 'meteor/example-forum';
 import Chapters from '../chapters/collection.js';
 import Sequences from './collection.js';
 import Books from '../books/collection.js';
