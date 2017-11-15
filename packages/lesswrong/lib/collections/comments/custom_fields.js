@@ -11,7 +11,7 @@ Comments.addField([
     fieldName: 'content',
     fieldSchema: {
       type: Object,
-      optional: true,
+      optional: false,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
@@ -152,7 +152,7 @@ Comments.addField([
       insertableBy: ['admins'],
       editableBy: ['admins'],
       control: "checkbox",
-      hidden: true, 
+      hidden: true,
     }
   },
 
