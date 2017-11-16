@@ -44,3 +44,4 @@ import './lib/collections/bans/callbacks.js';
 import './lib/collections/lwevents/indexes.js';
 import './lib/collections/usercollectionrels/indexes.js';
 import './lib/collections/usersequencerels/indexes.js';
+import './lib/collections/posts/indexes.js';
