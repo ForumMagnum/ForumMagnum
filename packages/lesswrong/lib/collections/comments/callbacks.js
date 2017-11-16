@@ -5,6 +5,7 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
+import { createError } from 'apollo-errors';
 
 // function commentsSoftRemoveChildrenComments(comment) {
 //     const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
@@ -78,6 +79,18 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
 }
 
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
+
+function CommentsEmptyCheck (comment, user) {
+  if (!convertFromRaw(comment.content).hasText()) {
+    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
+    throw new EmptyCommentError({data: {break: true, value: comment}});
+  }
+  return comment;
+}
+
+addCallback("comments.new.validate", CommentsEmptyCheck);
+addCallback("comments.edit.validate", CommentsEmptyCheck);
+
 
 async function CommentsEditHTMLSerializeCallbackAsync (comment) {
   if (comment.content) {
