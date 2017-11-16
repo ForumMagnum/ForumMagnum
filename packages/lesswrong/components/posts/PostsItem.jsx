@@ -56,7 +56,7 @@ class PostsItem extends PureComponent {
 
   render() {
 
-    const {post, chapter, inlineCommentCount} = this.props;
+    const {post, inlineCommentCount} = this.props;
     const read = post.lastVisitedAt;
     const newComments = post.lastVisitedAt < post.lastCommentedAt;
     const postLink = this.getPostLink()

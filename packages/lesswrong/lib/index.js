@@ -110,4 +110,17 @@ import './search/callbacks.js';
 
 import './components.js';
 //
-export { Conversations, Messages, Notifications, RSSFeeds, Chapters, Sequences, Collections, LWEvents, Books, Bans }
+export {
+  Conversations,
+  Messages,
+  Notifications,
+  RSSFeeds,
+  Chapters,
+  Sequences,
+  Collections,
+  LWEvents,
+  Books,
+  Bans,
+  UserSequenceRels,
+  UserCollectionRels
+}

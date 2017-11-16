@@ -3,6 +3,11 @@ import Users from 'meteor/vulcan:users';
 import schema from './schema.js';
 
 const options = {
+  newCheck: (user, document) => {
+    if (!user || !document) return false;
+    return Users.owns(user, document) ? Users.canDo(user, 'sequences.new.own') : Users.canDo(user, `sequences.new.all`)
+  },
+
   editCheck: (user, document) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'sequences.edit.own') : Users.canDo(user, `sequences.edit.all`)

@@ -232,7 +232,7 @@ figure:after {
 
 .content-editor-is-empty:before {
     content: "Write here. We support Markdown and LaTeX! ($ for inline equations, CTRL+M for block-level equations)";
-    width: 700px;
+    max-width: 640px;
     position: absolute;
     color: rgba(0,0,0,0.2);
 }
