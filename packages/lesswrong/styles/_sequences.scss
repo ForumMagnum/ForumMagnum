@@ -652,10 +652,6 @@ svg.drag-handle {
     width:200px;
     margin:0 auto;
   }
-
-  .form-cancel {
-    margin-left:25px;
-  }
 }
 
 .sequences-title-wrapper, .sequences-title-wrapper-preSSR, .sequences-editor-title-wrapper {
@@ -720,5 +716,13 @@ svg.drag-handle {
     left: 0;
     width:100%;
     text-align:center;
+  }
+}
+
+
+.chapters-edit-form, .chapters-new-form {
+  padding:1em 0;
+  h3 {
+    font-size:2em;
   }
 }

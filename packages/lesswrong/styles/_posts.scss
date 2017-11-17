@@ -833,6 +833,7 @@ textarea.posts-edit-header-title {
 }
 
 svg.drag-handle {
+    pointer-events: none;
     position: absolute;
     display: block !important;
     color: rgba(0,0,0,0.5);
@@ -863,6 +864,10 @@ svg.drag-handle {
   list-style:none;
   position: relative;
   padding: 5px;
+  cursor:pointer;
+}
+.posts-list-editor .ais-InstantSearch__root {
+  margin:20px 0;
 }
 
 .posts-page-comments-load-all-comment {
