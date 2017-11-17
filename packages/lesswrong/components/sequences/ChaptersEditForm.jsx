@@ -9,6 +9,7 @@ import Chapters from '../../lib/collections/chapters/collection.js';
 const ChaptersEditForm = (props) => {
   return (
     <div className="chapters-edit-form">
+      <h3>Add/Remove Posts</h3>
       <Components.SmartForm
         collection={Chapters}
         documentId={props.documentId}

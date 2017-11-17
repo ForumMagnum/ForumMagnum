@@ -35,6 +35,8 @@ class SequencesPage extends Component {
     } else {
       const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
+      const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
+
       return (<div className="sequences-page">
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
@@ -70,7 +72,7 @@ class SequencesPage extends Component {
         </Components.Section>
         <div className="sequences-chapters">
           <Components.ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
-          {canEdit ? <Components.ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
+          {canCreateChapter ? <Components.ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
         </div>
         {/*<div className="sequences-page-content-footer">
           <div className="sequences-page-content-footer-voting">

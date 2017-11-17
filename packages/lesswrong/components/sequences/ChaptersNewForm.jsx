@@ -8,6 +8,7 @@ import Chapters from '../../lib/collections/chapters/collection.js';
 const ChaptersNewForm = (props) => {
   return (
     <div className="chapters-new-form">
+      <h3>Add Chapter</h3>
       <Components.SmartForm
         collection={Chapters}
         successCallback={props.successCallback}

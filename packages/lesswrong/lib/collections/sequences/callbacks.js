@@ -2,6 +2,16 @@ import { addCallback } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import htmlToText from 'html-to-text';
+import Chapters from '../chapters/collection.js'
+
+
+function SequenceNewCreateChapter (sequence) {
+  if (sequence._id && !sequence.chaptersDummy) {
+    Chapters.insert({sequenceId:sequence._id})
+  }
+}
+
+addCallback("sequences.new.async", SequenceNewCreateChapter);
 
 function SequencesNewHTMLSerializeCallback (sequence) {
   if (sequence.description) {
@@ -25,7 +35,7 @@ function SequencesEditHTMLSerializeCallback (modifier, sequence) {
   } else if (modifier.$unset && modifier.$unset.description) {
     modifier.$unset.htmlDescription = true;
     modifier.$unset.plaintextDescription = true;
-  } 
+  }
   return modifier
 }
 
