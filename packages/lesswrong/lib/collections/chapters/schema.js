@@ -25,7 +25,7 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     editableBy: ["admins"],
-    insertableBy: ['members'],
+    insertableBy: ['admins'],
   },
 
   subtitle: {
@@ -33,7 +33,7 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     editableBy: ["admins"],
-    insertableBy: ['members'],
+    insertableBy: ['admins'],
   },
 
   description: {
@@ -42,7 +42,7 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     editableBy: ["admins"],
-    insertableBy: ['members'],
+    insertableBy: ['admins'],
     control: 'EditorFormComponent',
   },
 
@@ -62,8 +62,8 @@ const schema = {
     type: Number,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
   },
 
   sequenceId: {
@@ -87,7 +87,7 @@ const schema = {
     type: Array,
     optional: false,
     viewableBy: ["guests"],
-    editableBy: ["admins"],
+    editableBy: ["members"],
     insertableBy: ['members'],
     resolveAs: {
       fieldName: 'posts',

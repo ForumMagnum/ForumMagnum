@@ -21,9 +21,9 @@ class ChaptersItem extends Component {
 
   renderTitleComponent = (chapter, canEdit) => <div>
     {chapter.subtitle ?   <div className="chapters-item-subtitle">
-        {chapter.subtitle}
-      </div> : null}
-    {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
+      {chapter.subtitle}
+    </div> : null}
+    {canEdit ? <a onTouchTap={this.showEdit}>Add/Remove Posts</a> : null}
   </div>
 
   render() {

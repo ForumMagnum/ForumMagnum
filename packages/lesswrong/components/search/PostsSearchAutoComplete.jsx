@@ -12,7 +12,7 @@ const PostsSearchAutoComplete = ({clickAction}) =>
   >
     <div className="posts-search-auto-complete">
       <AutoComplete clickAction={clickAction}/>
-      <Configure hitsPerPage={3} />
+      <Configure hitsPerPage={7} />
     </div>
   </InstantSearch>;
 

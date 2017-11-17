@@ -1,6 +1,6 @@
 import React from 'react';
 import { Comments } from "meteor/example-forum";
-import { addCallback, editMutation, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';

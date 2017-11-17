@@ -80,6 +80,9 @@ import '../components/sunshineDashboard/ReportsList.jsx';
 import '../components/sunshineDashboard/ReportItem.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 
+// SequenceEditor
+import '../components/sequenceEditor/EditSequenceTitle.jsx';
+
 // Sequences
 import '../components/sequences/SequencesPage.jsx';
 import '../components/sequences/SequencesPostsList.jsx';

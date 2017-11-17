@@ -1,8 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
-import moment from 'moment';
-import { Posts } from 'meteor/example-forum';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 
 const testCollections = [
   {
