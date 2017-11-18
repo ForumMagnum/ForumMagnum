@@ -305,5 +305,37 @@ Users.addField([
       insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
+  },
+
+  /**
+    sequenceCount: count of how many non-draft, non-deleted sequences you have
+  */
+
+  {
+    fieldName: 'sequenceCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      onInsert: (document, currentUser) => 0,
+    }
+  },
+
+  /**
+    sequenceDraftCount: count of how many draft, non-deleted sequences you have
+  */
+
+  {
+    fieldName: 'sequenceDraftCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      onInsert: (document, currentUser) => 0,
+    }
   }
 ]);

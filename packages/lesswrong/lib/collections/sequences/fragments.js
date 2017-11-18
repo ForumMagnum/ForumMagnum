@@ -15,6 +15,8 @@ registerFragment(`
     bannerImageId
     color
     canonicalCollectionSlug
+    draft
+    isDeleted
   }
 `);
 
@@ -25,6 +27,8 @@ registerFragment(`
     title
     color
     canonicalCollectionSlug
+    draft
+    isDeleted
     chapters {
       _id
       title

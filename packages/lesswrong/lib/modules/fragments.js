@@ -362,6 +362,8 @@ registerFragment(`
     frontpagePostCount
     # example-forum
     commentCount
+    sequenceCount
+    sequenceDraftCount
   }
 `);
 

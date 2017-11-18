@@ -1,9 +1,6 @@
 import { Posts } from "meteor/example-forum";
-import Books from '../books/collection.js';
-import Users from 'meteor/vulcan:users';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
-import htmlToText from 'html-to-text';
 import React from 'react';
 
 const formGroups = {
