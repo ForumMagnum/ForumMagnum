@@ -4,7 +4,7 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
-import { Posts } from 'meteor/example-forum';
+import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
 
 class SequencesPage extends Component {
@@ -25,17 +25,20 @@ class SequencesPage extends Component {
 
   render() {
     const {document, currentUser, loading} = this.props;
-    if (loading || !document) {
+    if (document && document.isDeleted) {
+      return <h3>This sequence has been deleted</h3>
+    } if (loading || !document) {
       return <Components.Loading />
     } else if (this.state.edit) {
       return <Components.SequencesEditForm
-                documentId={document._id}
-                successCallback={this.showSequence}
-                cancelCallback={this.showSequence} />
+        documentId={document._id}
+        successCallback={this.showSequence}
+        cancelCallback={this.showSequence} />
     } else {
       const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
+
 
       return (<div className="sequences-page">
         <div className="sequences-banner">
@@ -48,7 +51,7 @@ class SequencesPage extends Component {
             </NoSSR>
             <div className="sequences-title-wrapper">
               <div className="sequences-title">
-                {document.title}
+                {document.draft && <span className="sequences-page-content-header-title-draft">[Draft] </span>}{document.title}
               </div>
             </div>
           </div>
@@ -62,7 +65,7 @@ class SequencesPage extends Component {
               {document.commentCount || 0} comments
             </div>
             {document.userId ? <div className="sequences-author-top">
-              by <span className="sequences-author-top-name">{document.user.displayName}</span>
+              by <Link className="sequences-author-top-name" to={Users.getProfileUrl(document.user)}>{document.user.displayName}</Link>
             </div> : null}
             {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
           </div>}>

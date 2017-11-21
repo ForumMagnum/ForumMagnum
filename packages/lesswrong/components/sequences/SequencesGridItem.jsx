@@ -19,7 +19,10 @@ const SequencesGridItem = ({
   // const readPostsNumber = allPostsList && _.filter(allPostsList, (p) => p && p.lastVisitedAt).length;
   return <div className="sequences-grid-item" >
     <div className={classNames("sequences-grid-item-top", {author: showAuthor})} style={{borderTopColor: sequence.color}}>
-      <div className="sequences-grid-item-title">{sequence.title}</div>
+      <div className="sequences-grid-item-title">
+        {sequence.draft && <span className="sequences-grid-item-title-draft">[Draft] </span>}
+        {sequence.title}
+      </div>
       { showAuthor && <object>
         <Link to={Users.getProfileUrl(sequence.user)}>
           <div className="sequences-grid-item-author">

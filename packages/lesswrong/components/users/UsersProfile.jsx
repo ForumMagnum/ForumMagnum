@@ -24,7 +24,8 @@ const UsersProfile = (props) => {
 
     const draftTerms = {view: "drafts", userId: user._id }
     const terms = {view: "new", ...query, userId: user._id};
-    const topTerms = {view: "top", userId: user._id, limit: 3};
+    const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
+    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
     const renderActions = (props) => {
       const user = props.document;
@@ -82,7 +83,7 @@ const UsersProfile = (props) => {
             <Components.Section title="My Drafts"
               titleComponent= {
                 <div className="recent-posts-title-component users-profile-drafts">
-                <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>
+                  <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>
                 </div>
               }
             >
@@ -97,20 +98,43 @@ const UsersProfile = (props) => {
       return (
         <Components.Section title="Recent Blog Posts"
           titleComponent= {
-          <div className="recent-posts-title-component users-profile-recent-posts">
-            <Components.SearchForm/>
-            sorted by<br /> <Components.PostsViews />
-          </div>}
+            <div className="recent-posts-title-component users-profile-recent-posts">
+              <Components.SearchForm/>
+              sorted by<br /> <Components.PostsViews />
+            </div>}
         >
           <Components.PostsList terms={terms} showHeader={false} />
         </Components.Section>
       )
     }
 
+    const displaySequenceSection = (canEdit, user)  => {
+      return (canEdit && user.sequenceDraftCount || user.sequenceCount) || (!canEdit && user.sequenceCount)
+    }
+
+    const renderSequences = (props) => {
+      const canEdit = props.currentUser && props.currentUser._id === user._id
+      if (displaySequenceSection(canEdit, user)) {
+        return (
+          <Components.Section title="Sequences"
+            titleComponent= {canEdit &&
+              <div className="recent-posts-title-component users-profile-drafts">
+                <div className="new-sequence-link"><Link to={"/sequencesnew"}> new sequence </Link></div>
+              </div>}
+          >
+            <Components.SequencesGridWrapper
+              terms={canEdit ? sequenceAllTerms : sequenceTerms}
+              showLoadMore={true}
+            className="books-sequences-grid-list" />
+          </Components.Section>
+        )
+      }
+    }
     return (
       <div className="page users-profile">
         <div className="users-profile-header">{ renderUserProfileHeader(props) }</div>
 
+        { renderSequences(props) }
         { renderDrafts(props) }
         { renderBlogPosts(props) }
         <Components.Section title="Recent Comments" >
@@ -129,11 +153,5 @@ UsersProfile.propTypes = {
 }
 
 UsersProfile.displayName = "UsersProfile";
-
-const options = {
-  collection: Users,
-  queryName: 'usersSingleQuery',
-  fragmentName: 'UsersProfile',
-};
 
 replaceComponent('UsersProfile', UsersProfile, withCurrentUser, withRouter);

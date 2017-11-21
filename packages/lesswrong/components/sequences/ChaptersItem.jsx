@@ -1,7 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { registerComponent, ModalTrigger, Components } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
-import { editorHasContent } from '../../lib/modules/utils'
+import { registerComponent, Components } from 'meteor/vulcan:core';
 
 class ChaptersItem extends Component {
   constructor(props) {

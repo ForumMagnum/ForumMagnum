@@ -4,11 +4,23 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 import classNames from 'classnames';
 
 //TODO: What do the terms do in other list components? Check posts list.
-const SequencesGridWrapper = ({className, loading, currentUser, terms, results, error}) => {
+const SequencesGridWrapper = ({
+  className,
+  loading,
+  currentUser,
+  terms,
+  results,
+  count,
+  totalCount,
+  loadMore,
+  loadingMore,
+  showLoadMore = false,
+  error}) => {
   if (results && results.length) {
     // render grid of sequences
     return (<div className={classNames(className, 'sequences-grid-wrapper')}>
       <Components.SequencesGrid sequences={results} />
+      { showLoadMore && totalCount > count && <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />}
     </div>);
   } else if (loading) {
     // TODO: Replace with SequencesLoading
@@ -32,7 +44,7 @@ const options = {
   collection: Sequences,
   queryName: "SequencesGridWrapperQuery",
   fragmentName: 'SequencesPageFragment',
-  totalResolver: false,
+  totalResolver: true,
 }
 
 

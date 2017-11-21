@@ -46,6 +46,8 @@ import './collections/bans/fragments.js';
 import './collections/bans/admin.js';
 // Chapters
 import Sequences from './collections/sequences/collection.js';
+import './collections/sequences/views.js';
+
 import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';
 import Collections from './collections/collections/collection.js';
