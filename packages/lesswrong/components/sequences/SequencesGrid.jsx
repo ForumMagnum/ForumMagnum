@@ -3,12 +3,19 @@ import React from 'react';
 import { Link } from 'react-router';
 import Sequences from '../../lib/collections/sequences/collection.js';
 
-const SequencesGrid = ({sequences}) =>
+const SequencesGrid = ({sequences, showAuthor, listMode}) =>
   <div className='sequences-grid'>
     <div className="sequences-grid-content">
-        {sequences.map(sequence => {
-          return (<Link key={sequence._id} className="sequences-grid-item-link" to={"/sequences/"+sequence._id}><Components.SequencesGridItem sequence={sequence} key={sequence._id} /></Link>);
-        })}
+      {sequences.map(sequence => {
+        return (
+          <Link key={sequence._id} className="sequences-grid-item-link" to={"/sequences/"+sequence._id}>
+            <Components.SequencesGridItem
+              sequence={sequence}
+              key={sequence._id}
+              showAuthor={showAuthor}/>
+          </Link>
+        );
+      })}
     </div>
   </div>
 
