@@ -15,19 +15,19 @@ const SequencesGridWrapper = ({
   loadMore,
   loadingMore,
   showLoadMore = false,
+  showAuthor = false,
+  listMode = false,
   error}) => {
   if (results && results.length) {
     // render grid of sequences
     return (<div className={classNames(className, 'sequences-grid-wrapper')}>
-      <Components.SequencesGrid sequences={results} />
+      <Components.SequencesGrid sequences={results} showAuthor={showAuthor} listMode={listMode}/>
       { showLoadMore && totalCount > count && <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />}
     </div>);
   } else if (loading) {
     // TODO: Replace with SequencesLoading
     return (<div className={classNames(className, 'sequences-grid')}>
-      <div className="sequences-grid-content">
-        <Components.Loading/>
-      </div>
+      <Components.Loading/>
     </div>);
   } else {
     // TODO: Replace with SequencesNoResults

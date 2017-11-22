@@ -40,7 +40,7 @@ const Home = (props, context) => {
   const featuredPostsTerms = {view: 'featured', limit: 3, frontpage: true};
   return (
     <div className="home">
-      <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading">
+      <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
         <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
         <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
         <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>

@@ -147,6 +147,15 @@ const schema = {
     control: "ImageUpload",
   },
 
+  curated: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    control: "checkbox"
+  },
+
   draft: {
     type: Boolean,
     optional: true,

@@ -12,6 +12,10 @@
   text-transform: uppercase;
   border-top-style: solid;
   border-top-width: 4px;
+
+  h1 {
+    margin-top:7px;
+  }
 }
 
 .sequences-list-description {
@@ -89,63 +93,62 @@
 
 .sequences-list-content {
   margin-top: -20px;
-  .sequences-list-item {
-    &:hover {
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-      color: rgba(0,0,0,0.87);
-    }
-    display: flex;
-    padding: 20px;
-    margin-right: 1px;
+}
+.sequences-list-item {
+  &:hover {
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+    color: rgba(0,0,0,0.87);
   }
-  .sequences-grid-item-image {
-    width: 203px;
-    height: 146px;
-  }
-  .sequences-list-item-right {
-    position: relative;
-    margin-left: 30px;
-    border-top-style: solid;
-    border-top-width: 2px;
-    padding-top: 5px;
-  }
-  .sequences-list-item-title {
-    font-size: 16px;
-    font-variant: small-caps;
+  display: flex;
+  padding: 15px;
+  margin-right: 1px;
+}
+.sequences-list-item-image {
+  width: 203px;
+}
+.sequences-list-item-right {
+  position: relative;
+  margin-left: 30px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  padding-top: 5px;
+  width:436px;
+}
+.sequences-list-item-title {
+  font-size: 16px;
+  font-variant: small-caps;
+  display: inline;
+  margin-right: 7px;
+  line-height: 1.1;
+}
+.sequences-list-item-author {
+  margin-bottom: 7px;
+  line-height: 1.1;
+  color: rgba(0,0,0,0.6);
+}
+.sequences-list-item-description {
+  line-height: 1.4;
+  color: rgba(0,0,0,0.6);
+  font-size: 14px;
+}
+.sequences-list-item-articles {
+  display: inline;
+  font-size: 12px;
+}
+.sequences-list-item-bottom{
+  position: absolute;
+  bottom: 0;
+  line-height: 1;
+  .sequences-list-item-comment-count {
     display: inline;
     margin-right: 7px;
-    line-height: 1.1;
-  }
-  .sequences-list-item-author {
-    margin-bottom: 7px;
-    line-height: 1.1;
-    color: rgba(0,0,0,0.6);
-  }
-  .sequences-list-item-description {
-    line-height: 1.4;
-    color: rgba(0,0,0,0.6);
     font-size: 14px;
+    font-weight: bold;
   }
-  .sequences-list-item-articles {
+  .sequences-list-item-date {
     display: inline;
-    font-size: 12px;
-  }
-  .sequences-list-item-bottom{
-    position: absolute;
-    bottom: 0;
-    line-height: 1;
-    .sequences-list-item-comment-count {
-      display: inline;
-      margin-right: 7px;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .sequences-list-item-date {
-      display: inline;
-    }
   }
 }
-
 .sequences-page {
   padding-top: 380px;
   margin-right: 90px;

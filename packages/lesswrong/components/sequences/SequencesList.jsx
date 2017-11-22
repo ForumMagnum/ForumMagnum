@@ -10,8 +10,8 @@ const results = [
     title: "Map and Territory",
     id: "dummyId",
     user: {displayName: "EliezerYudkowsky"},
-    summary: "Rationality: From AI to Zombies serves as a long-form introduction to formative ideas behind LessWrong, the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruist community.",
-    image: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
+    description: "Rationality: From AI to Zombies serves as a long-form introduction to formative ideas behind LessWrong, the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruist community.",
+    gridImageId: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
     color: "#B1D4B4",
     big: true,
     createdAt: "2017-08-06T21:15:49.175Z",
@@ -23,8 +23,8 @@ const results = [
     title: "Rationality and Rationalization",
     id: "dummyId2",
     user: {displayName: "Scott Alexander"},
-    summary: "Welcome to Slate Star Codex, a blog about science, medicine, philosophy, politics, and futurism. (there’s also one post about hallucinatory cactus-people, but it’s not representative)",
-    image: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
+    description: "Welcome to Slate Star Codex, a blog about science, medicine, philosophy, politics, and futurism. (there’s also one post about hallucinatory cactus-people, but it’s not representative)",
+    gridImageId: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
     color: "#88ACB8",
     big: false,
     createdAt: "2017-08-06T21:15:49.175Z",
@@ -36,8 +36,8 @@ const results = [
     title: "HPJEV and the Methods of Rationality",
     id: "dummyId3",
     user: {displayName: "EliezerYudkowsky"},
-    summary: "Every inch of wall space is covered by a bookcase. Each bookcase has six shelves, going almost to the ceiling. Some bookshelves are stacked to the brim with hardback books.",
-    image: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
+    description: "Every inch of wall space is covered by a bookcase. Each bookcase has six shelves, going almost to the ceiling. Some bookshelves are stacked to the brim with hardback books.",
+    gridImageId: "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1503086474/Background_Images_ce3ulk.png",
     color: "#757AA7",
     big: false,
     createdAt: "2017-08-06T21:15:49.175Z",
@@ -52,9 +52,9 @@ const SequencesList = ({className, loading, currentUser, terms, results, error})
     // render list of sequences
     return (<div className={classNames(className, 'sequences-list')}>
       <div className="sequences-list-content">
-          {results.map(sequence => {
-            return (<Components.SequencesListItem sequence={sequence} key={sequence._id}
-              currentUser={currentUser} terms={terms} />);
+        {results.map(sequence => {
+          return (<Components.SequencesListItem sequence={sequence} key={sequence._id}
+            currentUser={currentUser} terms={terms} />);
           })}
       </div>
     </div>);
