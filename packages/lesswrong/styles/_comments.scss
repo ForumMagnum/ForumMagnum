@@ -55,7 +55,6 @@ $medium-text: $dark-grey;
   }
   a {
     color: $black;
-    text-decoration: underline;
     font-weight: 500;
   }
   .comments-item-meta {
@@ -144,9 +143,6 @@ New CSS File
 .comments-item{
   margin-bottom: $vmargin;
   position: relative;
-  a {
-    text-decoration: none;
-  }
   .comments-more-actions-menu {
     opacity: 0;
     position: absolute;
