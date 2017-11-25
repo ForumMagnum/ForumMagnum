@@ -23,9 +23,9 @@ const schema = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    insertableBy: ['admin'],
+    insertableBy: ['members'],
     editableBy: ['admin'],
-    hidden: false,
+    hidden: true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
