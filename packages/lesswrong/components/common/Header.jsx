@@ -10,6 +10,7 @@ import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 
+import Divider from 'material-ui/Divider';
 import { withApollo } from 'react-apollo';
 import { Posts } from 'meteor/example-forum';
 import Sequences from '../../lib/collections/sequences/collection'
@@ -142,18 +143,36 @@ class Header extends Component {
             </div>
           </AppBar>
           <Drawer docked={false}
-            width={200}
+            width={225}
             open={this.state.open}
             onRequestChange={(open) => this.setState({open})}
           containerClassName="menu-drawer" >
 
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/rationality"}/>}> RATIONALITY: A-Z </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/codex"}/>}> THE CODEX </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/hpmor"}/>}> HPMOR </MenuItem>
+            <Divider />
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>
+            <MenuItem
+              onTouchTap={this.handleClose}
+              innerDivStyle={{paddingLeft:"35px" }}
+              containerElement={<Link to={"/rationality"}/>}>
+              RATIONALITY: A-Z
+            </MenuItem>
+            <MenuItem
+              onTouchTap={this.handleClose}
+              innerDivStyle={{paddingLeft:"35px" }}
+              containerElement={<Link to={"/codex"}/>}>
+              THE CODEX
+            </MenuItem>
+            <MenuItem
+              onTouchTap={this.handleClose}
+              innerDivStyle={{paddingLeft:"35px" }}
+              containerElement={<Link to={"/hpmor"}/>}>
+              HPMOR
+            </MenuItem>
+            <Divider />
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
+            <Divider />
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
 
           {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
