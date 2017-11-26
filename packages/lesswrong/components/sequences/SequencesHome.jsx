@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Link } from 'react-router';
 
 const testCollections = [
   {
@@ -33,7 +34,6 @@ const testCollections = [
 
 const SequencesHome = ({document, currentUser, loading}) => {
   // TODO: decide on terms for community sequences
-  const communitySeqTerms = {};
   return <div className="sequences-home">
     {/* Title */}
     <Components.Section>
@@ -76,7 +76,9 @@ const SequencesHome = ({document, currentUser, loading}) => {
     {/* Community sequences list (make a sequencesList w/ roll your own list) */}
     <div>
       <div className="sequences-list-community-sequences">
-        <Components.Section title="Community Sequences">
+        <Components.Section title="Community Sequences" titleComponent={<div className="recent-posts-title-component users-profile-drafts">
+          <div className="new-sequence-link"><Link to={"/sequencesnew"}> new sequence </Link></div>
+        </div>}>
           <Components.SequencesGridWrapper
             terms={{'view':'communitySequences', limit:12}}
             listMode={true}
