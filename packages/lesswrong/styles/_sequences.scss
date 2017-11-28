@@ -1,5 +1,8 @@
 .sequences-home {
   margin-right: 90px;
+  @include section-header-break {
+    margin-right: 0px;
+  }
 }
 
 .sequences-header {
