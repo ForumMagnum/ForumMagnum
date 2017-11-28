@@ -138,8 +138,7 @@ body {
 
   blockquote { font-size: 1.4rem;
                padding: inherit;
-               margin: inherit;
-               margin-left: 40px;
+               margin: 1.4rem 40px 1.4rem 40px;
                border-left: none; }
 
   blockquote p { /* width: 55%; */
@@ -154,7 +153,7 @@ body {
                            -webkit-padding-start: 5%;
                            -webkit-padding-end: 5%; }
 
-  // li { padding: 0.5rem 0; }
+  li { padding: 0.25rem 0; }
 
   figure { padding: 0;
            border: 0;
