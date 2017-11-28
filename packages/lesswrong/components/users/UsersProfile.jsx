@@ -23,6 +23,7 @@ const UsersProfile = (props) => {
     const query = _.clone(props.router.location.query || {});
 
     const draftTerms = {view: "drafts", userId: user._id }
+    const unlistedTerms= {view: "unlisted", userId: user._id }
     const terms = {view: "new", ...query, userId: user._id};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
@@ -88,6 +89,7 @@ const UsersProfile = (props) => {
               }
             >
               <Components.PostsList terms={draftTerms} showHeader={false}/>
+              <Components.PostsList terms={unlistedTerms} showHeader={false} showNoResults={false}/>
             </Components.Section>
           }
         </div>

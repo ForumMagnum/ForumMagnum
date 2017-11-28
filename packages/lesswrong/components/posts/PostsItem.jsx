@@ -99,7 +99,7 @@ class PostsItem extends PureComponent {
           <div className="posts-item-content">
             <div className="posts-item-body">
               <h3 className="posts-item-title">
-                {post.title}
+                {post.unlisted && "[Unlisted]"} {post.title}
               </h3>
               {this.renderPostFeeds()}
 

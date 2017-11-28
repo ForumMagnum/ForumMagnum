@@ -107,6 +107,21 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
+      unlisted: null,
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+}});
+
+/**
+ * @summary Unlisted view
+ */
+Posts.addView("unlisted", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      unlisted: true
     },
     options: {
       sort: {createdAt: -1}

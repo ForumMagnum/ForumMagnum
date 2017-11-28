@@ -124,6 +124,7 @@ registerFragment(`
       ...VoteFragment
     }
     baseScore
+    unlisted
     score
     feedId
     feedLink
