@@ -50,6 +50,10 @@ body {
        margin-bottom: 1.5rem;
        font-size: 3.2rem;
        line-height: 1;
+
+       @include very-small-break() {
+         font-size: 2.35rem;
+       }
      }
 
   h2 { color: rgba(0,0,0,0.93);
@@ -58,6 +62,9 @@ body {
        margin-bottom: 1.4rem;
        font-size: 2.2rem;
        line-height: 1;
+       @include very-small-break() {
+         font-size: 1.9rem;
+       }
      }
 
   h3 { color: rgba(0,0,0,0.93);
@@ -116,7 +123,7 @@ body {
   p { margin-top: 1.4rem;
       margin-bottom: 1.4rem;
       padding-right: 0;
-      vertical-align: baseline; }
+      vertical-align: baseline;}
 
   a:hover {
       text-decoration: none;
@@ -266,7 +273,6 @@ body {
                               pre.code { width: 97%; }
                               section > ol { width: 90%; }
                               section > ul { width: 90%; }
-                              figure { max-width: 90%; }
                               figcaption, figure.fullwidth figcaption { margin-right: 0%;
                                                                         max-width: none; }
                               blockquote { margin-left: 1.5em;

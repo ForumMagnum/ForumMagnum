@@ -205,8 +205,14 @@
   color: rgba(100, 169, 105, 0.6);
 }
 
-.posts-load-more {
+.posts-load-more, .comments-load-more {
   margin-left: 10px;
+  @include max-small() {
+    margin-top:20px;
+  }
+  @include max-tiny() {
+    margin-left:0;
+  }
   .posts-load-more-link{
     &:hover, &:focus, &:active{
       text-decoration: none !important;
