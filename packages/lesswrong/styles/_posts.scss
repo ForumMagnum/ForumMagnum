@@ -34,6 +34,10 @@
   color: rgba(0,0,0,0.6);
   .new-post-link {
     margin-top: 20px;
+    @include max-tiny() {
+      margin-top:10px;
+      margin-left:10px;
+    }
     a {
       color: rgba(0,0,0,0.6);
       @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3))
@@ -52,6 +56,9 @@
     margin-top: 0px;
     margin-left: 11px;
     display: inline;
+  }
+  @include max-tiny() {
+    margin-top:10px;
   }
 }
 
