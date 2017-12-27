@@ -87,6 +87,7 @@ vulcan:email@1.8.0
 vulcan:embed@1.8.0
 vulcan:events@1.8.0
 vulcan:forms@1.8.0
+vulcan:forms-tags@1.8.0
 vulcan:i18n@1.8.0
 vulcan:i18n-en-us@1.8.0
 vulcan:lib@1.8.0

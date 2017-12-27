@@ -15,6 +15,7 @@ vulcan:voting
 vulcan:events
 vulcan:embed
 # vulcan:subscribe
+vulcan:forms-tags
 
 ############ Theme Packages ############
 

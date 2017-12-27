@@ -397,3 +397,13 @@ registerFragment(`
     description
   }
 `);
+
+registerFragment(`
+  fragment allCategories on Category {
+    _id
+    name
+    slug
+    description
+    order
+  }
+`);

@@ -1,5 +1,5 @@
-import { Components, replaceComponent, getRawComponent, getFragment, withMessages } from 'meteor/vulcan:core';
-import { Posts } from "meteor/example-forum";
+import { Components, replaceComponent, getRawComponent, getFragment, withMessages, withList } from 'meteor/vulcan:core';
+import { Posts, Categories } from "meteor/example-forum";
 import React, { PropTypes, Component } from 'react';
 import { withRouter } from 'react-router'
 
@@ -33,4 +33,10 @@ PostsNewForm.contextTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-replaceComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter);
+const categoryListOptions = {
+  collection: Categories,
+  queryName: 'newPostCategories',
+  fragmentName: 'allCategories',
+};
+
+replaceComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, [withList, categoryListOptions]);

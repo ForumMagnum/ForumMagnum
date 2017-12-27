@@ -11,7 +11,7 @@ export function getCategories (apolloClient) {
 
   // get the current data of the store
   const apolloData = apolloClient.store.getState().apollo.data;
-  
+
   // filter these data based on their typename: we are interested in the categories data
   let categories = _.filter(apolloData, (object, key) => {
     return object.__typename === 'Category'
@@ -19,7 +19,7 @@ export function getCategories (apolloClient) {
 
   // order categories
   categories = _.sortBy(categories, cat => cat.order);
-  
+
   return categories;
 }
 

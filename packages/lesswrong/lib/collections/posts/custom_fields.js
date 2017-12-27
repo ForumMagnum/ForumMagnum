@@ -2,6 +2,7 @@ import { Posts } from "meteor/example-forum";
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import Tags from 'meteor/vulcan:forms-tags'
 
 const formGroups = {
   admin: {
@@ -39,7 +40,11 @@ Posts.addField([
   {
     fieldName: "categories",
     fieldSchema: {
-      hidden: true,
+
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: Tags
+      // hidden: true,
     }
   },
 
