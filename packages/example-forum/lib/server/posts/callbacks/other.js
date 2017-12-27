@@ -109,7 +109,17 @@ function PostsClickTracking(post, ip) {
 }
 
 // track links clicked, locally in Events collection
-// note: this event is not sent to segment cause we cannot access the current user 
-// in our server-side route /out -> sending an event would create a new anonymous 
+// note: this event is not sent to segment cause we cannot access the current user
+// in our server-side route /out -> sending an event would create a new anonymous
 // user: the free limit of 1,000 unique users per month would be reached quickly
 addCallback('posts.click.async', PostsClickTracking);
+
+//////////////////////////////////////////////////////
+// posts.approve.sync                              //
+//////////////////////////////////////////////////////
+
+function PostsApprovedSetPostedAt (modifier, post) {
+  modifier.postedAt = new Date();
+  return modifier;
+}
+addCallback('posts.approve.sync', PostsApprovedSetPostedAt);

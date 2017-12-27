@@ -11,6 +11,7 @@ import sanitizeHtml from 'sanitize-html';
 import getSlug from 'speakingurl';
 import { getSetting, registerSetting } from './settings.js';
 import { Routes } from './routes.js';
+import { isAbsolute } from 'path';
 
 registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
 
@@ -126,10 +127,14 @@ Utils.getDateRange = function(pageNumber) {
 //////////////////////////
 
 /**
- * @summary Returns the user defined site URL or Meteor.absoluteUrl
+ * @summary Returns the user defined site URL or Meteor.absoluteUrl. Add trailing '/' if missing
  */
 Utils.getSiteUrl = function () {
-  return getSetting('siteUrl', Meteor.absoluteUrl());
+  const url = getSetting('siteUrl', Meteor.absoluteUrl());
+  if (url.slice(-1) !== '/') {
+    url += '/';
+  }
+  return url;
 };
 
 /**
@@ -258,7 +263,7 @@ _.mixin({
     var clone = _.clone(object);
     _.each(clone, function(value, key) {
       /*
-        
+
         Remove a value if:
         1. it's not a boolean
         2. it's not a number
@@ -288,7 +293,7 @@ Utils.getFieldLabel = (fieldName, collection) => {
 
 Utils.getLogoUrl = () => {
   const logoUrl = getSetting('logoUrl');
-  if (!!logoUrl) {
+  if (logoUrl) {
     const prefix = Utils.getSiteUrl().slice(0,-1);
     // the logo may be hosted on another website
     return logoUrl.indexOf('://') > -1 ? logoUrl : prefix + logoUrl;
@@ -323,9 +328,9 @@ Utils.findIndex = (array, predicate) => {
 // adapted from http://stackoverflow.com/a/22072374/649299
 Utils.unflatten = function(array, options, parent, level=0, tree){
 
-  const { 
-    idProperty = '_id', 
-    parentIdProperty = 'parentId', 
+  const {
+    idProperty = '_id',
+    parentIdProperty = 'parentId',
     childrenProperty = 'childrenResults'
   } = options;
 

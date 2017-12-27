@@ -20,13 +20,11 @@ dump/
 dump/*
 
 settings.json
-settings-dev.json
 settings.json.not-used
 .idea
 
 scratch
 
-.deploy-dev
 .deploy
 .deploy/*
 ### Meteor template
@@ -35,6 +33,7 @@ scratch
 mup.json
 
 packages_update.py
+
 versions
 
 get_file_list.sh
@@ -47,7 +46,5 @@ bundle.tar.gz
 
 jsdoc-conf.json
 jsdoc.json
-packages/vulcan-router/.npm
+packages/nova-router/.npm
 npm-debug.log
-
-*.imdone

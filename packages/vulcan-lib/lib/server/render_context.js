@@ -78,8 +78,6 @@ webAppConnectHandlersUse(Meteor.bindEnvironment(function initRenderContextMiddle
     return;
   }
 
-
-
   // init
   const history = createMemoryHistory(req.url);
   const loginToken = req.cookies && req.cookies.meteor_login_token;

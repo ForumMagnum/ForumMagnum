@@ -153,8 +153,12 @@ class Form extends Component {
       }
 
       // replace empty value, which has not been prefilled, by the default value from the schema
-      if (fieldSchema.defaultValue && field.value === "") {
+      // keep defaultValue for backwards compatibility even though it doesn't actually work
+      if (fieldSchema.defaultValue && (typeof field.value === 'undefined' || field.value === '')) {
         field.value = fieldSchema.defaultValue;
+      }
+      if (fieldSchema.default && (typeof field.value === 'undefined' || field.value === '')) {
+        field.value = fieldSchema.default;
       }
 
       // add options if they exist
@@ -166,13 +170,15 @@ class Form extends Component {
           field.value = _.where(field.options, {checked: true}).map(option => option.value);
         }
       }
-
-      if (fieldSchema.form && fieldSchema.form.disabled) {
-        field.disabled = typeof fieldSchema.form.disabled === "function" ? fieldSchema.form.disabled.call(fieldSchema) : fieldSchema.form.disabled;
-      }
-
-      if (fieldSchema.form && fieldSchema.form.help) {
-        field.help = typeof fieldSchema.form.help === "function" ? fieldSchema.form.help.call(fieldSchema) : fieldSchema.form.help;
+      
+      if (fieldSchema.form) {
+        for (const prop in fieldSchema.form) {
+          if (prop !== 'prefill' && prop !== 'options' && fieldSchema.form.hasOwnProperty(prop)) {
+            field[prop] = typeof fieldSchema.form[prop] === "function" ?
+              fieldSchema.form[prop].call(fieldSchema) :
+              fieldSchema.form[prop];
+          }
+        }
       }
 
       // add limit
@@ -355,7 +361,8 @@ class Form extends Component {
 
             message = error.data.errors.map(error => {
               return {
-                content: this.getErrorMessage(error)
+                content: this.getErrorMessage(error),
+                data: error.data,
               }
             });
 
@@ -615,9 +622,13 @@ class Form extends Component {
           disabled={this.state.disabled}
           ref="form"
         >
+
           {this.renderErrors()}
+        
           {fieldGroups.map(group => <Components.FormGroup key={group.name} {...group} updateCurrentValues={this.updateCurrentValues} />)}
-  
+    
+          {this.props.repeatErrors && this.renderErrors()}
+
           <Components.FormSubmit submitLabel={this.props.submitLabel}
                                  cancelLabel={this.props.cancelLabel}
                                  cancelCallback={this.props.cancelCallback}
@@ -657,6 +668,7 @@ Form.propTypes = {
   showRemove: PropTypes.bool,
   submitLabel: PropTypes.string,
   cancelLabel: PropTypes.string,
+  repeatErrors: PropTypes.bool,
 
   // callbacks
   submitCallback: PropTypes.func,
@@ -670,7 +682,8 @@ Form.propTypes = {
 }
 
 Form.defaultProps = {
-  layout: "horizontal",
+  layout: 'horizontal',
+  repeatErrors: false,
 }
 
 Form.contextTypes = {

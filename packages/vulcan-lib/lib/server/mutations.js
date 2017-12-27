@@ -60,10 +60,12 @@ export const newMutation = async ({ collection, document, currentUser, validate,
 
   }
   
-  // check if userId field is in the schema and add it to document if needed
-  const userIdInSchema = Object.keys(schema).find(key => key === 'userId');
-  if (!!userIdInSchema && !newDocument.userId) newDocument.userId = currentUser._id;
-
+  // if user is logged in, check if userId field is in the schema and add it to document if needed
+  if (currentUser) {
+    const userIdInSchema = Object.keys(schema).find(key => key === 'userId');
+    if (!!userIdInSchema && !newDocument.userId) newDocument.userId = currentUser._id;
+  }
+  
   // run onInsert step
   // note: cannot use forEach with async/await. 
   // See https://stackoverflow.com/a/37576787/649299
@@ -98,7 +100,7 @@ export const newMutation = async ({ collection, document, currentUser, validate,
 
   // run async callbacks
   // note: query for document to get fresh document with collection-hooks effects applied
-  runCallbacksAsync(`${collectionName}.new.async`, insertedDocument, currentUser, collection);
+  await runCallbacksAsync(`${collectionName}.new.async`, insertedDocument, currentUser, collection);
 
   debug('// new mutation finished:');
   debug(newDocument);
@@ -123,9 +125,9 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
   debug('// editMutation');
   debug('// collectionName: ', collection._name);
   debug('// documentId: ', documentId);
-  debug('// set: ', set);
-  debug('// unset: ', unset);
-  debug('// document: ', document);
+  // debug('// set: ', set);
+  // debug('// unset: ', unset);
+  // debug('// document: ', document);
 
   if (validate) {
 
@@ -134,6 +136,8 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
     modifier = runCallbacks(`${collectionName}.edit.validate`, modifier, document, currentUser, validationErrors);
 
     if (validationErrors.length) {
+      console.log('// validationErrors')
+      console.log(validationErrors)
       const EditDocumentValidationError = createError('app.validation_error', {message: 'app.edit_document_validation_error'});
       throw new EditDocumentValidationError({data: {break: true, errors: validationErrors}});
     }
@@ -185,11 +189,11 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
   newDocument = await runCallbacks(`${collectionName}.edit.after`, newDocument, document, currentUser);
 
   // run async callbacks
-  runCallbacksAsync(`${collectionName}.edit.async`, newDocument, document, currentUser, collection);
+  await runCallbacksAsync(`${collectionName}.edit.async`, newDocument, document, currentUser, collection);
 
   debug('// edit mutation finished')
   debug('// modifier: ', modifier)
-  debug('// newDocument: ', newDocument)
+  debug('// edited document: ', newDocument)
   debug('//------------------------------------//');
 
   return newDocument;
@@ -230,7 +234,11 @@ export const removeMutation = async ({ collection, documentId, currentUser, vali
     collection.loader.clear(documentId);
   }
 
-  runCallbacksAsync(`${collectionName}.remove.async`, document, currentUser, collection);
+  await runCallbacksAsync(`${collectionName}.remove.async`, document, currentUser, collection);
 
   return document;
 }
+
+export const newMutator = newMutation;
+export const editMutator = editMutation;
+export const removeMutator = removeMutation;

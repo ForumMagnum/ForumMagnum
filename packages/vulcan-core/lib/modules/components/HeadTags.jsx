@@ -14,24 +14,31 @@ registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 class HeadTags extends PureComponent {
   render() {
 
-    const url = !!this.props.url ? this.props.url : Utils.getSiteUrl();
-    const title = !!this.props.title ? this.props.title : getSetting('title', 'My App');
-    const description = !!this.props.description ? this.props.description : getSetting('tagline') || getSetting('description');
+    const url = this.props.url || Utils.getSiteUrl();
+    const title = this.props.title || getSetting('title', 'My App');
+    const description = this.props.description || getSetting('tagline') || getSetting('description');
 
     // default image meta: logo url, else site image defined in settings
-    let image = getSetting('siteImage')
-    // overwrite default image if one is passed as props
+    let image = !!getSetting('siteImage') ? getSetting('siteImage'): getSetting('logoUrl');
+
+    // overwrite default image if one is passed as props 
     if (!!this.props.image) {
-      image = this.props.image;
+      image = this.props.image; 
     }
+
     // add site url base if the image is stored locally
     if (!!image && image.indexOf('//') === -1) {
+      // remove starting slash from image path if needed
+      if (image.charAt(0) === '/') {
+        image = image.slice(1);
+      }
       image = Utils.getSiteUrl() + image;
     }
+
     return (
       <div>
         <Helmet>
-
+          
           <title>{title}</title>
 
           <meta charSet='utf-8'/>
@@ -56,7 +63,7 @@ class HeadTags extends PureComponent {
 
           {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
           {Head.link.map((tag, index) => <link key={index} {...tag}/>)}
-          {Head.script.map((tag, index) => <script key={index} {...tag}/>)}
+          {Head.script.map((tag, index) => <script key={index} {...tag}>{contents}</script>)}
 
         </Helmet>
 
@@ -70,7 +77,7 @@ class HeadTags extends PureComponent {
           }
           return <HeadComponent key={index} />
         })}
-
+        
       </div>
     );
   }
