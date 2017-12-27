@@ -112,7 +112,7 @@ class PostsItem extends PureComponent {
                 {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
               </div></object>
               <div className="posts-item-summary">
-                {post.url ? ("This is a linkpost for " + post.url) : post.excerpt}
+                {post.url ? <span>This is a linkpost for {post.url}. <Link to={Posts.getPageUrl(post) + "#comments"}>(Click here to view comments)</Link></span> : post.excerpt}
               </div>
             </div>
             <div className="posts-item-comments">

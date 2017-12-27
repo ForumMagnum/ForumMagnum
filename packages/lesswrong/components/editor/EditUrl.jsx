@@ -8,8 +8,8 @@ class EditUrl extends Component {
     super(props,context);
 
     this.state = {
-      active: false,
-      url: "",
+      active: !!this.props.value,
+      url: this.props.value,
     };
   }
 

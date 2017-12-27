@@ -185,6 +185,9 @@ class PostsPage extends Component {
                   }
                 </div>
               </div>
+              { post.url && <div className="link-post-url">
+                <p className="posts-page-content-body-link-post">This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link></p>
+              </div>}
               {post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div>}
               {post.categories && post.categories.length > 0 ? <div className="posts-page-content-body-tags">
                 Tags: <span className="posts-page-content-body-tags-list"> {post.categories.map(category => <a href={"/categories/"+category.id +"/"+category.slug}>{category.name}</a>)} </span>
