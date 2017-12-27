@@ -50,7 +50,7 @@ class PostsItem extends PureComponent {
     if (post.canonicalCollectionSlug) {
       return "/" + post.canonicalCollectionSlug + "/" + post.slug
     } else {
-      return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getLink(post)
+      return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
     }
   }
 
@@ -95,7 +95,7 @@ class PostsItem extends PureComponent {
         style={paperStyle}
         zDepth={0}
       >
-        <Link to={postLink} className="posts-item-title-link" target={Posts.getLinkTarget(post)}>
+        <Link to={postLink} className="posts-item-title-link">
           <div className="posts-item-content">
             <div className="posts-item-body">
               <h3 className="posts-item-title">
@@ -112,7 +112,7 @@ class PostsItem extends PureComponent {
                 {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
               </div></object>
               <div className="posts-item-summary">
-                {post.url ? <span>This is a linkpost for {post.url}. <Link to={Posts.getPageUrl(post) + "#comments"}>(Click here to view comments)</Link></span> : post.excerpt}
+                {post.url ? <span>This is a linkpost for {post.url}.</span> : post.excerpt}
               </div>
             </div>
             <div className="posts-item-comments">
