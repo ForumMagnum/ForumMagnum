@@ -1,8 +1,8 @@
 /*
 
 Generate the appropriate fragment for the current form, then
-wrap the main Form component with the necessary HoCs while passing 
-them the fragment. 
+wrap the main Form component with the necessary HoCs while passing
+them the fragment.
 
 This component is itself wrapped with:
 
@@ -13,7 +13,7 @@ And wraps the Form component with:
 
 - withNew
 
-Or: 
+Or:
 
 - withDocument
 - withEdit
@@ -77,7 +77,7 @@ class FormWrapper extends PureComponent {
     }
 
     // resolve any array field with resolveAs as fieldName{_id} -> why?
-    /* 
+    /*
     - string field with no resolver -> fieldName
     - string field with a resolver  -> fieldName
     - array field with no resolver  -> fieldName
@@ -86,7 +86,7 @@ class FormWrapper extends PureComponent {
     const mapFieldNameToField = fieldName => {
       const field = this.getSchema()[fieldName];
       return field.resolveAs && field.type.definitions[0].type === Array
-        ? `${fieldName}` // if it's a custom resolver, add a basic query to its _id
+        ? `${fieldName}{_id}` // if it's a custom resolver, add a basic query to its _id
         : fieldName; // else just ask for the field name
     }
     queryFields = queryFields.map(mapFieldNameToField);
@@ -138,7 +138,7 @@ class FormWrapper extends PureComponent {
       collection: this.props.collection,
       fragment: this.getFragments().queryFragment,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
-      enableCache: false,    
+      enableCache: false,
     };
 
     // options for withNew, withEdit, and withRemove HoCs
@@ -153,9 +153,9 @@ class FormWrapper extends PureComponent {
       // displays the loading state if needed, and passes on loading and document
       const Loader = props => {
         const { document, loading } = props;
-        return loading ? 
-          <Components.Loading /> : 
-          <Form 
+        return loading ?
+          <Components.Loading /> :
+          <Form
             document={document}
             loading={loading}
             {...childProps}
@@ -172,7 +172,7 @@ class FormWrapper extends PureComponent {
       )(Loader);
 
       return <WrappedComponent documentId={this.props.documentId} slug={this.props.slug} />
-    
+
     } else {
 
       WrappedComponent = compose(
@@ -180,7 +180,7 @@ class FormWrapper extends PureComponent {
       )(Form);
 
       return <WrappedComponent {...childProps} {...parentProps} />;
-    
+
     }
   }
 
