@@ -36,8 +36,7 @@ const testCollections = [
 
 
 const Home = (props, context) => {
-  const recentPostsTerms = _.isEmpty(props.location && props.location.query) ? {view: 'top', limit: 10, frontpage: true}: props.location.query;
-  const featuredPostsTerms = {view: 'featured', limit: 3, frontpage: true};
+  const recentPostsTerms = _.isEmpty(props.location && props.location.query) ? {view: props.currentUser ? "frontpage" : 'curated', limit: 10}: props.location.query;
   return (
     <div className="home">
       <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
@@ -45,13 +44,9 @@ const Home = (props, context) => {
         <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
         <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
       </Components.Section>
-      <Components.Section title="Featured" titleLink="/featured">
-        <Components.PostsList terms={featuredPostsTerms} showHeader={false} showLoadMore={false} />
-      </Components.Section>
       <Components.Section title="Frontpage Posts"
         titleComponent= {<div className="recent-posts-title-component">
-          sorted by<br /> <Components.PostsViews />
-          {props.currentUser && <div className="new-post-link"><Link to={{pathname:"/daily"}}> see all posts </Link></div>}
+          <Components.PostsViews />
         </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
