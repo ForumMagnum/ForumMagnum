@@ -41,9 +41,9 @@ addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'})
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
 
-addRoute({ name: 'categories.new', path: '/newCategory', componentName: 'CategoriesNewForm'});
-addRoute({ name: 'categories.edit', path: '/editCategory', componentName: 'CategoriesEditForm'});
-addRoute({ name: 'categories.all', path: '/allCategories', componentName: 'CategoriesList'});
+addRoute({ name: 'categories.new', path: '/categories/new', componentName: 'CategoriesNewForm'});
+addRoute({ name: 'categories.edit', path: '/categories/:id', componentName: 'CategoriesEditForm'});
+addRoute({ name: 'categories.all', path: '/categories', componentName: 'AllCategories'});
 
 
 addRoute({name:'posts.single',   path:'posts/:_id(/:slug)(/:commentId)', componentName: 'PostsSingle'});

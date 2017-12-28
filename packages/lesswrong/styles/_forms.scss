@@ -1,3 +1,18 @@
+.document-new, .document-edit {
+  width:640px;
+  margin:auto;
+
+  .form-submit {
+    float:right;
+  }
+
+  label {
+    text-transform: uppercase;
+    position:relative;
+    top:8px;
+  }
+}
+
 select.form-control{
   height: 38px;
 }

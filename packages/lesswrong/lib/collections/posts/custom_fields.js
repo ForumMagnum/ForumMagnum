@@ -40,11 +40,9 @@ Posts.addField([
   {
     fieldName: "categories",
     fieldSchema: {
-
       editableBy: ['members'],
       insertableBy: ['members'],
       control: Tags
-      // hidden: true,
     }
   },
 

@@ -85,7 +85,8 @@ import './collections/comments/permissions.js';
 import './collections/comments/views.js';
 //
 //
-//
+import './collections/categories/custom_fields.js';
+
 // Internationalization
 import './i18n-en-us/en_US.js';
 //
@@ -94,6 +95,7 @@ import './modules/callbacks.js';
 
 // Legacy Post Redirect
 import './legacy-redirects/views.js';
+
 
 // // Misc.
 import './helpers.js'

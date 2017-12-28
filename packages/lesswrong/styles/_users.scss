@@ -163,13 +163,6 @@
     text-transform: uppercase;
   }
 
-  .control-label.col-sm-3 {
-    // TODO instead fix the col-sm-3 at a root level that isn't janky
-    width:90px;
-    position:relative;
-    top:8px;
-    text-transform: uppercase;
-  }
   .form-input.input-notifications_posts,
   .form-input.input-auto_subscribe_to_my_posts,
   .form-input.input-auto_subscribe_to_my_comments {
