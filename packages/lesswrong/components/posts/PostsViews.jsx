@@ -1,103 +1,108 @@
 import { Components, replaceComponent } from 'meteor/vulcan:core';
 import { registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { PropTypes, Component } from 'react';
-import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
-import { Link } from 'react-router';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
-import Users from 'meteor/vulcan:users';
+import Chip from 'material-ui/Chip';
+import FontIcon from 'material-ui/FontIcon';
+import classNames from 'classnames';
+
 
 
 
 const viewNames = {
-  'top': 'magical scoring',
-  'new': 'most recent',
-  'best': 'highest karma',
-  'drafts': 'my drafts',
+  'frontpage': 'Frontpage',
+  'curated': 'Curated Content',
+  'community': 'Community',
+  'meta': 'Meta',
   'pending': 'pending posts',
   'rejected': 'rejected posts',
   'scheduled': 'scheduled posts',
   'all_drafts': 'all drafts',
 }
+const views = ["curated", "frontpage"];
+const expandedViews = ["community","meta"];
 
-const DropdownStyle = {
-  textShadow: 'inherit',
-  display: 'inline-block',
-  lineHeight: 'normal',
-  fontSize: 'inherit',
-  height: 'auto',
+const ChipLabelStyle = {
+  fontSize: "16px",
+  fontStyle: "normal",
+  color: "rgba(0,0,0,0.5)",
+  paddingLeft: "3px",
+  paddingRight: "0px",
+  lineHeight: "25px",
 };
 
-const DropdownUnderlineStyle = {
-  display: 'none',
-};
+const ChipStyle = {
+  display: "inline-block",
+  backgroundColor: "transparent",
+}
 
-const DropdownIconStyle = {
-  display: 'none',
-};
-
-const DropdownLabelStyle = {
-  lineHeight: 'normal',
-  overflow: 'inherit',
-  paddingLeft: '0px',
-  paddingRight: '0px',
-  height: 'normal',
-  color: 'inherit',
-};
-
-const DropdownListStyle = {
-  paddingTop: '4px',
+const RSSIconStyle = {
+  fontSize: "14px",
+  color: "rgba(0,0,0,0.6)",
+  top: "1px",
 }
 
 class PostsViews extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      view: _.clone(props.router.location.query).view || "top"
+      view: _.clone(props.router.location.query).view || (this.props.currentUser ? "frontpage" : "curated"),
+      expanded: !!expandedViews.includes(props.router.location.query.view),
     }
   }
 
-  handleChange = (event, index, view) => {
+  handleChange = (view) => {
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };
     router.replace(location);
     this.setState({ view });
-  };
+  }
+
+  showComments = () => {
+    const { router } = this.props;
+    const query = { ...router.location.query, comments: true };
+    const location = { pathname: router.location.pathname, query};
+    router.push(location);
+    this.setState({view: "comments"});
+  }
 
   render() {
-    const props = this.props;
-    let views = ["top", "new", "best"];
-    const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
+    // const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
 
-    if (Users.canDo(props.currentUser, "posts.edit.own")
-    || Users.canDo(props.currentUser, "posts.edit.all")) {
-      views = views.concat(["drafts"]);
-    }
+    // if (Users.canDo(props.currentUser, "posts.edit.own")
+    // || Users.canDo(props.currentUser, "posts.edit.all")) {
+    //   views = views.concat(["drafts"]);
+    // }
 
-    if (Users.canDo(props.currentUser, "posts.edit.all")) {
-      views = views.concat(adminViews);
-    }
+    // if (Users.canDo(props.currentUser, "posts.edit.all")) {
+    //   views = views.concat(adminViews);
+    // }
 
     return (
       <div className="posts-views">
-        <DropDownMenu
-          value={this.state.view}
-          onChange={this.handleChange}
-          maxHeight={150}
-          style={DropdownStyle}
-          underlineStyle={DropdownUnderlineStyle}
-          iconStyle={DropdownIconStyle}
-          labelStyle={DropdownLabelStyle}
-          listStyle={DropdownListStyle}
-          className="posts-views-dropdown"
-        >
-          {views.map(view => (
-            <MenuItem value={view} key={view} primaryText={viewNames[view]} />
-          ))}
-          <MenuItem value={'daily'} primaryText={'day'} containerElement={<Link to={"/daily"} />}/>
-        </DropDownMenu>
+        {views.map(view => (
+          <div>
+            <span className={classNames("rss-subscribe",{visible: view === this.state.view, invisible: !(view === this.state.view)})}> <FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> </span>
+            <Chip style={ChipStyle} labelStyle={ChipLabelStyle} className="view-chip" onClick={() => this.handleChange(view)} key={view}>
+              <span className={view === this.state.view ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
+            </Chip>
+          </div>
+        ))}
+        {this.state.expanded ?
+          <div>
+            {expandedViews.map(view => (
+              <div>
+                {view === this.state.view && <FontIcon style={RSSIconStyle} className="material-icons">rss_feed</FontIcon>}
+                <Chip style={ChipStyle} labelStyle={ChipLabelStyle} className="view-chip" onClick={() => this.handleChange(view)} key={view}>
+                  <span className={view === this.state.view ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
+                </Chip>
+              </div>
+            ))}
+            <Chip className="view-chip" style={ChipStyle} labelStyle={ChipLabelStyle} onClick={() => this.props.router.push("/daily")}> <span className={"posts-views-chip-inactive"}>Daily</span> </Chip>
+          </div> : <div><a style={{textDecoration: "none"}} onClick={() => this.setState({expanded: true})}>...</a></div>
+        }
       </div>
   )}
 }
@@ -118,4 +123,4 @@ PostsViews.contextTypes = {
 
 PostsViews.displayName = "PostsViews";
 
-replaceComponent('PostsViews', PostsViews, withRouter);
+replaceComponent('PostsViews', PostsViews, withRouter, withCurrentUser);

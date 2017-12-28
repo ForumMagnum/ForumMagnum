@@ -182,6 +182,18 @@
   display: inline;
 }
 
+.posts-views-chip-active {
+  &:hover {
+    color: rgba(0,0,0,0.5);
+  }
+  font-weight: 600;
+  color: rgba(0,0,0,0.65);
+}
+
+.posts-views-chip-inactive:hover {
+  color: rgba(0,0,0,0.65);
+}
+
 .highlight-date-selector {
   margin-top: 20px;
   margin-bottom: 20px;

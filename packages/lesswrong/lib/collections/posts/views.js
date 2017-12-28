@@ -1,6 +1,8 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
+
+
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
@@ -42,6 +44,48 @@ Posts.addView("top", terms => ({
     sort: {sticky: -1, score: -1}
   }
 }));
+
+Posts.addView("frontpage", terms => ({
+  selector: {
+    frontpage: true,
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("curated", terms => ({
+  options: {
+    sort: {sticky: -1, score: -1, featuredPriority: -1}
+  }
+}));
+
+Posts.addView("community", terms => ({
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("community", terms => ({
+  selector: {
+    frontpage: {$ne: true},
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("meta", terms => ({
+  selector: {
+    meta: true,
+  },
+  options: {
+    sort: {
+      score: -1,
+      sticky: -1,
+    }
+  }
+}))
 
 /**
  * @summary New view
@@ -152,29 +196,6 @@ Posts.addView("featured", terms => ({
   }
 }))
 
-Posts.addView("meta", terms => ({
-  selector: {
-    meta: true,
-  },
-  options: {
-    sort: {
-      score: -1,
-    }
-  }
-}))
-
-Posts.addView("metaFeatured", terms => ({
-  selector: {
-    meta: true,
-  },
-  options: {
-    limit: terms.limit || 3,
-    sort: {
-      featuredPriority: -1,
-      score: -1,
-    }
-  }
-}))
 
 /**
  * @summary User posts view
