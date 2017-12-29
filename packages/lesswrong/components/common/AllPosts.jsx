@@ -6,12 +6,11 @@ const AllPosts = (props, context) => {
   const recentPostsTerms = _.isEmpty(props.location && props.location.query) ? {view: 'top', limit: 10}: props.location.query;
   return (
     <div className="all-posts">
-        <Components.Section title="Recent Posts"
-          titleComponent= {<div className="recent-posts-title-component">
-            sorted by<br /> <Components.PostsViews />
+      <Components.Section title="Recent Posts"
+        titleComponent= {<div className="recent-posts-title-component">
           {props.currentUser && <div className="new-post-link"><Link to={{pathname:"/newPost"}}> new post </Link></div>}
-          </div>} >
-          <Components.PostsDaily terms={recentPostsTerms} />
+        </div>} >
+        <Components.PostsDaily terms={recentPostsTerms} />
         </Components.Section>
     </div>
   )

@@ -190,6 +190,13 @@
   color: rgba(0,0,0,0.65);
 }
 
+.posts-views-button-inactive  {
+  .rss-out-linkbuilder {
+    display: none;
+    color: rgba(0,0,0,0.5);
+  }
+}
+
 .posts-views-chip-inactive:hover {
   color: rgba(0,0,0,0.65);
 }

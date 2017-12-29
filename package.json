@@ -92,6 +92,7 @@
     "react-bootstrap": "^0.31.5",
     "react-bootstrap-datetimepicker": "0.0.22",
     "react-cookie": "^0.4.6",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.3.2",
     "react-dom": "^15.4.1",
     "react-dropzone": "^3.12.2",

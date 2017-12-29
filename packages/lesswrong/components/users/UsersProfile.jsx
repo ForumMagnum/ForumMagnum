@@ -98,11 +98,11 @@ const UsersProfile = (props) => {
 
     const renderBlogPosts = (props) => {
       return (
-        <Components.Section title="Recent Blog Posts"
+        <Components.Section title="Recent Posts"
           titleComponent= {
             <div className="recent-posts-title-component users-profile-recent-posts">
               <Components.SearchForm/>
-              sorted by<br /> <Components.PostsViews />
+              <Components.PostsViews defaultView="community"/>
             </div>}
         >
           <Components.PostsList terms={terms} showHeader={false} />

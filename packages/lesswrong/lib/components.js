@@ -17,6 +17,9 @@ import '../components/feeds/editFeedButton.jsx';
 import '../components/feeds/feedItem.jsx';
 import '../components/feeds/feedList.jsx';
 
+// Outgoing RSS Feed builder
+import '../components/common/RSSOutLinkbuilder.jsx';
+
 import '../components/notifications/NotificationsMenu.jsx';
 import '../components/notifications/NotificationsFullscreenItem.jsx';
 import '../components/notifications/NotificationsList.jsx';

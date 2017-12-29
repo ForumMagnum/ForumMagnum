@@ -1,5 +1,6 @@
 import RSS from 'rss';
 import { Posts } from '../modules/posts/index.js';
+import { rssTermsToUrl } from '../modules/rss_urls.js';
 import { Comments } from '../modules/comments/index.js';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
@@ -7,10 +8,11 @@ import { Picker } from 'meteor/meteorhacks:picker';
 registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
+Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
 
 const getMeta = (url) => {
   const siteUrl = getSetting('siteUrl', Meteor.absoluteUrl());
-  
+
   return {
     title: getSetting('title'),
     description: getSetting('tagline'),
@@ -21,8 +23,8 @@ const getMeta = (url) => {
 };
 
 export const servePostRSS = (terms, url) => {
+  url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
-
   let parameters = Posts.getParameters(terms);
   delete parameters['options']['sort']['sticky'];
 
@@ -38,7 +40,7 @@ export const servePostRSS = (terms, url) => {
       author: post.author,
       date: post.postedAt,
       guid: post._id,
-      url: (getSetting('forum.RSSLinksPointTo', 'link') === 'link') ? Posts.getLink(post) : Posts.getPageUrl(post, true)
+      url: Posts.getPageUrl(post, true)
     };
 
     if (post.thumbnailUrl) {
@@ -53,13 +55,16 @@ export const servePostRSS = (terms, url) => {
 };
 
 export const serveCommentRSS = (terms, url) => {
+  url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
 
-  const commentsCursor = Comments.find({isDeleted: {$ne: true}}, {sort: {postedAt: -1}, limit: 20});
-  
+  let parameters = Comments.getParameters(terms);
+  parameters.options.limit = 50;
+  const commentsCursor = Comments.find(parameters.selector, parameters.options);
+
   commentsCursor.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
-    
+
     feed.item({
      title: 'Comment on ' + post.title,
      description: `${comment.body}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
@@ -78,25 +83,9 @@ Picker.route('/feed.xml', function(params, req, res, next) {
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }
-  res.end(servePostRSS(params.query, 'feed.xml'));
-});
-
-Picker.route('/rss/posts/new.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'new'}, '/rss/posts/new.xml'));
-});
-
-Picker.route('/rss/posts/top.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'top'}, '/rss/posts/top.xml'));
-});
-
-Picker.route('/rss/posts/best.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'best'}, '/rss/posts/best.xml'));
-});
-
-Picker.route('/rss/category/:slug/feed.xml', function(params, req, res, next) {
-  res.end(servePostRSS({view: 'new', cat: params.slug}, '/rss/category/:slug/feed.xml'));
-});
-
-Picker.route('/rss/comments.xml', function(params, req, res, next) {
-  res.end(serveCommentRSS({}, '/rss/comments.xml'));
+  if (params.query.type && params.query.type === "comments") {
+    res.end(serveCommentRSS(params.query));
+  } else {
+    res.end(servePostRSS(params.query));
+  }
 });

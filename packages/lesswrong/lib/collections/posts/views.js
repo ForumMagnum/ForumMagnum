@@ -8,7 +8,7 @@ import Users from 'meteor/vulcan:users';
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'frontpage', 'userId', 'meta');
-  return ({
+  let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
       draft: {$ne: true},
@@ -17,7 +17,11 @@ Posts.addDefaultView(terms => {
       meta: {$ne: true},
       ...validFields,
     }
-  });
+  }
+  if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
+    params.selector.karmaThreshold = {$gte: parseInt(terms.karmaThreshold, 10)}
+  }
+  return params;
 })
 
 
@@ -55,6 +59,9 @@ Posts.addView("frontpage", terms => ({
 }));
 
 Posts.addView("curated", terms => ({
+  selector: {
+    featuredPriority: {$gte: 0},
+  },
   options: {
     sort: {sticky: -1, score: -1, featuredPriority: -1}
   }

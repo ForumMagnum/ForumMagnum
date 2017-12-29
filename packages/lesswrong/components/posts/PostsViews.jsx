@@ -5,7 +5,8 @@ import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import Chip from 'material-ui/Chip';
 import FontIcon from 'material-ui/FontIcon';
-import classNames from 'classnames';
+import classnames from 'classnames';
+import Users from 'meteor/vulcan:users';
 
 
 
@@ -20,8 +21,8 @@ const viewNames = {
   'scheduled': 'scheduled posts',
   'all_drafts': 'all drafts',
 }
-const views = ["curated", "frontpage"];
-const expandedViews = ["community","meta"];
+const defaultViews = ["curated", "frontpage"];
+const defaultExpandedViews = ["community","meta"];
 
 const ChipLabelStyle = {
   fontSize: "16px",
@@ -32,22 +33,30 @@ const ChipLabelStyle = {
   lineHeight: "25px",
 };
 
-const ChipStyle = {
-  display: "inline-block",
-  backgroundColor: "transparent",
-}
-
 const RSSIconStyle = {
   fontSize: "14px",
   color: "rgba(0,0,0,0.6)",
   top: "1px",
 }
 
+const ChipStyle = {
+  display: "inline-block",
+  backgroundColor: "transparent",
+  fontSize: "16px",
+  fontStyle: "normal",
+  color: "rgba(0,0,0,0.5)",
+  paddingLeft: "3px",
+  paddingRight: "0px",
+  lineHeight: "25px",
+}
+
+
 class PostsViews extends Component {
   constructor(props) {
     super(props);
+    const expandedViews = this.props.expandedViews || defaultExpandedViews;
     this.state = {
-      view: _.clone(props.router.location.query).view || (this.props.currentUser ? "frontpage" : "curated"),
+      view: _.clone(props.router.location.query).view || props.defaultView || (this.props.currentUser ? "frontpage" : "curated"),
       expanded: !!expandedViews.includes(props.router.location.query.view),
     }
   }
@@ -69,35 +78,32 @@ class PostsViews extends Component {
   }
 
   render() {
-    // const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
+    const views = this.props.views || defaultViews;
+    let expandedViews = this.props.expandedViews || defaultExpandedViews;
+    const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
 
-    // if (Users.canDo(props.currentUser, "posts.edit.own")
-    // || Users.canDo(props.currentUser, "posts.edit.all")) {
-    //   views = views.concat(["drafts"]);
-    // }
-
-    // if (Users.canDo(props.currentUser, "posts.edit.all")) {
-    //   views = views.concat(adminViews);
-    // }
+    if (Users.canDo(this.props.currentUser, "posts.edit.all")) {
+      expandedViews = expandedViews.concat(adminViews);
+    }
 
     return (
       <div className="posts-views">
         {views.map(view => (
-          <div>
-            <span className={classNames("rss-subscribe",{visible: view === this.state.view, invisible: !(view === this.state.view)})}> <FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> </span>
-            <Chip style={ChipStyle} labelStyle={ChipLabelStyle} className="view-chip" onClick={() => this.handleChange(view)} key={view}>
+          <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === this.state.view, "posts-views-button-inactive": view !== this.state.view})}>
+            <span > <Components.RSSOutLinkbuilder view={view} /> </span>
+            <span style={ChipStyle} labelStyle={ChipLabelStyle} className="view-chip" onClick={() => this.handleChange(view)}>
               <span className={view === this.state.view ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
-            </Chip>
+            </span>
           </div>
         ))}
         {this.state.expanded ?
           <div>
             {expandedViews.map(view => (
-              <div>
-                {view === this.state.view && <FontIcon style={RSSIconStyle} className="material-icons">rss_feed</FontIcon>}
-                <Chip style={ChipStyle} labelStyle={ChipLabelStyle} className="view-chip" onClick={() => this.handleChange(view)} key={view}>
+              <div key={view}>
+                <span > <Components.RSSOutLinkbuilder view={view} /> </span>
+                <span style={ChipStyle} labelStyle={ChipLabelStyle} className="view-chip" onClick={() => this.handleChange(view)} >
                   <span className={view === this.state.view ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
-                </Chip>
+                </span>
               </div>
             ))}
             <Chip className="view-chip" style={ChipStyle} labelStyle={ChipLabelStyle} onClick={() => this.props.router.push("/daily")}> <span className={"posts-views-chip-inactive"}>Daily</span> </Chip>
@@ -110,10 +116,6 @@ class PostsViews extends Component {
 PostsViews.propTypes = {
   currentUser: React.PropTypes.object,
   defaultView: React.PropTypes.string
-};
-
-PostsViews.defaultProps = {
-  defaultView: "top"
 };
 
 PostsViews.contextTypes = {
