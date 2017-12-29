@@ -41,7 +41,17 @@ Users.addField([
       order: 20,
     }
   },
-
+  {
+    fieldName: 'currentFrontpageFilter',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: Users.owns,
+      editableBy: Users.owns,
+      insertableBy: Users.owns,
+      hidden: true,
+    }
+  },
   {
     fieldName: 'website',
     fieldSchema: {

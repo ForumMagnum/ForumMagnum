@@ -8,6 +8,7 @@ import classNames from 'classnames';
 
 import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
 import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
 import Badge from 'material-ui/Badge';
 import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
@@ -99,13 +100,13 @@ class PostsItem extends PureComponent {
           <div className="posts-item-content">
             <div className="posts-item-body">
               <h3 className="posts-item-title">
-                {post.unlisted && "[Unlisted]"} {post.title}
+                {post.unlisted && "[Unlisted]"} {post.title} {post.featuredPriority > 0 && <FontIcon style={{fontSize: "12px", color: this.props.muiTheme.palette.accent2Color }} className="material-icons">star</FontIcon>}
               </h3>
               {this.renderPostFeeds()}
 
               <object><div className="posts-item-meta">
                 {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
-                {post.user ? <div className="posts-item-user"><Components.UsersName user={post.user}/></div> : null}
+                {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
                 <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
                 {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                 {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}

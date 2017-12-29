@@ -36,7 +36,8 @@ const testCollections = [
 
 
 const Home = (props, context) => {
-  const recentPostsTerms = _.isEmpty(props.location && props.location.query) ? {view: props.currentUser ? "frontpage" : 'curated', limit: 10}: props.location.query;
+  const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
+  const recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : props.location.query
   return (
     <div className="home">
       <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
@@ -44,7 +45,7 @@ const Home = (props, context) => {
         <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
         <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
       </Components.Section>
-      <Components.Section title="Frontpage Posts"
+      <Components.Section title="Recent Posts"
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
         </div>} >

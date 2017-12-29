@@ -21,6 +21,17 @@ const RSSIconStyle = {
   top: "1px",
 }
 
+const viewNames = {
+  'frontpage': 'Frontpage',
+  'curated': 'Curated Content',
+  'community': 'Community',
+  'meta': 'Meta',
+  'pending': 'pending posts',
+  'rejected': 'rejected posts',
+  'scheduled': 'scheduled posts',
+  'all_drafts': 'all drafts',
+}
+
 class RSSOutLinkbuilder extends Component {
   constructor(props) {
     super(props);
@@ -88,7 +99,6 @@ class RSSOutLinkbuilder extends Component {
     return (
       <span className="rss-out-linkbuilder">
         <span className="rss-out-linkbuilder-button"> <FontIcon onTouchTap={(e) => {this.handleTouchTap(e)}} className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> </span>
-        {/* <IconButton > <RssIcon color="rgba(0,0,0,0.5)" /> </IconButton> */}
         <Dialog
           title="RSS Link Builder"
           actions={actions}
@@ -99,6 +109,7 @@ class RSSOutLinkbuilder extends Component {
         >
           <div>
             <h5>Karma Threshold: {this.state.rssTerms.karmaThreshold}</h5>
+            Generate a RSS link to posts in {viewNames[this.state.rssTerms.view]} of this karma and above.
             <Slider
               min={0}
               max={100}

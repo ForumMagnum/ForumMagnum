@@ -63,7 +63,7 @@ Posts.addView("curated", terms => ({
     featuredPriority: {$gte: 0},
   },
   options: {
-    sort: {sticky: -1, score: -1, featuredPriority: -1}
+    sort: {sticky: -1, featuredPriority: -1, score: -1}
   }
 }));
 
