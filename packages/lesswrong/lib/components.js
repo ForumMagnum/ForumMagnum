@@ -29,7 +29,6 @@ import '../components/Layout.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/Home.jsx';
-import '../components/common/Meta.jsx';
 import '../components/common/AllPosts.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
