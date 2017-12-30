@@ -58,6 +58,7 @@ addStrings('en', {
   'comments.delete_confirm': 'Delete this comment?',
   'comments.delete_success': 'Comment deleted.',
   'comments.please_log_in': 'Please log in to comment.',
+  'comments.author_has_banned_you': "This post's author has blocked you from commenting.",
   'comments.parentCommentId': 'Parent Comment ID',
   'comments.topLevelCommentId': 'Top Level Comment ID',
   'comments.body': 'Body',

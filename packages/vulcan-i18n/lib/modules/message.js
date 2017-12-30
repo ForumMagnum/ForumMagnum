@@ -4,7 +4,8 @@ import { getSetting, Strings } from 'meteor/vulcan:lib';
 const FormattedMessage = ({ id, values, defaultMessage }) => {
   const messages = Strings[getSetting('locale', 'en')] || {};
   let message = messages[id] || defaultMessage;
-  if (values) {
+  // LESSWRONG - this didn't have a message, which broke the frontpage. unclear if we should fix
+  if (values && message) {
     _.forEach(values, (value, key) => {
       message = message.replace(`{${key}}`, value);
     });

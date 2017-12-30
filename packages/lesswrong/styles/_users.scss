@@ -154,10 +154,19 @@
 
   .control-label.col-sm-3 {
     // TODO instead fix the col-sm-3 at a root level that isn't janky
-    width:90px;
+    width:110px;
     position:relative;
     top:8px;
     text-transform: uppercase;
+  }
+  .form-input.form-component-textarea {
+    line-height:1.5em;
+    margin-top:2em;
+
+    textarea {
+      line-height:1.35em;
+      min-height:90px;
+    }
   }
   .form-input.input-notifications_posts,
   .form-input.input-auto_subscribe_to_my_posts,

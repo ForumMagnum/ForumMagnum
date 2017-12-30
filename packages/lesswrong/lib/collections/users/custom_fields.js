@@ -1,5 +1,10 @@
 import Users from "meteor/vulcan:users";
 
+const moderationGroup = {
+  order:60,
+  name: "moderation",
+  label: "Moderation",
+}
 
 Users.addField([
   /**
@@ -74,6 +79,64 @@ Users.addField([
     fieldName: 'bio',
     fieldSchema: {
       order: 40,
+    }
+  },
+
+  {
+    fieldName: 'moderationStyle',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      control: "select",
+      group: moderationGroup,
+      label: "Style",
+      viewableBy: ['guests'],
+      editableBy: ['trustLevel1', 'admins'],
+      insertableBy: ['trustLevel1', 'admins'],
+      blackbox: true,
+      order: 55,
+      form: {
+        options: function () { // options for the select form control
+          return [
+            {value: "easy-going", label: "Easy Going - I just delete obvious spam and trolling."},
+            {value: "norm-enforcing", label: "Norm Enforcing - I try to enforce particular rules (see below)"},
+            {value: "reign-of-terror", label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive"},
+          ];
+        }
+      },
+    }
+  },
+
+  {
+    fieldName: 'moderationGuidelines',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      group: moderationGroup,
+      label: "Special Guidelines",
+      placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
+      viewableBy: ['guests'],
+      editableBy: ['trustLevel1'],
+      insertableBy: ['trustLevel1'],
+      control: 'textarea',
+      blackbox: true,
+      order: 55,
+    }
+  },
+
+  {
+    fieldName: 'moderatorAssistance',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      group: moderationGroup,
+      label: "I'm happy for LW site moderators to help enforce my policy",
+      viewableBy: ['guests'],
+      editableBy: ['trustLevel1'],
+      insertableBy: ['trustLevel1'],
+      control: 'checkbox',
+      blackbox: true,
+      order: 55,
     }
   },
 

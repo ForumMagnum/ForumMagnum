@@ -465,6 +465,17 @@ New CSS File
   }
 }
 
+
+.comments-node-even {
+  background-color: rgb(242,242,242);
+}
+.comments-node-odd {
+  background-color: rgb(252,252,252);
+}
+.comments-node-root {
+  background-color: white;
+}
+
 .posts-page-comments-title-component {
   font-size:14px;
   clear:both;
@@ -570,4 +581,7 @@ New CSS File
     text-decoration:none;
     color:rgba(0,0,0,.35);
   }
+}
+.i18n-message.author_has_banned_you {
+  padding:1em 0;
 }

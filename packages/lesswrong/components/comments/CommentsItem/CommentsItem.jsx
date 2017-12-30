@@ -119,7 +119,6 @@ class CommentsItem extends PureComponent {
         {this.renderCommentBottom()}
       </div>
     )
-
     return (
       <div className={"comments-item" + deletedClass} id={comment._id}>
         <div className="comments-item-body">
@@ -143,8 +142,18 @@ class CommentsItem extends PureComponent {
     const comment = this.props.comment;
     const currentUser = this.props.currentUser;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
-    const showReplyButton = !comment.isDeleted && !!this.props.currentUser && (
-      !blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all'))
+    const bannedUserIds = this.props.post && _.clone(this.props.post.bannedUserIds) || []
+    const bannedReply = (
+      currentUser &&
+      bannedUserIds.includes(currentUser._id) &&
+      !Users.canDo(currentUser,'posts.moderate.all')
+    )
+    const showReplyButton = (
+      !comment.isDeleted &&
+      !!this.props.currentUser &&
+      (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
+      !bannedReply
+    )
 
     return (
       <div className="comments-item-bottom">
@@ -186,6 +195,12 @@ class CommentsItem extends PureComponent {
             { this.renderSubscribeMenuItem() }
             { this.renderReportMenuItem() }
             { this.renderStatsMenuItem() }
+            <Components.BanUserFromPostMenuItem
+              comment={this.props.comment}
+              post={this.props.post}
+              currentUser={this.props.currentUser}
+              postEditMutation={this.props.postEditMutation}
+            />
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
@@ -219,7 +234,7 @@ class CommentsItem extends PureComponent {
 
   renderSubscribeMenuItem = () => {
     return (
-      <MenuItem primaryText="Subscribe">
+      <MenuItem className="comment-menu-item-subscribe" primaryText="Subscribe">
         <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />
       </MenuItem>
     )
@@ -227,14 +242,26 @@ class CommentsItem extends PureComponent {
 
   renderReportMenuItem = () => {
     if (Users.canDo(this.props.currentUser, "reports.new")) {
-      return <MenuItem onTouchTap={this.showReport} primaryText="Report" />
+      return (
+        <MenuItem
+          className="comment-menu-item-report"
+          onTouchTap={this.showReport}
+          primaryText="Report"
+        />
+      )
     }
   }
 
   renderEditMenuItem = () => {
     if (Users.canDo(this.props.currentUser, "comments.edit.all") ||
         Users.owns(this.props.currentUser, this.props.comment)) {
-          return <MenuItem onTouchTap={this.showEdit} primaryText="Edit" />
+          return (
+            <MenuItem
+              className="comment-menu-item-edit"
+              onTouchTap={this.showEdit}
+              primaryText="Edit"
+            />
+          )
     }
   }
 
@@ -242,7 +269,7 @@ class CommentsItem extends PureComponent {
     if (this.props.comment) {
       let canDelete = Users.canDo(this.props.currentUser,"comments.softRemove.all");
       if (!this.props.comment.deleted && canDelete) {
-        return <MenuItem onTouchTap={ this.handleDelete } primaryText="Delete" />
+        return <MenuItem className="comment-menu-item-delete" onTouchTap={ this.handleDelete } primaryText="Delete" />
       } else if (this.props.comment.deleted && canDelete) {
         return <MenuItem onTouchTap={ this.handleUndoDelete } primaryText="Undo Delete" />
       }

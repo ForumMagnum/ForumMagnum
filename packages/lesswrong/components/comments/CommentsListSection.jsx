@@ -65,10 +65,27 @@ class CommentsListSection extends Component {
     </div>
   )
 
+  currentUserCanComment = () => {
+    const a =  this.props.currentUser && !this.props.post.bannedUserIds || (this.props.post.bannedUserIds && !this.props.post.bannedUserIds.includes(this.props.currentUser._id))
+    console.log("QWER", a)
+    return a
+  }
+
   render() {
-    const {currentUser, comments, postId, router} = this.props;
+    const {
+      currentUser,
+      comments,
+      postId,
+      post,
+      postEditMutation,
+      router
+    } = this.props;
+
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
     const currentLocation = router.location;
+
+    // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
+
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
@@ -76,15 +93,19 @@ class CommentsListSection extends Component {
           currentUser={currentUser}
           comments={comments}
           highlightDate={this.state.highlightDate}
+          post={post}
+          postEditMutation={postEditMutation}
         />
-        {!!currentUser ?
+        {!!currentUser && this.currentUserCanComment() &&
           <div className="posts-comments-thread-new">
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
               postId={postId}
               type="comment"
             />
-          </div> :
+          </div>
+        }
+        {!currentUser &&
           <div>
             <Components.ModalTrigger
               component={<a href="#"><FormattedMessage id="comments.please_log_in"/></a>}
@@ -93,9 +114,15 @@ class CommentsListSection extends Component {
             </Components.ModalTrigger>
           </div>
         }
+        {!this.currentUserCanComment() && (
+          <div className="i18n-message author_has_banned_you">
+            <FormattedMessage id="comments.author_has_banned_you"/>
+          </div>
+        )}
       </div>
     );
   }
 }
 
 registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter);
+export default CommentsListSection

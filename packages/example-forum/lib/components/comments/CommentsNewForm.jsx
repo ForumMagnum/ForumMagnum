@@ -15,17 +15,17 @@ const CommentsNewForm = (props, context) => {
       topLevelCommentId: props.parentComment.topLevelCommentId || props.parentComment._id
     });
   }
-
   return (
     <Components.ShowIf
       check={Comments.options.mutations.new.check}
+      document={prefilledProps}
       failureComponent={<FormattedMessage id="users.cannot_comment"/>}
     >
       <div className="comments-new-form">
         <Components.SmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
-          successCallback={props.successCallback} 
+          successCallback={props.successCallback}
           cancelCallback={props.type === "reply" ? props.cancelCallback : null}
           prefilledProps={prefilledProps}
           layout="elementOnly"

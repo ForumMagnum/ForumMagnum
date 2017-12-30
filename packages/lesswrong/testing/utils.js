@@ -3,53 +3,41 @@ import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum'
 import { Random } from 'meteor/random';
 
-export const createDummyUser = async (username) => {
-  const queryUsername = username || Random.id()
-  const query = `
-    mutation  {
-      usersNew(document:{
-        username:"${queryUsername}",
-        email:"${queryUsername + "@test.lesswrong.com"}",
-      }) {
-        _id
-        username
-        email
-      }
-    }
-  `;
-  return (await runQuery(query)).data.usersNew;
+export const createDefaultUser = async() => {
+  // Creates defaultUser if they don't already exist
+  const defaultUser = Users.findOne({username:"defaultUser"})
+  if (!defaultUser) {
+    return createDummyUser({username:"defaultUser"})
+  } else {
+    return defaultUser
+  }
 }
 
-export const dummyPostTitle = "Test Title";
-export const dummyPostBody = "Test Body";
-
-export const createDummyPost = async (userId, title=dummyPostTitle, body=dummyPostBody) => {
-  const query = `
-    mutation  {
-      PostsNew(document:{
-        title:"${title}",
-        body:"${body}"
-      }) {
-        _id
-        userId
-        title
-        htmlBody
-      }
-    }
-  `;
-  return (await runQuery(query,{},{currentUser:{_id:userId}})).data.PostsNew;
-}
-
-export const createDummyPostServer = async (user, data) => {
+export const createDummyPost = async (user, data) => {
   const defaultData = {
-    userId: user._id,
-    title: dummyPostTitle,
+    userId: user ? user._id : createDefaultUser()._id,
+    title: Random.id(),
   }
   const postData = {...defaultData, ...data};
   return await newMutation({
     collection: Posts,
     document: postData,
     currentUser: user,
+    validate: false,
+    context: {},
+  });
+}
+
+export const createDummyUser = async (data) => {
+  const testUsername = Random.id()
+  const defaultData = {
+    username: testUsername,
+    email: testUsername + "@test.lesserwrong.com"
+  }
+  const userData = {...defaultData, ...data};
+  return await newMutation({
+    collection: Users,
+    document: userData,
     validate: false,
     context: {},
   });

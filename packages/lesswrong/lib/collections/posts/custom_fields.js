@@ -475,6 +475,23 @@ Posts.addField([
       hidden: true,
       onInsert: (document) => document.baseScore || 0,
     }
+  },
+  {
+    fieldName: 'bannedUserIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['members'],
+      insertableBy: ['trustLevel1', 'sunshineRegiment'],
+      editableBy: ['trustLevel1', 'sunshineRegiment'],
+      optional: true,
+    }
+  },
+  {
+    fieldName: 'bannedUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
   }
 
 ]);

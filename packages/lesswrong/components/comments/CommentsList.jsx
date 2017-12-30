@@ -3,7 +3,14 @@ import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
 
-const CommentsList = ({comments, currentUser, highlightDate, editMutation}) => {
+const CommentsList = ({
+  comments,
+  currentUser,
+  highlightDate,
+  editMutation,
+  post,
+  postEditMutation
+}) => {
   if (comments) {
     return (
       <div className="comments-list">
@@ -14,6 +21,8 @@ const CommentsList = ({comments, currentUser, highlightDate, editMutation}) => {
             key={comment._id}
             newComment={highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())}
             editMutation={editMutation}
+            post={post}
+            postEditMutation={postEditMutation}
             />)
         }
       </div>
