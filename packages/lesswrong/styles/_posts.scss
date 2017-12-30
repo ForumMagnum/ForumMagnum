@@ -54,7 +54,6 @@
       display: none;
     }
     margin-top: 0px;
-    margin-left: 11px;
     display: inline;
   }
   @include max-tiny() {
@@ -195,6 +194,20 @@
     cursor: pointer;
     text-decoration: none !important;
   }
+  @include max-medium {
+    .posts-view-button {
+      &::after {
+        content: "|";
+        margin-left: 5px;
+        margin-right: 5px;
+        font-style: normal;
+      }
+      float: left;
+    }
+    .view-chip {
+      padding-left: 0px !important;
+    }
+  }
 }
 
 .posts-views-chip-active {
@@ -304,15 +317,12 @@
     font-weight: 400;
     margin-top: -1px;
     margin-bottom: 2px;
-    div {
+    & > div {
       display: inline-block;
       margin-right: 5px;
     }
     .posts-item-user a {
       color: rgba(0,0,0,0.5);
-    }
-    .posts-item-user a:hover {
-      color: rgba(0,0,0,0.3);
     }
   }
   .posts-item-summary {
@@ -390,6 +400,9 @@
   .vote {
     display: inline;
   }
+  .upvote-button, .downvote-button {
+    display: none; //Hide vote buttons for vote-items
+  }
 }
 
 .upvote-button{
@@ -403,7 +416,6 @@
 
 .vote-count{
   display: inline;
-  margin-right: 5px;
 }
 
 .downvote-button{

@@ -8,19 +8,23 @@ import classNames from 'classnames';
 
 import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
 import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
 import Badge from 'material-ui/Badge';
 import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
+
 
 const paperStyle = {
   backgroundColor: 'inherit',
 }
 
 
-
-
 class PostsItem extends PureComponent {
+  constructor(props, context) {
+    super(props)
+    this.state = {
+      categoryHover: false,
+    }
+  }
   //
   // renderCategories() {
   //   return this.props.post.categories && this.props.post.categories.length > 0 ? <Components.PostsCategories post={this.props.post} /> : "";
@@ -42,7 +46,7 @@ class PostsItem extends PureComponent {
 
   renderPostFeeds() {
     const feed = this.props.post.feed
-    return (feed && feed.user ? <object> <a href={this.props.post.feedLink} className="post-feed-nickname"> {feed.nickname} </a> </object> : null);
+    return (feed && feed.user ? <span className="post-feed-nickname"> {feed.nickname} </span> : null);
   }
 
 
@@ -100,7 +104,7 @@ class PostsItem extends PureComponent {
           <div className="posts-item-content">
             <div className="posts-item-body">
               <h3 className="posts-item-title">
-                {post.unlisted && "[Unlisted]"} {post.title} {post.featuredPriority > 0 && <FontIcon style={{fontSize: "12px", color: this.props.muiTheme.palette.accent2Color }} className="material-icons">star</FontIcon>}
+                {post.unlisted && "[Unlisted]"} {post.title}
               </h3>
               {this.renderPostFeeds()}
 
@@ -109,6 +113,7 @@ class PostsItem extends PureComponent {
                 {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
                 <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
                 {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
+                <Components.CategoryDisplay post={post} />
                 {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
                 {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
               </div></object>

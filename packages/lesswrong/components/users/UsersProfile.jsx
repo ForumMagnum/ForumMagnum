@@ -101,8 +101,7 @@ const UsersProfile = (props) => {
         <Components.Section title="Recent Posts"
           titleComponent= {
             <div className="recent-posts-title-component users-profile-recent-posts">
-              <Components.SearchForm/>
-              <Components.PostsViews defaultView="community"/>
+              <Components.PostsViews defaultView="community" hideDaily={true}/>
             </div>}
         >
           <Components.PostsList terms={terms} showHeader={false} />

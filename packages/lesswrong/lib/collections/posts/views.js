@@ -68,14 +68,8 @@ Posts.addView("curated", terms => ({
 }));
 
 Posts.addView("community", terms => ({
-  options: {
-    sort: {sticky: -1, score: -1}
-  }
-}));
-
-Posts.addView("community", terms => ({
   selector: {
-    frontpage: {$ne: true},
+    frontpage: null,
   },
   options: {
     sort: {sticky: -1, score: -1}

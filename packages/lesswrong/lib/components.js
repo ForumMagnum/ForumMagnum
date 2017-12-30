@@ -38,6 +38,7 @@ import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/Category.jsx';
+import '../components/posts/CategoryDisplay.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccountMenu.jsx';

@@ -41,9 +41,8 @@ class PostsViews extends Component {
   constructor(props) {
     super(props);
     const expandedViews = this.props.expandedViews || defaultExpandedViews;
-    const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || props.defaultView || (this.props.currentUser ? "frontpage" : "curated");
+    const currentView = this.getCurrentView();
     this.state = {
-      view: currentView,
       expanded: !!expandedViews.includes(currentView),
     }
   }
@@ -54,7 +53,7 @@ class PostsViews extends Component {
     const location = { pathname: router.location.pathname, query };
     router.replace(location);
     this.setState({ view });
-    if (this.props.currentUser) {
+    if (this.props.currentUser && router.location.pathname === "/") {
       this.props.editMutation({
         documentId: this.props.currentUser._id,
         set: {currentFrontpageFilter: view},
@@ -71,9 +70,16 @@ class PostsViews extends Component {
     this.setState({view: "comments"});
   }
 
+  getCurrentView = () => {
+    const props = this.props;
+    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
+  }
+
   render() {
-    const views = this.props.views || defaultViews;
-    let expandedViews = this.props.expandedViews || defaultExpandedViews;
+    const props = this.props;
+    const views = props.views || defaultViews;
+    let expandedViews = props.expandedViews || defaultExpandedViews;
+    const currentView = this.getCurrentView();
     // const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
     //
     // if (Users.canDo(this.props.currentUser, "posts.edit.all")) {
@@ -83,24 +89,24 @@ class PostsViews extends Component {
     return (
       <div className="posts-views">
         {views.map(view => (
-          <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === this.state.view, "posts-views-button-inactive": view !== this.state.view})}>
+          <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
             <Components.RSSOutLinkbuilder view={view} />
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
-              <span className={view === this.state.view ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
+              <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
             </span>
           </div>
         ))}
         {this.state.expanded ?
           <div>
             {expandedViews.map(view => (
-              <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === this.state.view, "posts-views-button-inactive": view !== this.state.view})}>
+              <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
                 <span > <Components.RSSOutLinkbuilder view={view} /> </span>
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
-                  <span className={view === this.state.view ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
+                  <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>{viewNames[view]}</span>
                 </span>
               </div>
             ))}
-            <Link className="view-chip" to="/daily"> <span className={"posts-views-chip-inactive"}>Daily</span> </Link>
+            {!props.hideDaily && <Link className="view-chip" to="/daily"> <span className={"posts-views-chip-inactive"}>Daily</span> </Link>}
           </div> : <div><a style={{textDecoration: "none"}} onClick={() => this.setState({expanded: true})}>...</a></div>
         }
       </div>
