@@ -82,8 +82,8 @@ Posts.addView("meta", terms => ({
   },
   options: {
     sort: {
-      score: -1,
       sticky: -1,
+      score: -1,
     }
   }
 }))
