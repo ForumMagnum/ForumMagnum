@@ -112,7 +112,7 @@ PostsDailyList.defaultProps = {
 const options = {
   collection: Posts,
   queryName: 'postsDailyListQuery',
-  fragmentName: 'PostsList',
+  fragmentName: 'LWPostsList',
   limit: 0,
 };
 
