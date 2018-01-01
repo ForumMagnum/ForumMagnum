@@ -74,13 +74,13 @@ class SearchBar extends Component {
 
     searchIconStyle.color = this.props.color;
     closeIconStyle.color = this.props.color;
-    
+
     return <div className="search">
       <InstantSearch
         indexName="test_posts"
         algoliaClient={algoliaClient("Z0GR6EXQHD", "0b1d20b957917dbb5e1c2f3ad1d04ee2")}
         onSearchStateChange={this.queryStateControl}
-        >
+      >
         <div className={"search-bar " + inputOpenClass}>
           <div className="search-bar-box" onTouchTap={this.handleSearchTap}>
             <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
@@ -97,8 +97,8 @@ class SearchBar extends Component {
                 <Index indexName="test_posts">
                   <Configure hitsPerPage={3} />
                   <Components.Section title="Posts" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
-                    <div className="search-results-posts-content" onTouchTap={this.closeSearch}>
-                      <Hits hitComponent={Components.PostsSearchHit} />
+                    <div className="search-results-posts-content">
+                      <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={this.closeSearch} {...props} />} />
                     </div>
                   </Components.Section>
                 </Index>
@@ -107,8 +107,8 @@ class SearchBar extends Component {
                 <Index indexName="test_comments">
                   <Configure hitsPerPage={3} />
                   <Components.Section title="Comments" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
-                    <div className="search-results-comments-content" onTouchTap={this.closeSearch}>
-                      <Hits hitComponent={Components.CommentsSearchHit} />
+                    <div className="search-results-comments-content">
+                      <Hits hitComponent={Components.CommentsSearchHit} clickAction={() => console.log("WEEEEEE")} />
                     </div>
                   </Components.Section>
                 </Index>
@@ -121,8 +121,8 @@ class SearchBar extends Component {
                   <div className="search-results-users-heading">
                     <h2>Users</h2>
                   </div>
-                  <div className="search-resulsts-users-content" onTouchTap={this.closeSearch}>
-                    <Hits hitComponent={Components.UsersSearchHit} />
+                  <div className="search-resulsts-users-content" >
+                    <Hits hitComponent={Components.UsersSearchHit} clickAction={() => console.log("WEEEEEE")} />
                   </div>
                 </Index>
               </div>

@@ -1,7 +1,7 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
-import { Link } from 'react-router';
+import { Link, withRouter } from 'react-router';
 import { InstantSearch, Hits, SearchBox, Highlight, RefinementList, Pagination, CurrentRefinements, ClearAll, Snippet} from 'react-instantsearch/dom';
 import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
 import IconButton from 'material-ui/IconButton';
@@ -22,16 +22,23 @@ const commentCountIconStyle = {
 
 import React, { PureComponent } from 'react';
 
-const PostsSearchHit = ({hit, clickAction}) => {
+const PostsSearchHit = ({hit, clickAction, router}) => {
+  const isLeftClick = (event) => {
+    return event.button === 0 && !event.ctrlKey && !event.metaKey;
+  }
   // If clickAction is provided, disable link and replace with TouchTap of the action
-  const linkProperties = clickAction ? {onTouchTap: () => clickAction(hit._id)} : {to: Posts.getLink(hit), target:Posts.getLinkTarget(hit)}
   return <div className="search-results-posts-item">
     <div className="posts-item">
-      <Link {...linkProperties} className="posts-item-title-link">
+      <Link
+        onClick={(event) => isLeftClick(event) && clickAction()}
+        to={Posts.getLink(hit)}
+        target={Posts.getLinkTarget(hit)}
+        className="posts-item-title-link"
+      >
         <div className="posts-item-content">
-         <div>
-           <h3 className="posts-item-title">
-               <Highlight attributeName="title" hit={hit} tagName="mark" />
+          <div>
+            <h3 className="posts-item-title">
+              <Highlight attributeName="title" hit={hit} tagName="mark" />
            </h3>
            {/*this.renderPostFeeds() */}
 
@@ -67,4 +74,4 @@ const PostsSearchHit = ({hit, clickAction}) => {
 }
 
 
-registerComponent("PostsSearchHit", PostsSearchHit);
+registerComponent("PostsSearchHit", PostsSearchHit, withRouter);

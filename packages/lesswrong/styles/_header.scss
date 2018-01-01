@@ -269,7 +269,7 @@ $header-mobile: 43px !important;
       margin-top:0;
       overflow:scroll;
       .section-title {
-        padding:0 !important; 
+        padding:0 !important;
       }
       .posts-item-comments {
         display:none;
@@ -297,6 +297,9 @@ $header-mobile: 43px !important;
         float:none;
         margin:auto;
       }
+      @include max-tiny() {
+        margin:0;
+      }
     }
     .search-results-container-right {
       max-width: 380px;
@@ -305,6 +308,9 @@ $header-mobile: 43px !important;
         max-width:100%;
         float:none;
         margin:auto;
+      }
+      @include max-tiny() {
+        margin:0;
       }
     }
     .search-results-posts-content, .search-results-comments-content {
