@@ -71,6 +71,7 @@ extendFragment('UsersCurrent', `
   banned
   nullifyVotes
   hideIntercom
+  currentFrontpageFilter
 `);
 
 registerFragment(`
@@ -134,6 +135,7 @@ registerFragment(`
     lastVisitedAt
     lastCommentedAt
     canonicalCollectionSlug
+    featuredPriority
   }
 `);
 

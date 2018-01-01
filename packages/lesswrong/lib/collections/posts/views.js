@@ -1,12 +1,14 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
+
+
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'frontpage', 'userId', 'meta');
-  return ({
+  let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
       draft: {$ne: true},
@@ -15,7 +17,11 @@ Posts.addDefaultView(terms => {
       meta: {$ne: true},
       ...validFields,
     }
-  });
+  }
+  if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
+    params.selector.karmaThreshold = {$gte: parseInt(terms.karmaThreshold, 10)}
+  }
+  return params;
 })
 
 
@@ -42,6 +48,45 @@ Posts.addView("top", terms => ({
     sort: {sticky: -1, score: -1}
   }
 }));
+
+Posts.addView("frontpage", terms => ({
+  selector: {
+    frontpage: true,
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("curated", terms => ({
+  selector: {
+    featuredPriority: {$gte: 0},
+  },
+  options: {
+    sort: {sticky: -1, featuredPriority: -1, score: -1}
+  }
+}));
+
+Posts.addView("community", terms => ({
+  selector: {
+    frontpage: null,
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("meta", terms => ({
+  selector: {
+    meta: true,
+  },
+  options: {
+    sort: {
+      score: -1,
+      sticky: -1,
+    }
+  }
+}))
 
 /**
  * @summary New view
@@ -152,29 +197,6 @@ Posts.addView("featured", terms => ({
   }
 }))
 
-Posts.addView("meta", terms => ({
-  selector: {
-    meta: true,
-  },
-  options: {
-    sort: {
-      score: -1,
-    }
-  }
-}))
-
-Posts.addView("metaFeatured", terms => ({
-  selector: {
-    meta: true,
-  },
-  options: {
-    limit: terms.limit || 3,
-    sort: {
-      featuredPriority: -1,
-      score: -1,
-    }
-  }
-}))
 
 /**
  * @summary User posts view

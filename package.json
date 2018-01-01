@@ -92,6 +92,7 @@
     "react-bootstrap": "^0.31.5",
     "react-bootstrap-datetimepicker": "0.0.22",
     "react-cookie": "^0.4.6",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.3.2",
     "react-dom": "^15.4.1",
     "react-dropzone": "^3.12.2",
@@ -142,7 +143,9 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-meteor": "^4.1.6",
-    "eslint-plugin-react": "^6.7.1"
+    "eslint-plugin-prettier": "2.4.0",
+    "eslint-plugin-react": "^6.7.1",
+    "prettier": "1.9.2"
   },
   "postcss": {
     "plugins": {

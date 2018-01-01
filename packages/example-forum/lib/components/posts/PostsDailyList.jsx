@@ -53,7 +53,7 @@ class PostsDailyList extends PureComponent {
     e.preventDefault();
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-    
+
     this.props.loadMore({
       ...this.props.terms,
       after: loadMoreAfter,
@@ -71,13 +71,13 @@ class PostsDailyList extends PureComponent {
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
     const loadMoreBefore = moment(this.state.after, 'YYYY-MM-DD').subtract(1, 'days').format('YYYY-MM-DD');
-    
+
     this.props.loadMoreInc({
       ...this.props.terms,
       before: loadMoreBefore,
       after: loadMoreAfter,
     });
-    
+
     this.setState({
       days: this.state.days + this.props.increment,
       after: loadMoreAfter,
@@ -90,7 +90,7 @@ class PostsDailyList extends PureComponent {
 
     return (
       <div className="posts-daily">
-        <Components.PostsListHeader />
+        {/* <Components.PostsListHeader /> */}
         {dates.map((date, index) => <Components.PostsDay key={index} number={index} date={date} posts={this.getDatePosts(posts, date)} networkStatus={this.props.networkStatus} currentUser={this.props.currentUser} />)}
         {this.state.loading? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
       </div>

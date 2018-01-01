@@ -25,7 +25,7 @@ export let executableSchema;
 // see https://github.com/apollographql/apollo-cache-control
 
 const engineApiKey = getSetting('apolloEngine.apiKey');
-const engineConfig = { 
+const engineConfig = {
   apiKey: engineApiKey,
   // "origins": [
   //   {
@@ -117,7 +117,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
   graphQLServer.use(compression());
 
   // GraphQL endpoint
-  graphQLServer.use(config.path, bodyParser.json(), graphqlExpress(async (req) => {
+  graphQLServer.use(config.path, bodyParser.json({limit: '5mb'}), graphqlExpress(async (req) => {
     let options;
     let user = null;
 

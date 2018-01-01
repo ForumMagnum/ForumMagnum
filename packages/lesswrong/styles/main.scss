@@ -202,11 +202,6 @@ then moved to more specific files as it becomes necessary.
   }
 }
 
-.posts-item-vote:hover{
-  color: $dark-grey;
-}
-
-
 // CSS modifications for the three different editor types: commentEditor, postEditor
 // and messageEditor. For now they are all equal, but we probably want to change
 // that in the future
