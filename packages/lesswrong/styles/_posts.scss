@@ -369,6 +369,10 @@
         color: rgba(0, 0, 0, 0.3) !important;
       }
     }
+
+    .vote-count {
+      color: rgba(100, 169, 105, 0.9) !important;
+    }
   }
 
   .downvoted {
@@ -383,6 +387,10 @@
       .material-icons {
         color: rgba(0, 0, 0, 0.3) !important;
       }
+    }
+
+    .vote-count {
+      color: rgba(160, 44, 44, 0.9) !important;
     }
   }
 
