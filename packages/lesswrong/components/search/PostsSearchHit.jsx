@@ -39,35 +39,37 @@ const PostsSearchHit = ({hit, clickAction, router}) => {
           <div>
             <h3 className="posts-item-title">
               <Highlight attributeName="title" hit={hit} tagName="mark" />
-           </h3>
-           {/*this.renderPostFeeds() */}
 
-           <object><div className="posts-item-meta">
-             {hit.postedAt ? <div className="posts-item-date"> {moment(new Date(hit.postedAt)).fromNow()} </div> : null}
-             <div className="posts-item-score">{hit.baseScore} points</div>
-             {hit.authorDisplayName ? <div className="posts-item-user">{hit.authorDisplayName}</div> : null}
-           </div></object>
-           <div className="posts-item-summary">
-             <Snippet attributeName="body" hit={hit} tagName="mark" />
-           </div>
-         </div>
-         <div className="posts-item-comments">
-           <Badge
-             className="posts-item-comment-count"
-             badgeContent={hit.commentCount || 0}
-             secondary={true}
-             badgeStyle={commentCountBadgeStyle}
-           >
-             <IconButton
-               iconStyle={commentCountIconStyle}
-               tooltip={"Comments"}
-               containerElement={<object><Link to={Posts.getPageUrl(hit) + "#comments"} /></object>}
-               >
-               <CommentIcon />
-             </IconButton>
-           </Badge>
-         </div>
-       </div>
+            </h3>
+            {/*this.renderPostFeeds() */}
+            
+
+            <object><div className="posts-item-meta">
+              {hit.postedAt ? <div className="posts-item-date"> {moment(new Date(hit.postedAt)).fromNow()} </div> : null}
+              <div className="posts-item-score">{hit.baseScore} points</div>
+              {hit.authorDisplayName ? <div className="posts-item-user">{hit.authorDisplayName}</div> : null}
+            </div></object>
+            <div className="posts-item-summary">
+              <Snippet attributeName="body" hit={hit} tagName="mark" />
+            </div>
+          </div>
+          <div className="posts-item-comments">
+            <Badge
+              className="posts-item-comment-count"
+              badgeContent={hit.commentCount || 0}
+              secondary={true}
+              badgeStyle={commentCountBadgeStyle}
+            >
+              <IconButton
+                iconStyle={commentCountIconStyle}
+                tooltip={"Comments"}
+                containerElement={<object><Link to={Posts.getPageUrl(hit) + "#comments"} /></object>}
+              >
+                <CommentIcon />
+              </IconButton>
+            </Badge>
+          </div>
+        </div>
       </Link>
     </div>
   </div>
