@@ -109,11 +109,11 @@ class PostsItem extends PureComponent {
               {this.renderPostFeeds()}
 
               <object><div className="posts-item-meta">
+                <Components.CategoryDisplay post={post} />
                 {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
                 {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
                 <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
                 {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
-                <Components.CategoryDisplay post={post} />
                 {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
                 {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
               </div></object>
