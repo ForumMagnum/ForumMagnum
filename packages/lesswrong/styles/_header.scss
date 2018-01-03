@@ -239,7 +239,7 @@ $header-mobile: 43px !important;
   top: 64px;
   background-color: white;
   @include max-small() {
-    top: $header-mobile;
+    top: 80px;
   }
   .search-results-container {
     display: flex;

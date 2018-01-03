@@ -108,8 +108,7 @@
 .wrapper {
   @include section-header-break {
     .header {
-      z-index: 1000;
-      position: fixed;
+      position: absolute;
       top: 0px;
       width: 100vw;
       box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
