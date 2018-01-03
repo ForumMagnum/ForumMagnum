@@ -231,7 +231,7 @@ $header-mobile: 43px !important;
 .search-results {
   transition: opacity .1s ease-in-out;
   height: 0px;
-  overflow: scroll;
+  overflow: hidden;
   opacity: 0;
   position: absolute;
   left: 0px;
@@ -267,7 +267,7 @@ $header-mobile: 43px !important;
     @include max-small() {
       width:100%;
       margin-top:0;
-      overflow:scroll;
+      overflow:hidden;
       .section-title {
         padding:0 !important;
       }
@@ -369,7 +369,7 @@ $header-mobile: 43px !important;
 
   &.open {
     height: 2000px;
-    overflow:scroll;
+    overflow:hidden;
     opacity: 1;
   }
   .posts-item {
