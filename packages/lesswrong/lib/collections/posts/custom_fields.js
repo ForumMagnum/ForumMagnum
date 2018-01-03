@@ -234,7 +234,7 @@ Posts.addField([
       type: Number,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.admin,
     }
   },
