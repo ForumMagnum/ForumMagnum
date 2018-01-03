@@ -32,6 +32,11 @@ export const htmlToDraft = convertFromHTML({
 })
 
 export const draftToHTML = convertToHTML({
+  styleToHTML: (style) => {
+    if (style === 'STRIKETHROUGH') {
+      return <span style={{textDecoration: 'line-through'}} />;
+    }
+  },
   entityToHTML: (entity, originalText) => {
     if (entity.type === 'image') {
       let classNames = 'draft-image '
