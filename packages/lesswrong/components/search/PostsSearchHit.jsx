@@ -1,3 +1,4 @@
+import React, { PureComponent } from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
@@ -20,12 +21,11 @@ const commentCountIconStyle = {
   color: 'rgba(0,0,0,0.1)',
 }
 
-import React, { PureComponent } from 'react';
+const isLeftClick = (event) => {
+  return event.button === 0 && !event.ctrlKey && !event.metaKey;
+}
 
 const PostsSearchHit = ({hit, clickAction, router}) => {
-  const isLeftClick = (event) => {
-    return event.button === 0 && !event.ctrlKey && !event.metaKey;
-  }
   // If clickAction is provided, disable link and replace with TouchTap of the action
   return <div className="search-results-posts-item">
     <div className="posts-item">

@@ -9,9 +9,15 @@ import Badge from 'material-ui/Badge';
 
 import React, { PureComponent } from 'react';
 
-const CommentsSearchHit = ({hit}) => {
+const CommentsSearchHit = ({hit, clickAction}) => {
+  const isLeftClick = (event) => {
+    return event.button === 0 && !event.ctrlKey && !event.metaKey;
+  }
   return <div className="search-results-comments-item recent-comments-item comments-item">
-      <Link to={"/posts/" + hit.postId + "/" + hit.postSlug + "/" + hit._id}>
+    <Link
+      to={"/posts/" + hit.postId + "/" + hit.postSlug + "/" + hit._id}
+      onClick={(event) => isLeftClick(event) && clickAction()}
+    >
         <div className="comments-item-body recent-comments-item-body ">
           <object><div className="comments-item-meta recent-comments-item-meta">
             <div className="search-results-comments-item-username">{hit.authorDisplayName}</div>
