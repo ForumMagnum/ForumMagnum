@@ -28,7 +28,7 @@ Accounts.ui._options = {
   homeRoutePath: '/',
   onSubmitHook: () => {},
   onPreSignUpHook: () => new Promise(resolve => resolve()),
-  onPostSignUpHook: () => redirect(`${Accounts.ui._options.signUpPath}`),
+  onPostSignUpHook: () => {},
   onEnrollAccountHook: () => redirect(`${Accounts.ui._options.loginPath}`),
   onResetPasswordHook: () => redirect(`${Accounts.ui._options.loginPath}`),
   onVerifyEmailHook: () => redirect(`${Accounts.ui._options.profilePath}`),
