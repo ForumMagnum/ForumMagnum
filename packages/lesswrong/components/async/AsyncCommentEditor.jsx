@@ -15,7 +15,6 @@ import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
-import createLinkifyPlugin from 'draft-js-linkify-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from 'draft-js-divider-plugin';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin';
@@ -99,10 +98,9 @@ class AsyncCommentEditor extends Component {
 
     const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
     const richButtonsPlugin = createRichButtonsPlugin();
-    const linkifyPlugin = createLinkifyPlugin();
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const imagePlugin = createImagePlugin({ decorator });
-    this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, linkifyPlugin, blockBreakoutPlugin, dividerPlugin];
+    this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
     if (Meteor.isClient) {
       const mathjaxPlugin = createMathjaxPlugin()
       this.plugins.push(mathjaxPlugin);
