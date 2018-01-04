@@ -174,6 +174,10 @@ Old editor.scss file TODO: Refactor this properly into the main css
   margin-bottom: 2em;
 }
 
+.commentEditor {
+  min-height: 80px;
+}
+
 .editor :global(.public-DraftEditor-content) {
   min-height: 140px;
 }
