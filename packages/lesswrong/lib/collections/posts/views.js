@@ -19,7 +19,7 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    params.selector.karmaThreshold = {$gte: parseInt(terms.karmaThreshold, 10)}
+    params.selector.baseScore = {$gte: Math.max(parseInt(terms.karmaThreshold, 10), 0)}
   }
   return params;
 })
