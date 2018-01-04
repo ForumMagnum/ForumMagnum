@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { Components, getRawComponent, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
@@ -7,28 +7,19 @@ import { Link, withRouter } from 'react-router';
 
 class CommentWithContext extends getRawComponent('CommentsItem') {
 
-  // TODO: Make comments collapsible id:18
-  // TODO: Create unique comment-links id:14
-
   renderRecentComment() {
     const comment = this.props.comment;
-    const content = comment.content;
     const htmlBody = {__html: comment.htmlBody};
-    const showReplyButton = !comment.isDeleted && !!this.props.currentUser;
 
     return (
       <div className="comments-item-text content-body">
         {htmlBody && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
-        { showReplyButton ?
-          <a className="comments-item-reply-link" onClick={this.showReply}>
-            <Components.Icon name="reply"/> <FormattedMessage id="comments.reply"/>
-          </a> : null}
         <div className="comment-context-link"> <a href={"#"+comment._id}>See comment in full context</a> </div>
       </div>
     )
   }
 
-  // LESSWRONG: Changed the comments-item id, but nothing else
+  // LESSWRONG: Changed the comments-item id and removed reply, but nothing else
   render() {
     const comment = this.props.comment;
     const params = this.props.router.params;
@@ -53,7 +44,6 @@ class CommentWithContext extends getRawComponent('CommentsItem') {
           </div>
           {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
         </div>
-        {this.state.showReply ? this.renderReply() : null}
       </div>
     )
   }
@@ -61,4 +51,4 @@ class CommentWithContext extends getRawComponent('CommentsItem') {
 
 }
 
-registerComponent('CommentWithContext', CommentWithContext, withRouter);
+registerComponent('CommentWithContext', CommentWithContext, withRouter, withCurrentUser);
