@@ -1,15 +1,12 @@
 import { Components, registerComponent, withDocument, getRawComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Comments } from 'meteor/example-forum'
-import { Well } from 'react-bootstrap';
 
 
 class CommentInline extends getRawComponent('CommentsItem') {
 
   render() {
     const comment = this.props.comment;
-    const content = comment.content;
     const htmlBody = {__html: comment.htmlBody};
 
     return (
@@ -25,13 +22,6 @@ class CommentInline extends getRawComponent('CommentsItem') {
       </div>
     )
   }
-
 }
-
-const options = {
-  collection: Comments,
-  queryName: 'CommentWithContextQuery',
-  fragmentName: 'CommentsList',
-};
 
 registerComponent('CommentInline', CommentInline);

@@ -24,7 +24,7 @@ const CommentWithContextWrapper = ({ document, currentUser}) =>{
 const options = {
   collection: Comments,
   queryName: 'CommentWithContextQuery',
-  fragmentName: 'commentWithContextFragment',
+  fragmentName: 'CommentsList',
 };
 
 registerComponent('CommentWithContextWrapper', CommentWithContextWrapper, [withDocument, options]);
