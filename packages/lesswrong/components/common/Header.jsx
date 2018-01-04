@@ -65,20 +65,26 @@ class Header extends Component {
 
   rationalitySubtitle = () => {
     return <Link className="header-site-subtitle" to={ "/rationality" }>
-      Rationality: A-Z
-    </Link>
+              Rationality: A-Z
+           </Link>
   }
 
   hpmorSubtitle = () => {
     return <Link className="header-site-subtitle" to={ "/hpmor" }>
-      HPMoR
-    </Link>
+              HPMoR
+           </Link>
   }
 
   codexSubtitle = () => {
     return <Link className="header-site-subtitle" to={ "/codex" }>
       SlateStarCodex
-    </Link>
+           </Link>
+  }
+
+  metaSubtitle = () => {
+    return <Link className="header-site-subtitle" to={ "/meta" }>
+              Meta
+           </Link>
   }
 
   sequenceSubtitle = (sequenceId) => {
@@ -108,6 +114,8 @@ class Header extends Component {
       return this.hpmorSubtitle()
     } else if (routeName == "Codex.posts.single" || routeName == "Codex") {
       return this.codexSubtitle()
+    } else if (routeName == "Meta") {
+      return this.metaSubtitle()
     }
   }
 
@@ -163,6 +171,7 @@ class Header extends Component {
             </MenuItem>
             <Divider />
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
+            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
             <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
 
           {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}

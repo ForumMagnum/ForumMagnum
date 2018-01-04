@@ -29,6 +29,8 @@ addRoute({ name: 'HPMOR.posts.single', path: '/hpmor/:slug', componentName: 'Pos
 addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex'})
 addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'PostsSingleSlugWrapper'})
 
+
+addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta'})
 addRoute({ name: 'AllPosts', path: '/allPosts', componentName: 'AllPosts'})
 addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments'})
