@@ -133,6 +133,10 @@ New CSS File
   font-size:15px !important;
 }
 
+.comments-item-body, .recent-comments-item-body {
+  font-family: $comments-font;
+}
+
 .comments-item {
   padding:2px 12px 12px 12px;
   position: relative;
@@ -155,6 +159,7 @@ New CSS File
   }
 }
 .recent-comments-item {
+  padding:0;
   .recent-comments-item-meta {
     .users-name {
       color: rgba(0,0,0,0.87);
@@ -203,11 +208,10 @@ New CSS File
     margin-bottom: 1.2rem;
   }
 }
-.comments-list > .comment-old, .comment-new > .comments-node {
-  padding-right:0;
+.comments-list > .comment-old > .comments-node,
+.comments-list > .comment-new > .comments-node  {
   margin-bottom:1.3em;
   border:solid 1px rgba(0,0,0,.2);
-  background:white;
 
   @include max-small() {
     margin-left:5px;
@@ -491,10 +495,14 @@ New CSS File
   overflow:auto;
   padding-bottom:5px;
 
+  @include max-small() {
+    padding-left:4px;
+    padding-right:4px;
+  }
+
   .posts-page-comments-count {
     color:rgba(0,0,0,.6);
     float:left;
-
     .comments-views {
       font-family: $comments-font !important;
     }
@@ -504,5 +512,9 @@ New CSS File
     float:right;
     margin:0;
     color:rgba(0,0,0,.6);
+
+    @include max-tiny() {
+      float:left;
+    }
   }
 }

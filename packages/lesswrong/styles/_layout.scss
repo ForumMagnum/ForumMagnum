@@ -88,10 +88,10 @@
     }
     .posts-list {
       .posts-list-content {
+        margin-top:15px;
         margin-left: 0px;
         .posts-item {
-          padding: 0px;
-          margin-top: 10px;
+          margin-top: 0px !important;
         }
       }
     }

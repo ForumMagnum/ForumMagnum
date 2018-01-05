@@ -32,6 +32,7 @@
   font-size: 1.2rem;
   line-height: 1.6rem;
   color: rgba(0,0,0,0.6);
+
   .new-post-link {
     margin-top: 20px;
     @include max-tiny() {
@@ -179,6 +180,12 @@
     }
   }
   display: inline;
+
+  @include max-tiny() {
+    display:block;
+    clear:both;
+    overflow:auto;
+  }
 }
 
 .posts-views {
