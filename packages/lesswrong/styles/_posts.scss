@@ -26,7 +26,7 @@
   }
 }
 
-.recent-posts-title-component, .posts-page-comments-title-component {
+.recent-posts-title-component {
   font-style: italic;
   margin-top: 20px;
   font-size: 1.2rem;
@@ -749,13 +749,6 @@
       }
       .section-content {
         margin-top: 20px;
-      }
-      .posts-page-comments-title-component {
-        margin-left: 0px;
-        display: inline;
-        & > br {
-          display: none;
-        }
       }
     }
     .posts-page-content-header {

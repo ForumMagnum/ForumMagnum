@@ -1,6 +1,7 @@
 import { Components, replaceComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
@@ -28,12 +29,18 @@ class CommentsNode extends PureComponent {
 
     const borderColor = this.state.hover ? muiTheme && muiTheme.palette.accent2Color : muiTheme && muiTheme.palette.accent1Color
 
+    const nodeClass = classNames("comments-node", {
+      "comments-node-root" : comment.level === 1,
+      "comments-node-even" : comment.level % 2 === 0,
+      "comments-node-odd"  : comment.level % 2 != 0
+    })
+
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
-        <div className={"comments-node"}
+        <div className={nodeClass}
           onMouseEnter={this.toggleHover}
           onMouseLeave={this.toggleHover}
-          style={newComment ? {borderColor:borderColor} : {}}>
+          style={newComment ? {borderLeft:"solid 5px " + borderColor} : {}}>
 
           <Components.CommentsItem
             collapsed={this.state.collapsed}
