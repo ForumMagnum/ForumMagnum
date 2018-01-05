@@ -32,6 +32,7 @@
   font-size: 1.2rem;
   line-height: 1.6rem;
   color: rgba(0,0,0,0.6);
+
   .new-post-link {
     margin-top: 20px;
     @include max-tiny() {
@@ -74,6 +75,9 @@
 }
 
 @include collection-card-break {
+  .posts-list-content {
+    margin-top:0;
+  }
   .posts-item {
     position: relative;
   }
@@ -179,6 +183,12 @@
     }
   }
   display: inline;
+
+  @include max-tiny() {
+    display:block;
+    clear:both;
+    overflow:auto;
+  }
 }
 
 .posts-views {
@@ -280,8 +290,11 @@
 // Post Item                                        //
 //////////////////////////////////////////////////////
 
-.posts-item{
+.posts-item {
   padding: 10px;
+  @include max-tiny() {
+    padding-left:5px;
+  }
   border-top: rgba(0,0,0,0.1) solid 0.5px;
   &:hover {
     background-color: rgba(0, 0, 0, 0.025) !important;
