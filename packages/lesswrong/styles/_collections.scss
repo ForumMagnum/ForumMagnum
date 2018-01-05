@@ -129,9 +129,3 @@ $card-padding: 20px;
     margin-left: auto;
     margin-right: 75px;
 }
-
-@include collection-card-break() {
-  .posts-item {
-    margin-top: 20px;
-  }
-}
