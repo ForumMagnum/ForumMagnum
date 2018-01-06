@@ -3,8 +3,7 @@ import { withRouter, Link } from 'react-router';
 import React from 'react';
 
 const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle}) => {
-  return <Components.Section title="Next Posts" titleComponent={<div className="sequences-navigation-title-subtitle">in <Link to={collectionTitle ? "/sequences" : "/sequences/"+sequence._id} className="sequences-navigation-sequence-name">{collectionTitle || (sequence && sequence.title) || ""}</Link></div>}>
-    <div className="sequences-navigation-bottom-content">
+  return <div className="sequences-navigation-bottom-content">
       {previousPost ? <div className="sequences-navigation-bottom-previous-post">
         <Components.PostsItem post={previousPost} inlineCommentCount={true} chapter={chapter}/>
       </div> : null}
@@ -13,7 +12,6 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
         <Components.PostsItem post={nextPost} inlineCommentCount={true} chapter={chapter} />
       </div> : null) }
     </div>
-  </Components.Section>
 };
 
 

@@ -400,7 +400,7 @@ svg.drag-handle {
 }
 
 .sequences-navigation-bottom-previous-post, .sequences-navigation-bottom-next-post {
-  width: 330px;
+  width: 300px;
   display: inline-block;
   margin-top: -15px;
   .posts-item-summary {
@@ -421,6 +421,14 @@ svg.drag-handle {
 
 .posts-page-recommended-reading {
   height: 200px;
+  width: 640px;
+  margin: auto;
+}
+
+@include collection-card-break() {
+  .posts-page-recommended-reading {
+    width: auto;
+  }
 }
 
 .sequences-navigation-title-subtitle {
