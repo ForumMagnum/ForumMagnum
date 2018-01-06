@@ -121,12 +121,10 @@ New CSS File
 }
 
 .posts-comments-thread {
-  margin-bottom: $vmargin;
   font-weight:400;
   font-family: $comments-font;
   max-width:720px;
-  margin:auto;
-
+  margin:80px auto $vmargin auto;
 }
 
 .posts-comments-thread .content-editor-is-empty {
