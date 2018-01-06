@@ -58,7 +58,7 @@ body {
 
   h2 { color: rgba(0,0,0,0.93);
        font-weight: 400;
-       margin-top: 2rem;
+       margin-top: 4rem;
        margin-bottom: 1.4rem;
        font-size: 2.2rem;
        line-height: 1;
@@ -70,7 +70,7 @@ body {
   h3 { color: rgba(0,0,0,0.93);
        font-weight: 400;
        font-size: 1.7rem;
-       margin-top: 3rem;
+       margin-top: 2rem;
        margin-bottom: 1.4rem;
        line-height: 1;
      }
@@ -143,13 +143,16 @@ body {
   div.epigraph > blockquote > footer > cite { font-style: italic; }
   /* end chapter epigraphs styles */
 
-  blockquote { font-size: 1.4rem;
+  blockquote { font-size: 1.3rem;
+               line-height: 1.8rem;
                padding: inherit;
                margin: 1.4rem 40px 1.4rem 40px;
                border-left: none; }
 
   blockquote p { /* width: 55%; */
                  margin-right: 40px;
+                 font-size: 1.3rem;
+                 line-height: 1.8rem;
                  margin-bottom: 0.7rem !important; }
 
   blockquote footer { width: 55%;

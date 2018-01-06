@@ -54,28 +54,25 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     const comment = this.props.comment;
 
     return (
-      <Paper
-        className="comments-item recent-comments-item"
-        style={paperStyle}
-        zDepth={0}
-        id={comment._id}
-      >
-        <div className="comments-item-body recent-comments-item-body ">
-          <object><div className="comments-item-meta recent-comments-item-meta">
-            <Components.UsersName user={comment.user}/>
-            <div className="comments-item-vote recent-comments-item-vote ">
-              <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
-            </div>
-            <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
-            <Link to={Posts.getPageUrl(comment.post) + "/" + comment._id}> <div className="comments-item-origin">
-              on <span className="comments-item-origin-post-title">{comment.post.title}</span>
-            </div> </Link>
-          </div></object>
-        {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
+      <div className="comments-node comments-node-root recent-comments-node">
+        <div className="comments-item recent-comments-item">
+          <div className="comments-item-body recent-comments-item-body ">
+            <object><div className="comments-item-meta recent-comments-item-meta">
+              <Components.UsersName user={comment.user}/>
+              <div className="comments-item-vote recent-comments-item-vote ">
+                <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
+              </div>
+              <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
+              <Link to={Posts.getPageUrl(comment.post) + "/" + comment._id}> <div className="comments-item-origin">
+                on <span className="comments-item-origin-post-title">{comment.post.title}</span>
+              </div> </Link>
+            </div></object>
+            {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
+          </div>
+          {this.state.showReply ? this.renderReply() : null}
+          { this.renderMenu() }
         </div>
-        {this.state.showReply ? this.renderReply() : null}
-        { this.renderMenu() }
-      </Paper>
+      </div>
     )
   }
 }

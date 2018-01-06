@@ -184,6 +184,7 @@ New CSS File
   line-height: 1.5rem !important;
   p, ol, ul, blockquote, .public-DraftStyleDefault-block {
     font-size: 1.1rem !important;
+    font-weight: 500 !important;
     line-height: 1.5rem !important;
     margin-top: 0px !important;
     margin-bottom: 0.7rem !important;
@@ -208,7 +209,7 @@ New CSS File
   }
 }
 .comments-list > .comment-old > .comments-node,
-.comments-list > .comment-new > .comments-node  {
+.comments-list > .comment-new > .comments-node, {
   margin-bottom:1.3em;
   border:solid 1px rgba(0,0,0,.2);
 
@@ -422,25 +423,13 @@ New CSS File
 }
 
 .recent-comments-list {
-  margin-top: -10px;
   max-width: 700px;
-  margin-left: 10px;
+  margin-left: 7px;
+  margin-top: -14px;
 }
 
-.comments-item.recent-comments-item {
-  margin-bottom: 0px;
-  border:none;
-  padding:0;
-  .comments-more-actions-menu {
-    opacity:0;
-    right:5px;
-  }
-  &:hover {
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-    .comments-more-actions-menu {
-      opacity:1;
-    }
-  }
+.recent-comments-item {
+  padding-bottom: 3px;
 }
 
 .comments-item-text.collapsed {
@@ -466,16 +455,6 @@ New CSS File
   }
 }
 
-.recent-comments-item {
-  p {
-    font-size: 1.1rem;
-    line-height: 1.6rem;
-  }
-  blockquote, blockquote p {
-    font-size: 1rem !important;
-    line-height: 1.4rem !important;
-  }
-}
 
 
 .comments-node-even {
@@ -501,14 +480,13 @@ New CSS File
 
   .posts-page-comments-count {
     color:rgba(0,0,0,.6);
-    float:left;
     .comments-views {
       font-family: $comments-font !important;
     }
   }
 
   .highlight-date-selector {
-    float:right;
+    float: right;
     margin:0;
     color:rgba(0,0,0,.6);
 
