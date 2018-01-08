@@ -422,8 +422,8 @@ New CSS File
 
 .recent-comments-list {
   max-width: 700px;
-  margin-left: 7px;
-  margin-top: -14px;
+  margin-left: 12px;
+  margin-top: -2px;
 }
 
 .recent-comments-item {
@@ -453,18 +453,6 @@ New CSS File
   }
 }
 
-
-
-.comments-node-even {
-  background-color: rgb(242,242,242);
-}
-.comments-node-odd {
-  background-color: rgb(252,252,252);
-}
-.comments-node-root {
-  background-color: white;
-}
-
 .posts-page-comments-title-component {
   font-size:14px;
   clear:both;
@@ -491,5 +479,54 @@ New CSS File
     @include max-tiny() {
       float:left;
     }
+  }
+}
+.comments-node-even {
+  background-color: rgb(242,242,242);
+}
+.comments-node-odd {
+  background-color: rgb(252,252,252);
+}
+.comments-node-root {
+  background-color: white;
+}
+
+.recent-comments-node {
+  margin:0;
+  width:100%;
+
+  .recent-comments-show-parent {
+    font-size:12px !important;
+    margin-right:5px;
+    cursor:pointer;
+    transform: rotate(90deg);
+    color:rgba(0,0,0,.75);
+    &.active {
+      color:rgba(0,0,0,.3) !important;
+    }
+  }
+
+  &.loading {
+    min-height:80px;
+    padding:35px;
+    background-color: rgb(242,242,242);
+  }
+
+  .recent-comments-node .comments-item {
+    border-right:solid 1px rgba(0,0,0,.2);
+  }
+
+  &.comments-node-root {
+    background-color:none;
+  }
+
+  .comments-node {
+    margin:0;
+  }
+
+  &.comments-node-root {
+    border:solid 1px rgba(0,0,0,.2);
+    margin-bottom:1.5em;
+    position:inherit;
   }
 }
