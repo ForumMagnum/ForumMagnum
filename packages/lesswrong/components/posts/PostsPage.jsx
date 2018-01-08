@@ -145,7 +145,9 @@ class PostsPage extends Component {
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
           {commentHash ? <div className="posts-comments-thread-linked-comment">
-            <Components.CommentWithContextWrapper documentId={commentHash} />
+            <Components.RecentCommentsItem documentId={commentHash} expanded={true}/>
+            <div className="comment-context-link"> <a href={"#"+commentHash}>See comment in full context</a> </div>
+
           </div> : null}
           <div className="posts-page-content">
             <div className="posts-page-content-header">
