@@ -183,16 +183,11 @@
     }
   }
   display: inline;
-
-  @include max-tiny() {
-    display:block;
-    clear:both;
-    overflow:auto;
-  }
 }
 
 .posts-views {
   .view-chip {
+    color: $light-green;
     display: inline-block;
     background-color: transparent;
     font-size: 16px;
@@ -203,7 +198,43 @@
     line-height: 25px;
     cursor: pointer;
     text-decoration: none !important;
+    position:relative;
+
+    .view-chip-menu-wrapper {
+      position:absolute;
+      border-radius:2px;
+      right:-266px;
+      top:-12px;
+      display:none;
+      text-align: left;
+      z-index:1;
+      padding-left:5px;
+
+      @include max-small() {
+        left:-25px;
+        top:20px;
+      }
+    }
+    .view-chip-menu {
+      border-radius:2px;
+      background-color: rgba(0,0,0,.8);
+      box-shadow:1px 1px 4px rgba(0,0,0,.2);
+      color:rgba(255,255,255,.75);
+      width:260px;
+      font-weight:300;
+      line-height:18px;
+      font-size:12px;
+      white-space: pre;
+      // font-family:$comments-font;
+      padding:10px 0;
+      z-index:1;
+    }
   }
+  .view-chip:hover .view-chip-menu-wrapper, .view-chip-menu-wrapper:hover {
+    display:block;
+  }
+
+
   @include max-medium {
     .posts-view-button {
       &::after {
@@ -230,8 +261,26 @@
 
 .posts-views-button-inactive  {
   .rss-out-linkbuilder {
-    display: none;
     color: rgba(0,0,0,0.5);
+  }
+}
+.view-chip-menu-item {
+  z-index:2;
+  color:rgba(255,255,255,.75);
+  text-decoration: none;
+  border-top:solid 1px rgba(255,255,255,.2);
+  padding:5px 10px;
+  &:hover {
+    background:rgba(255,255,255,.2);
+  }
+  &.includes, &.description {
+    border-top:none;
+    &:hover {
+      background:none;
+    }
+  }
+  &.learn-more {
+    border-top:none;
   }
 }
 
