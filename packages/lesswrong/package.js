@@ -30,17 +30,18 @@ Package.onUse( function(api) {
 
 Package.onTest(function(api) {
   api.use('lesswrong');
-  
+
   api.use([
     'fourseven:scss',
     'vulcan:core',
     'example-forum',
     'vulcan:users',
     'vulcan:voting',
-    'practicalmeteor:mocha',
     'practicalmeteor:sinon',
+    'coffeescript@1.12.7_3',
+    'practicalmeteor:mocha@2.4.5_6',
   ]);
-
-  // Finally add an entry point for tests
-  api.mainModule('./unitTests.js', 'client');
+  // Entry points for tests
+  api.mainModule('./unit.tests.js', 'client');
+  api.mainModule('./server.tests.js', 'server');
 })
