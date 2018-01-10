@@ -39,7 +39,7 @@ const viewNames = {
   'daily': {
     label: 'Daily',
     description: "Daily - All posts on LessWrong, sorted by date",
-    rss:true
+    rss:false
   },
   'more': {
     label: '...',
