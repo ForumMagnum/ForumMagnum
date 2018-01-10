@@ -30,17 +30,19 @@ Package.onUse( function(api) {
 
 Package.onTest(function(api) {
   api.use('lesswrong');
-  
+
   api.use([
     'fourseven:scss',
     'vulcan:core',
     'example-forum',
     'vulcan:users',
     'vulcan:voting',
-    'practicalmeteor:mocha',
+    'coffeescript@1.12.7_3',
+    'practicalmeteor:mocha@2.4.5_6',
+    'dispatch:phantomjs-tests@=0.0.5',
+    'dispatch:mocha-phantomjs',
     'practicalmeteor:sinon',
   ]);
-
   // Finally add an entry point for tests
   api.mainModule('./unitTests.js', 'client');
 })
