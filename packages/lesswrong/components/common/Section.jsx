@@ -15,7 +15,7 @@ const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, tit
           {titleComponent ? titleComponent : null}
         </div>
       </div>
-      <div className="section-content" style={{width: `${contentWidth}`, ...contentStyle}}>
+      <div className="section-content" style={{width: `${contentWidth}px`, ...contentStyle}}>
         {children}
       </div>
     </div>

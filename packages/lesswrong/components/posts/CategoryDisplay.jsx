@@ -26,7 +26,7 @@ class CategoryDisplay extends PureComponent {
       <div className="posts-item-category-display">
         <span style={{position: "relative"}} onMouseEnter={() => this.setState({hover: true})} onMouseLeave={() => this.setState({hover: false})}>
           <FontIcon style={{fontSize: "10px", color: "rgba(0,0,0,0.5)", verticalAlign: "middle", bottom: "1px"}} className="material-icons">{categoryIcon}</FontIcon>
-          <Tooltip show={this.state.hover} label={categoryTooltips[categoryIcon]} horizontalPosition="center" verticalPosition="center"/>
+          <Tooltip show={this.state.hover} label={categoryTooltips[categoryIcon]} horizontalPosition="center" verticalPosition="bottom"/>
         </span>
       </div>
       )
