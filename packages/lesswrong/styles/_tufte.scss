@@ -146,8 +146,10 @@ body {
   blockquote { font-size: 1.3rem;
                line-height: 1.8rem;
                padding: inherit;
-               margin: 1.4rem 40px 1.4rem 40px;
-               border-left: none; }
+               padding: .7rem 40px .7rem 40px;
+               margin:0;
+               border-left: solid 1px #ccc;
+             }
 
   blockquote p { /* width: 55%; */
                  margin-right: 40px;
