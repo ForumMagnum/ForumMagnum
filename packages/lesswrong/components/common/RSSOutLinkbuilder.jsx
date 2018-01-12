@@ -17,8 +17,8 @@ const dialogStyle = {
 
 const RSSIconStyle = {
   fontSize: "14px",
-  color: "rgba(0,0,0,0.6)",
-  top: "1px",
+  color: "white",
+  top: "2px",
 }
 
 const viewNames = {
@@ -35,29 +35,26 @@ const viewNames = {
 class RSSOutLinkbuilder extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      open: false,
-      copied: false,
-    }
     if (props.user) {
       this.state = {
-        rssTerms: { view: "userPosts", userId: props.user._id, karmaThreshold: "0" }
+        rssTerms: { view: "userPosts", userId: props.user._id, karmaThreshold: 0 }
       }
     } else if (props.commentsOn) {
       this.state = {
-        rssTerms: { type: "comments", view: "postCommentsNew", postId: props.commentsOn._id, karmaThreshold: "0" }
+        rssTerms: { type: "comments", view: "postCommentsNew", postId: props.commentsOn._id, karmaThreshold: 0 }
       }
     } else if(props.view) {
       this.state = {
-        rssTerms: { view: props.view, karmaThreshold: "0"}
+        rssTerms: { view: props.view, karmaThreshold: 0}
       }
     } else {
       console.log("Unclear how to build RSS links for: ");
       console.log(props);
       this.state = {
-        rssTerms: { view: "rss", karmaThreshold: "0" }
+        rssTerms: { view: "rss", karmaThreshold: 0 }
       }
     }
+    this.state = {...this.state, open:false, copied:false}
   }
 
   handleTouchTap = (event) => {
@@ -97,8 +94,7 @@ class RSSOutLinkbuilder extends Component {
       />
     ];
     return (
-      <span className="rss-out-linkbuilder">
-        <span className="rss-out-linkbuilder-button"> <FontIcon onTouchTap={(e) => {this.handleTouchTap(e)}} className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> </span>
+      <span className="rss-out-linkbuilder"><span className="rss-out-linkbuilder-button"><div onTouchTap={(e) => {this.handleTouchTap(e)}}><FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> Create an RSS Feed</div></span>
         <Dialog
           title="RSS Link Builder"
           actions={actions}
