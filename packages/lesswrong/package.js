@@ -37,12 +37,11 @@ Package.onTest(function(api) {
     'example-forum',
     'vulcan:users',
     'vulcan:voting',
+    'practicalmeteor:sinon',
     'coffeescript@1.12.7_3',
     'practicalmeteor:mocha@2.4.5_6',
-    'dispatch:phantomjs-tests@=0.0.5',
-    'dispatch:mocha-phantomjs',
-    'practicalmeteor:sinon',
   ]);
-  // Finally add an entry point for tests
-  api.mainModule('./unitTests.js', 'client');
+  // Entry points for tests
+  api.mainModule('./unit.tests.js', 'client');
+  api.mainModule('./server.tests.js', 'server');
 })

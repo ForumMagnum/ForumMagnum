@@ -67,6 +67,8 @@
   "root": true,
   "globals": {
     "param": true,
-    "returns": true
+    "returns": true,
+    "describe": true,
+    "it": true,
   }
 }
