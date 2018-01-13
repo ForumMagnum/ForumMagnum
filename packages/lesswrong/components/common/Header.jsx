@@ -146,7 +146,7 @@ class Header extends Component {
     appBarStyle.backgroundColor = header ? header : "#F0F4F7"
 
     return (
-      <Headroom disableInlineStyles>
+      <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
         <div className="header-wrapper" style={{height: "64px"}}>
           <header className="header">
             <AppBar
