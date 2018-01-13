@@ -26,10 +26,6 @@ $header-mobile: 43px !important;
   }
 }
 
-.header-wrapper{
-  margin-bottom: 35px;
-}
-
 .logo{
   @include small{
     text-align: center;
@@ -112,6 +108,10 @@ $header-mobile: 43px !important;
 
     }
   }
+}
+
+.header-wrapper {
+  height: 64px;
 }
 
 
