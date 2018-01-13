@@ -1,134 +1,73 @@
 import { Components, registerComponent, withCurrentUser, withList, withEdit } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import React, { Component } from 'react';
-import IconButton from 'material-ui/IconButton';
+
 import Popover from 'material-ui/Popover';
 import {List, ListItem} from 'material-ui/List';
 import PropTypes from 'prop-types';
+import Drawer from 'material-ui/Drawer';
+import {Tabs, Tab} from 'material-ui/Tabs';
+import AllIcon from 'material-ui/svg-icons/social/notifications';
+import UnreadIcon from 'material-ui/svg-icons/action/visibility-off';
+import PostsIcon from 'material-ui/svg-icons/action/description';
+import CommentsIcon from 'material-ui/svg-icons/editor/mode-comment';
+import MessagesIcon from 'material-ui/svg-icons/communication/forum';
+
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import Notifications from '../../lib/collections/notifications/collection.js'
-import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
+
+
+const tabLabelStyle = {
+  color: "rgba(0,0,0,0.8)",
+  fontFamily: "freight-sans-pro, sans-serif"
+}
+
+const iconStyle = {
+  color: "rgba(0,0,0,0.8)",
+}
 
 class NotificationsMenu extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-    }
-  }
-
-  handleTouchTap = (event) => {
-    event.preventDefault();
-    this.setState({
-      open:true,
-      anchorEl: event.currentTarget,
-    });
-  };
-
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
-  }
-
-  renderNotificationResults = () => {
-    const {currentUser, results, loadMore, loading, totalCount} = this.props;
-    if (results && !loading) {
-      return <div>
-        {results.map(notification =>
-          <ListItem
-            containerElement={<Link to={notification.link} />}
-            onTouchTap={() => this.viewNotifications([notification])}
-            key={notification._id}
-            primaryText={notification.message}
-            currentUser={currentUser}
-            style={{backgroundColor: notification.viewed ? 'rgba(0,0,0,0.04)' : 'inherit'}}
-          />)}
-
-        {results.length < totalCount ?
-          loading ?
-            <Components.Loading /> :
-            <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />
-          : null
-        }
-      </div>
-    } else {
-      return <Components.Loading />
-    }
-  }
-
-  viewNotifications = (results) => {
-    if(results && results.length){
-      let editMutation = this.props.editMutation;
-      let set = {viewed: true};
-      results.forEach((notification) => {
-        console.log(notification);
-        editMutation({documentId: notification._id, set: set, unset: {}});
-        notification.viewed = true;
-      });
-    }
-  }
-
   render() {
-      let results = this.props.results;
       const currentUser = this.props.currentUser;
-      const refetch = this.props.refetch;
-      const loading = this.props.loading;
-      const loadMore = this.props.loadMore;
-      const totalCount = this.props.totalCount;
-      const title = this.props.title;
-
-      const notificationStyle = {
-        color: this.props.color
-      }
-
       if (!currentUser) {
         return null;
-      } else if (loading || !results) {
-          return null
       } else {
-        results = this.props.results.map(_.clone); //We don't want to modify the original results we get
+        const AllNotificationTerms = {view: 'userNotifications', userId: currentUser._id};
+        const PostsNotificationTerms = {view: 'userNotifications', userId: currentUser._id, type: "newPost"};
+        const CommentsNotificationTerms = {view: 'userNotifications', userId: currentUser._id, type: "newComment"};
+        const MessagesNotificationTerms = {view: 'userNotifications', userId: currentUser._id, type: "newMessage"};
         return (
           <div className="notifications-menu">
-            <IconButton onTouchTap={(e) => {this.handleTouchTap(e)}} iconStyle={ notificationStyle }>
-              <NotificationsIcon />
-            </IconButton>
-            <Popover
-              open={this.state.open}
-              anchorEl={this.state.anchorEl}
-              anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-              targetOrigin={{horizontal: 'right', vertical: 'top'}}
-              onRequestClose={this.handleRequestClose}
-              autoCloseWhenOffScreen={false}
+            <Drawer
+              open={this.props.open}
+              width={300}
+              containerStyle={{top: "64px", zIndex: "1000", height: "100vh", boxShadow: "none"}}
+              overlayStyle={{zIndex: "900", opacity: "0"}}
+              openSecondary={true}
+              onRequestChange={this.props.handleToggle}
             >
               <div className="notifications-menu-content">
-                <div className="notifications-menu-top">
-                  <span className="notifications-menu-header">Notifications</span>
-                  <span className="notifications-menu-actions">
-                    {results && results.length ? <a className="notifications-menu-read-all" onTouchTap={() => this.viewNotifications(results)}>Mark All as Read</a> : null}
-                    <Link to={Users.getProfileUrl(currentUser) + "/edit"} className="notifications-menu-settings">Settings</Link>
-                  </span>
-                </div>
-                <List style={{width: '300px', maxHeight: '50vh', overflowY: 'auto', padding: '0px'}}>
-                  { results && results.length ?
-                    this.renderNotificationResults() :
-                    <ListItem primaryText="No Results" disabled={true} containerElement={<Link to={{pathname: '/inbox', query: {select: "Notifications"}}}/>} />
-                  }
-                </List>
-                <Link to={{pathname: '/inbox', query: {select: "Notifications"}}} className="notifications-menu-inbox-button" onTouchTap={() => this.setState({open: false})}>
-                  <div className="notifications-menu-inbox-button-text">
-                    All Notifications
-                  </div>
-                </Link>
+                <Tabs>
+                  <Tab icon={<AllIcon style={iconStyle}/>} style={tabLabelStyle}>
+                    <Components.NotificationsList terms={AllNotificationTerms} />
+                  </Tab>
+                  <Tab icon={<PostsIcon style={iconStyle}/>} style={tabLabelStyle}>
+                    <Components.NotificationsList terms={PostsNotificationTerms} />
+                  </Tab>
+                  <Tab icon={<CommentsIcon style={iconStyle} />} style={tabLabelStyle}>
+                    <Components.NotificationsList terms={CommentsNotificationTerms} />
+                  </Tab>
+                  <Tab icon={<MessagesIcon style={iconStyle} />} style={tabLabelStyle}>
+                    <Components.NotificationsList terms={MessagesNotificationTerms} />
+                  </Tab>
+                </Tabs>
               </div>
-            </Popover>
+            </Drawer>
           </div>
         )
       }
   }
-
-
 }
 
 NotificationsMenu.propTypes = {
@@ -139,18 +78,21 @@ NotificationsMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-const withListOptions = {
-  collection: Notifications,
-  queryName: 'notificationsListQuery',
-  fragmentName: 'notificationsNavFragment',
-  limit: 10,
-  totalResolver: true,
-};
-
-const withEditOptions = {
-  collection: Notifications,
-  fragmentName: 'notificationsNavFragment',
-};
+registerComponent('NotificationsMenu', NotificationsMenu, withCurrentUser);
 
 
-registerComponent('NotificationsMenu', NotificationsMenu, [withList, withListOptions], [withEdit, withEditOptions], withCurrentUser);
+{/* <div className="notifications-menu-top">
+  <div className="notifications-menu-header">
+    Notifications
+  </div>
+  <span className="notifications-menu-actions">
+    {results && results.length ? <a className="notifications-menu-read-all" onTouchTap={() => this.viewNotifications(results)}>Mark All as Read</a> : null}
+    <Link to={Users.getProfileUrl(currentUser) + "/edit"} className="notifications-menu-settings">Settings</Link>
+  </span>
+</div>
+
+<Link to={{pathname: '/inbox', query: {select: "Notifications"}}} className="notifications-menu-inbox-button" onTouchTap={() => this.setState({open: false})}>
+  <div className="notifications-menu-inbox-button-text">
+    All Notifications
+  </div>
+</Link> */}

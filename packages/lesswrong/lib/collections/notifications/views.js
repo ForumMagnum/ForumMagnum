@@ -8,19 +8,10 @@ Notifications.addDefaultView(function (terms) {
 });
 
 // notifications for a specific user (what you see in the notifications menu)
-Notifications.addView("userNotifications", function (terms) {
-  if (!!terms.type) {
-    return {
-      selector: {
-        userId: terms.userId,
-        type: terms.type,
-      },
-      options: {sort: {createdAt: -1}}
-    };
-  } else {
-    return {
-      selector: {userId: terms.userId},
-      options: {sort: {createdAt: -1}}
-    };
+Notifications.addView("userNotifications", (terms) => {
+  const query = {
+    selector: {userId: terms.userId, type: terms.type || null, viewed: terms.viewed == null ? null : (terms.viewed || {$ne: true})}, //Ugly construction to deal with falsy viewed values and null != false in Mongo
+    options: {sort: {createdAt: -1}}
   }
+  return query
 });
