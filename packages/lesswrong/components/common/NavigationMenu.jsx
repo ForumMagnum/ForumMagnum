@@ -11,6 +11,8 @@ const NavigationMenu = ({open, handleClose, handleToggle}) =>
     open={open}
     onRequestChange={(open) => handleToggle(open)}
     containerClassName="menu-drawer"
+    containerStyle={{height: "100vh"}}
+    overlayStyle={{height: "100vh"}}
   >
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
     <Divider />

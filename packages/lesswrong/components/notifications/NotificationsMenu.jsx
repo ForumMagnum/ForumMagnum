@@ -43,7 +43,6 @@ class NotificationsMenu extends Component {
               open={this.props.open}
               width={300}
               containerStyle={{top: "64px", zIndex: "1000", height: "100vh", boxShadow: "none"}}
-              overlayStyle={{zIndex: "900", opacity: "0"}}
               openSecondary={true}
               onRequestChange={this.props.handleToggle}
             >
