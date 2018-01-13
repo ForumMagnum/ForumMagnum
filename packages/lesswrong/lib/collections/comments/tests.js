@@ -6,8 +6,10 @@ import { runQuery } from 'meteor/vulcan:core';
 chai.should();
 chai.use(chaiAsPromised);
 
+
 describe('CommentsNew', async () => {
   it('should throw error if a user is not included', async () => {
+
     const query = `
       mutation CommentsNew {
         CommentsNew(document:{content:{}}){

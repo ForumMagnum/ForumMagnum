@@ -42,6 +42,6 @@ Package.onTest(function(api) {
     'practicalmeteor:mocha@2.4.5_6',
   ]);
   // Entry points for tests
-  api.mainModule('./unit.tests.js', 'client');
-  api.mainModule('./server.tests.js', 'server');
+  api.mainModule('./testing/unit.tests.js', 'client');
+  api.mainModule('./testing/server.tests.js', 'server');
 })

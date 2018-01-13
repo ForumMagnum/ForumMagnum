@@ -35,7 +35,7 @@ if (getSetting('forum.seedOnStart')) {
   };
 
   var createPost = function (slug, postedAt, username, thumbnail) {
-    
+
     const user = Users.findOne({username: username});
 
     var post = {
@@ -51,7 +51,7 @@ if (getSetting('forum.seedOnStart')) {
       post.thumbnailUrl = "/packages/example-forum/lib/assets/images/" + thumbnail;
 
     newMutation({
-      collection: Posts, 
+      collection: Posts,
       document: post,
       currentUser: user,
       validate: false
@@ -75,7 +75,7 @@ if (getSetting('forum.seedOnStart')) {
       comment.parentCommentId = parentComment._id;
 
     newMutation({
-      collection: Comments, 
+      collection: Comments,
       document: comment,
       currentUser: user,
       validate: false
@@ -89,7 +89,7 @@ if (getSetting('forum.seedOnStart')) {
       isDummy: true
     };
     newMutation({
-      collection: Users, 
+      collection: Users,
       document: user,
       validate: false
     });
@@ -141,16 +141,18 @@ if (getSetting('forum.seedOnStart')) {
   };
 
   Meteor.startup(function () {
+    // LESSWRONG - removed the seed
+
     // insert dummy content only if createDummyContent hasn't happened and there aren't any posts or users in the db
-    if (!Users.find().count()) {
-      createDummyUsers();
-    }
-    if (!Posts.find().count()) {
-      createDummyPosts();
-    }
-    if (!Comments.find().count()) {
-      createDummyComments();
-    }
+    // if (!Users.find().count()) {
+    //   createDummyUsers();
+    // }
+    // if (!Posts.find().count()) {
+    //   createDummyPosts();
+    // }
+    // if (!Comments.find().count()) {
+    //   createDummyComments();
+    // }
   });
 
 }

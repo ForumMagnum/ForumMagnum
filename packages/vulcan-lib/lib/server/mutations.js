@@ -52,22 +52,23 @@ export const newMutation = async ({ collection, document, currentUser, validate,
 
     // run validation callbacks
     newDocument = runCallbacks(`${collectionName}.new.validate`, newDocument, currentUser, validationErrors);
-  
+
+    // LESSWRONG - added custom message (showing all validation errors instead of a generic message)
     if (validationErrors.length) {
-      const NewDocumentValidationError = createError('app.validation_error', {message: 'app.new_document_validation_error'});
+      const NewDocumentValidationError = createError('app.validation_error', {message: JSON.stringify(validationErrors)});
       throw new NewDocumentValidationError({data: {break: true, errors: validationErrors}});
     }
 
   }
-  
+
   // if user is logged in, check if userId field is in the schema and add it to document if needed
   if (currentUser) {
     const userIdInSchema = Object.keys(schema).find(key => key === 'userId');
     if (!!userIdInSchema && !newDocument.userId) newDocument.userId = currentUser._id;
   }
-  
+
   // run onInsert step
-  // note: cannot use forEach with async/await. 
+  // note: cannot use forEach with async/await.
   // See https://stackoverflow.com/a/37576787/649299
   for(let fieldName of _.keys(schema)) {
     if (schema[fieldName].onInsert) {
@@ -120,7 +121,7 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
 
   // get original document from database
   let document = collection.findOne(documentId);
-  
+
   debug('//------------------------------------//');
   debug('// editMutation');
   debug('// collectionName: ', collection._name);
@@ -135,10 +136,11 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
 
     modifier = runCallbacks(`${collectionName}.edit.validate`, modifier, document, currentUser, validationErrors);
 
+    // LESSWRONG - added custom message (showing all validation errors instead of a generic message)
     if (validationErrors.length) {
       console.log('// validationErrors')
       console.log(validationErrors)
-      const EditDocumentValidationError = createError('app.validation_error', {message: 'app.edit_document_validation_error'});
+      const EditDocumentValidationError = createError('app.validation_error', {message: JSON.stringify(validationErrors)});
       throw new EditDocumentValidationError({data: {break: true, errors: validationErrors}});
     }
 
@@ -173,7 +175,7 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
   if (_.isEmpty(modifier.$unset)) {
     delete modifier.$unset;
   }
-  
+
   // update document
   collection.update(documentId, modifier, {removeEmptyStrings: false});
 
@@ -206,7 +208,7 @@ export const removeMutation = async ({ collection, documentId, currentUser, vali
   debug(collection._name)
   debug(documentId)
   debug('//------------------------------------//');
-  
+
   const collectionName = collection._name;
   const schema = collection.simpleSchema()._schema;
 
