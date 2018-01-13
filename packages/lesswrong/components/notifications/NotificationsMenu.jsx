@@ -78,20 +78,3 @@ NotificationsMenu.defaultProps = {
 }
 
 registerComponent('NotificationsMenu', NotificationsMenu, withCurrentUser);
-
-
-{/* <div className="notifications-menu-top">
-  <div className="notifications-menu-header">
-    Notifications
-  </div>
-  <span className="notifications-menu-actions">
-    {results && results.length ? <a className="notifications-menu-read-all" onTouchTap={() => this.viewNotifications(results)}>Mark All as Read</a> : null}
-    <Link to={Users.getProfileUrl(currentUser) + "/edit"} className="notifications-menu-settings">Settings</Link>
-  </span>
-</div>
-
-<Link to={{pathname: '/inbox', query: {select: "Notifications"}}} className="notifications-menu-inbox-button" onTouchTap={() => this.setState({open: false})}>
-  <div className="notifications-menu-inbox-button-text">
-    All Notifications
-  </div>
-</Link> */}
