@@ -232,6 +232,9 @@ registerFragment(`
 registerFragment(`
   fragment SelectCommentsList on Comment {
     ...CommentsList
+    parentComment {
+      ...CommentsList
+    }
     post {
       title
       _id
