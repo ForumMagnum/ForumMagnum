@@ -40,7 +40,7 @@ Comments.addView("postCommentsBest", function (terms) {
 
 Comments.addView("recentComments", function (terms) {
   return {
-    selector: { deleted:{$ne:true}, score:{$gt:0}},
+    selector: { deleted:{$ne:true}, score:{$gt:2}},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
