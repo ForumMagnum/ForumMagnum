@@ -41,7 +41,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
             {/* <link name="cardo-font" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cardo:400,400i,700" />*/}
           </Helmet>
-          <Typekit kitId="gus4xlc" />
+          <Typekit kitId="jvr1gjm" />
           {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
           {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 
