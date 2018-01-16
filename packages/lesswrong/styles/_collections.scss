@@ -30,6 +30,7 @@ $card-padding: 20px;
   display: inline-block;
 
   @include max-small() {
+//     TODO: remove this calc function, get margin:auto working as intended
     margin:10px calc(50% - 180px);
   }
   @include max-tiny() {
