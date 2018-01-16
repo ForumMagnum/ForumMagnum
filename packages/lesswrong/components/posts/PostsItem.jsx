@@ -85,7 +85,7 @@ class PostsItem extends PureComponent {
       pointerEvents: 'none',
       backgroundColor: 'transparent',
       color: read ? 'white' : 'rgba(0,0,0,0.6)',
-      fontFamily: "Futura-pt",
+      fontFamily: "freight-sans-pro",
       zIndex: 2,
     }
 
