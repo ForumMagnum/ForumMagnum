@@ -28,12 +28,26 @@ $card-padding: 20px;
 .collection-card-item {
   position:relative;
   display: inline-block;
+
+  @include max-small() {
+//     TODO: remove this calc function, get margin:auto working as intended
+    margin:10px calc(50% - 180px);
+  }
+  @include max-tiny() {
+    margin:10px;
+  }
   .collection-card {
     position: relative;
     padding: $card-padding;
     height: 312px;
     box-shadow: none !important;
     margin-bottom: 5px;
+
+    @include max-tiny() {
+      height: 290px;
+      margin-bottom:20px;
+    }
+
     & > div {
       display: flex;
       flex-direction: column;
@@ -45,6 +59,10 @@ $card-padding: 20px;
       margin-left: auto;
       padding-top: 10px;
       color: rgba(0,0,0,0.6);
+
+      @include max-tiny() {
+        width: 100%;
+      }
     }
     .collection-card-title {
       color: rgba(0,0,0,0.7);
@@ -72,6 +90,9 @@ $card-padding: 20px;
       width: 313px;
       overflow:hidden;
       bottom: 20px;
+      @include max-tiny() {
+        width: 100%;
+      }
     }
     a:hover {
       text-decoration: none;
@@ -97,6 +118,9 @@ $card-padding: 20px;
       bottom: inherit;
       width: 335px;
       height: 271px;
+      @include max-tiny() {
+        width: 100%;
+      }
     }
     .collection-card-content {
       margin-left: 20px;

@@ -67,10 +67,13 @@
     border-top: none;
   }
   margin-top: -10px;
-  margin-left: 10px;
+  padding: 0 10px;
   a {
     background-image: none;
     text-shadow: none;
+  }
+  @include max-tiny() {
+    padding:0;
   }
 }
 
