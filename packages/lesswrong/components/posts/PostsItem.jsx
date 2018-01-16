@@ -87,6 +87,10 @@ class PostsItem extends PureComponent {
       color: read ? 'white' : 'rgba(0,0,0,0.6)',
       fontFamily: "freight-sans-pro",
       zIndex: 2,
+      fontVariantNumeric: "lining-nums",
+      mozFontFeatureSettings: "lnum",
+      webkitFontFeatureSettings: "lnum",
+      fontFeatureSettings: "lnum",
     }
 
     let tooltipText1 = "last visit: ";
