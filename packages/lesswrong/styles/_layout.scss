@@ -33,7 +33,7 @@
   }
   @include collection-card-break(){
     .section {
-      width: 350px !important;
+      width: 100% !important;
       .section-title {
         padding: 20px;
         margin-bottom: 0px;
@@ -41,7 +41,7 @@
           &:before {
             display: none;
           }
-          width: 315px;
+          width: 100%;
           display: inline-block;
           padding-top: 5px;
           border-top-style: solid;
@@ -62,8 +62,12 @@
               position: absolute !important;
               order: 2;
               bottom: 20px;
-              width: 313px;
+              width: 315px;
               height: 90px;
+
+              @include max-tiny() {
+                width:100%;
+              }
             }
             .collection-card-content {
               margin-left: auto;
@@ -75,7 +79,7 @@
   }
   @include very-small-break() {
     .section {
-      width: 312px !important;
+      width: 100% !important;
       .section-content {
         margin-top: 0px !important;
       }
@@ -94,8 +98,7 @@
     .recent-comments-list {
       margin-left: 0px;
       .comments-item {
-        padding: 0px !important;
-        margin-top: 10px;
+        padding:0px 7px;
       }
     }
   }
