@@ -42,7 +42,8 @@ class NotificationsMenu extends Component {
             <Drawer
               open={this.props.open}
               width={300}
-              containerStyle={{top: "64px", zIndex: "1000", height: "100vh", boxShadow: "none"}}
+              containerStyle={{top: "64px", zIndex: "1000", height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"}}
+              containerClassName="notifications-menu-container"
               openSecondary={true}
               onRequestChange={this.props.handleToggle}
             >

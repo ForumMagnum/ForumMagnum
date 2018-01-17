@@ -103,22 +103,12 @@
     }
   }
 }
-
+//
 .wrapper {
-  @include section-header-break {
-    .header {
-      position: absolute;
-      top: 0px;
-      width: 100vw;
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-    }
-    .main {
-      padding-top: 60px;
-    }
-  }
   @include very-small-break {
     .main {
-      padding: 60px 5px;
+      padding: 0px 5px;
+      margin-top: 20px !important;
     }
   }
 }
@@ -176,6 +166,9 @@
 
 //Styles for header scrolling, provided by react-headroom: https://github.com/KyleAMathews/react-headroom
 
+.header {
+  height: inherit;
+}
 .headroom {
   top: 0;
   left: 0;

@@ -20,11 +20,11 @@ class NotificationsList extends Component {
       return (
         <List style={{width: '300px', overflowY: 'auto', padding: '0px'}}>
           {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} />)}
-          {results.length >= 20 && <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
+          {results.length >= 20 && <ListItem className="notifications-list-item" onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
         </List>
       )
     } else {
-      return <Components.Loading />
+      return <div className="notifications-list-empty"> You don't have any notifications yet!</div>
     }
   }
 }

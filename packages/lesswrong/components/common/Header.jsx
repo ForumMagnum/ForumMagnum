@@ -18,6 +18,7 @@ import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
   boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
+  paddingRight: "0px",
 }
 
 class Header extends Component {
@@ -43,18 +44,20 @@ class Header extends Component {
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   renderAppBarElementRight = () => {
-    const notificationStyle = {
-      color: this.state.notificationOpen ? "#FFFFFF" : "#000000"
+    const notificationButtonStyle = {
+      backgroundColor: this.state.notificationOpen ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0)"
+    }
+    const notificationIconStyle = {
+      color: this.state.notificationOpen ? "#FFFFFF" : "rgba(0,0,0,0.8)",
     }
 
-    return <div>
+    return <div className="appbar-elements-right">
       <NoSSR><Components.SearchBar /></NoSSR>
       {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
       {this.props.currentUser &&
-        <IconButton onTouchTap={this.handleNotificationToggle} iconStyle={ notificationStyle }>
+        <IconButton className="notifications-menu-button" onTouchTap={this.handleNotificationToggle} style={notificationButtonStyle} iconStyle={ notificationIconStyle }>
           <NotificationsIcon />
-        </IconButton> }
-
+        </IconButton>}
     </div>
   }
 
