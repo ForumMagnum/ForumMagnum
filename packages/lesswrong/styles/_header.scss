@@ -477,11 +477,11 @@ $header-mobile: 43px !important;
 }
 
 .notifications-list-empty {
-  padding: 10px; 
+  padding: 10px;
 }
 
 .appbar-elements-right {
-  margin-right: 20px;
+  margin-right: 36px;
   @include max-tiny() {
     margin-right: 16px !important;
   }
