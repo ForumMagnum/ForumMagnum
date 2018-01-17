@@ -49,16 +49,16 @@ class NotificationsMenu extends Component {
             >
               <div className="notifications-menu-content">
                 <Tabs>
-                  <Tab icon={<AllIcon style={iconStyle}/>} style={tabLabelStyle}>
+                  <Tab icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>} style={tabLabelStyle}>
                     <Components.NotificationsList terms={AllNotificationTerms} />
                   </Tab>
-                  <Tab icon={<PostsIcon style={iconStyle}/>} style={tabLabelStyle}>
+                  <Tab icon={<span title="New Posts"><PostsIcon style={iconStyle}/></span>} style={tabLabelStyle}>
                     <Components.NotificationsList terms={PostsNotificationTerms} />
                   </Tab>
-                  <Tab icon={<CommentsIcon style={iconStyle} />} style={tabLabelStyle}>
+                  <Tab icon={<span title="New Comments"><CommentsIcon style={iconStyle} /></span>} style={tabLabelStyle}>
                     <Components.NotificationsList terms={CommentsNotificationTerms} />
                   </Tab>
-                  <Tab icon={<MessagesIcon style={iconStyle} />} style={tabLabelStyle}>
+                  <Tab icon={<span title="New Messages"><MessagesIcon style={iconStyle} /></span>} style={tabLabelStyle}>
                     <Components.NotificationsList terms={MessagesNotificationTerms} />
                   </Tab>
                 </Tabs>
