@@ -43,6 +43,12 @@
   flex-direction: row;
   flex-wrap: wrap;
   flex-flow: row wrap;
+  @include max-small() {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
   a:hover, a:active, a:focus {
     text-decoration: none;
     color: rgba(0,0,0,0.87);
