@@ -6,6 +6,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
+import classNames from 'classnames';
 
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { IconMenu, IconButton, MenuItem, FlatButton, Dialog } from 'material-ui';
@@ -258,8 +259,11 @@ class CommentsItem extends PureComponent {
     )
   }
 
-  renderReply = () =>
-      <div className="comments-item-reply">
+  renderReply = () => {
+    const levelClass = (this.props.comment.level + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
+
+    return (
+      <div className={classNames("comments-item-reply", levelClass)}>
         <Components.CommentsNewForm
           postId={this.props.comment.postId}
           parentComment={this.props.comment}
@@ -268,6 +272,8 @@ class CommentsItem extends PureComponent {
           type="reply"
         />
       </div>
+    )
+  }
 
   renderEdit = () =>
       <Components.CommentsEditForm

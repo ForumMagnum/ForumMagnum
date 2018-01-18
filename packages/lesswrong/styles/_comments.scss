@@ -346,7 +346,6 @@ New CSS File
   }
 }
 
-
 .comments-edit-form, .comments-new-form{
   position:relative;
   padding-bottom:17px;
@@ -396,6 +395,11 @@ New CSS File
   }
 }
 
+.posts-comments-thread-new {
+  padding:0 10px;
+  border:solid 1px rgba(0,0,0,.2);
+}
+
 .comments-item-reply-link {
   float:left;
 }
@@ -408,6 +412,8 @@ New CSS File
 
 .comments-item-reply{
   margin-top: $vmargin;
+  padding:10px;
+  border:solid 1px rgba(0,0,0,.2);
 }
 
 .comment-actions{
