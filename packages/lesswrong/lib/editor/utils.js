@@ -1,5 +1,6 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
+import { Utils } from 'meteor/vulcan:core';
 
 
 export const htmlToDraft = convertFromHTML({
@@ -87,3 +88,6 @@ export const draftToHTML = convertToHTML({
     //  return <span/>;
    },
 });
+
+Utils.draftToHTML = draftToHTML;
+Utils.htmlToDraft = htmlToDraft;

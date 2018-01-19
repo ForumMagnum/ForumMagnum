@@ -7,7 +7,7 @@ The Navigation for the Inbox components
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PageHeader } from 'react-bootstrap';
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";
 
 class ConversationWrapper extends Component {
@@ -42,12 +42,12 @@ class ConversationWrapper extends Component {
             <br /> <small>{conversation.createdAt}</small>
           </PageHeader>
           {this.renderMessages(results, currentUser)}
-            <Components.SmartForm
-              collection={Messages}
-              prefilledProps={ {conversationId: conversation._id} }
-              successCallback={(message) => {refetch()}}
-              errorCallback={(message)=> console.log("Failed to send", error)}
-            />
+          <Components.SmartForm
+            collection={Messages}
+            prefilledProps={ {conversationId: conversation._id} }
+            mutationFragment={getFragment("messageListFragment")}
+            errorCallback={(message)=> console.log("Failed to send", message)}
+          />
         </div>
       )
     } else {
