@@ -126,7 +126,12 @@ class FormWrapper extends PureComponent {
     };
   }
 
-  getComponent() {
+  /*
+
+  Note: parentProps are props received from parent component (i.e. <Components.SmartForm/> call)
+
+  */
+  getComponent(parentProps) {
 
     let WrappedComponent;
 
