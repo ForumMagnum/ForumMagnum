@@ -1,6 +1,7 @@
 import LWEvents from '../collections/lwevents/collection.js';
 import { newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { ForwardedWhitelist } from './forwarded_whitelist.js';
 
 const dummyUser = Users.findOne();
 
@@ -48,7 +49,7 @@ Accounts.onLogin((login) => {
     properties: {
       type: login.type,
       id: login.connection && login.connection.id,
-      ip: login.connection && login.connection.clientAddress
+      ip: login.connection && ForwardedWhitelist.getClientIP(login.connection)
     }
   }
   newMutation({
