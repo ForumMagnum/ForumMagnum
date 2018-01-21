@@ -4,16 +4,18 @@ import process from 'process';
 
 var whitelist = {};
 
-Object.values(getSetting("forwardedWhitelist")).forEach((hostname) => {
-  dns.resolve(hostname, "ANY", (err, records) => {
-    if(!err) {
-      records.forEach((rec) => {
-        whitelist[rec.address] = true;
-        console.log("Adding " + hostname + ": " + rec.address + " to whitelist.");
-      });
-    }
+if(getSetting("forwardedWhitelist")) {
+  Object.values(getSetting("forwardedWhitelist")).forEach((hostname) => {
+    dns.resolve(hostname, "ANY", (err, records) => {
+      if(!err) {
+        records.forEach((rec) => {
+          whitelist[rec.address] = true;
+          console.log("Adding " + hostname + ": " + rec.address + " to whitelist.");
+        });
+      }
+    });
   });
-});
+}
 
 export const ForwardedWhitelist = {
   getClientIP: (connection) => {
