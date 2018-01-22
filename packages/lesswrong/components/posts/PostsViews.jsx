@@ -52,7 +52,7 @@ const viewNames = {
   'all_drafts': 'all drafts',
 }
 const defaultViews = ["curated", "frontpage"];
-const defaultExpandedViews = ["community","meta"];
+const defaultExpandedViews = ["community"];
 
 const ChipStyle = {
   display: "inline-block",
@@ -172,11 +172,16 @@ class PostsViews extends Component {
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <Link style={ChipStyle} className="view-chip" to="/daily">
+            {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/meta">
+              <span className={"posts-views-chip-inactive"}>
+                Meta { this.renderMenu(viewNames["meta"])}
+              </span>
+            </Link></div>}
+            {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/daily">
               <span className={"posts-views-chip-inactive"}>
                 Daily { this.renderMenu(viewNames["daily"])}
               </span>
-            </Link>}
+            </Link></div>}
           </div> : <div>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>

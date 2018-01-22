@@ -26,7 +26,6 @@ const PostsList = ({
   terms}) => {
 
   const loadingMore = networkStatus === 2;
-
   const renderContent = () => {
     if (results && results.length) {
       return <div>
