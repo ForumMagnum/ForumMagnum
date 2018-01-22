@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, replaceComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
@@ -186,4 +186,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-replaceComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], muiThemeable());
+replaceComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable());
