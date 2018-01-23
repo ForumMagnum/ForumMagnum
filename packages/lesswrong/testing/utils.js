@@ -1,4 +1,4 @@
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery, newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum'
 import { Random } from 'meteor/random';
@@ -38,6 +38,21 @@ export const createDummyPost = async (userId, title=dummyPostTitle, body=dummyPo
     }
   `;
   return (await runQuery(query,{},{currentUser:{_id:userId}})).data.PostsNew;
+}
+
+export const createDummyPostServer = async (user, data) => {
+  const defaultData = {
+    userId: user._id,
+    title: dummyPostTitle,
+  }
+  const postData = {...defaultData, ...data};
+  return await newMutation({
+    collection: Posts,
+    document: postData,
+    currentUser: user,
+    validate: false,
+    context: {},
+  });
 }
 
 export const clearDatabase = async () => {

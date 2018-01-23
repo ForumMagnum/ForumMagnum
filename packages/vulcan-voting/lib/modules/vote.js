@@ -97,12 +97,11 @@ const addVoteServer = ({ document, collection, voteType, user, voteId }) => {
   delete vote.__typename;
   Votes.insert(vote);
 
-  // update document score
-  collection.update({_id: document._id}, {$inc: {baseScore: vote.power }});
-
   newDocument.baseScore += vote.power;
   newDocument.score = recalculateScore(newDocument);
 
+  // update document score & set item as active
+  collection.update({_id: document._id}, {$inc: {baseScore: vote.power }, $set: {inactive: false, score: newDocument.score}});
   return {newDocument, vote};
 }
 
@@ -173,12 +172,11 @@ const cancelVoteServer = ({ document, voteType, collection, user }) => {
 
   // remove vote object
   Votes.remove({_id: vote._id});
-
-  // update document score
-  collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }});
-
   newDocument.baseScore -= vote.power;
   newDocument.score = recalculateScore(newDocument);
+
+  // update document score
+  collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }, $set: {inactive: false, score: newDocument.score}});
 
   return {newDocument, vote};
 }
@@ -305,13 +303,13 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
     }
 
     // runCallbacks(`votes.${voteType}.sync`, document, collection, user);
-    let voteDocTuple = addVoteServer(voteOptions);
+    let voteDocTuple = addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
     document = voteDocTuple.newDocument;
     runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
-
   }
 
   // const newDocument = collection.findOne(documentId);
+
   document.__typename = collection.options.typeName;
   return document;
 }
