@@ -83,9 +83,9 @@ describe('Voting', async () => {
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
 
-      updatedNormalPost[0].score.should.be.closeTo(recalculateScore(updatedNormalPost[0]), 0.001);
-      updatedFrontpagePost[0].score.should.be.closeTo(recalculateScore(updatedFrontpagePost[0]), 0.001);
-      updatedCuratedPost[0].score.should.be.closeTo(recalculateScore(updatedCuratedPost[0]), 0.001);
+      updatedNormalPost[0].score.should.be.closeTo(recalculateScore(normalPost), 0.001);
+      updatedFrontpagePost[0].score.should.be.closeTo(recalculateScore(frontpagePost), 0.001);
+      updatedCuratedPost[0].score.should.be.closeTo(recalculateScore(curatedPost), 0.001);
     });
   });
   describe('performVoteServer', async () => {
