@@ -44,8 +44,6 @@ export const createDummyPostServer = async (user, data) => {
   const defaultData = {
     userId: user._id,
     title: dummyPostTitle,
-    baseScore: 3,
-    score: 0,
   }
   const postData = {...defaultData, ...data};
   console.log("CreateDummyPostServer postData: ", postData);
