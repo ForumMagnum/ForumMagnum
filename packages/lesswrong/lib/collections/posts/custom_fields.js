@@ -171,6 +171,7 @@ Posts.addField([
     fieldSchema: {
       type: String,
       optional: true,
+      max: undefined,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],

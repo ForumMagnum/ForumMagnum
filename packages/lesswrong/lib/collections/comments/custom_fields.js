@@ -5,6 +5,22 @@ import Users from "meteor/vulcan:users";
 
 Comments.addField([
   /**
+    Body (Overwriting original schema)
+  */
+  {
+    fieldName: 'body',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      max: undefined,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+    }
+  },
+
+  /**
     Ory Editor content JSON
   */
   {
