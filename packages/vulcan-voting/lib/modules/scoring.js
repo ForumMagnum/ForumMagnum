@@ -10,20 +10,26 @@ export const recalculateScore = item => {
     const ageInHours = age / (60 * 60 * 1000);
 
     // time decay factor
-    const f = 1.3;
+    const TIME_DECAY_FACTOR = 1.15; //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
+
+    // Basescore bonuses for various categories
+    const FRONTPAGE_BONUS = 10;
+    const FEATURED_BONUS = 10;
 
     // use baseScore if defined, if not just use 0
-    const baseScore = item.baseScore || 0;
+    let baseScore = item.baseScore || 0;
+
+    baseScore = baseScore + ((item.frontpage && FRONTPAGE_BONUS) || 0) + ((item.featuredPriority > 0 && FEATURED_BONUS) || 0);
 
     // HN algorithm
-    const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, f))*1000000)/1000000;
+    const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, TIME_DECAY_FACTOR))*1000000)/1000000;
 
     return newScore;
 
   } else {
 
     return item.baseScore;
-  
+
   }
 
 };

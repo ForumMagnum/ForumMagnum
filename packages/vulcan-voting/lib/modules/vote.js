@@ -97,12 +97,11 @@ const addVoteServer = ({ document, collection, voteType, user, voteId }) => {
   delete vote.__typename;
   Votes.insert(vote);
 
-  // update document score
-  collection.update({_id: document._id}, {$inc: {baseScore: vote.power }});
-
   newDocument.baseScore += vote.power;
   newDocument.score = recalculateScore(newDocument);
 
+  // update document score & set item as active
+  collection.update({_id: document._id}, {$inc: {baseScore: vote.power }, $set: {inactive: false, score: newDocument.score}});
   return {newDocument, vote};
 }
 
@@ -173,12 +172,11 @@ const cancelVoteServer = ({ document, voteType, collection, user }) => {
 
   // remove vote object
   Votes.remove({_id: vote._id});
-
-  // update document score
-  collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }});
-
   newDocument.baseScore -= vote.power;
   newDocument.score = recalculateScore(newDocument);
+
+  // update document score
+  collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }, $set: {inactive: false, score: newDocument.score}});
 
   return {newDocument, vote};
 }
@@ -271,6 +269,8 @@ Server-side database operation
 */
 export const performVoteServer = ({ documentId, document, voteType = 'upvote', collection, voteId, user }) => {
 
+  console.log("performVoteServer beginning", document);
+
   const collectionName = collection.options.collectionName;
   document = document || collection.findOne(documentId);
 
@@ -282,6 +282,7 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
   const voteOptions = {document, collection, voteType, user, voteId};
 
   if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
+    console.log("document, user, permission", document, user, Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`));
     const VoteError = createError('voting.no_permission', {message: 'voting.no_permission'});
     throw new VoteError();
   }
@@ -303,15 +304,19 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
     if (voteTypes[voteType].exclusive) {
       document = clearVotesServer(voteOptions)
     }
+    console.log("performVoteServer after clear: ", document)
 
     // runCallbacks(`votes.${voteType}.sync`, document, collection, user);
-    let voteDocTuple = addVoteServer(voteOptions);
+    let voteDocTuple = addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
     document = voteDocTuple.newDocument;
+    console.log("performVoteServer document after vote: ", document);
     runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
-
+    console.log("performVoteServer document after callbacks: ", document);
   }
 
   // const newDocument = collection.findOne(documentId);
+
   document.__typename = collection.options.typeName;
+  console.log("performVoteServer document before return: ", document);
   return document;
 }
