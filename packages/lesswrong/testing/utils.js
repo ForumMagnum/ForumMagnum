@@ -46,7 +46,6 @@ export const createDummyPostServer = async (user, data) => {
     title: dummyPostTitle,
   }
   const postData = {...defaultData, ...data};
-  console.log("CreateDummyPostServer postData: ", postData);
   return await newMutation({
     collection: Posts,
     document: postData,

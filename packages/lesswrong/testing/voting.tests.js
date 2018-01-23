@@ -29,11 +29,8 @@ describe('Voting', async () => {
       const in_half_an_hour = currentTime.getTime()+(30*60*1000)
       const in_ten_minutes = currentTime.getTime()+(10*60*1000)
       const dates = [tomorrow, in_ten_minutes, in_half_an_hour, tomorrow, in_a_month];
-      console.log("Dates: ", dates);
       dates.forEach(async date => {
-        console.log("Testing for date: ", date);
         const post = await createDummyPostServer(user, {postedAt: date});
-        console.log("Future Updating dummyPost", post);
         await batchUpdateScore(Posts, false, false);
         const updatedPost = await Posts.find({_id: post._id}).fetch();
 
@@ -85,10 +82,6 @@ describe('Voting', async () => {
       const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
-
-      console.log("Just Checking: ", updatedNormalPost[0].score, recalculateScore(updatedNormalPost[0]))
-      console.log("Just Checking Frontpage: ", updatedFrontpagePost[0].score, recalculateScore(updatedFrontpagePost[0]))
-      console.log("Just Checking Curated: ", updatedCuratedPost[0].score, recalculateScore(updatedCuratedPost[0]))
 
       updatedNormalPost[0].score.should.be.closeTo(recalculateScore(updatedNormalPost[0]), 0.001);
       updatedFrontpagePost[0].score.should.be.closeTo(recalculateScore(updatedFrontpagePost[0]), 0.001);
