@@ -92,7 +92,7 @@ const schema = {
   */
   body: {
     type: String,
-    max: 3000,
+    // LESSWRONG: Removed original Vulcan character limit
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
