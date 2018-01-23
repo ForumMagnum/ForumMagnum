@@ -115,7 +115,6 @@ const schema = {
   body: {
     type: String,
     optional: true,
-    max: 3000,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
