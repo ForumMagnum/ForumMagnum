@@ -242,13 +242,13 @@ addCallback("messages.new.async", messageNewNotification);
 
 
 
-
-function reactRouterAnchorTags(unusedItem) {
-  anchorate();
-  return unusedItem;
-}
-
-addCallback("router.onUpdate", reactRouterAnchorTags);
+//
+// function reactRouterAnchorTags(unusedItem) {
+//   anchorate();
+//   return unusedItem;
+// }
+//
+// addCallback("router.onUpdate", reactRouterAnchorTags);
 
 function userEditVoteBannedCallbacksAsync(user, oldUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
