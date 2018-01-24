@@ -1,5 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { PropTypes, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { STATES } from 'meteor/vulcan:accounts';
 
 import Popover from 'material-ui/Popover';

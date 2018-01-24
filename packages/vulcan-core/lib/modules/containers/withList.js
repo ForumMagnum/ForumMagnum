@@ -34,11 +34,12 @@ Terms object can have the following properties:
 
 */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withApollo, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import update from 'immutability-helper';
-import { getFragment, getFragmentName } from 'meteor/vulcan:core';
+import { getFragment, getFragmentName, getSetting } from 'meteor/vulcan:core';
 import Mingo from 'mingo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
@@ -50,7 +51,7 @@ const withList = (options) => {
 
   // console.log(options)
 
-  const { collection, limit = 10, pollInterval = 20000, totalResolver = true, stopPollingIdleStatus = "INACTIVE" } = options,
+  const { collection, limit = 10, pollInterval = getSetting('pollInterval', 20000), totalResolver = true, stopPollingIdleStatus = "INACTIVE", extraQueries, enableCache = false } = options,
         queryName = options.queryName || `${collection.options.collectionName}ListQuery`,
         listResolverName = collection.options.resolvers.list && collection.options.resolvers.list.name,
         totalResolverName = collection.options.resolvers.total && collection.options.resolvers.total.name;
@@ -75,6 +76,7 @@ const withList = (options) => {
         __typename
         ...${fragmentName}
       }
+      ${extraQueries || ''}
     }
     ${fragment}
   `;
@@ -195,7 +197,8 @@ const withList = (options) => {
 
             fragmentName,
             fragment,
-            ...props.ownProps // pass on the props down to the wrapped component
+            ...props.ownProps, // pass on the props down to the wrapped component
+            data: props.data,
           };
         },
       }

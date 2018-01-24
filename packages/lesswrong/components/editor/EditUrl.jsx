@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import FlatButton from 'material-ui/FlatButton';
 import { Input } from 'formsy-react-components';
@@ -44,9 +45,9 @@ class EditUrl extends Component {
 }
 
 EditUrl.contextTypes = {
-  addToAutofilledValues: React.PropTypes.func,
-  addToSuccessForm: React.PropTypes.func,
-  addToSubmitForm: React.PropTypes.func,
+  addToAutofilledValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
+  addToSubmitForm: PropTypes.func,
 };
 
 registerComponent("EditUrl", EditUrl);

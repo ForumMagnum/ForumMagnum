@@ -4,7 +4,8 @@ The Navigation for the Inbox components
 
 */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {DropdownButton, MenuItem } from 'react-bootstrap';
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 

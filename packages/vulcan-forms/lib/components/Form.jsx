@@ -78,7 +78,7 @@ class Form extends Component {
     this.state = {
       disabled: false,
       errors: [],
-      autofilledValues: props.prefilledProps || {},
+      autofilledValues: {},
       deletedValues: [],
       currentValues: {}
     };
@@ -144,8 +144,9 @@ class Form extends Component {
       }
 
       // replace value by prefilled value if value is empty
-      if (fieldSchema.form && fieldSchema.form.prefill) {
-        const prefilledValue = typeof fieldSchema.form.prefill === "function" ? fieldSchema.form.prefill.call(fieldSchema) : fieldSchema.form.prefill;
+      const prefill = fieldSchema.prefill || fieldSchema.form && fieldSchema.form.prefill;
+      if (prefill) {
+        const prefilledValue = typeof prefill === "function" ? prefill.call(fieldSchema) : prefill;
         if (!!prefilledValue && !field.value) {
           field.prefilledValue = prefilledValue;
           field.value = prefilledValue;
@@ -162,21 +163,25 @@ class Form extends Component {
       }
 
       // add options if they exist
-      if (fieldSchema.form && fieldSchema.form.options) {
-        field.options = typeof fieldSchema.form.options === "function" ? fieldSchema.form.options.call(fieldSchema, this.props) : fieldSchema.form.options;
+      const fieldOptions = fieldSchema.options || fieldSchema.form && fieldSchema.form.options;
+      if (fieldOptions) {
+        field.options = typeof fieldOptions === "function" ? fieldOptions.call(fieldSchema, this.props) : fieldOptions;
       
-        // in case of checkbox groups, check "checked" option to populate value
-        if (!field.value) {
+        // in case of checkbox groups, check "checked" option to populate value if this is a "new document" form
+        if (!field.value && this.getFormType() === 'new') {
           field.value = _.where(field.options, {checked: true}).map(option => option.value);
         }
       }
       
-      if (fieldSchema.form) {
-        for (const prop in fieldSchema.form) {
-          if (prop !== 'prefill' && prop !== 'options' && fieldSchema.form.hasOwnProperty(prop)) {
-            field[prop] = typeof fieldSchema.form[prop] === "function" ?
-              fieldSchema.form[prop].call(fieldSchema) :
-              fieldSchema.form[prop];
+      // add any properties specified in fieldProperties or form as extra props passed on
+      // to the form component
+      const fieldProperties = fieldSchema.fieldProperties || fieldSchema.form;
+      if (fieldProperties) {
+        for (const prop in fieldProperties) {
+          if (prop !== 'prefill' && prop !== 'options' && fieldProperties.hasOwnProperty(prop)) {
+            field[prop] = typeof fieldProperties[prop] === "function" ?
+            fieldProperties[prop].call(fieldSchema) :
+            fieldProperties[prop];
           }
         }
       }
@@ -275,9 +280,10 @@ class Form extends Component {
   // - if its value is currently being inputted, use that
   // - else if its value is provided by the autofilledValues object, use that
   // - else if its value was provided by the db, use that (i.e. props.document)
+  // - else if its value was provided by prefilledProps, use that
   getDocument() {
     const currentDocument = _.clone(this.props.document) || {};
-    const document = Object.assign(currentDocument, _.clone(this.state.autofilledValues), _.clone(this.state.currentValues));
+    const document = Object.assign(_.clone(this.props.prefilledProps || {}), currentDocument, _.clone(this.state.autofilledValues), _.clone(this.state.currentValues));
     return document;
   }
 
@@ -539,6 +545,7 @@ class Form extends Component {
     // complete the data with values from custom components which are not being catched by Formsy mixin
     // note: it follows the same logic as SmartForm's getDocument method
     data = {
+      ...this.props.prefilledProps, // ex: can be values passed from the form's parent component
       ...this.state.autofilledValues, // ex: can be values from NewsletterSubscribe component
       ...data, // original data generated thanks to Formsy
       ...this.state.currentValues, // ex: can be values from DateTime component

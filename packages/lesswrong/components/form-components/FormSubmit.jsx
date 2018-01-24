@@ -76,9 +76,9 @@ FormSubmit.propTypes = {
 };
 
 FormSubmit.contextTypes = {
-  addToAutofilledValues: React.PropTypes.func,
-  addToSuccessForm: React.PropTypes.func,
-  addToSubmitForm: React.PropTypes.func,
+  addToAutofilledValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
+  addToSubmitForm: PropTypes.func,
 }
 
 

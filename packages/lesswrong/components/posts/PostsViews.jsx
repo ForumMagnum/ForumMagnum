@@ -1,6 +1,7 @@
 import { Components, replaceComponent } from 'meteor/vulcan:core';
 import { registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter, Link } from 'react-router'
 import Chip from 'material-ui/Chip';
@@ -196,12 +197,12 @@ class PostsViews extends Component {
 }
 
 PostsViews.propTypes = {
-  currentUser: React.PropTypes.object,
-  defaultView: React.PropTypes.string
+  currentUser: PropTypes.object,
+  defaultView: PropTypes.string
 };
 
 PostsViews.contextTypes = {
-  currentRoute: React.PropTypes.object,
+  currentRoute: PropTypes.object,
   intl: intlShape
 };
 

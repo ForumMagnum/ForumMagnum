@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
 import classNames from 'classnames';
@@ -237,9 +238,9 @@ class AsyncEditorFormComponent extends Component {
 }
 
 AsyncEditorFormComponent.contextTypes = {
-  addToAutofilledValues: React.PropTypes.func,
-  addToSuccessForm: React.PropTypes.func,
-  addToSubmitForm: React.PropTypes.func,
+  addToAutofilledValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
+  addToSubmitForm: PropTypes.func,
 };
 
 export default AsyncEditorFormComponent;

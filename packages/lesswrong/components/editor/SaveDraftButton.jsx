@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Checkbox } from 'formsy-react-components';
 
@@ -23,9 +24,9 @@ class SaveDraftButton extends Component {
 }
 
 SaveDraftButton.contextTypes = {
-  addToAutofilledValues: React.PropTypes.func,
-  addToSuccessForm: React.PropTypes.func,
-  addToSubmitForm: React.PropTypes.func,
+  addToAutofilledValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
+  addToSubmitForm: PropTypes.func,
 };
 
 registerComponent("SaveDraftButton", SaveDraftButton);

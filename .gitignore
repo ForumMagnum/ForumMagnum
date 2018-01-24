@@ -49,3 +49,5 @@ jsdoc-conf.json
 jsdoc.json
 packages/nova-router/.npm
 npm-debug.log
+
+typings
