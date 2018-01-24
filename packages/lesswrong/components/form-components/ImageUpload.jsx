@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {registerComponent} from 'meteor/vulcan:core';
 import Helmet from 'react-helmet';
 import FlatButton from 'material-ui/FlatButton';
@@ -96,8 +97,8 @@ class ImageUpload extends Component {
 ImageUpload.displayName = "ImageUpload"
 
 ImageUpload.contextTypes = {
-  addToAutofilledValues: React.PropTypes.func,
-  addToSuccessForm: React.PropTypes.func,
+  addToAutofilledValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
 };
 
 registerComponent("ImageUpload", ImageUpload);

@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import Reports from '../../lib/collections/reports/collection.js'
 import Dialog from 'material-ui/Dialog';

@@ -4,7 +4,8 @@ The Navigation for the Inbox components
 
 */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Grid, Row, Col, ListGroup, ListGroupItem } from 'react-bootstrap';

@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { registerComponent, ModalTrigger, Components } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import Users from 'meteor/vulcan:users';

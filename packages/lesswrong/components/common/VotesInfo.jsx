@@ -1,5 +1,6 @@
 import { Components, replaceComponent, withDocument } from 'meteor/vulcan:core';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types'; 
 import { registerComponent } from 'meteor/vulcan:core';
 import { Link, withRouter } from 'react-router'
 import { Posts, Comments } from 'meteor/example-forum';

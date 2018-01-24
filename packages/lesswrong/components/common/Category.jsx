@@ -1,5 +1,6 @@
 import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { LinkContainer } from 'react-router-bootstrap';
 import { MenuItem } from 'react-bootstrap';
 import { Categories } from 'meteor/example-forum';

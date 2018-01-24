@@ -1,4 +1,5 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import FlatButton from 'material-ui/FlatButton';
 
@@ -11,7 +12,7 @@ class SubmitButton extends Component {
 }
 
 SubmitButton.contextTypes = {
-  updateCurrentValues: React.PropTypes.func,
+  updateCurrentValues: PropTypes.func,
 };
 
 registerComponent("SubmitButton", SubmitButton);

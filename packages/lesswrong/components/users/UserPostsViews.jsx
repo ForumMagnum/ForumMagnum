@@ -107,8 +107,8 @@ class PostsViews extends Component {
 }
 
 PostsViews.propTypes = {
-  currentUser: React.PropTypes.object,
-  defaultView: React.PropTypes.string
+  currentUser: PropTypes.object,
+  defaultView: PropTypes.string
 };
 
 PostsViews.defaultProps = {
@@ -116,7 +116,7 @@ PostsViews.defaultProps = {
 };
 
 PostsViews.contextTypes = {
-  currentRoute: React.PropTypes.object,
+  currentRoute: PropTypes.object,
   intl: intlShape
 };
 

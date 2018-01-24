@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -65,9 +66,9 @@ class SubscribeToActionHandler extends Component {
 }
 
 SubscribeToActionHandler.propTypes = {
-  document: React.PropTypes.object.isRequired,
-  className: React.PropTypes.string,
-  currentUser: React.PropTypes.object,
+  document: PropTypes.object.isRequired,
+  className: PropTypes.string,
+  currentUser: PropTypes.object,
 }
 
 SubscribeToActionHandler.contextTypes = {

@@ -1,5 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Textarea } from 'formsy-react-components';
 
 const EditSequenceTitle = (props) => {

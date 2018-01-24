@@ -4,7 +4,8 @@ The Navigation for the Inbox components
 
 */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { PageHeader } from 'react-bootstrap';
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";

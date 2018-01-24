@@ -37,7 +37,7 @@ Posts.addField([
     Categories (Overwriting original schema)
   */
   {
-    fieldName: "categories",
+    fieldName: "categoriesIds",
     fieldSchema: {
       hidden: true,
     }

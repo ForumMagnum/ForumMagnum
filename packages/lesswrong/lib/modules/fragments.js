@@ -65,7 +65,6 @@ registerFragment(`
 `);
 
 extendFragment('UsersCurrent', `
-  subscribedItems
   karma
   voteBanned
   banned

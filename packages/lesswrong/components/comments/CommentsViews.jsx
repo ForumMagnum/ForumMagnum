@@ -1,5 +1,6 @@
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router';
 import DropDownMenu from 'material-ui/DropDownMenu';
@@ -95,8 +96,8 @@ class CommentsViews extends Component {
 }
 
 CommentsViews.propTypes = {
-  currentUser: React.PropTypes.object,
-  defaultView: React.PropTypes.string
+  currentUser: PropTypes.object,
+  defaultView: PropTypes.string
 };
 
 CommentsViews.defaultProps = {
@@ -104,7 +105,7 @@ CommentsViews.defaultProps = {
 };
 
 CommentsViews.contextTypes = {
-  currentRoute: React.PropTypes.object,
+  currentRoute: PropTypes.object,
   intl: intlShape
 };
 

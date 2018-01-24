@@ -150,7 +150,7 @@ const UsersProfile = (props) => {
 }
 
 UsersProfile.propTypes = {
-  // document: React.PropTypes.object.isRequired,
+  // document: PropTypes.object.isRequired,
 }
 
 UsersProfile.displayName = "UsersProfile";
