@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { List, ListItem } from 'material-ui/List';
+import { Components, registerComponent, withList, withCurrentUser, withEdit } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 
 class NotificationsList extends Component {
@@ -19,7 +19,7 @@ class NotificationsList extends Component {
     if (results && results.length) {
       return (
         <List style={{width: '300px', overflowY: 'auto', padding: '0px'}}>
-          {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} />)}
+          {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} key={notification._id} />)}
           {results.length >= 20 && <ListItem className="notifications-list-item" onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
         </List>
       )
