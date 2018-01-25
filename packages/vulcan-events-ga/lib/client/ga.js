@@ -4,14 +4,15 @@ import { addPageFunction, addInitFunction } from 'meteor/vulcan:events';
 /*
 
   We provide a special support for Google Analytics.
-  
+
   If you want to enable GA page viewing / tracking, go to
-  your settings file and update the 'public > googleAnalytics > apiKey' 
+  your settings file and update the 'public > googleAnalytics > apiKey'
   field with your GA unique identifier (UA-xxx...).
 
 */
 
 function googleAnaticsTrackPage() {
+  console.log("Send GA request");
   if (window && window.ga) {
     window.ga('send', 'pageview', {
       page: window.location.pathname,
@@ -26,6 +27,7 @@ addPageFunction(googleAnaticsTrackPage);
 function googleAnalyticsInit() {
   // get the google analytics id from the settings
   const googleAnalyticsId = getSetting('googleAnalytics.apiKey');
+  console.log("Google Analytics Id: ", googleAnalyticsId);
 
   // the google analytics id exists & isn't the placeholder from sample_settings.json
   if (googleAnalyticsId && googleAnalyticsId !== 'foo123') {

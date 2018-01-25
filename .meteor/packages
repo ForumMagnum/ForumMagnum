@@ -47,6 +47,8 @@ example-forum
 
 # vulcan:debug
 
+vulcan:events-ga
+
 lesswrong
 # webtoken-session
 # internal-graphql

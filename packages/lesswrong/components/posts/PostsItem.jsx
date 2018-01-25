@@ -88,8 +88,8 @@ class PostsItem extends PureComponent {
       fontFamily: "freight-sans-pro",
       zIndex: 2,
       fontVariantNumeric: "lining-nums",
-      mozFontFeatureSettings: "lnum",
-      webkitFontFeatureSettings: "lnum",
+      MozFontFeatureSettings: "lnum",
+      WebkitFontFeatureSettings: "lnum",
       fontFeatureSettings: "lnum",
     }
 
