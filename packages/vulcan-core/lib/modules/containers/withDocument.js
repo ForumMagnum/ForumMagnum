@@ -59,7 +59,7 @@ export default function withDocument (options) {
         const props = {
           startPolling: data.startPolling,
           stopPolling: data.stopPolling,
-          loading: data.loading,
+          loading: data.networkStatus === 1,
           // document: Utils.convertDates(collection, data[singleResolverName]),
           [ propertyName ]: data[singleResolverName],
           fragmentName,
