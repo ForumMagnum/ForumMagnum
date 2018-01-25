@@ -19,15 +19,12 @@ class InboxNavigation extends Component {
 
     const results = this.props.results;
     const currentUser = this.props.currentUser;
-    const refetch = this.props.refetch;
-    const loading = this.props.loading;
     const select = this.props.location.query.select;
 
     const messagesTerms = {view: 'messagesConversation', conversationId: select};
 
     if(currentUser && results && results.length) {
       let conversation = results.find(c => (c._id == select));
-      console.log("InboxNavigation conversation: ", conversation);
       let notificationsSelect = (select == "Notifications");
       return (
         <Grid>
@@ -47,9 +44,6 @@ class InboxNavigation extends Component {
 
   renderNavigation() {
     const results = this.props.results;
-    const currentUser = this.props.currentUser;
-    const refetch = this.props.refetch;
-    const loading = this.props.loading;
 
     //TODO: Add ability to add conversation from Inbox page, by searching for a user id:15
 

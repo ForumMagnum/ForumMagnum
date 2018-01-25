@@ -14,6 +14,7 @@ class ConversationWrapper extends Component {
 
   renderMessages(results, currentUser) {
     if (results && results.length) {
+      console.log("ConversationWrapper results", results);
       return (
         <div>
           {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
@@ -27,7 +28,6 @@ class ConversationWrapper extends Component {
 
     const results = this.props.results;
     const currentUser = this.props.currentUser;
-    const refetch = this.props.refetch;
     const loading = this.props.loading;
     const conversation = this.props.conversation;
 
@@ -60,7 +60,7 @@ const options = {
   collection: Messages,
   queryName: 'messagesForConversation',
   fragmentName: 'messageListFragment',
-  limit: 50,
+  limit: 1000,
   totalResolver: false,
 };
 

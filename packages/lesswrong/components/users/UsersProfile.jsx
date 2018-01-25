@@ -39,9 +39,7 @@ const UsersProfile = (props) => {
         <Components.ShowIf check={Users.options.mutations.edit.check} document={user}>
           <div><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></div>
         </Components.ShowIf>
-        {props.currentUser && props.currentUser._id != user._id && <ModalTrigger label="Send Message" >
-          <div><Components.newConversationButton user={user} /></div>
-        </ModalTrigger>}
+        { props.currentUser && props.currentUser._id != user._id && <div><Components.NewConversationButton user={user}> <a>Send a message</a> </Components.NewConversationButton></div> }
         { props.currentUser && props.currentUser._id !== user._id && <div><Components.SubscribeTo document={user} /></div> }
       </div>)
     }
