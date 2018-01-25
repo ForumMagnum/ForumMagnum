@@ -42,12 +42,14 @@ class ConversationWrapper extends Component {
             <br /> <small>{conversation.createdAt}</small>
           </PageHeader>
           {this.renderMessages(results, currentUser)}
-          <Components.SmartForm
-            collection={Messages}
-            prefilledProps={ {conversationId: conversation._id} }
-            mutationFragment={getFragment("messageListFragment")}
-            errorCallback={(message)=> console.log("Failed to send", message)}
-          />
+          <div className="messages-smart-form">
+            <Components.SmartForm
+              collection={Messages}
+              prefilledProps={ {conversationId: conversation._id} }
+              mutationFragment={getFragment("messageListFragment")}
+              errorCallback={(message)=> console.log("Failed to send", message)}
+            />
+          </div>
         </div>
       )
     } else {
