@@ -94,14 +94,6 @@ class PostsViews extends Component {
     }
   }
 
-  showComments = () => {
-    const { router } = this.props;
-    const query = { ...router.location.query, comments: true };
-    const location = { pathname: router.location.pathname, query};
-    router.push(location);
-    this.setState({view: "comments"});
-  }
-
   getCurrentView = () => {
     const props = this.props;
     return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
@@ -155,7 +147,7 @@ class PostsViews extends Component {
           </div>
         ))}
         {this.state.expanded ?
-          <div>
+          <span>
             {expandedViews.map(view => (
               <div
                 key={view}
@@ -183,18 +175,18 @@ class PostsViews extends Component {
                 Daily { this.renderMenu(viewNames["daily"])}
               </span>
             </Link></div>}
-          </div> : <div>
-            <a style={ChipStyle} className="view-chip more"
+            </span> : <div>
+              <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
               { this.renderMenu(viewNames["more"])}
-            </a>
+              </a>
+              </div>
+            }
+            <br/>
           </div>
-        }
-        <br/>
-      </div>
-  )}
-}
+          )}
+          }
 
 PostsViews.propTypes = {
   currentUser: PropTypes.object,

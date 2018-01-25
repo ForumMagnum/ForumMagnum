@@ -1,38 +1,45 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { List, ListItem } from 'material-ui/List';
+import { Components, registerComponent, withList, withCurrentUser, withEdit } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 
 class NotificationsList extends Component {
 
-  render() {
+  constructor(props) {
+    super(props)
+    this.state = {
+      lastNotificationsCheck: props.currentUser.lastNotificationsCheck,
+    }
+  }
 
+  render() {
     const results = this.props.results;
     const loadMore = this.props.loadMore;
-    const totalCount = this.props.totalCount;
-
     if (results && results.length) {
       return (
-        <ListGroup>
-          {results.map(notification => {
-            return <Components.NotificationsFullscreenItem key={notification._id} notification={notification} />
-          })}
-          {(results.length < totalCount) ? <ListGroupItem  onClick={() => loadMore()}> Load More </ListGroupItem> : <ListGroupItem>All Notifications loaded</ListGroupItem>}
-        </ListGroup>
+        <List style={{width: '300px', overflowY: 'auto', padding: '0px'}}>
+          {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} key={notification._id} />)}
+          {results.length >= 20 && <ListItem className="notifications-list-item" onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
+        </List>
       )
     } else {
-      return <Components.Loading />
+      return <div className="notifications-list-empty"> You don't have any notifications yet!</div>
     }
   }
 }
 
 const options = {
   collection: Notifications,
-  queryName: 'notificationsFullScreenQuery',
+  queryName: 'notificationsListQuery',
   fragmentName: 'notificationsNavFragment',
-  limit: 30,
+  limit: 20,
   totalResolver: false,
 };
 
-registerComponent('NotificationsList', NotificationsList, [withList, options], withCurrentUser);
+const withEditOptions = {
+  collection: Notifications,
+  fragmentName: 'notificationsNavFragment',
+};
+
+registerComponent('NotificationsList', NotificationsList, [withList, options], [withEdit, withEditOptions], withCurrentUser);

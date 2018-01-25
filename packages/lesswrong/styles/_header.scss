@@ -26,10 +26,6 @@ $header-mobile: 43px !important;
   }
 }
 
-.header-wrapper{
-  margin-bottom: 35px;
-}
-
 .logo{
   @include small{
     text-align: center;
@@ -114,6 +110,13 @@ $header-mobile: 43px !important;
   }
 }
 
+.header-wrapper {
+  height: 64px;
+  @include max-tiny {
+    height: $header-mobile;
+  }
+}
+
 
 .users-account-menu, .users-menu{
   display: inline-block;
@@ -158,6 +161,14 @@ $header-mobile: 43px !important;
   @include max-tiny {
     padding:0 !important;
     height:32px !important;
+  }
+}
+
+.notifications-menu-button {
+  @include max-tiny {
+    padding: 0px !important;
+    top: -8px;
+    height: 43px !important;
   }
 }
 
@@ -423,14 +434,11 @@ $header-mobile: 43px !important;
 .notifications-menu {
   display: inline-block;
   vertical-align: top;
+}
 
-  @include max-tiny {
-    button {
-      padding:0 !important;
-      margin:0 !important;
-      width:24px !important;
-      height:24px !important;
-    }
+.notifications-menu-container {
+  @include max-tiny() {
+    top: $header-mobile;
   }
 }
 
@@ -465,5 +473,16 @@ $header-mobile: 43px !important;
   a:hover {
     color: rgba(0,0,0,0.3) !important;
     text-decoration: none;
+  }
+}
+
+.notifications-list-empty {
+  padding: 10px;
+}
+
+.appbar-elements-right {
+  margin-right: 36px;
+  @include max-tiny() {
+    margin-right: 16px !important;
   }
 }

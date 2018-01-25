@@ -53,6 +53,17 @@ Users.addField([
     }
   },
   {
+    fieldName: 'lastNotificationsCheck',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: Users.owns,
+      editableBy: Users.owns,
+      insertableBy: Users.owns,
+      hidden: true,
+    }
+  },
+  {
     fieldName: 'website',
     fieldSchema: {
       order: 30,

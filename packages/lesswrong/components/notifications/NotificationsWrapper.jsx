@@ -38,7 +38,7 @@ class NotificationsWrapper extends Component {
             <MenuItem key={view} onClick={() => this.setState({notificationsFilter: view})}>{view}</MenuItem>
           )}
         </DropdownButton>
-        <Components.NotificationsList terms={terms} />
+        <Components.NotificationsFullscreenList terms={terms} />
       </div>
 
     )

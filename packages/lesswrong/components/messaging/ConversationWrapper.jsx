@@ -7,13 +7,14 @@ The Navigation for the Inbox components
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PageHeader } from 'react-bootstrap';
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";
 
 class ConversationWrapper extends Component {
 
   renderMessages(results, currentUser) {
     if (results && results.length) {
+      console.log("ConversationWrapper results", results);
       return (
         <div>
           {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
@@ -27,7 +28,6 @@ class ConversationWrapper extends Component {
 
     const results = this.props.results;
     const currentUser = this.props.currentUser;
-    const refetch = this.props.refetch;
     const loading = this.props.loading;
     const conversation = this.props.conversation;
 
@@ -42,12 +42,14 @@ class ConversationWrapper extends Component {
             <br /> <small>{conversation.createdAt}</small>
           </PageHeader>
           {this.renderMessages(results, currentUser)}
+          <div className="messages-smart-form">
             <Components.SmartForm
               collection={Messages}
               prefilledProps={ {conversationId: conversation._id} }
-              successCallback={(message) => {refetch()}}
-              errorCallback={(message)=> console.log("Failed to send", error)}
+              mutationFragment={getFragment("messageListFragment")}
+              errorCallback={(message)=> console.log("Failed to send", message)}
             />
+          </div>
         </div>
       )
     } else {
@@ -60,7 +62,7 @@ const options = {
   collection: Messages,
   queryName: 'messagesForConversation',
   fragmentName: 'messageListFragment',
-  limit: 50,
+  limit: 1000,
   totalResolver: false,
 };
 

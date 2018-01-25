@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components, replaceComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
+import Headroom from 'react-headroom'
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import AppBar from 'material-ui/AppBar';
-import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
+import IconButton from 'material-ui/IconButton';
+import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
 
-import Divider from 'material-ui/Divider';
 import { withApollo } from 'react-apollo';
 import { Posts } from 'meteor/example-forum';
 import Sequences from '../../lib/collections/sequences/collection'
@@ -18,27 +18,48 @@ import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
   boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
+  paddingRight: "0px",
 }
 
 class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      open: false,
+      navigationOpen: false,
+      notificationOpen: false,
     };
   }
 
-  handleToggle = () => this.setState({open: !this.state.open});
+  handleNavigationToggle = (state) => this.setState({navigationOpen: !this.state.navigationOpen});
+  handleNavigationClose = () => this.setState({navigationOpen: false});
 
-  handleClose = () => this.setState({open: false});
+  handleNotificationToggle = (state) => {
+    this.props.editMutation({
+      documentId: this.props.currentUser._id,
+      set: {lastNotificationsCheck: new Date()},
+      unset: {}
+    }) // TODO: Check whether this is being opened or closed to work nicely with material-ui toggle calls
+    this.setState({notificationOpen: !this.state.notificationOpen});
+  }
+  handleNotificationClose = () => this.setState({notificationOpen: false});
 
   renderAppBarElementRight = () => {
-  const notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
-  return <div>
-    <NoSSR><Components.SearchBar /></NoSSR>
-    {this.props.currentUser ? <Components.NotificationsMenu title="Notifications" terms={notificationTerms}/> : null}
-    {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
-  </div>}
+    const notificationButtonStyle = {
+      backgroundColor: this.state.notificationOpen ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0)"
+    }
+    const notificationIconStyle = {
+      color: this.state.notificationOpen ? "#FFFFFF" : "rgba(0,0,0,0.8)",
+    }
+
+    return <div className="appbar-elements-right">
+      <NoSSR><Components.SearchBar /></NoSSR>
+      {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
+      {this.props.currentUser &&
+        <IconButton className="notifications-menu-button" onTouchTap={this.handleNotificationToggle} style={notificationButtonStyle} iconStyle={ notificationIconStyle }>
+          <NotificationsIcon />
+        </IconButton>}
+    </div>
+  }
 
   profileSubtitle = (userSlug) => {
     const user = Users.findInStore(this.props.client.store, {slug:userSlug}).fetch()[0]
@@ -122,63 +143,33 @@ class Header extends Component {
   render() {
     //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing.
     const siteSection = this.getSubtitle()
+    const notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
     const header = this.props.muiTheme.palette.header
 
     appBarStyle.backgroundColor = header ? header : "#F0F4F7"
 
     return (
-      <div className="header-wrapper">
-        <header className="header">
-          <AppBar
-            onLeftIconButtonTouchTap={this.handleToggle}
-            iconElementRight = {this.renderAppBarElementRight()}
-            style={appBarStyle}
-          >
-            <div className="header-title">
-              <Link to="/">
-                <span className="min-small">LESSWRONG</span>
-                <span className="max-small">LW</span>
-              </Link>
-              <span className="min-small">{ siteSection}</span>
-            </div>
-          </AppBar>
-          <Drawer docked={false}
-            width={225}
-            open={this.state.open}
-            onRequestChange={(open) => this.setState({open})}
-          containerClassName="menu-drawer" >
-
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
-            <Divider />
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>
-            <MenuItem
-              onTouchTap={this.handleClose}
-              innerDivStyle={{paddingLeft:"35px" }}
-              containerElement={<Link to={"/rationality"}/>}>
-              RATIONALITY: A-Z
-            </MenuItem>
-            <MenuItem
-              onTouchTap={this.handleClose}
-              innerDivStyle={{paddingLeft:"35px" }}
-              containerElement={<Link to={"/codex"}/>}>
-              THE CODEX
-            </MenuItem>
-            <MenuItem
-              onTouchTap={this.handleClose}
-              innerDivStyle={{paddingLeft:"35px" }}
-              containerElement={<Link to={"/hpmor"}/>}>
-              HPMOR
-            </MenuItem>
-            <Divider />
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-            <MenuItem onTouchTap={this.handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
-
-          {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
-        </Drawer>
-
-        </header>
-      </div>
+      <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
+        <div className="header-wrapper" style={{height: "64px"}}>
+          <header className="header">
+            <AppBar
+              onLeftIconButtonTouchTap={this.handleNavigationToggle}
+              iconElementRight = {this.renderAppBarElementRight()}
+              style={appBarStyle}
+            >
+              <div className="header-title">
+                <Link to="/">
+                  <span className="min-small">LESSWRONG</span>
+                  <span className="max-small">LW</span>
+                </Link>
+                <span className="min-small">{ siteSection}</span>
+              </div>
+            </AppBar>
+            <Components.NavigationMenu open={this.state.navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
+            <Components.NotificationsMenu open={this.state.notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
+          </header>
+        </div>
+      </Headroom>
     )
   }
 
@@ -190,4 +181,9 @@ Header.propTypes = {
   currentUser: PropTypes.object,
 };
 
-replaceComponent('Header', Header, withRouter, withApollo, muiThemeable());
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+};
+
+replaceComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable());
