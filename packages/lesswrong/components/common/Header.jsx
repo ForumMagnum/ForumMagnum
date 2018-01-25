@@ -38,7 +38,7 @@ class Header extends Component {
       documentId: this.props.currentUser._id,
       set: {lastNotificationsCheck: new Date()},
       unset: {}
-    }) // TODO: Check whether this is being opened or closed
+    }) // TODO: Check whether this is being opened or closed to work nicely with material-ui toggle calls
     this.setState({notificationOpen: !this.state.notificationOpen});
   }
   handleNotificationClose = () => this.setState({notificationOpen: false});
