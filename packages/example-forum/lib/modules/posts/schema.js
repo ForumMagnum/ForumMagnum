@@ -159,13 +159,13 @@ const schema = {
     onInsert: (post) => {
       if (post.body) {
         // excerpt length is configurable via the settings (30 words by default, ~255 characters)
-        const excerptLength = getSetting('forum.postExcerptLength', 30); 
+        const excerptLength = getSetting('forum.postExcerptLength', 30);
         return Utils.trimHTML(Utils.sanitize(marked(post.body)), excerptLength);
       }
     },
     onEdit: (modifier, post) => {
       if (modifier.$set.body) {
-        const excerptLength = getSetting('forum.postExcerptLength', 30); 
+        const excerptLength = getSetting('forum.postExcerptLength', 30);
         return Utils.trimHTML(Utils.sanitize(marked(modifier.$set.body)), excerptLength);
       }
     }
@@ -343,34 +343,37 @@ const schema = {
   domain: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post, args, context) => {
         return Utils.getDomain(post.url);
       },
-    }  
+    }
   },
 
   pageUrl: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post, args, context) => {
         return Posts.getPageUrl(post, true);
       },
-    }  
+    }
   },
 
   linkUrl: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post, args, context) => {
         return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
       },
-    }  
+    }
   },
 
   postedAtFormatted: {
@@ -381,24 +384,26 @@ const schema = {
       resolver: (post, args, context) => {
         return moment(post.postedAt).format('dddd, MMMM Do YYYY');
       }
-    }  
+    }
   },
 
   commentsCount: {
     type: Number,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'Int',
       resolver: (post, args, { Comments }) => {
         const commentsCount = Comments.find({ postId: post._id }).count();
         return commentsCount;
       },
-    }  
+    }
   },
 
   comments: {
     type: Array,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
         arguments: 'limit: Int = 5',
         type: '[Comment]',
@@ -408,7 +413,7 @@ const schema = {
           // restrict documents fields
           const viewableComments = _.filter(comments, comments => Comments.checkAccess(currentUser, comments));
           const restrictedComments = Users.restrictViewableFields(currentUser, Comments, viewableComments);
-        
+
           return restrictedComments;
         }
       }
@@ -417,6 +422,7 @@ const schema = {
   emailShareUrl: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post) => {
@@ -428,6 +434,7 @@ const schema = {
   twitterShareUrl: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post) => {
@@ -439,6 +446,7 @@ const schema = {
   facebookShareUrl: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post) => {
@@ -446,7 +454,7 @@ const schema = {
       }
     }
   },
-  
+
 };
 
 export default schema;

@@ -203,13 +203,14 @@ const schema = {
   pageUrl: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
         return context.Comments.getPageUrl(comment, true);
       },
-    }  
+    }
   },
 };
 
