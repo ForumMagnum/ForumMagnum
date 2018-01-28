@@ -19,7 +19,7 @@ export const recalculateScore = item => {
     // use baseScore if defined, if not just use 0
     let baseScore = item.baseScore || 0;
 
-    baseScore = baseScore + ((item.frontpage && FRONTPAGE_BONUS) || 0) + ((item.featuredPriority > 0 && FEATURED_BONUS) || 0);
+    baseScore = baseScore + ((item.frontpageDate ? FRONTPAGE_BONUS : 0) + (item.curatedDate ? FEATURED_BONUS : 0));
 
     // HN algorithm
     const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, TIME_DECAY_FACTOR))*1000000)/1000000;

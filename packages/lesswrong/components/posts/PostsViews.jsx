@@ -15,6 +15,7 @@ const viewData = {
     description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"star",
+    rssView: "curated-rss",
     rss:true
   },
   'frontpage': {
@@ -22,6 +23,7 @@ const viewData = {
     description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     includes: "(includes curated content and frontpage posts)",
+    rssView: "frontpage-rss",
     rss:true
   },
   'community': {
@@ -29,12 +31,14 @@ const viewData = {
     description: "Community - All personal blogposts by \nLessWrong users (plus curated and frontpage).",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
+    rssView: "community-rss",
     rss:true
   },
   'meta': {
     label: 'Meta',
     description: "Meta - Discussion about the LessWrong site.",
     categoryIcon:"details",
+    rssView: "meta-rss",
     rss:true
   },
   'daily': {
@@ -123,7 +127,7 @@ class PostsViews extends Component {
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { viewMeta.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={view} /></div> }
+          { viewMeta.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewMeta.rssView} /></div> }
         </div>
       </div>
     )

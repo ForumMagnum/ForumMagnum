@@ -2,15 +2,15 @@ import './lib/index.js';
 // import './lib/init_script.js';
 import './lib/database-import/database_import.js';
 import './lib/rss-integration/cron.js';
-import './lib/closed-beta/sscImport.js';
-import './lib/closed-beta/hpmorImport.js';
-import './lib/closed-beta/algoliaExport.js';
-import './lib/closed-beta/fixBodyField.js';
-import './lib/closed-beta/fixKarmaField.js';
-import './lib/closed-beta/fixEmailField.js';
-import './lib/closed-beta/fixFrontpageCount.js';
-import './lib/closed-beta/voteMigration.js';
-import './lib/closed-beta/slugDeduplication.js';
+import './lib/scripts/sscImport.js';
+import './lib/scripts/hpmorImport.js';
+import './lib/scripts/algoliaExport.js';
+import './lib/scripts/fixBodyField.js';
+import './lib/scripts/fixKarmaField.js';
+import './lib/scripts/fixEmailField.js';
+import './lib/scripts/fixFrontpageCount.js';
+import './lib/scripts/voteMigration.js';
+import './lib/scripts/slugDeduplication.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/posts/callbacks.js';
@@ -26,7 +26,7 @@ import './lib/events/server.js';
 import './lib/modules/indexes.js';
 
 // Closed Beta stuff
-import './lib/closed-beta/invites.js';
+import './lib/scripts/invites.js';
 
 // Old LW posts and comment rerouting
 import './lib/legacy-redirects/routes.js';
@@ -35,7 +35,7 @@ export * from './lib/index.js';
 
 import './lib/collections/sequences/seed.js';
 
-import './lib/closed-beta/fixSSCDrafts.js';
+import './lib/scripts/fixSSCDrafts.js';
 
 import './lib/modules/connection_logs.js';
 import './lib/collections/users/validate_login.js';

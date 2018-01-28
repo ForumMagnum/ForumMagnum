@@ -14,5 +14,7 @@ Posts.checkAccess = (currentUser, post) => {
 
 const sunshineRegimentActions = [
   'posts.edit.all',
+  'posts.curate.all',
+  'posts.frontpage.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);

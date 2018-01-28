@@ -40,7 +40,7 @@ addCallback("posts.undraft.sync", PostsSetPostedAt);
  * @summary update frontpagePostCount when post is moved into frontpage
  */
 function postsEditIncreaseFrontpagePostCount (post, oldPost) {
-  if (post.frontpage && !oldPost.frontpage) {
+  if (post.frontpageDate && !oldPost.frontpageDate) {
     Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
   }
 }
@@ -50,7 +50,7 @@ addCallback("posts.edit.async", postsEditIncreaseFrontpagePostCount);
  * @summary update frontpagePostCount when post is moved into frontpage
  */
 function postsNewIncreaseFrontpageCount (post) {
-  if (post.frontpage) {
+  if (post.frontpageDate) {
     Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
   }
 }
@@ -60,7 +60,7 @@ addCallback("posts.new.async", postsNewIncreaseFrontpageCount);
  * @summary update frontpagePostCount when post is moved into frontpage
  */
 function postsRemoveDecreaseFrontpageCount (post) {
-  if (post.frontpage) {
+  if (post.frontpageDate) {
     Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
   }
 }
@@ -70,7 +70,7 @@ addCallback("posts.remove.async", postsRemoveDecreaseFrontpageCount);
  * @summary update frontpagePostCount when post is moved out of frontpage
  */
 function postsEditDecreaseFrontpagePostCount (post, oldPost) {
-  if (!post.frontpage && oldPost.frontpage) {
+  if (!post.frontpageDate && oldPost.frontpageDate) {
     Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
   }
 }
@@ -146,3 +146,11 @@ async function PostsEditHTMLSerializeCallbackAsync (post) {
 
 addCallback("posts.edit.async", PostsEditHTMLSerializeCallbackAsync);
 addCallback("posts.new.async", PostsEditHTMLSerializeCallbackAsync);
+
+function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
+  if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
+    Posts.update({_id: newDocument._id}, {$set: {maxBaseScore: newDocument.baseScore}})
+  }
+}
+
+addCallback("votes.upvote.async", increaseMaxBaseScore);
