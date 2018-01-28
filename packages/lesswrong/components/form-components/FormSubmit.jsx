@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components } from 'meteor/vulcan:core';
-import { replaceComponent } from 'meteor/vulcan:core';
+import { Components, replaceComponent, withCurrentUser } from 'meteor/vulcan:core';
+import Users from 'meteor/vulcan:users';
 import Button from 'react-bootstrap/lib/Button';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import FlatButton from 'material-ui/FlatButton';
@@ -14,7 +14,8 @@ const FormSubmit = ({
                       document,
                       deleteDocument,
                       collectionName,
-                      classes
+                      classes,
+                      currentUser
                     }, {addToAutofilledValues}) => (
   <div className="form-submit">
 
@@ -24,8 +25,8 @@ const FormSubmit = ({
         backgroundColor={"#bbb"}
         hoverColor={"#ccc"}
         style={{color: "#fff",marginLeft: "5px"}}
-        label={document.frontpage ? "Move to personal blog" : "Submit to frontpage" }
-        onTouchTap={() => addToAutofilledValues({frontpage: !document.frontpage, draft: false})}/>
+        label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
+        onTouchTap={() => addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false})}/>
       <FlatButton
         type="submit"
         backgroundColor={"#bbb"}
@@ -33,6 +34,13 @@ const FormSubmit = ({
         style={{color: "#fff",marginLeft: "5px"}}
         label={"Save as draft"}
         onTouchTap={() => addToAutofilledValues({draft: true})}/>
+      {Users.canDo(currentUser, 'posts.curate.all') && <FlatButton
+        type="submit"
+        backgroundColor={"#bbb"}
+        hoverColor={"#ccc"}
+        style={{color: "#fff",marginLeft: "5px"}}
+        label={document.curatedDate ? "Remove from curated" : "Promote to curated"}
+        onTouchTap={() => addToAutofilledValues({curatedDate: document.curatedDate ? null : new Date()})}/>}
     </span>}
 
     <FlatButton
@@ -82,4 +90,4 @@ FormSubmit.contextTypes = {
 }
 
 
-replaceComponent('FormSubmit', FormSubmit);
+replaceComponent('FormSubmit', FormSubmit, withCurrentUser);

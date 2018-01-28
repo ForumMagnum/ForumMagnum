@@ -20,7 +20,7 @@ class CategoryDisplay extends PureComponent {
 
   render() {
     const { post } = this.props;
-    const categoryIcon = (post.featuredPriority > 0 && "star") || (post.meta && "details") || (!post.frontpage && "person");
+    const categoryIcon = (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "person");
     if (categoryIcon) {
       return (
       <div className="posts-item-category-display">

@@ -100,7 +100,7 @@ registerFragment(`
     createdAt
     sticky
     status
-    frontpage
+    frontpageDate
     meta
     # body # We replaced this with content
     # htmlBody # We replaced this with content
@@ -135,7 +135,7 @@ registerFragment(`
     lastVisitedAt
     lastCommentedAt
     canonicalCollectionSlug
-    featuredPriority
+    curatedDate
   }
 `);
 

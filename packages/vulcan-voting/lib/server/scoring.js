@@ -84,13 +84,13 @@ export const batchUpdateScore = async (collection, inactive = false, forceUpdate
       $project: {
         postedAt: 1,
         score: 1,
-        frontpage: 1,
-        featuredPriority: 1,
+        frontpageDate: 1,
+        curatedDate: 1,
         baseScore: { // Add optional bonuses to baseScore of posts
           $add: [
             "$baseScore",
-            {$cond: {if: "$frontpage", then: FRONTPAGE_BONUS, else: 0}},
-            {$cond: {if: {$gt: [ "$featuredPriority", 0 ]}, then: FEATURED_BONUS, else: 0}}
+            {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
+            {$cond: {if: "$curatedDate", then: FEATURED_BONUS, else: 0}}
           ]
         },
       }
@@ -154,6 +154,7 @@ export const batchUpdateScore = async (collection, inactive = false, forceUpdate
   const items = await itemsPromise;
   const itemsArray = await items.toArray();
   let updatedDocumentsCounter = 0;
+  console.log("BatchScoreUpdate updateArray:", itemsArray);
   const itemUpdates = _.compact(itemsArray.map(i => {
     if (forceUpdate || i.scoreDiffSignificant) {
       updatedDocumentsCounter++;
