@@ -98,14 +98,6 @@ class PostsViews extends Component {
     }
   }
 
-  showComments = () => {
-    const { router } = this.props;
-    const query = { ...router.location.query, comments: true };
-    const location = { pathname: router.location.pathname, query};
-    router.push(location);
-    this.setState({view: "comments"});
-  }
-
   getCurrentView = () => {
     const props = this.props;
     return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
