@@ -9,7 +9,7 @@ import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 
-const viewMetaDict = {
+const viewDataDict = {
   'curated': {
     label: "Curated Content",
     description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
@@ -103,23 +103,23 @@ class PostsViews extends Component {
     return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
   }
 
-  renderMenu = (viewMeta, view) => {
+  renderMenu = (viewData, view) => {
     return (
       <div className="view-chip-menu-wrapper">
         <div className="view-chip-menu">
           <div className="view-chip-menu-item description">
             <FontIcon style={{fontSize: "14px", color: "white", verticalAlign: "middle", bottom: "1px", marginRight:"2px"}} className="material-icons">
-              {viewMeta.categoryIcon}
+              {viewData.categoryIcon}
             </FontIcon>
-            {viewMeta.description}
+            {viewData.description}
           </div>
-          { viewMeta.includes && <div className="view-chip-menu-item includes">{viewMeta.includes}</div>}
-          { viewMeta.learnMoreLink && <div className="view-chip-menu-item learn-more">
-            <Link to={viewMeta.learnMoreLink}>
+          { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}
+          { viewData.learnMoreLink && <div className="view-chip-menu-item learn-more">
+            <Link to={viewData.learnMoreLink}>
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { viewMeta.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewMeta.rssView} /></div> }
+          { viewData.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewData.rssView} /></div> }
         </div>
       </div>
     )
@@ -143,8 +143,8 @@ class PostsViews extends Component {
 
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
               <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {viewMetaDict[view].label}
-                { this.renderMenu(viewMetaDict[view], view)}
+                {viewDataDict[view].label}
+                { this.renderMenu(viewDataDict[view], view)}
               </span>
             </span>
           </div>
@@ -162,27 +162,27 @@ class PostsViews extends Component {
                 <span >  </span>
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
                   <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {viewMetaDict[view].label}
-                    { this.renderMenu(viewMetaDict[view])}
+                    {viewDataDict[view].label}
+                    { this.renderMenu(viewDataDict[view])}
                   </span>
                 </span>
               </div>
             ))}
             {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/meta">
               <span className={"posts-views-chip-inactive"}>
-                Meta { this.renderMenu(viewMetaDict["meta"])}
+                Meta { this.renderMenu(viewDataDict["meta"])}
               </span>
             </Link></div>}
             {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/daily">
               <span className={"posts-views-chip-inactive"}>
-                Daily { this.renderMenu(viewMetaDict["daily"])}
+                Daily { this.renderMenu(viewDataDict["daily"])}
               </span>
             </Link></div>}
           </span> : <div>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
-              { this.renderMenu(viewMetaDict["more"])}
+              { this.renderMenu(viewDataDict["more"])}
             </a>
           </div>
         }
