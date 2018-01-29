@@ -15,9 +15,9 @@ Picker.route('/out', ({ query}, req, res, next) => {
     try {
 
       // decode url just in case
-      const decodedUrl = decodeURIComponent(query.url);
+      // const decodedUrl = query.url;
 
-      const post = Posts.findOne({url: {$regex: escapeStringRegexp(decodedUrl)}}, {sort: {postedAt: -1, createdAt: -1}});
+      const post = Posts.findOne({url: {$regex: escapeStringRegexp(query.url)}}, {sort: {postedAt: -1, createdAt: -1}});
 
       if (post) {
         const ip = req.headers && req.headers['x-forwarded-for'] || req.connection.remoteAddress;
