@@ -5,8 +5,7 @@ Posts schema
 */
 
 import Users from 'meteor/vulcan:users';
-import { Posts } from './collection.js';
-import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting, registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import marked from 'marked';
 
@@ -60,7 +59,7 @@ const schema = {
     group: formGroups.admin,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
-      if (!post.postedAt && Posts.getDefaultStatus(currentUser) === Posts.config.STATUS_APPROVED) {
+      if (!post.postedAt && getCollection('Posts').getDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
         return new Date();
       }
     }
@@ -208,17 +207,17 @@ const schema = {
     control: 'select',
     onInsert: (document, currentUser) => {
       if (!document.status) {
-        return Posts.getDefaultStatus(currentUser);
+        return getCollection('Posts').getDefaultStatus(currentUser);
       }
     },
     onEdit: (modifier, document, currentUser) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
-        return Posts.getDefaultStatus(currentUser);
+        return getCollection('Posts').getDefaultStatus(currentUser);
       }
     },
     form: {
-      options: () => Posts.statuses,
+      options: () => getCollection('Posts').statuses,
     },
     group: formGroups.admin
   },
@@ -358,7 +357,7 @@ const schema = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (post, args, context) => {
+      resolver: (post, args, { Posts }) => {
         return Posts.getPageUrl(post, true);
       },
     }
@@ -370,7 +369,7 @@ const schema = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (post, args, context) => {
+      resolver: (post, args, { Posts }) => {
         return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
       },
     }
@@ -379,6 +378,7 @@ const schema = {
   postedAtFormatted: {
     type: String,
     optional: true,
+    viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
       resolver: (post, args, context) => {
@@ -405,18 +405,18 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
-        arguments: 'limit: Int = 5',
-        type: '[Comment]',
-        resolver: (post, { limit }, { currentUser, Users, Comments }) => {
-          const comments = Comments.find({ postId: post._id }, { limit }).fetch();
+      arguments: 'limit: Int = 5',
+      type: '[Comment]',
+      resolver: (post, { limit }, { currentUser, Users, Comments }) => {
+        const comments = Comments.find({ postId: post._id }, { limit }).fetch();
 
-          // restrict documents fields
-          const viewableComments = _.filter(comments, comments => Comments.checkAccess(currentUser, comments));
-          const restrictedComments = Users.restrictViewableFields(currentUser, Comments, viewableComments);
+        // restrict documents fields
+        const viewableComments = _.filter(comments, comments => Comments.checkAccess(currentUser, comments));
+        const restrictedComments = Users.restrictViewableFields(currentUser, Comments, viewableComments);
 
-          return restrictedComments;
-        }
+        return restrictedComments;
       }
+    }
   },
 
   emailShareUrl: {
@@ -425,7 +425,7 @@ const schema = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (post) => {
+      resolver: (post, args, { Posts }) => {
         return Posts.getEmailShareUrl(post);
       }
     }
@@ -437,7 +437,7 @@ const schema = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (post) => {
+      resolver: (post, args, { Posts }) => {
         return Posts.getTwitterShareUrl(post);
       }
     }
@@ -449,7 +449,7 @@ const schema = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (post) => {
+      resolver: (post, args, { Posts }) => {
         return Posts.getFacebookShareUrl(post);
       }
     }

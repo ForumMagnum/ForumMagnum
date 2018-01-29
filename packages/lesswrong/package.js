@@ -38,8 +38,8 @@ Package.onTest(function(api) {
     'vulcan:users',
     'vulcan:voting',
     'practicalmeteor:sinon',
-    'coffeescript@1.12.7_3',
-    'practicalmeteor:mocha@2.4.5_6',
+    'coffeescript',
+    'practicalmeteor:mocha',
   ]);
   // Entry points for tests
   api.mainModule('./testing/unit.tests.js', 'client');

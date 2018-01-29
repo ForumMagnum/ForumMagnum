@@ -50,7 +50,7 @@ export class AccountsField extends PureComponent {
       type = 'text',
       onChange,
       autoFocus = false,
-      required = false,
+      // required = false,
       className = "field",
       defaultValue = "",
       message,

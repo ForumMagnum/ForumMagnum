@@ -1,7 +1,5 @@
 // @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
-
 @import "bootstrap";
-
 @import "breakpoints";
 @import "colors";
 @import "variables";
@@ -269,4 +267,19 @@ h3{
   #intercom-container {
     display: none;
   }
+}
+
+div#mocha {
+  background: white;
+  border-right: 2px solid black;
+  height: 100%;
+  left: 0;
+  margin: 0;
+  overflow: auto;
+  padding: 1rem;
+  position: fixed;
+  resize: horizontal;
+  top: 0;
+  width: 20px;
+  z-index: 10000000;
 }

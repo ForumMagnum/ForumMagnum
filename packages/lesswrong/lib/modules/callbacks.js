@@ -29,7 +29,6 @@ function updateConversationActivity (message) {
 addCallback("messages.new.async", updateConversationActivity);
 
 const createNotifications = (userIds, notificationType, documentType, documentId) => {
-  console.log("Notifications are being created for users: ", userIds, notificationType);
   userIds.forEach(userId => {
 
     let user = Users.findOne({ _id:userId });
@@ -418,7 +417,6 @@ function userDeleteContent(user) {
 addCallback("users.deleteContent.async", userDeleteContent);
 
 function userResetLoginTokens(user) {
-  console.log("Resetting users login tokens: ", user);
   Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
@@ -433,10 +431,8 @@ async function userIPBan(user) {
     }
   `;
   const IPs = await runQuery(query, {userId: user._id});
-  console.log("userIPBan IPs", IPs);
   if (IPs) {
     IPs.data.UsersSingle.IPs.forEach(ip => {
-      console.log("Banning IP", ip);
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {
@@ -446,7 +442,6 @@ async function userIPBan(user) {
         comment: "Automatic IP ban",
         ip: ip,
       }
-      console.log("New Ban: ", ban);
       newMutation({
         action: 'bans.new',
         collection: Bans,
@@ -462,9 +457,7 @@ async function userIPBan(user) {
 addCallback("users.ban.async", userIPBan);
 
 function fixUsernameOnExternalLogin(user) {
-  console.log("New user being created: ", user)
   if (!user.username) {
-    console.log("No username detected, replacing with slug");
     user.username = user.slug;
   }
   return user;

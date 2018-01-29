@@ -2,16 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { getFragment, getFragmentName, getSetting } from 'meteor/vulcan:core';
+import { getSetting, getFragment, getFragmentName, getCollection } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
 import withIdle from './withIdle.jsx';
 import withIdlePollingStopper from './withIdlePollingStopper';
 
 export default function withDocument (options) {
 
-  const { collection, pollInterval = getSetting('pollInterval', 20000), enableCache = false, stopPollingIdleStatus = "INACTIVE", extraQueries } = options,
-        queryName = options.queryName || `${collection.options.collectionName}SingleQuery`,
-        singleResolverName = collection.options.resolvers.single && collection.options.resolvers.single.name;
+  const { collectionName, pollInterval = getSetting('pollInterval', 20000), enableCache = false, extraQueries, stopPollingIdleStatus = "INACTIVE" } = options;
+
+  const collection = options.collection || getCollection(collectionName);
+  const queryName = options.queryName || `${collection.options.collectionName}SingleQuery`;
+  const singleResolverName = collection.options.resolvers.single && collection.options.resolvers.single.name;
 
   let fragment;
 

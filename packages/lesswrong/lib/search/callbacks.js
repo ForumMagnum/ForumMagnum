@@ -38,24 +38,20 @@ addCallback("posts.edit.async", editPostAlgoliaIndex)
 
 function newUserAlgoliaIndex(user) {
   algoliaDocumentExport([user], Users, 'test_users', Users.toAlgolia, (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}}))
-  console.log("Indexed new user into Algolia: ", user);
 }
 addCallback("users.new.async", newUserAlgoliaIndex)
 
 function editUserAlgoliaIndex(user) {
   algoliaDocumentExport([user], Users, 'test_users', Users.toAlgolia, (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}}))
-  console.log("Updated Algolia index for edited user ", user);
 }
 addCallback("users.edit.async", editUserAlgoliaIndex)
 
 function newSequenceAlgoliaIndex(sequence) {
   algoliaDocumentExport([sequence], Sequences, 'test_sequences', Sequences.toAlgolia, (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}}))
-  console.log("Indexed new sequence into Algolia ", sequence);
 }
 addCallback("sequences.new.async", newSequenceAlgoliaIndex)
 
 function editSequenceAlgoliaIndex(sequence) {
   algoliaDocumentExport([sequence], Sequences, 'test_sequences', Sequences.toAlgolia, (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}}))
-  console.log("Updated Algolia index for edited sequence ", sequence);
 }
 addCallback("sequences.edit.async", editSequenceAlgoliaIndex);

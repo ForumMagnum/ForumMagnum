@@ -5,9 +5,11 @@ import SimpleSchema from 'simpl-schema';
  * @namespace Vulcan
  */
 
+// eslint-disable-next-line no-undef
 Vulcan = {};
 
-Vulcan.VERSION = '1.8.4';
+// eslint-disable-next-line no-undef
+Vulcan.VERSION = '1.8.7';
 
 // ------------------------------------- Schemas -------------------------------- //
 
@@ -36,4 +38,5 @@ SimpleSchema.extendOptions([
   'description',
 ]);
 
+// eslint-disable-next-line no-undef
 export default Vulcan;

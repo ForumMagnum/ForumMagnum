@@ -35,11 +35,10 @@ Terms object can have the following properties:
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withApollo, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import update from 'immutability-helper';
-import { getFragment, getFragmentName, getSetting } from 'meteor/vulcan:core';
+import { getSetting, getFragment, getFragmentName, getCollection } from 'meteor/vulcan:core';
 import Mingo from 'mingo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
@@ -51,10 +50,21 @@ const withList = (options) => {
 
   // console.log(options)
 
-  const { collection, limit = 10, pollInterval = getSetting('pollInterval', 20000), totalResolver = true, stopPollingIdleStatus = "INACTIVE", extraQueries, enableCache = false } = options,
-        queryName = options.queryName || `${collection.options.collectionName}ListQuery`,
-        listResolverName = collection.options.resolvers.list && collection.options.resolvers.list.name,
-        totalResolverName = collection.options.resolvers.total && collection.options.resolvers.total.name;
+  const {
+    collectionName,
+    stopPollingIdleStatus = "INACTIVE",
+    limit = 10,
+    pollInterval = getSetting('pollInterval', 20000),
+    totalResolver = true,
+    enableCache = false,
+    extraQueries,
+  } = options;
+
+  const collection = options.collection || getCollection(collectionName);
+
+  const queryName = options.queryName || `${collection.options.collectionName}ListQuery`;
+  const listResolverName = collection.options.resolvers.list && collection.options.resolvers.list.name;
+  const totalResolverName = collection.options.resolvers.total && collection.options.resolvers.total.name;
 
   let fragment;
 
@@ -151,6 +161,7 @@ const withList = (options) => {
                 propertyName = options.propertyName || 'results';
 
           if (error) {
+            // eslint-disable-next-line no-console
             console.log(error);
           }
 

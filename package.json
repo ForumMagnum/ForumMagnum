@@ -1,6 +1,6 @@
 {
   "name": "Vulcan",
-  "version": "1.8.4",
+  "version": "1.8.7",
   "engines": {
     "npm": "^3.0"
   },
@@ -8,10 +8,11 @@
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings.json",
     "lint": "eslint --cache --ext .jsx,js packages",
-    "test": "meteor test-packages ./packages/lesswrong --driver-package practicalmeteor:mocha --port 3200 --settings settings.json"
+    "test": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app"
   },
   "dependencies": {
     "algoliasearch": "^3.24.3",
+    "@babel/runtime": "^7.0.0-beta.38",
     "analytics-node": "^2.1.1",
     "anchorate": "^1.1.0",
     "apollo-client": "^1.2.2",
@@ -55,12 +56,12 @@
     "flat": "^4.0.0",
     "formsy-react": "^0.19.5",
     "formsy-react-components": "^0.11.1",
-    "graphql": "^0.9.6",
+    "graphql": "^0.10.5",
     "graphql-anywhere": "^3.0.1",
     "graphql-date": "^1.0.2",
     "graphql-server-express": "^0.6.0",
     "graphql-tag": "^2.0.0",
-    "graphql-tools": "^0.10.1",
+    "graphql-tools": "^2.19.0",
     "graphql-type-json": "^0.1.4",
     "handlebars": "^4.0.5",
     "he": "^1.1.1",
@@ -146,7 +147,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-meteor": "^4.1.6",
-    "eslint-plugin-prettier": "2.4.0",
+    "eslint-plugin-prettier": "^2.5.0",
     "eslint-plugin-react": "^6.7.1",
     "prettier": "1.9.2",
     "selenium-webdriver": "^3.0.0-beta-2"

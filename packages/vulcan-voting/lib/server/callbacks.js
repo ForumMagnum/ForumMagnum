@@ -82,7 +82,6 @@ import { updateScore } from './scoring.js';
 function updateKarma({newDocument, vote}, collection, user, context) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId) {
-    console.log("Increasing user x karma by y", newDocument.userId, vote.power)
     Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
   }
 }
@@ -93,7 +92,6 @@ addCallback("votes.downvote.async", updateKarma);
 function cancelVoteKarma({newDocument, vote}, collection, user, context) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId) {
-    console.log("Increasing user x karma by y", newDocument.userId, -vote.power)
     Users.update({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
   }
 }

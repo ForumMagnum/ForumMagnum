@@ -17,7 +17,6 @@ addCallback("posts.edit.sync", PostsEditRunPostUndraftedSyncCallbacks);
 
 function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    console.log("Running undraft async callback");
     runCallbacksAsync("posts.undraft.async", newPost, oldPost)
   }
   return newPost
@@ -101,9 +100,7 @@ Posts.convertFromContent = (content) => {
 
 Posts.convertFromHTML = (html) => {
   const body = htmlToText.fromString(html);
-  console.log("Posts.convertFromHTML body", html, body);
   const excerpt = body.slice(0,140);
-  console.log("Posts.convertFromHTML", excerpt);
   return {
     body,
     excerpt
@@ -114,7 +111,6 @@ function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
     const newPostFields = Posts.convertFromContent(post.content);
     post = {...post, ...newPostFields}
-    console.log("Comments New HTML serialization", post.excerpt)
   } else if (post.htmlBody) {
     const newPostFields = Posts.convertFromHTML(post.content);
     post = {...post, ...newPostFields}
@@ -129,7 +125,6 @@ function PostsEditHTMLSerializeCallback (modifier, post) {
     const newPostFields = Posts.convertFromContent(modifier.$set.content)
     modifier.$set = {...modifier.$set, ...newPostFields}
     delete modifier.$unset.htmlBody;
-    console.log("Comments Edit HTML serialization", modifier.$set.htmlBody, modifier.$set.body)
   } else if (modifier.$set && modifier.$set.htmlBody) {
     const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody);
     modifier.$set = {...modifier.$set, ...newPostFields}
