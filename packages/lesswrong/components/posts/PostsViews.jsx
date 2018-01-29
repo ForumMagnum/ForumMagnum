@@ -9,7 +9,7 @@ import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 
-const viewData = {
+const viewMetaDict = {
   'curated': {
     label: "Curated Content",
     description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
@@ -143,8 +143,8 @@ class PostsViews extends Component {
 
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
               <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {viewData[view].label}
-                { this.renderMenu(viewData[view], view)}
+                {viewMetaDict[view].label}
+                { this.renderMenu(viewMetaDict[view], view)}
               </span>
             </span>
           </div>
@@ -162,27 +162,27 @@ class PostsViews extends Component {
                 <span >  </span>
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
                   <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {viewData[view].label}
-                    { this.renderMenu(viewData[view])}
+                    {viewMetaDict[view].label}
+                    { this.renderMenu(viewMetaDict[view])}
                   </span>
                 </span>
               </div>
             ))}
             {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/meta">
               <span className={"posts-views-chip-inactive"}>
-                Meta { this.renderMenu(viewData["meta"])}
+                Meta { this.renderMenu(viewMetaDict["meta"])}
               </span>
             </Link></div>}
             {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/daily">
               <span className={"posts-views-chip-inactive"}>
-                Daily { this.renderMenu(viewData["daily"])}
+                Daily { this.renderMenu(viewMetaDict["daily"])}
               </span>
             </Link></div>}
           </span> : <div>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
-              { this.renderMenu(viewData["more"])}
+              { this.renderMenu(viewMetaDict["more"])}
             </a>
           </div>
         }
