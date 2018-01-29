@@ -106,8 +106,8 @@ describe('Posts RSS Views', async () => {
     const { data: { PostsList } } = await runQuery(query,{},user)
     const idList = _.pluck(PostsList, '_id');
     console.log("Posts RSS Views PostsList: ", PostsList, [curatedPost1._id, curatedPost2._id, curatedPost3._id]);
-    idList.indexOf(curatedPost1._id).should.be.above(idList.indexOf(curatedPost2._id));
-    idList.indexOf(curatedPost2._id).should.be.above(idList.indexOf(curatedPost3._id));
+    idList.indexOf(curatedPost1._id).should.be.below(idList.indexOf(curatedPost2._id));
+    idList.indexOf(curatedPost2._id).should.be.below(idList.indexOf(curatedPost3._id));
   });
   it("only shows frontpage posts in frontpage-rss view", async () => {
     const user = await createDummyUser();
