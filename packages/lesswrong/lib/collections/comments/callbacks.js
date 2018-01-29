@@ -81,7 +81,7 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
 
 function CommentsEmptyCheck (comment, user) {
-  if (!comment.content || !convertFromRaw(comment.content).hasText()) {
+  if (!convertFromRaw(comment.content).hasText()) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
