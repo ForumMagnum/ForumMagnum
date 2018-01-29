@@ -72,7 +72,7 @@ Posts.addView("curated", terms => ({
     curatedDate: {$exists: true},
   },
   options: {
-    sort: {sticky: -1, curatedDate: 1, score: -1}
+    sort: {sticky: -1, curatedDate: -1, score: -1}
   }
 }));
 
@@ -81,7 +81,7 @@ Posts.addView("curated-rss", terms => ({
     curatedDate: {$exists: true},
   },
   options: {
-    sort: {curatedDate: -1, postedAt: 1}
+    sort: {curatedDate: -1, postedAt: -1}
   }
 }));
 
