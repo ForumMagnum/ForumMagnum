@@ -54,7 +54,6 @@ describe('Posts.maxBaseScore', async () => {
     const post = await createDummyPost(user._id);
 
     const updatedPost = await Posts.find({_id: post._id}).fetch();
-    console.log("Posts test test post", updatedPost);
 
     updatedPost[0].maxBaseScore.should.be.equal(1)
   });
@@ -79,7 +78,6 @@ describe('Posts RSS Views', async () => {
     `;
 
     const { data: { PostsList } } = await runQuery(query,{},user)
-    console.log("Posts RSS Views PostsList: ", PostsList);
     _.pluck(PostsList, '_id').should.not.include(frontpagePost1._id)
     _.pluck(PostsList, '_id').should.not.include(frontpagePost2._id)
     _.pluck(PostsList, '_id').should.not.include(frontpagePost3._id)
@@ -105,7 +103,6 @@ describe('Posts RSS Views', async () => {
 
     const { data: { PostsList } } = await runQuery(query,{},user)
     const idList = _.pluck(PostsList, '_id');
-    console.log("Posts RSS Views PostsList: ", PostsList, [curatedPost1._id, curatedPost2._id, curatedPost3._id]);
     idList.indexOf(curatedPost1._id).should.be.below(idList.indexOf(curatedPost2._id));
     idList.indexOf(curatedPost2._id).should.be.below(idList.indexOf(curatedPost3._id));
   });
@@ -127,7 +124,6 @@ describe('Posts RSS Views', async () => {
     `;
 
     const { data: { PostsList } } = await runQuery(query,{},user)
-    console.log("Posts RSS Views PostsList: ", PostsList);
     _.pluck(PostsList, '_id').should.include(frontpagePost1._id)
     _.pluck(PostsList, '_id').should.include(frontpagePost2._id)
     _.pluck(PostsList, '_id').should.include(frontpagePost3._id)
