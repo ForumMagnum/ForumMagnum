@@ -19,7 +19,7 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
+    params.selector.masBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
   return params;
 })
@@ -51,28 +51,55 @@ Posts.addView("top", terms => ({
 
 Posts.addView("frontpage", terms => ({
   selector: {
-    frontpage: true,
+    frontpageDate: {$exists: true},
   },
   options: {
     sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("frontpage-rss", terms => ({
+  selector: {
+    frontpageDate: {$exists: true},
+  },
+  options: {
+    sort: {frontpageDate: -1, postedAt: 1}
   }
 }));
 
 Posts.addView("curated", terms => ({
   selector: {
-    featuredPriority: {$gte: 0},
+    curatedDate: {$exists: true},
   },
   options: {
-    sort: {sticky: -1, featuredPriority: -1, score: -1}
+    sort: {sticky: -1, curatedDate: -1, score: -1}
+  }
+}));
+
+Posts.addView("curated-rss", terms => ({
+  selector: {
+    curatedDate: {$exists: true},
+  },
+  options: {
+    sort: {curatedDate: -1, postedAt: -1}
   }
 }));
 
 Posts.addView("community", terms => ({
   selector: {
-    frontpage: null,
+    frontpageDate: null,
   },
   options: {
     sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("community-rss", terms => ({
+  selector: {
+    frontpageDate: null,
+  },
+  options: {
+    sort: {postedAt: -1}
   }
 }));
 
@@ -84,6 +111,17 @@ Posts.addView("meta", terms => ({
     sort: {
       sticky: -1,
       score: -1,
+    }
+  }
+}))
+
+Posts.addView("meta-rss", terms => ({
+  selector: {
+    meta: true,
+  },
+  options: {
+    sort: {
+      postedAt: -1
     }
   }
 }))
@@ -184,18 +222,6 @@ Posts.addView("all_drafts", terms => ({
     sort: {createdAt: -1}
   }
 }));
-
-Posts.addView("featured", terms => ({
-  selector: {
-    frontpage: true
-  },
-  options: {
-    limit: terms.limit || 3,
-    sort: {
-      featuredPriority: -1,
-    }
-  }
-}))
 
 
 /**

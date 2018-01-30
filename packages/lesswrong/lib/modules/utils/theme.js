@@ -5,7 +5,7 @@ import Sequences from '../../collections/sequences/collection'
 
 const getHeaderColorPost = (postId, store) => {
   const post = Posts.findOneInStore(store, postId)
-  if (post && (post.frontpage || post.meta)) {
+  if (post && (post.frontpageDate || post.meta)) {
     if (post.meta) {
       return "#E6F2F1"//this.renderHeaderSection_Meta()
     }

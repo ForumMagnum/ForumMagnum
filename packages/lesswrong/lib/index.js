@@ -104,7 +104,7 @@ import './views.js';
 import './modules/settings.js';
 //
 // Closed Beta Stuff
-import './closed-beta/configuration.js';
+import './scripts/configuration.js';
 
 // Algolia Search Integration
 import './search/utils.js';

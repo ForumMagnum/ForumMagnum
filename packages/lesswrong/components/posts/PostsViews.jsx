@@ -9,12 +9,13 @@ import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 
-const viewNames = {
+const viewDataDict = {
   'curated': {
     label: "Curated Content",
     description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"star",
+    rssView: "curated-rss",
     rss:true
   },
   'frontpage': {
@@ -22,6 +23,7 @@ const viewNames = {
     description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     includes: "(includes curated content and frontpage posts)",
+    rssView: "frontpage-rss",
     rss:true
   },
   'community': {
@@ -29,12 +31,14 @@ const viewNames = {
     description: "Community - All personal blogposts by \nLessWrong users (plus curated and frontpage).",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
+    rssView: "community-rss",
     rss:true
   },
   'meta': {
     label: 'Meta',
     description: "Meta - Discussion about the LessWrong site.",
     categoryIcon:"details",
+    rssView: "meta-rss",
     rss:true
   },
   'daily': {
@@ -99,24 +103,23 @@ class PostsViews extends Component {
     return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
   }
 
-  renderMenu = (view) => {
+  renderMenu = (viewData, view) => {
     return (
       <div className="view-chip-menu-wrapper">
         <div className="view-chip-menu">
           <div className="view-chip-menu-item description">
             <FontIcon style={{fontSize: "14px", color: "white", verticalAlign: "middle", bottom: "1px", marginRight:"2px"}} className="material-icons">
-              {view.categoryIcon}
+              {viewData.categoryIcon}
             </FontIcon>
-            {view.description}
+            {viewData.description}
           </div>
-          { view.includes && <div className="view-chip-menu-item includes">{view.includes}</div>}
-
-          { view.learnMoreLink && <div className="view-chip-menu-item learn-more">
-            <Link to={view.learnMoreLink}>
+          { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}
+          { viewData.learnMoreLink && <div className="view-chip-menu-item learn-more">
+            <Link to={viewData.learnMoreLink}>
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { view.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={view} /></div> }
+          { viewData.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewData.rssView} /></div> }
         </div>
       </div>
     )
@@ -140,8 +143,8 @@ class PostsViews extends Component {
 
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
               <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {viewNames[view].label}
-                { this.renderMenu(viewNames[view])}
+                {viewDataDict[view].label}
+                { this.renderMenu(viewDataDict[view], view)}
               </span>
             </span>
           </div>
@@ -159,34 +162,34 @@ class PostsViews extends Component {
                 <span >  </span>
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
                   <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {viewNames[view].label}
-                    { this.renderMenu(viewNames[view])}
+                    {viewDataDict[view].label}
+                    { this.renderMenu(viewDataDict[view])}
                   </span>
                 </span>
               </div>
             ))}
             {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/meta">
               <span className={"posts-views-chip-inactive"}>
-                Meta { this.renderMenu(viewNames["meta"])}
+                Meta { this.renderMenu(viewDataDict["meta"])}
               </span>
             </Link></div>}
             {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/daily">
               <span className={"posts-views-chip-inactive"}>
-                Daily { this.renderMenu(viewNames["daily"])}
+                Daily { this.renderMenu(viewDataDict["daily"])}
               </span>
             </Link></div>}
-            </span> : <div>
-              <a style={ChipStyle} className="view-chip more"
+          </span> : <div>
+            <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
-              { this.renderMenu(viewNames["more"])}
-              </a>
-              </div>
-            }
-            <br/>
+              { this.renderMenu(viewDataDict["more"])}
+            </a>
           </div>
-          )}
-          }
+        }
+        <br/>
+      </div>
+    )}
+    }
 
 PostsViews.propTypes = {
   currentUser: PropTypes.object,

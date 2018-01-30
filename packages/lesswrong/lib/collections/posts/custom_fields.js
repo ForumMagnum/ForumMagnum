@@ -226,17 +226,34 @@ Posts.addField([
   },
 
   /**
-    FeaturedPriority: Determines which posts end up on the frontpage. Posts with higher priority are displayed first.
+    curatedDate: Date at which the post was promoted to curated (null or false if it never has been promoted to curated)
   */
 
   {
-    fieldName: 'featuredPriority',
+    fieldName: 'curatedDate',
     fieldSchema: {
-      type: Number,
+      type: Date,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
       group: formGroups.admin,
+    }
+  },
+
+  /**
+    frontpageDate: Date at which the post was promoted to frontpage (null or false if it never has been promoted to frontpage)
+  */
+
+  {
+    fieldName: 'frontpageDate',
+    fieldSchema: {
+      type: Date,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      optional: true,
+      hidden: true,
     }
   },
 
@@ -397,33 +414,7 @@ Posts.addField([
     }
   },
 
-  /**
-    frontpage: The post is published to the frontpage
-  */
 
-  {
-    fieldName: 'frontpage',
-    fieldSchema: {
-      type: Boolean,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
-      optional: true,
-      label: "Publish to frontpage",
-      control: "checkbox",
-      hidden: true,
-      onInsert: (document, currentUser) => {
-        if (!document.frontpage) {
-          return false
-        }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.frontpage === null || modifier.$unset.frontpage) {
-          return false;
-        }
-      }
-    }
-  },
 
   /**
     Drafts
@@ -468,6 +459,21 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  /**
+    maxBaseScore: Highest baseScore this post ever had, used for RSS feed generation
+  */
+
+  {
+    fieldName: 'maxBaseScore',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      hidden: true,
+      onInsert: (document) => document.baseScore || 0,
     }
   }
 

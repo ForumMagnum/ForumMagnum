@@ -20,10 +20,8 @@ Meteor.onConnection((connection) => {
     currentUser: dummyUser,
     validate: false,
   })
-  console.log("New Connection: ", connection);
 
   connection.onClose(() => {
-    console.log("Closing connection: ", connection)
     const document = {
       name: 'closeConnection',
       important: false,
@@ -58,5 +56,4 @@ Accounts.onLogin((login) => {
     currentUser: dummyUser,
     validate: false,
   })
-  console.log("New Login: ", login);
 })
