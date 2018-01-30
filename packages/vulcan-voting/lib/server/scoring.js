@@ -154,7 +154,6 @@ export const batchUpdateScore = async (collection, inactive = false, forceUpdate
   const items = await itemsPromise;
   const itemsArray = await items.toArray();
   let updatedDocumentsCounter = 0;
-  console.log("BatchScoreUpdate updateArray:", itemsArray);
   const itemUpdates = _.compact(itemsArray.map(i => {
     if (forceUpdate || i.scoreDiffSignificant) {
       updatedDocumentsCounter++;
