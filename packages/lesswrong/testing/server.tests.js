@@ -11,6 +11,7 @@ sleep(10000);
 
 import '../lib/collections/comments/tests.js';
 import '../lib/collections/posts/tests.js';
+import '../lib/collections/notifications/tests.js';
 import './metatest.tests.js';
 import './moderation/moderation.server.tests.js';
 import './voting.tests.js';

@@ -1,6 +1,6 @@
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments, Categories } from 'meteor/example-forum';
-import { Utils, GraphQLSchema } from 'meteor/vulcan:core';
+import { Utils, GraphQLSchema, runCallbacksAsync } from 'meteor/vulcan:core';
 
 /**
  * @summary Verify that the un/subscription can be performed
@@ -79,11 +79,14 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
   // - the action is subscribe but the user has already subscribed to this item
   // - the action is unsubscribe but the user hasn't subscribed to this item
   if (!subscription || (action === 'subscribe' && subscription.hasSubscribedItem) || (action === 'unsubscribe' && !subscription.hasSubscribedItem)) {
+    console.log("performSubscriptionAction subscription: ", subscription);
     throw Error(Utils.encodeIntlError({id: 'app.mutation_not_allowed', value: 'Already subscribed'}))
   }
 
   // shorthand for useful variables
   const { collectionName, fields, item, findOperator, updateOperator, updateCount } = subscription;
+
+  console.log("performSubscriptionAction", findOperator, updateOperator, updateCount);
 
   // Perform the action, eg. operate on the item's collection
   const result = collection.update({
@@ -98,7 +101,7 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
   });
 
   // log the operation on the subscriber if it has succeeded
-  if (result > 0) {
+  if (result >= 0) {
     // id of the item subject of the action
     let loggedItem = {
       itemId: item._id,
@@ -120,6 +123,14 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
     });
 
     const updatedUser = Users.findOne({_id: user._id}, {fields: {_id:1, subscribedItems: 1}});
+
+    // LESSWRONG: Added callback hook to subscribe for testing purposes
+    if (action === 'subscribe') {
+      runCallbacksAsync('users.subscribe.async', action, collection, itemId, updatedUser, result);
+    } else {
+      runCallbacksAsync('users.unsubscribe.async', action, collection, itemId, updatedUser, result);
+    }
+
 
     return updatedUser;
   } else {

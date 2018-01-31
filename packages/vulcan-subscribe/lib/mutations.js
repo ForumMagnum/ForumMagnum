@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { Utils, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { Utils, addGraphQLMutation, addGraphQLResolvers, runCallbacksAsync } from 'meteor/vulcan:core';
 
 /**
  * @summary Verify that the un/subscription can be performed
@@ -124,7 +124,6 @@ const performSubscriptionAction = (action, collection, itemId, user) => {
     });
 
     const updatedUser = Users.findOne({_id: user._id}, {fields: {_id:1, subscribedItems: 1}});
-    
     return updatedUser;
   } else {
     throw Error(Utils.encodeIntlError({id: 'app.something_bad_happened'}))
@@ -141,26 +140,26 @@ const performSubscriptionAction = (action, collection, itemId, user) => {
    const genericMutationFunction = (collectionName, action) => {
      // return the method code
      return function(root, { documentId }, context) {
-       
+
        // extract the current user & the relevant collection from the graphql server context
        const { currentUser, [Utils.capitalize(collectionName)]: collection } = context;
-       
+
        // permission check
        if (!Users.canDo(context.currentUser, `${collectionName}.${action}`)) {
          throw new Error(Utils.encodeIntlError({id: "app.noPermission"}));
        }
-       
+
        // do the actual subscription action
        return performSubscriptionAction(action, collection, documentId, currentUser);
      };
    };
 
    const collectionName = collection._name;
-   
+
    // add mutations to the schema
    addGraphQLMutation(`${collectionName}Subscribe(documentId: String): User`),
    addGraphQLMutation(`${collectionName}Unsubscribe(documentId: String): User`);
-   
+
    // create an object of the shape expected by mutations resolvers
    addGraphQLResolvers({
      Mutation: {
@@ -168,8 +167,8 @@ const performSubscriptionAction = (action, collection, itemId, user) => {
        [`${collectionName}Unsubscribe`]: genericMutationFunction(collectionName, 'unsubscribe'),
      },
    });
-   
-   
+
+
  };
 
 // Finally. Add the mutations to the Meteor namespace 🖖

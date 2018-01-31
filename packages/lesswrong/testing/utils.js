@@ -1,6 +1,9 @@
-import { runQuery, newMutation } from 'meteor/vulcan:core';
+import { runQuery, newMutation, removeCallback, addCallback } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum'
+import Conversations from '../lib/collections/conversations/collection.js';
+import Messages from '../lib/collections/messages/collection.js';
+import {Editor, ContentState} from 'draft-js';
 import { Random } from 'meteor/random';
 
 export const createDefaultUser = async() => {
@@ -42,6 +45,53 @@ export const createDummyUser = async (data) => {
     context: {},
   });
 }
+export const createDummyComment = async (user, data) => {
+  let defaultData = {
+    userId: user._id,
+    body: "This is a test comment",
+  }
+  if (!data.postId) {
+    defaultData.postId = Posts.findOne()._id; // By default, just grab ID from a random post
+  }
+  const commentData = {...defaultData, ...data};
+  return await newMutation({
+    collection: Comments,
+    document: commentData,
+    currentUser: user,
+    validate: false,
+    context: {},
+  });
+}
+
+export const createDummyConversation = async (user, data) => {
+  let defaultData = {
+    title: user.displayName,
+    participantIds: [user._id],
+  }
+  const conversationData = {...defaultData, ...data};
+  return await newMutation({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: user,
+    validate: false,
+    context: {},
+  });
+}
+
+export const createDummyMessage = async (user, data) => {
+  let defaultData = {
+    content: ContentState.createFromText('Dummy Message Content'),
+    userId: user._id,
+  }
+  const messageData = {...defaultData, ...data};
+  return await newMutation({
+    collection: Messages,
+    document: messageData,
+    currentUser: user,
+    validate: false,
+    context: {},
+  });
+}
 
 export const clearDatabase = async () => {
   Users.find().fetch().forEach((i)=>{
@@ -53,4 +103,23 @@ export const clearDatabase = async () => {
   Comments.find().fetch().forEach((i)=>{
     Posts.remove(i._id)
   })
+}
+
+export function addTestToCallbackOnce(callbackHook, test, done) {
+  if (!done) {
+    throw new Error('Need to provide `done()` function to test callback');
+  }
+  const callbackFunctionName = test.name + "testCallbackOnceInside"
+  const testCallback = async function(...args) {
+    removeCallback(callbackHook, callbackFunctionName)
+    try {
+      await test(...args)
+    } catch(err) {
+      done(err)
+      return;
+    }
+    done()
+  }
+  Object.defineProperty(testCallback, "name", { value: callbackFunctionName });
+  addCallback(callbackHook, testCallback);
 }
