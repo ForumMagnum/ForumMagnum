@@ -33,7 +33,9 @@ class PostsItem extends PureComponent {
     super(props)
     this.state = {
       categoryHover: false,
-      showNewComments: false
+      showNewComments: false,
+      lastVisitedAt: props.post.lastVisitedAt,
+      lastCommentedAt: props.post.lastCommentedAt
     }
   }
   renderActions() {
@@ -127,8 +129,8 @@ class PostsItem extends PureComponent {
   render() {
 
     const {post, inlineCommentCount, currentUser} = this.props;
-    const read = post.lastVisitedAt;
-    const newComments = post.lastVisitedAt < post.lastCommentedAt;
+    const read = this.state.lastVisitedAt;
+    const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
 
     const postLink = this.getPostLink()
     const commentCount = post.commentCount ? post.commentCount : 0
@@ -138,8 +140,8 @@ class PostsItem extends PureComponent {
     if (this.state.showHighlight) postClass += " show-highlight";
 
     const renderCommentsButton = () => {
-      const read = post.lastVisitedAt;
-      const newComments = post.lastVisitedAt < post.lastCommentedAt;
+      const read = this.state.lastVisitedAt;
+      const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
 
       const commentCountIconStyle = {
         width:"30px",
@@ -158,8 +160,8 @@ class PostsItem extends PureComponent {
     }
     let tooltipText1 = "last visit: ";
     let tooltipText2 = "last comment: ";
-    tooltipText1 = tooltipText1 + (read ? moment(post.lastVisitedAt).fromNow() : "never");
-    tooltipText2 = tooltipText2 + (post.lastCommentedAt ? moment(post.lastCommentedAt).fromNow() : "never");
+    tooltipText1 = tooltipText1 + (read ? moment(this.state.lastVisitedAt).fromNow() : "never");
+    tooltipText2 = tooltipText2 + (this.state.lastCommentedAt ? moment(this.state.lastCommentedAt).fromNow() : "never");
 
     if (this.state.showNewComments || this.state.showHighlight) {
       paperStyle.outline = "solid 1px rgba(0,0,0,.15)"
@@ -168,7 +170,6 @@ class PostsItem extends PureComponent {
       paperStyle.outline = "none"
       paperStyle.borderTop = "solid 1px rgba(0,0,0,.15)"
     }
-
     return (
       <div>
         <Paper
@@ -229,7 +230,8 @@ class PostsItem extends PureComponent {
                   <div className="posts-item-recent-comments-title">Recent Comments</div>
                   <Components.PostsItemNewCommentsWrapper
                     currentUser={currentUser}
-                    terms={{view:"postCommentsUnread", postId:this.props.post._id, lastVisitedAt:this.props.post.lastVisitedAt}}
+                    highlightDate={this.state.lastVisitedAt}
+                    terms={{view:"postCommentsUnread", postId:this.props.post._id, lastVisitedAt:this.state.lastVisitedAt}}
                     post={post}
                   />
                 </div>

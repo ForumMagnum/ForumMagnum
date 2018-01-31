@@ -13,6 +13,7 @@ const PostsItemNewCommentsWrapper = (props, /* context*/) => {
     networkStatus,
     totalCount,
     currentUser,
+    highlightDate,
     post,
     postId,
     terms,
@@ -35,7 +36,7 @@ const PostsItemNewCommentsWrapper = (props, /* context*/) => {
         <Components.CommentsList
           currentUser={currentUser}
           comments={nestedComments}
-          highlightDate={post.lastVisitedAt}
+          highlightDate={highlightDate}
         />
         {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
       </div>

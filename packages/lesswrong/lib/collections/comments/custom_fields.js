@@ -193,6 +193,7 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+      hidden:true,
       control: 'datetime'
     }
   }
