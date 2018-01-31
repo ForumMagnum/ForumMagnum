@@ -169,6 +169,12 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment LWPostsBody on Post {
+    htmlBody
+  }
+`);
+
+registerFragment(`
   fragment SequencesPostNavigationLink on Post {
     _id
     title
