@@ -1,8 +1,7 @@
 import React from 'react';
 import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery, runCallbacksAsync, addCallback, removeCallback, editMutation } from 'meteor/vulcan:core';
-import { createDummyUser, createDummyPost, createDummyPostServer, addTestToCallbackOnce, createDummyComment, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
+import { createDummyUser, createDummyPost, addTestToCallbackOnce, createDummyComment, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
 import { performSubscriptionAction } from '../../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
@@ -16,7 +15,7 @@ describe('performSubscriptionAction', async () => {
   it("correctly modifies the users subscribedItems when subscribing", async () => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    const post = await createDummyPost(user._id)
+    const post = await createDummyPost(user)
 
     const response = performSubscriptionAction('subscribe', Posts, post._id, otherUser)
     response.subscribedItems.Posts[0].itemId.should.be.equal(post._id);
@@ -25,7 +24,7 @@ describe('performSubscriptionAction', async () => {
   it("correctly modifies the users subscribedItems when unsubscribing", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    const post = await createDummyPost(user._id)
+    const post = await createDummyPost(user)
     const unsubscribeTestCallback = async function(action, collection, itemId, updatedUser) {
       const response = performSubscriptionAction('unsubscribe', Posts, post._id, user)
       response.subscribedItems.Posts.should.be.empty;
@@ -36,7 +35,7 @@ describe('performSubscriptionAction', async () => {
   it("correctly modifies the subscribers of Posts when subscribing", async () => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    const post = await createDummyPost(user._id)
+    const post = await createDummyPost(user)
 
     performSubscriptionAction('subscribe', Posts, post._id, otherUser)
     const updatedPost = await Posts.findOne({_id: post._id});
@@ -47,7 +46,7 @@ describe('performSubscriptionAction', async () => {
   it("correctly modifies the subscribers of Posts when unsubscribing", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    const post = await createDummyPost(user._id)
+    const post = await createDummyPost(user)
 
     const unsubscribeTestCallback = async function(action, collection, itemId, updatedUser, result) {
       const updatedPost = await Posts.findOne({_id: post._id});
@@ -72,7 +71,7 @@ describe('notification generation', async () => {
     }
     addTestToCallbackOnce('posts.new.async', testNotificationGeneration, done);
     performSubscriptionAction('subscribe', Users, user._id, otherUser)
-    await createDummyPost(user._id);
+    await createDummyPost(user);
   });
   it("generates notifications for new comments to post", async (done) => {
     const user = await createDummyUser()
@@ -84,7 +83,7 @@ describe('notification generation', async () => {
       notifications[0].should.have.property('type', 'newComment');
     }
     addTestToCallbackOnce('comments.new.async', commentTestNotificationGeneration, done);
-    const post = await createDummyPost(user._id);
+    const post = await createDummyPost(user);
     await createDummyComment(otherUser, {postId: post._id});
   });
   it("generates notifications for comment replies", async (done) => {
@@ -108,7 +107,7 @@ describe('notification generation', async () => {
       notifications3[0].should.have.property('documentId', comment._id);
       notifications3[0].should.have.property('type', 'newReply');
     }
-    const post = await createDummyPost(user1._id);
+    const post = await createDummyPost(user1);
     const comment = await createDummyComment(user2, {postId: post._id});
     performSubscriptionAction('subscribe', Comments, comment._id, user3)
     addTestToCallbackOnce('comments.new.async', commentTestNotificationGeneration, done);
