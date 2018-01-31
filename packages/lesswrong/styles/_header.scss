@@ -480,6 +480,15 @@ $header-mobile: 43px !important;
   padding: 10px;
 }
 
+.notifications-item {
+  &:hover {
+    background-color: rgba(0,0,0,0.02) !important;
+  }
+  &.read:hover {
+    background-color: rgba(0,0,0,0.08) !important;
+  }
+}
+
 .appbar-elements-right {
   margin-right: 36px;
   @include max-tiny() {
