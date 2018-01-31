@@ -79,14 +79,12 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
   // - the action is subscribe but the user has already subscribed to this item
   // - the action is unsubscribe but the user hasn't subscribed to this item
   if (!subscription || (action === 'subscribe' && subscription.hasSubscribedItem) || (action === 'unsubscribe' && !subscription.hasSubscribedItem)) {
-    console.log("performSubscriptionAction subscription: ", subscription);
     throw Error(Utils.encodeIntlError({id: 'app.mutation_not_allowed', value: 'Already subscribed'}))
   }
 
   // shorthand for useful variables
   const { collectionName, fields, item, findOperator, updateOperator, updateCount } = subscription;
 
-  console.log("performSubscriptionAction", findOperator, updateOperator, updateCount);
 
   // Perform the action, eg. operate on the item's collection
   const result = collection.update({
