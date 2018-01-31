@@ -215,7 +215,7 @@ Posts.addField([
         type: 'Date',
         resolver: (post, args, context) => {
           if(context.currentUser){
-            const event = context.LWEvents.findOne({name:'post-view', documentId: post._id, userId: context.currentUser._id});
+            const event = context.LWEvents.findOne({name:'post-view', documentId: post._id, userId: context.currentUser._id}, {sort:{createdAt:-1}});
             return event ? event.createdAt : post.lastVisitDateDefault;
           } else {
             return post.lastVisitDateDefault;
