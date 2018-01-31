@@ -29,7 +29,7 @@ class NotificationsFullscreenList extends Component {
 const options = {
   collection: Notifications,
   queryName: 'notificationsFullScreenQuery',
-  fragmentName: 'notificationsNavFragment',
+  fragmentName: 'NotificationsList',
   limit: 30,
   totalResolver: false,
 };

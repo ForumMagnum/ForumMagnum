@@ -9,9 +9,15 @@ Notifications.addDefaultView(function (terms) {
 
 // notifications for a specific user (what you see in the notifications menu)
 Notifications.addView("userNotifications", (terms) => {
-  const query = {
+  return {
     selector: {userId: terms.userId, type: terms.type || null, viewed: terms.viewed == null ? null : (terms.viewed || {$ne: true})}, //Ugly construction to deal with falsy viewed values and null != false in Mongo
     options: {sort: {createdAt: -1}}
   }
-  return query
 });
+
+Notifications.addView("unreadUserNotifications", (terms) => {
+  return {
+    selector: {userId: terms.userId, type: terms.type || null, createdAt: {$gte: terms.lastViewedDate}},
+    options: {sort: {createdAt: -1}}
+  }
+})

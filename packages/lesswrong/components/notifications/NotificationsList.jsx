@@ -32,14 +32,14 @@ class NotificationsList extends Component {
 const options = {
   collection: Notifications,
   queryName: 'notificationsListQuery',
-  fragmentName: 'notificationsNavFragment',
+  fragmentName: 'NotificationsList',
   limit: 20,
   totalResolver: false,
 };
 
 const withEditOptions = {
   collection: Notifications,
-  fragmentName: 'notificationsNavFragment',
+  fragmentName: 'NotificationsList',
 };
 
 registerComponent('NotificationsList', NotificationsList, [withList, options], [withEdit, withEditOptions], withCurrentUser);

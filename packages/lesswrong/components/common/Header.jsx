@@ -44,20 +44,10 @@ class Header extends Component {
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   renderAppBarElementRight = () => {
-    const notificationButtonStyle = {
-      backgroundColor: this.state.notificationOpen ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0)"
-    }
-    const notificationIconStyle = {
-      color: this.state.notificationOpen ? "#FFFFFF" : "rgba(0,0,0,0.8)",
-    }
-
     return <div className="appbar-elements-right">
       <NoSSR><Components.SearchBar /></NoSSR>
       {this.props.currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
-      {this.props.currentUser &&
-        <IconButton className="notifications-menu-button" onTouchTap={this.handleNotificationToggle} style={notificationButtonStyle} iconStyle={ notificationIconStyle }>
-          <NotificationsIcon />
-        </IconButton>}
+      {this.props.currentUser && <Components.NotificationsMenuButton toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: this.props.currentUser._id}} open={this.state.notificationOpen}/>}
     </div>
   }
 
