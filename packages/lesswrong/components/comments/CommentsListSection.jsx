@@ -66,9 +66,7 @@ class CommentsListSection extends Component {
   )
 
   currentUserCanComment = () => {
-    const a =  this.props.currentUser && !this.props.post.bannedUserIds || (this.props.post.bannedUserIds && !this.props.post.bannedUserIds.includes(this.props.currentUser._id))
-    console.log("QWER", a)
-    return a
+    return this.props.currentUser && !this.props.post.bannedUserIds || (this.props.post.bannedUserIds && !this.props.post.bannedUserIds.includes(this.props.currentUser._id))
   }
 
   render() {
