@@ -183,6 +183,18 @@ Comments.addField([
       insertableBy: ['sunshineRegiment', 'admins'],
       control: 'datetime'
     }
+  },
+
+  {
+    fieldName: 'childrenPostedAt',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      control: 'datetime'
+    }
   }
 
 

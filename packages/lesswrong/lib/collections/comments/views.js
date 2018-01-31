@@ -53,7 +53,14 @@ Comments.addView("topRecentComments", function (terms) {
 
 Comments.addView("postCommentsUnread", function (terms) {
   return {
-    selector: { postId: terms.postId, deleted: {$ne:true}, postedAt: { $gt: new Date(terms.lastVisitedAt) }},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    selector: {
+      postId: terms.postId,
+      deleted: {$ne:true},
+      $or: [
+        {postedAt: { $gt: new Date(terms.lastVisitedAt) }},
+        {childrenPostedAt: { $gt: new Date(terms.lastVisitedAt) }}
+      ]
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
