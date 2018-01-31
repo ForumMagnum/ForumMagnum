@@ -13,13 +13,21 @@ const mockProps = {
 }
 
 describe('CommentsItem', () => {
-  it('should render reply-button when logged in', () => {
+  it('renders reply-button when logged in', () => {
     const commentsItem = shallow(<CommentsItem currentUser={{}} {...mockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
   });
-  it('should NOT render reply-button when NOT logged in', () => {
+  it('does NOT render reply-button when NOT logged in', () => {
     const commentsItem = shallow(<CommentsItem {...mockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
+  });
+  it('renders Subscribe menu item by default', () => {
+    const commentsItem = shallow(<CommentsItem currentUser={{}} {...mockProps} />)
+    expect(commentsItem.find(".comment-menu-item-subscribe")).to.have.length(1);
+  });
+  it('renders Report menu item by default', () => {
+    const commentsItem = shallow(<CommentsItem currentUser={{}} {...mockProps} />)
+    expect(commentsItem.find(".comment-menu-item-report")).to.have.length(1);
   });
   // it('clicking "reply" calls showReply method', () => {
   //   const commentsItem = shallow(<CommentsItem currentUser={{}}  {...mockProps} />)

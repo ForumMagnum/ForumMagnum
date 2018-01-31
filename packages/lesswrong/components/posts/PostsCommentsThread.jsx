@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, replaceComponent} from 'meteor/vulcan:core';
+import { Posts } from "meteor/example-forum";
+import { withList, Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
 import LWEvents from '../../lib/collections/lwevents/collection.js';
 
 const PostsCommentsThread = ({loading,
@@ -10,8 +11,9 @@ const PostsCommentsThread = ({loading,
                               loadMoreComments,
                               totalComments,
                               commentCount,
-                              loadingMoreComments, post}) => {
-
+                              loadingMoreComments,
+                              editMutation,
+                              post}) => {
     if (loading || !results) {
       return (
         <div className="posts-comments-thread">
@@ -22,6 +24,7 @@ const PostsCommentsThread = ({loading,
             totalComments={totalComments}
             commentCount={commentCount}
             loadingMoreComments={loadingMoreComments}
+            postEditMutation={editMutation}
             post={post}
           />
         </div>
@@ -39,6 +42,7 @@ const PostsCommentsThread = ({loading,
             totalComments={totalComments}
             commentCount={commentCount}
             loadingMoreComments={loadingMoreComments}
+            postEditMutation={editMutation}
           />
         </div>
       )
@@ -59,4 +63,9 @@ const options = {
   totalResolver: false,
 };
 
-replaceComponent('PostsCommentsThread', PostsCommentsThread, [withList, options]);
+const withEditOptions = {
+  collection: Posts,
+  fragmentName: 'LWPostsPage',
+};
+
+replaceComponent('PostsCommentsThread', PostsCommentsThread, [withList, options], [withEdit, withEditOptions]);

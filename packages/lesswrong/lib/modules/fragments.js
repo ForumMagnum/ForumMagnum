@@ -151,6 +151,10 @@ registerFragment(`
     canonicalCollectionSlug
     canonicalSequenceId
     canonicalBookId
+    bannedUserIds
+    user {
+      moderationStyle
+    }
     canonicalSequence {
       title
     }

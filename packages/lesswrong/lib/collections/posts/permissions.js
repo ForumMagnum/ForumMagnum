@@ -15,6 +15,13 @@ Posts.checkAccess = (currentUser, post) => {
 const sunshineRegimentActions = [
   'posts.edit.all',
   'posts.curate.all',
-  'posts.frontpage.all'
+  'posts.frontpage.all',
+  'posts.moderate.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
+
+
+const trustLevel1Actions = [
+  'posts.moderate.own',
+];
+Users.groups.trustLevel1.can(trustLevel1Actions);

@@ -7,11 +7,36 @@ Comments collection
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-
+import { Posts } from 'meteor/example-forum';
 /**
  * @summary The global namespace for Comments.
  * @namespace Comments
  */
+
+// LESSWRONG - New options
+ const options = {
+   newCheck: (user, document) => {
+     if (!user || !document) return false;
+     const post = Posts.findOne(document.postId)
+     const bannedUserIds = post && post.bannedUserIds || []
+
+     if (bannedUserIds && bannedUserIds.includes(user._id)) {
+       return Users.canDo(user, `posts.moderate.all`)
+     }
+     return Users.canDo(user, 'comments.new')
+   },
+
+   editCheck: (user, document) => {
+     if (!user || !document) return false;
+     return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
+   },
+
+   removeCheck: (user, document) => {
+     if (!user || !document) return false;
+     return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
+   },
+ }
+
  export const Comments = createCollection({
 
    collectionName: 'Comments',
@@ -22,7 +47,7 @@ import Users from 'meteor/vulcan:users';
 
    resolvers: getDefaultResolvers('Comments'),
 
-   mutations: getDefaultMutations('Comments'),
+   mutations: getDefaultMutations('Comments', options),
 
 });
 
@@ -31,7 +56,7 @@ Comments.checkAccess = (currentUser, comment) => {
     return true;
   } else if (comment.isDeleted) {
     return false;
-  } else { 
+  } else {
     return true;
   }
 }
