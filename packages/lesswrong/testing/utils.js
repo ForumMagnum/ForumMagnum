@@ -3,7 +3,7 @@ import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum'
 import Conversations from '../lib/collections/conversations/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
-import {Editor, ContentState} from 'draft-js';
+import {Editor, ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
 
 export const createDefaultUser = async() => {
@@ -80,7 +80,7 @@ export const createDummyConversation = async (user, data) => {
 
 export const createDummyMessage = async (user, data) => {
   let defaultData = {
-    content: ContentState.createFromText('Dummy Message Content'),
+    content: convertToRaw(ContentState.createFromText('Dummy Message Content')),
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};

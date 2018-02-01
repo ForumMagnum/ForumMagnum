@@ -166,7 +166,6 @@ class AsyncEditorFormComponent extends Component {
   componentWillMount() {
     const document = this.props.document;
     const fieldName = this.props.name;
-    console.log("AsyncEditorFormComponent", fieldName);
     const resetEditor = (result) => {
       // On Form submit, create a new empty editable
       this.setState({
@@ -208,7 +207,6 @@ class AsyncEditorFormComponent extends Component {
       if (this.changeCount % 30 === 0) {
         console.log("saving...");
         const rawContent = convertToRaw(editorState.getCurrentContent());
-        console.log(rawContent);
         this.setSavedState(rawContent);
       }
     }
