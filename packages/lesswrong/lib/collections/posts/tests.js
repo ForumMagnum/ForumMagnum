@@ -25,7 +25,7 @@ describe('PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user})
     const expectedOutput = { data: { PostsEdit: { title: `${newTitle}` } } }
-    response.should.eventually.deep.equal(expectedOutput);
+    return response.should.eventually.deep.equal(expectedOutput);
   });
   it("fails when non-owner edits title", async () => {
     const user = await createDummyUser()
@@ -43,7 +43,7 @@ describe('PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:{_id:user2._id}})
     const expectedError = '{"id":"app.operation_not_allowed","value":"check"}'
-    response.should.be.rejectedWith(expectedError);
+    return response.should.be.rejectedWith(expectedError);
   });
 });
 

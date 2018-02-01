@@ -83,6 +83,8 @@ const notificationMessage = (notificationType, documentType, documentId) => {
       return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
     case "newReply":
       return Comments.getAuthorName(document) + ' replied to a comment on "' + Posts.findOne(document.postId).title + '"';
+    case "newReplyToYou":
+        return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId).title + '"';
     case "newUser":
       return document.displayName + ' just signed up!';
     case "newMessage":
@@ -115,8 +117,7 @@ function PostsNewSubscriptions (post) {
   // Subscribe the post's author to comment notifications for the post
   // (if they have the proper setting turned on)
   const postAuthor = Users.findOne(post.userId);
-  if (Users.getSetting(postAuthor, "auto_subscribe_to_my_posts", false)) {
-
+  if (Users.getSetting(postAuthor, "auto_subscribe_to_my_posts", true)) {
     performSubscriptionAction('subscribe', Posts, post._id, postAuthor);
   }
 }
@@ -129,8 +130,7 @@ function CommentsNewSubscriptions (comment) {
   // Subscribe the comment's author to reply notifications for the comment
   // (if they have the proper setting turned on)
   const commentAuthor = Users.findOne(comment.userId);
-  if (Users.getSetting(commentAuthor, "auto_subscribe_to_my_comments", false)) {
-
+  if (Users.getSetting(commentAuthor, "auto_subscribe_to_my_comments", true)) {
     performSubscriptionAction('subscribe', Comments, comment._id, commentAuthor);
   }
 }
@@ -207,10 +207,14 @@ function CommentsNewNotifications(comment) {
 
       if (!!parentComment.subscribers && !!parentComment.subscribers.length) {
         // remove userIds of users that have already been notified
-        // and of comment author (they could be replying in a thread they're subscribed to)
-        let parentCommentSubscribersToNotify = _.difference(parentComment.subscribers, notifiedUsers, [comment.userId]);
+        // and of comment and parentComment author (they could be replying in a thread they're subscribed to)
+        let parentCommentSubscribersToNotify = _.difference(parentComment.subscribers, notifiedUsers, [comment.userId, parentComment.userId]);
         createNotifications(parentCommentSubscribersToNotify, 'newReply', 'comment', comment._id);
         notifiedUsers = notifiedUsers.concat(parentCommentSubscribersToNotify);
+        // Separately notify author of comment with different notification, if they are subscribed
+        if (parentComment.subscribers.includes(parentComment.userId)) {
+          createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
+        }
       }
     }
 
@@ -226,13 +230,11 @@ function CommentsNewNotifications(comment) {
 addCallback("comments.new.async", CommentsNewNotifications);
 
 function messageNewNotification(message) {
-  if(Meteor.isServer) {
-    const conversation = Conversations.findOne(message.conversationId);
-    //Make sure to not notify the author of the message
-    const notifees = conversation.participantIds.filter((id) => (id != message.userId));
+  const conversation = Conversations.findOne(message.conversationId);
+  //Make sure to not notify the author of the message
+  const notifees = conversation.participantIds.filter((id) => (id != message.userId));
 
-    createNotifications(notifees, 'newMessage', 'message', message._id);
-  }
+  createNotifications(notifees, 'newMessage', 'message', message._id);
 }
 addCallback("messages.new.async", messageNewNotification);
 

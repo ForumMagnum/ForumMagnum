@@ -66,8 +66,7 @@ describe('Voting', async () => {
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
 
-      // updatedFrontpagePost[0].score.should.be.above(updatedNormalPost[0].score);
-      console.log("Score test: ", updatedCuratedPost, updatedFrontpagePost);
+      updatedFrontpagePost[0].score.should.be.above(updatedNormalPost[0].score + 1);
       updatedCuratedPost[0].score.should.be.above(updatedFrontpagePost[0].score + 1);
     });
     it('produces the same result as `recalculateScore`', async () => {
