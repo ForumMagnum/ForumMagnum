@@ -58,7 +58,6 @@ class UsersMenu extends PureComponent {
             <MenuItem primaryText="Profile" containerElement={<Link to={`/users/${currentUser.slug}`}/>} />
             <MenuItem primaryText="Edit Account" containerElement={<Link to={`/account`}/>} />
             <MenuItem primaryText="Log Out" onTouchTap={() => Meteor.logout(() => client.resetStore())} />
-            {Meteor.isDevelopment && <MenuItem primaryText="Debugging Dashboard" containerElement={<Link to="/debugging" />} />}
           </Menu>
         </Popover>
       </div>
