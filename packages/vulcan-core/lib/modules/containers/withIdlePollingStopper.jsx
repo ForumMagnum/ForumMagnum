@@ -8,16 +8,18 @@ const withIdlePollingStoper = (stopPollingIdleStatus) => (WrappedComponent) => {
       this.state = {
         polling: true,
       }
-      this.props.startPolling(20000);
-      console.log("Initalizing IdleStopper, starting polling...");
+      if (this.props.pollInterval > 0) {
+        this.props.startPolling(this.props.pollInterval);
+        console.log("Initalizing IdleStopper, starting polling...");
+      }
     }
 
     componentWillReceiveProps() {
-      if (stopPollingIdleStatus === this.props.idleStatus && this.state.polling) {
+      if (stopPollingIdleStatus === this.props.idleStatus && this.state.polling && this.props.pollInterval > 0) {
         this.props.stopPolling();
         this.setState({polling: false});
         console.log("Stopping polling");
-      } else if (this.props.idleStatus === "ACTIVE" && !this.state.polling) {
+      } else if (this.props.idleStatus === "ACTIVE" && !this.state.polling && this.props.pollInterval > 0) {
         this.props.startPolling(20000);
         this.setState({polling: true});
         console.log("Starting polling again");

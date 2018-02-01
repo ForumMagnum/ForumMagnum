@@ -53,7 +53,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment notificationsNavFragment on Notification {
+  fragment NotificationsList on Notification {
     _id
     userId
     createdAt
