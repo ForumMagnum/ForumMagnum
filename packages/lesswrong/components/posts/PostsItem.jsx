@@ -119,7 +119,7 @@ class PostsItem extends PureComponent {
         </span>
         <span className="posts-item-view-full-post">
           <Link to={Posts.getPageUrl(this.props.post)}>
-            Continue to Full Post
+            Continue to Full Post {this.props.post.wordCount && <span>({this.props.post.wordCount} words)</span>}
           </Link>
         </span>
       </div>
@@ -196,6 +196,7 @@ class PostsItem extends PureComponent {
                   <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
+
                 </div>
               </object>
               <div className="post-category-display-container">
@@ -213,13 +214,18 @@ class PostsItem extends PureComponent {
           </div>
           { this.state.showHighlight &&
             <div className="posts-item-highlight">
+              <div className="posts-item-highlight-title">
+                <Link to={Posts.getPageUrl(post)}>
+                  Post Highlight <a className="posts-item-highlight-title-link">(Read Full Post{post.wordCount && ", " + post.wordCount + " words"})</a>
+                </Link>
+              </div>
               <div className="posts-item-highlight-content" >
                 { post.url && <p className="posts-page-content-body-link-post">
                   This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
                 </p>}
                 <Components.PostsBody documentId={post._id}/>
               </div>
-              { this.renderHighlightMenu() }
+              {/* { this.renderHighlightMenu() } */}
             </div>
           }
 
