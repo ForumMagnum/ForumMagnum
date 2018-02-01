@@ -157,14 +157,3 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
 }
 
 addCallback("votes.upvote.async", increaseMaxBaseScore);
-
-function PostsGetWordCount (post) {
-  if (post.content) {
-    const newPostFields = Posts.convertFromContent(post.content);
-    post = {...post, ...newPostFields}
-  } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.content);
-    post = {...post, ...newPostFields}
-  }
-  return post
-}

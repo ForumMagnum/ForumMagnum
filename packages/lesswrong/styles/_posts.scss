@@ -250,9 +250,6 @@
     text-decoration: none;
     background-color:rgba(0,0,0,.03) !important;
   }
-  &.show-highlight:hover {
-    background-color:white !important;
-  }
   .posts-item-content {
     display: flex;
     position: relative;
@@ -265,6 +262,12 @@
     }
     @include max-tiny() {
       padding:11px 10px 4px 2px;
+    }
+  }
+  &.show-highlight:hover {
+    background-color:white !important;
+    .posts-item-content {
+      background: white !important;
     }
   }
   a:hover, a:active, a:focus {
@@ -334,39 +337,61 @@
     max-width: 700px;
     font-size: 1.2rem;
     line-height: 1.6rem;
-    color: rgba(0,0,0,0.7);
-    padding:0 10px;
-    background-color:white;
+    color: rgba(0,0,0,0.87);
+    padding:20px 20px 0 20px;
+    background-color:rgba(0,0,0,.02);
+    border-top: solid 1px rgba(0,0,0,.1);
 
     .posts-page-content-body-link-post  {
       font-size:1.05rem;
     }
   }
+  .posts-item-highlight-title {
+    border-bottom:solid 1px rgba(0,0,0,.1);
+    padding:0px 0 8px;
+    font-size:14px;
+
+    a {
+      color:inherit;
+
+      &:hover {
+        color:inherit;
+      }
+    }
+
+    .posts-item-highlight-title-link {
+      color:rgba(0,0,0,.5);
+
+      &:hover {
+        color:rgba(0,0,0,.35);
+      }
+    }
+  }
   .posts-item-highlight-content {
-    max-height:495px;
+    max-height:485px;
     overflow: hidden;
-    padding:0 100px 0 2px;
+    padding-right:50px;
   }
   .posts-item-highlight-footer {
-    // margin-top:15px;
-    // border-top:solid 1px rgba(0,0,0,.05);
-    // padding:10px 0 0px;
+    padding:35px 0 0px;
     text-align: center;
     clear:both;
     overflow: auto;
   }
   .posts-item-view-full-post, .posts-item-hide-highlight {
-    color:rgba(0,0,0,.5);
+    color:rgba(0,0,0,.6);
     font-size: 12px;
     cursor:pointer;
     position:absolute;
-    padding:20px 0 0;
+    padding:10px 0;
     bottom:0;
-    height:50px;
+    height:35px;
+    background: white;
+    border-top:solid 1px rgba(0,0,0,.05);
 
     &:hover {
-      color:rgba(0,0,0,.35);
-      background-color: rgba(0,0,0,.1);
+      // color:rgba(0,0,0,.35);
+      background-color: rgb(240,240,240);
     }
   }
   .posts-item-view-full-post {
@@ -422,8 +447,7 @@
     }
     &.highlight-selected {
       border-left: solid 1px rgba(0,0,0,.05);
-      border-bottom: solid 1px rgba(0,0,0,.05);
-      background-color: rgba(0,0,0,.015);
+      background-color: rgba(0,0,0,.02);
     }
     &:hover {
       background-color: rgba(0, 0, 0, 0.05) !important;
