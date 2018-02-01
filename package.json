@@ -11,8 +11,8 @@
     "test": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app"
   },
   "dependencies": {
-    "algoliasearch": "^3.24.3",
     "@babel/runtime": "^7.0.0-beta.38",
+    "algoliasearch": "^3.24.3",
     "analytics-node": "^2.1.1",
     "anchorate": "^1.1.0",
     "apollo-client": "^1.2.2",
@@ -102,6 +102,7 @@
     "react-instantsearch": "^4.0.10",
     "react-intercom": "^1.0.13",
     "react-loadable": "^4.0.3",
+    "react-markdown": "^3.1.4",
     "react-no-ssr": "^1.1.0",
     "react-places-autocomplete": "^5.0.0",
     "react-redux": "^5.0.6",
@@ -114,7 +115,6 @@
     "react-tap-event-plugin": "^3.0.1",
     "react-test-renderer": "^16",
     "react-typekit": "^1.1.0",
-    "react-markdown": "^3.1.4",
     "recompose": "^0.26.0",
     "redux": "^3.6.0",
     "redux-idle-monitor": "^0.7.0",
