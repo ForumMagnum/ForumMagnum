@@ -119,7 +119,7 @@ class PostsItem extends PureComponent {
         </span>
         <span className="posts-item-view-full-post">
           <Link to={Posts.getPageUrl(this.props.post)}>
-            Continue to Full Post
+            Continue to Full Post {this.props.post.wordCount && <span>({this.props.post.wordCount} words)</span>}
           </Link>
         </span>
       </div>

@@ -136,6 +136,7 @@ registerFragment(`
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate
+    wordCount
   }
 `);
 

@@ -492,6 +492,14 @@ Posts.addField([
       type: String,
       optional: true
     }
-  }
-
+  },
+  {
+    fieldName: 'wordCount',
+    fieldSchema: {
+      type: Number,
+      viewableBy: ['guests'],
+      optional: true,
+      hidden:true
+    }
+  },
 ]);
