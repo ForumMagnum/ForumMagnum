@@ -102,5 +102,10 @@ async function CommentsEditHTMLSerializeCallbackAsync (comment) {
   }
 }
 
-addCallback("comments.edit.async", CommentsEditHTMLSerializeCallbackAsync);
-addCallback("comments.new.async", CommentsEditHTMLSerializeCallbackAsync);
+async function CommentsSetParentChildrenPostedAt (comment) {
+  if (comment.parentCommentId) {
+    Comments.update({_id: comment.parentCommentId}, {$set: {childrenPostedAt:comment.postedAt}})
+  }
+}
+
+addCallback("comments.new.async", CommentsSetParentChildrenPostedAt);

@@ -66,7 +66,7 @@
   & > div > div:first-of-type {
     border-top: none;
   }
-  margin-top: -10px;
+  margin-left: 3px;
   padding: 0 10px;
   a {
     background-image: none;
@@ -74,105 +74,6 @@
   }
   @include max-tiny() {
     padding:0;
-  }
-}
-
-@include collection-card-break {
-  .posts-list-content {
-    margin-top:0;
-  }
-  .posts-item {
-    position: relative;
-  }
-  .posts-item-content {
-    display: inherit !important;
-    position: inherit !important;
-    .posts-item-title {
-      display: inline;
-    }
-    .posts-item-meta {
-      display: block;
-      .posts-item-vote {
-        position: absolute;
-        bottom: 8px;
-        right: 0px;
-        .upvote-button, .downvote-button {
-          .material-icons {
-            font-size: 22px !important;
-          }
-        }
-      }
-    }
-    .posts-item-summary {
-      white-space: inherit !important;
-    }
-    .posts-item-comments {
-      height: 20px;
-      margin-top: 5px;
-      .posts-item-comment-count {
-        position: relative;
-        display: inline-block;
-        padding: 0px;
-        top: inherit !important;
-        left: inherit !important;
-        transform: none !important;
-        & > object {
-          padding: 0px !important;
-          width: auto !important;
-          height: auto !important;
-        }
-        svg {
-          height: 20px !important;
-          width: 20px !important;
-        }
-        span {
-          color: rgba(0,0,0,0.6) !important;
-          display: inline !important;
-          position: relative !important;
-          top: -4px !important;
-          right: inherit !important;
-          margin-left: 5px;
-          font-size: 14px !important;
-          width: auto !important;
-          height: auto !important;
-          vertical-align: top !important;
-          &:after {
-            content: "comments";
-            display: inline;
-            margin-left: 4px;
-            vertical-align: top;
-          }
-        }
-        @include max-small {
-          button {
-            position:absolute !important;
-            left:0 !important;
-            bottom:0 !important;
-            margin: 0 !important;
-            height:28px !important;
-            width:28px !important;
-            padding:0 !important;
-
-            svg {
-              width:28px !important;
-              height:28px !important;
-            }
-          }
-        }
-      }
-      @include max-small {
-        margin-top:10px;
-        clear:both;
-        width:50% !important;
-        margin-right:50% !important;
-        position:relative;
-        span {
-          position: absolute;
-          bottom:0 !important;
-          left:35px !important;
-        }
-      }
-    }
   }
 }
 
@@ -343,37 +244,65 @@
 //////////////////////////////////////////////////////
 
 .posts-item {
-  padding: 10px;
-  @include max-tiny() {
-    padding-left:5px;
-  }
-  border-top: rgba(0,0,0,0.1) solid 0.5px;
+  position:relative;
+  border-top: rgba(0,0,0,0.2) solid 1px;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.025) !important;
     text-decoration: none;
+    background-color:rgba(0,0,0,.03) !important;
+  }
+  &.show-highlight:hover {
+    background-color:white !important;
   }
   .posts-item-content {
     display: flex;
     position: relative;
+    height:100%;
+    padding:11px 10px 4px 10px;
+    width:calc(100% - 50px);
+    cursor:pointer;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03) !important;
+    }
+    @include max-tiny() {
+      padding:11px 10px 4px 2px;
+    }
   }
   a:hover, a:active, a:focus {
     text-decoration: none;
     color: rgba(0,0,0,0.3);
   }
   .posts-item-title{
-    display: inline;
+    display: block;
     font-size: 1.4rem;
+    margin-bottom:5px;
     font-weight: 500;
-    margin-right: 8px;
+    width:570px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-decoration: none;
+    white-space: nowrap;
     a:hover{
       color: inherit;
+    }
+    @include max-medium() {
+      width:500px;
+    }
+    @include max-small() {
+      width:300px;
+    }
+    @include max-tiny() {
+      width:250px;
+      overflow: hidden;
+      white-space: pre-wrap;
     }
   }
   .post-feed-nickname{
     font-size: 0.9rem;
     color: rgba(0,0,0,0.5);
     margin-right: 5px;
+    @include max-tiny() {
+      display:none;
+    }
   }
 
   .posts-item-meta {
@@ -382,6 +311,7 @@
     font-weight: 400;
     margin-top: -1px;
     margin-bottom: 2px;
+    margin-left:1px;
     & > div {
       display: inline;
       margin-right: 5px;
@@ -389,27 +319,127 @@
     .posts-item-user a {
       color: rgba(0,0,0,0.5);
     }
-  }
-  .posts-item-summary {
-    text-overflow: ellipsis;
-    max-width: 600px;
     white-space: nowrap;
+    text-overflow: ellipsis;
     overflow: hidden;
-    font-size: 1rem;
-    line-height: 1.4rem;
-    color: rgba(0,0,0,0.7);
-  }
-  // margin-bottom: 15px;
-  .posts-item-comments {
-    margin-left: auto;
-    width: 35px;
-    position: relative;
-    .posts-item-comment-count {
-      @include vertical-center;
-      padding: initial !important;
+    width:540px;
+    @include max-tiny() {
+      width:320px;
     }
   }
+  .posts-item-title-link:hover {
+    color:rgba(0,0,0,.4) !important;
+  }
+  .posts-item-highlight {
+    max-width: 700px;
+    font-size: 1.2rem;
+    line-height: 1.6rem;
+    color: rgba(0,0,0,0.7);
+    padding:0 10px;
+    background-color:white;
 
+    .posts-page-content-body-link-post  {
+      font-size:1.05rem;
+    }
+  }
+  .posts-item-highlight-content {
+    max-height:495px;
+    overflow: hidden;
+  }
+  .posts-item-highlight-footer {
+    margin-top:15px;
+    border-top:solid 1px rgba(0,0,0,.05);
+    padding:10px 0 25px;
+    text-align: center;
+    clear:both;
+    overflow: auto;
+  }
+  .posts-item-view-full-post, .posts-item-hide-highlight {
+    color:rgba(0,0,0,.5);
+    padding:0 15px;
+    font-size: 12px;
+    height:12px;
+    cursor:pointer;
+    position:absolute;
+    padding:10px;
+    bottom:0;
+    height:35px;
+    &:hover {
+      color:rgba(0,0,0,.35);
+      background-color: rgba(0,0,0,.1);
+    }
+  }
+  .posts-item-view-full-post {
+    right:0;
+    text-align:center;
+    width:50%;
+  }
+  .posts-item-hide-highlight {
+    position:absolute;
+    left:0;
+    text-align:center;
+    width:50%;
+    border-right:solid 1px rgba(0,0,0,.05);
+  }
+  .posts-item-hide-comments, .posts-item-view-all-comments {
+    color:rgba(0,0,0,.5);
+    padding:0 15px;
+    font-size: 12px;
+    height:12px;
+    cursor:pointer;
+    position:absolute;
+    padding:10px;
+    bottom:0;
+    height:35px;
+    &:hover {
+      color:rgba(0,0,0,.35);
+      background-color: rgba(0,0,0,.1);
+    }
+  }
+  .posts-item-view-all-comments {
+    right:0;
+    text-align:center;
+    width:50%;
+  }
+  .posts-item-hide-comments {
+    position:absolute;
+    left:0;
+    text-align:center;
+    width:50%;
+    border-right:solid 1px rgba(0,0,0,.05);
+  }
+  .posts-item-comments {
+    margin-left: auto;
+    width: 50px;
+    height: 59px;
+    position: absolute;
+    top:0;
+    right:0;
+    cursor:pointer;
+
+    &.selected {
+      background-color: rgba(0,0,0,.05);
+    }
+    &.highlight-selected {
+      border-left: solid 1px rgba(0,0,0,.05);
+      border-bottom: solid 1px rgba(0,0,0,.05);
+      background-color: rgba(0,0,0,.015);
+    }
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+    .posts-item-comment-icon {
+      @include vertical-center;
+    }
+    .posts-item-comment-count {
+      @include vertical-center;
+      margin-top:-3px;
+      color:white;
+      font-family: $comments-font;
+      z-index: 2;
+      font-variant-numeric: lining-nums;
+    }
+  }
   .vote {
     .material-icons {
       vertical-align:middle;
@@ -517,10 +547,6 @@
   .users-name, .posts-item-date, .posts-item-comments, .posts-item-admin, .posts-actions, .posts-item-user {
     display: inline;
   }
-}
-
-.posts-stats{
-  display: inline;
 }
 
 .posts-commenters-avatars{
@@ -1034,7 +1060,10 @@ svg.drag-handle {
 }
 
 .posts-item-body {
-  max-width: 620px;
+  width: 600px;
+  @include max-tiny() {
+    width:100%;
+  }
 }
 
 .posts-page-content-header-author {
@@ -1079,39 +1108,6 @@ svg.drag-handle {
   }
 }
 
-
-//
-// .posts-list-editor-item-meta {
-//   position: absolute;
-//   left: -50px;
-//   bottom: 0px;
-//   top: 0px;
-//   height: 20px;
-//   text-align: center;
-//   width: 40px;
-//   margin: auto;
-//   cursor: pointer;
-// }
-//
-// .drag-handle {
-//   left: -40px;
-//   bottom: 0px;
-//   margin-top: -10px !important;
-//   top: 0px;
-//   margin: auto;
-//   cursor: pointer;
-// }
-//
-// a.posts-item-wrapper-remove {
-//   position: absolute;
-//   left: 4px;
-//   bottom: -6px;
-//   font-size: 10px;
-//   &:hover {
-//     color: rgba(0,0,0,0.4) !important;
-//   }
-// }
-
 .posts-page-content-body-link-post {
   font-size: 16px;
 }
@@ -1135,4 +1131,65 @@ svg.drag-handle {
 .posts-page-content-header-title-draft {
   text-transform: uppercase;
   color: rgba(100, 169, 105, 0.9)
+}
+.post-item-new-comments-actions {
+  font-family: $comments-font;
+  text-align:right;
+  font-size:12px;
+  padding:5px;
+  // position:absolute;
+  color:rgba(0,0,0,.45);
+  // right:20px;
+  // bottom:15px;
+  line-height:13px;
+
+  .posts-item-hide-new-comments {
+    border-left:solid 1px rgba(0,0,0,.25);
+    margin-left:7px;
+    padding-left:5px;
+  }
+  .posts-item-hide-new-comments, .posts-item-mark-as-read {
+    cursor:pointer;
+  }
+}
+.post-category-display-container {
+  position:absolute;
+  top:17px;
+  right:8px;
+  border-radius:50%;
+  &:hover {
+    background-color: rgba(0,0,0,.2);
+  }
+}
+.post-category-tooltip {
+  line-height:14px;
+  padding:5px 0;
+}
+
+.posts-item-hide-highlight .material-icons, .posts-item-hide-comments .material-icons {
+  font-size:12px !important;
+  height:12px;
+  transform: rotate(90deg);
+  margin-right:5px;
+  top:1px;
+  color:rgba(0,0,0,.4) !important;
+}
+.posts-item .recent-comments-list {
+  margin:0;
+}
+
+.posts-item-recent-comments-title, .posts-item-top-comments-title {
+  padding:10px 0;
+  font-family:$comments-font;
+  font-size:14px;
+  font-weight:600;
+}
+.posts-item-excerpt {
+  color:rgba(0,0,0,.35);
+}
+
+.posts-stats {
+  @include max-tiny() {
+    width:0 !important;
+  }
 }

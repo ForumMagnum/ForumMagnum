@@ -4,9 +4,10 @@ import Tooltip from 'material-ui/internal/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
 
 const categoryTooltips = {
-  "star": "best content",
-  "details": "discussion about LessWrong",
-  "person": "personal blog post",
+  "star": <div className="post-category-tooltip"><div>Curated Content</div><div>&lt;View Full Post&gt;</div></div>,
+  "details": <div className="post-category-tooltip"><div>Meta Post</div><div>&lt;View Full Post&gt;</div></div>,
+  "perm_identity": <div className="post-category-tooltip"><div>Personal Blogpost</div><div>&lt;View Full Post&gt;</div></div>,
+  "supervisor_account": <div className="post-category-tooltip"><div>Frontpage Content</div><div>&lt;View Full Post&gt;</div></div>,
 }
 
 
@@ -20,15 +21,23 @@ class CategoryDisplay extends PureComponent {
 
   render() {
     const { post } = this.props;
-    const categoryIcon = (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "person");
+
+    const categoryIcon = (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
+    const iconColor = post.lastVisitedAt ? "rgba(0,0,0,.2)" : "rgba(100, 169, 105, 0.7)";
+
     if (categoryIcon) {
       return (
-      <div className="posts-item-category-display">
+      <span className="posts-item-category-display">
         <span style={{position: "relative"}} onMouseEnter={() => this.setState({hover: true})} onMouseLeave={() => this.setState({hover: false})}>
-          <FontIcon style={{fontSize: "10px", color: "rgba(0,0,0,0.5)", verticalAlign: "middle", bottom: "1px"}} className="material-icons">{categoryIcon}</FontIcon>
-          <Tooltip show={this.state.hover} label={categoryTooltips[categoryIcon]} horizontalPosition="center" verticalPosition="bottom"/>
+          <FontIcon style={{fontSize: "20px", color: iconColor, verticalAlign: "middle"}} className="material-icons">{categoryIcon}</FontIcon>
+          <Tooltip
+            show={this.state.hover}
+            label={categoryTooltips[categoryIcon]}
+            horizontalPosition="left"
+            verticalPosition="bottom"
+          />
         </span>
-      </div>
+      </span>
       )
     } else {
       return null

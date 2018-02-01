@@ -25,8 +25,9 @@ class CommentsNode extends PureComponent {
   }
 
   render() {
-    const {comment, currentUser, newComment, editMutation, postEditMutation, post, muiTheme } = this.props;
+    const {comment, currentUser, highlightDate, editMutation, postEditMutation, post, muiTheme } = this.props;
 
+    const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const borderColor = this.state.hover ? muiTheme && muiTheme.palette.accent2Color : muiTheme && muiTheme.palette.accent1Color
 
     const nodeClass = classNames("comments-node", {
@@ -60,7 +61,7 @@ class CommentsNode extends PureComponent {
                   comment={comment}
                   key={comment._id}
                   muiTheme={muiTheme}
-                  newComment={newComment}
+                  highlightDate={highlightDate}
                   editMutation={editMutation}
                   postEditMutation={postEditMutation}
                   post={post}

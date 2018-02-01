@@ -4,6 +4,9 @@ import { Comments } from 'meteor/example-forum';
 
 const RecentComments = ({results, currentUser, loading, fontSize, loadMore, networkStatus, editMutation}) => {
   const loadingMore = networkStatus === 2;
+  if (!loading && results && !results.length) {
+    return (<div>No comments found</div>)
+  }
   return (
     <div>
       <div className="comments-list recent-comments-list">
@@ -17,7 +20,7 @@ const RecentComments = ({results, currentUser, loading, fontSize, loadMore, netw
                 editMutation={editMutation}/>
             </div>
           )}
-          <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />
+          {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
         </div>}
       </div>
     </div>)
