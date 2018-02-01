@@ -7,6 +7,7 @@ import { Comments } from "meteor/example-forum";
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
+import FontIcon from 'material-ui/FontIcon';
 
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { IconMenu, IconButton, MenuItem, FlatButton, Dialog } from 'material-ui';
@@ -128,7 +129,12 @@ class CommentsItem extends PureComponent {
             <div className="comments-item-vote">
               <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
-            <div className="comments-item-date"><Link to={commentLink}>{moment(new Date(comment.postedAt)).fromNow()} </Link></div>
+            <div className="comments-item-date">
+              <Link to={commentLink}>
+                {moment(new Date(comment.postedAt)).fromNow()}
+                <FontIcon className="material-icons comments-item-permalink"> link
+                </FontIcon>
+              </Link></div>
             {this.renderMenu()}
           </div>
           { commentBody }
