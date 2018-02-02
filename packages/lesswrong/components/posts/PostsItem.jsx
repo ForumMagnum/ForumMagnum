@@ -177,26 +177,45 @@ class PostsItem extends PureComponent {
           style={paperStyle}
           zDepth={0}
         >
-          <div onTouchTap={this.toggleHighlight} className={classNames("posts-item-content", {"selected":this.state.showHighlight})}>
+          <div
+            onTouchTap={this.toggleHighlight}
+            className={classNames("posts-item-content", {"selected":this.state.showHighlight})}
+          >
 
             <div className="posts-item-body">
               <h3 className="posts-item-title">
-                <span>
+                <Link to={Posts.getPageUrl(post)} className="posts-item-readtime">
                   {post.url && "[Link]"}{post.unlisted && "[Unlisted]"} {post.title}
-                </span>
+                </Link>
               </h3>
 
 
               <object>
                 <div className="posts-item-meta">
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
-                  {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
-                  {this.renderPostFeeds()}
                   {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
+                  {this.renderPostFeeds()}
+                  {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
                   <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
+                  <div className="posts-item-show-highlight-button">
+                    { this.state.showHighlight ?
+                      <span>
+                        Hide Highlight
+                        <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                          subdirectory_arrow_left
+                        </FontIcon>
+                      </span>
+                    :
+                    <span>
+                      Show Highlight
+                      <FontIcon className={classNames("material-icons","show-highlight-button")}>
+                        subdirectory_arrow_left
+                      </FontIcon>
+                    </span>  }
 
+                  </div>
                 </div>
               </object>
               <div className="post-category-display-container">
@@ -218,14 +237,14 @@ class PostsItem extends PureComponent {
                 <Link to={Posts.getPageUrl(post)}>
                   Post Highlight <a className="posts-item-highlight-title-link">(Read Full Post{post.wordCount && ", " + post.wordCount + " words"})</a>
                 </Link>
-              </div>
-              <div className="posts-item-highlight-content" >
                 { post.url && <p className="posts-page-content-body-link-post">
                   This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
                 </p>}
+              </div>
+              <div className="posts-item-highlight-content" >
                 <Components.PostsBody documentId={post._id}/>
               </div>
-              {/* { this.renderHighlightMenu() } */}
+              { this.renderHighlightMenu() }
             </div>
           }
 
