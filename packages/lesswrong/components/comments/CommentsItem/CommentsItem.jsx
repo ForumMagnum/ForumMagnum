@@ -12,11 +12,6 @@ import FontIcon from 'material-ui/FontIcon';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { IconMenu, IconButton, MenuItem, FlatButton, Dialog } from 'material-ui';
 
-const paperStyle = {
-  padding: '10px',
-  backgroundColor: 'transparent',
-}
-
 const moreActionsMenuStyle = {
   position: 'inherit',
 }
@@ -105,14 +100,18 @@ class CommentsItem extends PureComponent {
     this.props.flash("Successfully deleted comment", "success");
   }
 
-  // TODO: Make comments collapsible id:18
-  // TODO: Create unique comment-links id:14
+  handleLinkClick = (event) => {
+    const { comment, router } = this.props;
+    event.preventDefault()
+    this.props.router.replace({...router.location, hash: "#" + comment._id})
+    this.props.scrollIntoView(event);
+    return false;
+  }
 
   render() {
     const currentUser = this.props.currentUser;
     const comment = this.props.comment;
     const params = this.props.router.params;
-    const commentLink = "/posts/"+params._id+"/"+params.slug+"/"+comment._id;
     const deletedClass = this.props.comment.deleted ? " deleted" : "";
     const commentBody = this.props.collapsed ? "" : (
       <div>
@@ -121,7 +120,7 @@ class CommentsItem extends PureComponent {
       </div>
     )
     return (
-      <div className={"comments-item" + deletedClass} id={comment._id}>
+      <div className={"comments-item" + deletedClass}>
         <div className="comments-item-body">
           <div className="comments-item-meta">
             <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
@@ -130,11 +129,11 @@ class CommentsItem extends PureComponent {
               <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
             <div className="comments-item-date">
-              <Link to={commentLink}>
+              <a href={"#" + comment._id} onClick={this.handleLinkClick}>
                 {moment(new Date(comment.postedAt)).fromNow()}
                 <FontIcon className="material-icons comments-item-permalink"> link
                 </FontIcon>
-              </Link></div>
+              </a></div>
             {this.renderMenu()}
           </div>
           { commentBody }

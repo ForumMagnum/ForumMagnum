@@ -156,6 +156,20 @@ New CSS File
     padding-bottom:.25em;
   }
 }
+@keyframes lw-green-fade {
+  from {
+    background: rgba(88, 143, 39, 0.3);
+  }
+  to {
+    background: rgba(88, 143, 39, 0);
+  }
+}
+
+.comments-node-linked {
+  border-left: solid 5px rgba(88, 143, 39, 0.3);
+  animation: lw-green-fade 5s ease-in-out 0s;
+}
+
 .recent-comments-item {
   .recent-comments-item-meta {
     .users-name {

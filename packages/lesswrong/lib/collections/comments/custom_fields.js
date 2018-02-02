@@ -114,8 +114,8 @@ Comments.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      insertableBy: Users.own,
-      editableBy: Users.own,
+      insertableBy: Users.owns,
+      editableBy: Users.owns,
       control: "checkbox",
     }
   },

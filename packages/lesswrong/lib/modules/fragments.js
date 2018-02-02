@@ -72,6 +72,7 @@ extendFragment('UsersCurrent', `
   hideIntercom
   currentFrontpageFilter
   lastNotificationsCheck
+  subscribedItems
 `);
 
 registerFragment(`

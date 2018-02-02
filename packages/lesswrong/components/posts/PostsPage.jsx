@@ -132,24 +132,9 @@ class PostsPage extends Component {
       const userId = this.props.currentUser && this.props.currentUser._id;
       const htmlBody = {__html: post.htmlBody};
       const commentTerms = _.isEmpty(this.props.location && this.props.location.query) ? {view: 'postCommentsTop', limit: 100}: this.props.location.query;
-
-      let commentHash = this.props.params.commentId;
-      if (commentHash){
-        commentHash = commentHash.length == 17 && commentHash;
-      }
-      // Check for "context" as last part of the hash and ignore it if it exists
-      // TODO: Make this less ugly
-      if (commentHash && commentHash.substring(commentHash.length - 7, commentHash.length) === "context") {
-        commentHash = commentHash.slice(0,-7);
-      }
       return (
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
-          {commentHash ? <div className="posts-comments-thread-linked-comment">
-            <Components.RecentCommentsItem documentId={commentHash} expanded={true}/>
-            <div className="comment-context-link"> <a href={"#"+commentHash}>See comment in full context</a> </div>
-
-          </div> : null}
           <div className="posts-page-content">
             <div className="posts-page-content-header">
               <div className="posts-page-content-header-title">
