@@ -20,10 +20,10 @@ class CategoryDisplay extends PureComponent {
   }
 
   render() {
-    const { post } = this.props;
+    const { post, read } = this.props;
 
     const categoryIcon = (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
-    const iconColor = post.lastVisitedAt ? "rgba(0,0,0,.2)" : "rgba(100, 169, 105, 0.7)";
+    const iconColor = read ? "rgba(0,0,0,.2)" : "rgba(100, 169, 105, 0.7)";
 
     if (categoryIcon) {
       return (

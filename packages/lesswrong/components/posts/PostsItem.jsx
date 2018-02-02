@@ -35,7 +35,8 @@ class PostsItem extends PureComponent {
       categoryHover: false,
       showNewComments: false,
       lastVisitedAt: props.post.lastVisitedAt,
-      lastCommentedAt: props.post.lastCommentedAt
+      lastCommentedAt: props.post.lastCommentedAt,
+      readStatus: false,
     }
   }
   renderActions() {
@@ -60,6 +61,7 @@ class PostsItem extends PureComponent {
   }
   toggleHighlight = () => {
     this.handleMarkAsRead()
+    this.setState({readStatus: true});
     this.setState({showHighlight: !this.state.showHighlight});
     this.setState({showNewComments: false});
   }
@@ -220,7 +222,7 @@ class PostsItem extends PureComponent {
               </object>
               <div className="post-category-display-container">
                 <Link to={Posts.getPageUrl(this.props.post)}>
-                  <Components.CategoryDisplay post={post} />
+                  <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
                 </Link>
               </div>
             </div>
@@ -233,14 +235,9 @@ class PostsItem extends PureComponent {
           </div>
           { this.state.showHighlight &&
             <div className="posts-item-highlight">
-              <div className="posts-item-highlight-title">
-                <Link to={Posts.getPageUrl(post)}>
-                  Post Highlight <a className="posts-item-highlight-title-link">(Read Full Post{post.wordCount && ", " + post.wordCount + " words"})</a>
-                </Link>
-                { post.url && <p className="posts-page-content-body-link-post">
-                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </p>}
-              </div>
+              { post.url && <p className="posts-page-content-body-link-post">
+                This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+              </p>}
               <div className="posts-item-highlight-content" >
                 <Components.PostsBody documentId={post._id}/>
               </div>
@@ -250,6 +247,17 @@ class PostsItem extends PureComponent {
 
           { this.state.showNewComments &&
             <div className="posts-item-new-comments-section">
+              <div className="post-item-new-comments-header">
+                <span className="posts-item-hide-comments" onTouchTap={this.toggleNewComments}>
+                  <FontIcon className={classNames("material-icons")}>
+                    subdirectory_arrow_left
+                  </FontIcon>
+                  Collapse
+                </span>
+                <Link className="posts-item-view-all-comments" to={Posts.getPageUrl(post) + "#comments"}>
+                  View All Comments
+                </Link>
+              </div>
               { newComments &&
                 <div>
                   <div className="posts-item-recent-comments-title">Recent Comments</div>
