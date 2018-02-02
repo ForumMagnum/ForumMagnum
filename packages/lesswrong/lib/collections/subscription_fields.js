@@ -9,6 +9,8 @@ Users.addField([
       optional: true,
       blackbox: true,
       hidden: true, // never show this
+      viewableBy: ['guests'],
+      editableBy: ['members'],
     }
   },
   {
@@ -17,6 +19,8 @@ Users.addField([
       type: Array,
       optional: true,
       hidden: true, // never show this,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
     }
   },
   {
@@ -33,6 +37,7 @@ Users.addField([
       type: Number,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests'],
     }
   }
 ]);
@@ -44,6 +49,7 @@ Posts.addField([
       type: Array,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests']
     }
   },
   {
@@ -60,6 +66,7 @@ Posts.addField([
       type: Number,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests']
     }
   }
 ]);
@@ -71,6 +78,7 @@ Comments.addField([
       type: Array,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests']
     }
   },
   {
@@ -87,6 +95,7 @@ Comments.addField([
       type: Number,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests']
     }
   }
 ]);
@@ -98,6 +107,7 @@ Categories.addField([
       type: Array,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests']
     }
   },
   {
@@ -114,6 +124,7 @@ Categories.addField([
       type: Number,
       optional: true,
       hidden: true, // never show this
+      viewableBy: ['guests']
     }
   }
 ]);

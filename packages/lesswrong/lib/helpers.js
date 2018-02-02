@@ -28,6 +28,8 @@ Messages.getLink = (message) => {
 **/
 Users.isSubscribedTo = (user, document) => {
 
+  console.log("Users.isSubscribedTo", user, document);
+
   if (!user || !document) {
     // should return an error
     return false;
