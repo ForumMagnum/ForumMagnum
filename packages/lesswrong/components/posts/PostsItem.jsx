@@ -220,9 +220,7 @@ class PostsItem extends PureComponent {
                 </div>
               </object>
               <div className="post-category-display-container">
-                <Link to={Posts.getPageUrl(this.props.post)}>
-                  <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
-                </Link>
+                <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
               </div>
             </div>
           </div>
