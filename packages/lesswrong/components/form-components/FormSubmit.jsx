@@ -16,7 +16,11 @@ const FormSubmit = ({
                       collectionName,
                       classes,
                       currentUser
-                    }, {addToAutofilledValues}) => (
+                    },
+                    {
+                      addToAutofilledValues,
+                      addToDeletedValues
+                    }) => (
   <div className="form-submit">
 
     {collectionName === "posts" && <span className="post-submit-buttons">
@@ -26,7 +30,10 @@ const FormSubmit = ({
         hoverColor={"#ccc"}
         style={{color: "#fff",marginLeft: "5px"}}
         label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
-        onTouchTap={() => addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false})}/>
+        onTouchTap={() => {
+          addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
+          if (document.frontpageDate) {addToDeletedValues('frontpageDage')}}
+        }/>
       <FlatButton
         type="submit"
         backgroundColor={"#bbb"}
@@ -40,7 +47,11 @@ const FormSubmit = ({
         hoverColor={"#ccc"}
         style={{color: "#fff",marginLeft: "5px"}}
         label={document.curatedDate ? "Remove from curated" : "Promote to curated"}
-        onTouchTap={() => addToAutofilledValues({curatedDate: document.curatedDate ? null : new Date()})}/>}
+        onTouchTap={() => {
+          addToAutofilledValues({curatedDate: document.curatedDate ? null : new Date()})
+          if (document.curatedDate) {addToDeletedValues('curatedDate')}}
+        }/>
+      }
     </span>}
 
     <FlatButton
