@@ -167,13 +167,12 @@ class PostsItem extends PureComponent {
 
     if (this.state.showNewComments || this.state.showHighlight) {
       paperStyle.outline = "solid 1px rgba(0,0,0,.15)"
-      paperStyle.borderTop = "none"
+      paperStyle.borderBottom = "none"
     } else {
       paperStyle.outline = "none"
-      paperStyle.borderTop = "solid 1px rgba(0,0,0,.15)"
+      paperStyle.borderBottom = "solid 1px rgba(0,0,0,.15)"
     }
     return (
-      <div>
         <Paper
           className={postClass}
           style={paperStyle}
@@ -185,11 +184,11 @@ class PostsItem extends PureComponent {
           >
 
             <div className="posts-item-body">
-              <h3 className="posts-item-title">
-                <Link to={Posts.getPageUrl(post)} className="posts-item-readtime">
+              <Link to={Posts.getPageUrl(post)} className="posts-item-title-link">
+                <h3 className="posts-item-title">
                   {post.url && "[Link]"}{post.unlisted && "[Unlisted]"} {post.title}
-                </Link>
-              </h3>
+                </h3>
+              </Link>
 
 
               <object>
@@ -290,8 +289,6 @@ class PostsItem extends PureComponent {
             </div>
           }
         </Paper>
-
-    </div>
     )
   }
 }

@@ -66,6 +66,7 @@
     border-top: none;
   }
   margin-left: 3px;
+  margin-top: -10px;
   padding: 0 10px;
   a {
     background-image: none;
@@ -223,6 +224,7 @@
 
 .posts-load-more, .comments-load-more {
   margin-left: 10px;
+  padding-top: 5px;
   @include max-small() {
     margin-top:20px;
   }
@@ -366,6 +368,7 @@
     line-height: 1.6rem;
     color: rgba(0,0,0,0.87);
     padding:8px 20px 20px 20px;
+    margin-bottom: 10px;
     // background-color:rgba(0,0,0,.03);
     border-top: solid 1px rgba(0,0,0,.1);
 
@@ -1220,6 +1223,7 @@ svg.drag-handle {
 }
 
 .posts-stats {
+  display: inline;
   @include max-tiny() {
     width:0 !important;
   }
