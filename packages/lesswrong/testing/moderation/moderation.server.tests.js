@@ -10,8 +10,6 @@ chai.use(chaiAsPromised);
 
 import Users from 'meteor/vulcan:users';
 
-console.log("QWERQWERQWER")
-
 describe('Posts Moderation', async () => {
   it('CommentsNew should succeed if user is not in bannedUserIds list', async () => {
     const user = await createDummyUser()
@@ -215,6 +213,37 @@ describe('Group - trustLevel1', async () => {
       const query = `
         mutation  {
           PostsEdit(documentId:"${post._id}",set:{bannedUserIds:["test"]}) {
+            bannedUserIds
+          }
+        }
+      `;
+      const response = runQuery(query, {}, {currentUser:{user}})
+      const expectedError = "app.operation_not_allowed"
+      return response.should.be.rejectedWith(expectedError);
+    })
+  })
+
+  describe('UsersEdit bannedUserIds permissions', async ()=> {
+    it("usersEdit bannedUserIds should fail if user in trustLevel1 and has NOT set moderationStyle", async () => {
+      const user = await createDummyUser({groups:["trustLevel1"]})
+      const post = await createDummyPost(user)
+      const query = `
+        mutation  {
+          usersEdit(documentId:"${post._id}",set:{bannedUserIds:["test"]}) {
+            bannedUserIds
+          }
+        }
+      `;
+      const response = runQuery(query, {}, {currentUser:{user}})
+      const expectedError = "app.operation_not_allowed"
+      return response.should.be.rejectedWith(expectedError);
+    })
+    it("usersEdit bannedUserIds should fail if user has set moderationStyle but is NOT in trustLevel1", async () => {
+      const user = await createDummyUser({groups:["trustLevel1"]})
+      const post = await createDummyPost(user)
+      const query = `
+        mutation  {
+          usersEdit(documentId:"${post._id}",set:{bannedUserIds:["test"]}) {
             bannedUserIds
           }
         }
