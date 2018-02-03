@@ -77,11 +77,11 @@ import './collections/posts/permissions.js';
 //
 // Users
 import './collections/users/custom_fields.js';
+import './collections/users/helpers.js';
 
 // Comments
 import './collections/comments/custom_fields.js';
 import './collections/comments/permissions.js';
-
 import './collections/comments/views.js';
 //
 //

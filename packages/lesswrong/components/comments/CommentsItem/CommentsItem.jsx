@@ -111,7 +111,6 @@ class CommentsItem extends PureComponent {
   render() {
     const currentUser = this.props.currentUser;
     const comment = this.props.comment;
-    const params = this.props.router.params;
     const deletedClass = this.props.comment.deleted ? " deleted" : "";
     const commentBody = this.props.collapsed ? "" : (
       <div>
@@ -156,17 +155,12 @@ class CommentsItem extends PureComponent {
     const comment = this.props.comment;
     const currentUser = this.props.currentUser;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
-    const bannedUserIds = this.props.post && _.clone(this.props.post.bannedUserIds) || []
-    const bannedReply = (
-      currentUser &&
-      bannedUserIds.includes(currentUser._id) &&
-      !Users.canDo(currentUser,'posts.moderate.all')
-    )
+
     const showReplyButton = (
       !comment.isDeleted &&
       !!this.props.currentUser &&
       (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-      !bannedReply
+      Users.isAllowedToComment(currentUser, this.props.post)
     )
 
     return (
@@ -214,6 +208,12 @@ class CommentsItem extends PureComponent {
               post={this.props.post}
               currentUser={this.props.currentUser}
               postEditMutation={this.props.postEditMutation}
+            />
+            <Components.BanUserFromAllPostsMenuItem
+              comment={this.props.comment}
+              post={this.props.post}
+              currentUser={this.props.currentUser}
+              userEditMutation={this.props.userEditMutation}
             />
           </IconMenu>
           { this.state.showReport &&
@@ -322,6 +322,11 @@ class CommentsItem extends PureComponent {
         cancelCallback={this.editCancelCallback}
       />
 }
+
+CommentsItem.propTypes = {
+  postEditMutation: PropTypes.func.isRequired,
+  userEditMutation: PropTypes.func.isRequired,
+};
 
 registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
 export default CommentsItem;
