@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import DatePicker from 'material-ui/DatePicker';
 import { withRouter } from 'react-router'
-import { withCurrentUser, Components, registerComponent} from 'meteor/vulcan:core';
+import { withCurrentUser, withEdit, Components, registerComponent} from 'meteor/vulcan:core';
 import moment from 'moment';
+import Users from 'meteor/vulcan:users';
 
 const datePickerTextFieldStyle = {
   display: 'none',
@@ -76,6 +77,7 @@ class CommentsListSection extends Component {
       postId,
       post,
       postEditMutation,
+      editMutation,
       router
     } = this.props;
 
@@ -93,6 +95,7 @@ class CommentsListSection extends Component {
           highlightDate={this.state.highlightDate}
           post={post}
           postEditMutation={postEditMutation}
+          userEditMutation={editMutation}
         />
         {!!currentUser && this.currentUserCanComment() &&
           <div className="posts-comments-thread-new">
@@ -122,5 +125,10 @@ class CommentsListSection extends Component {
   }
 }
 
-registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter);
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersProfile',
+};
+
+registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter, [withEdit, withEditOptions]);
 export default CommentsListSection

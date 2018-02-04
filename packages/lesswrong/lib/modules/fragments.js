@@ -379,6 +379,7 @@ registerFragment(`
     commentCount
     sequenceCount
     sequenceDraftCount
+    bannedUserIds
   }
 `);
 

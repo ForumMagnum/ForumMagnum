@@ -56,8 +56,7 @@ describe('Posts Moderation', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedError = "app.operation_not_allowed"
-    return response.should.be.rejectedWith(expectedError);
+    return response.should.be.rejected;
   });
 });
 
@@ -88,8 +87,7 @@ describe('Group - trustLevel1', async () => {
         }
       `;
       const response = runQuery(query, {}, {currentUser:{_id:user._id}})
-      const expectedError = "app.mutation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      return response.should.be.rejected;
     });
     it("non-trusted users cannot set their moderation guidelines", async () => {
       const user = await createDummyUser(undefined, ["trustLevel1"])
@@ -101,8 +99,7 @@ describe('Group - trustLevel1', async () => {
         }
       `;
       const response = runQuery(query, {}, {currentUser:{_id:user._id}})
-      const expectedError = "app.mutation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      return response.should.be.rejected;
     });
     it("non-trusted users cannot set their moderation assistance", async () => {
       const user = await createDummyUser(undefined, ["trustLevel1"])
@@ -114,8 +111,7 @@ describe('Group - trustLevel1', async () => {
         }
       `;
       const response = runQuery(query, {}, {currentUser:{_id:user._id}})
-      const expectedError = "app.mutation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      return response.should.be.rejected;
     });
     it("trusted users can set their moderation style", async () => {
       const user = await createDummyUser({groups:["trustLevel1"]})
@@ -188,8 +184,7 @@ describe('Group - trustLevel1', async () => {
         }
       `;
       const response = runQuery(query, {}, {currentUser:{user}})
-      const expectedError = "app.operation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      return response.should.be.rejected;
     })
     it("PostsEdit bannedUserIds should fail if user in TrustLevel1, has set moderationStyle, and does NOT own post", async () => {
       const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -204,53 +199,61 @@ describe('Group - trustLevel1', async () => {
         }
       `;
       const response = runQuery(query, {}, {currentUser:{user}})
-      const expectedError = "app.operation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      return response.should.be.rejected
     })
     it("PostsEdit bannedUserIds should fail if user in trustLevel1, owns post, and has NOT set moderationStyle", async () => {
-      const user = await createDummyUser({groups:["trustLevel1"]})
+      const user = await createDummyUser({moderationStyle:"easy", groups:["trustLevel1"]})
       const post = await createDummyPost(user)
       const query = `
         mutation  {
-          PostsEdit(documentId:"${post._id}",set:{bannedUserIds:["test"]}) {
+          PostsEdit(documentId:"${post._id}",set:{bannedUserIds:"test"}) {
             bannedUserIds
           }
         }
       `;
       const response = runQuery(query, {}, {currentUser:{user}})
-      const expectedError = "app.operation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      const expectedOutput = { data: { PostsEdit: { bannedUserIds: ["test"] } } }
+      return response.should.eventually.deep.equal(expectedOutput);
     })
   })
 
   describe('UsersEdit bannedUserIds permissions', async ()=> {
-    it("usersEdit bannedUserIds should fail if user in trustLevel1 and has NOT set moderationStyle", async () => {
-      const user = await createDummyUser({groups:["trustLevel1"]})
-      const post = await createDummyPost(user)
+    it("usersEdit bannedUserIds should succeed if user in trustLevel1 and has set moderationStyle", async () => {
+      const user = await createDummyUser({moderationStyle:"Reign of Terror", groups:["trustLevel1"]})
       const query = `
         mutation  {
-          usersEdit(documentId:"${post._id}",set:{bannedUserIds:["test"]}) {
+          usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
             bannedUserIds
           }
         }
       `;
       const response = runQuery(query, {}, {currentUser:{user}})
-      const expectedError = "app.operation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      const expectedOutput = { data: { usersEdit: { bannedUserIds: ["test"] } } }
+      return response.should.eventually.deep.equal(expectedOutput);
+    })
+    it("usersEdit bannedUserIds should fail if user in trustLevel1 and has NOT set moderationStyle", async () => {
+      const user = await createDummyUser({groups:["trustLevel1"]})
+      const query = `
+        mutation  {
+          usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
+            bannedUserIds
+          }
+        }
+      `;
+      const response = runQuery(query, {}, {currentUser:{user}})
+      return response.should.be.rejected;
     })
     it("usersEdit bannedUserIds should fail if user has set moderationStyle but is NOT in trustLevel1", async () => {
       const user = await createDummyUser({groups:["trustLevel1"]})
-      const post = await createDummyPost(user)
       const query = `
         mutation  {
-          usersEdit(documentId:"${post._id}",set:{bannedUserIds:["test"]}) {
+          usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
             bannedUserIds
           }
         }
       `;
       const response = runQuery(query, {}, {currentUser:{user}})
-      const expectedError = "app.operation_not_allowed"
-      return response.should.be.rejectedWith(expectedError);
+      return response.should.be.rejected;
     })
   })
 });

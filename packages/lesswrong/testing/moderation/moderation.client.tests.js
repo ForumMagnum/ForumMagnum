@@ -3,6 +3,7 @@ import { shallow, configure } from 'enzyme';
 import { expect } from 'meteor/practicalmeteor:chai';
 import CommentsItem from '../../components/comments/CommentsItem/CommentsItem.jsx'
 import BanUserFromPostMenuItem from '../../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx'
+import BanUserFromAllPostsMenuItem from '../../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx'
 import CommentsListSection from '../../components/comments/CommentsListSection.jsx'
 
 import Adapter from 'enzyme-adapter-react-16';
@@ -18,9 +19,9 @@ const mockProps = {
 
 const mockClient = new ApolloClient()
 
-describe('Creating comments while banned', () => {
+describe('Creating comments while banned from post', () => {
   it('CommentsItem does NOT render reply-button when user is in a Post bannedUserIds list', () => {
-    const commentsItem = shallow(<CommentsItem {...mockProps} currentUser={{_id:"test"}} post={{bannedUserIds:["test"]}}/>)
+    const commentsItem = shallow(<CommentsItem currentUser={{_id:"test"}} post={{bannedUserIds:["test"]}} {...mockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
   });
   it('commentsListSection renders reply-button when user is NOT in a Post bannedUserIds list', () => {

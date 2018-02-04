@@ -148,6 +148,29 @@ Users.addField([
   },
 
   /**
+    bannedUserIds: users who are not allowed to comment on this user's posts
+  */
+
+  {
+    fieldName: 'bannedUserIds',
+    fieldSchema: {
+      type: Array,
+      group: moderationGroup,
+      viewableBy: ['members'],
+      insertableBy: ['trustLevel1', 'sunshineRegiment'],
+      editableBy: ['trustLevel1', 'sunshineRegiment'],
+      optional: true,
+    }
+  },
+  {
+    fieldName: 'bannedUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
+
+  /**
     Legacy ID: ID used in the original LessWrong database
   */
   {
@@ -420,28 +443,6 @@ Users.addField([
       editableBy: ['admins'],
       insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
-    }
-  },
-
-  /**
-    bannedUserIds: users who are not allowed to comment on this user's posts
-  */
-
-  {
-    fieldName: 'bannedUserIds',
-    fieldSchema: {
-      type: Array,
-      viewableBy: ['members'],
-      insertableBy: ['trustLevel1', 'sunshineRegiment'],
-      editableBy: ['trustLevel1', 'sunshineRegiment'],
-      optional: true,
-    }
-  },
-  {
-    fieldName: 'bannedUserIds.$',
-    fieldSchema: {
-      type: String,
-      optional: true
     }
   },
 ]);

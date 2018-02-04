@@ -4,7 +4,10 @@ import { assert, should, expect } from 'meteor/practicalmeteor:chai';
 import CommentsItem from './CommentsItem.jsx'
 import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter() })
+import { Components } from 'meteor/vulcan:core';
+import {Provider} from 'react-redux'
 
+import configureStore from 'redux-mock-store'
 import { sinon } from 'meteor/practicalmeteor:sinon';
 
 const mockProps = {
@@ -12,6 +15,8 @@ const mockProps = {
   comment: {_id:""},
   post:{_id:"",slug:""}
 }
+
+const mockStore = configureStore()()
 
 describe('CommentsItem', () => {
   it('renders reply-button when logged in', () => {
@@ -29,6 +34,14 @@ describe('CommentsItem', () => {
   it('renders Report menu item by default', () => {
     const commentsItem = shallow(<CommentsItem currentUser={{}} {...mockProps} />)
     expect(commentsItem.find(".comment-menu-item-report")).to.have.length(1);
+  });
+  it('renders BanUserFromPostMenuItem component', () => {
+    const commentsItem = render(
+      <Provider store={mockStore}>
+        <CommentsItem currentUser={{}} {...mockProps} />
+      </Provider>
+    )
+    expect(commentsItem.find(".comment-menu-item-ban-from-user")).to.have.length(1);
   });
   // it('clicking "reply" calls showReply method', () => {
   //   const commentsItem = shallow(<CommentsItem currentUser={{}}  {...mockProps} />)

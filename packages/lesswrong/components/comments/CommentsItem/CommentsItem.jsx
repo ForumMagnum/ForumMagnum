@@ -215,6 +215,12 @@ class CommentsItem extends PureComponent {
               currentUser={this.props.currentUser}
               postEditMutation={this.props.postEditMutation}
             />
+            <Components.BanUserFromAllPostsMenuItem
+              comment={this.props.comment}
+              post={this.props.post}
+              currentUser={this.props.currentUser}
+              postEditMutation={this.props.postEditMutation}
+            />
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
