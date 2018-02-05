@@ -32,8 +32,10 @@ const FormSubmit = ({
         label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
         onTouchTap={() => {
           addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
-          if (document.frontpageDate) {addToDeletedValues('frontpageDate')}}
+          if (document.frontpageDate) {addToDeletedValues('frontpageDate')}
+        }
         }/>
+
       <FlatButton
         type="submit"
         backgroundColor={"#bbb"}
@@ -41,6 +43,7 @@ const FormSubmit = ({
         style={{color: "#fff",marginLeft: "5px"}}
         label={"Save as draft"}
         onTouchTap={() => addToAutofilledValues({draft: true})}/>
+
       {Users.canDo(currentUser, 'posts.curate.all') && <FlatButton
         type="submit"
         backgroundColor={"#bbb"}
@@ -96,6 +99,7 @@ FormSubmit.propTypes = {
 
 FormSubmit.contextTypes = {
   addToAutofilledValues: PropTypes.func,
+  addToDeletedValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
 }
