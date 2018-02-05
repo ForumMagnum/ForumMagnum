@@ -78,3 +78,26 @@ Picker.route('/user/:slug', (params, req, res, next) => {
     res.end("Please provide a URL");
   }
 });
+
+// Route for old comment links
+
+Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
+  if(params.commentId){
+    try {
+      const comment = Comments.findOne({_id: params.commentId});
+      if (comment) {
+        res.writeHead(301, {'Location': Comments.getPageUrl(comment, true)});
+        res.end();
+      } else {
+        // don't redirect if we can't find a post for that link
+        res.end(`No comment found with: ${params.commentId}`);
+      }
+    } catch (error) {
+      console.log('// Legacy Comment error')
+      console.log(error)
+      console.log(params)
+    }
+  } else {
+    res.end("Please provide a URL");
+  }
+});
