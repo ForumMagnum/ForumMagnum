@@ -112,7 +112,7 @@ class CommentsListSection extends Component {
             </Components.ModalTrigger>
           </div>
         }
-        {!this.currentUserCanComment() && (
+        {!!currentUser && !this.currentUserCanComment() && (
           <div className="i18n-message author_has_banned_you">
             <FormattedMessage id="comments.author_has_banned_you"/>
           </div>

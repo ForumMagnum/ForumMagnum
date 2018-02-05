@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Comments } from "meteor/example-forum";
+import { Comments, Posts } from "meteor/example-forum";
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
@@ -129,7 +129,7 @@ class CommentsItem extends PureComponent {
               <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
             <div className="comments-item-date">
-              <a href={"#" + comment._id} onClick={this.handleLinkClick}>
+              <a href={Posts.getPageUrl(comment.postId) + "#" + comment._id} onClick={this.handleLinkClick}>
                 {moment(new Date(comment.postedAt)).fromNow()}
                 <FontIcon className="material-icons comments-item-permalink"> link
                 </FontIcon>
