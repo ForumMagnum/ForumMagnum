@@ -119,11 +119,11 @@ class PostsItem extends PureComponent {
           </FontIcon>
           Collapse
         </span>
-        <span className="posts-item-view-full-post">
-          <Link to={Posts.getPageUrl(this.props.post)}>
+        <Link to={Posts.getPageUrl(this.props.post)}>
+          <span className="posts-item-view-full-post">
             Continue to Full Post {this.props.post.wordCount && <span>({this.props.post.wordCount} words)</span>}
-          </Link>
-        </span>
+          </span>
+        </Link>
       </div>
     )
   }

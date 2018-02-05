@@ -37,6 +37,8 @@ const PostsItemNewCommentsWrapper = (props, /* context*/) => {
           currentUser={currentUser}
           comments={nestedComments}
           highlightDate={highlightDate}
+          frontPage={true}
+          post={post}
         />
         {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
       </div>
