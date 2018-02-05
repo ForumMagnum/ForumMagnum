@@ -225,10 +225,17 @@ class PostsItem extends PureComponent {
             </div>
           </div>
 
-          <div className={classNames("posts-item-comments", {"selected":this.state.showNewComments, "highlight-selected":this.state.showHighlight})}>
-            <div onTouchTap={this.toggleNewComments} >
-              { renderCommentsButton() }
-            </div>
+          <div
+            onTouchTap={this.toggleNewComments}
+            className={classNames(
+              "posts-item-comments",
+              {
+                "selected":this.state.showNewComments,
+                "highlight-selected":this.state.showHighlight
+              }
+            )}
+          >
+            { renderCommentsButton() }
           </div>
           { this.state.showHighlight &&
             <div className="posts-item-highlight">
