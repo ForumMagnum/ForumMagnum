@@ -129,11 +129,20 @@ class CommentsItem extends PureComponent {
               <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
             </div>
             <div className="comments-item-date">
-              <a href={Posts.getPageUrl(comment.postId) + "#" + comment._id} onClick={this.handleLinkClick}>
+              { this.props.frontPage ?
+                <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
+                  {moment(new Date(comment.postedAt)).fromNow()}
+                  <FontIcon className="material-icons comments-item-permalink"> link
+                  </FontIcon>
+                </Link>
+              :
+              <a href={Posts.getPageUrl(this.props.post) + "#" + comment._id} onClick={this.handleLinkClick}>
                 {moment(new Date(comment.postedAt)).fromNow()}
                 <FontIcon className="material-icons comments-item-permalink"> link
                 </FontIcon>
-              </a></div>
+              </a>
+              }
+            </div>
             {this.renderMenu()}
           </div>
           { commentBody }
