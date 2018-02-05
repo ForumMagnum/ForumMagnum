@@ -61,12 +61,12 @@
     margin-top:10px;
   }
 }
-
 .posts-list-content {
   & > div > div:first-of-type {
     border-top: none;
   }
   margin-left: 3px;
+  margin-top: -7px;
   padding: 0 10px;
   a {
     background-image: none;
@@ -224,6 +224,7 @@
 
 .posts-load-more, .comments-load-more {
   margin-left: 10px;
+  padding-top: 5px;
   @include max-small() {
     margin-top:20px;
   }
@@ -245,16 +246,14 @@
 
 .posts-item {
   position:relative;
-  border-top: rgba(0,0,0,0.2) solid 1px;
   &:hover {
-    text-decoration: none;
-    background-color:rgba(0,0,0,.03) !important;
+    background-color: rgba(0,0,0,.025) !important;
   }
+
   .posts-item-content {
     display: flex;
     position: relative;
     height:100%;
-    padding:11px 10px 4px 10px;
     width:calc(100% - 50px);
     cursor:pointer;
     &:hover {
@@ -274,19 +273,24 @@
     text-decoration: none;
     color: rgba(0,0,0,0.3);
   }
+  .posts-item-show-highlight-button {
+    display:none;
+  }
   .posts-item-title{
     display: block;
     font-size: 1.4rem;
+    line-height: 1.4rem;
     margin-bottom:5px;
     font-weight: 500;
+    padding-left:10px;
+    padding-top:10px;
     width:570px;
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
     white-space: nowrap;
-    a:hover{
-      color: inherit;
-    }
+    z-index: 400 !important;
+
     @include max-medium() {
       width:500px;
     }
@@ -312,9 +316,9 @@
     display: block;
     color: rgba(0,0,0,0.5);
     font-weight: 400;
-    margin-top: -1px;
-    margin-bottom: 2px;
-    margin-left:1px;
+    width:100%;
+    padding-left: 10px;
+    padding-bottom:5px;
     & > div {
       display: inline;
       margin-right: 5px;
@@ -325,10 +329,35 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    width:540px;
     @include max-tiny() {
       width:320px;
     }
+    .posts-item-show-highlight-button {
+      opacity:0;
+      .hide-highlight-button, .show-highlight-button {
+        color:rgba(0,0,0,.5) !important;
+        font-size:12px !important;
+        left:4px;
+      }
+      .hide-highlight-button {
+        top:2px;
+        transform: rotate(90deg);
+      }
+      .show-highlight-button {
+        top:4px;
+        transform: rotate(-90deg);
+      }
+    }
+    &:hover {
+      cursor: pointer;
+      .posts-item-show-highlight-button {
+        opacity:.7;
+      }
+    }
+
+    // .posts-item-readtime {
+    //   margin-right:10px;
+    // }
   }
   .posts-item-title-link:hover {
     color:rgba(0,0,0,.4) !important;
@@ -338,39 +367,34 @@
     font-size: 1.2rem;
     line-height: 1.6rem;
     color: rgba(0,0,0,0.87);
-    padding:20px 20px 0 20px;
-    background-color:rgba(0,0,0,.02);
+    padding:8px 20px 20px 20px;
+    margin-bottom: 10px;
+    // background-color:rgba(0,0,0,.03);
     border-top: solid 1px rgba(0,0,0,.1);
+
+    h1 {
+      margin-top:2rem;
+      font-size:2rem;
+    }
+
+    h2 {
+      margin-top:1.7rem;
+      font-size:1.7rem;
+    }
+    blockquote {
+      border-left:solid 3px #ccc;
+      margin-bottom:0;
+    }
 
     .posts-page-content-body-link-post  {
       font-size:1.05rem;
-    }
-  }
-  .posts-item-highlight-title {
-    border-bottom:solid 1px rgba(0,0,0,.1);
-    padding:0px 0 8px;
-    font-size:14px;
-
-    a {
-      color:inherit;
-
-      &:hover {
-        color:inherit;
-      }
-    }
-
-    .posts-item-highlight-title-link {
-      color:rgba(0,0,0,.5);
-
-      &:hover {
-        color:rgba(0,0,0,.35);
-      }
+      margin:8px 0 2px 0;
     }
   }
   .posts-item-highlight-content {
     max-height:485px;
     overflow: hidden;
-    padding-right:50px;
+    max-width:550px;
   }
   .posts-item-highlight-footer {
     padding:35px 0 0px;
@@ -406,15 +430,24 @@
     width:50%;
     border-right:solid 1px rgba(0,0,0,.05);
   }
+  .post-item-new-comments-footer {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    left:0;
+  }
+  // .post-item-new-comments-header {
+  //   position:absolute;
+  //   top:0;
+  //   width:100%;
+  //   left:0;
+  // }
   .posts-item-hide-comments, .posts-item-view-all-comments {
     color:rgba(0,0,0,.5);
     padding:0 15px;
     font-size: 12px;
-    height:12px;
     cursor:pointer;
-    position:absolute;
     padding:10px;
-    bottom:0;
     height:35px;
     &:hover {
       color:rgba(0,0,0,.35);
@@ -422,13 +455,13 @@
     }
   }
   .posts-item-view-all-comments {
+    float:right;
     right:0;
     text-align:center;
     width:50%;
   }
   .posts-item-hide-comments {
-    position:absolute;
-    left:0;
+    float:left;
     text-align:center;
     width:50%;
     border-right:solid 1px rgba(0,0,0,.05);
@@ -450,7 +483,7 @@
       background-color: rgba(0,0,0,.02);
     }
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05) !important;
+      background-color: rgba(0, 0, 0, 0.03) !important;
     }
     .posts-item-comment-icon {
       @include vertical-center;
@@ -1084,10 +1117,10 @@ svg.drag-handle {
 }
 
 .posts-item-body {
-  width: 600px;
-  @include max-tiny() {
+  // width: 600px;
+  // @include max-tiny() {
     width:100%;
-  }
+  // }
 }
 
 .posts-page-content-header-author {
@@ -1156,34 +1189,11 @@ svg.drag-handle {
   text-transform: uppercase;
   color: rgba(100, 169, 105, 0.9)
 }
-.post-item-new-comments-actions {
-  font-family: $comments-font;
-  text-align:right;
-  font-size:12px;
-  padding:5px;
-  // position:absolute;
-  color:rgba(0,0,0,.45);
-  // right:20px;
-  // bottom:15px;
-  line-height:13px;
-
-  .posts-item-hide-new-comments {
-    border-left:solid 1px rgba(0,0,0,.25);
-    margin-left:7px;
-    padding-left:5px;
-  }
-  .posts-item-hide-new-comments, .posts-item-mark-as-read {
-    cursor:pointer;
-  }
-}
 .post-category-display-container {
   position:absolute;
   top:17px;
-  right:8px;
+  right:12px;
   border-radius:50%;
-  &:hover {
-    background-color: rgba(0,0,0,.2);
-  }
 }
 .post-category-tooltip {
   line-height:14px;
@@ -1213,7 +1223,15 @@ svg.drag-handle {
 }
 
 .posts-stats {
+  display: inline;
   @include max-tiny() {
     width:0 !important;
+  }
+}
+
+
+@mixin posts-highlight-typography {
+  h1 {
+
   }
 }

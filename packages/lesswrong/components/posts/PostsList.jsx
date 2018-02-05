@@ -29,9 +29,13 @@ const PostsList = ({
   const renderContent = () => {
     if (results && results.length) {
       return <div>
-        {results.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser} terms={terms} />)}
+        <div className="posts-list-wrapper">
+          {results.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser} terms={terms} />)}
+        </div>
         {showLoadMore ? <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
+
+
     } else if (loading) {
       return <Components.PostsLoading/>
     } else if (showNoResults) {

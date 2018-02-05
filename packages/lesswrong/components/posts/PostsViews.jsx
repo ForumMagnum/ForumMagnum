@@ -159,7 +159,6 @@ class PostsViews extends Component {
                   {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
                 )}
               >
-                <span >  </span>
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
                   <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                     {viewDataDict[view].label}
@@ -168,23 +167,23 @@ class PostsViews extends Component {
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/meta">
+            {!props.hideDaily && <div className="posts-view-button"><Link style={ChipStyle} className="view-chip" to="/meta">
               <span className={"posts-views-chip-inactive"}>
                 Meta { this.renderMenu(viewDataDict["meta"])}
               </span>
             </Link></div>}
-            {!props.hideDaily && <div><Link style={ChipStyle} className="view-chip" to="/daily">
+            {!props.hideDaily && <span><Link style={ChipStyle} className="view-chip" to="/daily">
               <span className={"posts-views-chip-inactive"}>
                 Daily { this.renderMenu(viewDataDict["daily"])}
               </span>
-            </Link></div>}
-          </span> : <div>
+            </Link></span>}
+          </span> : <span>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
               { this.renderMenu(viewDataDict["more"])}
             </a>
-          </div>
+          </span>
         }
         <br/>
       </div>
