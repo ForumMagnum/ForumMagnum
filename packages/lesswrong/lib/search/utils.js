@@ -15,7 +15,7 @@ const contentToHtml = (content) => {
     try {
       return draftToHTML(content);
     } catch(e) {
-      console.log("Failed to convert content to html", content);
+      console.log("Failed to convert content to html");
     }
   } else {
     return null;
