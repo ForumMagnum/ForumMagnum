@@ -32,7 +32,7 @@ const FormSubmit = ({
         label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
         onTouchTap={() => {
           addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
-          if (document.frontpageDate) {addToDeletedValues('frontpageDage')}}
+          if (document.frontpageDate) {addToDeletedValues('frontpageDate')}}
         }/>
       <FlatButton
         type="submit"
