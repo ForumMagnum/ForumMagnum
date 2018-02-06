@@ -10,7 +10,7 @@ const CommentsList = ({
   editMutation,
   post,
   postEditMutation,
-  frontPage
+  frontPage,
   userEditMutation
 }) => {
   if (comments) {
