@@ -16,11 +16,6 @@ Posts.addDefaultView(terms => {
       unlisted: {$ne: true},
       meta: {$ne: true},
       ...validFields,
-    },
-    options: {
-      sort: {
-        postedAt: -1,
-      }
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
