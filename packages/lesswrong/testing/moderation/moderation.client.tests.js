@@ -20,15 +20,15 @@ const mockClient = new ApolloClient()
 
 describe('Creating comments while banned', () => {
   it('CommentsItem does NOT render reply-button when user is in a Post bannedUserIds list', () => {
-    const commentsItem = shallow(<CommentsItem currentUser={{_id:"test"}} post={{bannedUserIds:["test"]}} {...mockProps} />)
+    const commentsItem = shallow(<CommentsItem {...mockProps} currentUser={{_id:"test"}} post={{bannedUserIds:["test"]}}/>)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
   });
   it('commentsListSection renders reply-button when user is NOT in a Post bannedUserIds list', () => {
     const commentsListSection = shallow(
       <CommentsListSection
+        {...mockProps}
         currentUser={{_id:"1234"}}
         post={{bannedUserIds:[]}}
-        {...mockProps}
       />,
       {context:{client:mockClient}}
     )
@@ -37,9 +37,9 @@ describe('Creating comments while banned', () => {
   it('commentsListSection does NOT render reply-button when user is in a Post bannedUserIds list', () => {
     const commentsListSection = shallow(
       <CommentsListSection
+        {...mockProps}
         currentUser={{_id:"1234"}}
         post={{bannedUserIds:["1234"]}}
-        {...mockProps}
       />,
       {context:{client:mockClient}}
     )
