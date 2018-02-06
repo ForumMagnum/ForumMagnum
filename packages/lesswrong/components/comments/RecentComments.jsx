@@ -31,6 +31,7 @@ const commentsOptions = {
   queryName: 'selectCommentsListQuery',
   fragmentName: 'SelectCommentsList',
   totalResolver: false,
+  pollInterval: 0,
 };
 
 const withEditOptions = {

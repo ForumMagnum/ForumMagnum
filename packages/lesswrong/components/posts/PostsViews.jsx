@@ -1,10 +1,8 @@
-import { Components, replaceComponent } from 'meteor/vulcan:core';
-import { registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter, Link } from 'react-router'
-import Chip from 'material-ui/Chip';
 import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
@@ -207,4 +205,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-replaceComponent('PostsViews', PostsViews, withRouter, withCurrentUser, [withEdit, withEditOptions]);
+registerComponent('PostsViews', PostsViews, withRouter, withCurrentUser, [withEdit, withEditOptions]);

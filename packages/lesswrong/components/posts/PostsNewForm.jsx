@@ -1,4 +1,4 @@
-import { Components, replaceComponent, getRawComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getRawComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import { Posts } from "meteor/example-forum";
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -34,4 +34,4 @@ PostsNewForm.contextTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-replaceComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter);
+registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter);

@@ -54,7 +54,7 @@ const withList = (options) => {
     collectionName,
     stopPollingIdleStatus = "INACTIVE",
     limit = 10,
-    pollInterval = getSetting('pollInterval', 20000),
+    pollInterval = getSetting('pollInterval', 0),
     totalResolver = true,
     enableCache = false,
     extraQueries,
@@ -91,131 +91,148 @@ const withList = (options) => {
     ${fragment}
   `;
 
-  return compose(
+  const stateHoC = withState('paginationTerms', 'setPaginationTerms', props => {
 
-    // wrap component with Apollo HoC to give it access to the store
-    withApollo,
+    // get initial limit from props, or else options
+    const paginationLimit = props.terms && props.terms.limit || limit;
+    const paginationTerms = {
+      limit: paginationLimit,
+      itemsPerPage: paginationLimit,
+    };
 
-    // wrap component with HoC that manages the terms object via its state
-    withState('paginationTerms', 'setPaginationTerms', props => {
+    return paginationTerms;
+  })
 
-      // get initial limit from props, or else options
-      const paginationLimit = props.terms && props.terms.limit || limit;
-      const paginationTerms = {
-        limit: paginationLimit,
-        itemsPerPage: paginationLimit,
-      };
+  const graphQLHoC = graphql(
 
-      return paginationTerms;
-    }),
+    query,
 
-    // wrap component with withIdle to get access to idle state
-    withIdle,
+    {
+      alias: 'withList',
 
-    // wrap component with graphql HoC
-    graphql(
+      // graphql query options
+      options({terms, paginationTerms, client: apolloClient}) {
+        // get terms from options, then props, then pagination
+        const mergedTerms = {...options.terms, ...terms, ...paginationTerms};
 
-      query,
+        const graphQLOptions = {
+          variables: {
+            terms: mergedTerms,
+          },
+          // note: pollInterval can be set to 0 to disable polling (20s by default)
+          pollInterval,
+          reducer: (previousResults, action) => {
 
-      {
-        alias: 'withList',
+            // see queryReducer function defined below
+            return queryReducer(previousResults, action, collection, mergedTerms, listResolverName, totalResolverName, queryName, apolloClient);
 
-        // graphql query options
-        options({terms, paginationTerms, client: apolloClient}) {
-          // get terms from options, then props, then pagination
-          const mergedTerms = {...options.terms, ...terms, ...paginationTerms};
+          },
+        };
 
-          const graphQLOptions = {
-            variables: {
-              terms: mergedTerms,
-            },
-            // note: pollInterval can be set to 0 to disable polling (20s by default)
-            pollInterval,
-            reducer: (previousResults, action) => {
+        if (options.fetchPolicy) {
+          graphQLOptions.fetchPolicy = options.fetchPolicy
+        }
 
-              // see queryReducer function defined below
-              return queryReducer(previousResults, action, collection, mergedTerms, listResolverName, totalResolverName, queryName, apolloClient);
+        return graphQLOptions;
+      },
 
-            },
-          };
+      // define props returned by graphql HoC
+      props(props) {
 
-          if (options.fetchPolicy) {
-            graphQLOptions.fetchPolicy = options.fetchPolicy
-          }
+        const refetch = props.data.refetch,
+              // results = Utils.convertDates(collection, props.data[listResolverName]),
+              results = props.data[listResolverName],
+              totalCount = props.data[totalResolverName],
+              networkStatus = props.data.networkStatus,
+              stopPolling = props.data.stopPolling,
+              startPolling = props.data.startPolling,
+              loading = props.data.loading,
+              error = props.data.error,
+              propertyName = options.propertyName || 'results';
 
-          return graphQLOptions;
-        },
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
 
-        // define props returned by graphql HoC
-        props(props) {
+        return {
+          // see https://github.com/apollostack/apollo-client/blob/master/src/queries/store.ts#L28-L36
+          // note: loading will propably change soon https://github.com/apollostack/apollo-client/issues/831
+          loading: networkStatus === 1,
+          [ propertyName ]: results,
+          totalCount,
+          refetch,
+          stopPolling,
+          startPolling,
+          networkStatus,
+          error,
+          count: results && results.length,
 
-          const refetch = props.data.refetch,
-                // results = Utils.convertDates(collection, props.data[listResolverName]),
-                results = props.data[listResolverName],
-                totalCount = props.data[totalResolverName],
-                networkStatus = props.data.networkStatus,
-                stopPolling = props.data.stopPolling,
-                startPolling = props.data.startPolling,
-                loading = props.data.loading,
-                error = props.data.error,
-                propertyName = options.propertyName || 'results';
+          // regular load more (reload everything)
+          loadMore(providedTerms) {
+            // if new terms are provided by presentational component use them, else default to incrementing current limit once
+            const newTerms = typeof providedTerms === 'undefined' ? { /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms, limit: results.length + props.ownProps.paginationTerms.itemsPerPage } : providedTerms;
+            props.ownProps.setPaginationTerms(newTerms);
+          },
 
-          if (error) {
-            // eslint-disable-next-line no-console
-            console.log(error);
-          }
+          // incremental loading version (only load new content)
+          // note: not compatible with polling
+          loadMoreInc(providedTerms) {
 
-          return {
-            // see https://github.com/apollostack/apollo-client/blob/master/src/queries/store.ts#L28-L36
-            // note: loading will propably change soon https://github.com/apollostack/apollo-client/issues/831
-            loading: networkStatus === 1,
-            [ propertyName ]: results,
-            totalCount,
-            refetch,
-            stopPolling,
-            startPolling,
-            networkStatus,
-            error,
-            count: results && results.length,
+            // get terms passed as argument or else just default to incrementing the offset
+            const newTerms = typeof providedTerms === 'undefined' ? { ...props.ownProps.terms, ...props.ownProps.paginationTerms, offset: results.length } : providedTerms;
+            return props.data.fetchMore({
+              variables: { terms: newTerms }, // ??? not sure about 'terms: newTerms'
+              updateQuery(previousResults, { fetchMoreResult }) {
+                // no more post to fetch
+                if (!fetchMoreResult.data) {
+                  return previousResults;
+                }
+                const newResults = {};
+                newResults[listResolverName] = [...previousResults[listResolverName], ...fetchMoreResult.data[listResolverName]];
+                // return the previous results "augmented" with more
+                return {...previousResults, ...newResults};
+              },
+            });
+          },
 
-            // regular load more (reload everything)
-            loadMore(providedTerms) {
-              // if new terms are provided by presentational component use them, else default to incrementing current limit once
-              const newTerms = typeof providedTerms === 'undefined' ? { /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms, limit: results.length + props.ownProps.paginationTerms.itemsPerPage } : providedTerms;
-              props.ownProps.setPaginationTerms(newTerms);
-            },
+          fragmentName,
+          fragment,
+          ...props.ownProps, // pass on the props down to the wrapped component
+          data: props.data,
+        };
+      },
+    }
+  )
+  if (pollInterval > 0) {
+    return compose(
+      // wrap component with Apollo HoC to give it access to the store
+      withApollo,
 
-            // incremental loading version (only load new content)
-            // note: not compatible with polling
-            loadMoreInc(providedTerms) {
+      // wrap component with HoC that manages the terms object via its state
+      stateHoC,
 
-              // get terms passed as argument or else just default to incrementing the offset
-              const newTerms = typeof providedTerms === 'undefined' ? { ...props.ownProps.terms, ...props.ownProps.paginationTerms, offset: results.length } : providedTerms;
-              return props.data.fetchMore({
-                variables: { terms: newTerms }, // ??? not sure about 'terms: newTerms'
-                updateQuery(previousResults, { fetchMoreResult }) {
-                  // no more post to fetch
-                  if (!fetchMoreResult.data) {
-                    return previousResults;
-                  }
-                  const newResults = {};
-                  newResults[listResolverName] = [...previousResults[listResolverName], ...fetchMoreResult.data[listResolverName]];
-                  // return the previous results "augmented" with more
-                  return {...previousResults, ...newResults};
-                },
-              });
-            },
+      // wrap component with withIdle to get access to idle state
+      withIdle,
 
-            fragmentName,
-            fragment,
-            ...props.ownProps, // pass on the props down to the wrapped component
-            data: props.data,
-          };
-        },
-      }
-    ),
-    withIdlePollingStopper(stopPollingIdleStatus)
-  );
+      // wrap component with graphql HoC
+      graphQLHoC,
+
+      // wrap component with idle polling stopper
+      withIdlePollingStopper(stopPollingIdleStatus)
+    )
+  } else {
+    return compose(
+      // wrap component with Apollo HoC to give it access to the store
+      withApollo,
+
+      // wrap component with HoC that manages the terms object via its state
+      stateHoC,
+
+      // wrap component with graphql HoC
+      graphQLHoC,
+    )
+  }
 }
 
 

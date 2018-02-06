@@ -1,4 +1,4 @@
-import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:core';
+import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
@@ -46,7 +46,7 @@ class CommentsItem extends PureComponent {
       documentId: this.props.comment._id,
       set: {deleted:true},
       unset: {}
-    }).then(()=>console.log('comment deleted')).catch(/* error */);
+    }).then(()=>this.props.flash("Successfully deleted comment", "success")).catch(/* error */);
   }
 
   handleUndoDelete = () => {
@@ -54,7 +54,7 @@ class CommentsItem extends PureComponent {
       documentId: this.props.comment._id,
       set: {deleted:false},
       unset: {}
-    }).then(()=>console.log('comment undo deleted')).catch(/* error */);
+    }).then(()=>this.props.flash("Successfully restored comment", "success")).catch(/* error */);
   }
 
   showReport = (event) => {
@@ -324,5 +324,5 @@ class CommentsItem extends PureComponent {
       />
 }
 
-replaceComponent('CommentsItem', CommentsItem, withRouter);
+registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
 export default CommentsItem;

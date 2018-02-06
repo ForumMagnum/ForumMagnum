@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from "meteor/example-forum";
-import { withList, Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
+import { withList, Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import LWEvents from '../../lib/collections/lwevents/collection.js';
 
 const PostsCommentsThread = ({loading,
@@ -68,4 +68,4 @@ const withEditOptions = {
   fragmentName: 'LWPostsPage',
 };
 
-replaceComponent('PostsCommentsThread', PostsCommentsThread, [withList, options], [withEdit, withEditOptions]);
+registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options], [withEdit, withEditOptions]);

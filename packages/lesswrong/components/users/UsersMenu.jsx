@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 
@@ -73,4 +73,4 @@ UsersMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-replaceComponent('UsersMenu', UsersMenu, withCurrentUser, withApollo);
+registerComponent('UsersMenu', UsersMenu, withCurrentUser, withApollo);
