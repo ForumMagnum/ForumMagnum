@@ -101,7 +101,7 @@ const withList = (options) => {
     };
 
     return paginationTerms;
-  })
+  });
 
   const graphQLHoC = graphql(
 
@@ -118,6 +118,7 @@ const withList = (options) => {
         const graphQLOptions = {
           variables: {
             terms: mergedTerms,
+            enableCache,
           },
           // note: pollInterval can be set to 0 to disable polling (20s by default)
           pollInterval,
@@ -133,12 +134,18 @@ const withList = (options) => {
           graphQLOptions.fetchPolicy = options.fetchPolicy
         }
 
+        // set to true if running into https://github.com/apollographql/apollo-client/issues/1186
+        if (options.notifyOnNetworkStatusChange) {
+          graphQLOptions.notifyOnNetworkStatusChange = options.notifyOnNetworkStatusChange
+        }
+
         return graphQLOptions;
       },
 
       // define props returned by graphql HoC
       props(props) {
 
+        // see https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
         const refetch = props.data.refetch,
               // results = Utils.convertDates(collection, props.data[listResolverName]),
               results = props.data[listResolverName],
@@ -146,7 +153,8 @@ const withList = (options) => {
               networkStatus = props.data.networkStatus,
               stopPolling = props.data.stopPolling,
               startPolling = props.data.startPolling,
-              loading = props.data.loading,
+              loading = props.data.networkStatus === 1,
+              loadingMore = props.data.networkStatus === 2,
               error = props.data.error,
               propertyName = options.propertyName || 'results';
 
@@ -158,7 +166,8 @@ const withList = (options) => {
         return {
           // see https://github.com/apollostack/apollo-client/blob/master/src/queries/store.ts#L28-L36
           // note: loading will propably change soon https://github.com/apollostack/apollo-client/issues/831
-          loading: networkStatus === 1,
+          loading,
+          loadingMore,
           [ propertyName ]: results,
           totalCount,
           refetch,
@@ -172,6 +181,7 @@ const withList = (options) => {
           loadMore(providedTerms) {
             // if new terms are provided by presentational component use them, else default to incrementing current limit once
             const newTerms = typeof providedTerms === 'undefined' ? { /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms, limit: results.length + props.ownProps.paginationTerms.itemsPerPage } : providedTerms;
+
             props.ownProps.setPaginationTerms(newTerms);
           },
 
@@ -181,6 +191,7 @@ const withList = (options) => {
 
             // get terms passed as argument or else just default to incrementing the offset
             const newTerms = typeof providedTerms === 'undefined' ? { ...props.ownProps.terms, ...props.ownProps.paginationTerms, offset: results.length } : providedTerms;
+
             return props.data.fetchMore({
               variables: { terms: newTerms }, // ??? not sure about 'terms: newTerms'
               updateQuery(previousResults, { fetchMoreResult }) {
