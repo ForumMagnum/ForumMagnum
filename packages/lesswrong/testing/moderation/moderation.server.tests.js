@@ -27,25 +27,7 @@ describe('Posts Moderation', async () => {
     const expectedOutput = { data: { CommentsNew: { postId: post._id, body: null } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
-  // This doesn't work for some reason. It's not _super_ important that the test works (works when I test manually),
-  //      but... admins _should_ be able to add users to the bannedUserIds list
-  //
-  // it("admins can add users to a post's bannedUserIds ", async () => {
-  //   const user = await createDummyUser({isAdmin:true})
-  //   const post = await createDummyPost()
-  //
-  //   const query = `
-  //     mutation  {
-  //       PostsEdit(documentId:"${post._id}",set:{bannedUserIds:"['${user._id}']"}) {
-  //         bannedUserIds
-  //       }
-  //     }
-  //   `;
-  //   const response = runQuery(query, {}, {currentUser:user})
-  //   const expectedOutput = { data: { PostsEdit: { bannedUserIds: [user._id] } } }
-  //   return response.should.eventually.deep.equal(expectedOutput);
-  // });
-  it('new comment on a post should fail if user in bannedUserIds list', async () => {
+  it('new comment on a post should fail if user in Post.bannedUserIds list', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost(user, {bannedUserIds:[user._id]})
     const query = `
@@ -57,6 +39,36 @@ describe('Posts Moderation', async () => {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     return response.should.be.rejected;
+  });
+  it('new comment on a post should fail if user in User.bannedUserIds list and post.user is in trustLevel1', async () => {
+    const secondUser = await createDummyUser()
+    const user = await createDummyUser({groups:['trustLevel1'], bannedUserIds:[secondUser._id]})
+    const post = await createDummyPost(user)
+    const query = `
+      mutation CommentsNew {
+        CommentsNew(document:{postId:"${post._id}", content:{}}){
+          body
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:secondUser})
+    return response.should.be.rejected;
+  });
+  it('new comment on a post should succeed if user in User.bannedUserIds list but post.user is NOT in trustLevel1', async () => {
+    const secondUser = await createDummyUser()
+    const user = await createDummyUser({bannedUserIds:[secondUser._id]})
+    const post = await createDummyPost(user)
+    const query = `
+      mutation CommentsNew {
+        CommentsNew(document:{postId:"${post._id}", content:{}}){
+          body
+          postId
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:{_id:secondUser._id}})
+    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: null } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
 });
 
