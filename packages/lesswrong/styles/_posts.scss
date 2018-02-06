@@ -980,6 +980,8 @@ textarea.posts-edit-header-title {
 
 .posts-day{
   margin-bottom: $vmargin * 2;
+  max-width:700px;
+  margin:auto;
   .posts-load-more{
     border: none;
     padding: 0;
