@@ -291,7 +291,6 @@ class CommentsItem extends PureComponent {
   }
 
   renderComment = () =>  {
-    let content = this.props.comment.content;
     const htmlBody = {__html: this.props.comment.htmlBody};
     return (
       <div className="comments-item-text content-body">
