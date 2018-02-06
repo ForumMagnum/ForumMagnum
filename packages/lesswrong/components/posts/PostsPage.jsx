@@ -272,6 +272,7 @@ const queryOptions = {
   queryName: 'postsSingleQuery',
   fragmentName: 'LWPostsPage',
   totalResolver: false,
+  enableCache: true,
 };
 
 const mutationOptions = {

@@ -32,6 +32,7 @@ const commentsOptions = {
   fragmentName: 'SelectCommentsList',
   totalResolver: false,
   pollInterval: 0,
+  enableCache: true,
 };
 
 const withEditOptions = {

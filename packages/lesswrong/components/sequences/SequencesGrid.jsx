@@ -24,6 +24,7 @@ const options = {
   queryName: 'SequencesGridQuery',
   fragmentName: 'SequencesPageFragment',
   totalResolver: false,
+  enableCache: true,
 }
 
 

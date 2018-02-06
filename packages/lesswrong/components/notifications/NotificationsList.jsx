@@ -35,6 +35,7 @@ const options = {
   fragmentName: 'NotificationsList',
   limit: 20,
   totalResolver: false,
+  enableCache: true
 };
 
 const withEditOptions = {
