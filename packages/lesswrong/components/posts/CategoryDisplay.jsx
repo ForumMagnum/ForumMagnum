@@ -33,8 +33,8 @@ class CategoryDisplay extends PureComponent {
           <Tooltip
             show={this.state.hover}
             label={categoryTooltips[categoryIcon]}
-            horizontalPosition="center"
-            verticalPosition="bottom"
+            horizontalPosition="left"
+            verticalPosition="center"
           />
         </span>
       </span>
