@@ -931,9 +931,6 @@
     .posts-item-summary {
       white-space: inherit !important;
     }
-    .posts-page-recommended-reading {
-      height: inherit;
-    }
     .sequences-navigation-top-left, .sequences-navigation-top-right {
       position: static !important;
     }
@@ -1127,43 +1124,7 @@ svg.drag-handle {
   font-size: 16px;
   color: rgba(0,0,0,0.7);
 }
-.posts-page-recommended-reading {
-  @include max-huge () {
-    .section {
-      border:none;
-    }
-    .section-title {
-      display:none !important;
-    }
-  }
-}
-.sequences-navigation-bottom-content {
 
-  @include max-small() {
-    // margin-top: 0px;
-    .sequences-navigation-bottom-previous-post, .sequences-navigation-bottom-next-post {
-      width: inherit !important;
-      float: none;
-      .posts-item {
-        // padding: 0px;
-        height:150px;
-        .posts-item-summary {
-          white-space: nowrap;
-        }
-      }
-    }
-    .sequences-navigation-bottom-previous-post {
-      margin-bottom: 20px;
-    }
-    .sequences-navigation-bottom-divider {
-      display: none;
-    }
-  }
-
-  .posts-item-comments {
-    width:auto;
-  }
-}
 
 .posts-page-content-body-link-post {
   font-size: 16px;

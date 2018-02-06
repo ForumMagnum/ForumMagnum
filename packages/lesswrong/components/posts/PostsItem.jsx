@@ -66,15 +66,6 @@ class PostsItem extends PureComponent {
     this.setState({showNewComments: false});
   }
 
-  getPostLink() {
-    const {post, chapter} = this.props
-    if (post.canonicalCollectionSlug) {
-      return "/" + post.canonicalCollectionSlug + "/" + post.slug
-    } else {
-      return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
-    }
-  }
-
   async handleMarkAsRead () {
     // try {
       const {
@@ -134,7 +125,6 @@ class PostsItem extends PureComponent {
     const read = this.state.lastVisitedAt;
     const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
 
-    const postLink = this.getPostLink()
     const commentCount = post.commentCount ? post.commentCount : 0
 
     let postClass = "posts-item";

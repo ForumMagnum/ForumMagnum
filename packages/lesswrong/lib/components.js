@@ -107,6 +107,7 @@ import '../components/sequences/SequencesNavigation.jsx';
 import '../components/sequences/CollectionsNavigation.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
 import '../components/sequences/RecommendedReading.jsx';
+import '../components/sequences/RecommendedReadingItem.jsx';
 import '../components/sequences/RecommendedReadingWrapper.jsx';
 import '../components/sequences/SequencesPost.jsx';
 import '../components/sequences/SequencesGridItem.jsx';
