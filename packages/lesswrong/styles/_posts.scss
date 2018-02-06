@@ -1154,9 +1154,15 @@ svg.drag-handle {
 }
 .post-category-display-container {
   position:absolute;
-  top:17px;
-  right:12px;
-  border-radius:50%;
+  top:0px;
+  right:0px;
+  height:100%;
+  width:50px;
+  padding:15px;
+
+  &:hover {
+    background-color: rgba(0,0,0,.05);
+  }
 }
 .post-category-tooltip {
   line-height:14px;
