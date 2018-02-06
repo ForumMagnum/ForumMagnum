@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from 'meteor/example-forum';
@@ -34,8 +34,6 @@ const PostsList = ({
         </div>
         {showLoadMore ? <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
-
-
     } else if (loading) {
       return <Components.PostsLoading/>
     } else if (showNoResults) {
@@ -77,4 +75,4 @@ const options = {
   totalResolver: false,
 };
 
-replaceComponent('PostsList', PostsList, withCurrentUser, [withList, options]);
+registerComponent('PostsList', PostsList, withCurrentUser, [withList, options]);

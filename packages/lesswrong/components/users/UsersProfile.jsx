@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent, ModalTrigger , withCurrentUser} from 'meteor/vulcan:core';
+import { Components, replaceComponent, registerComponent, ModalTrigger } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -153,4 +153,4 @@ UsersProfile.propTypes = {
 
 UsersProfile.displayName = "UsersProfile";
 
-replaceComponent('UsersProfile', UsersProfile, withCurrentUser, withRouter);
+replaceComponent('UsersProfile', UsersProfile, withRouter);
