@@ -101,11 +101,3 @@ async function CommentsEditHTMLSerializeCallbackAsync (comment) {
     Comments.update({_id: comment._id}, {$set: newFields})
   }
 }
-
-async function CommentsSetParentChildrenPostedAt (comment) {
-  if (comment.parentCommentId) {
-    Comments.update({_id: comment.parentCommentId}, {$set: {childrenPostedAt:comment.postedAt}})
-  }
-}
-
-addCallback("comments.new.async", CommentsSetParentChildrenPostedAt);

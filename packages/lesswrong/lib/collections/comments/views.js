@@ -56,11 +56,7 @@ Comments.addView("postCommentsUnread", function (terms) {
     selector: {
       postId: terms.postId,
       deleted: {$ne:true},
-      $or: [
-        {postedAt: { $gt: new Date(terms.lastVisitedAt) }},
-        {childrenPostedAt: { $gt: new Date(terms.lastVisitedAt) }}
-      ]
     },
-    options: {sort: {postedAt: -1}, limit: terms.limit || 7},
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });

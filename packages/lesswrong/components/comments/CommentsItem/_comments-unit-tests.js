@@ -9,7 +9,8 @@ import { sinon } from 'meteor/practicalmeteor:sinon';
 
 const mockProps = {
   router: {params:""},
-  comment: {_id:""}
+  comment: {_id:""},
+  post:{_id:"",slug:""}
 }
 
 describe('CommentsItem', () => {

@@ -185,18 +185,4 @@ Comments.addField([
     }
   },
 
-  {
-    fieldName: 'childrenPostedAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
-      hidden:true,
-      control: 'datetime'
-    }
-  }
-
-
 ]);

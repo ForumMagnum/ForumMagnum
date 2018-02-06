@@ -12,7 +12,8 @@ configure({ adapter: new Adapter() })
 
 const mockProps = {
   router: {params:"", location: {query:{}}},
-  comment: {_id:""}
+  comment: {_id:""},
+  post:{_id:"", slug:""}
 }
 
 const mockClient = new ApolloClient()

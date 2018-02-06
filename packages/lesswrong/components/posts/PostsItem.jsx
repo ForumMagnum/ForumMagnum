@@ -56,6 +56,7 @@ class PostsItem extends PureComponent {
 
   toggleNewComments = () => {
     this.handleMarkAsRead()
+    this.setState({readStatus: true});
     this.setState({showNewComments: !this.state.showNewComments});
     this.setState({showHighlight: false});
   }
@@ -138,7 +139,7 @@ class PostsItem extends PureComponent {
       const commentCountIconStyle = {
         width:"30px",
         height:"30px",
-        color: (read && newComments) ? this.props.muiTheme.palette.accent1Color : "rgba(0,0,0,.15)",
+        color: (read && newComments && !this.state.readStatus) ? this.props.muiTheme.palette.accent1Color : "rgba(0,0,0,.15)",
       }
 
       return (
@@ -252,23 +253,21 @@ class PostsItem extends PureComponent {
                   View All Comments
                 </Link>
               </div>
-              { newComments &&
-                <div>
-                  <div className="posts-item-recent-comments-title">Recent Comments</div>
-                  <Components.PostsItemNewCommentsWrapper
-                    currentUser={currentUser}
-                    highlightDate={this.state.lastVisitedAt}
-                    terms={{view:"postCommentsUnread", postId:this.props.post._id, lastVisitedAt:this.state.lastVisitedAt}}
-                    post={post}
-                  />
-                </div>
-              }
-              <div className="posts-item-top-comments-title">Top Comments</div>
-              <Components.RecentComments
-                terms={{view: 'topRecentComments', limit: 3, postId:post._id}}
-                fontSize="small"
-                loadMore={false}
+              <div className="posts-item-recent-comments-title">Recent Comments</div>
+              <Components.PostsItemNewCommentsWrapper
+                currentUser={currentUser}
+                highlightDate={this.state.lastVisitedAt}
+                terms={{view:"postCommentsUnread", postId:this.props.post._id}}
+                post={post}
               />
+              { post.commentCount > 10 && <div>
+                <div className="posts-item-top-comments-title">Top Comments</div>
+                <Components.RecentComments
+                  terms={{view: 'topRecentComments', limit: 3, postId:post._id}}
+                  fontSize="small"
+                  loadMore={false}
+                />
+              </div>}
               <div className="post-item-new-comments-footer">
                 <span className="posts-item-hide-comments" onTouchTap={this.toggleNewComments}>
                   <FontIcon className={classNames("material-icons")}>
@@ -280,7 +279,6 @@ class PostsItem extends PureComponent {
                   View All Comments
                 </Link>
               </div>
-
             </div>
           }
         </Paper>
