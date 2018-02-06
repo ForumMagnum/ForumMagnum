@@ -36,3 +36,4 @@ export { default as withCurrentUser } from './containers/withCurrentUser.js';
 export { default as withMutation } from './containers/withMutation.js';
 export { default as withIdle } from './containers/withIdle.jsx';
 export { default as withIdlePollingStoper } from './containers/withIdlePollingStopper.jsx';
+export { default as withUpsert } from './containers/withUpsert.js';

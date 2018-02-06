@@ -1158,7 +1158,7 @@ svg.drag-handle {
   right:0px;
   height:100%;
   width:50px;
-  padding:15px;
+  padding:17px 15px 15px 15px;
 
   &:hover {
     background-color: rgba(0,0,0,.05);
@@ -1203,4 +1203,10 @@ svg.drag-handle {
   h1 {
 
   }
+}
+
+.posts-daily {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }

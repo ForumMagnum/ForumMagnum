@@ -202,6 +202,19 @@ export const createCollection = options => {
   ) : ${typeName}`, mutations.edit.description);
         mutationResolvers[mutations.edit.name] = mutations.edit.mutation.bind(mutations.edit);
       }
+      // upsert
+      if (mutations.upsert) { // e.g. "moviesUpsert(search: moviesInput, set: moviesInput, unset: moviesUnset) : Movie"
+        addGraphQLMutation(
+          `${mutations.upsert.name}(
+    # The document to search for (or partial document)
+    search: JSON, 
+    # An array of fields to insert
+    set: ${collectionName}Input, 
+    # An array of fields to delete
+    unset: ${collectionName}Unset
+  ) : ${typeName}`, mutations.upsert.description);
+        mutationResolvers[mutations.upsert.name] = mutations.upsert.mutation.bind(mutations.upsert);
+      }
       // remove
       if (mutations.remove) { // e.g. "moviesRemove(documentId: String) : Movie"
         addGraphQLMutation(
@@ -248,7 +261,8 @@ export const createCollection = options => {
       parameters = runCallbacks(`${collectionName.toLowerCase()}.parameters.client`, parameters, _.clone(terms), apolloClient);
     }
 
-    if (Meteor.isServer) {
+    // note: check that context exists to avoid calling this from withList during SSR
+    if (Meteor.isServer && context) {
       parameters = runCallbacks(`${collectionName.toLowerCase()}.parameters.server`, parameters, _.clone(terms), context);
     }
 

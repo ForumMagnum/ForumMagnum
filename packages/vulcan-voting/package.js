@@ -1,18 +1,18 @@
 Package.describe({
   name: "vulcan:voting",
   summary: "Vulcan scoring package.",
-  version: '1.8.7',
+  version: '1.8.9',
   git: "https://github.com/VulcanJS/Vulcan.git"
 });
 
 Package.onUse(function (api) {
 
-  api.versionsFrom('METEOR@1.5.2');
+  api.versionsFrom('1.6.1');
 
   api.use([
     'fourseven:scss@4.5.0',
-    'vulcan:core@1.8.7',
-    'vulcan:i18n@1.8.7',
+    'vulcan:core@1.8.9',
+    'vulcan:i18n@1.8.9',
   ], ['client', 'server']);
 
   api.mainModule("lib/server/main.js", "server");

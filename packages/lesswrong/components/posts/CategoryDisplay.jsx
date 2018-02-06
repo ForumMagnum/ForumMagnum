@@ -34,7 +34,7 @@ class CategoryDisplay extends PureComponent {
             show={this.state.hover}
             label={categoryTooltips[categoryIcon]}
             horizontalPosition="left"
-            verticalPosition="center"
+            verticalPosition="bottom"
           />
         </span>
       </span>

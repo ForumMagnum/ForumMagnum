@@ -61,6 +61,7 @@ const options = {
   fragmentName: 'lastEventFragment',
   limit: 1,
   totalResolver: false,
+  enableCache: true,
 };
 
 const withEditOptions = {

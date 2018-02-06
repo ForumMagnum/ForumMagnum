@@ -58,6 +58,7 @@ const options = {
   queryName: 'usersPostsListQuery',
   fragmentName: 'LWPostsList',
   totalResolver: true,
+  enableCache: true
 };
 
 registerComponent('UsersPostsList', UsersPostsList, withCurrentUser, [withList, options]);

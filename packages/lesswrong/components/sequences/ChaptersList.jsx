@@ -17,6 +17,7 @@ const options = {
   queryName: 'chaptersListQuery',
   fragmentName: 'ChaptersFragment',
   totalResolver: false,
+  enableCache: true,
 }
 
 registerComponent('ChaptersList', ChaptersList, [withList, options])

@@ -1,13 +1,13 @@
 Package.describe({
   name: 'vulcan:lib',
   summary: 'Vulcan libraries.',
-  version: '1.8.7',
+  version: '1.8.9',
   git: "https://github.com/VulcanJS/Vulcan.git"
 });
 
 Package.onUse(function (api) {
 
-  api.versionsFrom('METEOR@1.6');
+  api.versionsFrom('1.6.1');
 
   var packages = [
 

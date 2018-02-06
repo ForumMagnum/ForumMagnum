@@ -26,7 +26,7 @@ export default function withDocument (options) {
   }
 
   const fragmentName = getFragmentName(fragment);
-  
+
   const graphQLHoC = graphql(gql`
     query ${queryName}($documentId: String, $slug: String, $enableCache: Boolean) {
       ${singleResolverName}(documentId: $documentId, slug: $slug, enableCache: $enableCache) {
@@ -41,7 +41,7 @@ export default function withDocument (options) {
 
     options(ownProps) {
       const graphQLOptions = {
-        variables: { documentId: ownProps.documentId, slug: ownProps.slug },
+        variables: { documentId: ownProps.documentId, slug: ownProps.slug, enableCache },
         pollInterval, // note: pollInterval can be set to 0 to disable polling (20s by default)
       };
 
@@ -52,25 +52,28 @@ export default function withDocument (options) {
       return graphQLOptions;
     },
     props: returnedProps => {
-      const { ownProps, data } = returnedProps;
+      const { /* ownProps, */ data } = returnedProps;
+
       const propertyName = options.propertyName || 'document';
       const props = {
         startPolling: data.startPolling,
         stopPolling: data.stopPolling,
-        loading: data.networkStatus === 1,
+        loading: data.loading,
         // document: Utils.convertDates(collection, data[singleResolverName]),
         [ propertyName ]: data[singleResolverName],
         fragmentName,
         fragment,
         data,
       };
+
       if (data.error) {
         // get graphQL error (see https://github.com/thebigredgeek/apollo-errors/issues/12)
         props.error = data.error.graphQLErrors[0];
       }
+
       return props;
     },
-  })
+  });
 
   if (pollInterval > 0) {
     return compose(
