@@ -80,9 +80,9 @@ const withList = (options) => {
 
   // build graphql query from options
   const query = gql`
-    query ${queryName}($terms: JSON) {
-      ${totalResolver ? `${totalResolverName}(terms: $terms)` : ``}
-      ${listResolverName}(terms: $terms) {
+    query ${queryName}($terms: JSON, $enableCache: Boolean) {
+      ${totalResolver ? `${totalResolverName}(terms: $terms, enableCache: $enableCache)` : ``}
+      ${listResolverName}(terms: $terms, enableCache: $enableCache) {
         __typename
         ...${fragmentName}
       }
