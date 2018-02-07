@@ -25,8 +25,8 @@ const CommentsList = ({
             editMutation={editMutation}
             post={post}
             postEditMutation={postEditMutation}
-            frontPage={frontPage}
             userEditMutation={userEditMutation}
+            frontPage={frontPage}
           />)
         }
       </div>

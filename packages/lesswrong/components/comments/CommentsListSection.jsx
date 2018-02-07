@@ -6,6 +6,7 @@ import { withRouter } from 'react-router'
 import { withCurrentUser, withEdit, Components, registerComponent} from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
+import { userCanComment } from '../../lib/modules/moderation/userCanComment'
 
 const datePickerTextFieldStyle = {
   display: 'none',
@@ -66,10 +67,6 @@ class CommentsListSection extends Component {
     </div>
   )
 
-  currentUserCanComment = () => {
-    return this.props.currentUser && !this.props.post.bannedUserIds || (this.props.post.bannedUserIds && !this.props.post.bannedUserIds.includes(this.props.currentUser._id))
-  }
-
   render() {
     const {
       currentUser,
@@ -97,15 +94,6 @@ class CommentsListSection extends Component {
           postEditMutation={postEditMutation}
           userEditMutation={editMutation}
         />
-        {!!currentUser && this.currentUserCanComment() &&
-          <div className="posts-comments-thread-new">
-            <h4><FormattedMessage id="comments.new"/></h4>
-            <Components.CommentsNewForm
-              postId={postId}
-              type="comment"
-            />
-          </div>
-        }
         {!currentUser &&
           <div>
             <Components.ModalTrigger
@@ -115,7 +103,16 @@ class CommentsListSection extends Component {
             </Components.ModalTrigger>
           </div>
         }
-        {!!currentUser && !this.currentUserCanComment() && (
+        {currentUser && userCanComment(currentUser, post) &&
+          <div className="posts-comments-thread-new">
+            <h4><FormattedMessage id="comments.new"/></h4>
+            <Components.CommentsNewForm
+              postId={postId}
+              type="comment"
+            />
+          </div>
+        }
+        {currentUser && !userCanComment(currentUser, post) && (
           <div className="i18n-message author_has_banned_you">
             <FormattedMessage id="comments.author_has_banned_you"/>
           </div>

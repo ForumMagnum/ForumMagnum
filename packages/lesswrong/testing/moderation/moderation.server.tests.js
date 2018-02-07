@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 
 import Users from 'meteor/vulcan:users';
 
-describe('Posts Moderation', async () => {
+describe('Posts Moderation -- ', async () => {
   it('CommentsNew should succeed if user is not in bannedUserIds list', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost()
@@ -73,7 +73,11 @@ describe('Posts Moderation', async () => {
 });
 
 
-describe('Group - trustLevel1', async () => {
+
+
+describe('Group - trustLevel1 --', async () => {
+
+
   describe('posts.moderate permissions', async ()=> {
     it("non-trusted users should not have permission to moderate their own posts", async () => {
       const user = await createDummyUser()
@@ -88,12 +92,28 @@ describe('Group - trustLevel1', async () => {
       return Users.canDo(user, `posts.moderate.all`).should.equal(false)
     });
   })
-  describe('userEdit moderation settings', async ()=> {
+
+
+
+  describe('userEdit moderation settings --', async ()=> {
+    it("new users do not have a moderation style", async () => {
+      const user = await createDummyUser({groups:["trustLevel1"]})
+      const query = `
+        query Users {
+          CommentsNew(document:{postId:"${post._id}", content:{}}){
+            moderationStyle
+          }
+        }
+      `;
+      const response = runQuery(query)
+      console.log("QWERQWER", response, user)
+      user.keys().should.not.include('moderationStyle')
+    });
     it("non-trusted users cannot set their moderation style", async () => {
       const user = await createDummyUser({groups:["trustLevel1"]})
       const query = `
         mutation  {
-          usersEdit(documentId:"${user._id}",set:{moderationStyle:"0"}) {
+          users(documentId:"${user._id}",set:{moderationStyle:"0"}) {
             moderationStyle
           }
         }
@@ -168,7 +188,7 @@ describe('Group - trustLevel1', async () => {
 
 
 
-  describe('PostsEdit bannedUserIds permissions', async ()=> {
+  describe('PostsEdit bannedUserIds permissions --', async ()=> {
     it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post, and has set moderationStyle", async () => {
       const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
       const post = await createDummyPost(user)
@@ -229,7 +249,7 @@ describe('Group - trustLevel1', async () => {
     })
   })
 
-  describe('UsersEdit bannedUserIds permissions', async ()=> {
+  describe('UsersEdit bannedUserIds permissions --', async ()=> {
     it("usersEdit bannedUserIds should succeed if user in trustLevel1 and has set moderationStyle", async () => {
       const user = await createDummyUser({moderationStyle:"Reign of Terror", groups:["trustLevel1"]})
       const query = `

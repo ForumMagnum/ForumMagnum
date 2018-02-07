@@ -156,6 +156,7 @@ registerFragment(`
     bannedUserIds
     user {
       moderationStyle
+      bannedUserIds
     }
     canonicalSequence {
       title
