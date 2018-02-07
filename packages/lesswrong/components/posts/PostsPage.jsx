@@ -164,13 +164,13 @@ class PostsPage extends Component {
                       </Link>
                     </div> : null
                   }
-                  {Users.canDo(this.props.currentUser, "posts.edit.all") ?
+                  {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
                     <div className="posts-page-content-body-metadata-action">
                       <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
-                        <Components.PostVotesInfo documentId={ post._id } />
+                    <Components.PostVotesInfo documentId={ post._id } />
                       </Components.DialogGroup>
                     </div> : null
-                  }
+                  } */}
                 </div>
               </div>
               { post.url && <p className="posts-page-content-body-link-post">
