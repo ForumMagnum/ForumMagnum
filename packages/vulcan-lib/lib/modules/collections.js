@@ -139,11 +139,11 @@ export const createCollection = options => {
         addGraphQLQuery(
 `${resolvers.list.name}(
     # A JSON object that contains the query terms used to fetch data
-    terms: JSON, 
+    terms: JSON,
     # How much to offset the results by
-    offset: Int, 
+    offset: Int,
     # A limit for the query
-    limit: Int, 
+    limit: Int,
     # Whether to enable caching for this query
     enableCache: Boolean
   ): [${typeName}]`, resolvers.list.description);
@@ -154,9 +154,9 @@ export const createCollection = options => {
         addGraphQLQuery(
 `${resolvers.single.name}(
     # The document's unique ID
-    documentId: String, 
+    documentId: String,
     # A unique slug identifying the document
-    slug: String, 
+    slug: String,
     # Whether to enable caching for this query
     enableCache: Boolean
   ): ${typeName}`, resolvers.single.description);
@@ -194,9 +194,9 @@ export const createCollection = options => {
         addGraphQLMutation(
 `${mutations.edit.name}(
     # The unique ID of the document to edit
-    documentId: String, 
+    documentId: String,
     # An array of fields to insert
-    set: ${collectionName}Input, 
+    set: ${collectionName}Input,
     # An array of fields to delete
     unset: ${collectionName}Unset
   ) : ${typeName}`, mutations.edit.description);
@@ -207,9 +207,9 @@ export const createCollection = options => {
         addGraphQLMutation(
           `${mutations.upsert.name}(
     # The document to search for (or partial document)
-    search: JSON, 
+    search: JSON,
     # An array of fields to insert
-    set: ${collectionName}Input, 
+    set: ${collectionName}Input,
     # An array of fields to delete
     unset: ${collectionName}Unset
   ) : ${typeName}`, mutations.upsert.description);
@@ -273,7 +273,7 @@ export const createCollection = options => {
 
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
     // NOTE: always do this last to avoid overriding another sort
-    if (!(parameters.options.sort && parameters.options.sort._id)) {
+    if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
       parameters = Utils.deepExtend(true, parameters, {options: {sort: {_id: -1}}});
     }
 
@@ -283,12 +283,13 @@ export const createCollection = options => {
     });
     if (parameters.options.sort) {
       _.keys(parameters.options.sort).forEach(key => {
+        console.log("Deleting field from parameters: ", key, parameters.options.sort[key]);
         if (parameters.options.sort[key] === null) delete parameters.options.sort[key];
       });
     }
 
     if(terms.query) {
-        
+
       const query = escapeStringRegexp(terms.query);
 
       const searchableFieldNames = _.filter(_.keys(schema), fieldName => schema[fieldName].searchable);
@@ -306,6 +307,8 @@ export const createCollection = options => {
     parameters.options.limit = (!terms.limit || terms.limit < 1 || terms.limit > maxDocuments) ? maxDocuments : terms.limit;
 
     // console.log(parameters);
+
+    console.log("parameters", parameters);
 
     return parameters;
   }
