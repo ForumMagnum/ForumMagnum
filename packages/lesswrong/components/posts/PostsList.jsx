@@ -74,6 +74,7 @@ const options = {
   fragmentName: 'LWPostsList',
   totalResolver: false,
   enableCache: true,
+  fetchPolicy: 'cache-and-network'
 };
 
 registerComponent('PostsList', PostsList, withCurrentUser, [withList, options]);

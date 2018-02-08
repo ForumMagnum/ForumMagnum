@@ -42,7 +42,7 @@ const options = {
   pollInterval: 0,
   limit: 20,
   totalResolver: false,
-  fetchPolicy: 'cache-only'
+  fetchPolicy: 'cache-and-network'
 };
 
 registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withList, options], withCurrentUser)
