@@ -73,7 +73,6 @@ const options = {
   queryName: 'postsListQuery',
   fragmentName: 'LWPostsList',
   totalResolver: false,
-  enableCache: true,
   fetchPolicy: 'cache-and-network'
 };
 
