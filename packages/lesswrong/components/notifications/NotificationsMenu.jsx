@@ -42,7 +42,7 @@ class NotificationsMenu extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      notificationTerms: {view: 'userNotifications', userId: props.currentUser._id},
+      notificationTerms: {view: 'userNotifications', userId: props.currentUser ? props.currentUser._id : ""},
       lastNotificationsCheck: props.currentUser.lastNotificationsCheck
     }
   }
