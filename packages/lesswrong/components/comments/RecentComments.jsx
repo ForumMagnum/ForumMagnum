@@ -33,6 +33,7 @@ const commentsOptions = {
   totalResolver: false,
   pollInterval: 0,
   enableCache: true,
+  fetchPolicy: 'cache-and-network'
 };
 
 const withEditOptions = {
