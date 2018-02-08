@@ -17,7 +17,11 @@ const badgeStyle = {
 }
 
 const NotificationsMenuButton = (props) => {
-  const filteredResults = props.results && _.filter(props.results, (x) => x.createdAt > props.currentUser.lastNotificationsCheck);
+  let filteredResults = [];
+  if (props.currentUser) {
+    filteredResults = props.results && _.filter(props.results, (x) => x.createdAt > props.currentUser.lastNotificationsCheck);
+  }
+
 
   const notificationButtonStyle = {
     backgroundColor: props.open ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0)"
