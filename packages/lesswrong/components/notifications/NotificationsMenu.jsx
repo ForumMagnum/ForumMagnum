@@ -6,6 +6,7 @@ import Popover from 'material-ui/Popover';
 import {List, ListItem} from 'material-ui/List';
 import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
+import Badge from 'material-ui/Badge';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import AllIcon from 'material-ui/svg-icons/social/notifications';
 import UnreadIcon from 'material-ui/svg-icons/action/visibility-off';
@@ -18,6 +19,16 @@ import { Link } from 'react-router';
 import Notifications from '../../lib/collections/notifications/collection.js'
 
 
+const badgeContainerStyle = {
+  padding: 'none',
+}
+const badgeStyle = {
+  backgroundColor: 'none',
+  color: 'rgba(0,0,0,0.6)',
+  fontFamily: 'freight-sans-pro, sans-serif',
+  right: "-16px"
+}
+
 const tabLabelStyle = {
   color: "rgba(0,0,0,0.8)",
   fontFamily: "freight-sans-pro, sans-serif"
@@ -28,7 +39,15 @@ const iconStyle = {
 }
 
 class NotificationsMenu extends Component {
+  constructor(props, context) {
+    super(props);
+    this.state = {
+      notificationTerms: {view: 'userNotifications', userId: props.currentUser._id},
+      lastNotificationsCheck: props.currentUser.lastNotificationsCheck
+    }
+  }
   render() {
+      const newMessages = this.props.results && _.filter(this.props.results, (x) => x.createdAt > this.state.lastNotificationsCheck);
       const currentUser = this.props.currentUser;
       if (!currentUser) {
         return null;
@@ -49,19 +68,32 @@ class NotificationsMenu extends Component {
             >
               <div className="notifications-menu-content">
                 <Tabs>
-                  <Tab icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>} style={tabLabelStyle}>
-                    <Components.NotificationsList terms={AllNotificationTerms} />
-                  </Tab>
-                  <Tab icon={<span title="New Posts"><PostsIcon style={iconStyle}/></span>} style={tabLabelStyle}>
-                    <Components.NotificationsList terms={PostsNotificationTerms} />
-                  </Tab>
-                  <Tab icon={<span title="New Comments"><CommentsIcon style={iconStyle} /></span>} style={tabLabelStyle}>
-                    <Components.NotificationsList terms={CommentsNotificationTerms} />
-                  </Tab>
-                  <Tab icon={<span title="New Messages"><MessagesIcon style={iconStyle} /></span>} style={tabLabelStyle}>
-                    <Components.NotificationsList terms={MessagesNotificationTerms} />
-                  </Tab>
+                  <Tab
+                    icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>}
+                    style={tabLabelStyle}
+                    onActive={() => this.setState({notificationTerms: AllNotificationTerms})}
+                  />
+                  <Tab
+                    icon={<span title="New Posts"><PostsIcon style={iconStyle}/></span>}
+                    style={tabLabelStyle}
+                    onActive={() => this.setState({notificationTerms: PostsNotificationTerms})}
+                  />
+                  <Tab
+                    icon={<span title="New Comments"><CommentsIcon style={iconStyle} /></span>}
+                    style={tabLabelStyle}
+                    onActive={() => this.setState({notificationTerms: CommentsNotificationTerms})}
+                  />
+                  <Tab
+                    icon={<span title="New Messages">
+                      <Badge style={badgeContainerStyle} badgeContent={(newMessages && newMessages.length) || ""} primary={true} badgeStyle={badgeStyle}>
+                        <MessagesIcon style={iconStyle} />
+                      </Badge>
+                    </span>}
+                    style={tabLabelStyle}
+                    onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
+                  />
                 </Tabs>
+                <Components.NotificationsList terms={this.state.notificationTerms} />
               </div>
             </Drawer>
           </div>
@@ -78,4 +110,14 @@ NotificationsMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('NotificationsMenu', NotificationsMenu, withCurrentUser);
+const options = {
+  collection: Notifications,
+  queryName: 'notificationsListQuery',
+  fragmentName: 'NotificationsList',
+  pollInterval: 0,
+  limit: 20,
+  totalResolver: false,
+};
+
+
+registerComponent('NotificationsMenu', NotificationsMenu, withCurrentUser, [withList, options]);

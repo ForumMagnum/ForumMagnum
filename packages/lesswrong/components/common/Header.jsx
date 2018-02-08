@@ -131,9 +131,9 @@ class Header extends Component {
   }
 
   render() {
-    //TODO: Improve the aesthetics of the menu bar. Add something at the top to have some reasonable spacing.
     const siteSection = this.getSubtitle()
-    const notificationTerms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
+    const currentUser = this.props.currentUser;
+    const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"};
     const header = this.props.muiTheme.palette.header
 
     appBarStyle.backgroundColor = header ? header : "#F0F4F7"

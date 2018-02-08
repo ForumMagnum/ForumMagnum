@@ -34,8 +34,7 @@ const options = {
   queryName: 'notificationsListQuery',
   fragmentName: 'NotificationsList',
   limit: 20,
-  totalResolver: false,
-  enableCache: true
+  totalResolver: false
 };
 
 const withEditOptions = {
