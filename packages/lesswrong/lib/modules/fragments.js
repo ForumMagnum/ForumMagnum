@@ -156,6 +156,7 @@ registerFragment(`
     bannedUserIds
     user {
       moderationStyle
+      bannedUserIds
     }
     canonicalSequence {
       title
@@ -379,6 +380,7 @@ registerFragment(`
     commentCount
     sequenceCount
     sequenceDraftCount
+    bannedUserIds
   }
 `);
 

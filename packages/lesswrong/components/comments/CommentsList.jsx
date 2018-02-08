@@ -10,7 +10,8 @@ const CommentsList = ({
   editMutation,
   post,
   postEditMutation,
-  frontPage
+  frontPage,
+  userEditMutation
 }) => {
   if (comments) {
     return (
@@ -24,8 +25,9 @@ const CommentsList = ({
             editMutation={editMutation}
             post={post}
             postEditMutation={postEditMutation}
+            userEditMutation={userEditMutation}
             frontPage={frontPage}
-            />)
+          />)
         }
       </div>
     )

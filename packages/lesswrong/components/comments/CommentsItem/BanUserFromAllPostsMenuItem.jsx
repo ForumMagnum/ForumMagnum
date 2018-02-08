@@ -16,21 +16,21 @@ export const currentUserCanBan = (currentUser, post) => {
     )
 }
 
-class BanUserFromPostMenuItem extends PureComponent {
+class BanUserFromAllPostsMenuItem extends PureComponent {
 
   constructor(props) {
     super(props);
   }
 
-  handleBanUserFromPost = (event) => {
+  handleBanUserFromAllPosts = (event) => {
     event.preventDefault();
     const commentUserId = this.props.comment.userId
-    let bannedUserIds = _.clone(this.props.post.bannedUserIds) || []
+    let bannedUserIds = _.clone(this.props.currentUser.bannedUserIds) || []
     if (!bannedUserIds.includes(commentUserId)) {
       bannedUserIds.push(commentUserId)
     }
-    this.props.postEditMutation({
-      documentId: this.props.comment.postId,
+    this.props.userEditMutation({
+      documentId: this.props.currentUser._id,
       set: {bannedUserIds:bannedUserIds},
       unset: {}
     }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
@@ -38,18 +38,17 @@ class BanUserFromPostMenuItem extends PureComponent {
 
   render() {
     if (this.props.comment && currentUserCanBan(this.props.currentUser, this.props.post)) {
-      return <MenuItem className="comment-menu-item-ban-from-post" onTouchTap={ this.handleBanUserFromPost } primaryText="Ban User From Post" />
+      return <MenuItem className="comment-menu-item-ban-from-user" onTouchTap={ this.handleBanUserFromAllPosts } primaryText="Ban User From All Your Posts" />
     } else {
-      return null
+      return <span className="comment-menu-item-ban-from-user"></span>
     }
   }
 }
-
 // TODO - fix RecentCommentsItem so it doesn't throw an error due to the requiredProps, and then uncomment this
-
-// BanUserFromPostMenuItem.propTypes = {
-//   postEditMutation: PropTypes.func.isRequired,
+//
+// BanUserFromAllPostsMenuItem.propTypes = {
+//   userEditMutation: PropTypes.func.isRequired,
 // };
 
-registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem);
-export default BanUserFromPostMenuItem;
+registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem);
+export default BanUserFromAllPostsMenuItem;

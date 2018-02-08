@@ -215,6 +215,12 @@ class CommentsItem extends PureComponent {
               currentUser={this.props.currentUser}
               postEditMutation={this.props.postEditMutation}
             />
+            <Components.BanUserFromAllPostsMenuItem
+              comment={this.props.comment}
+              post={this.props.post}
+              currentUser={this.props.currentUser}
+              userEditMutation={this.props.userEditMutation}
+            />
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
@@ -322,6 +328,11 @@ class CommentsItem extends PureComponent {
         cancelCallback={this.editCancelCallback}
       />
 }
+
+CommentsItem.propTypes = {
+  postEditMutation: PropTypes.func.isRequired,
+  userEditMutation: PropTypes.func.isRequired,
+};
 
 registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
 export default CommentsItem;

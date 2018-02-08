@@ -71,7 +71,7 @@ const prepareSubscription = (action, collection, itemId, user) => {
  * @param {Collection} collection
  * @param {String} itemId
  * @param {Object} user: current user (xxx: legacy, to replace with this.userId)
- * @returns {Boolean}
+ * @returns {Boolean} 
  */
 const performSubscriptionAction = (action, collection, itemId, user) => {
 
