@@ -52,6 +52,17 @@ import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';
 import Collections from './collections/collections/collection.js';
 
+import LocalGroups from './collections/localgroups/collection.js'
+import './collections/localgroups/views.js';
+import './collections/localgroups/permissions.js';
+import './collections/localgroups/fragments.js';
+
+import Meetups from './collections/meetups/collection.js'
+import './collections/meetups/views.js';
+import './collections/meetups/permissions.js';
+import './collections/meetups/fragments.js';
+
+
 import './modules/fragments.js';
 import './collections/chapters/fragments.js';
 import './collections/sequences/fragments.js';
@@ -126,5 +137,7 @@ export {
   Books,
   Bans,
   UserSequenceRels,
-  UserCollectionRels
+  UserCollectionRels,
+  LocalGroups,
+  Meetups
 }
