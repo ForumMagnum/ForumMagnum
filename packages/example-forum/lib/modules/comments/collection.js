@@ -18,9 +18,9 @@ import { Posts } from 'meteor/example-forum';
    newCheck: (user, document) => {
      if (!user || !document) return false;
      const post = Posts.findOne(document.postId)
-     const bannedUserIds = post && post.bannedUserIds || []
+     console.log("qwer2", Users.canComment(user, post), user, post)
 
-     if (bannedUserIds && bannedUserIds.includes(user._id)) {
+     if (!Users.canComment(user, post)) {
        return Users.canDo(user, `posts.moderate.all`)
      }
      return Users.canDo(user, 'comments.new')

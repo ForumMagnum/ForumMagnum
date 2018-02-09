@@ -6,7 +6,6 @@ import { withRouter } from 'react-router'
 import { withCurrentUser, withEdit, Components, registerComponent} from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
-import { userCanComment } from '../../lib/modules/moderation/userCanComment'
 
 const datePickerTextFieldStyle = {
   display: 'none',
@@ -103,7 +102,7 @@ class CommentsListSection extends Component {
             </Components.ModalTrigger>
           </div>
         }
-        {currentUser && userCanComment(currentUser, post) &&
+        {Users.canComment(currentUser, post) &&
           <div className="posts-comments-thread-new">
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
@@ -112,7 +111,7 @@ class CommentsListSection extends Component {
             />
           </div>
         }
-        {currentUser && !userCanComment(currentUser, post) && (
+        {Users.canComment(currentUser, post) && (
           <div className="i18n-message author_has_banned_you">
             <FormattedMessage id="comments.author_has_banned_you"/>
           </div>

@@ -48,10 +48,12 @@ describe('Posts Moderation -- ', async () => {
       mutation CommentsNew {
         CommentsNew(document:{postId:"${post._id}", content:{}}){
           body
+          userId
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
+    console.log("QWER4", secondUser._id, response)
     return response.should.be.rejected;
   });
   it('new comment on a post should succeed if user in User.bannedUserIds list but post.user is NOT in trustLevel1', async () => {
@@ -99,15 +101,15 @@ describe('Group - trustLevel1 --', async () => {
     it("new users do not have a moderation style", async () => {
       const user = await createDummyUser({groups:["trustLevel1"]})
       const query = `
-        query Users {
-          CommentsNew(document:{postId:"${post._id}", content:{}}){
+        query UsersSingleQuery($documentId: String) {
+          UsersSingle(documentId: $documentId) {
             moderationStyle
           }
         }
       `;
       const response = runQuery(query)
-      console.log("QWERQWER", response, user)
-      user.keys().should.not.include('moderationStyle')
+      const expectedOutput = { data: { UsersSingle: { moderationStyle: null } } }
+      return response.should.eventually.deep.equal(expectedOutput);
     });
     it("non-trusted users cannot set their moderation style", async () => {
       const user = await createDummyUser({groups:["trustLevel1"]})
