@@ -61,6 +61,7 @@ class CommentsListSection extends Component {
 
   renderTitleComponent = () => (
     <div className="posts-page-comments-title-component">
+      <Components.ModerationGuidelinesBox user={this.props.post.user} showModeratorAssistance />
       { this.renderCommentCount() }
       { this.renderHighlightDateSelector() }
     </div>
@@ -73,12 +74,8 @@ class CommentsListSection extends Component {
       postId,
       post,
       postEditMutation,
-      editMutation,
-      router
+      editMutation
     } = this.props;
-
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
-    const currentLocation = router.location;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 

@@ -4,49 +4,28 @@ import { Posts } from "meteor/example-forum";
 import { withList, Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import LWEvents from '../../lib/collections/lwevents/collection.js';
 
-const PostsCommentsThread = ({loading,
-                              terms: {postId},
-                              results,
-                              comments,
-                              loadMoreComments,
-                              totalComments,
-                              commentCount,
-                              loadingMoreComments,
-                              editMutation,
-                              post}) => {
-    if (loading || !results) {
-      return (
-        <div className="posts-comments-thread">
-          <Components.CommentsListSection
-            comments={comments}
-            postId={postId}
-            loadMoreComments={loadMoreComments}
-            totalComments={totalComments}
-            commentCount={commentCount}
-            loadingMoreComments={loadingMoreComments}
-            postEditMutation={editMutation}
-            post={post}
-          />
-        </div>
-      )
-    } else {
-      const lastEvent = results && results[0]
-      return (
-        <div className="posts-comments-thread">
-          <Components.CommentsListSection
-            comments={comments}
-            lastEvent={lastEvent}
-            postId={postId}
-            post={post}
-            loadMoreComments={loadMoreComments}
-            totalComments={totalComments}
-            commentCount={commentCount}
-            loadingMoreComments={loadingMoreComments}
-            postEditMutation={editMutation}
-          />
-        </div>
-      )
-  }
+const PostsCommentsThread =
+  ({comments,
+    loadMoreComments,
+    totalComments,
+    commentCount,
+    loadingMoreComments,
+    editMutation,
+    post}) =>
+    {
+    return <div className="posts-comments-thread">
+      <Components.CommentsListSection
+        comments={comments}
+        postId={post._id}
+        lastEvent={post.lastVisitedAt}
+        loadMoreComments={loadMoreComments}
+        totalComments={totalComments}
+        commentCount={commentCount}
+        loadingMoreComments={loadingMoreComments}
+        postEditMutation={editMutation}
+        post={post}
+      />
+    </div>
 }
 
 PostsCommentsThread.displayName = 'PostsCommentsThread';
@@ -55,18 +34,9 @@ PostsCommentsThread.propTypes = {
   currentUser: PropTypes.object
 };
 
-const options = {
-  collection: LWEvents,
-  queryName: 'lastPostVisitQuery',
-  fragmentName: 'lastEventFragment',
-  limit: 1,
-  totalResolver: false,
-  enableCache: true,
-};
-
 const withEditOptions = {
   collection: Posts,
   fragmentName: 'LWPostsPage',
 };
 
-registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options], [withEdit, withEditOptions]);
+registerComponent('PostsCommentsThread', PostsCommentsThread, [withEdit, withEditOptions]);
