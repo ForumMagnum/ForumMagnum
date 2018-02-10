@@ -1210,3 +1210,53 @@ svg.drag-handle {
   margin-left: auto;
   margin-right: auto;
 }
+
+.moderation-guidelines-box {
+  border: solid 1px rgba(0,0,0,0.2);
+  margin-bottom: 3px;
+
+  .moderation-guidelines-header {
+    cursor: pointer;
+    padding: 8px 14px;
+    font-weight: 500;
+    .moderation-guidelines-header-expand {
+      float: right;
+      font-size: 16px !important;
+      color: rgba(0,0,0,0.6) !important;
+      right: -5px;
+      top: 1px;
+    }
+  }
+
+  .moderation-guidelines-box-content {
+    padding: 8px 14px 1px 14px;
+  }
+
+  .moderation-guidelines-box-assistance {
+    color: rgba(0,0,0,0.6) !important;
+  }
+
+  .moderation-guidelines-header {
+    background-color: rgba(0,0,0,0.05);
+    &:hover {
+      background-color: rgba(0,0,0,0.03);
+    }
+  }
+  .moderation-guidelines-box-content {
+    background-color: rgba(0,0,0,0.02);
+  }
+
+  &.easy-going {
+    .moderation-guidelines-header {
+      color: rgba(100, 169, 105, 0.9);
+    }
+  }
+  &.norm-enforcing {
+    .moderation-guidelines-header {
+      color: #2B6A99;
+    }
+  }
+  &.reign-of-terror {
+    background-color: #DB5A31;
+  }
+}

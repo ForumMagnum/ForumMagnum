@@ -61,7 +61,8 @@ class CommentsListSection extends Component {
 
   renderTitleComponent = () => (
     <div className="posts-page-comments-title-component">
-      <Components.ModerationGuidelinesBox user={this.props.post.user} showModeratorAssistance />
+      <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
+      <hr/>
       { this.renderCommentCount() }
       { this.renderHighlightDateSelector() }
     </div>

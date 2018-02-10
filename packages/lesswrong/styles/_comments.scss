@@ -77,6 +77,7 @@ $medium-text: $dark-grey;
     }
   }
   .comments-item-bottom {
+    padding-bottom: 9px;
     font-size: 12px;
     .vote {
       font-weight: 300;
@@ -136,12 +137,12 @@ New CSS File
 }
 
 .comments-item {
-  padding:2px 12px 12px 12px;
+  padding:2px 12px 3px 12px;
   position: relative;
   .comments-more-actions-menu {
     opacity: .35;
     position: absolute;
-    top: 7px;
+    top: 10px;
     right: 1px;
   }
   &:hover .comments-more-actions-menu {
@@ -417,6 +418,7 @@ New CSS File
     right:125px;
     margin-top: 10px;
     margin-left: 0px;
+    margin-right: 20px;
     font-size: 16px;
     text-transform: uppercase;
     color: rgba(0,0,0,0.35);

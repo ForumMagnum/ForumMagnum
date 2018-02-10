@@ -18,8 +18,12 @@ class CommentEditor extends Component {
 
   render() {
     const AsyncCommentEditor = this.state.editor;
+    console.log("CommentEditor props", this.props);
     return (
-      <AsyncCommentEditor {...this.props}/>
+      <div>
+        <AsyncCommentEditor {...this.props}/>
+        <Components.ModerationGuidelinesBox showModeratorAssistance documentId={this.props.document.postId}/>
+      </div>
     )
   }
 }
