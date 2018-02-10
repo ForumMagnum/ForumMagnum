@@ -10,8 +10,6 @@ chai.use(chaiAsPromised);
 
 import Users from 'meteor/vulcan:users';
 
-console.log("QWERQWERQWER")
-
 describe('Posts Moderation', async () => {
   it('CommentsNew should succeed if user is not in bannedUserIds list', async () => {
     const user = await createDummyUser()
