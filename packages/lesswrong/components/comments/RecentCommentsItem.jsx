@@ -117,6 +117,11 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
+// Removes the excess requiredProps from RecentCommentsItem
+// TODO - decide whether RecentCommentsItem should display "ban user" stuff if applicable
+
+RecentCommentsItem.propTypes = {};
+
 const documentOptions = {
   collection: Comments,
   queryName: 'RecentCommentsQuery',

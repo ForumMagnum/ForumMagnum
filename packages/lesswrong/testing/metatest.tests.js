@@ -44,16 +44,16 @@ describe('Utils', async () => {
     });
   });
 
-  describe('clearDatabase', async () => {
-    it('clears database', async () => {
-      await clearDatabase()
-      const user = await createDummyUser()
-      await createDummyPost(user._id)
-      Posts.find().fetch().length.should.equal(1)
-      Users.find().fetch().length.should.equal(1)
-      await clearDatabase()
-      Posts.find().fetch().length.should.equal(0)
-      Users.find().fetch().length.should.equal(0)
-    });
-  });
+  // describe('clearDatabase', async () => {
+  //   it('clears database', async () => {
+  //     await clearDatabase()
+  //     const user = await createDummyUser()
+  //     await createDummyPost(user._id)
+  //     Posts.find().fetch().length.should.equal(1)
+  //     Users.find().fetch().length.should.equal(1)
+  //     await clearDatabase()
+  //     Posts.find().fetch().length.should.equal(0)
+  //     Users.find().fetch().length.should.equal(0)
+  //   });
+  // });
 })
