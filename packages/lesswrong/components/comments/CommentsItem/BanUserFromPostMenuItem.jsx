@@ -12,21 +12,23 @@ class BanUserFromPostMenuItem extends PureComponent {
 
   handleBanUserFromPost = (event) => {
     event.preventDefault();
-    const commentUserId = this.props.comment.userId
-    let bannedUserIds = _.clone(this.props.post.bannedUserIds) || []
-    if (!bannedUserIds.includes(commentUserId)) {
-      bannedUserIds.push(commentUserId)
+    if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
+      const commentUserId = this.props.comment.userId
+      let bannedUserIds = _.clone(this.props.post.bannedUserIds) || []
+      if (!bannedUserIds.includes(commentUserId)) {
+        bannedUserIds.push(commentUserId)
+      }
+      this.props.postEditMutation({
+        documentId: this.props.comment.postId,
+        set: {bannedUserIds:bannedUserIds},
+        unset: {}
+      }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
     }
-    this.props.postEditMutation({
-      documentId: this.props.comment.postId,
-      set: {bannedUserIds:bannedUserIds},
-      unset: {}
-    }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
   }
 
   render() {
     if (this.props.comment && Users.canModeratePost(this.props.currentUser, this.props.post)) {
-      return <MenuItem className="comment-menu-item-ban-from-post" onTouchTap={ this.handleBanUserFromPost } primaryText="Ban User From Post" />
+      return <MenuItem className="comment-menu-item-ban-from-post" onTouchTap={ this.handleBanUserFromPost } primaryText="From This Post" />
     } else {
       return null
     }

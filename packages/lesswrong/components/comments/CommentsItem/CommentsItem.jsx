@@ -8,6 +8,7 @@ import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
+import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
 
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { IconMenu, IconButton, MenuItem, FlatButton, Dialog } from 'material-ui';
@@ -199,21 +200,27 @@ class CommentsItem extends PureComponent {
             iconStyle={moreActionsMenuIconStyle}
           >
             { this.renderEditMenuItem() }
-            { this.renderDeleteMenuItem() }
             { this.renderSubscribeMenuItem() }
             { this.renderReportMenuItem() }
             { this.renderStatsMenuItem() }
-            <Components.BanUserFromPostMenuItem
-              comment={this.props.comment}
-              post={this.props.post}
-              currentUser={this.props.currentUser}
-              postEditMutation={this.props.postEditMutation}
-            />
-            <Components.BanUserFromAllPostsMenuItem
-              comment={this.props.comment}
-              post={this.props.post}
-              currentUser={this.props.currentUser}
-              userEditMutation={this.props.userEditMutation}
+            { this.renderDeleteMenuItem() }
+            <MenuItem
+              primaryText="Ban User"
+              rightIcon={<ArrowDropRight />}
+              menuItems={[
+                <Components.BanUserFromPostMenuItem
+                  comment={this.props.comment}
+                  post={this.props.post}
+                  currentUser={this.props.currentUser}
+                  postEditMutation={this.props.postEditMutation}
+                />,
+                <Components.BanUserFromAllPostsMenuItem
+                  comment={this.props.comment}
+                  post={this.props.post}
+                  currentUser={this.props.currentUser}
+                  userEditMutation={this.props.userEditMutation}
+                />
+              ]}
             />
           </IconMenu>
           { this.state.showReport &&
