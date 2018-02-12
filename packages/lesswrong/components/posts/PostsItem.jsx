@@ -170,7 +170,6 @@ class PostsItem extends PureComponent {
           zDepth={0}
         >
           <div
-            onTouchTap={this.toggleHighlight}
             className={classNames("posts-item-content", {"selected":this.state.showHighlight})}
           >
 
@@ -183,7 +182,7 @@ class PostsItem extends PureComponent {
 
 
               <object>
-                <div className="posts-item-meta">
+                <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
                   {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
                   {this.renderPostFeeds()}
@@ -210,7 +209,7 @@ class PostsItem extends PureComponent {
                   </div>
                 </div>
               </object>
-              <div className="post-category-display-container">
+              <div className="post-category-display-container" onTouchTap={this.toggleHighlight}>
                 <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
               </div>
             </div>
