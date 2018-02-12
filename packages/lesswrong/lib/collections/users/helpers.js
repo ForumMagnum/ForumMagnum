@@ -1,15 +1,32 @@
 import Users from "meteor/vulcan:users";
 
+Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
+  if (Users.canDo(currentUser,"posts.moderate.all")) {
+    return true
+  }
+  if (!currentUser || !targetUser) {
+    return false
+  }
+  return !!(
+    Users.canDo(currentUser,"posts.moderate.own") &&
+    targetUser.moderationStyle
+  )
+}
+
 Users.canModeratePost = (user, post) => {
-  return user && post &&
-    (
-      Users.canDo(user,"posts.moderate.all") ||
-      (
-        Users.canDo(user,"posts.moderate.own") &&
-        Users.owns(user, post) &&
-        post.user.moderationStyle
-      )
-    )
+  if (Users.canDo(user,"posts.moderate.all")) {
+    return true
+  }
+  if (!user || !post) {
+    return false
+  }
+  const postAuthor = post.user || Users.findOne({_id: post.userId})
+  return !!(
+    postAuthor &&
+    postAuthor.moderationStyle &&
+    Users.canDo(user,"posts.moderate.own") &&
+    Users.owns(user, post)
+  )
 }
 
 Users.userIsBannedFromPost = (user, post) => {

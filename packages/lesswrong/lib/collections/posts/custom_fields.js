@@ -2,6 +2,7 @@ import { Posts } from "meteor/example-forum";
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import Users from "meteor/vulcan:users";
 
 const formGroups = {
   admin: {
@@ -481,8 +482,8 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['members'],
-      insertableBy: ['trustLevel1', 'sunshineRegiment'],
-      editableBy: ['trustLevel1', 'sunshineRegiment'],
+      insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
+      editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       optional: true,
     }
   },
