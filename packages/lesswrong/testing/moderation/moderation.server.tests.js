@@ -238,14 +238,25 @@ describe('User moderation fields --', async () => {
     const expectedOutput = { data: { usersEdit: { moderatorAssistance: true } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
+  it("trusted users can NOT set other user's moderationGuidelines", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"]})
+    const user2 = await createDummyUser({groups:["trustLevel1"]})
+    const query = `
+      mutation  {
+        usersEdit(documentId:"${user._id}",set:{moderationGuidelines:"blah"}) {
+          moderationGuidelines
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user2})
+    return response.should.be.rejected;
+  });
 })
 
 describe('PostsEdit bannedUserIds permissions --', async ()=> {
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post, and has set moderationStyle", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
     const post = await createDummyPost(user)
-    console.log("QWERQWERQ", Users.canModeratePost(user, post))
-    console.log("QWERQWERQ2", Users.canDo(user, "posts.moderate.own"))
     const testBannedUserIds = "test"
     const query = `
       mutation  {
@@ -288,7 +299,7 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     return response.should.be.rejected
   })
   it("PostsEdit bannedUserIds should fail if user in trustLevel1, owns post, but has NOT set moderationStyle", async () => {
-    const user = await createDummyUser({moderationStyle:"easy", groups:["trustLevel1"]})
+    const user = await createDummyUser({groups:["trustLevel1"]})
     const post = await createDummyPost(user)
     const query = `
       mutation  {
@@ -340,6 +351,19 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
     const response = runQuery(query, {}, {currentUser:user})
     return response.should.be.rejected;
   })
+  it("usersEdit bannedUserIds should fail if user has set moderationStyle and in trustLevel1 but is NOT the target user ", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
+    const user2 = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
+    const query = `
+      mutation  {
+        usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
+          bannedUserIds
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user2})
+    return response.should.be.rejected;
+  })
 })
 
 describe('Users.canModeratePost --', async ()=> {
@@ -376,5 +400,27 @@ describe('Users.canModeratePost --', async ()=> {
     const moderator = await createDummyUser({groups:['sunshineRegiment']})
     const post = await createDummyPost()
     expect(Users.canModeratePost(moderator, post)).to.be.true;
+  })
+})
+
+describe('Users.canEditUsersBannedUserIds --', async ()=> {
+  it("returns false if currentUser is undefined", async () => {
+    expect(Users.canEditUsersBannedUserIds(undefined, Users.findOne())).to.be.false;
+  })
+  it("returns false if user not in trustLevel1", async () => {
+    const user = await createDummyUser()
+    expect(Users.canEditUsersBannedUserIds(user)).to.be.false;
+  })
+  it("returns false if user in trustLevel1 but does has NOT set user.moderationStyle", async () => {
+    const user = await createDummyUser({groups:['trustedLevel1']})
+    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.false;
+  })
+  it("returns true if user in trustLevel1 AND has set user.moderationStyle", async () => {
+    const user = await createDummyUser({groups:['trustLevel1'], moderationStyle:"1"})
+    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.true;
+  })
+  it("returns true if user in sunshineRegiment", async () => {
+    const user = await createDummyUser({groups:['sunshineRegiment']})
+    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.true;
   })
 })
