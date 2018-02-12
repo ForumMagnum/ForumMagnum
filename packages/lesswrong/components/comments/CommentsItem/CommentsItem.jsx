@@ -204,24 +204,25 @@ class CommentsItem extends PureComponent {
             { this.renderReportMenuItem() }
             { this.renderStatsMenuItem() }
             { this.renderDeleteMenuItem() }
-            <MenuItem
-              primaryText="Ban User"
-              rightIcon={<ArrowDropRight />}
-              menuItems={[
-                <Components.BanUserFromPostMenuItem
-                  comment={this.props.comment}
-                  post={this.props.post}
-                  currentUser={this.props.currentUser}
-                  postEditMutation={this.props.postEditMutation}
-                />,
-                <Components.BanUserFromAllPostsMenuItem
-                  comment={this.props.comment}
-                  post={this.props.post}
-                  currentUser={this.props.currentUser}
-                  userEditMutation={this.props.userEditMutation}
-                />
-              ]}
-            />
+            { this.props.comment && Users.canModeratePost(this.props.currentUser, this.props.post) &&
+              <MenuItem
+                primaryText="Ban User"
+                rightIcon={<ArrowDropRight />}
+                menuItems={[
+                  <Components.BanUserFromPostMenuItem
+                    comment={this.props.comment}
+                    post={this.props.post}
+                    currentUser={this.props.currentUser}
+                    postEditMutation={this.props.postEditMutation}
+                  />,
+                  <Components.BanUserFromAllPostsMenuItem
+                    comment={this.props.comment}
+                    post={this.props.post}
+                    currentUser={this.props.currentUser}
+                    userEditMutation={this.props.userEditMutation}
+                  />
+                ]}
+              />}
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
