@@ -61,8 +61,6 @@ class CommentsListSection extends Component {
 
   renderTitleComponent = () => (
     <div className="posts-page-comments-title-component">
-      <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
-      <hr/>
       { this.renderCommentCount() }
       { this.renderHighlightDateSelector() }
     </div>
@@ -83,6 +81,7 @@ class CommentsListSection extends Component {
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
+        <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
         <Components.CommentsList
           currentUser={currentUser}
           comments={comments}

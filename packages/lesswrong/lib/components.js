@@ -79,6 +79,8 @@ import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
+import '../components/comments/ModerationGuidelinesLink.jsx';
+import '../components/comments/ModerationGuidelinesContent.jsx';
 import '../components/search/PostsSearchHit.jsx';
 import '../components/search/PostsSearchAutoComplete.jsx';
 import '../components/search/CommentsSearchHit.jsx';

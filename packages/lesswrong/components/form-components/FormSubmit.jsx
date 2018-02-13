@@ -6,6 +6,8 @@ import Button from 'react-bootstrap/lib/Button';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import FlatButton from 'material-ui/FlatButton';
 
+const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
+
 
 const FormSubmit = ({
                       submitLabel,
@@ -26,10 +28,10 @@ const FormSubmit = ({
     {collectionName === "posts" && <span className="post-submit-buttons">
       <FlatButton
         type="submit"
-        backgroundColor={"#bbb"}
-        hoverColor={"#ccc"}
-        style={{color: "#fff",marginLeft: "5px"}}
+        hoverColor={"rgba(0, 0, 0, 0.05)"}
+        style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
         label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
+        labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
         onTouchTap={() => {
           addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
           if (document.frontpageDate) {addToDeletedValues('frontpageDate')}
@@ -38,18 +40,18 @@ const FormSubmit = ({
 
       <FlatButton
         type="submit"
-        backgroundColor={"#bbb"}
-        hoverColor={"#ccc"}
-        style={{color: "#fff",marginLeft: "5px"}}
+        hoverColor={"rgba(0, 0, 0, 0.05)"}
+        style={{paddingBottom: "2px", fontFamily: commentFonts}}
         label={"Save as draft"}
+        labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
         onTouchTap={() => addToAutofilledValues({draft: true})}/>
 
       {Users.canDo(currentUser, 'posts.curate.all') && <FlatButton
         type="submit"
-        backgroundColor={"#bbb"}
-        hoverColor={"#ccc"}
-        style={{color: "#fff",marginLeft: "5px"}}
+        hoverColor={"rgba(0, 0, 0, 0.05)"}
+        style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
         label={document.curatedDate ? "Remove from curated" : "Promote to curated"}
+        labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
         onTouchTap={() => {
           addToAutofilledValues({curatedDate: document.curatedDate ? null : new Date()})
           if (document.curatedDate) {addToDeletedValues('curatedDate')}}
@@ -57,31 +59,42 @@ const FormSubmit = ({
       }
     </span>}
 
+    {
+        cancelCallback
+          ?
+            <FlatButton
+              className="form-cancel"
+              hoverColor={"rgba(0, 0, 0, 0.05)"}
+              style={{paddingBottom: "2px", fontFamily: commentFonts}}
+              onTouchTap={(e) => {e.preventDefault(); cancelCallback(document)}}
+              label={"Cancel"}
+              labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
+            />
+          : null
+    }
+
     <FlatButton
       type="submit"
-      backgroundColor={"rgba(100, 169, 105, 0.9)"}
-      hoverColor={"rgba(100, 169, 105, 0.6)"}
-      style={{color: "#fff", marginLeft: "5px"}}
+      className="primary-form-submit-button"
+      hoverColor={"rgba(0, 0, 0, 0.05)"}
+      style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
       onTouchTap={() => collectionName === "posts" && addToAutofilledValues({draft: false})}
-      label={"Submit" }/>
+      label={"Submit" }
+      labelStyle={{fontSize: "16px", color: "rgba(100, 169, 105, 0.9)"}}
+    />
 
     {/* <Button type="submit" bsStyle="primary">
       {submitLabel ? submitLabel : <FormattedMessage id="forms.submit"/>}
     </Button> */}
 
+    {collectionName === "comments" && document && document.postId && <span className="comment-submit-buttons">
+      <Components.ModerationGuidelinesLink showModeratorAssistance documentId={document.postId}/>
+      {/* <div className="comment-editor-moderation-guidelines">
+
+      </div> */}
+    </span>}
 
 
-    {
-        cancelCallback
-          ?
-            <a className="form-cancel" onClick={(e) => {
-              e.preventDefault();
-              cancelCallback(document);
-            }}>{cancelLabel ? cancelLabel :
-            <FormattedMessage id="forms.cancel"/>}</a>
-          :
-        null
-    }
 
   </div>
 );

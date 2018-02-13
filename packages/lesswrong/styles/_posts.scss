@@ -1198,27 +1198,30 @@ svg.drag-handle {
   }
 }
 
-
-@mixin posts-highlight-typography {
-  h1 {
-
-  }
-}
-
 .posts-daily {
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
 }
 
+.moderation-guidelines-box-content {
+  text-align: left;
+  background-color: rgba(0,0,0,0.03);
+  margin-top: 5px;
+  padding: 13px 30px 9px 11px;
+}
+
 .moderation-guidelines-box {
   border: solid 1px rgba(0,0,0,0.2);
-  margin-bottom: 3px;
+  margin-bottom: 10px;
 
   .moderation-guidelines-header {
     cursor: pointer;
     padding: 8px 14px;
     font-weight: 500;
+    &.open {
+      border-bottom: solid 1px rgba(0,0,0,0.1);
+    }
     .moderation-guidelines-header-expand {
       float: right;
       font-size: 16px !important;
@@ -1228,22 +1231,20 @@ svg.drag-handle {
     }
   }
 
-  .moderation-guidelines-box-content {
-    padding: 8px 14px 1px 14px;
-  }
-
   .moderation-guidelines-box-assistance {
     color: rgba(0,0,0,0.6) !important;
   }
 
   .moderation-guidelines-header {
-    background-color: rgba(0,0,0,0.05);
     &:hover {
-      background-color: rgba(0,0,0,0.03);
+      background-color: rgba(0,0,0,0.02);
     }
   }
+
   .moderation-guidelines-box-content {
-    background-color: rgba(0,0,0,0.02);
+    padding: 8px 14px 1px 14px !important;
+    background-color: transparent;
+    margin-top: 0px;
   }
 
   &.easy-going {
@@ -1258,5 +1259,69 @@ svg.drag-handle {
   }
   &.reign-of-terror {
     background-color: #DB5A31;
+  }
+}
+
+.comment-editor {
+  position: relative;
+  padding: 5px 8px;
+}
+
+.comment-editor-moderation-guidelines {
+  position: absolute;
+}
+
+.moderation-guidelines-link {
+  float: left;
+  display: inline-block;
+  margin-top: 8px;
+  margin-left: 12px;
+  margin-bottom: 5px;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+  &:hover {
+    text-decoration: none;
+    color: rgba(0,0,0,0.3) !important;
+  }
+  &.easy-going {
+    color: rgba(100, 169, 105, 0.8) !important;
+    &:hover {
+      color: rgba(100, 169, 105, 0.6) !important;
+    }
+  }
+  &.norm-enforcing {
+    color: rgba(43, 106, 153, 0.6) !important;
+    &:hover {
+      color: rgba(43, 106, 153, 0.4) !important;
+    }
+  }
+  &.reign-of-terror {
+    color: rgba(219, 90, 49, 0.6) !important;
+    &:hover {
+      color: rgba(219, 90, 49, 0.4) !important;
+    }
+  }
+}
+
+.moderation-guidelines-link-expand {
+  font-size: 16px !important;
+  color: inherit !important;
+  vertical-align: middle;
+  transition: none !important;
+  margin-left: 1px;
+}
+
+@include max-small() {
+  .comments-new-form {
+    .form-submit {
+      text-align: left;
+    }
+  }
+  .primary-form-submit-button {
+    float: left;
+  }
+  .moderation-guidelines-link {
+    float: none;
   }
 }

@@ -380,7 +380,7 @@ New CSS File
 
 .comments-edit-form, .comments-new-form{
   position:relative;
-  padding-bottom:17px;
+  padding-bottom:12px;
   .input-deleted, .input-spam {
     position:absolute;
     bottom:0;
@@ -413,16 +413,6 @@ New CSS File
     text-align: right;
     margin-right:10px;
   }
-  .form-cancel {
-    position:absolute;
-    right:125px;
-    margin-top: 10px;
-    margin-left: 0px;
-    margin-right: 20px;
-    font-size: 16px;
-    text-transform: uppercase;
-    color: rgba(0,0,0,0.35);
-  }
   .input-body{
     margin-bottom: $hmargin;
   }
@@ -447,6 +437,9 @@ New CSS File
   margin-top: $vmargin;
   padding:10px;
   border:solid 1px rgba(0,0,0,.2);
+  .comments-new-form, .comments-edit-form {
+    padding-bottom: 0px;
+  }
 }
 
 .comment-actions{

@@ -5,12 +5,17 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from 'meteor/example-forum';
 import classNames from 'classnames'
 
-class ModerationGuidelinesBox extends PureComponent {
+
+class ModerationGuidelinesLink extends PureComponent {
   constructor(props, context) {
     super(props);
     this.state = {
       open: false,
     }
+  }
+
+  handleClose = () => {
+    this.setState({open: false})
   }
 
   render() {
@@ -19,15 +24,19 @@ class ModerationGuidelinesBox extends PureComponent {
       const post = document;
       const user = document.user;
       const { moderationStyle } = user;
-      return <div className={classNames("comments-item-text", "moderation-guidelines-box", {[moderationStyle]: moderationStyle, "open": this.state.open})}>
-        <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
-          <span>Moderation Guidelines: </span>
-          <FormattedMessage id={"moderation-" + moderationStyle} />
-          <FontIcon className="material-icons moderation-guidelines-header-expand">{this.state.open ? "expand_less" : "expand_more"}</FontIcon>
-        </div>
+      return <span>
+        <a
+          className={classNames("comments-item-text", "moderation-guidelines-link", {[moderationStyle]: moderationStyle})} onClick={() => this.setState({open: !this.state.open})}>
+          Moderation Guidelines{moderationStyle && <span>:
+            <FormattedMessage id={"short-moderation-" + moderationStyle} />
+          </span> }
+          <FontIcon className="material-icons moderation-guidelines-link-expand">
+            {this.state.open ? "expand_less" : "expand_more"}
+          </FontIcon>
+        </a>
         {this.state.open && <Components.ModerationGuidelinesContent showFrontpageGuidelines={post && post.frontpageDate} user={user} />}
-      </div>
-    } else {
+      </span>
+        } else {
       return null
     }
   }
@@ -41,4 +50,4 @@ const queryOptions = {
   enableCache: true,
 };
 
-registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, [withDocument, queryOptions]);
+registerComponent('ModerationGuidelinesLink', ModerationGuidelinesLink, [withDocument, queryOptions]);
