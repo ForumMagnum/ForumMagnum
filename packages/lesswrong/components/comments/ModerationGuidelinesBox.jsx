@@ -19,14 +19,29 @@ class ModerationGuidelinesBox extends PureComponent {
       const post = document;
       const user = document.user;
       const { moderationStyle } = user;
-      return <div className={classNames("comments-item-text", "moderation-guidelines-box", {[moderationStyle]: moderationStyle, "open": this.state.open})}>
-        <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
-          <span>Moderation Guidelines: </span>
-          <FormattedMessage id={"moderation-" + moderationStyle} />
-          <FontIcon className="material-icons moderation-guidelines-header-expand">{this.state.open ? "expand_less" : "expand_more"}</FontIcon>
+      const classNames = classNames(
+        "comments-item-text",
+        "moderation-guidelines-box",
+        {[moderationStyle]: moderationStyle,
+        "open": this.state.open}
+      )
+      return(
+        <div className={classNames}>
+          <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
+            <span>Moderation Guidelines </span>
+            <FormattedMessage id={"moderation-" + moderationStyle} />
+            <FontIcon
+              className="material-icons moderation-guidelines-header-expand"
+            >
+              {this.state.open ? "expand_less" : "expand_more"}
+            </FontIcon>
+          </div>
+          {this.state.open &&
+            <Components.ModerationGuidelinesContent
+              showFrontpageGuidelines={post && post.frontpageDate}
+              user={user} />}
         </div>
-        {this.state.open && <Components.ModerationGuidelinesContent showFrontpageGuidelines={post && post.frontpageDate} user={user} />}
-      </div>
+      )
     } else {
       return null
     }
