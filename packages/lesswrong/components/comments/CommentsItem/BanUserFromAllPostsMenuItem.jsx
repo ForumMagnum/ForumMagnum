@@ -22,16 +22,12 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
         documentId: this.props.currentUser._id,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
-      }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))  
+      }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
     }
   }
 
   render() {
-    if (this.props.comment && Users.canModeratePost(this.props.currentUser, this.props.post)) {
-      return <MenuItem className="comment-menu-item-ban-from-user" onTouchTap={ this.handleBanUserFromAllPosts } primaryText="From All Your Posts" />
-    } else {
-      return <span className="comment-menu-item-ban-from-user"></span>
-    }
+    return <MenuItem className="comment-menu-item-ban-from-user" onTouchTap={ this.handleBanUserFromAllPosts } primaryText="From All Your Posts" />
   }
 }
 // TODO - fix RecentCommentsItem so it doesn't throw an error due to the requiredProps, and then uncomment this

@@ -23,7 +23,6 @@ class PostsEditForm extends PureComponent {
   }
 
   render() {
-
     const postId = this.props.location.query.postId;
     return (
       <div className="posts-edit-form">
