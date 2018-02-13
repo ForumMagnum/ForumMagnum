@@ -80,19 +80,30 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
 
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
 
-function CommentsEmptyCheck (comment, user) {
-  if (!convertFromRaw(comment.content).hasText()) {
+function NewCommentsEmptyCheck (comment, user) {
+  if (!comment.htmlBody && !convertFromRaw(comment.content).hasText()) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
   return comment;
 }
 
-addCallback("comments.new.validate", CommentsEmptyCheck);
-addCallback("comments.edit.validate", CommentsEmptyCheck);
+function EditCommentsEmptyCheck (modifier, user) {
+  const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
+  if (modifier && modifier.unset && (modifier.unset.htmlBody || modifier.unset.content)) {
+    throw new EmptyCommentError({data: {break: true, value: modifier}});
+  }
+  if (modifier.set && !modifier.set.htmlBody && !convertFromRaw(modifier.set.content).hasText()) {
+    throw new EmptyCommentError({data: {break: true, value: modifier}});
+  }
+  return modifier;
+}
+
+addCallback("comments.new.validate", NewCommentsEmptyCheck);
+addCallback("comments.edit.validate", EditCommentsEmptyCheck);
 
 
-async function CommentsEditHTMLSerializeCallbackAsync (comment) {
+export async function CommentsHTMLSerializeCallbackAsync (comment) {
   if (comment.content) {
     const newFields = await Comments.convertFromContentAsync(comment.content);
     Comments.update({_id: comment._id}, {$set: newFields})
@@ -101,3 +112,6 @@ async function CommentsEditHTMLSerializeCallbackAsync (comment) {
     Comments.update({_id: comment._id}, {$set: newFields})
   }
 }
+
+addCallback("comments.edit.async", CommentsHTMLSerializeCallbackAsync);
+addCallback("comments.new.async", CommentsHTMLSerializeCallbackAsync);
