@@ -19,14 +19,14 @@ class ModerationGuidelinesBox extends PureComponent {
       const post = document;
       const user = document.user;
       const { moderationStyle } = user;
-      const classNames = classNames(
+      const commentClasses = classNames(
         "comments-item-text",
         "moderation-guidelines-box",
         {[moderationStyle]: moderationStyle,
         "open": this.state.open}
       )
       return(
-        <div className={classNames}>
+        <div className={commentClasses}>
           <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
             <span>Moderation Guidelines </span>
             <FormattedMessage id={"moderation-" + moderationStyle} />
