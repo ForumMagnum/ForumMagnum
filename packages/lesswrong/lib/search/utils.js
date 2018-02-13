@@ -9,13 +9,14 @@ import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { draftToHTML } from '../editor/utils.js';
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 
 const contentToHtml = (content) => {
   if (content) {
     try {
-      return draftToHTML(content);
+      return draftToHTML(convertFromRaw(content));
     } catch(e) {
-      console.log("Failed to convert content to html");
+      console.log("Failed to convert content to html:", e);
     }
   } else {
     return null;
