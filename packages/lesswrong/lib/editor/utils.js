@@ -58,7 +58,6 @@ export const draftToHTML = convertToHTML({
       return `<img src="${entity.data.src}" class="${className}" alt="${entity.data.alt}"/>`
     }
     if (entity.type === 'INLINETEX') {
-      console.log("INLINETEX entity detected: ", entity);
       if (entity.data.html) {
         return `<span><style>${entity.data.css}</style>${entity.data.html}</span>`
       } else {
@@ -70,7 +69,6 @@ export const draftToHTML = convertToHTML({
   blockToHTML: (block) => {
      const type = block.type;
      if (type === 'atomic') {
-       console.log("Atomic element detected: ", block);
        if (block.data && block.data.mathjax && block.data.html) {
          return `<div><style>${block.data.css}</style>${block.data.html}</div>`
        } else if (block.data && block.data.mathjax) {
