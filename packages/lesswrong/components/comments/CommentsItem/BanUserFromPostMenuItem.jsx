@@ -27,11 +27,7 @@ class BanUserFromPostMenuItem extends PureComponent {
   }
 
   render() {
-    if (this.props.comment && Users.canModeratePost(this.props.currentUser, this.props.post)) {
-      return <MenuItem className="comment-menu-item-ban-from-post" onTouchTap={ this.handleBanUserFromPost } primaryText="From This Post" />
-    } else {
-      return null
-    }
+    return <MenuItem className="comment-menu-item-ban-from-post" onTouchTap={ this.handleBanUserFromPost } primaryText="From This Post" />
   }
 }
 

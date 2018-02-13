@@ -57,3 +57,11 @@
   cursor: pointer;
   color:rgba(255,255,255,.75);
 }
+
+.email-link {
+  text-decoration: underline !important;
+
+  &:hover {
+    color:rgba(0,0,0,.5);
+  }
+}

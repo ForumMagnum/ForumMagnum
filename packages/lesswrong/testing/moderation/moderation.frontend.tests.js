@@ -162,32 +162,18 @@ describe('Commenting while banned from post --', async () => {
   });
 });
 
-describe('BanUserFromPostMenuItem --', () => {
-  it('renders if user is in trustLevel1, owns the post, and has set their moderationStyle field', () => {
-    const testUser = { _id: "12347", groups:['trustLevel1']}
-    const testPost = { userId: "12347", user: { moderationStyle: "Reign of Terror" }}
-    const banUserMenuItem = shallow(<Components.BanUserFromPostMenuItem currentUser={testUser} comment={{}} post={testPost} />)
-    expect(banUserMenuItem.find(".comment-menu-item-ban-from-post")).to.have.length(1);
-  });
-  it('does NOT render if user is in trustLevel1, owns the post, but has NOT set their moderationStyle field', () => {
-    const testUser = { _id: "12348", groups:['trustLevel1']}
-    const testPost = { userId: "12348", user: { moderationStyle: null }}
-    const banUserMenuItem = shallow(<Components.BanUserFromPostMenuItem currentUser={testUser} comment={{}} post={testPost} />)
-    expect(banUserMenuItem.find(".comment-menu-item-ban-from-post")).to.have.length(0);
-  });
-  it('does NOT render if user is in trustLevel1, has set their moderationStyle field, but does NOT own post', () => {
-    const testUser = { _id: "1234", groups:['trustLevel1']}
-    const testPost = { userId: "not1234", user: { moderationStyle: "Reign of Terror" }}
-    const banUserMenuItem = shallow(<Components.BanUserFromPostMenuItem currentUser={testUser} comment={{}} post={testPost} />)
-    expect(banUserMenuItem.find(".comment-menu-item-ban-from-post")).to.have.length(0);
-  });
-  it('renders if user owns the post, has set their moderationStyle field, but is NOT in trustLevel1', () => {
-    const testUser = { _id: "12348", groups:[]}
-    const testPost = { userId: "12348", user: { moderationStyle: "Reign of Terror" }}
-    const banUserMenuItem = shallow(<Components.BanUserFromPostMenuItem currentUser={testUser} comment={{}} post={testPost} />)
-    expect(banUserMenuItem.find(".comment-menu-item-ban-from-post")).to.have.length(0);
-  });
-});
+// describe('BanUserSubmenu --', () => {
+//   it('renders if Users.canModeratePost returns true', () => {
+//     TODO - stub Users.canModeratePost
+//     const banUserMenuItem = shallow(<CommentsItem {...commentMockProps.commentMockProps} currentUser={testUser} />)
+//     expect(banUserMenuItem.find(".comment-menu-item-ban-user-submenu")).to.have.length(1);
+//   });
+//   it('does not render if Users.canModeratePost returns false', () => {
+//     TODO - stub Users.canModeratePost
+//     const banUserMenuItem = shallow(<Components.BanUserFromPostMenuItem currentUser={testUser} comment={{}} post={testPost} />)
+//     expect(banUserMenuItem.find(".comment-menu-item-ban-user-submenu")).to.have.length(0);
+//   });
+// });
 
 describe('Comment Delete menu item --', () => {
   it('renders if user is an admin', () => {

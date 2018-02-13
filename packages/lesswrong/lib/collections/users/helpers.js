@@ -20,10 +20,9 @@ Users.canModeratePost = (user, post) => {
   if (!user || !post) {
     return false
   }
-  const postAuthor = post.user || Users.findOne({_id: post.userId})
   return !!(
-    postAuthor &&
-    postAuthor.moderationStyle &&
+    user._id === post.userId &&
+    user.moderationStyle &&
     Users.canDo(user,"posts.moderate.own") &&
     Users.owns(user, post)
   )

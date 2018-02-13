@@ -367,6 +367,7 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
 })
 
 describe('Users.canModeratePost --', async ()=> {
+  // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if user is undefined", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
@@ -404,6 +405,7 @@ describe('Users.canModeratePost --', async ()=> {
 })
 
 describe('Users.canEditUsersBannedUserIds --', async ()=> {
+  // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
     expect(Users.canEditUsersBannedUserIds(undefined, Users.findOne())).to.be.false;
   })

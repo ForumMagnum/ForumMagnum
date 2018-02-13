@@ -119,37 +119,41 @@ class CommentsItem extends PureComponent {
         {this.renderCommentBottom()}
       </div>
     )
-    return (
-      <div className={"comments-item" + deletedClass}>
-        <div className="comments-item-body">
-          <div className="comments-item-meta">
-            <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
-            <Components.UsersName user={comment.user}/>
-            <div className="comments-item-vote">
-              <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
-            </div>
-            <div className="comments-item-date">
-              { this.props.frontPage ?
-                <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
+    if (comment) {
+      return (
+        <div className={"comments-item" + deletedClass}>
+          <div className="comments-item-body">
+            <div className="comments-item-meta">
+              <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
+              <Components.UsersName user={comment.user}/>
+              <div className="comments-item-vote">
+                <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
+              </div>
+              <div className="comments-item-date">
+                { this.props.frontPage ?
+                  <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
+                    {moment(new Date(comment.postedAt)).fromNow()}
+                    <FontIcon className="material-icons comments-item-permalink"> link
+                    </FontIcon>
+                  </Link>
+                :
+                <a href={Posts.getPageUrl(this.props.post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   {moment(new Date(comment.postedAt)).fromNow()}
                   <FontIcon className="material-icons comments-item-permalink"> link
                   </FontIcon>
-                </Link>
-              :
-              <a href={Posts.getPageUrl(this.props.post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                {moment(new Date(comment.postedAt)).fromNow()}
-                <FontIcon className="material-icons comments-item-permalink"> link
-                </FontIcon>
-              </a>
-              }
+                </a>
+                }
+              </div>
+              {this.renderMenu()}
             </div>
-            {this.renderMenu()}
+            { commentBody }
           </div>
-          { commentBody }
+          {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
-        {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
-      </div>
-    )
+      )
+    } else {
+      return null
+    }
   }
 
   renderCommentBottom = () => {
@@ -204,8 +208,9 @@ class CommentsItem extends PureComponent {
             { this.renderReportMenuItem() }
             { this.renderStatsMenuItem() }
             { this.renderDeleteMenuItem() }
-            { this.props.comment && Users.canModeratePost(this.props.currentUser, this.props.post) &&
+            { Users.canModeratePost(this.props.currentUser, this.props.post) &&
               <MenuItem
+                className="comment-menu-item-ban-user-submenu"
                 primaryText="Ban User"
                 rightIcon={<ArrowDropRight />}
                 menuItems={[
