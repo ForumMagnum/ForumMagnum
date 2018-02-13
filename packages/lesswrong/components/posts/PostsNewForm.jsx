@@ -18,6 +18,7 @@ const PostsNewForm = (props, context) =>
           props.router.push({pathname: Posts.getPageUrl(post)});
           props.flash(context.intl.formatMessage({id: "posts.created_message"}), "success");
         }}
+        repeatErrors
       />
     </div>
   </Components.ShowIf>

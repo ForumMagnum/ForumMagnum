@@ -19,7 +19,9 @@ class CommentEditor extends Component {
   render() {
     const AsyncCommentEditor = this.state.editor;
     return (
-      <AsyncCommentEditor {...this.props}/>
+      <div className="comment-editor">
+        <AsyncCommentEditor {...this.props}/>
+      </div>
     )
   }
 }

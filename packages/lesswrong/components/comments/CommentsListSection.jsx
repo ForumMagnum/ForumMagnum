@@ -73,18 +73,15 @@ class CommentsListSection extends Component {
       postId,
       post,
       postEditMutation,
-      editMutation,
-      router
+      editMutation
     } = this.props;
-
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
-    const currentLocation = router.location;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
+        <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
         <Components.CommentsList
           currentUser={currentUser}
           comments={comments}
