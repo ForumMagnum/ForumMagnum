@@ -2,12 +2,13 @@ import React from 'react';
 import { Comments, Posts } from "meteor/example-forum";
 import { addCallback, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { convertFromRaw, ContentState } from 'draft-js';
+import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
+import Conversations from '../conversations/collection.js';
 
 // function commentsSoftRemoveChildrenComments(comment) {
 //     const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
@@ -134,35 +135,37 @@ export async function CommentsHTMLSerializeCallbackAsync (comment) {
 addCallback("comments.edit.async", CommentsHTMLSerializeCallbackAsync);
 addCallback("comments.new.async", CommentsHTMLSerializeCallbackAsync);
 
-export async function CommentsDeleteSendPMAsync (comment) {
-  if (comment.content) {
-    const originalPost = Posts.findOne(comment.postId);
+export async function CommentsDeleteSendPMAsync (newComment, oldComment, context) {
+  if (newComment.deleted && !oldComment.deleted && newComment.content) {
+    const originalPost = Posts.findOne(newComment.postId);
     const lwAccount = getLessWrongAccount();
 
     const conversationData = {
-      participantIds: [comment.userId],
+      participantIds: [newComment.userId, lwAccount._id],
       title: `Comment deleted on ${originalPost.title}`
     }
-    const conversation = newMutation({
-      collection: Users,
+    const conversation = await newMutation({
+      collection: Conversations,
       document: conversationData,
       currentUser: lwAccount,
-      validate: true,
+      validate: false,
+      context
     });
 
+    console.log("Created conversation", conversation);
+
     const firstMessageContent =
-        `One of your comments on ${originalPost.title} has been removed by
-        the author or a moderator. We posted the content below.`
+        `One of your comments on ${originalPost.title} has been removed by the author or a moderator. We've sent you another PM with the content.`
 
     const firstMessageData = {
       userId: lwAccount._id,
-      content: ContentState.createFromText(firstMessageContent),
+      content: convertToRaw(ContentState.createFromText(firstMessageContent)),
       conversationId: conversation._id
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
-      content: comment.content,
+      content: newComment.content,
       conversationId: conversation._id
     }
 
@@ -170,16 +173,18 @@ export async function CommentsDeleteSendPMAsync (comment) {
       collection: Messages,
       document: firstMessageData,
       currentUser: lwAccount,
-      validate: true
+      validate: false,
+      context
     })
 
     newMutation({
       collection: Messages,
       document: secondMessageData,
       currentUser: lwAccount,
-      validate: true
+      validate: false,
+      context
     })
   }
 }
 
-addCallback("comments.softDelete.async", CommentsDeleteSendPMAsync);
+addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
