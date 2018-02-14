@@ -137,7 +137,7 @@ const UsersProfile = (props) => {
         { renderDrafts(props) }
         { renderBlogPosts(props) }
         <Components.Section title="Recent Comments" >
-          <Components.RecentComments terms={{view: 'recentComments', limit: 10, userId: user._id}} fontSize="small" />
+          <Components.RecentComments terms={{view: 'allRecentComments', limit: 10, userId: user._id}} fontSize="small" />
         </Components.Section>
       </div>
     )

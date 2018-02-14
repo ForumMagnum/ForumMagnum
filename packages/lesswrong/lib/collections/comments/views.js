@@ -38,6 +38,13 @@ Comments.addView("postCommentsBest", function (terms) {
   };
 });
 
+Comments.addView("allRecentComments", function (terms) {
+  return {
+    selector: { deleted:{$ne:true} },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+  };
+});
+
 Comments.addView("recentComments", function (terms) {
   return {
     selector: { deleted:{$ne:true}, score:{$gt:0}},
