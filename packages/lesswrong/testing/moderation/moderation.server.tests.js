@@ -3,7 +3,7 @@ import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 
-import { createDummyUser, createDummyPost } from '../utils.js'
+import { createDummyUser, createDummyPost, createDummyComment } from '../utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -383,7 +383,7 @@ describe('Users.canModeratePost --', async ()=> {
     expect(Users.canModeratePost(author, post)).to.be.false;
   })
   it("returns false if user in trustLevel1 but does NOT own post", async () => {
-    const author = await createDummyUser({groups:['trustedLevel1']})
+    const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost()
     expect(Users.canModeratePost(author, post)).to.be.false;
   })
@@ -414,7 +414,7 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
     expect(Users.canEditUsersBannedUserIds(user)).to.be.false;
   })
   it("returns false if user in trustLevel1 but does has NOT set user.moderationStyle", async () => {
-    const user = await createDummyUser({groups:['trustedLevel1']})
+    const user = await createDummyUser({groups:['trustLevel1']})
     expect(Users.canEditUsersBannedUserIds(user, user)).to.be.false;
   })
   it("returns true if user in trustLevel1 AND has set user.moderationStyle", async () => {
@@ -424,5 +424,85 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
   it("returns true if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
     expect(Users.canEditUsersBannedUserIds(user, user)).to.be.true;
+  })
+})
+
+describe('CommentsEdit deleted permissions --', async ()=> {
+  it("set deleted should succeed if user in sunshineRegiment", async () => {
+    const user = await createDummyUser({groups:["sunshineRegiment"]})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        CommentsEdit(documentId:"${comment._id}",set:{deleted:true}) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    const expectedOutput = { data: { CommentsEdit: { deleted: true } } }
+    return response.should.eventually.deep.equal(expectedOutput);
+  })
+  it("set deleted should succeed if user in trustLevel1, has set moderationStyle and owns post", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        moderateComment(commentId:"${comment._id}",deleted:true) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    const expectedOutput = { data: { moderateComment: { deleted: true } } }
+    return response.should.eventually.deep.equal(expectedOutput);
+  })
+  it("set deleted should fail if user in trustLevel1, owns post but NOT set moderationStyle", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"]})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        moderateComment(commentId:"${comment._id}",deleted:true) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    return response.should.be.rejected;
+  })
+  it("set deleted should fail if user in trustLevel1, has set moderationStyle but does NOT own post", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(commentAuthor)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        moderateComment(commentId:"${comment._id}",deleted:true) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    return response.should.be.rejected;
+  })
+  it("set deleted should fail if user has set moderationStyle, owns post but is NOT in trustLevel1", async () => {
+    const user = await createDummyUser({moderationStyle:"easy"})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        moderateComment(commentId:"${comment._id}",deleted:true) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    return response.should.be.rejected;
   })
 })
