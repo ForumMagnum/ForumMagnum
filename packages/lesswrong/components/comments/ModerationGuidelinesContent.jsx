@@ -9,16 +9,17 @@ const ModerationGuidelinesContent = ({ user, showFrontpageGuidelines = true, sho
     </div>
   }
   {showFrontpageGuidelines && <div>
-    <p><b>Sitewide content guidelines:</b></p>
+    <p><b>Sitewide commenting guidelines:</b></p>
     <p>
-      <em>1.1. Usefulness, novelty, and fun.</em> The frontpage of this site is for serious intellectual engagement with interesting ideas, with a focus on ideas that are important but challenging to evaluate. Topics that lack inherent importance are OK if the discussion quality is high enough, and particularly if the discussion is useful for other purposes, like building skills; but the best topics will usually be consequential and neglected ones.
+      <em>Aim to explain, not persuade.</em> Write your true reasons for believing something, as opposed to the reasons you think are most likely to persuade readers of your comments. Try to offer concrete models, make predictions, and note what would change your mind.
     </p>
     <p>
-      <em>1.2. Accuracy, kindness, and relevance to the discussion at hand</em>, in the spirit of the Victorian Sufi Buddha ideal.
+      <em>Avoid identity politics.</em> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round <em>you</em> off to someone else they’ve encountered before. Tell people how you think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
     </p>
     <p>
-      <em>1.3. Clarity and openness about what you believe, your reasons for believing it, and what would cause you to change your mind.</em> Try to make concrete predictions and bets, and to note the cruxes for your beliefs, where possible. It’s not always easy to clearly articulate a belief, and it's great to note places where you’re uncertain about what you believe, about your reasons, and about your cruxes. We don’t want people to feel like they have to conceal or immediately abandon their beliefs whenever those beliefs turn out to be nontrivial to articulate or justify. But incremental progress toward more clarity and openness, even if it’s incomplete, is highly valued here.
+      <em>Get curious.</em> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
     </p>
+
   </div>}
   {user && user.moderatorAssistance && showModeratorAssistance &&
     <p className="moderation-guidelines-box-assistance">
