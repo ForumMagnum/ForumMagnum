@@ -1,11 +1,13 @@
 import React from 'react';
-import { Comments } from "meteor/example-forum";
-import { addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
-import { convertFromRaw } from 'draft-js';
+import { Comments, Posts } from "meteor/example-forum";
+import { addCallback, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import Users from "meteor/vulcan:users";
+import { convertFromRaw, ContentState } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
 import { createError } from 'apollo-errors';
+import Messages from '../messages/collection.js';
 
 // function commentsSoftRemoveChildrenComments(comment) {
 //     const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
@@ -17,6 +19,22 @@ import { createError } from 'apollo-errors';
 //       }).then(()=>console.log('comment softRemoved')).catch(/* error */);
 //     });
 // }
+
+const getLessWrongAccount = () => {
+  let account = Users.findOne({username: "LessWrong"});
+  if (!account) {
+    const userData = {
+      username: "LessWrong",
+      email: "lesswrong@lesswrong.com",
+    }
+    account = newMutation({
+      collection: Users,
+      userData,
+      validate: true
+    })
+  }
+  return account;
+}
 
 
 Comments.convertFromContentAsync = async function(content) {
@@ -115,3 +133,53 @@ export async function CommentsHTMLSerializeCallbackAsync (comment) {
 
 addCallback("comments.edit.async", CommentsHTMLSerializeCallbackAsync);
 addCallback("comments.new.async", CommentsHTMLSerializeCallbackAsync);
+
+export async function CommentsDeleteSendPMAsync (comment) {
+  if (comment.content) {
+    const originalPost = Posts.findOne(comment.postId);
+    const lwAccount = getLessWrongAccount();
+
+    const conversationData = {
+      participantIds: [comment.userId],
+      title: `Comment deleted on ${originalPost.title}`
+    }
+    const conversation = newMutation({
+      collection: Users,
+      document: conversationData,
+      currentUser: lwAccount,
+      validate: true,
+    });
+
+    const firstMessageContent =
+        `One of your comments on ${originalPost.title} has been removed by
+        the author or a moderator. We posted the content below.`
+
+    const firstMessageData = {
+      userId: lwAccount._id,
+      content: ContentState.createFromText(firstMessageContent),
+      conversationId: conversation._id
+    }
+
+    const secondMessageData = {
+      userId: lwAccount._id,
+      content: comment.content,
+      conversationId: conversation._id
+    }
+
+    newMutation({
+      collection: Messages,
+      document: firstMessageData,
+      currentUser: lwAccount,
+      validate: true
+    })
+
+    newMutation({
+      collection: Messages,
+      document: secondMessageData,
+      currentUser: lwAccount,
+      validate: true
+    })
+  }
+}
+
+addCallback("comments.softDelete.async", CommentsDeleteSendPMAsync);
