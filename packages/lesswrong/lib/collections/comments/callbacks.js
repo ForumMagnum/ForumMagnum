@@ -152,8 +152,6 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
       context
     });
 
-    console.log("Created conversation", conversation);
-
     const firstMessageContent =
         `One of your comments on ${originalPost.title} has been removed by the author or a moderator. We've sent you another PM with the content.`
 
