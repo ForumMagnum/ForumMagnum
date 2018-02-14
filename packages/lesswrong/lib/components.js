@@ -68,6 +68,7 @@ import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
+import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';

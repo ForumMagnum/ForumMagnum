@@ -42,22 +42,6 @@ class CommentsItem extends PureComponent {
     };
   }
 
-  handleDelete = () => {
-    this.props.editMutation({
-      documentId: this.props.comment._id,
-      set: {deleted:true},
-      unset: {}
-    }).then(()=>this.props.flash("Successfully deleted comment", "success")).catch(/* error */);
-  }
-
-  handleUndoDelete = () => {
-    this.props.editMutation({
-      documentId: this.props.comment._id,
-      set: {deleted:false},
-      unset: {}
-    }).then(()=>this.props.flash("Successfully restored comment", "success")).catch(/* error */);
-  }
-
   showReport = (event) => {
     event.preventDefault();
     this.setState({showReport: true});
@@ -293,13 +277,13 @@ class CommentsItem extends PureComponent {
   }
 
   renderDeleteMenuItem = () =>  {
-    if (this.props.comment) {
-      let canDelete = Users.canDo(this.props.currentUser,"comments.softRemove.all");
-      if (!this.props.comment.deleted && canDelete) {
-        return <MenuItem className="comment-menu-item-delete" onTouchTap={ this.handleDelete } primaryText="Delete" />
-      } else if (this.props.comment.deleted && canDelete) {
-        return <MenuItem onTouchTap={ this.handleUndoDelete } primaryText="Undo Delete" />
-      }
+    if (Users.canModeratePost(this.props.currentUser, this.props.post)) {
+      return (
+        <Components.DeleteCommentMenuItem
+          currentUser={this.props.currentUser}
+          comment={this.props.comment}
+        />
+      )
     }
   }
 

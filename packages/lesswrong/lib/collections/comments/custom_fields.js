@@ -2,6 +2,7 @@ import React from 'react'
 import { Components } from "meteor/vulcan:core";
 import { Comments } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
+import { Posts } from "meteor/example-forum";
 
 Comments.addField([
   /**
@@ -117,7 +118,7 @@ Comments.addField([
       insertableBy: Users.owns,
       editableBy: Users.owns,
       control: "checkbox",
-      hidden: true, 
+      hidden: true,
     }
   },
 
@@ -132,8 +133,8 @@ Comments.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
       control: "checkbox",
       hidden: true,
     }
