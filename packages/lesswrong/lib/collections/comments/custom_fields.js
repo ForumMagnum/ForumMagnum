@@ -117,6 +117,7 @@ Comments.addField([
       insertableBy: Users.owns,
       editableBy: Users.owns,
       control: "checkbox",
+      hidden: true, 
     }
   },
 
