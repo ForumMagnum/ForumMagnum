@@ -89,6 +89,7 @@ import '../components/search/UsersSearchHit.jsx';
 import '../components/search/SequencesSearchHit.jsx';
 import '../components/search/SequencesSearchAutoComplete.jsx';
 
+import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/SunshineDashboard.jsx';
 import '../components/sunshineDashboard/ReportsList.jsx';
 import '../components/sunshineDashboard/ReportItem.jsx';

@@ -1,5 +1,9 @@
 import { registerFragment, extendFragment } from 'meteor/vulcan:core';
 
+extendFragment('UsersAdmin', `
+  karma
+`);
+
 registerFragment(`
   fragment UsersMinimumInfo on User {
     # vulcan:users
