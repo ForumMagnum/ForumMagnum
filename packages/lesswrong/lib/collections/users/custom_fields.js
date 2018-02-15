@@ -98,6 +98,7 @@ Users.addField([
       form: {
         options: function () { // options for the select form control
           return [
+            {value: "", label: "No Moderation"},
             {value: "easy-going", label: "Easy Going - I just delete obvious spam and trolling."},
             {value: "norm-enforcing", label: "Norm Enforcing - I try to enforce particular rules (see below)"},
             {value: "reign-of-terror", label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive"},
@@ -158,7 +159,7 @@ Users.addField([
       group: moderationGroup,
       viewableBy: ['members'],
       insertableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),
-      editableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),  
+      editableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),
       optional: true,
     }
   },
