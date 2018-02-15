@@ -124,7 +124,7 @@ Comments.addField([
 
   /**
     deleted: Indicates whether a comment has been deleted by an admin.
-    This removes the content of the comment, but still renders replies.
+    Deleted comments and their replies are not rendered by default.
   */
 
   {
@@ -137,6 +137,52 @@ Comments.addField([
       editableBy: ['members'],
       control: "checkbox",
       hidden: true,
+    }
+  },
+
+  {
+    fieldName: 'deletedReason',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+    }
+  },
+
+  {
+    fieldName: 'deletedDate',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+    }
+  },
+
+  {
+    fieldName: 'deletedByUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      hidden: true,
+      resolveAs: {
+        fieldName: 'deletedByUser',
+        type: 'User',
+        resolver: async (comment, args, context) => {
+          if (!comment.deletedByUserId) return null;
+          const user = await context.Users.loader.load(comment.deletedByUserId);
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+        },
+        addOriginalField: true
+      },
     }
   },
 
