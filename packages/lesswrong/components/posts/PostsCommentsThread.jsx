@@ -10,7 +10,6 @@ const PostsCommentsThread =
     totalComments,
     commentCount,
     loadingMoreComments,
-    editMutation,
     post}) =>
     {
     return <div className="posts-comments-thread">
@@ -22,7 +21,6 @@ const PostsCommentsThread =
         totalComments={totalComments}
         commentCount={commentCount}
         loadingMoreComments={loadingMoreComments}
-        postEditMutation={editMutation}
         post={post}
       />
     </div>
@@ -34,9 +32,4 @@ PostsCommentsThread.propTypes = {
   currentUser: PropTypes.object
 };
 
-const withEditOptions = {
-  collection: Posts,
-  fragmentName: 'LWPostsPage',
-};
-
-registerComponent('PostsCommentsThread', PostsCommentsThread, [withEdit, withEditOptions]);
+registerComponent('PostsCommentsThread', PostsCommentsThread);

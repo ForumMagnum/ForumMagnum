@@ -177,6 +177,8 @@ class CommentsItem extends PureComponent {
   }
 
   renderMenu = () => {
+    const comment = this.props.comment;
+    const post = this.props.post || comment.post;
     return (
       <div className="comments-more-actions-menu">
         <object>
@@ -192,32 +194,30 @@ class CommentsItem extends PureComponent {
             { this.renderReportMenuItem() }
             { this.renderStatsMenuItem() }
             { this.renderDeleteMenuItem() }
-            { Users.canModeratePost(this.props.currentUser, this.props.post) &&
+            { Users.canModeratePost(this.props.currentUser, post) &&
               <MenuItem
                 className="comment-menu-item-ban-user-submenu"
                 primaryText="Ban User"
                 rightIcon={<ArrowDropRight />}
                 menuItems={[
                   <Components.BanUserFromPostMenuItem
-                    comment={this.props.comment}
-                    post={this.props.post}
+                    comment={comment}
+                    post={post}
                     currentUser={this.props.currentUser}
-                    postEditMutation={this.props.postEditMutation}
                   />,
                   <Components.BanUserFromAllPostsMenuItem
-                    comment={this.props.comment}
-                    post={this.props.post}
+                    comment={comment}
+                    post={post}
                     currentUser={this.props.currentUser}
-                    userEditMutation={this.props.userEditMutation}
                   />
                 ]}
               />}
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
-              commentId={this.props.comment._id}
-              postId={this.props.comment.postId}
-              link={"/posts/" + this.props.comment.postId + "/a/" + this.props.comment._id}
+              commentId={comment._id}
+              postId={comment.postId}
+              link={"/posts/" + comment.postId + "/a/" + comment._id}
               userId={this.props.currentUser._id}
               open={true}
             />
@@ -229,7 +229,7 @@ class CommentsItem extends PureComponent {
               open={this.state.showStats}
               onRequestClose={this.hideStats}
             >
-              <Components.CommentVotesInfo documentId={this.props.comment._id} />
+              <Components.CommentVotesInfo documentId={comment._id} />
             </Dialog>
           }
         </object>
@@ -319,11 +319,6 @@ class CommentsItem extends PureComponent {
         cancelCallback={this.editCancelCallback}
       />
 }
-
-CommentsItem.propTypes = {
-  postEditMutation: PropTypes.func.isRequired,
-  userEditMutation: PropTypes.func.isRequired,
-};
 
 registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
 export default CommentsItem;

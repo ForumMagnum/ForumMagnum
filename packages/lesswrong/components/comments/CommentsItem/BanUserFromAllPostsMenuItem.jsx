@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
 import { MenuItem } from 'material-ui';
 import Users from 'meteor/vulcan:users';
 import PropTypes from 'prop-types';
@@ -18,11 +18,11 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }
-      this.props.userEditMutation({
+      this.props.editMutation({
         documentId: this.props.currentUser._id,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
-      }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
+      }).then(()=>this.props.flash(`User ${this.props.comment.user.displayName} is now banned from commenting on any of your posts`))
     }
   }
 
@@ -30,11 +30,12 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
     return <MenuItem className="comment-menu-item-ban-from-user" onTouchTap={ this.handleBanUserFromAllPosts } primaryText="From All Your Posts" />
   }
 }
-// TODO - fix RecentCommentsItem so it doesn't throw an error due to the requiredProps, and then uncomment this
-//
-// BanUserFromAllPostsMenuItem.propTypes = {
-//   userEditMutation: PropTypes.func.isRequired,
-// };
 
-registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem);
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersProfile',
+};
+
+
+registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, withMessages, [withEdit, withEditOptions]);
 export default BanUserFromAllPostsMenuItem;
