@@ -1258,7 +1258,9 @@ svg.drag-handle {
     }
   }
   &.reign-of-terror {
-    background-color: #DB5A31;
+    .moderation-guidelines-header {
+      color: rgba(219, 90, 49, 0.8) !important;
+    }
   }
 }
 

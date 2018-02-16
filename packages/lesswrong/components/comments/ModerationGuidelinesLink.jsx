@@ -4,7 +4,7 @@ import FontIcon from 'material-ui/FontIcon';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from 'meteor/example-forum';
 import classNames from 'classnames'
-
+import Users from 'meteor/vulcan:users';
 
 class ModerationGuidelinesLink extends PureComponent {
   constructor(props, context) {
@@ -20,14 +20,19 @@ class ModerationGuidelinesLink extends PureComponent {
 
   render() {
     const { document } = this.props;
-    if (document && document.user && (document.user.moderationStyle || document.frontpageDate)) {
-      const post = document;
-      const user = document.user;
-      const { moderationStyle } = user;
+    const post = document;
+    const user = document && document.user;
+    const canModerate = Users.canModeratePost(user, post)
+    if (post && user && (canModerate || document.frontpageDate)) {
+      const moderationStyle = user.moderationStyle || "no-moderation";
       return <span>
         <a
-          className={classNames("comments-item-text", "moderation-guidelines-link", {[moderationStyle]: moderationStyle})} onClick={() => this.setState({open: !this.state.open})}>
-          Moderation Guidelines{moderationStyle && <span>:
+          className={classNames(
+            "comments-item-text",
+            "moderation-guidelines-link",
+            {[moderationStyle]: canModerate})}
+          onClick={() => this.setState({open: !this.state.open})}>
+          Moderation Guidelines{canModerate && <span>:
             <FormattedMessage id={"short-moderation-" + moderationStyle} />
           </span> }
           <FontIcon className="material-icons moderation-guidelines-link-expand">
