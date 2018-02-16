@@ -22,7 +22,7 @@ class BanUserFromPostMenuItem extends PureComponent {
         documentId: this.props.comment.postId,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
-      }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
+      }).then(()=>this.props.flash(`User ${this.props.comment.user.displayName} is now banned from commenting on ${this.props.post.title}`))
     }
   }
 
@@ -43,5 +43,5 @@ const withEditOptions = {
   fragmentName: 'LWPostsPage',
 };
 
-registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, [withEdit, withEditOptions]);
+registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withEdit, withEditOptions]);
 export default BanUserFromPostMenuItem;

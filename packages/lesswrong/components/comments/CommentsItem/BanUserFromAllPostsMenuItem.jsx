@@ -22,7 +22,7 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
         documentId: this.props.currentUser._id,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
-      }).then(()=>console.log(`User ${commentUserId} added to post banned-list: ${bannedUserIds}`))
+      }).then(()=>this.props.flash(`User ${this.props.comment.user.displayName} is now banned from commenting on any of your posts`))
     }
   }
 
@@ -37,5 +37,5 @@ const withEditOptions = {
 };
 
 
-registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, [withEdit, withEditOptions]);
+registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, withMessages, [withEdit, withEditOptions]);
 export default BanUserFromAllPostsMenuItem;
