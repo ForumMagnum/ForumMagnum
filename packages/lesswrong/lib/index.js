@@ -78,6 +78,7 @@ import './collections/posts/permissions.js';
 // Users
 import './collections/users/custom_fields.js';
 import './collections/users/helpers.js';
+import './collections/users/views.js';
 
 // Comments
 import './collections/comments/custom_fields.js';
