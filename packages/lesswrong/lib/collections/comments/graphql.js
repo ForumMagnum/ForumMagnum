@@ -16,9 +16,9 @@ const specificResolvers = {
         let modifier = {$set: {deleted: deleted}};
         modifier = runCallbacks('comments.moderate.sync', modifier);
         context.Comments.update({_id: commentId}, modifier);
-        const updatedComment = context.Comments.findOne(commentId);
+        const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
-        return updatedComment;
+        return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
       } else {
         throw new Error({id: `app.user_cannot_moderate_post`});
       }
