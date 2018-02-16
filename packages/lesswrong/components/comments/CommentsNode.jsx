@@ -47,8 +47,6 @@ class CommentsNode extends PureComponent {
       currentUser,
       highlightDate,
       editMutation,
-      postEditMutation,
-      userEditMutation,
       post,
       muiTheme,
       router,
@@ -77,8 +75,6 @@ class CommentsNode extends PureComponent {
               comment={comment}
               key={comment._id}
               editMutation={editMutation}
-              postEditMutation={postEditMutation}
-              userEditMutation={userEditMutation}
               scrollIntoView={this.scrollIntoView}
               post={post}
               frontPage={frontPage}
@@ -94,8 +90,6 @@ class CommentsNode extends PureComponent {
                   muiTheme={muiTheme}
                   highlightDate={highlightDate}
                   editMutation={editMutation}
-                  postEditMutation={postEditMutation}
-                  userEditMutation={userEditMutation}
                   post={post}
                   frontPage={frontPage}
                 />)}

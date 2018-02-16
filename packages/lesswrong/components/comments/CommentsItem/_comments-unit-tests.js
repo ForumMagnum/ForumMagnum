@@ -10,8 +10,6 @@ export const commentMockProps = {
   router: {params:""},
   comment: {_id:"", user:{username:""}},
   post:{_id:"",slug:""},
-  postEditMutation:()=>{},
-  userEditMutation:()=>{},
 }
 
 describe('CommentsItem', () => {

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
 import { MenuItem } from 'material-ui';
-import Users from 'meteor/vulcan:users';
+import { Posts } from 'meteor/example-forum';
 import PropTypes from 'prop-types';
 
 class BanUserFromPostMenuItem extends PureComponent {
@@ -18,7 +18,7 @@ class BanUserFromPostMenuItem extends PureComponent {
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }
-      this.props.postEditMutation({
+      this.props.editMutation({
         documentId: this.props.comment.postId,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
@@ -33,9 +33,15 @@ class BanUserFromPostMenuItem extends PureComponent {
 
 // TODO - fix RecentCommentsItem so it doesn't throw an error due to the requiredProps, and then uncomment this
 
-// BanUserFromPostMenuItem.propTypes = {
-//   postEditMutation: PropTypes.func.isRequired,
-// };
+BanUserFromPostMenuItem.propTypes = {
+  post: PropTypes.object.isRequired,
+  comment: PropTypes.object.isRequired,
+};
 
-registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem);
+const withEditOptions = {
+  collection: Posts,
+  fragmentName: 'LWPostsPage',
+};
+
+registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, [withEdit, withEditOptions]);
 export default BanUserFromPostMenuItem;

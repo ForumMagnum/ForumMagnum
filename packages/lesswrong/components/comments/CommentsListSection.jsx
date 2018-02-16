@@ -72,8 +72,6 @@ class CommentsListSection extends Component {
       comments,
       postId,
       post,
-      postEditMutation,
-      editMutation
     } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
@@ -87,8 +85,6 @@ class CommentsListSection extends Component {
           comments={comments}
           highlightDate={this.state.highlightDate}
           post={post}
-          postEditMutation={postEditMutation}
-          userEditMutation={editMutation}
         />
         {!currentUser &&
           <div>
@@ -118,10 +114,7 @@ class CommentsListSection extends Component {
   }
 }
 
-const withEditOptions = {
-  collection: Users,
-  fragmentName: 'UsersProfile',
-};
 
-registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter, [withEdit, withEditOptions]);
+
+registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter);
 export default CommentsListSection
