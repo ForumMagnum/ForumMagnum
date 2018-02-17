@@ -55,6 +55,7 @@ class UsersListEditor extends Component {
     addValues({[fieldName]: newIds});
   }
   removeUserId = (userId) => {
+    console.log(userId)
     const newIds = _.without(this.state.userIds, userId);
     this.setState({
       userIds: newIds,
@@ -65,18 +66,37 @@ class UsersListEditor extends Component {
   }
   shouldCancelStart = (e) => {
     // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
-    const disabledElements = ['input', 'textarea', 'select', 'option', 'button', 'svg', 'path'];
-    if (disabledElements.indexOf(e.target.tagName.toLowerCase()) !== -1) {
+    const disabledElements = [
+      'input',
+      'textarea',
+      'select',
+      'option',
+      'button',
+      'svg',
+      'path'
+    ];
+    if (disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
     }
   }
 
   render() {
-    return <div className="users-list-editor">
-      {this.props.label && <h5>{this.props.label}</h5>}
-      <SortableList axis="xy" items={this.state.userIds} onSortEnd={this.onSortEnd} currentUser={this.props.currentUser} removeItem={this.removeUserId} shouldCancelStart={this.shouldCancelStart}/>
-      <Components.UsersSearchAutoComplete clickAction={this.addUserId} />
-    </div>
+    return (
+      <div className="users-list-editor">
+        {this.props.label && <h5>{this.props.label}</h5>}
+        <SortableList
+          axis="xy"
+          items={this.state.userIds}
+          onSortEnd={this.onSortEnd}
+          currentUser={this.props.currentUser}
+          removeItem={this.removeUserId}
+          shouldCancelStart={this.shouldCancelStart}
+        />
+        <Components.UsersSearchAutoComplete
+          clickAction={this.addUserId}
+        />
+      </div>
+    )
   }
 }
 
