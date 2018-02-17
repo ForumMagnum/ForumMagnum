@@ -42,7 +42,7 @@ class NotificationsMenu extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      notificationTerms: {view: 'userNotifications', userId: props.currentUser ? props.currentUser._id : ""},
+      notificationTerms: {view: 'userNotifications'},
       lastNotificationsCheck: props.currentUser ? props.currentUser.lastNotificationsCheck : ""
     }
   }
@@ -52,10 +52,10 @@ class NotificationsMenu extends Component {
       if (!currentUser) {
         return null;
       } else {
-        const AllNotificationTerms = {view: 'userNotifications', userId: currentUser._id};
-        const PostsNotificationTerms = {view: 'userNotifications', userId: currentUser._id, type: "newPost"};
-        const CommentsNotificationTerms = {view: 'userNotifications', userId: currentUser._id, type: "newComment"};
-        const MessagesNotificationTerms = {view: 'userNotifications', userId: currentUser._id, type: "newMessage"};
+        const AllNotificationTerms = {view: 'userNotifications'};
+        const PostsNotificationTerms = {view: 'userNotifications', type: "newPost"};
+        const CommentsNotificationTerms = {view: 'userNotifications', type: "newComment"};
+        const MessagesNotificationTerms = {view: 'userNotifications', type: "newMessage"};
         return (
           <div className="notifications-menu">
             <Drawer
@@ -93,7 +93,7 @@ class NotificationsMenu extends Component {
                     onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
                   />
                 </Tabs>
-                <Components.NotificationsList terms={this.state.notificationTerms} />
+                <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
               </div>
             </Drawer>
           </div>
