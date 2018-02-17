@@ -161,6 +161,8 @@ Users.addField([
       insertableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),
       editableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),
       optional: true,
+      label: "Users banned from commenting on your posts",
+      control: 'UsersListEditor'
     }
   },
   {

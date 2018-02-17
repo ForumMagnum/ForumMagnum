@@ -1,3 +1,5 @@
+$comments-font: "freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
 .accounts-ui{
   .field{
     margin-bottom: $vmargin/2;
@@ -195,5 +197,48 @@
   span.wing {
     width:100px;
     border-bottom:solid 1px $light-grey;
+  }
+}
+
+.users-list-editor {
+  font-family: $comments-font;
+  font-weight: 400;
+  font-size: 12px;
+  li {
+    list-style: none;
+  }
+  .react-autosuggest__suggestion--highlighted {
+      background-color: rgba(0,0,0,0.05);
+  }
+  ul {
+    margin-left: 0px;
+    padding-left: 0px;
+  }
+}
+
+.users-list-editor-item {
+  font-family: $comments-font;
+  font-weight: 400;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.users-list-edit-item-remove {
+  .remove-icon {
+    vertical-align: middle;
+    height: 12px !important;
+    width: 12px !important;
+  }
+}
+
+.single-users-item-name {
+  font-family: $comments-font;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.react-autosuggest__container {
+  input {
+    outline: none !important;
   }
 }
