@@ -23,6 +23,18 @@ class DeleteCommentMenuItem extends PureComponent {
     this.props.moderateCommentMutation({
       commentId: this.props.comment._id,
       deleted: true,
+      deletedPublic: false,
+      deletedReason: this.state.deletedReason,
+    }).then(()=>this.props.flash("Successfully deleted comment", "success")).catch(/* error */);
+    this.setState({open:false})
+  }
+
+  handleDeletePublic = (event) => {
+    event.preventDefault();
+    this.props.moderateCommentMutation({
+      commentId: this.props.comment._id,
+      deleted: true,
+      deletedPublic: true,
       deletedReason: this.state.deletedReason,
     }).then(()=>this.props.flash("Successfully deleted comment", "success")).catch(/* error */);
     this.setState({open:false})
@@ -32,7 +44,8 @@ class DeleteCommentMenuItem extends PureComponent {
     event.preventDefault();
     this.props.moderateCommentMutation({
       commentId: this.props.comment._id,
-      deleted:false
+      deleted:false,
+      deletedReason:"",
     }).then(()=>this.props.flash("Successfully restored comment", "success")).catch(/* error */);
   }
 
@@ -41,13 +54,19 @@ class DeleteCommentMenuItem extends PureComponent {
     const modalActions = [
       <FlatButton
         label="Cancel"
-        primary={false}
+        primary={true}
         onClick={()=>{this.setState({open:false})}}
       />,
       <FlatButton
-        label="Delete"
+        label="Delete Without Trace"
         primary={true}
+        style={{float:"left"}}
         onClick={this.handleDelete}
+      />,
+      <FlatButton
+        label="Delete"
+        primary={false}
+        onClick={this.handleDeletePublic}
       />,
     ]
 
@@ -60,6 +79,7 @@ class DeleteCommentMenuItem extends PureComponent {
         >
           <Dialog
             style={{zIndex:2101}}
+            contentStyle={{maxWidth:"540px"}}
             title="Delete Comment"
             actions={modalActions}
             open={this.state.open}
