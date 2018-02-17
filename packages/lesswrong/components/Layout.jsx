@@ -52,7 +52,6 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
             <Components.FlashMessages />
             {children}
           </div>
-
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
         </div>
       </MuiThemeProvider>

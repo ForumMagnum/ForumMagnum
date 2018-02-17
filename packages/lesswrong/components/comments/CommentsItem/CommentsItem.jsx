@@ -97,9 +97,18 @@ class CommentsItem extends PureComponent {
     const currentUser = this.props.currentUser;
     const comment = this.props.comment;
     const deletedClass = this.props.comment.deleted ? " deleted" : "";
+    const deletedByUsername = Users.findOne(comment.deletedByUserId) && Users.findOne(comment.deletedByUserId).username
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
+        { comment.deleted && (
+          <div className="comment-item-deleted-info">
+            Deleted
+            {comment.deletedByUsername && <span> by {deletedByUsername}</span>}
+            {comment.deletedDate && <span> at {moment(new Date(comment.deletedDate)).calendar()}</span>}
+            {comment.deletedReason && <span>, with reason: {comment.deletedReason}</span>}
+          </div>
+        )}
         {this.renderCommentBottom()}
       </div>
     )
@@ -131,6 +140,7 @@ class CommentsItem extends PureComponent {
               {this.renderMenu()}
             </div>
             { commentBody }
+
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
@@ -188,6 +198,7 @@ class CommentsItem extends PureComponent {
             targetOrigin={{horizontal: 'right', vertical: 'top'}}
             style={moreActionsMenuStyle}
             iconStyle={moreActionsMenuIconStyle}
+            useLayerForClickAway={true}
           >
             { this.renderEditMenuItem() }
             { this.renderSubscribeMenuItem() }

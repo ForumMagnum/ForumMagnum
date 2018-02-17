@@ -231,6 +231,9 @@ registerFragment(`
     _id
     postId
     deleted
+    deletedDate
+    deletedByUserId
+    deletedReason
     parentCommentId
     topLevelCommentId
     body

@@ -9,11 +9,17 @@ import Users from "meteor/vulcan:users";
 
 const specificResolvers = {
   Mutation: {
-    moderateComment(root, { commentId, deleted}, context) {
+    moderateComment(root, { commentId, deleted, deletedReason}, context) {
       const comment = context.Comments.findOne(commentId)
       const post = context.Posts.findOne(comment.postId)
       if (Users.canModeratePost(context.currentUser, post)) {
-        let modifier = {$set: {deleted: deleted}};
+
+        let modifier = { $set: {
+          deleted: deleted,
+          deletedDate: comment.deletedDate || new Date(),
+          deletedReason: deletedReason,
+          deletedByUserId: context.currentUser._id
+        }};
         modifier = runCallbacks('comments.moderate.sync', modifier);
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
@@ -27,4 +33,4 @@ const specificResolvers = {
 };
 
 addGraphQLResolvers(specificResolvers);
-addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean): Comment');
+addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean, deletedReason: String): Comment');
