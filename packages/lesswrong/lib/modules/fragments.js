@@ -227,13 +227,22 @@ registerFragment(`
 
 registerFragment(`
   fragment CommentsList on Comment {
+    _id
+    deleted
+    deletedDate
+    deletedByUser {
+      _id
+      displayName
+    }
+    deletedReason
+  }
+`)
+
+registerFragment(`
+  fragment CommentsList on Comment {
     # example-forum
     _id
     postId
-    deleted
-    deletedDate
-    deletedByUserId
-    deletedReason
     parentCommentId
     topLevelCommentId
     body

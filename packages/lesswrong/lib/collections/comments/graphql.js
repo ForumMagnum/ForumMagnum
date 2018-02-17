@@ -16,7 +16,7 @@ const specificResolvers = {
       if (Users.canModeratePost(context.currentUser, post)) {
 
         let set = {deleted: deleted}
-        let unset = {};
+        let unset = {$unset: {}};
         if (deleted) {
           set.deletedPublic = deletedPublic;
           set.deletedDate = comment.deletedDate || new Date();
@@ -30,8 +30,8 @@ const specificResolvers = {
             deletedByUserId: true
           }
         }
-
-        let modifier = { $set: set, $unset: unset};
+        let unsetModifier = deleted ? {$unset: unset} : {}
+        let modifier = { $set: set, ...unsetModifier};
         modifier = runCallbacks('comments.moderate.sync', modifier);
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
