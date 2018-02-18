@@ -55,7 +55,6 @@ class UsersListEditor extends Component {
     addValues({[fieldName]: newIds});
   }
   removeUserId = (userId) => {
-    console.log(userId)
     const newIds = _.without(this.state.userIds, userId);
     this.setState({
       userIds: newIds,
