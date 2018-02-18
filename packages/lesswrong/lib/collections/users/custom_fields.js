@@ -71,6 +71,7 @@ Users.addField([
   {
     fieldName: 'website',
     fieldSchema: {
+      regEx: null,
       order: 30,
     }
   },

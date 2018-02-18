@@ -2,11 +2,11 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 ///////////////////////////////////////
-// Order for the Schema is as follows. Change as you see fit: 
-// 00. 
+// Order for the Schema is as follows. Change as you see fit:
+// 00.
 // 10. Display Name
 // 20. Email
-// 30. Bio 
+// 30. Bio
 // 40. Slug
 // 50. Website
 // 60. Twitter username
@@ -249,7 +249,7 @@ const schema = {
   */
   website: {
     type: String,
-    regEx: SimpleSchema.RegEx.Url,
+    hidden: true,
     optional: true,
     control: "text",
     insertableBy: ['members'],
@@ -313,7 +313,7 @@ const schema = {
       resolver: (user, args, { Users }) => {
         return Users.getProfileUrl(user, true);
       },
-    }  
+    }
   }
 
 };
