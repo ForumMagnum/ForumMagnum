@@ -403,8 +403,8 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
   })
 })
 
-describe('CommentsEdit deleted permissions --', async ()=> {
-  it("set deleted should succeed if user in sunshineRegiment", async () => {
+describe('Comments deleted permissions --', async ()=> {
+  it("CommentsEdit Deleted should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
@@ -418,6 +418,37 @@ describe('CommentsEdit deleted permissions --', async ()=> {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     const expectedOutput = { data: { CommentsEdit: { deleted: true } } }
+    return response.should.eventually.deep.equal(expectedOutput);
+  })
+  it("CommentsEdit set Deleted should fail if user is trustLevel1 and has set moderationStyle", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        CommentsEdit(documentId:"${comment._id}",set:{deleted:true}) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    return response.should.be.rejected;
+  })
+  it("moderateComment set deleted should succeed if user in sunshineRegiment", async () => {
+    const user = await createDummyUser({groups:["sunshineRegiment"]})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    const query = `
+      mutation  {
+        moderateComment(commentId:"${comment._id}",deleted:true) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    const expectedOutput = { data: { moderateComment: { deleted: true } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
   it("set deleted should succeed if user in trustLevel1, has set moderationStyle and owns post", async () => {
