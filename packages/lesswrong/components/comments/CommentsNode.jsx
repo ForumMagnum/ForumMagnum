@@ -13,7 +13,7 @@ class CommentsNode extends PureComponent {
     super(props);
     this.state = {
       hover: false,
-      collapsed: props && props.comment && props.comment.baseScore < KARMA_COLLAPSE_THRESHOLD,
+      collapsed: props && props.comment && (props.comment.baseScore < KARMA_COLLAPSE_THRESHOLD || props.comment.deleted),
       finishedScroll: false,
     };
   }
