@@ -158,9 +158,11 @@ Users.addField([
       type: Array,
       group: moderationGroup,
       viewableBy: ['members'],
-      insertableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),
-      editableBy: (currentUser, document) => Users.canEditUsersBannedUserIds(currentUser, document),
+      editableBy: ['trustLevel1'],
+      insertableBy: ['trustLevel1'],
       optional: true,
+      label: "Banned Users",
+      control: 'UsersListEditor'
     }
   },
   {

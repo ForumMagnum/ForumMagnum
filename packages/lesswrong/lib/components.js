@@ -88,7 +88,8 @@ import '../components/search/CommentsSearchHit.jsx';
 import '../components/search/UsersSearchHit.jsx';
 import '../components/search/SequencesSearchHit.jsx';
 import '../components/search/SequencesSearchAutoComplete.jsx';
-
+import '../components/search/UsersSearchAutoComplete.jsx';
+import '../components/search/UsersAutoCompleteHit.jsx';
 import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/SunshineDashboard.jsx';
 import '../components/sunshineDashboard/ReportsList.jsx';
@@ -138,3 +139,6 @@ import '../components/form-components/SequencesListEditor.jsx';
 import '../components/form-components/SequencesListEditorItem.jsx';
 import '../components/form-components/SubmitButton.jsx';
 import '../components/form-components/FormSubmit.jsx';
+import '../components/form-components/SingleUsersItem.jsx';
+import '../components/form-components/SingleUsersItemWrapper.jsx';
+import '../components/form-components/UsersListEditor.jsx';

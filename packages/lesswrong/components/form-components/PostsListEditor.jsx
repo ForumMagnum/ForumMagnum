@@ -80,14 +80,20 @@ class PostsListEditor extends Component {
   shouldCancelStart = (e) => {
     // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
     const disabledElements = ['input', 'textarea', 'select', 'option', 'button', 'svg', 'path'];
-    if (disabledElements.indexOf(e.target.tagName.toLowerCase()) !== -1) {
+    if (disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
     }
   }
 
   render() {
     return <div className="posts-list-editor">
-      <SortableList items={this.state.postIds} onSortEnd={this.onSortEnd} currentUser={this.props.currentUser} removeItem={this.removePostId} shouldCancelStart={this.shouldCancelStart}/>
+      <SortableList
+        items={this.state.postIds}
+        onSortEnd={this.onSortEnd}
+        currentUser={this.props.currentUser}
+        removeItem={this.removePostId}
+        shouldCancelStart={this.shouldCancelStart}
+      />
       <Components.PostsSearchAutoComplete clickAction={this.addPostId} />
     </div>
   }

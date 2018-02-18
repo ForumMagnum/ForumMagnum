@@ -485,6 +485,8 @@ Posts.addField([
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       optional: true,
+      label: "Users banned from commenting on this post",
+      control: "UsersListEditor",
     }
   },
   {

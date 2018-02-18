@@ -197,3 +197,59 @@
     border-bottom:solid 1px $light-grey;
   }
 }
+
+.users-list-editor {
+  font-family: $comments-font;
+  font-weight: 400;
+  font-size: 12px;
+  li {
+    list-style: none;
+  }
+  .react-autosuggest__suggestion--highlighted {
+      background-color: rgba(0,0,0,0.05);
+  }
+  ul {
+    margin-left: 0px;
+    padding-left: 0px;
+  }
+}
+
+.users-list-editor-item {
+  font-family: $comments-font;
+  font-weight: 400;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.users-list-edit-item-remove {
+  .remove-icon {
+    vertical-align: middle;
+    height: 12px !important;
+    width: 12px !important;
+  }
+}
+
+.single-users-item-name {
+  font-family: $comments-font;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.react-autosuggest__container {
+  input {
+    outline: none !important;
+  }
+}
+
+.users-search-hit-name {
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.users-search-hit-meta {
+  color: rgba(0,0,0,0.6);
+}
+
+.users-search-hit-karma {
+  margin-right: 3px;
+}
