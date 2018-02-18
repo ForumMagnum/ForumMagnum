@@ -198,55 +198,6 @@ Comments.addField([
     }
   },
 
-  {
-    fieldName: 'deletedReason',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      control: "checkbox",
-      hidden: true,
-    }
-  },
-
-  {
-    fieldName: 'deletedDate',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      control: "checkbox",
-      hidden: true,
-    }
-  },
-
-  {
-    fieldName: 'deletedByUserId',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
-      hidden: false,
-      control: "text",
-      resolveAs: {
-        fieldName: 'deletedByUser',
-        type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!post.userId) return null;
-          const user = await context.Users.loader.load(post.userId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
-        addOriginalField: true
-      },
-    }
-  },
-
   /**
     spam: Indicates whether a comment has been marked as spam.
     This removes the content of the comment, but still renders replies.
