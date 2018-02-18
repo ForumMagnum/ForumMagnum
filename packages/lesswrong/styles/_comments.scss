@@ -622,6 +622,7 @@ New CSS File
 .i18n-message.author_has_banned_you {
   padding:1em 0;
 }
+
 .comments-delete-modal-body {
   padding-bottom: 10px !important;
   p {
@@ -633,3 +634,12 @@ New CSS File
   margin-top: 10px;
 }
 
+.comments-item-deleted-info {
+  opacity: 0.5;
+}
+
+.comments-item-deleted-info-meta {
+  font-size: 12px;
+  margin-left: 3px;
+  font-style: italic;
+}

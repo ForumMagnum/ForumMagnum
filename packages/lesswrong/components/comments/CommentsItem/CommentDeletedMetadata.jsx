@@ -2,18 +2,23 @@ import { Components, registerComponent, withDocument } from 'meteor/vulcan:core'
 import React from 'react';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
+import { Comments } from 'meteor/example-forum';
 
 const CommentDeletedMetadata = ({document}) => {
   if (document && document.deleted) {
-    const deletedByUsername = document.deletedByUser.displayName
-
+    const deletedByUsername = document.deletedByUser && document.deletedByUser.displayName;
     return (
-      <div className="comment-item-deleted-info">
-        Deleted
-        {document.deletedByUsername && <span> by {deletedByUsername}</span>}
-        {document.deletedDate && <span> at {moment(new Date(document.deletedDate)).calendar()}</span>}
-        {document.deletedReason && <span>, with reason: {document.deletedReason}</span>}
-      </div>
+      <p className="comments-item-deleted-info">
+        {document.deletedReason &&
+          <span className="comments-item-deleted-info-reason">
+            Reason: {document.deletedReason}
+          </span>
+        }
+        <span className="comments-item-deleted-info-meta">
+          {deletedByUsername && <span> by {deletedByUsername}</span>}
+          {document.deletedDate && <span> {moment(new Date(document.deletedDate)).calendar()}</span>}
+        </span>
+      </p>
     )
   } else {
     return null
