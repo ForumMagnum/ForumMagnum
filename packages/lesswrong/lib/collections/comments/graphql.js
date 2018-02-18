@@ -16,22 +16,18 @@ const specificResolvers = {
       if (Users.canModeratePost(context.currentUser, post)) {
 
         let set = {deleted: deleted}
-        let unset = {$unset: {}};
         if (deleted) {
           set.deletedPublic = deletedPublic;
           set.deletedDate = comment.deletedDate || new Date();
           set.deletedReason = deletedReason;
           set.deletedByUserId = context.currentUser._id;
-        } else {
-          unset = {
-            deletedPublic: true,
-            deletedDate: true,
-            deletedReason: true,
-            deletedByUserId: true
-          }
+        } else { //When you undo delete, reset all delete-related fields
+          set.deletedPublic = false;
+          set.deletedDate = null;
+          set.deletedReason = "";
+          set.deletedByUserId = null;
         }
-        let unsetModifier = deleted ? {$unset: unset} : {}
-        let modifier = { $set: set, ...unsetModifier};
+        let modifier = { $set: set };
         modifier = runCallbacks('comments.moderate.sync', modifier);
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
