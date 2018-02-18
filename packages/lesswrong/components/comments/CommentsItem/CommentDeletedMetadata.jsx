@@ -23,9 +23,9 @@ const CommentDeletedMetadata = ({document}) => {
 CommentDeletedMetadata.displayName = "CommentDeletedMetadata";
 
 const options = {
-  collection: Users,
-  queryName: 'LWPostsPageSlugQuery',
-  fragmentName: 'LWPostsPage',
+  collection: Comments,
+  queryName: 'CommentsDeletedMetadataQuery',
+  fragmentName: 'DeletedCommentsMetaData',
 };
 
 registerComponent('CommentDeletedMetadata', CommentDeletedMetadata, [withDocument, options]);
