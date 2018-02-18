@@ -226,11 +226,24 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment DeletedCommentsMetaData on Comment {
+    _id
+    deleted
+    deletedDate
+    deletedByUser {
+      _id
+      displayName
+    }
+    deletedReason
+    deletedPublic
+  }
+`)
+
+registerFragment(`
   fragment CommentsList on Comment {
     # example-forum
     _id
     postId
-    deleted
     parentCommentId
     topLevelCommentId
     body
@@ -240,6 +253,8 @@ registerFragment(`
     repliesBlockedUntil
     # vulcan:users
     userId
+    deleted
+    deletedPublic
     user {
       ...UsersMinimumInfo
     }

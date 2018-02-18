@@ -9,8 +9,8 @@ export default function withModerateComment(options) {
         fragmentName = getFragmentName(fragment)
 
   return graphql(gql`
-    mutation moderateComment($commentId: String, $deleted: Boolean) {
-      moderateComment(commentId: $commentId, deleted: $deleted) {
+    mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {
+      moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {
         ...${fragmentName}
       }
     }
@@ -19,9 +19,9 @@ export default function withModerateComment(options) {
     alias: 'withModerateComment',
     props: ({ ownProps, mutate }) => ({
       moderateCommentMutation: (args) => {
-        const { commentId, deleted } = args;
+        const { commentId, deleted, deletedReason, deletedPublic } = args;
         return mutate({
-          variables: { commentId, deleted }
+          variables: { commentId, deleted, deletedReason, deletedPublic }
         });
       }
     }),

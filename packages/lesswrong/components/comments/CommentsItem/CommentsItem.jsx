@@ -96,23 +96,31 @@ class CommentsItem extends PureComponent {
   render() {
     const currentUser = this.props.currentUser;
     const comment = this.props.comment;
-    const deletedClass = this.props.comment.deleted ? " deleted" : "";
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
-        {this.renderCommentBottom()}
+        {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
     if (comment) {
       return (
-        <div className={"comments-item" + deletedClass}>
+        <div className={
+          classNames(
+            "comments-item",
+            {deleted: comment.deleted && !comment.deletedPublic,
+            "public-deleted": comment.deletedPublic}
+          )}
+        >
           <div className="comments-item-body">
             <div className="comments-item-meta">
               <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
-              <Components.UsersName user={comment.user}/>
-              <div className="comments-item-vote">
-                <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
-              </div>
+              {!comment.deleted && <span>
+                <Components.UsersName user={comment.user}/>
+                <div className="comments-item-vote">
+                  <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
+                </div>
+              </span>}
+              {comment.deleted && <span>[comment deleted] </span>}
               <div className="comments-item-date">
                 { this.props.frontPage ?
                   <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
@@ -131,6 +139,7 @@ class CommentsItem extends PureComponent {
               {this.renderMenu()}
             </div>
             { commentBody }
+
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
@@ -188,6 +197,7 @@ class CommentsItem extends PureComponent {
             targetOrigin={{horizontal: 'right', vertical: 'top'}}
             style={moreActionsMenuStyle}
             iconStyle={moreActionsMenuIconStyle}
+            useLayerForClickAway={true}
           >
             { this.renderEditMenuItem() }
             { this.renderSubscribeMenuItem() }
@@ -291,10 +301,12 @@ class CommentsItem extends PureComponent {
   }
 
   renderComment = () =>  {
-    const htmlBody = {__html: this.props.comment.htmlBody};
+    const comment = this.props.comment;
+    const htmlBody = {__html: comment.htmlBody};
     return (
       <div className="comments-item-text content-body">
-        {htmlBody && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
+        {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
+        {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
       </div>
     )
   }

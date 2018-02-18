@@ -141,6 +141,18 @@ Comments.addField([
   },
 
   {
+    fieldName: 'deletedPublic',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+    }
+  },
+
+  {
     fieldName: 'deletedReason',
     fieldSchema: {
       type: String,
