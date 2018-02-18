@@ -188,63 +188,66 @@ class CommentsItem extends PureComponent {
   renderMenu = () => {
     const comment = this.props.comment;
     const post = this.props.post || comment.post;
-    return (
-      <div className="comments-more-actions-menu">
-        <object>
-          <IconMenu
-            iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
-            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-            targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            style={moreActionsMenuStyle}
-            iconStyle={moreActionsMenuIconStyle}
-            useLayerForClickAway={true}
-          >
-            { this.renderEditMenuItem() }
-            { this.renderSubscribeMenuItem() }
-            { this.renderReportMenuItem() }
-            { this.renderStatsMenuItem() }
-            { this.renderDeleteMenuItem() }
-            { Users.canModeratePost(this.props.currentUser, post) &&
-              <MenuItem
-                className="comment-menu-item-ban-user-submenu"
-                primaryText="Ban User"
-                rightIcon={<ArrowDropRight />}
-                menuItems={[
-                  <Components.BanUserFromPostMenuItem
-                    comment={comment}
-                    post={post}
-                    currentUser={this.props.currentUser}
-                  />,
-                  <Components.BanUserFromAllPostsMenuItem
-                    comment={comment}
-                    post={post}
-                    currentUser={this.props.currentUser}
-                  />
-                ]}
-              />}
-          </IconMenu>
-          { this.state.showReport &&
-            <Components.ReportForm
-              commentId={comment._id}
-              postId={comment.postId}
-              link={"/posts/" + comment.postId + "/a/" + comment._id}
-              userId={this.props.currentUser._id}
-              open={true}
-            />
-          }
-          { this.state.showStats &&
-            <Dialog title="Comment Stats"
-              modal={false}
-              actions={<FlatButton label="Close" primary={true} onTouchTap={ this.hideStats }/>}
-              open={this.state.showStats}
-              onRequestClose={this.hideStats}
+    if (comment && post) {
+      return (
+        <div className="comments-more-actions-menu">
+          <object>
+            <IconMenu
+              iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
+              anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+              targetOrigin={{horizontal: 'right', vertical: 'top'}}
+              style={moreActionsMenuStyle}
+              iconStyle={moreActionsMenuIconStyle}
+              useLayerForClickAway={true}
             >
-              <Components.CommentVotesInfo documentId={comment._id} />
-            </Dialog>
-          }
-        </object>
-      </div>
-    )
+              { this.renderEditMenuItem() }
+              { this.renderSubscribeMenuItem() }
+              { this.renderReportMenuItem() }
+              { this.renderStatsMenuItem() }
+              { this.renderDeleteMenuItem() }
+              { Users.canModeratePost(this.props.currentUser, post) &&
+                post.user && Users.canModeratePost(post.user, post) &&
+                <MenuItem
+                  className="comment-menu-item-ban-user-submenu"
+                  primaryText="Ban User"
+                  rightIcon={<ArrowDropRight />}
+                  menuItems={[
+                    <Components.BanUserFromPostMenuItem
+                      comment={comment}
+                      post={post}
+                      currentUser={this.props.currentUser}
+                    />,
+                    <Components.BanUserFromAllPostsMenuItem
+                      comment={comment}
+                      post={post}
+                      currentUser={this.props.currentUser}
+                    />
+                  ]}
+                />}
+            </IconMenu>
+            { this.state.showReport &&
+              <Components.ReportForm
+                commentId={comment._id}
+                postId={comment.postId}
+                link={"/posts/" + comment.postId + "/a/" + comment._id}
+                userId={this.props.currentUser._id}
+                open={true}
+              />
+            }
+            { this.state.showStats &&
+              <Dialog title="Comment Stats"
+                modal={false}
+                actions={<FlatButton label="Close" primary={true} onTouchTap={ this.hideStats }/>}
+                open={this.state.showStats}
+                onRequestClose={this.hideStats}
+              >
+                <Components.CommentVotesInfo documentId={comment._id} />
+              </Dialog>
+            }
+          </object>
+        </div>
+      )
+    }
   }
 
   renderStatsMenuItem = () => {
@@ -255,13 +258,13 @@ class CommentsItem extends PureComponent {
 
   renderSubscribeMenuItem = () => {
     return(
-      <MenuItem 
-             className="comment-menu-item-subscribe" 
-             primaryText="Subscribe" 
+      <MenuItem
+             className="comment-menu-item-subscribe"
+             primaryText="Subscribe"
              disabled={!this.props.currentUser}>
       {this.props.currentUser && <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />}
       </MenuItem>
-    ) 
+    )
   }
 
   renderReportMenuItem = () => {
