@@ -69,6 +69,7 @@ import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
@@ -81,7 +82,8 @@ import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
-import '../components/comments/ModerationGuidelinesContent.jsx';
+import '../components/comments/ModerationGuidelinesContent.jsx'
+
 import '../components/search/PostsSearchHit.jsx';
 import '../components/search/PostsSearchAutoComplete.jsx';
 import '../components/search/CommentsSearchHit.jsx';
