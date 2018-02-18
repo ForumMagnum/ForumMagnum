@@ -193,6 +193,7 @@ New CSS File
 }
 
 .comments-item-text {
+  font-family: $comments-font;
   font-size: 1.1rem !important;
   line-height: 1.5rem !important;
   p, ol, ul, blockquote, .public-DraftStyleDefault-block {
@@ -621,3 +622,14 @@ New CSS File
 .i18n-message.author_has_banned_you {
   padding:1em 0;
 }
+.comments-delete-modal-body {
+  padding-bottom: 10px !important;
+  p {
+    font-family: $comments-font !important;
+  }
+}
+
+.comments-delete-modal-textfield {
+  margin-top: 10px;
+}
+

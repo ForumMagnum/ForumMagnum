@@ -80,20 +80,24 @@ class DeleteCommentMenuItem extends PureComponent {
           <Dialog
             style={{zIndex:2101}}
             contentStyle={{maxWidth:"540px"}}
-            title="Delete Comment"
+            title="What is your reason for deleting this comment?"
             actions={modalActions}
             open={this.state.open}
             onRequestClose={this.handleClose}
+            className="comments-item-text comments-delete-modal"
+            bodyClassName="comments-delete-modal-body"
           >
-            <p>Are you sure you want to delete this comment?</p>
+            <p><em>(If you delete without a trace, the reason will be sent to the author of the comment privately. Otherwise it will be publicly displayed below the comment.)</em></p>
             <TextField
               id="comment-menu-item-delete-reason"
               hintText="Reason for deleting (optional)"
-              multiLine={true}
+              className="comments-delete-modal-textfield"
               underlineShow={false}
               value={this.state.deletedReason}
               onChange={((event,newValue)=> {this.setState({deletedReason:newValue})})}
-              />
+              fullWidth
+              multiLine
+            />
           </Dialog>
         </MenuItem>
       )
