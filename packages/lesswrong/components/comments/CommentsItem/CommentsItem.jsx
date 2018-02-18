@@ -244,13 +244,14 @@ class CommentsItem extends PureComponent {
   }
 
   renderSubscribeMenuItem = () => {
-    if (this.props.currentUser) {
-      return (
-        <MenuItem className="comment-menu-item-subscribe" primaryText="Subscribe" disabled={!this.props.currentUser}>
-          {this.props.currentUser && <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />}
-        </MenuItem>
-      )
-    }
+    return(
+      <MenuItem 
+             className="comment-menu-item-subscribe" 
+             primaryText="Subscribe" 
+             disabled={!this.props.currentUser}>
+      {this.props.currentUser && <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />}
+      </MenuItem>
+    ) 
   }
 
   renderReportMenuItem = () => {
