@@ -14,10 +14,11 @@ Comments.addDefaultView(terms => {
 Comments.addView("postCommentsDeleted", function (terms) {
   return {
     selector: {
-      deleted: true,
+      $or: null,
+      deleted: null,
       postId: terms.postId
     },
-    options: {sort: {deleted:-1}}
+    options: {sort: {deletedDate: -1, baseScore: -1, postedAt: -1}}
   };
 });
 
