@@ -138,6 +138,7 @@ addCallback("comments.new.async", CommentsHTMLSerializeCallbackAsync);
 export async function CommentsDeleteSendPMAsync (newComment, oldComment, context) {
   if (newComment.deleted && !oldComment.deleted && newComment.content) {
     const originalPost = Posts.findOne(newComment.postId);
+    const moderatingUser = Users.findOne(newComment.deletedByUserId);
     const lwAccount = getLessWrongAccount();
 
     const conversationData = {
@@ -152,8 +153,11 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
       context
     });
 
-    const firstMessageContent =
-        `One of your comments on ${originalPost.title} has been removed by the author or a moderator. We've sent you another PM with the content.`
+    let firstMessageContent =
+        `One of your comments on "${originalPost.title}" has been removed by ${moderatingUser.displayName}. We've sent you another PM with the content.`
+    if (newComment.deletedReason) {
+      firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
+    }
 
     const firstMessageData = {
       userId: lwAccount._id,
