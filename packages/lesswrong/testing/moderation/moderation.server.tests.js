@@ -314,8 +314,8 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
 })
 
 describe('UsersEdit bannedUserIds permissions --', async ()=> {
-  it("usersEdit bannedUserIds should succeed if user in trustLevel1 and has set moderationStyle", async () => {
-    const user = await createDummyUser({moderationStyle:"Reign of Terror", groups:["trustLevel1"]})
+  it("usersEdit bannedUserIds should succeed if user in trustLevel1", async () => {
+    const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
       mutation  {
         usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
@@ -326,30 +326,6 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
     const response = runQuery(query, {}, {currentUser:user})
     const expectedOutput = { data: { usersEdit: { bannedUserIds: ["test"] } } }
     return response.should.eventually.deep.equal(expectedOutput);
-  })
-  it("usersEdit bannedUserIds should fail if user in trustLevel1 and has NOT set moderationStyle", async () => {
-    const user = await createDummyUser({groups:["trustLevel1"]})
-    const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
-          bannedUserIds
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
-  })
-  it("usersEdit bannedUserIds should fail if user has set moderationStyle but is NOT in trustLevel1", async () => {
-    const user = await createDummyUser({groups:["trustLevel1"]})
-    const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
-          bannedUserIds
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
   })
   it("usersEdit bannedUserIds should fail if user has set moderationStyle and in trustLevel1 but is NOT the target user ", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
