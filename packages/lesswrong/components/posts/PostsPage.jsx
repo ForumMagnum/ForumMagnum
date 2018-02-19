@@ -131,7 +131,7 @@ class PostsPage extends Component {
       const post = this.props.document;
       const userId = this.props.currentUser && this.props.currentUser._id;
       const htmlBody = {__html: post.htmlBody};
-      const commentTerms = _.isEmpty(this.props.location && this.props.location.query) ? {view: 'postCommentsTop', limit: 100}: this.props.location.query;
+      const commentTerms = _.isEmpty(this.props.location && this.props.location.query) ? {view: 'postCommentsTop', limit: 200}: this.props.location.query;
       return (
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
