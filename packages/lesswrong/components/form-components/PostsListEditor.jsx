@@ -94,7 +94,10 @@ class PostsListEditor extends Component {
         removeItem={this.removePostId}
         shouldCancelStart={this.shouldCancelStart}
       />
-      <Components.PostsSearchAutoComplete clickAction={this.addPostId} />
+      <Components.PostsSearchAutoComplete
+        clickAction={this.addPostId}
+        HitComponent={Components.PostsListEditorSearchHit}
+      />
     </div>
   }
 }
