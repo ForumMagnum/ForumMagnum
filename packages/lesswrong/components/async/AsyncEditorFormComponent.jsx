@@ -225,6 +225,7 @@ class AsyncEditorFormComponent extends Component {
         <Editor
           editorState={this.state.editorState}
           onChange={this.onChange}
+          spellCheck={true}
           plugins={this.plugins}
           ref={(element) => { this.editor = element; }}
         />

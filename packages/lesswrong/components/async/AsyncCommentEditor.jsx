@@ -200,6 +200,7 @@ class AsyncCommentEditor extends Component {
       <div className={className} onClick={this.focus}>
         <Editor
           editorState={this.state.editorState}
+          spellCheck={true}
           onChange={this.onChange}
           plugins={this.plugins}
           ref={(element) => { this.editor = element; }}
