@@ -8,7 +8,7 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit}) => <div className="search-results-users-item users-item">
+const UsersSearchHit = ({hit, clickAction}) => <div className="search-results-users-item users-item">
   <Link
     to={Users.getProfileUrl(hit)}
     onClick={(event) => isLeftClick(event) && clickAction()}
