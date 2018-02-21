@@ -84,6 +84,7 @@ import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
 
+import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';
 import '../components/search/PostsSearchAutoComplete.jsx';
 import '../components/search/CommentsSearchHit.jsx';
