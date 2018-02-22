@@ -66,6 +66,7 @@ class CommentsNode extends PureComponent {
         <div className={nodeClass}
           onMouseEnter={this.toggleHover}
           onMouseLeave={this.toggleHover}
+          id={comment._id}
           style={newComment ? {borderLeft:"solid 5px " + borderColor} : {}}>
           <div ref="comment">
             <Components.CommentsItem
