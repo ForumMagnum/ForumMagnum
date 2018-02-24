@@ -51,7 +51,7 @@ Comments.addView("allRecentComments", function (terms) {
 
 Comments.addView("recentComments", function (terms) {
   return {
-    selector: { score:{$gt:0}},
+    selector: { score:{$gt:0}, deletedPublic: {$ne: true}},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
