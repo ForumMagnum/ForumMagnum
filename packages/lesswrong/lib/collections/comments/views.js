@@ -10,7 +10,6 @@ Comments.addDefaultView(terms => {
   });
 })
 
-
 Comments.addView("postCommentsDeleted", function (terms) {
   return {
     selector: {
@@ -37,7 +36,6 @@ Comments.addView("postCommentsNew", function (terms) {
 });
 
 Comments.addView("postCommentsBest", function (terms) {
-  console.log("ASDF", terms)
   return {
     selector: { postId: terms.postId },
     options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
