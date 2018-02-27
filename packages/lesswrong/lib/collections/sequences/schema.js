@@ -1,4 +1,5 @@
 import { Components } from 'meteor/vulcan:core';
+import Users from 'meteor/vulcan:users';
 
 const schema = {
 
@@ -25,7 +26,7 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['admin'],
-    hidden: true,
+    hidden: Users.canDo('sequences.edit.all'),
     resolveAs: {
       fieldName: 'user',
       type: 'User',
