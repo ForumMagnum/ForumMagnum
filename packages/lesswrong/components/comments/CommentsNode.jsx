@@ -59,6 +59,7 @@ class CommentsNode extends PureComponent {
       "comments-node-even" : comment.level % 2 === 0,
       "comments-node-odd"  : comment.level % 2 != 0,
       "comments-node-linked" : router.location.hash === "#" + comment._id && this.state.finishedScroll,
+      "comments-node-deleted" : comment.deleted
     })
 
     return (
