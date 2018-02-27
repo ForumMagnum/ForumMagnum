@@ -156,11 +156,8 @@
 }
 
 .posts-views-chip-active {
-  &:hover {
-    color: rgba(0,0,0,0.5);
-  }
-  font-weight: 600;
-  color: rgba(0,0,0,0.65);
+  color: rgba(100, 139, 105, 1) !important;
+  text-decoration:underline !important;
 }
 
 .posts-views-button-inactive  {
@@ -189,7 +186,7 @@
 }
 
 .posts-views-chip-inactive:hover {
-  color: rgba(0,0,0,0.65);
+  color: rgba(130, 169, 135, .6);
 }
 
 .highlight-date-selector {

@@ -65,13 +65,13 @@
     }
 
     .sequences-grid-item-top {
-      height: 46px;
+      height: 37px;
       line-height: 1.1;
       border-top-style: solid;
       padding-top: 7px;
 
       &.author {
-        height:70px;
+        height:60px;
       }
     }
     .sequences-grid-item-title {
@@ -105,7 +105,8 @@
     }
     .sequences-grid-item-author {
       margin-top: 3px;
-      color: rgba(0,0,0,0.6);
+      color: rgba(0,0,0,0.5);
+
       a {
         transition: inherit;
       }

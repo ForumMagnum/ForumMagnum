@@ -36,15 +36,30 @@ const testCollections = [
 
 
 const Home = (props, context) => {
+  const currentUser = props.currentUser
   const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
   const recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : props.location.query
   return (
     <div className="home">
-      <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
-        <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-        <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-        <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
-      </Components.Section>
+      { !currentUser ?
+        <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
+          <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
+          <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
+          <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+        </Components.Section>
+        :
+        <Components.Section
+          title="Recommended Sequences"
+          titleLink="/library"
+          titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
+        >
+            <Components.SequencesGridWrapper
+              terms={{view:"frontpageSequences", limit:6}}
+              showAuthor={true}
+              showLoadMore={true}
+            className="frontpage-sequences-grid-list" />
+        </Components.Section>
+      }
       <Components.Section title="Recent Posts"
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />

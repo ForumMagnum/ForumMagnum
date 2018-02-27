@@ -283,3 +283,19 @@ div#mocha {
   width: 20px;
   z-index: 10000000;
 }
+
+.recommended-reading-library {
+  color: rgba(130, 169, 135, 1) !important;
+  position:relative;
+  top:12px;
+  font-size:16px;
+  text-decoration: none !important;
+  font-style:italic;
+
+  &:hover, &:focus, &:active {
+    text-decoration: none !important;
+  }
+  &:hover {
+    color:rgba(130, 169, 135, .5) !important;
+  }
+}
