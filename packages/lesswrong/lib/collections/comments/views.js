@@ -25,26 +25,28 @@ Comments.addView("postCommentsDeleted", function (terms) {
 Comments.addView("postCommentsTop", function (terms) {
   return {
     selector: { postId: terms.postId },
-    options: {sort: {baseScore: -1, postedAt: -1}}
+    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
   };
 });
 
 Comments.addView("postCommentsNew", function (terms) {
   return {
     selector: { postId: terms.postId },
-    options: {sort: {postedAt: -1}}
+    options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
 
 Comments.addView("postCommentsBest", function (terms) {
+  console.log("ASDF", terms)
   return {
     selector: { postId: terms.postId },
-    options: {sort: {baseScore: -1}, postedAt: -1}
+    options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
   };
 });
 
 Comments.addView("allRecentComments", function (terms) {
   return {
+    selector: {deletedPublic: {$ne:true}},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
@@ -52,7 +54,7 @@ Comments.addView("allRecentComments", function (terms) {
 Comments.addView("recentComments", function (terms) {
   return {
     selector: { score:{$gt:0}, deletedPublic: {$ne: true}},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {deletedPublic: -1}, limit: terms.limit || 5},
   };
 });
 Comments.addView("topRecentComments", function (terms) {
@@ -66,6 +68,7 @@ Comments.addView("postCommentsUnread", function (terms) {
   return {
     selector: {
       postId: terms.postId,
+      deleted: {$ne: true }
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
