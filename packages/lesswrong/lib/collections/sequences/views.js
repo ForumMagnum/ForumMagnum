@@ -65,21 +65,3 @@ Sequences.addView("communitySequences", function (terms) {
     },
   };
 });
-
-Sequences.addView("frontpageSequences", function (terms) {
-  return {
-    selector: {
-      userId: terms.userId,
-      frontpage: true,
-      isDeleted: {$ne: true},
-      gridImageId: {$ne: null },
-      canonicalCollectionSlug: { $in: [null, ""] },
-      draft: {$ne: true},
-    },
-    options: {
-      sort: {
-        createdAt: -1
-      }
-    },
-  };
-});

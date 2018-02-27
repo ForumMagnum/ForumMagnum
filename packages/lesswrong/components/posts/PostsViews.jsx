@@ -9,7 +9,7 @@ import Users from 'meteor/vulcan:users';
 
 const viewDataDict = {
   'curated': {
-    label: "Curated Content",
+    label: "Curated Posts",
     description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"star",
@@ -25,7 +25,7 @@ const viewDataDict = {
     rss:true
   },
   'community': {
-    label: 'Community',
+    label: 'Community Posts',
     description: "Community - All personal blogposts by \nLessWrong users (plus curated and frontpage).",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
@@ -62,7 +62,7 @@ const ChipStyle = {
   backgroundColor: "transparent",
   fontSize: "16px",
   fontStyle: "italic",
-  color: "rgba(130, 169, 135, 1)",
+  color: "rgba(0, 0, 0, .45)",
   paddingLeft: "3px",
   paddingRight: "0px",
   lineHeight: "25px",
@@ -147,7 +147,7 @@ class PostsViews extends Component {
             </span>
           </div>
         ))}
-        {this.state.expanded ?
+        {(this.state.expanded || this.props.currentUser) ?
           <span>
             {expandedViews.map(view => (
               <div

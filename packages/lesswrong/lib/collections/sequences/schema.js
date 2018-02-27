@@ -156,15 +156,6 @@ const schema = {
     insertableBy: ['admins'],
   },
 
-  frontpage: {
-    type: Boolean,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    control: "checkbox"
-  },
-
   draft: {
     type: Boolean,
     optional: true,
