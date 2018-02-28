@@ -148,22 +148,12 @@ const schema = {
     control: "ImageUpload",
   },
 
-  curated: {
-    type: Boolean,
+  curatedOrder: {
+    type: Number,
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    control: "checkbox"
-  },
-
-  frontpage: {
-    type: Boolean,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    control: "checkbox"
   },
 
   draft: {

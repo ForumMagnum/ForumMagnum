@@ -17,6 +17,7 @@ registerFragment(`
     canonicalCollectionSlug
     draft
     isDeleted
+    curatedOrder
   }
 `);
 
@@ -29,6 +30,7 @@ registerFragment(`
     canonicalCollectionSlug
     draft
     isDeleted
+    curatedOrder
     chapters {
       _id
       title
