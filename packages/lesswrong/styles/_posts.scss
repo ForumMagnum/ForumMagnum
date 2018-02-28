@@ -156,19 +156,17 @@
 }
 
 .posts-views-chip-active {
-  &:hover {
-    color: rgba(0,0,0,0.5);
-  }
-  font-weight: 600;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, .8) !important;
+  text-decoration:underline !important;
 }
 
 .posts-views-button-inactive  {
   .rss-out-linkbuilder {
-    color: rgba(0,0,0,0.5);
+    color: rgba(0,0,0,0.45);
   }
 }
 .view-chip-menu-item {
+  font-style:normal;
   z-index:2;
   color:rgba(255,255,255,.75);
   text-decoration: none;
@@ -189,7 +187,7 @@
 }
 
 .posts-views-chip-inactive:hover {
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, .3);
 }
 
 .highlight-date-selector {

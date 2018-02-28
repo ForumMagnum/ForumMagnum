@@ -36,16 +36,48 @@ const testCollections = [
 
 
 const Home = (props, context) => {
+  const currentUser = props.currentUser
   const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
   const recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : props.location.query
+  const curatedPostsTerms = {view:"curated", limit:3}
+  let recentPostsTitle = "Recent Posts"
+  switch (recentPostsTerms.view) {
+    case "frontpage":
+      recentPostsTitle = "Frontpage Posts"; break;
+    case "curated":
+      recentPostsTitle = "Curated Posts"; break;
+    case "community":
+      recentPostsTitle = "Community Posts"; break;
+    default:
+      return "Recent Posts";
+  }
   return (
     <div className="home">
-      <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
-        <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-        <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-        <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
-      </Components.Section>
-      <Components.Section title="Recent Posts"
+      { !currentUser ?
+        <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
+          <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
+          <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
+          <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+        </Components.Section>
+        :
+        <div>
+          <Components.Section
+            title="Recommended Sequences"
+            titleLink="/library"
+            titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
+          >
+              <Components.SequencesGridWrapper
+                terms={{view:"curatedSequences", limit:6}}
+                showAuthor={true}
+                showLoadMore={false}
+              className="frontpage-sequences-grid-list" />
+          </Components.Section>
+          <Components.Section title="Curated Content">
+            <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
+          </Components.Section>
+        </div>
+      }
+      <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
         </div>} >
