@@ -38,7 +38,7 @@ const testCollections = [
 const Home = (props, context) => {
   const currentUser = props.currentUser
   const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
-  const recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : props.location.query
+  let recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : _.clone(props.location.query)
   if (recentPostsTerms.view === "curated" && currentUser) {
     recentPostsTerms.offset = 3
   }
