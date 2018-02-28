@@ -34,14 +34,14 @@ Sequences.addView("curatedSequences", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      curated: true,
+      curatedOrder: {$exists: true},
       isDeleted: {$ne: true},
       gridImageId: {$ne: null },
-      canonicalCollectionSlug: { $in: [null, ""] },
       draft: {$ne: true},
     },
     options: {
       sort: {
+        curatedOrder: -1,
         createdAt: -1
       }
     },
@@ -52,7 +52,7 @@ Sequences.addView("communitySequences", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      curated: {$ne: true},
+      curatedOrder: {$exists: false},
       gridImageId: {$ne: null },
       canonicalCollectionSlug: { $in: [null, ""] },
       isDeleted: {$ne: true},
