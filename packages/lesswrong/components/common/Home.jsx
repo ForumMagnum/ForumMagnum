@@ -38,7 +38,10 @@ const testCollections = [
 const Home = (props, context) => {
   const currentUser = props.currentUser
   const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
-  const recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : props.location.query
+  let recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : _.clone(props.location.query)
+  if (recentPostsTerms.view === "curated" && currentUser) {
+    recentPostsTerms.offset = 3
+  }
   const curatedPostsTerms = {view:"curated", limit:3}
   let recentPostsTitle = "Recent Posts"
   switch (recentPostsTerms.view) {
@@ -67,7 +70,7 @@ const Home = (props, context) => {
             titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
           >
               <Components.SequencesGridWrapper
-                terms={{view:"curatedSequences", limit:6}}
+                terms={{view:"curatedSequences", limit:3}}
                 showAuthor={true}
                 showLoadMore={false}
               className="frontpage-sequences-grid-list" />
