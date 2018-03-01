@@ -57,7 +57,12 @@ const Home = (props, context) => {
   return (
     <div className="home">
       { !currentUser ?
-        <Components.Section contentStyle={{marginTop: '-20px'}} title="Recommended Reading" titleLink="/library">
+        <Components.Section
+          contentStyle={{marginTop: '-20px'}}
+          title="Recommended Reading"
+          titleLink="/library"
+          titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
+        >
           <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
           <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
           <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
