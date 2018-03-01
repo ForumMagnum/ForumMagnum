@@ -111,20 +111,23 @@ class PostsItem extends PureComponent {
           </FontIcon>
           Collapse
         </span>
-        <Link to={Posts.getPageUrl(this.props.post)}>
+        <Link to={this.getPostLink()}>
           <span className="posts-item-view-full-post">
-            Continue to Full Post {this.props.post.wordCount && <span>({this.props.post.wordCount} words)</span>}
+            Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
           </span>
         </Link>
       </div>
     )
   }
 
+  getPostLink = () => {
+   const {post, chapter} = this.props
+   return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+ }
+
   render() {
 
     const {post, inlineCommentCount, currentUser} = this.props;
-    const read = this.state.lastVisitedAt;
-    const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
 
     const commentCount = post.commentCount ? post.commentCount : 0
 
@@ -151,10 +154,6 @@ class PostsItem extends PureComponent {
         </div>
       )
     }
-    let tooltipText1 = "last visit: ";
-    let tooltipText2 = "last comment: ";
-    tooltipText1 = tooltipText1 + (read ? moment(this.state.lastVisitedAt).fromNow() : "never");
-    tooltipText2 = tooltipText2 + (this.state.lastCommentedAt ? moment(this.state.lastCommentedAt).fromNow() : "never");
 
     if (this.state.showNewComments || this.state.showHighlight) {
       paperStyle.outline = "solid 1px rgba(0,0,0,.15)"
@@ -174,7 +173,7 @@ class PostsItem extends PureComponent {
           >
 
             <div className="posts-item-body">
-              <Link to={Posts.getPageUrl(post)} className="posts-item-title-link">
+              <Link to={this.getPostLink()} className="posts-item-title-link">
                 <h3 className="posts-item-title">
                   {post.url && "[Link]"}{post.unlisted && "[Unlisted]"} {post.title}
                 </h3>
@@ -249,7 +248,7 @@ class PostsItem extends PureComponent {
                   </FontIcon>
                   Collapse
                 </span>
-                <Link className="posts-item-view-all-comments" to={Posts.getPageUrl(post) + "#comments"}>
+                <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
                   View All Comments
                 </Link>
               </div>
@@ -275,7 +274,7 @@ class PostsItem extends PureComponent {
                   </FontIcon>
                   Collapse
                 </span>
-                <Link className="posts-item-view-all-comments" to={Posts.getPageUrl(post) + "#comments"}>
+                <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
                   View All Comments
                 </Link>
               </div>
