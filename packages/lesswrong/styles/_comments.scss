@@ -652,3 +652,19 @@ New CSS File
   margin-left: 3px;
   font-style: italic;
 }
+
+.comments-children {
+  position:relative;
+}
+.comments-parent-scroll {
+  position:absolute;
+  top:0;
+  left:0;
+  width:10px;
+  height:100%;
+  cursor:pointer;
+
+  &:hover {
+    background-color:rgba(0,0,0,.075);
+  }
+}

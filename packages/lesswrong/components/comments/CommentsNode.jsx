@@ -84,7 +84,7 @@ class CommentsNode extends PureComponent {
           </div>
           {!this.state.collapsed && comment.childrenResults ?
             <div className="comments-children">
-
+              <div className="comments-parent-scroll" onTouchTap={this.scrollIntoView}></div>
               {comment.childrenResults.map(comment =>
                 <Components.CommentsNode currentUser={currentUser}
                   comment={comment}
