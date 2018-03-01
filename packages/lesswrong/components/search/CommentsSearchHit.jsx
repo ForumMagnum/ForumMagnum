@@ -16,7 +16,7 @@ const isLeftClick = (event) => {
 const CommentsSearchHit = ({hit, clickAction}) => {
   return <div className="search-results-comments-item recent-comments-item comments-item">
     <Link
-      to={"/posts/" + hit.postId + "/" + hit.postSlug + "/" + hit._id}
+      to={"/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id}
       onClick={(event) => isLeftClick(event) && clickAction()}
     >
         <div className="comments-item-body recent-comments-item-body ">
