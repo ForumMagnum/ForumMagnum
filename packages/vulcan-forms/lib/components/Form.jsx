@@ -127,7 +127,7 @@ class Form extends Component {
       field.label = this.getLabel(fieldName);
 
       // add value
-      if (document[fieldName]){
+      if (typeof document[fieldName] !== 'undefined' && document[fieldName] !== null){
 
         field.value = document[fieldName];
 
@@ -194,6 +194,11 @@ class Form extends Component {
       // add limit
       if (fieldSchema.limit) {
        field.limit = fieldSchema.limit;
+      }
+
+      // add description as help prop
+      if (fieldSchema.description) {
+        field.help = fieldSchema.description;
       }
 
       // add placeholder

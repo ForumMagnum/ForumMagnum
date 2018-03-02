@@ -1,8 +1,10 @@
-import { debug, debugGroup, debugGroupEnd, runCallbacksAsync, runCallbacks, addCallback } from 'meteor/vulcan:core';
+import { Connectors, getSetting, debug, debugGroup, debugGroupEnd, runCallbacksAsync, runCallbacks, addCallback } from 'meteor/vulcan:core';
 import { createError } from 'apollo-errors';
 import Votes from './votes/collection.js';
 import Users from 'meteor/vulcan:users';
 import { recalculateScore } from './scoring.js';
+
+const database = getSetting('database', 'mongo');
 
 /*
 
@@ -53,8 +55,8 @@ const calculateTotalPower = votes => _.pluck(votes, 'power').reduce((a, b) => a 
 Test if a user has voted on the server
 
 */
-const hasVotedServer = ({ document, voteType, user }) => {
-  const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType});
+const hasVotedServer = async ({ document, voteType, user }) => {
+  const vote = await Connectors[database].get(Votes, {documentId: document._id, userId: user._id, voteType});
   return vote;
 }
 
@@ -88,7 +90,7 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 Add a vote of a specific type on the server
 
 */
-const addVoteServer = (voteOptions) => {
+const addVoteServer = async (voteOptions) => {
 
   const { document, collection, voteType, user, voteId, updateDocument } = voteOptions;
   const newDocument = _.clone(document);
@@ -96,14 +98,14 @@ const addVoteServer = (voteOptions) => {
   // create vote and insert it
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
   delete vote.__typename;
-  Votes.insert(vote);
+  await Connectors[database].create(Votes, vote);
 
   newDocument.baseScore = document.baseScore ? document.baseScore + vote.power : vote.power;
   newDocument.score = recalculateScore(newDocument);
 
   if (updateDocument) {
     // update document score & set item as active
-    collection.update({_id: document._id}, {$set: {inactive: false, baseScore: newDocument.baseScore, score: newDocument.score}});
+    await Connectors[database].update(collection, {_id: document._id}, {$set: {inactive: false, baseScore: newDocument.baseScore, score: newDocument.score}});
   }
   return {newDocument, vote};
 }
@@ -148,13 +150,13 @@ const clearVotesClient = ({ document }) => {
 Clear all votes for a given document and user (server)
 
 */
-const clearVotesServer = ({ document, user, collection, updateDocument }) => {
+const clearVotesServer = async ({ document, user, collection, updateDocument }) => {
   const newDocument = _.clone(document);
-  const votes = Votes.find({ documentId: document._id, userId: user._id}).fetch();
+  const votes = await Connectors[database].find(Votes, { documentId: document._id, userId: user._id});
   if (votes.length) {
-    Votes.remove({documentId: document._id, userId: user._id});
+    await Connectors[database].delete(Votes, {documentId: document._id, userId: user._id});
     if (updateDocument) {
-      collection.update({_id: document._id}, {$inc: {baseScore: -calculateTotalPower(votes) }});
+      await Connectors[database].update(collection, {_id: document._id}, {$inc: {baseScore: -calculateTotalPower(votes) }});
     }
     newDocument.baseScore -= calculateTotalPower(votes);
     newDocument.score = recalculateScore(newDocument);
@@ -167,20 +169,21 @@ const clearVotesServer = ({ document, user, collection, updateDocument }) => {
 Cancel votes of a specific type on a given document (server)
 
 */
-const cancelVoteServer = ({ document, voteType, collection, user, updateDocument }) => {
+const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }) => {
 
   const newDocument = _.clone(document);
 
-  const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType})
+  const vote = await Connectors[database].get(Votes, {documentId: document._id, userId: user._id, voteType})
 
   // remove vote object
-  Votes.remove({_id: vote._id});
+  await Connectors[database].delete(Votes, {_id: vote._id});
   newDocument.baseScore -= vote.power;
   newDocument.score = recalculateScore(newDocument);
 
   // update document score
   if (updateDocument) {
-    collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }, $set: {inactive: false, score: newDocument.score}});
+    // update document score
+    await Connectors[database].update(collection, {_id: document._id}, {$inc: {baseScore: -vote.power }, $set: {inactive: false, score: newDocument.score}});
   }
 
 
@@ -277,10 +280,10 @@ if set to true, this will perform its own database updates. If false, will only
 return an updated document without performing any database operations on it.
 
 */
-export const performVoteServer = ({ documentId, document, voteType = 'upvote', collection, voteId, user, updateDocument = true }) => {
+export const performVoteServer = async ({ documentId, document, voteType = 'upvote', collection, voteId, user, updateDocument = true }) => {
 
   const collectionName = collection.options.collectionName;
-  document = document || collection.findOne(documentId);
+  document = document || await Connectors[database].get(collection, documentId);
 
   debug('');
   debugGroup(`--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------`);
@@ -301,7 +304,7 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
     // console.log('action: cancel')
 
     // runCallbacks(`votes.cancel.sync`, document, collection, user);
-    let voteDocTuple = cancelVoteServer(voteOptions);
+    let voteDocTuple = await cancelVoteServer(voteOptions);
     document = voteDocTuple.newDocument;
     runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
 
@@ -311,11 +314,11 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
     // console.log('action: vote')
 
     if (voteTypes[voteType].exclusive) {
-      document = clearVotesServer(voteOptions)
+      document = await clearVotesServer(voteOptions)
     }
 
     // runCallbacks(`votes.${voteType}.sync`, document, collection, user);
-    let voteDocTuple = addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
+    let voteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
     document = voteDocTuple.newDocument;
     runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
   }
