@@ -52,7 +52,7 @@ function PostsCategoryParameter(parameters, terms, apolloClient) {
     const operator = getSetting('forum.categoriesFilter', 'union') === 'union' ? '$in' : '$all';
 
     // parameters.selector = Meteor.isClient ? {...parameters.selector, 'categories._id': {$in: categoriesIds}} : {...parameters.selector, categories: {[operator]: categoriesIds}};
-    parameters.selector = {...parameters.selector, categories: {[operator]: categoriesIds}};
+    parameters.selector = {...parameters.selector, categoriesIds: {[operator]: categoriesIds}};
   }
 
   return parameters;

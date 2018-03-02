@@ -85,7 +85,12 @@ addCallback('users.remove.async', UsersRemoveDeletePosts);
 Posts.increaseClicks = (post, ip) => {
   if (getSetting('forum.trackClickEvents', true)) {
     // make sure this IP hasn't previously clicked on this post
-    const existingClickEvent = Events.findOne({ name: 'click', 'properties.postId': post._id, 'properties.ip': ip });
+    let existingClickEvent = false;
+    try {
+      existingClickEvent = Events.findOne({name: 'click', 'properties.postId': post._id, 'properties.ip': ip});
+    } catch (error) {
+      console.error(error);
+    }
 
     if (!existingClickEvent) {
       // Events.log(clickEvent); // Sidebar only: don't log event
@@ -101,8 +106,8 @@ function PostsClickTracking(post, ip) {
 }
 
 // track links clicked, locally in Events collection
-// note: this event is not sent to segment cause we cannot access the current user
-// in our server-side route /out -> sending an event would create a new anonymous
+// note: this event is not sent to segment cause we cannot access the current user 
+// in our server-side route /out -> sending an event would create a new anonymous 
 // user: the free limit of 1,000 unique users per month would be reached quickly
 addCallback('posts.click.async', PostsClickTracking);
 

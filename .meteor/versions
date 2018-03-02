@@ -29,7 +29,7 @@ ecmascript-runtime-server@0.5.0
 ejson@1.1.0
 email@1.2.3
 es5-shim@4.7.3
-example-forum@1.8.7
+example-forum@1.8.9
 facebook-oauth@1.4.0
 fourseven:scss@4.5.4
 geojson-utils@1.0.10

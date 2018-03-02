@@ -39,9 +39,9 @@ registerFragment(`
     website
     groups
     karma
-    # example-forum
+    # vulcan:posts
     postCount
-    # example-forum
+    # vulcan:comments
     commentCount
   }
 `);

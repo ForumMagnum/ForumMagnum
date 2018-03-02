@@ -32,8 +32,8 @@ Posts.addField([
         fieldName: 'categories',
         type: '[Category]',
         resolver: async (post, args, {currentUser, Users, Categories}) => {
-          if (!post.categories) return [];
-          const categories = _.compact(await Categories.loader.loadMany(post.categories));
+          if (!post.categoriesIds) return [];
+          const categories = _.compact(await Categories.loader.loadMany(post.categoriesIds));
           return Users.restrictViewableFields(currentUser, Categories, categories);
         },
         addOriginalField: true,
