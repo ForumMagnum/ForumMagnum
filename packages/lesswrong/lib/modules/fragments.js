@@ -269,6 +269,24 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment RecentDiscussionThreadsList on Post {
+    _id
+    slug
+    title
+    baseScore
+    hideFrontpageComments
+    lastCommentedAt
+    commentCount
+    wordCount
+    excerpt
+    lastVisitedAt
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
   fragment SelectCommentsList on Comment {
     ...CommentsList
     post {

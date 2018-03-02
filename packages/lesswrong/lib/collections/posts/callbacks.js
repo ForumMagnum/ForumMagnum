@@ -90,7 +90,7 @@ Posts.convertFromContent = (content) => {
   return {
     htmlBody: draftToHTML(contentState),
     body: contentState.getPlainText(),
-    excerpt: contentState.getPlainText().slice(0,140),
+    excerpt: contentState.getPlainText().slice(0,600),
     wordCount: contentState.getPlainText().split(" ").length
   }
 }
@@ -101,7 +101,7 @@ Posts.convertFromContent = (content) => {
 
 Posts.convertFromHTML = (html) => {
   const body = htmlToText.fromString(html);
-  const excerpt = body.slice(0,140);
+  const excerpt = body.slice(0,600);
   const wordCount = body.split(" ").length
   return {
     body,

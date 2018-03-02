@@ -55,6 +55,20 @@ Comments.addView("recentComments", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
+
+Comments.addView("recentDiscussionThread", function (terms) {
+  const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
+  return {
+    selector: {
+      postId: terms.postId,
+      score: {$gt:0},
+      deletedPublic: {$ne: true},
+      postedAt: {$gt: twoDaysAgo}
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5}
+  };
+})
+
 Comments.addView("topRecentComments", function (terms) {
   return {
     selector: { score:{$gt:0}, postId:terms.postId},
@@ -68,6 +82,6 @@ Comments.addView("postCommentsUnread", function (terms) {
       postId: terms.postId,
       deleted: {$ne: true }
     },
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
 });

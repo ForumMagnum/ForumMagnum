@@ -256,7 +256,7 @@ class PostsItem extends PureComponent {
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={this.state.lastVisitedAt}
-                terms={{view:"postCommentsUnread", postId:this.props.post._id}}
+                terms={{view:"postCommentsUnread", limit:12, postId:this.props.post._id}}
                 post={post}
               />
               { post.commentCount > 10 && <div>
