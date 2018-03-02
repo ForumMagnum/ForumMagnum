@@ -12,7 +12,6 @@ import { addPageFunction, addInitFunction } from 'meteor/vulcan:events';
 */
 
 function googleAnaticsTrackPage() {
-  console.log("Send GA request");
   if (window && window.ga) {
     window.ga('send', 'pageview', {
       page: window.location.pathname,
