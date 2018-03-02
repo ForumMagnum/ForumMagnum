@@ -66,7 +66,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
           )}>
           { comment.parentCommentId && this.state.showParent && (
             <div className="recent-comment-parent">
-              <Components.RecentCommentsItem
+              <Components.RecentCommentsSingle
                 currentUser={this.props.currentUser}
                 documentId={comment.parentCommentId}
                 level={level + 1}
@@ -117,15 +117,4 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-// Removes the excess requiredProps from RecentCommentsItem
-// TODO - decide whether RecentCommentsItem should display "ban user" stuff if applicable
-
-RecentCommentsItem.propTypes = {};
-
-const documentOptions = {
-  collection: Comments,
-  queryName: 'RecentCommentsQuery',
-  fragmentName: 'SelectCommentsList',
-};
-
-registerComponent('RecentCommentsItem', RecentCommentsItem, [withDocument, documentOptions]);
+registerComponent('RecentCommentsItem', RecentCommentsItem);
