@@ -21,6 +21,7 @@ dump/*
 
 settings.json
 settings-dev.json
+settings-dev-livedb.json
 settings.json.not-used
 .idea
 

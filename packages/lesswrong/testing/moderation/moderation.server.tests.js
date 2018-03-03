@@ -513,3 +513,75 @@ describe('Comments deleted permissions --', async ()=> {
     return response.should.be.rejected;
   })
 })
+
+describe('CommentLock permissions --', async ()=> {
+  it("PostsEdit.commentLock should succeed if user in sunshineRegiment", async () => {
+    const user = await createDummyUser({groups:["sunshineRegiment"]})
+    const author = await createDummyUser()
+    const post = await createDummyPost(author)
+    const query = `
+      mutation  {
+        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
+          commentsLocked
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    const expectedOutput = { data: { PostsEdit: { commentsLocked: true } } }
+    return response.should.eventually.deep.equal(expectedOutput);
+  })
+  it("PostsEdit.commentLock should fail if user is rando", async () => {
+    const user = await createDummyUser()
+    const author = await createDummyUser()
+    const post = await createDummyPost(author)
+    const query = `
+      mutation  {
+        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
+          commentsLocked
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    return response.should.be.rejected;
+  })
+  it("PostsEdit.commentLock should fail if author not in canCommentLock", async () => {
+    const author = await createDummyUser()
+    const post = await createDummyPost(author)
+    const query = `
+      mutation  {
+        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
+          commentsLocked
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:author})
+    return response.should.be.rejected;
+  })
+  it("PostsEdit.commentLock should fail if author in canCommentLock", async () => {
+    const author = await createDummyUser({groups:["canCommentLock"]})
+    const post = await createDummyPost(author)
+    const query = `
+      mutation  {
+        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
+          commentsLocked
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:author})
+    const expectedOutput = { data: { PostsEdit: { commentsLocked: true } } }
+    return response.should.eventually.deep.equal(expectedOutput);
+  })
+  it("CommentsNew should fail if post is commentLocked", async () => {
+    const user = await createDummyUser()
+    const post = await createDummyPost(undefined, {commentsLocked:true})
+    const query = `
+      mutation CommentsNew {
+        CommentsNew(document:{postId:"${post._id}", content:{}}){
+          postId
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    return response.should.be.rejected;
+  });
+})
