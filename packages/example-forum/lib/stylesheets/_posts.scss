@@ -77,10 +77,6 @@
   width: 100%;
   background: $white;
   color: $active-color;
-
-  @include very-small-break() {
-    margin:0;
-  }
 }
 
 .posts-load-more-loading{
@@ -106,7 +102,7 @@
 
 .posts-item-vote{
   @include small{
-    float: right;
+    float: right;    
   }
   @include medium-large{
     margin-right: $hmargin;
@@ -296,7 +292,7 @@
     &:hover{
       background: inherit;
       color: inherit;
-      border: inherit;
+      border: inherit;      
     }
   }
   .posts-no-results{

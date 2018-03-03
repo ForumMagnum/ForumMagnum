@@ -146,3 +146,5 @@ describe('Voting', async () => {
     });
   })
 })
+
+process.on('unhandledRejection', r => console.log(r));

@@ -56,6 +56,7 @@ VulcanEmail.addEmails({
             htmlBody
             postedAt
           }
+          
         }
       }
     `,

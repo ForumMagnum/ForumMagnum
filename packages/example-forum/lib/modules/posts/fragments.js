@@ -2,7 +2,7 @@ import { registerFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
   fragment PostsList on Post {
-    # example-forum
+    # posts
     _id
     title
     url
@@ -21,11 +21,11 @@ registerFragment(`
     }
     # embedly
     thumbnailUrl
-    # example-forum
+    # categories
     categories {
       ...CategoriesMinimumInfo
     }
-    # example-forum
+    # comments
     commentCount
     commenters {
       ...UsersMinimumInfo
@@ -46,3 +46,4 @@ registerFragment(`
     htmlBody
   }
 `);
+

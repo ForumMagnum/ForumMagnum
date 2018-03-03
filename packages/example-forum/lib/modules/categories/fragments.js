@@ -3,7 +3,7 @@ import { registerFragment } from 'meteor/vulcan:core';
 // note: fragment used by default on CategoriesList & PostsList fragments
 registerFragment(`
   fragment CategoriesMinimumInfo on Category {
-    # example-forum
+    # vulcan:categories
     _id
     name
     slug
@@ -12,7 +12,7 @@ registerFragment(`
 
 registerFragment(`
   fragment CategoriesList on Category {
-    # example-forum
+    # vulcan:categories
     ...CategoriesMinimumInfo
     description
     order

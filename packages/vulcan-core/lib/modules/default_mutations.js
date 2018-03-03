@@ -4,8 +4,10 @@ Default mutations
 
 */
 
-import { registerCallback, newMutation, editMutation, removeMutation, Utils } from 'meteor/vulcan:lib';
+import { registerCallback, newMutator, editMutator, removeMutator, Utils, Connectors, getSetting } from 'meteor/vulcan:lib';
 import Users from 'meteor/vulcan:users';
+
+const database = getSetting('database', 'mongo');
 
 export const getDefaultMutations = (collectionName, options = {}) => {
 
@@ -40,8 +42,8 @@ export const getDefaultMutations = (collectionName, options = {}) => {
         // check if current user can pass check function; else throw error
         Utils.performCheck(this.check, context.currentUser, document);
 
-        // pass document to boilerplate newMutation function
-        return await newMutation({
+        // pass document to boilerplate newMutator function
+        return await newMutator({
           collection,
           document: document, 
           currentUser: context.currentUser,
@@ -78,13 +80,13 @@ export const getDefaultMutations = (collectionName, options = {}) => {
         const collection = context[collectionName];
 
         // get entire unmodified document from database
-        const document = collection.findOne(documentId);
+        const document = await Connectors[database].get(collection, documentId);
 
         // check if user can perform operation; if not throw error
         Utils.performCheck(this.check, context.currentUser, document);
 
-        // call editMutation boilerplate function
-        return await editMutation({
+        // call editMutator boilerplate function
+        return await editMutator({
           collection, 
           documentId: documentId, 
           set: set, 
@@ -107,7 +109,7 @@ export const getDefaultMutations = (collectionName, options = {}) => {
         const collection = context[collectionName];
 
         // check if document exists already
-        const existingDocument = collection.findOne(search, { fields: { _id: 1 } });
+        const existingDocument = await Connectors[database].get(collection, search, { fields: { _id: 1 } });
 
         if (existingDocument) {
           const editArgs = {
@@ -143,10 +145,10 @@ export const getDefaultMutations = (collectionName, options = {}) => {
 
         const collection = context[collectionName];
 
-        const document = collection.findOne(documentId);
+        const document = await Connectors[database].get(collection, documentId);
         Utils.performCheck(this.check, context.currentUser, document, context);
 
-        return await removeMutation({
+        return await removeMutator({
           collection, 
           documentId: documentId, 
           currentUser: context.currentUser,

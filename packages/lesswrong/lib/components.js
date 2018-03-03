@@ -79,6 +79,7 @@ import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
+import '../components/comments/RecentCommentsSingle.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
