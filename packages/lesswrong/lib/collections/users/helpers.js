@@ -28,6 +28,19 @@ Users.canModeratePost = (user, post) => {
   )
 }
 
+Users.canCommentLock = (user, post) => {
+  if (Users.canDo(user,"posts.commentLock.all")) {
+    return true
+  }
+  if (!user || !post) {
+    return false
+  }
+  return !!(
+    Users.canDo(user,"posts.commentLock.own") &&
+    Users.owns(user, post)
+  )
+}
+
 Users.userIsBannedFromPost = (user, post) => {
   const postAuthor = post.user || Users.findOne(post.userId)
   return !!(
@@ -66,6 +79,27 @@ Users.isAllowedToComment = (user, post) => {
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return false
   }
+  if (post.commentsLocked) {
+    return false
+  }
 
   return true
+}
+
+Users.blockedCommentingReason = (user, post) => {
+  if (!user) {
+    return "Can't recognize user"
+  }
+
+  if (Users.userIsBannedFromPost(user, post)) {
+    return "This post's author has blocked you from commenting."
+  }
+
+  if (Users.userIsBannedFromAllPosts(user, post)) {
+    return "This post's author has blocked you from commenting."
+  }
+  if (post.commentsLocked) {
+    return "Comments on this post are disabled."
+  }
+  return "You cannot comment at this time"
 }

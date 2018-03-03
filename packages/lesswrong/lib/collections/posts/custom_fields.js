@@ -11,6 +11,12 @@ const formGroups = {
   }
 };
 
+const moderationGroup = {
+  order:60,
+  name: "moderation",
+  label: "Moderation",
+}
+
 Posts.addField([
   /**
     URL (Overwriting original schema)
@@ -482,6 +488,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['members'],
+      group: moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       optional: true,
@@ -494,6 +501,18 @@ Posts.addField([
     fieldSchema: {
       type: String,
       optional: true
+    }
+  },
+  {
+    fieldName: 'commentsLocked',
+    fieldSchema: {
+      type: Boolean,
+      viewableBy: ['guests'],
+      group: moderationGroup,
+      insertableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
+      editableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
+      optional: true,
+      control: "checkbox",
     }
   },
   {

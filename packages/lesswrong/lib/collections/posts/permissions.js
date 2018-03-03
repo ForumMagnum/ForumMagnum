@@ -16,12 +16,11 @@ const sunshineRegimentActions = [
   'posts.edit.all',
   'posts.curate.all',
   'posts.frontpage.all',
-  'posts.moderate.all'
+  'posts.moderate.all',
+  'posts.commentLock.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
 
-const trustLevel1Actions = [
-  'posts.moderate.own',
-];
-Users.groups.trustLevel1.can(trustLevel1Actions);
+Users.groups.trustLevel1.can(['posts.moderate.own']);
+Users.groups.canCommentLock.can(['posts.commentLock.own']);

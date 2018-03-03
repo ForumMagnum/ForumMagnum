@@ -145,6 +145,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     wordCount
+    commentsLocked
   }
 `);
 

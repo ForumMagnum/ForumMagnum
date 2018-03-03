@@ -106,7 +106,7 @@ class CommentsListSection extends Component {
         }
         {currentUser && !Users.isAllowedToComment(currentUser, post) && (
           <div className="i18n-message author_has_banned_you">
-            <FormattedMessage id="comments.author_has_banned_you"/> (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
+            { Users.blockedCommentingReason(currentUser, post)} (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
           </div>
         )}
       </div>
