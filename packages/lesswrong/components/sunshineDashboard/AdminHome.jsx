@@ -18,7 +18,7 @@ const UserIPsDisplay = ({column, document}) => {
 }
 
 const DateDisplay = ({column, document}) => {
-  return <div>{document[name] && moment(document[name].date)}</div>
+  return <div>{document[column.name] && moment(document[column.name]).fromNow()}</div>
 }
 
 const EventPropertiesDisplay = ({column, document}) => {
@@ -64,7 +64,10 @@ addAdminColumn([
 ])
 
 const eventColumns = [
-  'createdAt',
+  {
+    name: 'createdAt',
+    component: DateDisplay,
+  },
   {
     name: 'properties',
     component: EventPropertiesDisplay,
@@ -78,11 +81,17 @@ const eventColumns = [
 
 const banColumns = [
   '_id',
-  'createdAt',
+  {
+    name: 'createdAt',
+    component: DateDisplay,
+  },
   'ip',
   'reason',
   'comment',
-  'expirationDate'
+  {
+    name: 'expirationDate',
+    component: DateDisplay,
+  },
 ]
 // columns={['_id', 'createdAt', 'expirationDate', 'type', 'user.username', 'ip']}
 class AdminHome extends PureComponent {
