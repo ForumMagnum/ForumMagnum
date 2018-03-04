@@ -241,6 +241,20 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment DeletedCommentsModerationLog on Comment {
+    ...DeletedCommentsMetaData
+    user {
+      ...UsersMinimumInfo
+    }
+    post {
+      title
+      slug
+      _id
+    }
+  }
+`)
+
+registerFragment(`
   fragment CommentsList on Comment {
     # example-forum
     _id

@@ -21,6 +21,16 @@ Comments.addView("postCommentsDeleted", function (terms) {
   };
 });
 
+Comments.addView("allCommentsDeleted", function (terms) {
+  return {
+    selector: {
+      $or: null,
+      deleted: true,
+    },
+    options: {sort: {deletedDate: -1, postedAt: -1, baseScore: -1 }}
+  };
+});
+
 Comments.addView("postCommentsTop", function (terms) {
   return {
     selector: { postId: terms.postId },
