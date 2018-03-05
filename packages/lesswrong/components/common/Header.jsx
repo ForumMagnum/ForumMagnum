@@ -18,7 +18,6 @@ import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
   boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
-  paddingRight: "0px",
 }
 
 class Header extends Component {
