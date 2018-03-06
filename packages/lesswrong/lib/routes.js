@@ -47,4 +47,5 @@ addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'Post
 
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome'});
+addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog'});
 addRoute({name: 'home', path: '/', componentName: 'Home'});
