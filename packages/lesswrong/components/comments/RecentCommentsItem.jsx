@@ -47,7 +47,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const comment = this.props.comment || this.props.document;
+    const comment = this.props.comment;
+    const showTitle = this.props.showTitle
     if (comment) {
 
       let level = this.props.level || 1
@@ -96,7 +97,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 { comment.post && (
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
-                      <span className="comments-item-origin-post-title">{comment.post.title}</span>
+                      { showTitle && comment.post && comment.post.title}
                       <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
                     </div>
                   </Link>

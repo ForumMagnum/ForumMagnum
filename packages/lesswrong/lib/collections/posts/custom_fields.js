@@ -469,6 +469,18 @@ Posts.addField([
     }
   },
 
+  {
+    fieldName: 'hideFrontpageComments',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      control: 'checkbox'
+    }
+  },
+
   /**
     maxBaseScore: Highest baseScore this post ever had, used for RSS feed generation
   */

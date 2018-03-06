@@ -91,8 +91,8 @@ const Home = (props, context) => {
         </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
-      <Components.Section title="Recent Comments" titleLink="/AllComments">
-        <Components.RecentComments terms={{view: 'recentComments', limit: 10}} fontSize="small" />
+      <Components.Section title="Recent Discussion" titleLink="/AllComments">
+        <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
       </Components.Section>
     </div>
   )

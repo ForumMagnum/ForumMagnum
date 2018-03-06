@@ -15,6 +15,7 @@ const RecentComments = ({results, currentUser, loading, fontSize, loadMore, netw
           {results.map(comment =>
             <div key={comment._id}>
               <Components.RecentCommentsItem
+                showTitle={true}
                 currentUser={currentUser}
                 comment={comment}
                 editMutation={editMutation}/>

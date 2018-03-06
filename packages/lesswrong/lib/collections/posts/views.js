@@ -276,3 +276,18 @@ Posts.addView("slugPost", terms => ({
     limit: 1,
   }
 }));
+
+Posts.addView("recentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      commentCount: {$gt:0},
+      baseScore: {$gt:0},
+      hideFrontpageComments: {$ne: true},
+      meta: null,
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 4,
+    }
+  }
+})
