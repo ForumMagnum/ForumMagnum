@@ -80,6 +80,7 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  markDownEditor
 `);
 
 registerFragment(`

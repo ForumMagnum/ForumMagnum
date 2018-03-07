@@ -12,7 +12,7 @@ Comments.addField([
     fieldName: 'content',
     fieldSchema: {
       type: Object,
-      optional: false,
+      optional: true,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
