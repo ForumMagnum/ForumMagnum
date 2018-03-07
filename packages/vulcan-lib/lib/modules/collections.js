@@ -283,7 +283,6 @@ export const createCollection = options => {
     });
     if (parameters.options.sort) {
       _.keys(parameters.options.sort).forEach(key => {
-        console.log("Deleting field from parameters: ", key, parameters.options.sort[key]);
         if (parameters.options.sort[key] === null) delete parameters.options.sort[key];
       });
     }
@@ -307,8 +306,6 @@ export const createCollection = options => {
     parameters.options.limit = (!terms.limit || terms.limit < 1 || terms.limit > maxDocuments) ? maxDocuments : terms.limit;
 
     // console.log(parameters);
-
-    console.log("parameters", parameters);
 
     return parameters;
   }

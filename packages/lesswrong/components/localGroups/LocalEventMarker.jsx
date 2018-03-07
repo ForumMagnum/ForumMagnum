@@ -5,35 +5,35 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 
-class LocalGroupMarker extends PureComponent {
+class LocalEventMarker extends PureComponent {
   render() {
-    const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
+    const { event, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
 
     var circleIcon = {
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: '#588f27',
+        path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+        fillColor: '#2b6a99',
         fillOpacity: 0.9,
-        scale: 8,
+        scale: 5,
         strokeWeight: 0,
     };
 
 
     return(
       <Marker
-        onClick={() => handleMarkerClick(group._id)}
-        key={group._id}
+        onClick={() => handleMarkerClick(event._id)}
+        key={event._id}
         icon={circleIcon}
         position={{lat:lat, lng:lng}}
       >
         {infoOpen &&
           <InfoWindow
-            onCloseClick={() => handleInfoWindowClose(group._id)}
+            onCloseClick={() => handleInfoWindowClose(event._id)}
           >
             <div style={{maxWidth: "250px"}}>
-              <h5> Local Group: {group.name} </h5>
-              <Components.DraftJSRenderer content={group.description} />
-              <Link to={'/groups/'+group._id}> Full link </Link>
+              <h5> Local Event: {event.name} </h5>
+              <Components.DraftJSRenderer content={event.description} />
+              <Link to={'/events/'+event._id}> Full link </Link>
             </div>
           </InfoWindow>
         }
@@ -42,9 +42,9 @@ class LocalGroupMarker extends PureComponent {
   }
 }
 
-LocalGroupMarker.propTypes = {
-  group: PropTypes.object.isRequired,
+LocalEventMarker.propTypes = {
+  event: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 }
 
-registerComponent("LocalGroupMarker", LocalGroupMarker);
+registerComponent("LocalEventMarker", LocalEventMarker);

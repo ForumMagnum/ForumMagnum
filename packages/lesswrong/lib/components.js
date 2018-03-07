@@ -42,6 +42,7 @@ import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/Category.jsx';
+import '../components/common/DraftJSRenderer.jsx';
 import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/users/UsersMenu.jsx';
@@ -67,7 +68,13 @@ import '../components/posts/FeaturedPostsPage.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
+import '../components/localGroups/CommunityMapWrapper.jsx';
 import '../components/localGroups/LocalGroupMarker.jsx';
+import '../components/localGroups/LocalEventMarker.jsx';
+import '../components/localGroups/LocalGroupPage.jsx';
+import '../components/localGroups/LocalGroupSingle.jsx';
+import '../components/localGroups/NewEventFormLink.jsx';
+import '../components/localGroups/EventsList.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
@@ -155,3 +162,4 @@ import '../components/form-components/SingleUsersItemWrapper.jsx';
 import '../components/form-components/UsersListEditor.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/LocationFormComponent.jsx';
+import '../components/form-components/MuiTextField.jsx';

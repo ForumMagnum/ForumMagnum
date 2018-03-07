@@ -1,6 +1,5 @@
 import LocalGroups from "./collection.js"
 
-// notifications for a specific user (what you see in the notifications menu)
 LocalGroups.addView("all", function (terms) {
   return {
     options: {sort: {createdAt: -1}}
@@ -26,5 +25,12 @@ LocalGroups.addView("nearby", function (terms) {
         _id: null
       }
     }
+  };
+});
+
+LocalGroups.addView("single", function (terms) {
+  return {
+    selector: {_id: terms.groupId},
+    options: {sort: {createdAt: -1}}
   };
 });

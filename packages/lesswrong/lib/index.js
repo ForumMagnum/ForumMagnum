@@ -57,10 +57,11 @@ import './collections/localgroups/views.js';
 import './collections/localgroups/permissions.js';
 import './collections/localgroups/fragments.js';
 
-import Meetups from './collections/meetups/collection.js'
-import './collections/meetups/views.js';
-import './collections/meetups/permissions.js';
-import './collections/meetups/fragments.js';
+import LocalEvents from './collections/localevents/collection.js'
+import './collections/localevents/views.js';
+import './collections/localevents/permissions.js';
+import './collections/localevents/fragments.js';
+
 
 
 import './modules/fragments.js';
@@ -139,5 +140,5 @@ export {
   UserSequenceRels,
   UserCollectionRels,
   LocalGroups,
-  Meetups
+  LocalEvents
 }

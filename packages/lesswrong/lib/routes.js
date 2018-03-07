@@ -45,6 +45,7 @@ addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageU
 
 
 addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'PostsSingle'});
+addRoute({name:'LocalGroups.single',   path:'groups/:groupId', componentName: 'LocalGroupSingle'});
 
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome'});

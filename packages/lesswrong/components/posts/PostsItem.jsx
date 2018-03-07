@@ -102,6 +102,16 @@ class PostsItem extends PureComponent {
       }
   }
 
+  renderEventDetails = () => {
+    const event = this.props.event;
+    if (event) {
+      return <div className="posts-item-event-details">
+        {event.time && <span> {moment(event.time).fromNow()} </span>}
+        {event.name && <span> {event.name} </span>}
+      </div>
+    }
+  }
+
   renderHighlightMenu = () => {
     return (
       <div className="posts-item-highlight-footer" >
@@ -178,8 +188,6 @@ class PostsItem extends PureComponent {
                   {post.url && "[Link]"}{post.unlisted && "[Unlisted]"} {post.title}
                 </h3>
               </Link>
-
-
               <object>
                 <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
@@ -190,6 +198,7 @@ class PostsItem extends PureComponent {
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
                   {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
+                  {this.renderEventDetails()}
                   <div className="posts-item-show-highlight-button">
                     { this.state.showHighlight ?
                       <span>
@@ -205,7 +214,6 @@ class PostsItem extends PureComponent {
                         subdirectory_arrow_left
                       </FontIcon>
                     </span>  }
-
                   </div>
                 </div>
               </object>

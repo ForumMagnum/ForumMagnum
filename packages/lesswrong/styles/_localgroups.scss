@@ -1,6 +1,6 @@
 $lw-green: #588f27;
 
-.community-home {
+.community-home, .local-group-page {
   margin-top: 500px;
 }
 
@@ -24,22 +24,27 @@ $lw-green: #588f27;
   font-size: 18px;
   font-size: 1rem;
   position: relative;
-  width: 50%;
-  margin: 1em auto;
+  padding-right: 3px;
+  width: 100%;
   text-align: left;
 }
+
 .geosuggest__input {
   width: 100%;
   border: 2px solid transparent;
   box-shadow: 0 0 1px #3d464d;
-  padding: .5em 1em;
+  padding: .5em 1em 0.5em 0em !important;
   -webkit-transition: border 0.2s, box-shadow 0.2s;
           transition: border 0.2s, box-shadow 0.2s;
+  &:focus {
+    outline: none;
+  }
 }
 .geosuggest__input:focus {
   border-color: #267dc0;
   box-shadow: 0 0 0 transparent;
 }
+
 .geosuggest__suggests {
   position: absolute;
   top: 100%;
@@ -49,7 +54,6 @@ $lw-green: #588f27;
   padding: 0;
   margin-top: -1px;
   background: #fff;
-  border: 2px solid #267dc0;
   border-top-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -87,4 +91,37 @@ $lw-green: #588f27;
 }
 .geosuggest__item__matched-text {
   font-weight: bold;
+}
+
+.new-local-group-form, .new-local-event-form {
+  div { font-family: $comments-font }
+  .editor {
+    min-height: 50px;
+    font-size: 1.1rem;
+    position: relative;
+  }
+  .form-submit {
+    margin-top: 10px;
+    text-align: right;
+  }
+}
+
+.form-component-MuiTextField {
+  margin-bottom: 0px;
+}
+
+.mui-text-field-form-component {
+  width: 350px !important;
+}
+
+.mui-text-field {
+  input { box-shadow: none }
+  input:focus {
+    box-shadow: none;
+  }
+}
+
+.new-local-group-form-body, .new-local-event-form-body {
+  padding-top: 5px !important;
+  padding-bottom: 10px !important;
 }
