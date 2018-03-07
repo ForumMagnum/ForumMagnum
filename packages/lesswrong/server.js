@@ -49,4 +49,4 @@ import './lib/collections/usercollectionrels/indexes.js';
 import './lib/collections/usersequencerels/indexes.js';
 import './lib/collections/posts/indexes.js';
 import './lib/collections/localgroups/indexes.js';
-import './lib/collections/meetups/indexes.js';
+import './lib/collections/localevents/indexes.js';

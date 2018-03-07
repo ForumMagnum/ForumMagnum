@@ -3,11 +3,6 @@ import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import './permissions.js';
 
-/**
- * @summary Telescope Conversations namespace
- * @namespace Conversations
- */
-
 const options = {
      newCheck: (user, document) => {
        if (!user || !document) return false;

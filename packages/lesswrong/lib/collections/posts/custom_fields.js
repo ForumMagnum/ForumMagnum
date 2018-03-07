@@ -316,7 +316,8 @@ Posts.addField([
         type: "Sequence",
         resolver: (post, args, context) => {
           if (!post.canonicalSequenceId) return null;
-          return context.Sequences.findOne({_id: post.canonicalSequenceId})
+          const sequence = context.Sequences.findOne({_id: post.canonicalSequenceId});
+          return Users.restrictViewableFields(context.currentUser, context.Sequences, sequence);
         }
       },
       hidden: false,
@@ -340,7 +341,8 @@ Posts.addField([
         type: "Collection",
         resolver: (post, args, context) => {
           if (!post.canonicalCollectionSlug) return null;
-          return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+          const collection = context.Collections.findOne({slug: post.canonicalCollectionSlug})
+          return Users.restrictViewableFields(context.currentUser, context.Collections, collection);
         }
       }
     }
@@ -362,7 +364,8 @@ Posts.addField([
         type: "Book",
         resolver: (post, args, context) => {
           if (!post.canonicalBookId) return null;
-          return context.Books.findOne({_id: post.canonicalBookId})
+          const book = context.Books.findOne({_id: post.canonicalBookId});
+          return Users.restrictViewableFields(context.currentUser, context.Books, book);
         }
       }
     }
@@ -536,4 +539,48 @@ Posts.addField([
       hidden:true
     }
   },
+
+  {
+    fieldName: 'groupId',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment'],
+      insertableBy: ['members'],
+      hidden: true,
+      optional: true,
+      resolveAs: {
+        fieldName: 'group',
+        addOriginalField: true,
+        type: "LocalGroup",
+        resolver: (post, args, context) => {
+          const group = context.LocalGroups.findOne({_id: post.groupId});
+          return Users.restrictViewableFields(context.currentUser, context.LocalGroups, group);
+        }
+      }
+    }
+  },
+
+  {
+    fieldName: 'eventId',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment'],
+      insertableBy: ['members'],
+      hidden: true,
+      optional: true,
+      resolveAs: {
+        fieldName: 'event',
+        addOriginalField: true,
+        type: "LocalEvent",
+        resolver: (post, args, context) => {
+          const event = context.LocalEvents.findOne({_id: post.eventId});
+          return Users.restrictViewableFields(context.currentUser, context.LocalEvents, event);
+        }
+      }
+    }
+  },
+
+
 ]);

@@ -20,3 +20,27 @@ registerFragment(`
     website
   }
 `);
+
+registerFragment(`
+  fragment localEventsListFragment on LocalEvent {
+    _id
+    createdAt
+    organizerIds
+    organizers {
+      ...UsersMinimumInfo
+    }
+    name
+    topic
+    time
+    description
+    location
+    googleLocation
+    mongoLocation
+    contactInfo
+    facebookEvent
+    website
+    post {
+      ...LWPostsList
+    }
+  }
+`);

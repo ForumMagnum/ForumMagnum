@@ -29,8 +29,8 @@ const schema = {
     resolveAs: {
       fieldName: 'organizers',
       type: '[User]',
-      resolver: (localGroup, args, context) => {
-        return _.map(localGroup.organizerIds,
+      resolver: (localEvent, args, context) => {
+        return _.map(localEvent.organizerIds,
           (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
         )
       },
@@ -43,6 +43,22 @@ const schema = {
     optional: true,
   },
 
+  groupId: {
+    type: String,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    optional: true,
+    hidden: true,
+    resolveAs: {
+      fieldName: 'group',
+      type: ['LocalGroup'],
+      resolver: (localEvent, args, context) => {
+        return context.LocalGroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.LocalGroups)});
+      }
+    }
+  },
+
   name: {
     type: String,
     searchable: true,
@@ -50,7 +66,7 @@ const schema = {
     editableBy: ['members'],
     insertableBy: ['members'],
     control: "MuiTextField",
-    label: "Local Group Name"
+    label: "Local Event Name"
   },
 
   topic: {
@@ -68,6 +84,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    control: 'datetime',
     label: "Time"
   },
 
@@ -137,6 +154,19 @@ const schema = {
     control: "MuiTextField",
     optional: true,
   },
+
+  post: {
+    type: String,
+    viewableBy: ['guests'],
+    resolveAs: {
+      fieldName: 'post',
+      type: "Post",
+      resolver: (event, args, context) => {
+        const post = context.Posts.findOne({eventId: event._id});
+        return context.Users.restrictViewableFields(context.currentUser, context.Posts, post);
+      }
+    }
+  }
 
 
 };
