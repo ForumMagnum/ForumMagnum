@@ -161,7 +161,7 @@ Users.getSetting = function (user = null, settingName, defaultValue = null) {
  * @param {Object} user
  */
 Users.hasCompletedProfile = function (user) {
-  
+
   if (!user) return false;
 
   return _.every(Users.getRequiredFields(), function (fieldName) {
