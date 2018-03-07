@@ -1,7 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection, Connectors, getSetting } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
-
-const database = getSetting('database', 'mongo');
+import { Utils, getCollection, Connectors } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -83,11 +81,6 @@ const schema = {
     editableBy: ['admins'],
     viewableBy: ['guests'],
     group: adminGroup,
-    onInsert: async user => {
-      // if this is not a dummy account, and is the first user ever, make them an admin
-      const realUsersCount = await Connectors[database].count(getCollection('Users'), {'isDummy': {$ne: true}});
-      return (!user.isDummy && realUsersCount === 0) ? true : false;
-    }
   },
   profile: {
     type: Object,
@@ -205,6 +198,9 @@ const schema = {
       fieldName: 'avatarUrl',
       type: 'String',
       resolver: async (user, args, { Users }) => {
+ 
+        if (_.isEmpty(user)) return null;
+
         if (user.avatarUrl) {
           return user.avatarUrl;
         } else {
@@ -213,6 +209,7 @@ const schema = {
           const fullUser = await Users.loader.load(user._id);
           return Users.avatar.getUrl(fullUser);
         }
+        
       }
     }
   },
@@ -273,7 +270,7 @@ const schema = {
     resolveAs: {
       type: 'String',
       resolver: async (user, args, { Users }) => {
-        return Users.getTwitterName(await Connectors[database].get(Users, user._id));
+        return Users.getTwitterName(await Connectors.get(Users, user._id));
       },
     },
     onInsert: user => {

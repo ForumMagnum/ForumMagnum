@@ -4,10 +4,8 @@ Default mutations
 
 */
 
-import { registerCallback, newMutator, editMutator, removeMutator, Utils, Connectors, getSetting } from 'meteor/vulcan:lib';
+import { registerCallback, newMutator, editMutator, removeMutator, Utils, Connectors } from 'meteor/vulcan:lib';
 import Users from 'meteor/vulcan:users';
-
-const database = getSetting('database', 'mongo');
 
 export const getDefaultMutations = (collectionName, options = {}) => {
 
@@ -29,9 +27,7 @@ export const getDefaultMutations = (collectionName, options = {}) => {
         if (options.newCheck) {
           return options.newCheck(user, document);
         }
-        // if user is not logged in, disallow operation
-        if (!user) return false;
-        // else, check if they can perform "foo.new" operation (e.g. "movies.new")
+        // check if they can perform "foo.new" operation (e.g. "movies.new")
         return Users.canDo(user, `${collectionName.toLowerCase()}.new`);
       },
       
@@ -80,7 +76,7 @@ export const getDefaultMutations = (collectionName, options = {}) => {
         const collection = context[collectionName];
 
         // get entire unmodified document from database
-        const document = await Connectors[database].get(collection, documentId);
+        const document = await Connectors.get(collection, documentId);
 
         // check if user can perform operation; if not throw error
         Utils.performCheck(this.check, context.currentUser, document);
@@ -109,7 +105,7 @@ export const getDefaultMutations = (collectionName, options = {}) => {
         const collection = context[collectionName];
 
         // check if document exists already
-        const existingDocument = await Connectors[database].get(collection, search, { fields: { _id: 1 } });
+        const existingDocument = await Connectors.get(collection, search, { fields: { _id: 1 } });
 
         if (existingDocument) {
           const editArgs = {
@@ -145,7 +141,7 @@ export const getDefaultMutations = (collectionName, options = {}) => {
 
         const collection = context[collectionName];
 
-        const document = await Connectors[database].get(collection, documentId);
+        const document = await Connectors.get(collection, documentId);
         Utils.performCheck(this.check, context.currentUser, document, context);
 
         return await removeMutator({
