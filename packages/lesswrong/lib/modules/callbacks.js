@@ -156,7 +156,7 @@ addCallback("posts.undraft.async", PostsUndraftNotification);
 function PostsNewNotifications (post) {
   if (post.status === Posts.config.STATUS_PENDING || post.draft) {
     // if post is pending or saved to draft, only notify admins
-    let adminIds = _.pluck(Users.adminUsers({fields: {_id:1}}), '_id');
+    let adminIds = _.pluck(Users.find({isAdmin: true}), '_id');
 
     // remove this post's author
     adminIds = _.without(adminIds, post.userId);
