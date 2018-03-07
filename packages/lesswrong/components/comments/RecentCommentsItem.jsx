@@ -93,10 +93,10 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 <div className="comments-item-vote recent-comments-item-vote ">
                   <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
                 </div>
-                <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
                 { comment.post && (
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
+                      <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
                       { showTitle && comment.post && comment.post.title}
                       <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
                     </div>
