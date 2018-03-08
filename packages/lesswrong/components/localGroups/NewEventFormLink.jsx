@@ -1,6 +1,6 @@
 import { Components, registerComponent, withCurrentUser, getFragment, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { LocalEvents } from '../../lib/index.js';
+import { Posts } from "meteor/example-forum"
 import Dialog from 'material-ui/Dialog';
 
 class NewEventFormLink extends Component {
@@ -36,12 +36,12 @@ class NewEventFormLink extends Component {
         autoScrollBodyContent
       >
         <Components.SmartForm
-          collection={LocalEvents}
-          mutationFragment={getFragment('localEventsHomeFragment')}
+          collection={Posts}
+          mutationFragment={getFragment('LWPostsList')}
           prefilledProps={{organizerIds: [this.props.currentUser._id], groupId: this.props.groupId}}
           successCallback={localEvent => {
             this.handleCloseNewEventForm();
-            this.props.flash("Successfully created new local event " + localEvent.name);
+            this.props.flash("Successfully created new local event " + localEvent.title);
           }}
         />
       </Dialog>

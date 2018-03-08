@@ -31,9 +31,9 @@ class LocalEventMarker extends PureComponent {
             onCloseClick={() => handleInfoWindowClose(event._id)}
           >
             <div style={{maxWidth: "250px"}}>
-              <h5> Local Event: {event.name} </h5>
-              <Components.DraftJSRenderer content={event.description} />
-              <Link to={'/events/'+event._id}> Full link </Link>
+              <h5> Local Event: {event.title} </h5>
+              <Components.DraftJSRenderer content={event.content} />
+              <Link to={'/posts/'+event._id}> Full link </Link>
             </div>
           </InfoWindow>
         }

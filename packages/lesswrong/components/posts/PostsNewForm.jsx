@@ -1,15 +1,20 @@
-import { Components, registerComponent, getRawComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import { Posts } from "meteor/example-forum";
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router';
+import Helmet from 'react-helmet';
 
-const PostsNewForm = (props, context) =>
-  <Components.ShowIf
+const PostsNewForm = (props, context) =>{
+  const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+  return <Components.ShowIf
     check={Posts.options.mutations.new.check}
     failureComponent={<Components.AccountsLoginForm />}
-  >
+         >
     <div className="posts-new-form">
+      <Helmet>
+        <script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/>
+      </Helmet>
       <Components.SmartForm
         collection={Posts}
         mutationFragment={getFragment('PostsPage')}
@@ -22,6 +27,8 @@ const PostsNewForm = (props, context) =>
       />
     </div>
   </Components.ShowIf>
+}
+
 
 PostsNewForm.propTypes = {
   closeModal: PropTypes.func,
