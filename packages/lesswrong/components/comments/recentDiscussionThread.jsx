@@ -36,7 +36,7 @@ class RecentDiscussionThread extends PureComponent {
               { post.excerpt && post.excerpt.slice(0, !post.lastVisitedAt ? 300 : 0)}
               { !post.lastVisitedAt && "..."}
               <span className={classNames("recent-discussion-read-more", {read:post.lastVisitedAt})}>
-                {!post.lastVisitedAt ? "(Read more)" : "(Show Except)"}
+                {!post.lastVisitedAt ? "(Read more)" : "(Show Excerpt)"}
               </span>
             </div>
         }

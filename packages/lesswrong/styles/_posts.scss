@@ -296,9 +296,10 @@
       width:300px;
     }
     @include max-tiny() {
-      width:250px;
+      width:280px;
       overflow: hidden;
       white-space: pre-wrap;
+      padding-left:0;
     }
   }
   .post-feed-nickname{
@@ -329,6 +330,7 @@
     overflow: hidden;
     @include max-tiny() {
       width:320px;
+      padding-left:3px;
     }
     .posts-item-show-highlight-button {
       opacity:0;
@@ -1257,7 +1259,7 @@ svg.drag-handle {
   }
   &.reign-of-terror {
     .moderation-guidelines-header {
-      color: rgba(219, 90, 49, 0.8) !important;
+      color: rgba(179,90,49,.8) !important;
     }
   }
 }
