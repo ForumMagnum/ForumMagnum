@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import { Components, registerComponent, getSetting, withList} from 'meteor/vulcan:core';
-import { LocalEvents } from '../../lib/index.js';
+import { Posts } from 'meteor/example-forum';
 
 const CommunityMapWrapper = (props) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
@@ -20,9 +20,9 @@ const CommunityMapWrapper = (props) => {
     )
 }
 const listOptions = {
-  collection: LocalEvents,
+  collection: Posts,
   queryName: "communityMapEventsQuery",
-  fragmentName: "localEventsHomeFragment",
+  fragmentName: "LWPostsList",
   limit: 500,
 }
 

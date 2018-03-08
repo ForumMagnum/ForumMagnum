@@ -1,6 +1,7 @@
 import { Components, registerComponent, withCurrentUser, getFragment, withMessages, withDocument, getSetting} from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { LocalGroups, LocalEvents } from '../../lib/index.js';
+import { LocalGroups } from '../../lib/index.js';
+import { Posts } from 'meteor/example-forum';
 import { withRouter } from 'react-router';
 
 const localGroupColumns = [
@@ -24,10 +25,10 @@ class LocalGroupPage extends Component {
           <Components.Section title="Description" titleComponent={<Components.NewEventFormLink groupId={groupId}/>}>
             {this.props.document && this.props.document.description && <Components.DraftJSRenderer content={this.props.document.description}/>}
             <Components.Datatable
-              collection={LocalEvents}
+              collection={Posts}
               columns={localGroupColumns}
               options={{
-                fragmentName: 'localEventsHomeFragment',
+                fragmentName: 'LWPostsList',
                 terms: {view: 'all', groupId: groupId},
               }}
               showEdit={true}

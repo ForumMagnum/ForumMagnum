@@ -57,13 +57,6 @@ import './collections/localgroups/views.js';
 import './collections/localgroups/permissions.js';
 import './collections/localgroups/fragments.js';
 
-import LocalEvents from './collections/localevents/collection.js'
-import './collections/localevents/views.js';
-import './collections/localevents/permissions.js';
-import './collections/localevents/fragments.js';
-
-
-
 import './modules/fragments.js';
 import './collections/chapters/fragments.js';
 import './collections/sequences/fragments.js';
@@ -139,6 +132,5 @@ export {
   Bans,
   UserSequenceRels,
   UserCollectionRels,
-  LocalGroups,
-  LocalEvents
+  LocalGroups
 }

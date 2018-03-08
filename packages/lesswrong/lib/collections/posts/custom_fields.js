@@ -561,26 +561,159 @@ Posts.addField([
     }
   },
 
+  /*
+    Event specific fields:
+  */
+
   {
-    fieldName: 'eventId',
+    fieldName: 'organizerIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      hidden: true,
+      control: "UsersListEditor",
+      resolveAs: {
+        fieldName: 'organizers',
+        type: '[User]',
+        resolver: (localEvent, args, context) => {
+          return _.map(localEvent.organizerIds,
+            (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
+          )
+        },
+        addOriginalField: true
+      }
+    }
+  },
+
+  {
+    fieldName: 'organizerIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'groupId',
     fieldSchema: {
       type: String,
       viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment'],
+      editableBy: ['members'],
       insertableBy: ['members'],
-      hidden: true,
       optional: true,
+      hidden: true,
       resolveAs: {
-        fieldName: 'event',
-        addOriginalField: true,
-        type: "LocalEvent",
-        resolver: (post, args, context) => {
-          const event = context.LocalEvents.findOne({_id: post.eventId});
-          return Users.restrictViewableFields(context.currentUser, context.LocalEvents, event);
+        fieldName: 'group',
+        type: ['LocalGroup'],
+        resolver: (localEvent, args, context) => {
+          return context.LocalGroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.LocalGroups)});
         }
       }
     }
   },
 
+  /*
+    Field specific form fields
+  */
 
+  {
+    fieldName: 'isEvent',
+    fieldSchema: {
+      type: Boolean,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment'],
+      insertableBy: ['members'],
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'time',
+    fieldSchema: {
+      type: Date,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'datetime',
+      label: "Time"
+    }
+  },
+
+  {
+    fieldName: 'mongoLocation',
+    fieldSchema: {
+      type: Object,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+      blackbox: true,
+    }
+  },
+
+  {
+    fieldName: 'googleLocation',
+    fieldSchema: {
+      type: Object,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Group Location",
+      control: 'LocationFormComponent',
+      blackbox: true,
+    }
+  },
+
+  {
+    fieldName: 'location',
+    fieldSchema: {
+      type: String,
+      searchable: true,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      hidden: true,
+    }
+  },
+
+  {
+    fieldName: 'contactInfo',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Contact Info",
+      control: "MuiTextField",
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'facebookEvent',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Facebook Event",
+      control: "MuiTextField",
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'website',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      control: "MuiTextField",
+      optional: true,
+    }
+  },
 ]);

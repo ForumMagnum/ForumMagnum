@@ -4,7 +4,6 @@ A SimpleSchema-compatible JSON schema
 
 */
 
-import LocalEvents from '../localevents/collection.js';
 
 const schema = {
   _id: {
@@ -44,25 +43,6 @@ const schema = {
   'organizerIds.$': {
     type: String,
     optional: true,
-  },
-
-  localEvents: {
-    type: Array,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      arguments: 'limit: Int = 5',
-      type: '[LocalEvent]',
-      resolver: (localGroup, { limit }, { currentUser, Users, Comments }) => {
-        const localEvents = LocalEvents.find({ groupId: localGroup._id }, { limit }).fetch();
-
-        // restrict documents fields
-        const viewableEvents = _.filter(localEvents, localEvents => LocalEvents.checkAccess(currentUser, localEvents));
-        const restrictedEvents = Users.restrictViewableFields(currentUser, LocalEvents, viewableEvents);
-
-        return restrictedEvents;
-      }
-    }
   },
 
   lastActivity: {
