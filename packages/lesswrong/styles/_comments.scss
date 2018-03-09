@@ -325,7 +325,7 @@ New CSS File
     }
   }
   .comments-item-origin:hover {
-    .comments-item-origin-post-title {
+    .comments-item-origin-post-title, .comments-item-date {
       color: rgba(0,0,0,0.3);
     }
     color: rgba(0,0,0,0.3);
@@ -677,6 +677,10 @@ New CSS File
 
 .discussion-thread-list {
   margin:-2px 10px;
+
+  @include max-tiny() {
+    margin:-2px 0;
+  }
 }
 
 .recent-discussion-thread-wrapper {
@@ -692,6 +696,10 @@ New CSS File
     font-family:$comments-font;
     font-weight:600;
     font-size:16px;
+
+    @include max-tiny() {
+      padding:5px 5px 0 5px;
+    }
   }
   .recent-discussion-thread-author-name {
     padding-right:10px;

@@ -31,8 +31,7 @@ class MuiTextField extends Component {
         onChange={this.onChange}
         multiLine={this.props.multiLine}
         rows={this.props.rows}
-        placeholder={this.props.placeholder}
-        hintText={this.props.hintText}
+        hintText={this.props.label || this.props.hintText}
         fullWidth={this.props.fullWidth}
         underlineShow={this.props.underlineShow}
         className="mui-text-field-form-component"

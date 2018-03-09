@@ -419,6 +419,7 @@ svg.drag-handle {
   width: 300px;
   display: inline-block;
   margin-top: -15px;
+  padding-bottom:55px;
 
   @include max-small() {
     width:100%;
@@ -576,7 +577,8 @@ svg.drag-handle {
 
 @include very-small-break() {
   .sequences-grid-item {
-    width: 300px !important;
+    width: 100% !important;
+    padding:14px 10px 12px 10px !important;
     .sequences-grid-item-image {
       img {
         width: 270px !important;
@@ -851,5 +853,11 @@ svg.drag-handle {
   font-size:12px;
   span {
     padding-right:10px;
+  }
+}
+
+.frontpage-sequences-grid-list {
+  @include max-small() {
+    margin-top:40px;
   }
 }

@@ -104,7 +104,9 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
 
 function NewCommentsEmptyCheck (comment, user) {
-  if (!comment.htmlBody && !convertFromRaw(comment.content).hasText()) {
+  if (!comment.htmlBody &&
+      !comment.body &&
+      (!comment.content || !convertFromRaw(comment.content).hasText())) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
@@ -113,17 +115,33 @@ function NewCommentsEmptyCheck (comment, user) {
 
 function EditCommentsEmptyCheck (modifier, user) {
   const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
-  if (modifier && modifier.unset && (modifier.unset.htmlBody || modifier.unset.content)) {
-    throw new EmptyCommentError({data: {break: true, value: modifier}});
+
+  const isSetEmpty = (modifier) => {
+    return (
+      _.isEmpty(modifier.$set) ||
+      (
+        !modifier.$set.htmlBody &&
+        !modifier.$set.body &&
+        (!modifier.$set.content || !convertFromRaw(modifier.$set.content).hasText())
+      )
+    )
   }
-  if (modifier.set && !modifier.set.htmlBody && !convertFromRaw(modifier.set.content).hasText()) {
+  const isUnsetEmpty = (modifier) => {
+    return (
+      _.isEmpty(modifier.$set) && (
+        modifier.$unset.htmlBody ||
+        modifier.$unset.body ||
+        modifier.$unset.content
+      )
+    )
+  }
+  if (isSetEmpty(modifier) && isUnsetEmpty(modifier)) {
     throw new EmptyCommentError({data: {break: true, value: modifier}});
   }
   return modifier;
 }
 
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
-addCallback("comments.edit.validate", EditCommentsEmptyCheck);
 
 
 export async function CommentsHTMLSerializeCallbackAsync (comment) {
