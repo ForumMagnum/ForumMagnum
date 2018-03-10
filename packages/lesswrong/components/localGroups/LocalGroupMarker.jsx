@@ -14,7 +14,7 @@ class LocalGroupMarker extends PureComponent {
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: '#588f27',
         fillOpacity: 0.9,
-        scale: 8,
+        scale: 7,
         strokeWeight: 0,
     };
 

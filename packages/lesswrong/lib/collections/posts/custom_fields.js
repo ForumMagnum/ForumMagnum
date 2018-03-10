@@ -8,6 +8,11 @@ const formGroups = {
   admin: {
     name: "admin",
     order: 2
+  },
+  event: {
+    name: "event details",
+    order: 1,
+    label: "Event Details"
   }
 };
 
@@ -584,7 +589,8 @@ Posts.addField([
           )
         },
         addOriginalField: true
-      }
+      },
+      group: formGroups.event,
     }
   },
 
@@ -605,24 +611,24 @@ Posts.addField([
       insertableBy: ['members'],
       optional: true,
       hidden: true,
+      group: formGroups.event,
       resolveAs: {
         fieldName: 'group',
         type: ['LocalGroup'],
         resolver: (localEvent, args, context) => {
           return context.LocalGroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.LocalGroups)});
-        }
+        },
+        addOriginalField: true,
       }
     }
   },
-
-  /*
-    Field specific form fields
-  */
 
   {
     fieldName: 'isEvent',
     fieldSchema: {
       type: Boolean,
+      hidden: true,
+      group: formGroups.event,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment'],
       insertableBy: ['members'],
@@ -631,14 +637,32 @@ Posts.addField([
   },
 
   {
-    fieldName: 'time',
+    fieldName: 'startTime',
     fieldSchema: {
       type: Date,
+      hidden: (p) => !p.eventForm,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
       control: 'datetime',
-      label: "Time"
+      label: "Start Time",
+      group: formGroups.event,
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'endTime',
+    fieldSchema: {
+      type: Date,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'datetime',
+      label: "End Time",
+      group: formGroups.event,
+      optional: true,
     }
   },
 
@@ -651,6 +675,7 @@ Posts.addField([
       editableBy: ['members'],
       hidden: true,
       blackbox: true,
+      optional: true
     }
   },
 
@@ -658,12 +683,15 @@ Posts.addField([
     fieldName: 'googleLocation',
     fieldSchema: {
       type: Object,
+      hidden: (p) => !p.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
       label: "Group Location",
       control: 'LocationFormComponent',
       blackbox: true,
+      group: formGroups.event,
+      optional: true
     }
   },
 
@@ -676,6 +704,7 @@ Posts.addField([
       editableBy: ['members'],
       insertableBy: ['members'],
       hidden: true,
+      optional: true
     }
   },
 
@@ -683,12 +712,14 @@ Posts.addField([
     fieldName: 'contactInfo',
     fieldSchema: {
       type: String,
+      hidden: (p) => !p.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
       label: "Contact Info",
       control: "MuiTextField",
       optional: true,
+      group: formGroups.event,
     }
   },
 
@@ -696,12 +727,14 @@ Posts.addField([
     fieldName: 'facebookEvent',
     fieldSchema: {
       type: String,
+      hidden: (p) => !p.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
       label: "Facebook Event",
       control: "MuiTextField",
       optional: true,
+      group: formGroups.event,
     }
   },
 
@@ -709,11 +742,13 @@ Posts.addField([
     fieldName: 'website',
     fieldSchema: {
       type: String,
+      hidden: (p) => !p.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
       control: "MuiTextField",
       optional: true,
+      group: formGroups.event,
     }
   },
 ]);

@@ -13,7 +13,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
-    mission
+    type
     description
     contactInfo
     facebookGroup

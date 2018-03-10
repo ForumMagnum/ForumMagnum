@@ -65,6 +65,7 @@ import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
 import '../components/posts/PostsListHeader.jsx';
 import '../components/posts/FeaturedPostsPage.jsx';
+import '../components/posts/PostsGroupDetails.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
@@ -74,6 +75,8 @@ import '../components/localGroups/LocalEventMarker.jsx';
 import '../components/localGroups/LocalGroupPage.jsx';
 import '../components/localGroups/LocalGroupSingle.jsx';
 import '../components/localGroups/NewEventFormLink.jsx';
+import '../components/localGroups/SmallMapPreview.jsx';
+import '../components/localGroups/SmallMapPreviewWrapper.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';

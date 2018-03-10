@@ -104,6 +104,12 @@ $lw-green: #588f27;
     margin-top: 10px;
     text-align: right;
   }
+  .content-editor-is-empty:before {
+    content: "Short Description";
+    max-width: 640px;
+    position: absolute;
+    color: rgba(0, 0, 0, 0.2);
+  }
 }
 
 .form-component-MuiTextField {
@@ -124,4 +130,29 @@ $lw-green: #588f27;
 .new-local-group-form-body, .new-local-event-form-body {
   padding-top: 5px !important;
   padding-bottom: 10px !important;
+}
+
+.small-map-preview-wrapper {
+  padding-top: 5px;
+  margin-bottom: 20px;
+}
+
+.posts-page-group-details {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.local-group-location {
+  font-size: 11px;
+  color: rgba(0,0,0,0.6);
+  display: inline-block;
+  max-width: 130px;
+  line-height: 1.25;
+  margin-top: 5px;
+}
+
+.local-groups-description {
+  font-size: 20px;
+  line-height: 1.25;
+  margin-left: 24px;
 }
