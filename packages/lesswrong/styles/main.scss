@@ -292,6 +292,10 @@ div#mocha {
   text-decoration: none !important;
   font-style:italic;
 
+  @include max-small() {
+    margin-left:10px;
+  }
+
   &:hover, &:focus, &:active {
     text-decoration: none !important;
   }

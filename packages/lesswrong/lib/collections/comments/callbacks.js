@@ -6,10 +6,13 @@ import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import htmlToText from 'html-to-text';
+import TurndownService from 'turndown';
+
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
 
+const turndownService = new TurndownService()
 // function commentsSoftRemoveChildrenComments(comment) {
 //     const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
 //     childrenComments.forEach(childComment => {
@@ -49,9 +52,10 @@ Comments.convertFromContentAsync = async function(content) {
 
 Comments.convertFromContent = (content) => {
   const contentState = convertFromRaw(content);
+  const htmlBody = draftToHTML(contentState)
   return {
-    htmlBody: draftToHTML(contentState),
-    body: contentState.getPlainText(),
+    htmlBody: htmlBody,
+    body: turndownService.turndown(htmlBody)
   }
 }
 
@@ -60,7 +64,7 @@ Comments.convertFromContent = (content) => {
 */
 
 Comments.convertFromHTML = (html) => {
-  const body = htmlToText.fromString(html);
+  const body = turndownService.turndown(html);
   return {
     body
   }
@@ -78,7 +82,7 @@ function CommentsNewHTMLSerializeCallback (comment) {
     const newFields = Comments.convertFromContent(comment.content);
     comment = {...comment, ...newFields}
   } else if (comment.htmlBody) {
-    const newFields = Comments.convertFromHTML(comment.content);
+    const newFields = Comments.convertFromHTML(comment.htmlBody);
     comment = {...comment, ...newFields}
   }
   return comment
@@ -100,7 +104,9 @@ function CommentsEditHTMLSerializeCallback (modifier, comment) {
 addCallback("comments.edit.sync", CommentsEditHTMLSerializeCallback);
 
 function NewCommentsEmptyCheck (comment, user) {
-  if (!comment.htmlBody && !convertFromRaw(comment.content).hasText()) {
+  if (!comment.htmlBody &&
+      !comment.body &&
+      (!comment.content || !convertFromRaw(comment.content).hasText())) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
@@ -109,17 +115,33 @@ function NewCommentsEmptyCheck (comment, user) {
 
 function EditCommentsEmptyCheck (modifier, user) {
   const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
-  if (modifier && modifier.unset && (modifier.unset.htmlBody || modifier.unset.content)) {
-    throw new EmptyCommentError({data: {break: true, value: modifier}});
+
+  const isSetEmpty = (modifier) => {
+    return (
+      _.isEmpty(modifier.$set) ||
+      (
+        !modifier.$set.htmlBody &&
+        !modifier.$set.body &&
+        (!modifier.$set.content || !convertFromRaw(modifier.$set.content).hasText())
+      )
+    )
   }
-  if (modifier.set && !modifier.set.htmlBody && !convertFromRaw(modifier.set.content).hasText()) {
+  const isUnsetEmpty = (modifier) => {
+    return (
+      _.isEmpty(modifier.$set) && (
+        modifier.$unset.htmlBody ||
+        modifier.$unset.body ||
+        modifier.$unset.content
+      )
+    )
+  }
+  if (isSetEmpty(modifier) && isUnsetEmpty(modifier)) {
     throw new EmptyCommentError({data: {break: true, value: modifier}});
   }
   return modifier;
 }
 
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
-addCallback("comments.edit.validate", EditCommentsEmptyCheck);
 
 
 export async function CommentsHTMLSerializeCallbackAsync (comment) {
@@ -127,7 +149,7 @@ export async function CommentsHTMLSerializeCallbackAsync (comment) {
     const newFields = await Comments.convertFromContentAsync(comment.content);
     Comments.update({_id: comment._id}, {$set: newFields})
   } else if (comment.htmlBody) {
-    const newFields = Comments.convertFromHTML(comment.content);
+    const newFields = Comments.convertFromHTML(comment.htmlBody);
     Comments.update({_id: comment._id}, {$set: newFields})
   }
 }

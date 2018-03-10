@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getDynamicComponent } from 'meteor/vulcan:core';
-
+import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
+import useragent from 'useragent'
 
 class CommentEditor extends Component {
   constructor (props,context) {
@@ -9,6 +9,20 @@ class CommentEditor extends Component {
     this.state  = {
       editor: (props) => <Components.Loading />
     }
+  }
+
+  markDownEditor = () => {
+    if (Meteor.isClient &&
+        window &&
+        window.navigator &&
+        window.navigator.userAgent) {
+
+        const agent = useragent.parse(window.navigator.userAgent);
+        if (agent.os && (agent.os.family == "Android" || agent.os.family == "iOS" )) {
+          return true
+        }
+    }
+    return this.props.currentUser.markDownEditor
   }
 
   async componentWillMount() {
@@ -20,10 +34,16 @@ class CommentEditor extends Component {
     const AsyncCommentEditor = this.state.editor;
     return (
       <div className="comment-editor">
-        <AsyncCommentEditor {...this.props}/>
+        { this.markDownEditor() ?
+          <Components.MuiTextField
+            {...this.props}
+          />
+          :
+          <AsyncCommentEditor {...this.props}/>
+        }
       </div>
     )
   }
 }
 
-registerComponent('CommentEditor', CommentEditor);
+registerComponent('CommentEditor', CommentEditor, withCurrentUser);
