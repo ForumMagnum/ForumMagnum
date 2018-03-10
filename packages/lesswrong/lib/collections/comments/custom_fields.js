@@ -12,13 +12,21 @@ Comments.addField([
     fieldName: 'content',
     fieldSchema: {
       type: Object,
-      optional: false,
+      optional: true,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
       control: 'CommentEditor',
       blackbox: true,
       order: 25,
+      form: {
+        hintText:"Plain Markdown Editor",
+        name:"body",
+        rows:4,
+        multiLine:true,
+        fullWidth:true,
+        underlineShow:false
+      },
     }
   },
 

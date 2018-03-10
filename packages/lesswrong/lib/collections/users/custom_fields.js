@@ -40,6 +40,22 @@ Users.addField([
       label: "Hide Intercom"
     }
   },
+
+  {
+    fieldName: 'markDownEditor',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'checkbox',
+      label: "Markdown Comment Editor"
+    }
+  },
+
   {
     fieldName: 'email',
     fieldSchema: {
