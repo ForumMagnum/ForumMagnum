@@ -65,15 +65,24 @@ const schema = {
     label: "Local Group Name"
   },
 
-  mission: {
+  type: {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    control: 'MuiTextField',
-    label: "Mission & Goals",
+    control: 'select',
+    label: "Type",
     blackbox: true,
-    optional: true,
+    form: {
+      options: function () { // options for the select form control
+        return [
+          {value: "LW", label: "LessWrong Group"},
+          {value: "SSC", label: "SlateStarCodex Group"},
+          {value: "EA", label: "Effective Altruism Group"},
+          {value: "other", label: "Other"},
+        ];
+      }
+    },
   },
 
   description: {
@@ -146,6 +155,7 @@ const schema = {
   post: {
     type: String,
     viewableBy: ['guests'],
+    optional: true,
     resolveAs: {
       fieldName: 'post',
       type: "Post",

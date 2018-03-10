@@ -8,7 +8,7 @@ class MuiTextField extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: this.props.document[this.props.name] || ""
+      content: props.document && props.document[props.name] || ""
     }
   }
 

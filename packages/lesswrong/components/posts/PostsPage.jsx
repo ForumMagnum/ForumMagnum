@@ -117,6 +117,60 @@ class PostsPage extends Component {
     }
   }
 
+  renderPostDate = () => {
+    const post = this.props.document;
+    if (post.startTime) {
+      return <div>
+        <div className="posts-page-event-times">
+          <span>From: {moment(post.startTime).calendar()}</span>
+          {post.endTime && <span> To: {moment(post.endTime).calendar()} </span>}
+        </div>
+      </div>
+    } else {
+      return <div>
+        {moment(post.postedAt).format('MMM D, YYYY')}
+      </div>
+    }
+  }
+
+  renderEventLocation = () => {
+    const post = this.props.document;
+    if (post.isEvent && post.location) {
+      return <div className="posts-page-event-location">
+        {post.location}
+      </div>
+    }
+  }
+
+  renderPostMetadata = () => {
+    const post = this.props.document;
+    return <div className="posts-page-content-body-metadata">
+      <div className="posts-page-content-body-metadata-date">
+        {this.renderPostDate()}
+        {this.renderEventLocation()}
+      </div>
+      <div className="posts-page-content-body-metadata-comments">
+        <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
+      </div>
+      <div className="posts-page-content-body-metadata-actions">
+        {Posts.options.mutations.edit.check(this.props.currentUser, post) ?
+          <div className="posts-page-content-body-metadata-action">
+            <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+              Edit
+            </Link>
+          </div> : null
+        }
+        {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
+          <div className="posts-page-content-body-metadata-action">
+            <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
+          <Components.PostVotesInfo documentId={ post._id } />
+            </Components.DialogGroup>
+          </div> : null
+        } */}
+      </div>
+    </div>
+  }
+
   render() {
     if (this.props.loading) {
 
@@ -141,6 +195,7 @@ class PostsPage extends Component {
               <div className="posts-page-content-header-title">
                 <h1>{post.draft && <span className="posts-page-content-header-title-draft">[Draft] </span>}{post.title}</h1>
               </div>
+              {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
               { this.renderSequenceNavigation() }
               <div className="posts-page-content-header-voting">
                 <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
@@ -150,30 +205,8 @@ class PostsPage extends Component {
               </div>
             </div>
             <div className="posts-page-content-body">
-              <div className="posts-page-content-body-metadata">
-                <div className="posts-page-content-body-metadata-date">
-                  {moment(post.postedAt).format('MMM D, YYYY')}
-                </div>
-                <div className="posts-page-content-body-metadata-comments">
-                  <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
-                </div>
-                <div className="posts-page-content-body-metadata-actions">
-                  {Posts.options.mutations.edit.check(this.props.currentUser, post) ?
-                    <div className="posts-page-content-body-metadata-action">
-                      <Link to={{pathname:'/editPost', query:{postId: post._id}}}>
-                        Edit
-                      </Link>
-                    </div> : null
-                  }
-                  {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
-                    <div className="posts-page-content-body-metadata-action">
-                      <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
-                    <Components.PostVotesInfo documentId={ post._id } />
-                      </Components.DialogGroup>
-                    </div> : null
-                  } */}
-                </div>
-              </div>
+              {this.renderPostMetadata()}
+              {post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               { post.url && <p className="posts-page-content-body-link-post">
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </p>}

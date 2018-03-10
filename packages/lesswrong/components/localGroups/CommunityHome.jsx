@@ -2,6 +2,7 @@ import { Components, registerComponent, withCurrentUser, getFragment, withMessag
 import React, { Component } from 'react';
 import { LocalGroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
+import { Link } from 'react-router';
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -48,27 +49,31 @@ class CommunityHome extends Component {
   }
 
   renderNewGroupForm = () => {
-    return (
-      <Dialog
-        contentStyle={{maxWidth:"400px"}}
-        title="New Local Group Form"
-        open={this.state.newGroupFormOpen}
-        onRequestClose={this.handleCloseNewGroupForm}
-        className="comments-item-text new-local-group-form"
-        bodyClassName="new-local-group-form-body"
-        autoScrollBodyContent
-      >
-        <Components.SmartForm
-          collection={LocalGroups}
-          mutationFragment={getFragment('localGroupsHomeFragment')}
-          prefilledProps={{organizerIds: [this.props.currentUser._id]}}
-          successCallback={localGroup => {
-            this.handleCloseNewEventForm();
-            this.props.flash("Successfully created new local group " + localGroup.name);
-          }}
-        />
-      </Dialog>
-    )
+    if (this.props.currentUser) {
+      return (<div>
+        <a onClick={this.handleOpenNewGroupForm}>Create new group</a>
+        <Dialog
+          contentStyle={{maxWidth:"400px"}}
+          title="New Local Group Form"
+          open={this.state.newGroupFormOpen}
+          onRequestClose={this.handleCloseNewGroupForm}
+          className="comments-item-text new-local-group-form"
+          bodyClassName="new-local-group-form-body"
+          autoScrollBodyContent
+        >
+          <Components.SmartForm
+            collection={LocalGroups}
+            mutationFragment={getFragment('localGroupsHomeFragment')}
+            prefilledProps={{organizerIds: [this.props.currentUser._id]}}
+            successCallback={localGroup => {
+              this.handleCloseNewGroupForm();
+              this.props.flash("Successfully created new local group " + localGroup.name);
+              this.props.router.push({pathname: '/groups/' + localGroup._id});
+            }}
+          />
+        </Dialog>
+      </div>)
+    }
   }
 
   // renderNewEventForm = () => {
@@ -98,15 +103,14 @@ class CommunityHome extends Component {
   render() {
     return (
       <div className="community-home">
-        <Components.CommunityMapWrapper terms={{view: "all"}}/>
+        <Components.CommunityMapWrapper terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}}/>
         <Components.Section title="Nearby Events" titleComponent={<div>
-          <a onClick={this.handleOpenNewGroupForm}>Create new group</a>
-          <div><a onClick={this.handleOpenNewEventForm}>Create new event</a></div>
           {this.renderNewGroupForm()}
+          {this.props.currentUser && <div><Link to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Link></div>}
           {/* {this.renderNewEventForm()} */}
         </div>}>
           {this.state.currentUserLocation &&
-            <Components.EventsList terms={{view: 'nearby', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}}/>}
+            <Components.PostsList terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}} showHeader={false} />}
         </Components.Section>
       </div>
     )

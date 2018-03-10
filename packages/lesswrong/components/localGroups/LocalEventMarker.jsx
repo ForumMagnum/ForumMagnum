@@ -8,7 +8,8 @@ import { Link } from 'react-router';
 class LocalEventMarker extends PureComponent {
   render() {
     const { event, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
-    const { geometry: {location: {lat, lng}}} = location;
+    console.log("LocalEventMarker location", location);
+    const { geometry: {location: {lat, lng}}} = location || {geometry: {location: {lat: -98.44228020000003, lng: 35.1592256}}};
 
     var circleIcon = {
         path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
@@ -44,7 +45,7 @@ class LocalEventMarker extends PureComponent {
 
 LocalEventMarker.propTypes = {
   event: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
+  location: PropTypes.object,
 }
 
 registerComponent("LocalEventMarker", LocalEventMarker);

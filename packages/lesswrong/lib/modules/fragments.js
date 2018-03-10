@@ -147,6 +147,32 @@ registerFragment(`
     curatedDate
     wordCount
     commentsLocked
+    # Local Event data
+    groupId
+    location
+    googleLocation
+    mongoLocation
+    startTime
+    endTime
+    facebookEvent
+    website
+    contactInfo
+    isEvent
+  }
+`);
+
+registerFragment(`
+  fragment EventsList on Post {
+    ...LWPostsList
+    location
+    googleLocation
+    mongoLocation
+    startTime
+    endTime
+    facebookEvent
+    website
+    contactInfo
+    content
   }
 `);
 

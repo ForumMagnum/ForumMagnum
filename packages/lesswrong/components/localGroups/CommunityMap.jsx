@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import GoogleMapReact from 'google-map-react';
 import { Components, registerComponent, withList, getSetting} from 'meteor/vulcan:core';
 import { LocalGroups } from '../../lib/index.js';
 import mapStyle from './mapStyles.js';
@@ -13,12 +12,12 @@ class CommunityMap extends Component {
     }
   }
 
-  handleMarkerClick = (groupId) => {
-    this.setState({openWindows: [...this.state.openWindows, groupId]})
+  handleMarkerClick = (id) => {
+    this.setState({openWindows: [...this.state.openWindows, id]})
   }
 
-  handleInfoWindowClose = (groupId) => {
-    this.setState({openWindows: _.without(this.state.openWindows, groupId)})
+  handleInfoWindowClose = (id) => {
+    this.setState({openWindows: _.without(this.state.openWindows, id)})
   }
 
   renderLocalGroups = () => {
@@ -61,7 +60,7 @@ class CommunityMap extends Component {
       <GoogleMap
         defaultCenter={this.props.center}
         defaultZoom={this.props.zoom}
-        options={{styles: mapStyle}}
+        options={{styles: mapStyle, keyboardShortcuts: false}}
       >
         {this.renderLocalGroups()}
         {this.renderLocalEvents()}
@@ -71,7 +70,6 @@ class CommunityMap extends Component {
 }
 
 CommunityMap.defaultProps = {
-  googleMapURL: `https://maps.googleapis.com/maps/api/js?key=${getSetting('googleMaps.apiKey', null)}v=3.exp&libraries=geometry,drawing,places`,
   loadingElement: <div style={{ height: `100%` }} />,
   containerElement: <div style={{ height: `400px` }} />,
   mapElement: <div style={{ height: `100%` }} />,

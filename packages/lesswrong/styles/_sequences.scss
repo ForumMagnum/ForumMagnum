@@ -195,11 +195,7 @@
     line-height: 1.1;
     color: rgba(0,0,0,0.5);
   }
-  .sequences-description {
-    font-size: 20px;
-    line-height: 1.25;
-    margin-left: 10px;
-  }
+
   .sequences-posts-list {
     margin-top: -10px;
   }
@@ -226,6 +222,12 @@
     font-style: italic;
     margin-top: 20px;
   }
+}
+
+.sequences-description {
+  font-size: 20px;
+  line-height: 1.25;
+  margin-left: 10px;
 }
 
 .sequences-page-content-footer {
