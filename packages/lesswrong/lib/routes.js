@@ -43,9 +43,10 @@ addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentNa
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
 
 
-
 addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'PostsSingle'});
 addRoute({name:'LocalGroups.single',   path:'groups/:groupId', componentName: 'LocalGroupSingle'});
+addRoute({name:'events.single',   path:'events/:_id(/:slug)', componentName: 'PostsSingle'});
+addRoute({ name: 'groups.post', path: '/g/:groupID/p/:_id', componentName: 'PostsSingle'});
 
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome'});
