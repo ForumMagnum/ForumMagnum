@@ -1335,3 +1335,19 @@ svg.drag-handle {
   float:right;
   margin-right:10px;
 }
+
+.posts-page-event-times {
+  margin-top: 5px; 
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.posts-page-event-times-start, .posts-page-event-times-end {
+  display: inline-block;
+}
+
+.posts-page-event-location {
+  font-size: 14px;
+  font-weight: 400;
+}

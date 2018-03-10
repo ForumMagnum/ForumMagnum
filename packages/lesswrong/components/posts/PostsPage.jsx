@@ -122,8 +122,8 @@ class PostsPage extends Component {
     if (post.startTime) {
       return <div>
         <div className="posts-page-event-times">
-          <span>From: {moment(post.startTime).calendar()}</span>
-          {post.endTime && <span> To: {moment(post.endTime).calendar()} </span>}
+          <span className="posts-page-event-times-start"> From: {moment(post.startTime).calendar()} </span>
+          {post.endTime && <span className="posts-page-event-times-start"> To: {moment(post.endTime).calendar()} </span>}
         </div>
       </div>
     } else {
