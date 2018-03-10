@@ -71,9 +71,8 @@ const schema = {
     insertableBy: ['members'],
     editableBy: ['members'],
     control: 'select',
-    label: "Type",
-    blackbox: true,
     form: {
+      label: "Group Type",
       options: function () { // options for the select form control
         return [
           {value: "LW", label: "LessWrong Group"},

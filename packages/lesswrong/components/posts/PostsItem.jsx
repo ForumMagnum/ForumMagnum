@@ -186,7 +186,7 @@ class PostsItem extends PureComponent {
             <div className="posts-item-body">
               <Link to={this.getPostLink()} className="posts-item-title-link">
                 <h3 className="posts-item-title">
-                  {post.url && "[Link]"}{post.unlisted && "[Unlisted]"} {post.title}
+                  {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
                 </h3>
               </Link>
               <object>
