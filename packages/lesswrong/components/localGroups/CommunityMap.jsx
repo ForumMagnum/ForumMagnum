@@ -55,7 +55,6 @@ class CommunityMap extends Component {
   }
 
   render() {
-    console.log("CommunityMap: ", this.props.results, this.props.terms);
     return (
       <GoogleMap
         defaultCenter={this.props.center}

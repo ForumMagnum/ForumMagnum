@@ -37,9 +37,18 @@ class GroupLinks extends PureComponent {
     const document = this.props.document;
     return(
       <div className="group-links">
-        {document.type && document.type !== "other" && <IconButton tooltipPosition='top-left' tooltip="Group Type" style={groupTypeStyles}><GroupTypeIcon type={document.type}/></IconButton>}
-        {document.facebookLink && <IconButton tooltipPosition='top-left' style={buttonStyles} tooltip="Facebook Group"><FacebookIcon className="group-links-facebook-icon"/></IconButton> }
-        {document.website && <IconButton tooltipPosition='top-left' tooltip="Group Website" style={buttonStyles}><LinkIcon className="group-links-link-icon"/></IconButton>}
+        {document.type && document.type !== "other"
+          && <IconButton tooltipPosition='top-left' tooltip="Group Type" style={groupTypeStyles}>
+            <GroupTypeIcon type={document.type}/>
+          </IconButton>}
+        {document.facebookLink
+          && <a href={document.facebookLink}><IconButton tooltipPosition='top-left' style={buttonStyles} tooltip="Facebook Group">
+            <FacebookIcon className="group-links-facebook-icon"/>
+          </IconButton></a>}
+        {document.website
+          && <a href={document.website}><IconButton tooltipPosition='top-left' tooltip="Group Website" style={buttonStyles}>
+            <LinkIcon className="group-links-link-icon"/>
+          </IconButton></a>}
       </div>
     )
   }

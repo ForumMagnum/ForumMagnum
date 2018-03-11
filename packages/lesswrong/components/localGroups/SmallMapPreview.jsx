@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import GoogleMapReact from 'google-map-react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import mapStyle from './mapStyles.js';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps"
@@ -21,9 +20,7 @@ class SmallMapPreview extends Component {
   }
 
   render() {
-    console.log("CommunityMap: ", this.props.results, this.props.terms);
     const { post, group } = this.props;
-    console.log("SmallMapPreview, post:", post)
     return (
       <GoogleMap
         defaultCenter={this.props.center}
@@ -38,7 +35,7 @@ class SmallMapPreview extends Component {
           handleInfoWindowClose={this.handleInfoWindowClose}
           infoOpen={this.state.openWindows.includes(post._id)}
                   /> }
-        {group && <Components.LocalGroupMarker
+        {group && <Components.LocalgroupMarker
           key={group._id}
           group={group}
           location={group.googleLocation}
