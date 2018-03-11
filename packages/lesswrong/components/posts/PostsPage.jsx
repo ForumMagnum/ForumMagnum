@@ -119,11 +119,12 @@ class PostsPage extends Component {
 
   renderPostDate = () => {
     const post = this.props.document;
+    const calendarFormat = {sameElse : 'MMMM Do YY, HH:mm'}
     if (post.isEvent) {
       return <div>
         <div className="posts-page-event-times">
-          <span className="posts-page-event-times-start"> From: {post.startTime ? moment(post.startTime).calendar(): "TBD"} </span>
-          {post.endTime && <span className="posts-page-event-times-start"> To: {moment(post.endTime).calendar()} </span>}
+          <span className="posts-page-event-times-start"> From: {post.startTime ? moment(post.startTime).calendar({}, calendarFormat): "TBD"} </span>
+          {post.endTime && <span className="posts-page-event-times-start"> To: {moment(post.endTime).calendar({}, calendarFormat)} </span>}
         </div>
       </div>
     } else {
