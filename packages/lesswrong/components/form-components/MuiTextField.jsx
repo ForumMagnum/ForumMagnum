@@ -14,6 +14,9 @@ class MuiTextField extends Component {
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({content: ""}))
+    this.context.addToAutofilledValues({
+      [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
+    })
   }
 
   onChange = (event, value) => {

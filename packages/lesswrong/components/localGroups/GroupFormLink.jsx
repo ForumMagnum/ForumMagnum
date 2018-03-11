@@ -1,6 +1,6 @@
 import { Components, registerComponent, withCurrentUser, getFragment, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { LocalGroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
 import classNames from "classnames";
 import { withRouter } from 'react-router'
@@ -47,7 +47,7 @@ class GroupFormLink extends Component {
         autoScrollBodyContent
       >
         <Components.SmartForm
-          collection={LocalGroups}
+          collection={Localgroups}
           documentId={this.props.documentId}
           mutationFragment={getFragment('localGroupsHomeFragment')}
           prefilledProps={this.props.documentId ? {} : {organizerIds: [this.props.currentUser._id]}} // If edit form, do not prefill organizerIds

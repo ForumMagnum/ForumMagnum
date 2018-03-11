@@ -2,7 +2,7 @@ import { Components , registerComponent, withDocument } from 'meteor/vulcan:core
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
-import { LocalGroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index.js';
 
 
 class PostsGroupDetails extends Component {
@@ -21,7 +21,7 @@ class PostsGroupDetails extends Component {
 }
 
 const options = {
-  collection: LocalGroups,
+  collection: Localgroups,
   queryName: "PostsGroupDetailsQuery",
   fragmentName: 'localGroupsHomeFragment',
   totalResolver: false,

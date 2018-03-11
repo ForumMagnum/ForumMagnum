@@ -1,12 +1,12 @@
-import LocalGroups from "./collection.js"
+import Localgroups from "./collection.js"
 
-LocalGroups.addView("all", function (terms) {
+Localgroups.addView("all", function (terms) {
   return {
     options: {sort: {createdAt: -1}}
   };
 });
 
-LocalGroups.addView("nearby", function (terms) {
+Localgroups.addView("nearby", function (terms) {
   console.log("localGroups near query:", terms)
   return {
     selector: {
@@ -28,7 +28,7 @@ LocalGroups.addView("nearby", function (terms) {
   };
 });
 
-LocalGroups.addView("single", function (terms) {
+Localgroups.addView("single", function (terms) {
   return {
     selector: {_id: terms.groupId},
     options: {sort: {createdAt: -1}}

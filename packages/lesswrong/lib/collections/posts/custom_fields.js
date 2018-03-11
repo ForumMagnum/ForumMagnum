@@ -557,10 +557,10 @@ Posts.addField([
       resolveAs: {
         fieldName: 'group',
         addOriginalField: true,
-        type: "LocalGroup",
+        type: "Localgroup",
         resolver: (post, args, context) => {
-          const group = context.LocalGroups.findOne({_id: post.groupId});
-          return Users.restrictViewableFields(context.currentUser, context.LocalGroups, group);
+          const group = context.Localgroups.findOne({_id: post.groupId});
+          return Users.restrictViewableFields(context.currentUser, context.Localgroups, group);
         }
       }
     }
@@ -614,9 +614,9 @@ Posts.addField([
       group: formGroups.event,
       resolveAs: {
         fieldName: 'group',
-        type: ['LocalGroup'],
+        type: ['Localgroup'],
         resolver: (localEvent, args, context) => {
-          return context.LocalGroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.LocalGroups)});
+          return context.Localgroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.Localgroups)});
         },
         addOriginalField: true,
       }

@@ -1,7 +1,7 @@
 import { registerFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
-  fragment localGroupsHomeFragment on LocalGroup {
+  fragment localGroupsHomeFragment on Localgroup {
     _id
     createdAt
     organizerIds

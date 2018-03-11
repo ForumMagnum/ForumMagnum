@@ -1,17 +1,23 @@
 import { Components, registerComponent, withCurrentUser, getFragment, withMessages, withDocument, getSetting} from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { LocalGroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
+import { Posts } from 'meteor/example-forum';
 
-class LocalGroupPage extends Component {
+class LocalgroupPage extends Component {
   renderTitleComponent = () => {
     const { groupId } = this.props.params;
+    const group = this.props.document;
     return (
       <div>
-        <div className="local-group-location">{this.props.document.location }</div>
-        <div><Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}}> Create new event </Link></div>
-        <div><Link to={{pathname:"/newPost", query: {groupId}}}> Create new group post </Link></div>
-        <div><Components.GroupFormLink documentId={groupId} label="Edit group" /></div>
+        <div className="local-group-location">{group.location }</div>
+        {this.props.currentUser && <div><Components.SubscribeTo document={group} /></div>}
+        {Posts.options.mutations.new.check(this.props.currentUser)
+          && <div><Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}}> Create new event </Link></div>}
+        {Posts.options.mutations.new.check(this.props.currentUser)
+          && <div><Link to={{pathname:"/newPost", query: {groupId}}}> Create new group post </Link></div>}
+        {Localgroups.options.mutations.edit.check(this.props.currentUser, group)
+          && <div><Components.GroupFormLink documentId={groupId} label="Edit group" /></div>}
       </div>
     )
   }
@@ -42,9 +48,9 @@ class LocalGroupPage extends Component {
 }
 
 const options = {
-  collection: LocalGroups,
-  queryName: 'LocalGroupPageQuery',
+  collection: Localgroups,
+  queryName: 'LocalgroupPageQuery',
   fragmentName: 'localGroupsHomeFragment',
 };
 
-registerComponent('LocalGroupPage', LocalGroupPage, withCurrentUser, withMessages, withRouter, [withDocument, options]);
+registerComponent('LocalgroupPage', LocalgroupPage, withCurrentUser, withMessages, withRouter, [withDocument, options]);

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withList, getSetting} from 'meteor/vulcan:core';
-import { LocalGroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index.js';
 import mapStyle from './mapStyles.js';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps"
 
@@ -20,12 +20,12 @@ class CommunityMap extends Component {
     this.setState({openWindows: _.without(this.state.openWindows, id)})
   }
 
-  renderLocalGroups = () => {
+  renderLocalgroups = () => {
     const localGroups = this.props.results;
     if (localGroups) {
       return localGroups.map((group) => {
         return(
-          <Components.LocalGroupMarker
+          <Components.LocalgroupMarker
             key={group._id}
             group={group}
             handleMarkerClick={this.handleMarkerClick}
@@ -62,7 +62,7 @@ class CommunityMap extends Component {
         defaultZoom={this.props.zoom}
         options={{styles: mapStyle, keyboardShortcuts: false}}
       >
-        {this.renderLocalGroups()}
+        {this.renderLocalgroups()}
         {this.renderLocalEvents()}
       </GoogleMap>
     );
@@ -79,7 +79,7 @@ CommunityMap.defaultProps = {
 }
 
 const listOptions = {
-  collection: LocalGroups,
+  collection: Localgroups,
   queryName: "communityMapQuery",
   fragmentName: "localGroupsHomeFragment",
   limit: 500,

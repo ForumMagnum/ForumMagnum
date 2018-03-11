@@ -6,7 +6,7 @@ import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 import CloseIcon from 'material-ui/svg-icons/navigation/close';
 
-class LocalGroupMarker extends PureComponent {
+class LocalgroupMarker extends PureComponent {
   render() {
     const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
@@ -44,9 +44,9 @@ class LocalGroupMarker extends PureComponent {
   }
 }
 
-LocalGroupMarker.propTypes = {
+LocalgroupMarker.propTypes = {
   group: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 }
 
-registerComponent("LocalGroupMarker", LocalGroupMarker);
+registerComponent("LocalgroupMarker", LocalgroupMarker);
