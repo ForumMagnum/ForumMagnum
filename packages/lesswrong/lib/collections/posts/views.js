@@ -318,7 +318,6 @@ Posts.addView("nearbyEvents", function (terms) {
       }
     }
   };
-  console.log("selector", selector);
   return selector;
 });
 
