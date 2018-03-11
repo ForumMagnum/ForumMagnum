@@ -1,2 +1,2 @@
-import LocalGroups from './collection.js'
-LocalGroups._ensureIndex({ mongoLocation : "2dsphere" });
+import Localgroups from './collection.js'
+Localgroups._ensureIndex({ mongoLocation : "2dsphere" });

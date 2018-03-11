@@ -23,18 +23,18 @@ const options = {
      },
  }
 
-const LocalGroups = createCollection({
+const Localgroups = createCollection({
 
-  collectionName: 'LocalGroups',
+  collectionName: 'Localgroups',
 
-  typeName: 'LocalGroup',
+  typeName: 'Localgroup',
 
   schema,
 
-  resolvers: getDefaultResolvers('LocalGroups'),
+  resolvers: getDefaultResolvers('Localgroups'),
 
-  mutations: getDefaultMutations('LocalGroups', options)
+  mutations: getDefaultMutations('Localgroups', options)
 
 });
 
-export default LocalGroups;
+export default Localgroups;

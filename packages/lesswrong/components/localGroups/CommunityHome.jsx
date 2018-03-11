@@ -1,6 +1,6 @@
 import { Components, registerComponent, withCurrentUser, getFragment, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { LocalGroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
 import { Link } from 'react-router';
 
@@ -62,7 +62,7 @@ class CommunityHome extends Component {
           autoScrollBodyContent
         >
           <Components.SmartForm
-            collection={LocalGroups}
+            collection={Localgroups}
             mutationFragment={getFragment('localGroupsHomeFragment')}
             prefilledProps={{organizerIds: [this.props.currentUser._id]}}
             successCallback={localGroup => {

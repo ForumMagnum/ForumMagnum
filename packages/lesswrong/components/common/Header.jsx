@@ -14,7 +14,7 @@ import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
 import { withApollo } from 'react-apollo';
 import { Posts } from 'meteor/example-forum';
 import Sequences from '../../lib/collections/sequences/collection'
-import LocalGroups from '../../lib/collections/localgroups/collection'
+import Localgroups from '../../lib/collections/localgroups/collection'
 import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
@@ -135,7 +135,7 @@ class Header extends Component {
       return this.metaSubtitle()
     } else if (routeName == "CommunityHome") {
       return this.communitySubtitle()
-    } else if (routeName == "LocalGroups.single") {
+    } else if (routeName == "Localgroups.single") {
       return this.communitySubtitle()
     } else if (routeName == "events.single") {
       return this.communitySubtitle()

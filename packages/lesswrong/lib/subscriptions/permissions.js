@@ -9,6 +9,8 @@ const membersActions = [
   "users.unsubscribe",
   "categories.subscribe",
   "categories.unsubscribe",
+  "localgroups.subscribe",
+  "localgroups.unsubscribe"
 ];
 
 Users.groups.members.can(membersActions);

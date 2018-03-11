@@ -314,6 +314,8 @@ Utils.getCollectionNameFromTypename = (type) => {
     return 'users';
   } else if (type.indexOf('Comment') > -1) {
     return 'comments';
+  } else if (type.indexOf('Localgroup') > -1) {
+    return 'localgroups';
   }
 };
 
