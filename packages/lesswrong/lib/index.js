@@ -52,6 +52,12 @@ import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';
 import Collections from './collections/collections/collection.js';
 
+import Localgroups from './collections/localgroups/collection.js'
+import './collections/localgroups/views.js';
+import './collections/localgroups/permissions.js';
+import './collections/localgroups/fragments.js';
+import './collections/localgroups/callbacks.js';
+
 import './modules/fragments.js';
 import './collections/chapters/fragments.js';
 import './collections/sequences/fragments.js';
@@ -126,5 +132,6 @@ export {
   Books,
   Bans,
   UserSequenceRels,
-  UserCollectionRels
+  UserCollectionRels,
+  Localgroups
 }

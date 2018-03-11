@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
+import Localgroups from '../localgroups/collection.js';
 import htmlToText from 'html-to-text';
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
@@ -157,3 +158,13 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
 }
 
 addCallback("votes.upvote.async", increaseMaxBaseScore);
+
+function PostsNewDefaultLocation (post) {
+  if (post.isEvent && post.groupId && !post.location) {
+    const { location, googleLocation, mongoLocation } = Localgroups.findOne(post.groupId)
+    post = {...post, location, googleLocation, mongoLocation}
+  }
+  return post
+}
+
+addCallback("posts.new.sync", PostsNewDefaultLocation);

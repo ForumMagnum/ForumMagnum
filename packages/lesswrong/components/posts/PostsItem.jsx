@@ -42,7 +42,7 @@ class PostsItem extends PureComponent {
   renderActions() {
     return (
       <div className="posts-actions">
-        <Link to={{pathname:'/editPost', query:{postId: this.props.post._id}}}>
+        <Link to={{pathname:'/editPost', query:{postId: this.props.post._id, eventForm: this.props.post.isEvent}}}>
           Edit
         </Link>
       </div>
@@ -100,6 +100,17 @@ class PostsItem extends PureComponent {
         eventProperties.postTitle = post.title;
         this.props.registerEvent('post-view', eventProperties)
       }
+  }
+
+  renderEventDetails = () => {
+    const post = this.props.post;
+    const isEvent = post.isEvent;
+    if (isEvent) {
+      return <div className="posts-item-event-details">
+        {post.startTime && <span> {moment(post.startTime).calendar()} </span>}
+        {post.location && <span> {post.location} </span>}
+      </div>
+    }
   }
 
   renderHighlightMenu = () => {
@@ -175,21 +186,20 @@ class PostsItem extends PureComponent {
             <div className="posts-item-body">
               <Link to={this.getPostLink()} className="posts-item-title-link">
                 <h3 className="posts-item-title">
-                  {post.url && "[Link]"}{post.unlisted && "[Unlisted]"} {post.title}
+                  {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
                 </h3>
               </Link>
-
-
               <object>
                 <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
                   {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
                   {this.renderPostFeeds()}
-                  {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
+                  {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
                   <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
-                  {post.wordCount && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
+                  {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
                   {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
+                  {this.renderEventDetails()}
                   <div className="posts-item-show-highlight-button">
                     { this.state.showHighlight ?
                       <span>
@@ -205,7 +215,6 @@ class PostsItem extends PureComponent {
                         subdirectory_arrow_left
                       </FontIcon>
                     </span>  }
-
                   </div>
                 </div>
               </object>

@@ -488,10 +488,3 @@ $header-mobile: 43px !important;
     background-color: rgba(0,0,0,0.08) !important;
   }
 }
-
-.appbar-elements-right {
-  margin-right: 36px;
-  @include max-tiny() {
-    margin-right: 16px !important;
-  }
-}

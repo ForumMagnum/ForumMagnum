@@ -1,13 +1,13 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
-
-
+import moment from 'moment';
+import Chapters from '../chapters/collection.js';
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'frontpage', 'userId', 'meta');
+  const validFields = _.pick(terms, 'frontpage', 'userId', 'meta', 'groupId');
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
@@ -15,6 +15,8 @@ Posts.addDefaultView(terms => {
       isFuture: {$ne: true}, // match both false and undefined
       unlisted: {$ne: true},
       meta: {$ne: true},
+      groupId: {$exists: false},
+      isEvent: {$ne: true},
       ...validFields,
     }
   }
@@ -289,5 +291,72 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       sort: {lastCommentedAt:-1},
       limit: terms.limit || 4,
     }
+  }
+})
+
+Posts.addView("nearbyEvents", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
+  const selector = {
+    selector: {
+      location: {$exists: true},
+      groupId: null,
+      isEvent: true,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      mongoLocation: {
+        $near: {
+          $geometry: {
+               type: "Point" ,
+               coordinates: [ terms.lng, terms.lat ]
+          },
+        },
+      }
+    },
+    options: {
+      sort: {
+        createdAt: null,
+        _id: null
+      }
+    }
+  };
+  return selector;
+});
+
+Posts.addView("events", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
+    },
+    options: {
+      sort: {
+        time: -1,
+      }
+    }
+  }
+})
+
+Posts.addView("groupPosts", function (terms) {
+  return {
+    selector: {
+      isEvent: null,
+      groupId: terms.groupId,
+    },
+    options: {
+      sort: {
+        sticky: -1,
+        createdAt: -1,
+      }
+    }
+  }
+})
+
+Posts.addView("communityResourcePosts", function () {
+
+  return {
+    selector: {
+      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'YdcF6WbBmJhaaDqoD']}
+    },
   }
 })

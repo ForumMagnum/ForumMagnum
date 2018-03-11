@@ -1,6 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments, Categories } from 'meteor/example-forum';
 import { Utils, GraphQLSchema, runCallbacksAsync } from 'meteor/vulcan:core';
+import { Localgroups } from '../index.js';
 
 /**
  * @summary Verify that the un/subscription can be performed
@@ -146,6 +147,7 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
    const genericMutationFunction = (collectionName, action) => {
      // return the method code
      return function(root, { documentId }, context) {
+       console.log("genericMutationFunction collectionName: ", collectionName);
 
        // extract the current user & the relevant collection from the graphql server context
        const { currentUser, [Utils.capitalize(collectionName)]: collection } = context;
@@ -181,5 +183,6 @@ subscribeMutationsGenerator(Users);
 subscribeMutationsGenerator(Posts);
 subscribeMutationsGenerator(Comments);
 subscribeMutationsGenerator(Categories);
+subscribeMutationsGenerator(Localgroups);
 
 export default subscribeMutationsGenerator;

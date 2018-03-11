@@ -20,3 +20,10 @@ addStrings('en', {
   "short-moderation-norm-enforcing": " Norm Enforcing",
   "short-moderation-reign-of-terror": " Reign of Terror"
 })
+
+addStrings('en', {
+  "localgroups.subscribe": "Subscribe to group",
+  "localgroups.unsubscribe": "Unsubscribe from group",
+  "localgroups.subscribed": "Successfully subscribed to events & posts in this group",
+  "localgroups.unsubscribed": "Successfully unsubscribed from events & posts in this group",
+})

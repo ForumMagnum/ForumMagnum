@@ -8,12 +8,15 @@ class MuiTextField extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: this.props.document[this.props.name] || ""
+      content: props.document && props.document[props.name] || ""
     }
   }
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({content: ""}))
+    this.context.addToAutofilledValues({
+      [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
+    })
   }
 
   onChange = (event, value) => {
