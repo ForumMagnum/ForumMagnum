@@ -14,6 +14,7 @@ import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
 import { withApollo } from 'react-apollo';
 import { Posts } from 'meteor/example-forum';
 import Sequences from '../../lib/collections/sequences/collection'
+import LocalGroups from '../../lib/collections/localgroups/collection'
 import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {
@@ -110,6 +111,12 @@ class Header extends Component {
     }
   }
 
+  communitySubtitle = () => {
+    return <Link className="header-site-subtitle" to={ "/community" }>
+              Community
+           </Link>
+  }
+
   getSubtitle = () => {
     const routeName = this.props.routes[1].name
     if (routeName == "users.single") {
@@ -126,6 +133,14 @@ class Header extends Component {
       return this.codexSubtitle()
     } else if (routeName == "Meta") {
       return this.metaSubtitle()
+    } else if (routeName == "CommunityHome") {
+      return this.communitySubtitle()
+    } else if (routeName == "LocalGroups.single") {
+      return this.communitySubtitle()
+    } else if (routeName == "events.single") {
+      return this.communitySubtitle()
+    } else if (routeName == "groups.post") {
+      return this.communitySubtitle()
     }
   }
 
