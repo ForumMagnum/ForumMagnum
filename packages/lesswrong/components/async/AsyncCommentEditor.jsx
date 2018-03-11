@@ -103,7 +103,7 @@ class AsyncCommentEditor extends Component {
     const imagePlugin = createImagePlugin({ decorator });
     this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
     if (Meteor.isClient) {
-      const mathjaxPlugin = createMathjaxPlugin()
+      const mathjaxPlugin = createMathjaxPlugin({completion: 'manual'});
       this.plugins.push(mathjaxPlugin);
     }
   }

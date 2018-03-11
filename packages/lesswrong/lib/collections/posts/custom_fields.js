@@ -8,6 +8,11 @@ const formGroups = {
   admin: {
     name: "admin",
     order: 2
+  },
+  event: {
+    name: "event details",
+    order: 1,
+    label: "Event Details"
   }
 };
 
@@ -316,7 +321,8 @@ Posts.addField([
         type: "Sequence",
         resolver: (post, args, context) => {
           if (!post.canonicalSequenceId) return null;
-          return context.Sequences.findOne({_id: post.canonicalSequenceId})
+          const sequence = context.Sequences.findOne({_id: post.canonicalSequenceId});
+          return Users.restrictViewableFields(context.currentUser, context.Sequences, sequence);
         }
       },
       hidden: false,
@@ -340,7 +346,8 @@ Posts.addField([
         type: "Collection",
         resolver: (post, args, context) => {
           if (!post.canonicalCollectionSlug) return null;
-          return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+          const collection = context.Collections.findOne({slug: post.canonicalCollectionSlug})
+          return Users.restrictViewableFields(context.currentUser, context.Collections, collection);
         }
       }
     }
@@ -362,7 +369,8 @@ Posts.addField([
         type: "Book",
         resolver: (post, args, context) => {
           if (!post.canonicalBookId) return null;
-          return context.Books.findOne({_id: post.canonicalBookId})
+          const book = context.Books.findOne({_id: post.canonicalBookId});
+          return Users.restrictViewableFields(context.currentUser, context.Books, book);
         }
       }
     }
@@ -534,6 +542,213 @@ Posts.addField([
       viewableBy: ['guests'],
       optional: true,
       hidden:true
+    }
+  },
+
+  {
+    fieldName: 'groupId',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment'],
+      insertableBy: ['members'],
+      hidden: true,
+      optional: true,
+      resolveAs: {
+        fieldName: 'group',
+        addOriginalField: true,
+        type: "Localgroup",
+        resolver: (post, args, context) => {
+          const group = context.Localgroups.findOne({_id: post.groupId});
+          return Users.restrictViewableFields(context.currentUser, context.Localgroups, group);
+        }
+      }
+    }
+  },
+
+  /*
+    Event specific fields:
+  */
+
+  {
+    fieldName: 'organizerIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      hidden: true,
+      control: "UsersListEditor",
+      resolveAs: {
+        fieldName: 'organizers',
+        type: '[User]',
+        resolver: (localEvent, args, context) => {
+          return _.map(localEvent.organizerIds,
+            (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
+          )
+        },
+        addOriginalField: true
+      },
+      group: formGroups.event,
+    }
+  },
+
+  {
+    fieldName: 'organizerIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'groupId',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      optional: true,
+      hidden: true,
+      group: formGroups.event,
+      resolveAs: {
+        fieldName: 'group',
+        type: ['Localgroup'],
+        resolver: (localEvent, args, context) => {
+          return context.Localgroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.Localgroups)});
+        },
+        addOriginalField: true,
+      }
+    }
+  },
+
+  {
+    fieldName: 'isEvent',
+    fieldSchema: {
+      type: Boolean,
+      hidden: true,
+      group: formGroups.event,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment'],
+      insertableBy: ['members'],
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'startTime',
+    fieldSchema: {
+      type: Date,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'datetime',
+      label: "Start Time",
+      group: formGroups.event,
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'endTime',
+    fieldSchema: {
+      type: Date,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'datetime',
+      label: "End Time",
+      group: formGroups.event,
+      optional: true,
+    }
+  },
+
+  {
+    fieldName: 'mongoLocation',
+    fieldSchema: {
+      type: Object,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+      blackbox: true,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'googleLocation',
+    fieldSchema: {
+      type: Object,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Group Location",
+      control: 'LocationFormComponent',
+      blackbox: true,
+      group: formGroups.event,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'location',
+    fieldSchema: {
+      type: String,
+      searchable: true,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      hidden: true,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'contactInfo',
+    fieldSchema: {
+      type: String,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Contact Info",
+      control: "MuiTextField",
+      optional: true,
+      group: formGroups.event,
+    }
+  },
+
+  {
+    fieldName: 'facebookLink',
+    fieldSchema: {
+      type: String,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Facebook Event",
+      control: "MuiTextField",
+      optional: true,
+      group: formGroups.event,
+    }
+  },
+
+  {
+    fieldName: 'website',
+    fieldSchema: {
+      type: String,
+      hidden: (p) => !p.eventForm,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      control: "MuiTextField",
+      optional: true,
+      group: formGroups.event,
     }
   },
 ]);

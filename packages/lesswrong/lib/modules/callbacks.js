@@ -2,6 +2,7 @@ import Notifications from '../collections/notifications/collection.js';
 import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
 import Sequences from '../collections/sequences/collection.js';
+import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
@@ -71,6 +72,10 @@ const getLink = (documentType, documentId) => {
 
 const notificationMessage = (notificationType, documentType, documentId) => {
   let document = getDocument(documentType, documentId);
+  let group = {}
+  if (documentType == "post" && document.groupId) {
+    group = Localgroups.findOne(document.groupId);
+  }
 
   switch(notificationType) {
     case "newPost":
@@ -79,6 +84,10 @@ const notificationMessage = (notificationType, documentType, documentId) => {
       return Posts.getAuthorName(document) + ' has a new post pending approval ' + document.title;
     case "postApproved":
       return 'Your post "' + document.title + '" has been approved';
+    case "newEvent":
+        return Posts.getAuthorName(document) + ' has created a new event in the group "' + group.name + '"';
+    case "newGroupPost":
+        return Posts.getAuthorName(document) + ' has created a new post in the group "' + group.name + '"';
     case "newComment":
       return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
     case "newReply":
@@ -182,10 +191,24 @@ function PostsNewNotifications (post) {
       });
     }
 
+    // add users who are subscribed to this post's groups
+    if (post.groupId) {
+      const group = Localgroups.findOne(post.groupId);
+      if (group.subscribers) {
+        usersToNotify = _.union(usersToNotify, group.subscribers);
+      }
+    }
     // remove this post's author
     usersToNotify = _.without(usersToNotify, post.userId);
 
-    createNotifications(usersToNotify, 'newPost', 'post', post._id);
+    if (post.groupId && post.isEvent) {
+      createNotifications(usersToNotify, 'newEvent', 'post', post._id);
+    } else if (post.groupId && !post.isEvent) {
+      createNotifications(usersToNotify, 'newGroupPost', 'post', post._id);
+    } else {
+      createNotifications(usersToNotify, 'newPost', 'post', post._id);
+    }
+
   }
 }
 addCallback("posts.new.async", PostsNewNotifications);

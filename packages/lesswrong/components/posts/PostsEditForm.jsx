@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment, withMessages, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 import { withRouter } from 'react-router'
+import Helmet from 'react-helmet';
 
 class PostsEditForm extends PureComponent {
 
@@ -24,9 +25,12 @@ class PostsEditForm extends PureComponent {
 
   render() {
     const postId = this.props.location.query.postId;
+    const eventForm = this.props.router.location.query && this.props.router.location.query.eventForm;
+    const mapsAPIKey = getSetting('googleMaps.apiKey', null);
     return (
       <div className="posts-edit-form">
         {Users.isAdmin(this.props.currentUser) ? this.renderAdminArea() : null}
+        {eventForm && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
         <Components.SmartForm
           collection={Posts}
           documentId={postId}
@@ -35,6 +39,7 @@ class PostsEditForm extends PureComponent {
             this.props.flash(this.context.intl.formatMessage({ id: 'posts.edit_success' }, { title: post.title }), 'success');
             this.props.router.push({pathname: Posts.getPageUrl(post)});
           }}
+          eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)
