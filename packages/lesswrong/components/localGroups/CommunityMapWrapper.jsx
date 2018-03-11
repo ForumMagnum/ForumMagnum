@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import GoogleMapReact from 'google-map-react';
 import { Components, registerComponent, getSetting, withList} from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 
 const CommunityMapWrapper = (props) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
-    console.log("CommunityMapWrapper: ", props.results, props.terms, props.groupQueryTerms)
     return (
       <Components.CommunityMap
         terms={props.groupQueryTerms ? props.groupQueryTerms : {view: "all"}}

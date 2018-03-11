@@ -101,6 +101,12 @@ class CommunityHome extends Component {
   // }
 
   render() {
+    const postsListTerms = {
+      view: 'nearbyEvents',
+      lat: this.state.currentUserLocation.lat,
+      lng: this.state.currentUserLocation.lng,
+      limit: 5
+    }
     return (
       <div className="community-home">
         <Components.CommunityMapWrapper terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}}/>
@@ -110,7 +116,9 @@ class CommunityHome extends Component {
           {/* {this.renderNewEventForm()} */}
         </div>}>
           {this.state.currentUserLocation &&
-            <Components.PostsList terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}} showHeader={false} />}
+            <Components.PostsList
+              terms={postsListTerms}
+              showHeader={false} />}
         </Components.Section>
       </div>
     )
