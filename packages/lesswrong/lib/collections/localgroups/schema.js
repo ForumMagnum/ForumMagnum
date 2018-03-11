@@ -72,7 +72,7 @@ const schema = {
     editableBy: ['members'],
     control: 'select',
     form: {
-      label: "Group Type",
+      noneOptionLabel: "Select Group Type",
       options: function () { // options for the select form control
         return [
           {value: "LW", label: "LessWrong Group"},
@@ -132,7 +132,7 @@ const schema = {
     optional: true,
   },
 
-  facebookGroup: {
+  facebookLink: {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],

@@ -16,7 +16,7 @@ registerFragment(`
     type
     description
     contactInfo
-    facebookGroup
+    facebookLink
     website
   }
 `);

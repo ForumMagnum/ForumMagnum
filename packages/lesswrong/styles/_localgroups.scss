@@ -93,7 +93,7 @@ $lw-green: #588f27;
   font-weight: bold;
 }
 
-.new-local-group-form, .new-local-event-form {
+.local-group-new-form, .local-group-edit-form {
   div { font-family: $comments-font }
   .editor {
     min-height: 50px;
@@ -111,8 +111,15 @@ $lw-green: #588f27;
     color: rgba(0, 0, 0, 0.2);
   }
   .form-component-select {
+    .col-sm-9 {
+      width: 100%;
+      padding: 0px;
+    }
     label {
-      display: none; 
+      display: none;
+    }
+    .form-component-clear {
+      display: none;
     }
   }
 }
@@ -132,7 +139,7 @@ $lw-green: #588f27;
   }
 }
 
-.new-local-group-form-body, .new-local-event-form-body {
+.local-group-form-body {
   padding-top: 5px !important;
   padding-bottom: 10px !important;
 }
@@ -161,3 +168,53 @@ $lw-green: #588f27;
   line-height: 1.25;
   margin-left: 24px;
 }
+
+.group-links {
+  position: absolute;
+  bottom: 0px;
+  right: -2px;
+}
+
+.group-links-facebook-icon {
+    width: 12px !important;
+    height: 12px !important;
+    display: inline-block;
+    color: rgba(0, 0, 0, 0.7);
+    padding-top: 0px;
+    transform: translateY(1px);
+}
+
+.group-links-link-icon {
+  height: 17px !important;
+  width: 17px !important;
+  padding-top: 2px;
+  transform: translateY(3px) rotate(-45deg);
+}
+
+.local-group-marker-name {
+  font-size: 15px;
+  margin-top: 3.5px;
+}
+
+.local-group-marker-close-icon {
+  position: absolute;
+  right: -3px;
+  top: 4px;
+  color: rgba(0,0,0,0.5) !important;
+  height: 15px !important;
+  width: 15px !important;
+}
+
+.local-group-marker-contact-info {
+    margin-bottom: 10px;
+    font-weight: 400;
+    color: rgba(0,0,0,0.6);
+}
+
+.local-group-marker-page-link {
+  font-weight: 400;
+  color: rgba(0,0,0,0.4);
+}
+
+/* Experimental: Somewhat hacky solution to get rid of close window in google Info Windows */
+.gm-style-iw + div {display: none;}

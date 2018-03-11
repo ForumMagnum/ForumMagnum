@@ -57,8 +57,8 @@ class CommunityHome extends Component {
           title="New Local Group Form"
           open={this.state.newGroupFormOpen}
           onRequestClose={this.handleCloseNewGroupForm}
-          className="comments-item-text new-local-group-form"
-          bodyClassName="new-local-group-form-body"
+          className="comments-item-text local-group-new-form"
+          bodyClassName="local-group-new-form-body"
           autoScrollBodyContent
         >
           <Components.SmartForm
@@ -105,7 +105,7 @@ class CommunityHome extends Component {
       <div className="community-home">
         <Components.CommunityMapWrapper terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}}/>
         <Components.Section title="Nearby Events" titleComponent={<div>
-          {this.renderNewGroupForm()}
+          <Components.GroupFormLink />
           {this.props.currentUser && <div><Link to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Link></div>}
           {/* {this.renderNewEventForm()} */}
         </div>}>
