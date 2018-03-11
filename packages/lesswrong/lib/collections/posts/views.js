@@ -352,13 +352,11 @@ Posts.addView("groupPosts", function (terms) {
   }
 })
 
-Posts.addView("sequencePosts", function (terms) {
-  // NOTE: Only works on sequences with one chapter
+Posts.addView("communityResourcePosts", function () {
 
-  const chapter = Chapters.findOne({sequenceId:terms.sequenceId})
   return {
     selector: {
-      _id: {$in: chapter ? chapter.postIds: []}
+      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'YdcF6WbBmJhaaDqoD']}
     },
   }
 })

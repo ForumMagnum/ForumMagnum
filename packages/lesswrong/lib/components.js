@@ -78,6 +78,8 @@ import '../components/localGroups/GroupFormLink.jsx';
 import '../components/localGroups/SmallMapPreview.jsx';
 import '../components/localGroups/SmallMapPreviewWrapper.jsx';
 import '../components/localGroups/GroupLinks.jsx';
+import '../components/localGroups/LocalGroupsList.jsx';
+import '../components/localGroups/LocalGroupsItem.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
