@@ -76,30 +76,6 @@ class CommunityHome extends Component {
     }
   }
 
-  // renderNewEventForm = () => {
-  //   return (
-  //     <Dialog
-  //       contentStyle={{maxWidth:"400px"}}
-  //       title="New Local Event Form"
-  //       open={this.state.newEventFormOpen}
-  //       onRequestClose={this.handleCloseNewEventForm}
-  //       className="comments-item-text new-local-event-form"
-  //       bodyClassName="new-local-event-form-body"
-  //       autoScrollBodyContent
-  //     >
-  //       <Components.SmartForm
-  //         collection={LocalEvents}
-  //         mutationFragment={getFragment('localEventsHomeFragment')}
-  //         prefilledProps={{organizerIds: [this.props.currentUser._id]}}
-  //         successCallback={localEvent => {
-  //           this.handleCloseNewEventForm();
-  //           this.props.flash("Successfully created new local event " + localEvent.name);
-  //         }}
-  //       />
-  //     </Dialog>
-  //   )
-  // }
-
   render() {
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -113,12 +89,14 @@ class CommunityHome extends Component {
         <Components.Section title="Nearby Events" titleComponent={<div>
           {this.props.currentUser && <Components.GroupFormLink />}
           {this.props.currentUser && <div><Link to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Link></div>}
-          {/* {this.renderNewEventForm()} */}
         </div>}>
           {this.state.currentUserLocation &&
             <Components.PostsList
               terms={postsListTerms}
               showHeader={false} />}
+        </Components.Section>
+        <Components.Section title="Resources">
+          <Components.PostsList terms={{view: 'sequencePosts', sequenceId:"TXMbSFiW8X4EDaKpH" }} showHeader={false} />
         </Components.Section>
       </div>
     )

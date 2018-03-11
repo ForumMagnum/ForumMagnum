@@ -1,7 +1,7 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';
-
+import Chapters from '../chapters/collection.js';
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
@@ -349,5 +349,16 @@ Posts.addView("groupPosts", function (terms) {
         createdAt: -1,
       }
     }
+  }
+})
+
+Posts.addView("sequencePosts", function (terms) {
+  // NOTE: Only works on sequences with one chapter
+
+  const chapter = Chapters.findOne({sequenceId:terms.sequenceId})
+  return {
+    selector: {
+      _id: {$in: chapter ? chapter.postIds: []}
+    },
   }
 })
