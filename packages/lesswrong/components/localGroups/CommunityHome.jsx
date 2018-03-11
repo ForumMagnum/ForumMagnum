@@ -83,20 +83,31 @@ class CommunityHome extends Component {
       lng: this.state.currentUserLocation.lng,
       limit: 5
     }
+    const groupsListTerms = {
+      view: 'nearby',
+      lat: this.state.currentUserLocation.lat,
+      lng: this.state.currentUserLocation.lng,
+      limit: 5
+    }
     return (
       <div className="community-home">
         <Components.CommunityMapWrapper terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}}/>
-        <Components.Section title="Nearby Events" titleComponent={<div>
+        <Components.Section title="Local Groups" titleComponent={<div>
           {this.props.currentUser && <Components.GroupFormLink />}
           {this.props.currentUser && <div><Link to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Link></div>}
         </div>}>
           {this.state.currentUserLocation &&
-            <Components.PostsList
-              terms={postsListTerms}
-              showHeader={false} />}
+            <div>
+              <Components.LocalGroupsList
+                terms={groupsListTerms}
+                showHeader={false} />
+              <Components.PostsList
+                terms={postsListTerms}
+                showHeader={false} />
+            </div>}
         </Components.Section>
         <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'sequencePosts', sequenceId:"TXMbSFiW8X4EDaKpH" }} showHeader={false} />
+          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} />
         </Components.Section>
       </div>
     )
