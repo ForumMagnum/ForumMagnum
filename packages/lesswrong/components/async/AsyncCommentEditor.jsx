@@ -6,9 +6,8 @@ import classNames from 'classnames';
 
 import ls from 'local-storage';
 
-import { Editor, EditorState, convertFromRaw, convertToRaw } from 'draft-js';
-import { composeDecorators } from 'draft-js-plugins-editor';
-
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -20,9 +19,6 @@ import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from 'draft-js-divider-plugin';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin';
-
-import {getDefaultKeyBinding, KeyBindingUtil} from 'draft-js';
-const {hasCommandModifier} = KeyBindingUtil;
 
 
 import {
@@ -67,10 +63,10 @@ class AsyncCommentEditor extends Component {
     }
 
     this.state = {
-      editorState: EditorState.createEmpty()
+      editorState: state,
     };
 
-    // this.initializePlugins();
+    this.initializePlugins();
 
   }
 
@@ -105,7 +101,7 @@ class AsyncCommentEditor extends Component {
     const richButtonsPlugin = createRichButtonsPlugin();
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const imagePlugin = createImagePlugin({ decorator });
-    // this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
+    this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
     if (Meteor.isClient) {
       const mathjaxPlugin = createMathjaxPlugin()
       this.plugins.push(mathjaxPlugin);
@@ -176,54 +172,42 @@ class AsyncCommentEditor extends Component {
 
   changeCount = 0;
 
-  // onChange = (editorState) => {
-  //   const currentContent = this.state.editorState.getCurrentContent()
-  //   const newContent = editorState.getCurrentContent()
-  //
-  //   if (currentContent !== newContent) {
-  //     // Only save to localStorage on every 10th content change
-  //     this.changeCount = this.changeCount + 1;
-  //     if (this.changeCount % 10 === 0) {
-  //       console.log("saving...");
-  //       const contentState = editorState.getCurrentContent();
-  //       this.setSavedState(convertToRaw(contentState));
-  //     }
-  //   }
-  //   this.setState({editorState: editorState})
-  //   return editorState;
-  // }
+  onChange = (editorState) => {
+    const currentContent = this.state.editorState.getCurrentContent()
+    const newContent = editorState.getCurrentContent()
 
-  myKeyBindingFn(e) {
-    console.log(e, getDefaultKeyBinding(e), e.keyCode, e.nativeEvent);
-    return getDefaultKeyBinding(e);
+    if (currentContent !== newContent) {
+      // Only save to localStorage on every 10th content change
+      this.changeCount = this.changeCount + 1;
+      if (this.changeCount % 10 === 0) {
+        console.log("saving...");
+        const contentState = editorState.getCurrentContent();
+        this.setSavedState(convertToRaw(contentState));
+      }
     }
-
-
-
-
-  onChange = (editorState) => {console.log("onChange", editorState); this.setState({editorState})};
+    this.setState({editorState: editorState})
+    return editorState;
+  }
 
   render() {
-    // const InlineToolbar = this.plugins[0].InlineToolbar;
-    // const AlignmentTool = this.plugins[1].AlignmentTool;
+    const InlineToolbar = this.plugins[0].InlineToolbar;
+    const AlignmentTool = this.plugins[1].AlignmentTool;
 
     const contentState = this.state.editorState.getCurrentContent();
     const className = classNames("commentEditor", "editor", "content-body", "comments-item-text", {"content-editor-is-empty": !contentState.hasText()})
 
-    return (<div>
-      <input type="text" />
-      <div className={className} onClick={this.focus} onKeyPress={(e) => console.log(e, e.charCode)}>
+    return (
+      <div className={className} onClick={this.focus}>
         <Editor
           editorState={this.state.editorState}
           spellCheck={true}
           onChange={this.onChange}
-          keyBindingFn={this.myKeyBindingFn}
+          plugins={this.plugins}
           ref={(element) => { this.editor = element; }}
         />
-        {/* <InlineToolbar />
-        <AlignmentTool /> */}
+        <InlineToolbar />
+        <AlignmentTool />
       </div>
-    </div>
     )
   }
 }
