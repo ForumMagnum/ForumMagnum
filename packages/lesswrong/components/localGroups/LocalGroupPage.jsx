@@ -4,7 +4,7 @@ import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
 import { Posts } from 'meteor/example-forum';
 
-class LocalgroupPage extends Component {
+class LocalGroupPage extends Component {
   renderTitleComponent = () => {
     const { groupId } = this.props.params;
     const group = this.props.document;
@@ -49,8 +49,8 @@ class LocalgroupPage extends Component {
 
 const options = {
   collection: Localgroups,
-  queryName: 'LocalgroupPageQuery',
+  queryName: 'LocalGroupPageQuery',
   fragmentName: 'localGroupsHomeFragment',
 };
 
-registerComponent('LocalgroupPage', LocalgroupPage, withCurrentUser, withMessages, withRouter, [withDocument, options]);
+registerComponent('LocalGroupPage', LocalGroupPage, withCurrentUser, withMessages, withRouter, [withDocument, options]);

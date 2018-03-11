@@ -35,7 +35,7 @@ class SmallMapPreview extends Component {
           handleInfoWindowClose={this.handleInfoWindowClose}
           infoOpen={this.state.openWindows.includes(post._id)}
                   /> }
-        {group && <Components.LocalgroupMarker
+        {group && <Components.LocalGroupMarker
           key={group._id}
           group={group}
           location={group.googleLocation}
