@@ -25,7 +25,7 @@ class CommunityMap extends Component {
     if (localGroups) {
       return localGroups.map((group) => {
         return(
-          <Components.LocalgroupMarker
+          <Components.LocalGroupMarker
             key={group._id}
             group={group}
             handleMarkerClick={this.handleMarkerClick}
