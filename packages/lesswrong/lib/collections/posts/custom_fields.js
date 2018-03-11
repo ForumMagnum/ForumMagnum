@@ -724,7 +724,7 @@ Posts.addField([
   },
 
   {
-    fieldName: 'facebookEvent',
+    fieldName: 'facebookLink',
     fieldSchema: {
       type: String,
       hidden: (p) => !p.eventForm,

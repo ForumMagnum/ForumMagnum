@@ -74,9 +74,10 @@ import '../components/localGroups/LocalGroupMarker.jsx';
 import '../components/localGroups/LocalEventMarker.jsx';
 import '../components/localGroups/LocalGroupPage.jsx';
 import '../components/localGroups/LocalGroupSingle.jsx';
-import '../components/localGroups/NewEventFormLink.jsx';
+import '../components/localGroups/GroupFormLink.jsx';
 import '../components/localGroups/SmallMapPreview.jsx';
 import '../components/localGroups/SmallMapPreviewWrapper.jsx';
+import '../components/localGroups/GroupLinks.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';

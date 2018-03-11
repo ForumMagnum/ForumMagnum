@@ -154,7 +154,7 @@ registerFragment(`
     mongoLocation
     startTime
     endTime
-    facebookEvent
+    facebookLink
     website
     contactInfo
     isEvent
@@ -169,7 +169,7 @@ registerFragment(`
     mongoLocation
     startTime
     endTime
-    facebookEvent
+    facebookLink
     website
     contactInfo
     content

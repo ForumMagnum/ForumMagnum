@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import GoogleMapReact from 'google-map-react';
 import { Components, registerComponent, getSetting} from 'meteor/vulcan:core';
 
 /*

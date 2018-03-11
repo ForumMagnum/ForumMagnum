@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
+import CloseIcon from 'material-ui/svg-icons/navigation/close';
 
 class LocalGroupMarker extends PureComponent {
   render() {
@@ -27,13 +28,14 @@ class LocalGroupMarker extends PureComponent {
         position={{lat:lat, lng:lng}}
       >
         {infoOpen &&
-          <InfoWindow
-            onCloseClick={() => handleInfoWindowClose(group._id)}
-          >
+          <InfoWindow>
             <div style={{maxWidth: "250px"}}>
-              <h5> Local Group: {group.name} </h5>
+              <a><CloseIcon className="local-group-marker-close-icon" onClick={() => handleInfoWindowClose(group._id)}/></a>
+              <Link to={'/groups/'+group._id}><h5 className="local-group-marker-name"> [Group] {group.name} </h5></Link>
               <Components.DraftJSRenderer content={group.description} />
-              <Link to={'/groups/'+group._id}> Full link </Link>
+              {group.contactInfo && <div className="local-group-marker-contact-info">{group.contactInfo}</div>}
+              <Link className="local-group-marker-page-link" to={'/groups/'+group._id}> Full link </Link>
+              <Components.GroupLinks document={group}/>
             </div>
           </InfoWindow>
         }

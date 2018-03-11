@@ -1,6 +1,6 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
-
+import moment from 'moment';
 
 
 /**
@@ -295,11 +295,13 @@ Posts.addView("recentDiscussionThreadsList", terms => {
 })
 
 Posts.addView("nearbyEvents", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
   const selector = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
       mongoLocation: {
         $near: {
           $geometry: {
@@ -321,10 +323,12 @@ Posts.addView("nearbyEvents", function (terms) {
 });
 
 Posts.addView("events", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
     },
     options: {
       sort: {
@@ -342,7 +346,8 @@ Posts.addView("groupPosts", function (terms) {
     },
     options: {
       sort: {
-        time: -1,
+        sticky: -1,
+        createdAt: -1,
       }
     }
   }

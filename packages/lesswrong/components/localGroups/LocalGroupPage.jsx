@@ -11,6 +11,7 @@ class LocalGroupPage extends Component {
         <div className="local-group-location">{this.props.document.location }</div>
         <div><Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}}> Create new event </Link></div>
         <div><Link to={{pathname:"/newPost", query: {groupId}}}> Create new group post </Link></div>
+        <div><Components.GroupFormLink documentId={groupId} label="Edit group" /></div>
       </div>
     )
   }

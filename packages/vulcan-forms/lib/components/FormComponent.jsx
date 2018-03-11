@@ -104,11 +104,11 @@ class FormComponent extends PureComponent {
         case 'select':
 
           const noneOption = {
-            label: this.context.intl.formatMessage({id: 'forms.select_option'}), 
-            value: '', 
+            label: properties.noneOptionLabel || this.context.intl.formatMessage({id: 'forms.select_option'}),
+            value: '',
             disabled: true
           };
-
+          console.log("Select form component", properties.options, properties);
           properties.options = [noneOption, ...properties.options];
           return <Components.FormComponentSelect {...properties} />;
 
@@ -125,13 +125,13 @@ class FormComponent extends PureComponent {
         case 'text':
           return <Components.FormComponentDefault {...properties}/>;
 
-        default: 
+        default:
           const CustomComponent = Components[this.props.control];
           return <CustomComponent {...properties} document={document}/>;
       }
 
     } else {
-        
+
       return <Components.FormComponentDefault {...properties}/>;
 
     }

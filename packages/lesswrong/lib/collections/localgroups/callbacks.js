@@ -6,6 +6,7 @@ function GroupsNewDefaultPost (group, context) {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
     groupId: group._id,
     userId: group.organizerIds && group.organizerIds[0],
+    sticky: true,
   }
   const post = {...groupWelcomePostTemplate, ...newFields};
   console.log("Creating new post for new group", post);
