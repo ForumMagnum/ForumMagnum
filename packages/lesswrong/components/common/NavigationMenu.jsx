@@ -36,6 +36,7 @@ const NavigationMenu = ({open, handleClose, handleToggle}) =>
       HPMOR
     </MenuItem>
     <Divider />
+    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
