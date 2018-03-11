@@ -73,7 +73,7 @@ import '../components/localGroups/CommunityMapWrapper.jsx';
 import '../components/localGroups/LocalGroupMarker.jsx';
 import '../components/localGroups/LocalEventMarker.jsx';
 import '../components/localGroups/LocalGroupPage.jsx';
-import '../components/localGroups/LocalgroupSingle.jsx';
+import '../components/localGroups/LocalGroupSingle.jsx';
 import '../components/localGroups/GroupFormLink.jsx';
 import '../components/localGroups/SmallMapPreview.jsx';
 import '../components/localGroups/SmallMapPreviewWrapper.jsx';
