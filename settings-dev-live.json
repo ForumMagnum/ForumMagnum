@@ -102,8 +102,8 @@
    },
    "galaxy.meteor.com": {
         "env": {
-           "MONGO_URL": "mongodb://lesswrong2:probableceilingwallsdrastic@ds139042-a0.mlab.com:39042,ds139042-a1.mlab.com:39042/lesswrong2?replicaSet=rs-ds139042",
-           "MONGO_OPLOG_URL": "mongodb://oplog-reader:probableceilingwallsdrastic@ds139042-a0.mlab.com:39042,ds139042-a1.mlab.com:39042/local?replicaSet=rs-ds139042&authSource=admin",
+           "MONGO_URL": "mongodb://lesswrong2fallback:homyheliconminiumprawn@ds139042-a0.mlab.com:39042,ds139042-a1.mlab.com:39042/lesswrong2?replicaSet=rs-ds139042",
+           "MONGO_OPLOG_URL": "mongodb://oplog-reader:homyheliconminiumprawn@ds139042-a0.mlab.com:39042,ds139042-a1.mlab.com:39042/local?replicaSet=rs-ds139042&authSource=admin",
            "MAIL_URL": "smtp://postmaster@mg.lesserwrong.com:curbinggainlystodgyhinge@smtp.mailgun.org:587/",
            "OPTICS_API_KEY": "service:LessWrong2-LessWrong20:AxjkCfW40UyKK8H_Md0s4Q",
            "ROOT_URL": "https://www.lessestwrong.com",

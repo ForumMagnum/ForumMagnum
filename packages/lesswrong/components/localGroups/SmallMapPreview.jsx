@@ -25,7 +25,12 @@ class SmallMapPreview extends Component {
       <GoogleMap
         defaultCenter={this.props.center}
         defaultZoom={this.props.zoom}
-        options={{styles: mapStyle, keyboardShortcuts: false}}
+        options={{
+          styles: mapStyle,
+          keyboardShortcuts: false,
+          mapTypeControl: false,
+          fullscreenControl: false
+        }}
       >
         {post && <Components.LocalEventMarker
           key={post._id}
