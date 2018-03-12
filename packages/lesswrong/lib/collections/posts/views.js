@@ -360,3 +360,12 @@ Posts.addView("communityResourcePosts", function () {
     },
   }
 })
+
+Posts.addView("communityFrontpagePosts", function () {
+
+  return {
+    selector: {
+      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'YdcF6WbBmJhaaDqoD']}
+    },
+  }
+})

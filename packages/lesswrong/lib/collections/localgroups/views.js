@@ -7,7 +7,6 @@ Localgroups.addView("all", function (terms) {
 });
 
 Localgroups.addView("nearby", function (terms) {
-  console.log("localGroups near query:", terms)
   return {
     selector: {
       mongoLocation: {

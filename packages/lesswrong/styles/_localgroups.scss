@@ -127,21 +127,6 @@ $lw-green: #588f27;
   }
 }
 
-.form-component-MuiTextField {
-  margin-bottom: 0px;
-}
-
-.mui-text-field-form-component {
-  width: 350px !important;
-}
-
-.mui-text-field {
-  input { box-shadow: none }
-  input:focus {
-    box-shadow: none;
-  }
-}
-
 .local-group-form-body {
   padding-top: 5px !important;
   padding-bottom: 10px !important;
@@ -257,4 +242,9 @@ $lw-green: #588f27;
 .local-group-organizer, .local-groups-item-location {
   color:rgba(0,0,0,.4);
   margin-right:8px;
+}
+
+
+.local-groups-menu {
+  @include frontpage-subtitle-link()
 }

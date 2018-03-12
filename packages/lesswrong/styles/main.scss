@@ -22,7 +22,7 @@
 @import "collections";
 @import "sequences";
 @import "stats";
-@import "localgroups"; 
+@import "localgroups";
 
 .new-post-button{
   margin-bottom: 15px;
@@ -285,22 +285,10 @@ div#mocha {
   z-index: 10000000;
 }
 
+.events-near-you {
+  @include frontpage-subtitle-link()
+}
+
 .recommended-reading-library {
-  color: rgba(0, 0, 0, .45) !important;
-  position:relative;
-  top:12px;
-  font-size:16px;
-  text-decoration: none !important;
-  font-style:italic;
-
-  @include max-small() {
-    margin-left:10px;
-  }
-
-  &:hover, &:focus, &:active {
-    text-decoration: none !important;
-  }
-  &:hover {
-    color:rgba(0, 0, 0, .3) !important;
-  }
+  @include frontpage-subtitle-link()
 }
