@@ -10,6 +10,9 @@ $lw-green: #588f27;
   height: 440px !important;
   top: 64px;
   left: 0px;
+  @include max-tiny {
+    top: 43px !important;
+  }
 }
 
 .local-group-marker {
