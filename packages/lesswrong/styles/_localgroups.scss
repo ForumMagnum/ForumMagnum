@@ -243,3 +243,8 @@ $lw-green: #588f27;
   color:rgba(0,0,0,.4);
   margin-right:8px;
 }
+
+
+.local-groups-menu {
+  @include frontpage-subtitle-link()
+}

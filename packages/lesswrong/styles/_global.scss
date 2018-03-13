@@ -40,6 +40,24 @@ div p a, div ul a, div ol a {
 h1 {
   font-size: 40px;
 }
-// a {
-//   @include link-underline(#fff, rgba(0,0,0,0.87), #b4d5fe )
-// }
+
+@mixin frontpage-subtitle-link() {
+  color: rgba(0, 0, 0, .45) !important;
+  font-size:16px;
+  text-decoration: none !important;
+  font-style:italic;
+  position:relative;
+  top:12px;
+  &:focus, &:active, a, a:focus, a:active {
+    color: rgba(0, 0, 0, .5) !important;
+    text-decoration: none !important;
+  }
+  &:hover, a:hover {
+    color:rgba(0, 0, 0, .3) !important;
+  }
+
+  @include max-small() {
+    top:0px;
+    margin-left:10px;
+  }
+}

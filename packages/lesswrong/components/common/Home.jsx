@@ -50,7 +50,7 @@ const Home = (props, context) => {
     case "curated":
       recentPostsTitle = "Curated Posts"; break;
     case "community":
-      recentPostsTitle = "Community Posts"; break;
+      recentPostsTitle = "Personal Posts"; break;
     default:
       return "Recent Posts";
   }
@@ -90,6 +90,17 @@ const Home = (props, context) => {
           <Components.PostsViews />
         </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
+      </Components.Section>
+      <Components.Section
+        title="Community"
+        titleLink="/community"
+        titleComponent={<Link className="events-near-you" to="/community">Find Events Nearby</Link>}
+      >
+        <Components.PostsList
+          terms={{view:"communityFrontpagePosts"}}
+          showHeader={false}
+          loadMore={null}
+        />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments">
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
