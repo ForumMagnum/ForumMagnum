@@ -161,3 +161,15 @@ div.ReactTags__suggestions mark{
     box-shadow: none;
   }
 }
+
+.form-component-MuiTextField {
+  margin-bottom: 0px;
+}
+
+.mui-text-field-form-component {
+  width: 350px !important;
+
+  &.full-width {
+      width:100% !important;
+  }
+}

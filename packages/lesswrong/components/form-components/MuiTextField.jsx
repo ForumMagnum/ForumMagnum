@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import TextField from 'material-ui/TextField';
-
+import classnames from 'classnames';
 
 class MuiTextField extends Component {
   constructor(props, context) {
@@ -27,6 +27,9 @@ class MuiTextField extends Component {
   }
 
   render() {
+
+    const hintStyle = this.props.hintStyle || this.props.multiLine ? {top:"0px"} : {}
+
     return <div className="mui-text-field">
       <TextField
         value={this.state.content}
@@ -34,10 +37,14 @@ class MuiTextField extends Component {
         onChange={this.onChange}
         multiLine={this.props.multiLine}
         rows={this.props.rows}
-        hintText={this.props.label || this.props.hintText}
+        hintText={this.props.hintText || this.props.label}
+        hintStyle={hintStyle}
         fullWidth={this.props.fullWidth}
         underlineShow={this.props.underlineShow}
-        className="mui-text-field-form-component"
+        className={classnames(
+          "mui-text-field-form-component",
+          {"full-width":this.props.fullWidth}
+        )}
       /><br />
     </div>
   }
