@@ -33,7 +33,7 @@ class LocalEventMarker extends PureComponent {
             <div style={{maxWidth: "250px"}}>
               <a><CloseIcon className="local-group-marker-close-icon" onClick={() => handleInfoWindowClose(event._id)}/></a>
               <Link to={Posts.getPageUrl(event)}><h5 className="local-group-marker-name"> [Event] {event.title} </h5></Link>
-              <Components.DraftJSRenderer content={event.content} />
+              <div className="local-event-marker-body"><Components.DraftJSRenderer content={event.content} /></div>
               {event.contactInfo && <div className="local-group-marker-contact-info">{event.contactInfo}</div>}
               <Link className="local-group-marker-page-link" to={Posts.getPageUrl(event)}> Full link </Link>
               <Components.GroupLinks document={event}/>

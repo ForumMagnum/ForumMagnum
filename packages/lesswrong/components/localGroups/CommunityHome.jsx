@@ -87,7 +87,7 @@ class CommunityHome extends Component {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 5
+      limit: 3
     }
     return (
       <div className="community-home">
@@ -101,6 +101,7 @@ class CommunityHome extends Component {
               <Components.LocalGroupsList
                 terms={groupsListTerms}
                 showHeader={false} />
+              <hr className="community-home-list-divider"/>
               <Components.PostsList
                 terms={postsListTerms}
                 showHeader={false} />
