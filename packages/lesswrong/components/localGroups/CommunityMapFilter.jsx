@@ -50,12 +50,6 @@ class CommunityMapFilter extends Component {
             key={value}
                  />
         })}
-        {/* <Checkbox
-          checkedIcon={<ActionFavorite />}
-          uncheckedIcon={<ActionFavoriteBorder />}
-          label="Custom icon"
-          style={styles.checkbox}
-        /> */}
       </div>
     </Paper>
   }
