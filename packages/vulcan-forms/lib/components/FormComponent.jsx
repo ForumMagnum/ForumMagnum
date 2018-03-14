@@ -108,7 +108,6 @@ class FormComponent extends PureComponent {
             value: '',
             disabled: true
           };
-          console.log("Select form component", properties.options, properties);
           properties.options = [noneOption, ...properties.options];
           return <Components.FormComponentSelect {...properties} />;
 
