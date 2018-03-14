@@ -182,6 +182,7 @@ $lw-green: #588f27;
 .local-group-marker-name {
   font-size: 15px;
   margin-top: 3.5px;
+  margin-bottom: 0px;
 }
 
 .local-group-marker-close-icon {
@@ -260,7 +261,6 @@ $lw-green: #588f27;
 .local-event-marker-body, .local-group-marker-body {
   max-height: 250px;
   overflow: scroll;
-  margin-bottom: 10px;
 }
 
 .community-map-filter-wrapper {

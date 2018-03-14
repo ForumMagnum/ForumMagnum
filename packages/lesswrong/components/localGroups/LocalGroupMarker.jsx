@@ -44,7 +44,7 @@ class LocalGroupMarker extends PureComponent {
       >
         {infoOpen &&
           <InfoWindow>
-            <div style={{maxWidth: "250px"}}>
+            <div style={{width: "250px"}}>
               <a><CloseIcon className="local-group-marker-close-icon" onClick={() => handleInfoWindowClose(group._id)}/></a>
               <Link to={'/groups/'+group._id}><h5 className="local-group-marker-name"> [Group] {group.name} </h5></Link>
               <div className="local-group-marker-body"><Components.DraftJSRenderer content={group.description} /></div>

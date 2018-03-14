@@ -71,6 +71,7 @@ const schema = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'select',
+    optional: true,
     form: {
       noneOptionLabel: "Select Group Type",
       options: function () { // options for the select form control
@@ -118,7 +119,6 @@ const schema = {
     editableBy: ['members'],
     control: 'EditorFormComponent',
     blackbox: true,
-    optional: true,
   },
 
   mongoLocation: {

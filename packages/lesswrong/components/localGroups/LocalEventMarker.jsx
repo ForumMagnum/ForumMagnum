@@ -31,7 +31,7 @@ class LocalEventMarker extends PureComponent {
       >
         {infoOpen &&
           <InfoWindow>
-            <div style={{maxWidth: "250px"}}>
+            <div style={{width: "250px"}}>
               <a><CloseIcon className="local-group-marker-close-icon" onClick={() => handleInfoWindowClose(event._id)}/></a>
               <Link to={Posts.getPageUrl(event)}><h5 className="local-group-marker-name"> [Event] {event.title} </h5></Link>
               <div className="local-event-marker-body"><Components.DraftJSRenderer content={event.content} /></div>

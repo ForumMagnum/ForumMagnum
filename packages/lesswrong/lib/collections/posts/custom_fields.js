@@ -762,7 +762,7 @@ Posts.addField([
       control: 'MultiSelectButtons',
       label: "Group Type:",
       group: formGroups.event,
-      minCount: 1, // Ensure that at least one type is selected
+      optional: true,
       form: {
         options: [
           {value: "LW", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
