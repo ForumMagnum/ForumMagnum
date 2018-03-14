@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import CloseIcon from 'material-ui/svg-icons/navigation/close';
 
 class LocalGroupMarker extends PureComponent {
+  // March 13th 2018: If this is still around in six months, probably time to say goodbye
   // getIconColor = () => {
   //   const type = this.props.group && this.props.group.type;
   //   switch (type) {
