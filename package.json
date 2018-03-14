@@ -85,7 +85,7 @@
     "mathjax-node": "^1.2.1",
     "metascraper": "^1.0.6",
     "meteor-node-stubs": "^0.2.3",
-    "mingo": "^0.8.1",
+    "mingo": "^2.2.0",
     "moment": "^2.13.0",
     "optics-agent": "^1.1.6",
     "pg": "^6.1.5",
