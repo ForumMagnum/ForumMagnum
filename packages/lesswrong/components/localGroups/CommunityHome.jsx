@@ -2,7 +2,7 @@ import { Components, registerComponent, withCurrentUser, getFragment, withMessag
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
-import { Link } from 'react-router';
+import { Link, withRouter } from 'react-router';
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -77,21 +77,32 @@ class CommunityHome extends Component {
   }
 
   render() {
+    const router = this.props.router;
     const postsListTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 5
+      limit: 5,
+      filters: router.location.query && router.location.query.filters || [],
     }
     const groupsListTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 5
+      limit: 3,
+      filters: router.location.query && router.location.query.filters || [],
+    }
+    const mapEventTerms = {
+      view: 'nearbyEvents',
+      lat: this.state.currentUserLocation.lat,
+      lng: this.state.currentUserLocation.lng,
+      filters: router.location.query && router.location.query.filters || [],
     }
     return (
       <div className="community-home">
-        <Components.CommunityMapWrapper terms={{view: 'nearbyEvents', lat: this.state.currentUserLocation.lat, lng: this.state.currentUserLocation.lng}}/>
+        <Components.CommunityMapWrapper
+          terms={mapEventTerms}
+        />
         <Components.Section title="Local Groups" titleComponent={<div>
           {this.props.currentUser && <div className="local-groups-menu"><Components.GroupFormLink /></div>}
           {this.props.currentUser && <div><Link className="local-groups-menu" to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Link></div>}
@@ -101,6 +112,7 @@ class CommunityHome extends Component {
               <Components.LocalGroupsList
                 terms={groupsListTerms}
                 showHeader={false} />
+              <hr className="community-home-list-divider"/>
               <Components.PostsList
                 terms={postsListTerms}
                 showHeader={false} />
@@ -114,4 +126,4 @@ class CommunityHome extends Component {
   }
 }
 
-registerComponent('CommunityHome', CommunityHome, withCurrentUser, withMessages);
+registerComponent('CommunityHome', CommunityHome, withCurrentUser, withMessages, withRouter);

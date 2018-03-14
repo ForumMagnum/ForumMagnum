@@ -296,7 +296,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
 
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
-  const selector = {
+  let query = {
     selector: {
       location: {$exists: true},
       groupId: null,
@@ -318,7 +318,12 @@ Posts.addView("nearbyEvents", function (terms) {
       }
     }
   };
-  return selector;
+  if(Array.isArray(terms.filters) && terms.filters.length) {
+    query.types = {$in: terms.filters};
+  } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
+    query.selector.types = {$in: [terms.filters]};
+  }
+  return query;
 });
 
 Posts.addView("events", function (terms) {

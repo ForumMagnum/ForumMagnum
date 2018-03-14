@@ -248,3 +248,24 @@ $lw-green: #588f27;
 .local-groups-menu {
   @include frontpage-subtitle-link()
 }
+
+.community-home-list-divider {
+  margin-top: 12px;
+  margin-right: 37px;
+  margin-left: 32px;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.local-event-marker-body, .local-group-marker-body {
+  max-height: 250px;
+  overflow: scroll;
+  margin-bottom: 10px;
+}
+
+.community-map-filter-wrapper {
+  position: absolute;
+  top: 10px;
+  padding: 10px 10px 5px 10px;
+  right: 10px;
+}

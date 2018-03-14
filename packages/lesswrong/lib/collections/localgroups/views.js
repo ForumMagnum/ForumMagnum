@@ -1,5 +1,17 @@
 import Localgroups from "./collection.js"
 
+Localgroups.addDefaultView(terms => {
+  let selector = {};
+  if(Array.isArray(terms.filters) && terms.filters.length) {
+    selector.types = {$in: terms.filters};
+  } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
+    selector.types = {$in: [terms.filters]};
+  }
+  return {
+    selector
+  };
+});
+
 Localgroups.addView("all", function (terms) {
   return {
     options: {sort: {createdAt: -1}}

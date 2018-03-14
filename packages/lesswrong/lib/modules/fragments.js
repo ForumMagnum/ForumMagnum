@@ -173,6 +173,7 @@ registerFragment(`
     website
     contactInfo
     content
+    types
   }
 `);
 

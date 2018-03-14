@@ -68,6 +68,7 @@ class CommunityMap extends Component {
       >
         {this.renderLocalgroups()}
         {this.renderLocalEvents()}
+        <Components.CommunityMapFilter />
       </GoogleMap>
     );
   }
