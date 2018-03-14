@@ -34,7 +34,6 @@ class MultiSelectButtons extends Component {
   }
 
   render() {
-    console.log("MultiSelectButtons: ", this.props);
     return <div className="multi-select-buttons">
       {this.props.label && <label className="multi-select-buttons-label">{this.props.label}</label>}
       {this.props.options.map((option) => {
