@@ -26,9 +26,9 @@ const buttonStyles = {
 }
 
 const groupTypeStyles = {
-  padding: '0px',
-  width: '30px',
-  height: '20px'
+  padding: '5px',
+  width: 'initial',
+  height: '20px',
 }
 
 
@@ -37,10 +37,18 @@ class GroupLinks extends PureComponent {
     const document = this.props.document;
     return(
       <div className="group-links">
-        {document.type && document.type !== "other"
-          && <IconButton tooltipPosition='top-left' tooltip="Group Type" style={groupTypeStyles}>
-            <GroupTypeIcon type={document.type}/>
-          </IconButton>}
+        {document.types && document.types.map(type => {
+          return (
+            <IconButton
+              tooltipPosition='top-left'
+              tooltip="Group Type"
+              style={groupTypeStyles}
+              key={type}
+            >
+              <GroupTypeIcon type={type}/>
+            </IconButton>
+          )
+        })}
         {document.facebookLink
           && <a href={document.facebookLink}><IconButton tooltipPosition='top-left' style={buttonStyles} tooltip="Facebook Group">
             <FacebookIcon className="group-links-facebook-icon"/>

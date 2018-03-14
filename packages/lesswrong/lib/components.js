@@ -69,6 +69,7 @@ import '../components/posts/PostsGroupDetails.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
+import '../components/localGroups/CommunityMapFilter.jsx';
 import '../components/localGroups/CommunityMapWrapper.jsx';
 import '../components/localGroups/LocalGroupMarker.jsx';
 import '../components/localGroups/LocalEventMarker.jsx';
@@ -168,3 +169,4 @@ import '../components/form-components/UsersListEditor.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/LocationFormComponent.jsx';
 import '../components/form-components/MuiTextField.jsx';
+import '../components/form-components/MultiSelectButtons.jsx';

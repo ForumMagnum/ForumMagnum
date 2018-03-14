@@ -168,3 +168,13 @@ function PostsNewDefaultLocation (post) {
 }
 
 addCallback("posts.new.sync", PostsNewDefaultLocation);
+
+function PostsNewDefaultTypes (post) {
+  if (post.isEvent && post.groupId && !post.types) {
+    const { types } = Localgroups.findOne(post.groupId)
+    post = {...post, types}
+  }
+  return post
+}
+
+addCallback("posts.new.sync", PostsNewDefaultTypes);
