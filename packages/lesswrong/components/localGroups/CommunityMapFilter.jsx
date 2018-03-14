@@ -46,7 +46,7 @@ class CommunityMapFilter extends Component {
             onCheck={() => this.handleCheck(value)}
             labelStyle={{fontFamily: 'Roboto', fontWeight: '500'}}
             style={{marginRight: "5px"}}
-            iconStyle={{marginRight: "5px", iconColor: "rgba(0,0,0,0.7)"}}
+            iconStyle={{marginRight: "5px"}}
             key={value}
                  />
         })}

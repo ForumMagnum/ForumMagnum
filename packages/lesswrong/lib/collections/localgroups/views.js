@@ -3,10 +3,8 @@ import Localgroups from "./collection.js"
 Localgroups.addDefaultView(terms => {
   let selector = {};
   if(Array.isArray(terms.filters) && terms.filters.length) {
-    console.log("LocalGroups defaultView:", terms.filters)
     selector.types = {$in: terms.filters};
   } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
-  console.log("LocalGroups defaultView:", terms.filters)
     selector.types = {$in: [terms.filters]};
   }
   return {

@@ -83,19 +83,20 @@ class CommunityHome extends Component {
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
       limit: 5,
-      filter: router.location.query && router.location.query.filters || [],
+      filters: router.location.query && router.location.query.filters || [],
     }
     const groupsListTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 3
+      limit: 3,
+      filters: router.location.query && router.location.query.filters || [],
     }
     const mapEventTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      filter: router.location.query && router.location.query.filters || [],
+      filters: router.location.query && router.location.query.filters || [],
     }
     return (
       <div className="community-home">

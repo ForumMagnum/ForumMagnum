@@ -55,7 +55,8 @@ export const customizeTheme = (router, userAgent, params, store) => {
     },
     "checkbox": {
       "checkedColor": "rgba(100, 169, 105, 0.7)",
-      "labelColor": "rgba(0,0,0,0.6)"
+      "labelColor": "rgba(0,0,0,0.6)",
+      "boxColor": "rgba(0,0,0,0.6)"
     },
     userAgent: userAgent,
   });
