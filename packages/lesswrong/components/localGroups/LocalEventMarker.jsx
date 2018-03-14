@@ -17,7 +17,8 @@ class LocalEventMarker extends PureComponent {
         fillColor: '#2b6a99',
         fillOpacity: 0.9,
         scale: 5,
-        strokeWeight: 0,
+        strokeWeight: 1,
+        strokeColor: "#FFFFFF"
     };
 
 

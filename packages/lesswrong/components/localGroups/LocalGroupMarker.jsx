@@ -7,16 +7,31 @@ import { Link } from 'react-router';
 import CloseIcon from 'material-ui/svg-icons/navigation/close';
 
 class LocalGroupMarker extends PureComponent {
+  // getIconColor = () => {
+  //   const type = this.props.group && this.props.group.type;
+  //   switch (type) {
+  //     case 'LW':
+  //       return "#588f27";
+  //     case 'SSC':
+  //       return "#88ACB8";
+  //     case 'EA':
+  //       return '#1d879c';
+  //     default:
+  //       return '#444444';
+  //   }
+  // }
+
   render() {
     const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
 
     var circleIcon = {
         path: google.maps.SymbolPath.CIRCLE,
-        fillColor: '#588f27',
+        fillColor: "#588f27",
         fillOpacity: 0.9,
         scale: 7,
-        strokeWeight: 0,
+        strokeWeight: 1,
+        strokeColor: "#FFFFFF",
     };
 
     return(
