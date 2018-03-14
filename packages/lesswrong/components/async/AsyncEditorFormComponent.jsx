@@ -9,7 +9,6 @@ import ls from 'local-storage';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
-import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
 import createAlignmentPlugin from 'draft-js-alignment-plugin';
 import createFocusPlugin from 'draft-js-focus-plugin';
@@ -20,6 +19,7 @@ import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 
+import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 
 import {
   createBlockStyleButton,
@@ -27,6 +27,7 @@ import {
   BoldButton,
   UnderlineButton,
   BlockquoteButton,
+  UnorderedListButton
 } from 'draft-js-buttons';
 
 const HeadlineOneButton = createBlockStyleButton({
@@ -122,14 +123,14 @@ class AsyncEditorFormComponent extends Component {
         BlockquoteButton,
         dividerPlugin.DividerButton,
         ImageButton,
+        UnorderedListButton
       ]
     });
 
-    const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
     const richButtonsPlugin = createRichButtonsPlugin();
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const imagePlugin = createImagePlugin({ decorator });
-    this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
+    this.plugins = [inlineToolbarPlugin, alignmentPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
     if (Meteor.isClient) {
       const mathjaxPlugin = createMathjaxPlugin()
       this.plugins.push(mathjaxPlugin);
@@ -227,6 +228,7 @@ class AsyncEditorFormComponent extends Component {
           onChange={this.onChange}
           spellCheck={true}
           plugins={this.plugins}
+          keyBindingFn={myKeyBindingFn}
           ref={(element) => { this.editor = element; }}
         />
         <InlineToolbar />

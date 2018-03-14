@@ -9,7 +9,6 @@ import ls from 'local-storage';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
-import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
 import createAlignmentPlugin from 'draft-js-alignment-plugin';
 import createFocusPlugin from 'draft-js-focus-plugin';
@@ -28,8 +27,10 @@ import {
   HeadlineOneButton,
   HeadlineTwoButton,
   BlockquoteButton,
+  UnorderedListButton
 } from 'draft-js-buttons';
 
+import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 
 import { htmlToDraft } from '../../lib/editor/utils.js'
 
@@ -94,14 +95,14 @@ class AsyncCommentEditor extends Component {
         HeadlineOneButton,
         HeadlineTwoButton,
         BlockquoteButton,
+        UnorderedListButton
       ]
     });
 
-    const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
     const richButtonsPlugin = createRichButtonsPlugin();
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const imagePlugin = createImagePlugin({ decorator });
-    this.plugins = [inlineToolbarPlugin, alignmentPlugin, markdownShortcutsPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
+    this.plugins = [inlineToolbarPlugin, alignmentPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
     if (Meteor.isClient) {
       const mathjaxPlugin = createMathjaxPlugin()
       this.plugins.push(mathjaxPlugin);
@@ -203,6 +204,7 @@ class AsyncCommentEditor extends Component {
           spellCheck={true}
           onChange={this.onChange}
           plugins={this.plugins}
+          keyBindingFn={myKeyBindingFn}
           ref={(element) => { this.editor = element; }}
         />
         <InlineToolbar />
