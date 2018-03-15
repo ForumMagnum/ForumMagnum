@@ -143,12 +143,22 @@ class PostsPage extends Component {
     }
   }
 
+  renderEventLinks = () => {
+    const post = this.props.document;
+    if (post.isEvent) {
+      return <div className="posts-page-event-links">
+        <Components.GroupLinks document={post} />
+      </div>
+    }
+  }
+
   renderPostMetadata = () => {
     const post = this.props.document;
     return <div className="posts-page-content-body-metadata">
       <div className="posts-page-content-body-metadata-date">
         {this.renderPostDate()}
         {this.renderEventLocation()}
+        {this.renderEventLinks()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
         <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>

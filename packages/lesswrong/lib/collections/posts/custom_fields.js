@@ -640,7 +640,7 @@ Posts.addField([
     fieldName: 'startTime',
     fieldSchema: {
       type: Date,
-      hidden: (p) => !p.eventForm,
+      hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
@@ -655,7 +655,7 @@ Posts.addField([
     fieldName: 'endTime',
     fieldSchema: {
       type: Date,
-      hidden: (p) => !p.eventForm,
+      hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
@@ -683,7 +683,7 @@ Posts.addField([
     fieldName: 'googleLocation',
     fieldSchema: {
       type: Object,
-      hidden: (p) => !p.eventForm,
+      hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
@@ -712,7 +712,7 @@ Posts.addField([
     fieldName: 'contactInfo',
     fieldSchema: {
       type: String,
-      hidden: (p) => !p.eventForm,
+      hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
@@ -727,7 +727,7 @@ Posts.addField([
     fieldName: 'facebookLink',
     fieldSchema: {
       type: String,
-      hidden: (p) => !p.eventForm,
+      hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
@@ -742,7 +742,7 @@ Posts.addField([
     fieldName: 'website',
     fieldSchema: {
       type: String,
-      hidden: (p) => !p.eventForm,
+      hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
@@ -759,6 +759,7 @@ Posts.addField([
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
+      hidden: (props) => !props.eventForm,
       control: 'MultiSelectButtons',
       label: "Group Type:",
       group: formGroups.event,

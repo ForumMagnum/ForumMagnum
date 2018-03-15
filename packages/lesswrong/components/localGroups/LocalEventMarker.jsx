@@ -37,7 +37,7 @@ class LocalEventMarker extends PureComponent {
               <div className="local-event-marker-body"><Components.DraftJSRenderer content={event.content} /></div>
               {event.contactInfo && <div className="local-group-marker-contact-info">{event.contactInfo}</div>}
               <Link className="local-group-marker-page-link" to={Posts.getPageUrl(event)}> Full link </Link>
-              <Components.GroupLinks document={event}/>
+              <div className="local-group-links-wrapper"><Components.GroupLinks document={event}/></div>
             </div>
           </InfoWindow>
         }
