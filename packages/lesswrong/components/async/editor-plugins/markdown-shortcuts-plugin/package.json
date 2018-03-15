@@ -1,0 +1,148 @@
+{
+  "_args": [
+    [
+      "draft-js-markdown-shortcuts-plugin@0.3.0",
+      "/Users/raymondarnold/Dropbox/codeProjects/Lesswrong2"
+    ]
+  ],
+  "_from": "draft-js-markdown-shortcuts-plugin@0.3.0",
+  "_id": "draft-js-markdown-shortcuts-plugin@0.3.0",
+  "_inBundle": false,
+  "_integrity": "sha1-+SjN/5Qdiak+XsLdjyPfBTyPfOs=",
+  "_location": "/draft-js-markdown-shortcuts-plugin",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "draft-js-markdown-shortcuts-plugin@0.3.0",
+    "name": "draft-js-markdown-shortcuts-plugin",
+    "escapedName": "draft-js-markdown-shortcuts-plugin",
+    "rawSpec": "0.3.0",
+    "saveSpec": null,
+    "fetchSpec": "0.3.0"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/draft-js-markdown-shortcuts-plugin/-/draft-js-markdown-shortcuts-plugin-0.3.0.tgz",
+  "_spec": "0.3.0",
+  "_where": "/Users/raymondarnold/Dropbox/codeProjects/Lesswrong2",
+  "author": {
+    "name": "Atsushi Nagase"
+  },
+  "bugs": {
+    "url": "https://github.com/ngs/draft-js-markdown-shortcuts-plugin/issues"
+  },
+  "contributors": [
+    {
+      "name": "Atsushi Nagase",
+      "email": "a@ngs.io"
+    }
+  ],
+  "dependencies": {
+    "decorate-component-with-props": "^1.0.2",
+    "draft-js": "~0.10.1",
+    "draft-js-checkable-list-item": "^2.0.5",
+    "immutable": "~3.7.4"
+  },
+  "description": "A DraftJS plugin for supporting Markdown syntax shortcuts",
+  "devDependencies": {
+    "autoprefixer": "^6.5.3",
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.18.2",
+    "babel-eslint": "^7.1.1",
+    "babel-loader": "^6.2.8",
+    "babel-plugin-rewire": "^1.0.0",
+    "babel-polyfill": "^6.16.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-react-hmre": "^1.1.1",
+    "babel-preset-stage-0": "^6.16.0",
+    "chai": "^3.5.0",
+    "chai-enzyme": "^0.6.1",
+    "cheerio": "^0.22.0",
+    "coveralls": "^2.11.15",
+    "css-loader": "^0.26.0",
+    "css-modules-require-hook": "^4.0.5",
+    "dirty-chai": "^1.2.2",
+    "draft-js-plugins-editor": "2.0.0-rc2",
+    "draft-js-prism": "github:ngs/draft-js-prism#6edb31c3805dd1de3fb897cc27fced6bac1bafbb",
+    "enzyme": "^2.6.0",
+    "eslint": "^3.11.1",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-mocha": "^4.7.0",
+    "eslint-plugin-react": "^6.7.1",
+    "express": "^4.14.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.9.0",
+    "flow-bin": "^0.36.0",
+    "history": "^2.0.0",
+    "jsdom": "^9.8.3",
+    "mocha": "^3.2.0",
+    "mocha-junit-reporter": "^1.12.1",
+    "mocha-multi-reporters": "^1.1.1",
+    "npm-watch": "^0.1.6",
+    "nyc": "^10.0.0",
+    "postcss-loader": "^1.1.1",
+    "prismjs": "^1.6.0",
+    "react": "^15.4.1",
+    "react-addons-pure-render-mixin": "^15.4.1",
+    "react-addons-test-utils": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-github-fork-ribbon": "^0.4.4",
+    "rimraf": "^2.5.4",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0",
+    "static-site-generator-webpack-plugin": "^3.1.0",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.3",
+    "webpack-dev-middleware": "^1.8.4",
+    "webpack-hot-middleware": "^2.13.2"
+  },
+  "homepage": "https://github.com/ngs/draft-js-markdown-shortcuts-plugin#readme",
+  "keywords": [
+    "draftjs",
+    "editor",
+    "plugin",
+    "markdown"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "name": "draft-js-markdown-shortcuts-plugin",
+  "peerDependencies": {
+    "draft-js-plugins-editor": "~2.0.0-rc.1 || 2.0.0-rc2 || 2.0.0-rc1 || 2.0.0-beta12",
+    "react": "^15.0.0",
+    "react-dom": "^15.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngs/draft-js-markdown-shortcuts-plugin.git"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run build:js",
+    "build:demo": "NODE_ENV=production webpack --config demo/webpack.config.prod.js && rm -rf demo/public/css && cp -R demo/publicTemplate/* demo/public/",
+    "build:js": "BABEL_DISABLE_CACHE=1 BABEL_ENV=production NODE_ENV=production node_modules/.bin/babel --out-dir='lib' --ignore='**/__test__/*' src",
+    "clean": "rimraf lib; node_modules/.bin/rimraf demo/public",
+    "deploy:demo": "COMMIT=$(git rev-parse --short HEAD) && BRANCH=gh-pages && GIT_URL=$(git remote get-url origin) && DIR=.deploy; rm -rf $DIR; (git clone $GIT_URL -b $BRANCH $DIR || (git init $DIR && cd $DIR && git remote add origin $GIT_URL && git checkout -b $BRANCH)) && rm -rf ${DIR}/* && cp -R ${DIR}/../demo/public/* $DIR && cd $DIR && git add -A && git commit -m \"Built artifacts of ${COMMIT} [ci skip]\" && git push origin $BRANCH",
+    "eslint": "eslint .",
+    "prepublish": "npm run build",
+    "start": "npm run start:dev",
+    "start:dev": "babel-node ./demo/server.js",
+    "test": "npm run test:coverage",
+    "test:coverage": "nyc --require babel-core/register npm run test:mocha",
+    "test:mocha": "mocha --opts .mocha.opts $(find src -name '*-test.js')",
+    "test:watch": "npm test | npm run watch",
+    "watch": "npm-watch"
+  },
+  "version": "0.3.0",
+  "watch": {
+    "test": {
+      "patterns": [
+        "src/**/*.js"
+      ]
+    }
+  }
+}

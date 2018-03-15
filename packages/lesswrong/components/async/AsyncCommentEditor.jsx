@@ -18,7 +18,7 @@ import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from 'draft-js-divider-plugin';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin';
-
+import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 
 import {
   ItalicButton,
@@ -26,8 +26,7 @@ import {
   UnderlineButton,
   HeadlineOneButton,
   HeadlineTwoButton,
-  BlockquoteButton,
-  UnorderedListButton
+  BlockquoteButton
 } from 'draft-js-buttons';
 
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
@@ -95,14 +94,25 @@ class AsyncCommentEditor extends Component {
         HeadlineOneButton,
         HeadlineTwoButton,
         BlockquoteButton,
-        UnorderedListButton
       ]
     });
 
     const richButtonsPlugin = createRichButtonsPlugin();
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
+    const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
     const imagePlugin = createImagePlugin({ decorator });
-    this.plugins = [inlineToolbarPlugin, alignmentPlugin, focusPlugin, resizeablePlugin, imagePlugin, linkPlugin, richButtonsPlugin, blockBreakoutPlugin, dividerPlugin];
+    this.plugins = [
+      inlineToolbarPlugin,
+      alignmentPlugin,
+      focusPlugin,
+      resizeablePlugin,
+      imagePlugin,
+      linkPlugin,
+      richButtonsPlugin,
+      blockBreakoutPlugin,
+      markdownShortcutsPlugin,
+      dividerPlugin
+    ];
     if (Meteor.isClient) {
       const mathjaxPlugin = createMathjaxPlugin({completion: 'manual'});
       this.plugins.push(mathjaxPlugin);
