@@ -107,49 +107,59 @@ class AdminHome extends PureComponent {
     return (
       <div className="admin-home page">
         <Components.ShowIf check={Users.isAdmin} document={this.props.currentUser} failureComponent={<p className="admin-home-message"><FormattedMessage id="app.noPermission" /></p>}>
+          <h2>Admin Console</h2>
           <div>
-            <h2>New IP Bans</h2>
-            <Components.SmartForm
-              collection={Bans}
-            />
-            <h2>Current IP Bans</h2>
-            <Components.Datatable
-              collection={Bans}
-              columns={banColumns}
-              options={{
-                fragmentName: 'BansAdminPageFragment',
-                terms: {},
-                limit: 10,
-              }}
-              showEdit={true}
-            />
-            <h2>Recent Logins</h2>
-            <Components.Datatable
-              collection={LWEvents}
-              columns={eventColumns}
-              options={{
-                fragmentName: 'lwEventsAdminPageFragment',
-                terms: {view: "adminView", name: 'login'},
-                limit: 10,
-              }}
-            />
-            <h2>All Users</h2>
-            <DropDownMenu value={1} onChange={this.handleChange} openImmediately={true}>
-              <MenuItem value={1} primaryText="Created At (Descending)" onTouchTap={(e) => {this.setState({sortUsersBy:{createdAt:-1}})}}/>
-              <MenuItem value={2} primaryText="Created At (Ascending)" onTouchTap={(e) => {this.setState({sortUsersBy:{createdAt:1}})}}/>
-              <MenuItem value={3} primaryText="Karma (Descending)" onTouchTap={(e) => {this.setState({sortUsersBy:{karma:-1}})}}/>
-              <MenuItem value={4} primaryText="Karma (Ascending)" onTouchTap={(e) => {this.setState({sortUsersBy:{karma:1}})}}/>
-            </DropDownMenu>
-            <Components.Datatable
-              collection={Users}
-              columns={AdminColumns}
-              options={{
-                fragmentName: 'UsersAdmin',
-                terms: {view: 'LWUsersAdmin', sort:this.state.sortUsersBy},
-                limit: 20
-              }}
-              showEdit={true}
-            />
+            <div className="admin-new-ip-bans">
+              <h3>New IP Bans</h3>
+              <Components.SmartForm
+                collection={Bans}
+              />
+            </div>
+            <div className="admin-current-ip-bans">
+              <h3>Current IP Bans</h3>
+              <Components.Datatable
+                collection={Bans}
+                columns={banColumns}
+                options={{
+                  fragmentName: 'BansAdminPageFragment',
+                  terms: {},
+                  limit: 10,
+                }}
+                showEdit={true}
+              />
+            </div>
+            <div className="admin-recent-logins">
+              <h3>Recent Logins</h3>
+              <Components.Datatable
+                collection={LWEvents}
+                columns={eventColumns}
+                options={{
+                  fragmentName: 'lwEventsAdminPageFragment',
+                  terms: {view: "adminView", name: 'login'},
+                  limit: 10,
+                }}
+              />
+            </div>
+            <div className="admin-all-users">
+              <h3>All Users</h3>
+              <DropDownMenu value={1} onChange={this.handleChange} openImmediately={true}>
+                <MenuItem value={1} primaryText="Created At (Descending)" onTouchTap={(e) => {this.setState({sortUsersBy:{createdAt:-1}})}}/>
+                <MenuItem value={2} primaryText="Created At (Ascending)" onTouchTap={(e) => {this.setState({sortUsersBy:{createdAt:1}})}}/>
+                <MenuItem value={3} primaryText="Karma (Descending)" onTouchTap={(e) => {this.setState({sortUsersBy:{karma:-1}})}}/>
+                <MenuItem value={4} primaryText="Karma (Ascending)" onTouchTap={(e) => {this.setState({sortUsersBy:{karma:1}})}}/>
+              </DropDownMenu>
+              <Components.Datatable
+                collection={Users}
+                columns={AdminColumns}
+                options={{
+                  fragmentName: 'UsersAdmin',
+                  terms: {view: 'LWUsersAdmin', sort:this.state.sortUsersBy},
+                  limit: 20
+                }}
+                showEdit={true}
+                showNew={false}
+              />
+            </div>
           </div>
         </Components.ShowIf>
       </div>

@@ -1,0 +1,31 @@
+.moderation-log, .admin-home.page {
+  font-family:$comments-font;
+
+  h3 {
+    font-size:20px;
+    font-weight:600;
+  }
+
+  h2 {
+    margin:1%;
+  }
+}
+
+.moderation-log-deleted-comments,
+.moderation-log-users-banned-from-posts,
+.moderation-log-users-banned-from-users,
+.admin-new-ip-bans,
+.admin-current-ip-bans,
+.admin-recent-logins,
+.admin-all-users, {
+  border:solid 1px rgba(0,0,0,.2);
+  padding:10px;
+  margin:1%;
+  border-radius:2px;
+}
+
+.moderation-log-users-banned-from-posts,
+.moderation-log-users-banned-from-users {
+  width:48%;
+  float:left;
+}
