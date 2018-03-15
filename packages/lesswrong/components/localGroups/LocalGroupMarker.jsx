@@ -50,7 +50,7 @@ class LocalGroupMarker extends PureComponent {
               <div className="local-group-marker-body"><Components.DraftJSRenderer content={group.description} /></div>
               {group.contactInfo && <div className="local-group-marker-contact-info">{group.contactInfo}</div>}
               <Link className="local-group-marker-page-link" to={'/groups/'+group._id}> Full link </Link>
-              <Components.GroupLinks document={group}/>
+              <div className="local-group-links-wrapper"><Components.GroupLinks document={group}/></div>
             </div>
           </InfoWindow>
         }

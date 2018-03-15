@@ -759,6 +759,7 @@ Posts.addField([
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
+      hidden: (p) => !p.eventForm,
       control: 'MultiSelectButtons',
       label: "Group Type:",
       group: formGroups.event,

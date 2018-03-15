@@ -155,9 +155,12 @@ $lw-green: #588f27;
   font-size: 20px;
   line-height: 1.25;
   margin-left: 24px;
+  @include max-tiny() {
+    margin-left: 0px;
+  }
 }
 
-.group-links {
+.local-group-links-wrapper {
   position: absolute;
   bottom: 0px;
   right: -2px;
@@ -268,4 +271,31 @@ $lw-green: #588f27;
   top: 10px;
   padding: 10px 10px 5px 10px;
   right: 10px;
+}
+
+.local-group-page-group-links {
+  display: inline-block;
+  margin-top: -7px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+}
+
+.local-group-page-location {
+  display: inline-block;
+  font-size: 14px;
+  color: rgba(0,0,0,0.7);
+}
+
+.local-group-page {
+  .section-title {
+    padding-top: 66px;
+  }
+  .section-title-bottom {
+    @include frontpage-subtitle-link();
+  }
+}
+
+.local-group-page-name {
+  margin-top: 0px !important;
+  margin-bottom: 0.5rem !important;
 }

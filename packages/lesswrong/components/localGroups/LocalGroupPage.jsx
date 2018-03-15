@@ -10,7 +10,6 @@ class LocalGroupPage extends Component {
     const group = this.props.document;
     return (
       <div>
-        <div className="local-group-location">{group.location }</div>
         {this.props.currentUser && <div><Components.SubscribeTo document={group} /></div>}
         {Posts.options.mutations.new.check(this.props.currentUser)
           && <div><Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}}> Create new event </Link></div>}
@@ -23,8 +22,9 @@ class LocalGroupPage extends Component {
   }
   render() {
     const { groupId } = this.props.params;
+    const group = this.props.document;
     if (this.props.document) {
-      const { googleLocation: { geometry: { location } } } = this.props.document;
+      const { googleLocation: { geometry: { location } }} = group;
       return (
         <div className="local-group-page">
           <Components.CommunityMapWrapper
@@ -32,8 +32,13 @@ class LocalGroupPage extends Component {
             groupQueryTerms={{view: "single", groupId: groupId}}
             mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
           />
-          <Components.Section title={this.props.document.name} titleComponent={this.renderTitleComponent()}>
+          <Components.Section titleComponent={this.renderTitleComponent()}>
             {this.props.document && this.props.document.description && <div className="local-groups-description content-body">
+              <h2 className="local-group-page-name">{group.name}</h2>
+              <div className="local-group-page-subtitle">
+                <div className="local-group-page-location">{group.location}</div>
+                <div className="local-group-page-group-links"><Components.GroupLinks document={group} /></div>
+              </div>
               <Components.DraftJSRenderer content={this.props.document.description}/>
             </div>}
             <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} showHeader={false} />
