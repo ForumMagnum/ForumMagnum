@@ -5,3 +5,11 @@ Users.addView('LWUsersAdmin', terms => ({
     sort: terms.sort
   }
 }));
+
+Users.addView("usersWithBannedUsers", function () {
+  return {
+    selector: {
+      bannedUserIds: {$exists: true}
+    },
+  }
+})

@@ -284,6 +284,27 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment UsersBannedFromPostsModerationLog on Post {
+    user {
+      ...UsersMinimumInfo
+    }
+    title
+    slug
+    _id
+    bannedUserIds
+  }
+`)
+
+registerFragment(`
+  fragment UsersBannedFromUsersModerationLog on User {
+    _id
+    slug
+    displayName
+    bannedUserIds
+  }
+`)
+
+registerFragment(`
   fragment CommentsList on Comment {
     # example-forum
     _id

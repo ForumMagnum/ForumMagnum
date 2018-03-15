@@ -357,6 +357,14 @@ Posts.addView("groupPosts", function (terms) {
   }
 })
 
+Posts.addView("postsWithBannedUsers", function () {
+  return {
+    selector: {
+      bannedUserIds: {$exists: true}
+    },
+  }
+})
+
 Posts.addView("communityResourcePosts", function () {
 
   return {

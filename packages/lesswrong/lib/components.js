@@ -50,6 +50,7 @@ import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
+import '../components/users/UsersSingle.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
