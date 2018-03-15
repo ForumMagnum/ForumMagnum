@@ -26,7 +26,7 @@ const BannedUsersDisplay = ({column, document}) => {
   const bannedUsers = document[column.name]
   return <div>
     { bannedUsers.map((userId) => <div key={userId}>
-        <Components.UsersSingle documentId={userId} />
+      <Components.UsersNameWrapper documentId={userId} />
       </div>)}
   </div>
 }
