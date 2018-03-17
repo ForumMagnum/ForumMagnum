@@ -7,6 +7,8 @@ import { Components, registerComponent, withCurrentUser, Callbacks, runCallbacks
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent.jsx';
+import sha1 from 'crypto-js/sha1';
+
 
 import {
   STATES,
@@ -653,9 +655,9 @@ export class AccountsLoginFormInner extends TrackerComponent {
         loginSelector = { email };
       }
     }
-    if (!this.validateField('password', password)) {
-      error = true;
-    }
+    // if (!this.validateField('password', password)) {
+    //   error = true;
+    // }
 
     if (!error) {
       Meteor.loginWithPassword(loginSelector, password, (error, result) => {
@@ -664,7 +666,21 @@ export class AccountsLoginFormInner extends TrackerComponent {
           // eslint-disable-next-line no-console
           console.log(error);
           const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          if (this.context.intl.formatMessage({id: errorId})) {
+          // LESSWRONG: ADDED LW 1.0 Password reattempt functionality
+          if (error.error == 'legacy-account' && error.details && error.details.salt && error.details.username) {
+            const {salt, username} = error.details;
+            const toHash = (`${salt}${username} ${password}`)
+            const lw1PW = salt + sha1(toHash).toString();
+            Meteor.loginWithPassword({username: error.details.username}, lw1PW, (error, result) => {
+              if (!error) {
+                loginResultCallback(() => this.state.onSignedInHook(this.props));
+                self.props.handlers.switchToProfile();
+                self.clearDefaultFieldValues();
+              } else {
+                self.showMessage('accounts.error_unknown');
+              }
+            })
+          } else if (this.context.intl.formatMessage({id: errorId})) {
             self.showMessage(errorId);
           } else {
             self.showMessage('accounts.error_unknown');

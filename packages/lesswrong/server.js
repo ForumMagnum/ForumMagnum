@@ -12,6 +12,7 @@ import './lib/scripts/fixFrontpageCount.js';
 import './lib/scripts/voteMigration.js';
 import './lib/scripts/slugDeduplication.js';
 import './lib/scripts/debuggingScripts.js';
+import './lib/scripts/importOldPasswords.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
