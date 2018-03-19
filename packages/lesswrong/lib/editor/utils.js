@@ -61,7 +61,7 @@ export const draftToHTML = convertToHTML({
       if (entity.data.html) {
         return `<span><style>${entity.data.css}</style>${entity.data.html}</span>`
       } else {
-        return `<span class="draft-latex-placeholder">refresh to render LaTeX</span>`
+        return `<span class="draft-latex-placeholder"> &lt; refresh to render LaTeX &gt; </span>`
       }
     }
     return originalText;
@@ -72,7 +72,7 @@ export const draftToHTML = convertToHTML({
        if (block.data && block.data.mathjax && block.data.html) {
          return `<div><style>${block.data.css}</style>${block.data.html}</div>`
        } else if (block.data && block.data.mathjax) {
-         return `<div class="draft-latex-placeholder-block">refresh to render LaTeX</div>`
+         return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
        } else {
          return {start: '<span>', end: '</span>'};
        }
