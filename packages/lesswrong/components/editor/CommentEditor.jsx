@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
-import bowser from 'bowser';
+import Users from 'meteor/vulcan:users';
 
 class CommentEditor extends Component {
   constructor (props,context) {
@@ -11,18 +11,6 @@ class CommentEditor extends Component {
     }
   }
 
-  markDownEditor = () => {
-    if (Meteor.isClient &&
-        window &&
-        window.navigator &&
-        window.navigator.userAgent) {
-        if (bowser.mobile || bowser.tablet) {
-          return true
-        }
-    }
-    return this.props.currentUser.markDownEditor
-  }
-
   async componentWillMount() {
     const {default: Editor} = await import('../async/AsyncCommentEditor.jsx');
     this.setState({editor: Editor});
@@ -30,9 +18,10 @@ class CommentEditor extends Component {
 
   render() {
     const AsyncCommentEditor = this.state.editor;
+    const currentUser = this.props.currentUser;
     return (
       <div className="comment-editor">
-        { this.markDownEditor() ?
+        { Users.useMarkdownCommentEditor(currentUser) ?
           <Components.MuiTextField
             {...this.props}
           />

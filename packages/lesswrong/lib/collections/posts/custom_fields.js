@@ -71,6 +71,13 @@ Posts.addField([
       control: 'EditorFormComponent',
       blackbox: true,
       order: 25,
+      form: {
+        hintText:"Plain Markdown Editor",
+        rows:4,
+        multiLine:true,
+        fullWidth:true,
+        underlineShow:false
+      },
     }
   },
 

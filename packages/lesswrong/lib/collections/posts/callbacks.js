@@ -6,7 +6,9 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import Localgroups from '../localgroups/collection.js';
-import htmlToText from 'html-to-text';
+
+import TurndownService from 'turndown';
+const turndownService = new TurndownService()
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -88,11 +90,13 @@ Posts.convertFromContentAsync = async function(content) {
 
 Posts.convertFromContent = (content) => {
   const contentState = convertFromRaw(content);
+  const htmlBody = draftToHTML(contentState)
+  const body = turndownService.turndown(htmlBody)
   return {
-    htmlBody: draftToHTML(contentState),
-    body: contentState.getPlainText(),
-    excerpt: contentState.getPlainText().slice(0,600),
-    wordCount: contentState.getPlainText().split(" ").length
+    htmlBody: htmlBody,
+    body: body,
+    excerpt: body.slice(0,600),
+    wordCount: body.split(" ").length
   }
 }
 
@@ -101,7 +105,7 @@ Posts.convertFromContent = (content) => {
 */
 
 Posts.convertFromHTML = (html) => {
-  const body = htmlToText.fromString(html);
+  const body = turndownService.turndown(html)
   const excerpt = body.slice(0,600);
   const wordCount = body.split(" ").length
   return {
@@ -116,7 +120,7 @@ function PostsNewHTMLSerializeCallback (post) {
     const newPostFields = Posts.convertFromContent(post.content);
     post = {...post, ...newPostFields}
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.content);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody);
     post = {...post, ...newPostFields}
   }
   return post
