@@ -294,3 +294,10 @@ figure:after {
   letter-spacing: 12px; /* increase space between dots */
   content: '•••';
 }
+
+.post-editor .mui-text-field {
+  input, textarea {
+    margin-top:0 !important;
+    border-bottom:none !important;
+  }
+}

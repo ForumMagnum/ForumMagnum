@@ -42,7 +42,7 @@ Users.addField([
   },
 
   {
-    fieldName: 'markDownEditor',
+    fieldName: 'markDownCommentEditor',
     fieldSchema: {
       order: 70,
       type: Boolean,
@@ -53,6 +53,21 @@ Users.addField([
       insertableBy: ['members'],
       control: 'checkbox',
       label: "Markdown Comment Editor"
+    }
+  },
+
+  {
+    fieldName: 'markDownPostEditor',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      control: 'checkbox',
+      label: "Markdown Post Editor"
     }
   },
 
