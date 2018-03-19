@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import bowser from 'bowser'
 
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
@@ -102,4 +103,31 @@ Users.blockedCommentingReason = (user, post) => {
     return "Comments on this post are disabled."
   }
   return "You cannot comment at this time"
+}
+
+
+
+const clientRequiresMarkdown = () => {
+  if (Meteor.isClient &&
+      window &&
+      window.navigator &&
+      window.navigator.userAgent) {
+
+      return (bowser.mobile || bowser.tablet)
+  }
+  return false
+}
+
+Users.useMarkdownCommentEditor = (user) => {
+  if (clientRequiresMarkdown()) {
+    return true
+  }
+  return user && user.markDownCommentEditor
+}
+
+Users.useMarkdownPostEditor = (user) => {
+  if (clientRequiresMarkdown()) {
+    return true
+  }
+  return user && user.markDownPostEditor
 }
