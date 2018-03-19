@@ -6,7 +6,6 @@ Button used to start a new conversation for a given user
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
 import Dialog from 'material-ui/Dialog';
 import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import {  withRouter } from 'react-router';

@@ -6,7 +6,8 @@ The Navigation for the Inbox components
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {DropdownButton, MenuItem } from 'react-bootstrap';
+import DropdownButton from 'react-bootstrap/lib/DropdownButton';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 
 class NotificationsWrapper extends Component {

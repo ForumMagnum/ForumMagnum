@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import ListGroup from 'react-bootstrap/lib/ListGroup';
+import ListGroupItem from 'react-bootstrap/lib/ListGroupItem';
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 

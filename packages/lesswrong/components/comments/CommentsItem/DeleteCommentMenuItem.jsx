@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
-import { MenuItem } from 'material-ui';
+import MenuItem from 'material-ui/MenuItem';
 import PropTypes from 'prop-types';
 import withModerateComment from './withModerateComment.js'
 import Dialog from 'material-ui/Dialog';

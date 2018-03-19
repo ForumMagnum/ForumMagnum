@@ -16,10 +16,10 @@ import { bindActionCreators } from 'redux';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
-import { DropdownButton, MenuItem } from 'react-bootstrap';
+import DropdownButton from 'react-bootstrap/lib/DropdownButton';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
-import Users from 'meteor/vulcan:users';
 
 
 class PostsPage extends Component {

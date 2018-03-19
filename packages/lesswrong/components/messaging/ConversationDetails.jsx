@@ -6,7 +6,8 @@ Component for displaying details about currently selected conversation
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import ListGroup from 'react-bootstrap/lib/ListGroup';
+import ListGroupItem from 'react-bootstrap/lib/ListGroupItem';
 import { Components, registerComponent, ModalTrigger, withCurrentUser } from 'meteor/vulcan:core';
 
 class ConversationDetails extends Component {

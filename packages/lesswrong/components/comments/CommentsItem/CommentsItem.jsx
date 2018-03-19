@@ -9,9 +9,12 @@ import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
 import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
-
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import { IconMenu, IconButton, MenuItem, FlatButton, Dialog } from 'material-ui';
+import MenuItem from 'material-ui/MenuItem';
+import IconMenu from 'material-ui/IconMenu';
+import IconButton from 'material-ui/IconButton';
+import FlatButton from 'material-ui/FlatButton';
+import Dialog from 'material-ui/Dialog';
 
 const moreActionsMenuStyle = {
   position: 'inherit',

@@ -5,7 +5,7 @@ Button used to add a new feed to a user profile
 */
 
 import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
+import FlatButton from 'material-ui/FlatButton';
 import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
@@ -28,8 +28,8 @@ class newFeedButton extends Component {
               this.props.closeModal();
             }}
           >
-          </ Components.SmartForm>
-          <Button onClick={() => this.props.closeModal()}>Close!</Button>
+            </ Components.SmartForm>
+            <FlatButton onClick={() => this.props.closeModal()} label="Close"/>
         </div>
       )
     } else {

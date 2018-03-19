@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { ListGroupItem } from 'react-bootstrap';
+import ListGroupItem from 'react-bootstrap/lib/ListGroupItem';
 import { LinkContainer } from 'react-router-bootstrap';
 
 

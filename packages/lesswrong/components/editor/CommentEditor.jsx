@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
-import useragent from 'useragent'
+import bowser from 'bowser';
 
 class CommentEditor extends Component {
   constructor (props,context) {
@@ -16,9 +16,7 @@ class CommentEditor extends Component {
         window &&
         window.navigator &&
         window.navigator.userAgent) {
-
-        const agent = useragent.parse(window.navigator.userAgent);
-        if (agent.os && (agent.os.family == "Android" || agent.os.family == "iOS" )) {
+        if (bowser.mobile || bowser.tablet) {
           return true
         }
     }

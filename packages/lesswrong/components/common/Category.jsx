@@ -2,7 +2,7 @@ import { Components, getRawComponent, replaceComponent } from 'meteor/vulcan:cor
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { LinkContainer } from 'react-router-bootstrap';
-import { MenuItem } from 'react-bootstrap';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Categories } from 'meteor/example-forum';
 //TODO: Remove bootstrap dependency (replace with M-UI)
 
