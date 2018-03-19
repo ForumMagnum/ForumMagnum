@@ -29,7 +29,7 @@
 
   function usersMakeAdmin (user) {
     // if this is not a dummy account, and is the first user ever, make them an admin
-    // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
+    // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later.
     const realUsersCount = Users.find({'isDummy': {$ne: true}}).count();
     user.isAdmin = !user.isDummy && realUsersCount === 0;
     return user;
@@ -51,7 +51,7 @@
       const newEmail = modifier.$set.email;
 
       // check for existing emails and throw error if necessary
-      const userWithSameEmail = Users.findByEmail(newEmail);
+      const userWithSameEmail = Users.findOne({email: newEmail});
       if (userWithSameEmail && userWithSameEmail._id !== user._id) {
         throw new Error(Utils.encodeIntlError({id:"users.email_already_taken", value: newEmail}));
       }
@@ -61,7 +61,6 @@
         user.emails[0].address = newEmail;
         modifier.$set.emails = user.emails;
       }
-
       // update email hash
       modifier.$set.emailHash = Users.avatar.hash(newEmail);
 
@@ -77,4 +76,3 @@
     }
   }
   addCallback("users.edit.async", usersCheckCompletion);
-

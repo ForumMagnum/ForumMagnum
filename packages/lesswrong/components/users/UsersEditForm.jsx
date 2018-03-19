@@ -5,6 +5,7 @@ import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import { STATES } from 'meteor/vulcan:accounts';
 import FlatButton from 'material-ui/FlatButton';
+import { Accounts } from 'meteor/accounts-base';
 
 const UsersEditForm = (props, context) => {
   return (
@@ -15,12 +16,17 @@ const UsersEditForm = (props, context) => {
     >
       <div className="page users-edit-form">
         <h2 className="page-title users-edit-form-title"><FormattedMessage id="users.edit_account"/></h2>
-
-        <div className="change-password-link">
-          <Components.ModalTrigger size="small" title={context.intl.formatMessage({id: "accounts.change_password"})} component={<a href="#"><FormattedMessage id="accounts.change_password" /></a>}>
+        <FlatButton
+          label="Reset Password"
+          onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
+            (error) => props.flash(error ? error.reason : "Sent password reset email to " + props.currentUser.email))
+          }
+        />
+        {/* <div className="change-password-link">
+          <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="accounts.change_password" /></a>}>
             <Components.AccountsLoginForm formState={STATES.PASSWORD_CHANGE} />
           </Components.ModalTrigger>
-        </div>
+        </div> */}
 
         <Components.SmartForm
           collection={Users}
