@@ -4,14 +4,12 @@ import { intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import { Components } from 'meteor/vulcan:core';
 import { registerComponent } from 'meteor/vulcan:core';
+import debounce from 'lodash.debounce';
 
 class FormComponent extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.handleBlur = this.handleBlur.bind(this);
-    this.updateCharacterCount = this.updateCharacterCount.bind(this);
-    this.renderErrors = this.renderErrors.bind(this);
 
     if (props.limit) {
       this.state = {
@@ -24,14 +22,17 @@ class FormComponent extends PureComponent {
     this.updateCharacterCount(nextProps.name, nextProps.value)
   }
 
-  handleBlur() {
-    // see https://facebook.github.io/react/docs/more-about-refs.html
-    if (this.formControl !== null) {
-      this.props.updateCurrentValues({[this.props.name]: this.formControl.getValue()});
+  handleChange = (name, value) => {
+    this.props.updateCurrentValues({[name]: value});
+    // for text fields, update character count on change
+    if (!this.props.control || ['number', 'url', 'email', 'textarea', 'text'].includes(this.props.control)) {
+      this.updateCharacterCount(name, value);
     }
   }
 
-  updateCharacterCount(name, value) {
+  handleChangeDebounced = debounce(this.handleChange, 500)
+
+  updateCharacterCount = (name, value) => {
     if (this.props.limit) {
       const characterCount = value ? value.length : 0;
       this.setState({
@@ -45,24 +46,17 @@ class FormComponent extends PureComponent {
     // see https://facebook.github.io/react/warnings/unknown-prop.html
     const { control, group, updateCurrentValues, document, beforeComponent, afterComponent, limit, errors, ...rest } = this.props; // eslint-disable-line
 
-    // const base = typeof this.props.control === 'function' ? this.props : rest;
-
     const properties = {
       value: '', // default value, will be overridden by `rest` if real value has been passed down through props
       ...rest,
-      onBlur: this.handleBlur,
-      refFunction: (ref) => this.formControl = ref,
+      onChange: this.handleChangeDebounced,
+      document,
     };
-
-    // for text fields, update character count on change
-    if (!this.props.control || ['number', 'url', 'email', 'textarea', 'text'].includes(this.props.control)) {
-      properties.onChange = this.updateCharacterCount;
-    }
 
     // if control is a React component, use it
     if (typeof this.props.control === 'function') {
 
-      return <this.props.control {...properties} document={document} />
+      return <this.props.control {...properties}/>
 
     } else if (typeof this.props.control === 'string') { // else pick a predefined component
 
@@ -117,6 +111,9 @@ class FormComponent extends PureComponent {
         case 'datetime':
           return <Components.FormComponentDateTime {...properties} />;
 
+        case 'date':
+          return <Components.FormComponentDate {...properties} />;
+
         case 'time':
           return <Components.FormComponentTime {...properties} />;
 
@@ -125,7 +122,7 @@ class FormComponent extends PureComponent {
 
         default:
           const CustomComponent = Components[this.props.control];
-          return <CustomComponent {...properties} document={document}/>;
+          return CustomComponent ? <CustomComponent {...properties}/> : <Components.FormComponentDefault {...properties}/>;
       }
 
     } else {
@@ -135,7 +132,7 @@ class FormComponent extends PureComponent {
     }
   }
 
-  renderErrors() {
+  renderErrors = () => {
     return (
       <ul className='form-input-errors'>
         {this.props.errors.map((error, index) => <li key={index}>{error.message}</li>)}
