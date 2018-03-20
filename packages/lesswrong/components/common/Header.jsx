@@ -153,27 +153,30 @@ class Header extends Component {
     appBarStyle.backgroundColor = header ? header : "#F0F4F7"
 
     return (
-      <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
-        <div className="header-wrapper" style={{height: "64px"}}>
-          <header className="header">
-            <AppBar
-              onLeftIconButtonTouchTap={this.handleNavigationToggle}
-              iconElementRight = {this.renderAppBarElementRight()}
-              style={appBarStyle}
-            >
-              <div className="header-title">
-                <Link to="/">
-                  <span className="min-small">LESSWRONG</span>
-                  <span className="max-small">LW</span>
-                </Link>
-                <span className="min-small">{ siteSection}</span>
-              </div>
-            </AppBar>
-            <Components.NavigationMenu open={this.state.navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
-            <Components.NotificationsMenu open={this.state.notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
-          </header>
-        </div>
-      </Headroom>
+      <div>
+        <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
+          <div className="header-wrapper" style={{height: "64px"}}>
+            <header className="header">
+              <AppBar
+                onLeftIconButtonTouchTap={this.handleNavigationToggle}
+                iconElementRight = {this.renderAppBarElementRight()}
+                style={appBarStyle}
+              >
+                <div className="header-title">
+                  <Link to="/">
+                    <span className="min-small">LESSWRONG</span>
+                    <span className="max-small">LW</span>
+                  </Link>
+                  <span className="min-small">{ siteSection}</span>
+                </div>
+              </AppBar>
+              <Components.NavigationMenu open={this.state.navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
+            </header>
+          </div>
+        </Headroom>
+        <Components.NotificationsMenu open={this.state.notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
+      </div>
+
     )
   }
 
