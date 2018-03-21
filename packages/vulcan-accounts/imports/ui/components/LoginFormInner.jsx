@@ -677,7 +677,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
                 self.props.handlers.switchToProfile();
                 self.clearDefaultFieldValues();
               } else {
-                self.showMessage('accounts.error_unknown');
+                console.log(error)
+                self.showMessage(error.reason);
               }
             })
           } else if (this.context.intl.formatMessage({id: errorId})) {
