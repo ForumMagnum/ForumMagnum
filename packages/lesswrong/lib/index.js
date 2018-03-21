@@ -86,6 +86,7 @@ import './collections/users/custom_fields.js';
 import './collections/users/helpers.js';
 import './collections/users/callbacks.js';
 import './collections/users/views.js';
+import './collections/users/permissions.js';
 
 // Comments
 import './collections/comments/custom_fields.js';
