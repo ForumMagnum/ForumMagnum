@@ -6,7 +6,16 @@ import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
-import { addCallback, newMutation, editMutation, Utils, runCallbacksAsync, runQuery } from 'meteor/vulcan:core';
+import {
+  addCallback,
+  newMutation,
+  editMutation,
+  removeMutation,
+  Utils,
+  runCallbacksAsync,
+  runQuery
+} from 'meteor/vulcan:core';
+
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
@@ -412,7 +421,7 @@ addCallback("users.undoNullifyVotes.async", undoNullifyPostVotes)
 
 function userDeleteContent(user) {
   console.log("Deleting all content of user: ", user)
-  const posts = Posts.find({userId: user._id});
+  const posts = Posts.find({userId: user._id}).fetch();
   console.log("Deleting posts: ", posts);
   posts.forEach((post) => {
     editMutation({
@@ -424,7 +433,7 @@ function userDeleteContent(user) {
       validate: false,
     })
   })
-  const comments = Comments.find({userId: user._id});
+  const comments = Comments.find({userId: user._id}).fetch();
   console.log("Deleting comments: ", comments);
   comments.forEach((comment) => {
     editMutation({
@@ -434,6 +443,15 @@ function userDeleteContent(user) {
       unset: {},
       currentUser: user,
       validate: false,
+    })
+
+    const notifications = Notifications.find({documentId: comment._id}).fetch();;
+    console.log(`Deleting notifications for comment ${comment._id}: `, notifications);
+    notifications.forEach((notification) => {
+      removeMutation({
+        collection: Notifications,
+        documentId: notification._id,
+      })
     })
   })
   console.log("Deleted n posts and m comments: ", posts.length, comments.length);
