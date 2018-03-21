@@ -289,7 +289,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
     },
     options: {
       sort: {lastCommentedAt:-1},
-      limit: terms.limit || 4,
+      limit: terms.limit || 12,
     }
   }
 })
