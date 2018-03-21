@@ -9,6 +9,7 @@ import Drawer from 'material-ui/Drawer';
 import Badge from 'material-ui/Badge';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import AllIcon from 'material-ui/svg-icons/social/notifications';
+import ClearIcon from 'material-ui/svg-icons/content/clear';
 import UnreadIcon from 'material-ui/svg-icons/action/visibility-off';
 import PostsIcon from 'material-ui/svg-icons/action/description';
 import CommentsIcon from 'material-ui/svg-icons/editor/mode-comment';
@@ -38,6 +39,12 @@ const iconStyle = {
   color: "rgba(0,0,0,0.8)",
 }
 
+const cancelStyle = {
+  color: "rgba(0,0,0,0.3)",
+  margin: "10px",
+  cursor: "pointer"
+}
+
 class NotificationsMenu extends Component {
   constructor(props, context) {
     super(props);
@@ -46,6 +53,7 @@ class NotificationsMenu extends Component {
       lastNotificationsCheck: props.currentUser ? props.currentUser.lastNotificationsCheck : ""
     }
   }
+
   render() {
       const newMessages = this.props.results && _.filter(this.props.results, (x) => x.createdAt > this.state.lastNotificationsCheck);
       const currentUser = this.props.currentUser;
@@ -60,8 +68,8 @@ class NotificationsMenu extends Component {
           <div className="notifications-menu">
             <Drawer
               open={this.props.open}
-              width={300}
-              containerStyle={{top: "64px", zIndex: "1000", height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms", borderLeft: "1px solid rgba(0,0,0,0.05)"}}
+              width={270}
+              containerStyle={{height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"}}
               containerClassName="notifications-menu-container"
               openSecondary={true}
               onRequestChange={this.props.handleToggle}
@@ -92,6 +100,7 @@ class NotificationsMenu extends Component {
                     style={tabLabelStyle}
                     onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
                   />
+                  <ClearIcon onTouchTap={this.props.handleToggle} style={cancelStyle} />
                 </Tabs>
                 <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
               </div>

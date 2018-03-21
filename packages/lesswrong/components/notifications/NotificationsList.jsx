@@ -18,7 +18,7 @@ class NotificationsList extends Component {
     const loadMore = this.props.loadMore;
     if (results && results.length) {
       return (
-        <List style={{width: '300px', overflowY: 'auto', padding: '0px'}}>
+        <List style={{width: '270px', overflowY: 'auto', padding: '0px'}}>
           {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} key={notification._id} />)}
           {results.length >= 20 && <ListItem className="notifications-list-item" onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
         </List>
