@@ -4,7 +4,7 @@ Old comments file TODO: Integrate this properly into the CSS file
 
 */
 
-$comments-font: "freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+$comments-font: Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $lw-green: #588f27;
 
 $hmargin: 10px;
@@ -45,7 +45,7 @@ $medium-text: $dark-grey;
   font-family: $comments-font !important;
   font-size: 1.1rem !important;
   line-height: 1.5rem !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
   p, ol, ul, blockquote, .public-DraftStyleDefault-block {
     font-size: 1.1rem !important;
     line-height: 1.5rem !important;
@@ -92,7 +92,7 @@ $medium-text: $dark-grey;
   }
   a {
     color: $black;
-    font-weight: 500;
+    font-weight: 400;
   }
   .comments-item-meta {
     & > div {
