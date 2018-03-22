@@ -24,17 +24,17 @@ const turndownService = new TurndownService()
 //     });
 // }
 
-const getLessWrongAccount = () => {
+const getLessWrongAccount = async () => {
   let account = Users.findOne({username: "LessWrong"});
   if (!account) {
     const userData = {
       username: "LessWrong",
       email: "lesswrong@lesswrong.com",
     }
-    account = newMutation({
+    account = await newMutation({
       collection: Users,
-      userData,
-      validate: true
+      document: userData,
+      validate: false,
     })
   }
   return account;
@@ -161,7 +161,7 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
   if (newComment.deleted && !oldComment.deleted && newComment.content) {
     const originalPost = Posts.findOne(newComment.postId);
     const moderatingUser = Users.findOne(newComment.deletedByUserId);
-    const lwAccount = getLessWrongAccount();
+    const lwAccount = await getLessWrongAccount();
 
     const conversationData = {
       participantIds: [newComment.userId, lwAccount._id],
