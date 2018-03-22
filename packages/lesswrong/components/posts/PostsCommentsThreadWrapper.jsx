@@ -33,7 +33,7 @@ const options = {
   collection: Comments,
   queryName: 'PostCommentsThreadQuery',
   fragmentName: 'CommentsList',
-  enableCache: true,
+  // enableCache: true,
   // limit: 50,
   // totalResolver: false,
 };
