@@ -119,6 +119,9 @@ const schema = {
     editableBy: ['members'],
     control: 'EditorFormComponent',
     blackbox: true,
+    form: {
+      enableMarkDownEditor: false
+    }
   },
 
   mongoLocation: {

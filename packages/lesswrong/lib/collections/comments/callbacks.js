@@ -5,13 +5,12 @@ import Users from "meteor/vulcan:users";
 import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
-import htmlToText from 'html-to-text';
-import TurndownService from 'turndown';
 
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
 
+import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 // function commentsSoftRemoveChildrenComments(comment) {
 //     const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
