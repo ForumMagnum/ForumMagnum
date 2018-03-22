@@ -1,6 +1,6 @@
 import React from 'react';
 import { Comments, Posts } from "meteor/example-forum";
-import { addCallback, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
@@ -71,10 +71,30 @@ Comments.convertFromHTML = (html) => {
 
 function CommentsEditSoftDeleteCallback (comment, oldComment) {
   if (comment.deleted && !oldComment.deleted) {
-    runCallbacksAsync('comments.softDelete.async', comment);
+    runCallbacksAsync('comments.moderate.async', comment);
   }
 }
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
+
+
+function ModerateCommentsPostUpdate (comment, oldComment) {
+  const comments = Comments.find({postId:comment.postId, deleted: {$ne: true}}).fetch()
+
+  const lastComment = _.max(comments, function(c){return c.postedAt;})
+  const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId}).postedAt
+
+  editMutation({
+    collection:Posts,
+    documentId: comment.postId,
+    set: {
+      lastCommentedAt:new Date(lastCommentedAt),
+      commentCount:comments.length
+    },
+    unset: {}
+  })
+}
+addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
+
 
 function CommentsNewHTMLSerializeCallback (comment) {
   if (comment.content) {
