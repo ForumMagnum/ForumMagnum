@@ -20,6 +20,8 @@ import { Collections } from '../modules/collections.js';
 import findByIds from '../modules/findbyids.js';
 import { runCallbacks } from '../modules/callbacks.js';
 
+import cors from 'cors';
+
 export let executableSchema;
 
 registerSetting('apolloEngine.logLevel', 'INFO', 'Log level (one of INFO, DEBUG, WARN, ERROR');
@@ -117,6 +119,8 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // compression
   graphQLServer.use(compression());
+
+  graphQLServer.use(cors())
 
   // GraphQL endpoint
   graphQLServer.use(config.path, bodyParser.json({limit: '5mb'}), graphqlExpress(async (req) => {
