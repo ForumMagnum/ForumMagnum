@@ -53,6 +53,7 @@
     "draftjs-to-html": "^0.7.6",
     "enzyme": "3.1.0",
     "enzyme-adapter-react-16": "1.0.1",
+    "dot-object": "^1.7.0",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.14.0",
     "express-ipfilter": "^0.3.1",
