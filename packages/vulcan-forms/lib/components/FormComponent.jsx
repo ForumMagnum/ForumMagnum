@@ -159,7 +159,8 @@ class FormComponent extends PureComponent {
     // clear value
     this.props.updateCurrentValues({[fieldName]: null});
     // add it to unset
-    this.context.addToDeletedValues(fieldName);
+    // TODO: not needed anymore?
+    // this.context.addToDeletedValues(fieldName);
   }
 
   renderClear() {
