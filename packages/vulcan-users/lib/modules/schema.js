@@ -68,8 +68,8 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
+    onInsert: (user, options) => {
+      return user.createdAt || new Date();
     }
   },
   isAdmin: {
@@ -198,7 +198,7 @@ const schema = {
       fieldName: 'avatarUrl',
       type: 'String',
       resolver: async (user, args, { Users }) => {
- 
+
         if (_.isEmpty(user)) return null;
 
         if (user.avatarUrl) {
@@ -209,7 +209,7 @@ const schema = {
           const fullUser = await Users.loader.load(user._id);
           return Users.avatar.getUrl(fullUser);
         }
-        
+
       }
     }
   },

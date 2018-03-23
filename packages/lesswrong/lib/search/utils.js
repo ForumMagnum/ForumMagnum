@@ -181,7 +181,7 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
       console.log("Imported n posts: ",  importCount, importBatch.length)
       algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
         if(error) {
-          console.log("Algolia Error: ", error);
+          // console.log("Algolia Error: ", error);
           totalErrors.push(error);
         }
         // console.log("write operation received: ", content);
@@ -195,7 +195,7 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
   // console.log("Exporting last n documents ", importCount);
   algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
     if(error) {
-      console.log("Algolia Error: ", error)
+      // console.log("Algolia Error: ", error)
     }
     // console.log("write operation received: " + content);
     algoliaIndex.waitTask(content, function contentIndexed() {
@@ -224,7 +224,7 @@ export function algoliaDocumentExport(documents, Collection, indexName, exportFu
       // console.log("Imported n posts: ",  importCount, importBatch.length)
       algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
         if(error) {
-          console.log("Algolia Error: ", error);
+          // console.log("Algolia Error: ", error);
           totalErrors.push(error);
         }
         // console.log("write operation received: ", content);
@@ -238,7 +238,7 @@ export function algoliaDocumentExport(documents, Collection, indexName, exportFu
   // console.log("Exporting last n documents ", importCount);
   algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
     if(error) {
-      console.log("Algolia Error: ", error)
+      // console.log("Algolia Error: ", error)
     }
     // console.log("write operation received: " + content);
     algoliaIndex.waitTask(content, function contentIndexed() {

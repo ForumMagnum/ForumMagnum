@@ -1,10 +1,9 @@
 import { Accounts } from 'meteor/accounts-base';
 import Users from 'meteor/vulcan:users';
-// Check during login whether the user currently has their login disabled
 
 Accounts.validateLoginAttempt((attempt) => {
   const userStub = attempt.user || attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user;
-  const user = Users.findOne({username: userStub.username})
+  const user = userStub && Users.findOne({username: userStub.username});
   if (user && user.legacy && user.legacyData && user.legacyData.password && user.services && user.services.password && !attempt.allowed) {
     throw new Meteor.Error('legacy-account', 'LessWrong 1.0 detected, legacy password salt attached ', {salt: user.legacyData.password.substring(0,3), username: user.username})
   }
