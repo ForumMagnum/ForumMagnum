@@ -2,6 +2,13 @@
   .field{
     margin-bottom: $vmargin/2;
   }
+  &.ready {
+    a {
+      width:50%;
+      margin-left:auto !important;
+      margin-right:auto !important;
+    }
+  }
 }
 
 .users-menu{
