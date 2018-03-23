@@ -147,41 +147,6 @@ Vulcan.syncUserPostCount = async () => {
   console.log(userUpdateCursor);
 }
 
-Vulcan.updateCommentParentReferences = async () => {
-  try {
-    let parentCommentsCursor = await Comments.rawCollection().aggregate([
-      {$match: {legacy: true, legacyId: {$exists: true}, legacyParentId: {$ne: null}, parentCommentId: {$exists: false}}},
-      {$lookup: {
-        from: "comments",
-        localField: "legacyParentId",
-        foreignField: "legacyId",
-        as: "parentComment"
-      }},
-    ])
-    console.log("Created aggregation cursor", parentCommentsCursor);
-    let commentUpdates = [];
-    let commentCounter = 0;
-    while(await parentCommentsCursor.hasNext()) {
-      const comment = await parentCommentsCursor.next();
-      console.log(comment);
-      commentUpdates.push({ updateOne :
-        {
-          filter : {_id: comment._id},
-          update : {$set: {parentCommentId: comment.parentComment[0]._id, topLevelCommentId: comment.parentComment[0]._id}},
-          upsert : false
-        }
-      })
-      commentCounter++;
-      console.log(commentCounter)
-    }
-    console.log("Finished constructing commentUpdates", commentUpdates[25]);
-    let commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false})
-    console.log(commentUpdateCursor);
-  } catch (e) {
-     console.error("ParentCommment Referencing failed: ", e);
-   }
-}
-
 const deepObjectExtend = (target, source) => {
     for (var prop in source)
         if (prop in target)
