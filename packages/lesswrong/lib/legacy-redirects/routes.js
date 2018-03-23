@@ -7,7 +7,7 @@ import Users from 'meteor/vulcan:users';
 
 
 // Route for old post links
-Picker.route('/lw/:id/:slug', (params, req, res, next) => {
+Picker.route('/:section?/:subreddit?/lw/:id/:slug', (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -18,7 +18,7 @@ Picker.route('/lw/:id/:slug', (params, req, res, next) => {
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.end(`No legacy post found with: ${params}`);
+        res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
       }
     } catch (error) {
       console.log('// Legacy Post error')
@@ -31,7 +31,7 @@ Picker.route('/lw/:id/:slug', (params, req, res, next) => {
 });
 
 // Route for old comment links
-Picker.route('/lw/:id/:slug/:commentId', (params, req, res, next) => {
+Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res, next) => {
   if(params.id){
 
     try {
