@@ -122,11 +122,17 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   graphQLServer.use(cors({origin:[
     "http://lesswrong.com",
+    "https://lesswrong.com",
     "http://www.lesswrong.com",
+    "https://www.lesswrong.com",
     "http://lesserwrong.com",
+    "https://lesserwrong.com",
     "http://www.lesserwrong.com",
+    "https://www.lesserwrong.com",
     "http://lessestwrong.com",
+    "https://lessestwrong.com",
     "http://www.lessestwrong.com",
+    "https://www.lessestwrong.com",
   ]}))
 
   // GraphQL endpoint
