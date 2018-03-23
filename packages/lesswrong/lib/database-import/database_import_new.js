@@ -343,59 +343,6 @@ const upsertProcessedComments = async (comments, commentMap) => {
   }
 }
 
-// const upsertProcessedComments = (comments, commentMap) => {
-//   let commentCounter = 0;
-//
-//   _.map(comments, (comment) => {
-//     upsertComment(comment, commentMap.get(comment.legacyId));
-//     commentCounter++;
-//     if(commentCounter % 1000 == 0){
-//       console.log("UserCounter: " + commentCounter);
-//     }
-//   });
-// }
-//
-// const upsertComment = (comment, existingComment) => {
-//   if (existingComment) {
-//     updateComment(comment, existingComment);
-//   } else {
-//     insertComment(comment);
-//   }
-// }
-//
-// const insertComment = (comment) => {
-//   try {
-//     comment._id = Comments.insert(comment);
-//     Users.update({_id: comment.userId}, {
-//       $inc:       {'commentCount': 1}
-//     });
-//     // update post
-//     Posts.update(comment.postId, {
-//       $inc:       {commentCount: 1},
-//       $max:       {lastCommentedAt: comment.postedAt},
-//       $addToSet:  {commenters: comment.userId}
-//     });
-//   } catch(err) {
-//     console.error("Comment insert operation failed: ", comment, err);
-//   }
-// }
-//
-// const updateComment = (newComment, oldComment) => {
-//   let set = {legacyData: newComment.legacyData};
-//   if (newComment.retracted) {
-//     set.retracted = true;
-//   }
-//   Comments.update({_id: newComment._id}, {
-//     $set: set,
-//   })
-//   // editMutation({
-//   //   collection: Comments,
-//   //   documentId: oldComment._id,
-//   //   set: set,
-//   //   validate: false,
-//   // })
-// }
-
 const keyValueArraytoObject = (keyValueArray) => {
   return keyValueArray.reduce(
     (prev,curr) => {
@@ -468,26 +415,3 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
 }
 
 const absoluteURLRegex = new RegExp('^(?:[a-z]+:)?//', 'i');
-//
-// function queryAndProcessCommentVotes() {
-//   db.any('SELECT rel_id, thing1_id, thing2_id, name, date FROM reddit_rel_vote_account_comment ORDER BY date', [true])
-//     .then((data) => {
-//       processCollectionVotes(data, Comments);
-//       console.log("Finished importing comment votes")
-//       queryAndProcessPostVotes()
-//     })
-//     .catch((err) => {
-//       console.log("Welp, we failed at processing LessWrong 1.0 comment votes. I am sorry.", err);
-//     });
-// }
-//
-// function queryAndProcessPostVotes() {
-//   db.any('SELECT rel_id, thing1_id, thing2_id, name, date FROM reddit_rel_vote_account_link ORDER BY date', [true])
-//     .then((data) => {
-//       processCollectionVotes(data, Posts);
-//       console.log("Finished importing post votes")
-//     })
-//     .catch((err) => {
-//       console.log("Welp, we failed at processing LessWrong 1.0 post votes. I am sorry.", err);
-//     });
-// }
