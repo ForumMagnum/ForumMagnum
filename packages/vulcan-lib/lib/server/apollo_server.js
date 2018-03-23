@@ -120,7 +120,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
   // compression
   graphQLServer.use(compression());
 
-  graphQLServer.use(cors())
+  // graphQLServer.use(cors())
 
   // GraphQL endpoint
   graphQLServer.use(config.path, bodyParser.json({limit: '5mb'}), graphqlExpress(async (req) => {
