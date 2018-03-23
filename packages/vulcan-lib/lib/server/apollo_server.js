@@ -120,7 +120,14 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
   // compression
   graphQLServer.use(compression());
 
-  // graphQLServer.use(cors())
+  graphQLServer.use(cors({origin:[
+    "http://lesswrong.com",
+    "http://www.lesswrong.com",
+    "http://lesserwrong.com",
+    "http://www.lesserwrong.com",
+    "http://lessestwrong.com",
+    "http://www.lessestwrong.com",
+  ]}))
 
   // GraphQL endpoint
   graphQLServer.use(config.path, bodyParser.json({limit: '5mb'}), graphqlExpress(async (req) => {
