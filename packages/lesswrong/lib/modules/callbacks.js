@@ -4,6 +4,7 @@ import Conversations from '../collections/conversations/collection.js';
 import Sequences from '../collections/sequences/collection.js';
 import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
+import LWEvents from '../collections/lwevents/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
 import {
@@ -475,9 +476,31 @@ async function userIPBan(user) {
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.UsersSingle.IPs.forEach(ip => {
+    ips = IPs.data.UsersSingle.IPs
+    ips.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
+      let yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const relatedEventsUserIds = LWEvents.find(
+        {
+          "properties.ip": { $in:ips},
+          createdAt: { $gt: yesterday },
+          name: 'login'
+        },
+      ).fetch().map(event => event && event.userId);
+      
+      const uniqueUserIds = _.uniq(relatedEventsUserIds);
+      uniqueUserIds.forEach((userId) => {
+        editMutation({
+          collection:Users,
+          documentId: userId,
+          set: {banned:tomorrow},
+          unset: {}
+        })
+      })
+
       const ban = {
         expirationDate: tomorrow,
         userId: user._id,
