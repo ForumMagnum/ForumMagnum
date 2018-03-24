@@ -4,6 +4,7 @@ import Conversations from '../collections/conversations/collection.js';
 import Sequences from '../collections/sequences/collection.js';
 import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
+import LWEvents from '../collections/lwevents/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
 import {
@@ -22,6 +23,7 @@ import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { anchorate } from 'anchorate';
 
+import { createError } from 'apollo-errors';
 
 function updateConversationActivity (message) {
   // Update latest Activity timestamp on conversation when new message is added
@@ -537,3 +539,28 @@ function reconnectUserOnActive() {
 }
 
 addCallback("idleStatus.active.async", reconnectUserOnActive);
+
+
+function PostingWhileBanned (content, user) {
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const relatedEventsIps = LWEvents.find({
+      "userId": user._id,
+      createdAt: { $gt: yesterday },
+      name: 'login'
+    },
+  ).fetch().map(event => event.properties && event.properties.ip);
+
+  console.log(relatedEventsIps)
+  const ban = Bans.findOne({ip:{$in:relatedEventsIps}})
+  console.log(ban)
+  if (ban) {
+    const BannedError = createError('user_is_banned', {message: 'user_is_banned'});
+    throw new BannedError({data: {break: true, value: "0"}});
+  }
+  return content
+}
+
+addCallback("posts.new.validate", PostingWhileBanned);
+addCallback("comments.new.validate", PostingWhileBanned);

@@ -1,4 +1,6 @@
 import LWEvents from '../collections/lwevents/collection.js';
+import Bans from '../collections/bans/collection.js';
+
 import { newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { ForwardedWhitelist } from './forwarded_whitelist.js';
@@ -37,6 +39,15 @@ Meteor.onConnection((connection) => {
       validate: false,
     })
   })
+})
+
+Accounts.onLogin((login) => {
+  const ip = login.connection && ForwardedWhitelist.getClientIP(login.connection)
+  const ban = ip && Bans.findOne({ip:ip})
+  if (ban) {
+    console.log(ban)
+    login.connection.close()
+  }
 })
 
 Accounts.onLogin((login) => {
