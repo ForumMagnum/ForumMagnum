@@ -26,7 +26,6 @@ addPageFunction(googleAnaticsTrackPage);
 function googleAnalyticsInit() {
   // get the google analytics id from the settings
   const googleAnalyticsId = getSetting('googleAnalytics.apiKey');
-  console.log("Google Analytics Id: ", googleAnalyticsId);
 
   // the google analytics id exists & isn't the placeholder from sample_settings.json
   if (googleAnalyticsId && googleAnalyticsId !== 'foo123') {
