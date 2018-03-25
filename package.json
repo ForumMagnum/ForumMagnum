@@ -54,6 +54,7 @@
     "enzyme-adapter-react-16": "1.0.1",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.14.0",
+    "express-ipfilter": "^0.3.1",
     "feedparser-promised": "^1.2.2",
     "flat": "^4.0.0",
     "formsy-react": "^0.19.5",
@@ -134,7 +135,6 @@
     "turndown": "^4.0.1",
     "underscore": "^1.8.3",
     "url": "^0.11.0"
-    "winston": "^2.4.1"
   },
   "private": true,
   "devDependencies": {
