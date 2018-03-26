@@ -119,7 +119,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
       startupTimeout: 3000,
     },
   }, () => {
-    console.log('Listening!');
+    console.info('Started Apollo Engine');
   });
   }
 
