@@ -20,6 +20,7 @@ import { Collections } from '../modules/collections.js';
 import findByIds from '../modules/findbyids.js';
 import { runCallbacks } from '../modules/callbacks.js';
 
+import timber from 'timber';
 import cors from 'cors';
 
 export let executableSchema;
@@ -119,6 +120,8 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // compression
   graphQLServer.use(compression());
+  //LESSWRONG: Timber logging integration
+  graphQLServer.use(timber.middlewares.express())
 
   graphQLServer.use(cors({origin:[
     "http://lesswrong.com",
