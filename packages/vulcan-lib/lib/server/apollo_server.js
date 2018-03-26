@@ -9,7 +9,7 @@ import compression from 'compression';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Accounts } from 'meteor/accounts-base';
-import { Engine } from 'apollo-engine';
+import { ApolloEngine } from 'apollo-engine';
 
 import { GraphQLSchema } from '../modules/graphql.js';
 import { Utils } from '../modules/utils.js';
@@ -47,10 +47,10 @@ const engineConfig = {
       }
     }
   ],
-  // "sessionAuth": {
-  //   "store": "embeddedCache",
-  //   "header": "Authorization"
-  // },
+  "sessionAuth": {
+    "store": "vulcanCache",
+    "header": "Authorization"
+  },
   // "frontends": [
   //   {
   //     "host": "127.0.0.1",
@@ -73,11 +73,6 @@ const engineConfig = {
     "level": engineLogLevel
   }
 };
-let engine;
-if (engineApiKey) {
-  engine = new Engine({ engineConfig });
-  engine.start();
-}
 
 // defaults
 const defaultConfig = {
@@ -115,7 +110,17 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // Use Engine middleware
   if (engineApiKey) {
-    graphQLServer.use(engine.expressMiddleware());
+    let engine = new ApolloEngine({ ...engineConfig });
+    engine.listen({
+    port: process.env.PORT,
+    graphqlPaths: ['/graphql'],
+    expressApp: graphQLServer,
+    launcherOptions: {
+      startupTimeout: 3000,
+    },
+  }, () => {
+    console.log('Listening!');
+  });
   }
 
   // compression
