@@ -13,7 +13,7 @@ const getHeaderColorPost = (postId, store) => {
   } else if (post && post.userId) {
     const user = Users.findOneInStore(store, post.userId)
     if (user) {
-      return "#F0F4F7" //<Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
+      return "#e8f1f0" //<Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
     }
   }
 }
@@ -63,7 +63,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
   muiTheme.palette.header = "#FCFCFC"
 
   if (routeName == "users.single") {
-    muiTheme.palette.header = "#F0F4F7"
+    muiTheme.palette.header = "#edf4f3"
     muiTheme.palette.accent1Color = "rgba(130,195,246,.5)"
     muiTheme.palette.accent2Color = "rgba(130,195,246,1)"
   } else if (routeName == "posts.single") {

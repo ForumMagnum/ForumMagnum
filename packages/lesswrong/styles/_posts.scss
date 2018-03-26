@@ -244,19 +244,12 @@
 
 .posts-item {
   position:relative;
-  &:hover {
-    background-color: rgba(0,0,0,.025) !important;
-  }
 
   .posts-item-content {
     display: flex;
     position: relative;
     height:100%;
     width:calc(100% - 50px);
-    cursor:pointer;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.03) !important;
-    }
     @include max-tiny() {
       padding:11px 10px 4px 2px;
     }
@@ -288,6 +281,11 @@
     text-decoration: none;
     white-space: nowrap;
     z-index: 400 !important;
+    cursor:pointer;
+
+    &:hover {
+      color:rgba(0,0,0,.5);
+    }
 
     @include max-medium() {
       width:500px;
@@ -323,8 +321,12 @@
       display: inline;
       margin-right: 5px;
     }
-    .posts-item-user a {
-      color: rgba(0,0,0,0.5);
+    .posts-item-user {
+      color: $username-text-color;
+      margin-right:5px;
+      &:hover {
+        color:$username-text-color-hover;
+      }
     }
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -350,7 +352,6 @@
       }
     }
     &:hover {
-      cursor: pointer;
       .posts-item-show-highlight-button {
         opacity:.7;
       }
@@ -507,6 +508,10 @@
         background-color: rgba(0,0,0,0.05);
       }
     }
+  }
+
+  .vote-count {
+    color: $karma-color !important;
   }
 
   .upvoted {

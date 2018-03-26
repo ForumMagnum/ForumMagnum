@@ -190,17 +190,20 @@ class PostsItem extends PureComponent {
                 </h3>
               </Link>
               <object>
-                <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
+                <div
+                  className="posts-item-meta"
+                  // onTouchTap={this.toggleHighlight}
+                  >
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
-                  {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
+                  {post.user ? <Link to={"/users/" + post.user.slug } className="posts-item-user"> {post.user.displayName} </Link> : null}
+                  <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
                   {this.renderPostFeeds()}
                   {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
-                  <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
                   {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
                   {this.renderEventDetails()}
-                  <div className="posts-item-show-highlight-button">
+                  {/* <div className="posts-item-show-highlight-button">
                     { this.state.showHighlight ?
                       <span>
                         Hide Highlight
@@ -215,7 +218,7 @@ class PostsItem extends PureComponent {
                         subdirectory_arrow_left
                       </FontIcon>
                     </span>  }
-                  </div>
+                  </div> */}
                 </div>
               </object>
               <div className="post-category-display-container" onTouchTap={this.toggleHighlight}>
