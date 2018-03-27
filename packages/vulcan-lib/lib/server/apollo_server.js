@@ -28,6 +28,7 @@ export let executableSchema;
 registerSetting('apolloEngine.logLevel', 'INFO', 'Log level (one of INFO, DEBUG, WARN, ERROR');
 
 // see https://github.com/apollographql/apollo-cache-control
+const timberApiKey = getSetting('timber.apiKey');
 const engineApiKey = getSetting('apolloEngine.apiKey');
 const engineLogLevel = getSetting('apolloEngine.logLevel', 'INFO')
 const engineConfig = {
@@ -126,7 +127,10 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
   // compression
   graphQLServer.use(compression());
   //LESSWRONG: Timber logging integration
-  graphQLServer.use(timber.middlewares.express())
+  if (timberApiKey) {
+    graphQLServer.use(timber.middlewares.express())
+  }
+
 
   graphQLServer.use(cors({origin:[
     "http://lesswrong.com",
