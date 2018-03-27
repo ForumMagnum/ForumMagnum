@@ -1,8 +1,5 @@
 /* global Vulcan */
-import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
-import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils.js';
-import { performSubscriptionAction } from '../subscriptions/mutations.js';
 
 Vulcan.importLW1Passwords = async () =>
 {

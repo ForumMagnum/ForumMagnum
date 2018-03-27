@@ -20,7 +20,8 @@ import { Collections } from '../modules/collections.js';
 import findByIds from '../modules/findbyids.js';
 import { runCallbacks } from '../modules/callbacks.js';
 
-// import timber from 'timber';
+import { IpFilter } from 'express-ipfilter';
+import timber from 'timber';
 import cors from 'cors';
 
 export let executableSchema;
@@ -112,12 +113,23 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // compression
   graphQLServer.use(compression());
+  function customDetection(req){
+    var ipAddress;
+    ipAddress = req.connection.remoteAddress.replace(/\//g, '.');
+    console.info("ipAddress: ", ipAddress);
+    return ipAddress;
+  }
+
   //LESSWRONG: Timber logging integration
   // if (timberApiKey) {
   //   graphQLServer.use(timber.middlewares.express())
   // }
 
 
+  // LESSWRONG: ACTIVATE IP FILTER
+  // graphQLServer.use(IpFilter(["127.0.0.1"], {detectIp: customDetection}));
+
+  // LESSWRONG: USE CORS TO ALLOW MULTIPLE URLS
   graphQLServer.use(cors({origin:[
     "http://lesswrong.com",
     "https://lesswrong.com",
