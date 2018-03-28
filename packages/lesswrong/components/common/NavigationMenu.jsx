@@ -39,7 +39,7 @@ const NavigationMenu = ({open, handleClose, handleToggle}) =>
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
     <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/posts/ANDbEKqbdDuBCQAnM/about-lesswrong-2-0"}/>}> ABOUT </MenuItem>
+    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT </MenuItem>
   {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
 </Drawer>;
 
