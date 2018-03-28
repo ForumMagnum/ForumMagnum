@@ -57,6 +57,7 @@ import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsPage.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
+import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsLoadMore.jsx';
