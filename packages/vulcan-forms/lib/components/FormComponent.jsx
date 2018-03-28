@@ -62,7 +62,7 @@ class FormComponent extends PureComponent {
   getValue = (props) => {
     const p = props || this.props;
     const { document, currentValues, defaultValue } = p;
-    
+
     // note: value has to default to '' to make component controlled
     let value = currentValues[p.path] || get(document, p.path) || '';
 
@@ -70,7 +70,7 @@ class FormComponent extends PureComponent {
     if (isEmptyValue(value)) {
       if (defaultValue) value = defaultValue;
     }
-    
+
     return value;
   };
 
@@ -90,7 +90,7 @@ class FormComponent extends PureComponent {
 
   */
   getErrors = () => {
-    const fieldErrors = this.context.errors.filter(error => error.data.name === this.props.path);
+    const fieldErrors = this.props.errors.filter(error => error.data.name === this.props.path);
     return fieldErrors;
   };
 
@@ -135,7 +135,7 @@ class FormComponent extends PureComponent {
 
     // note: we also pass value on props directly
     const properties = { ...this.props, value, errors: this.getErrors(), inputProperties };
-    
+
     // if control is a React component, use it
     if (typeof control === 'function') {
       const ControlComponent = control;
@@ -284,7 +284,8 @@ FormComponent.propTypes = {
   path: PropTypes.string,
   disabled: PropTypes.bool,
   nestedSchema: PropTypes.object,
-  nestedFields: PropTypes.array,
+  currentValues: PropTypes.object,
+  errors: PropTypes.array,
 };
 
 FormComponent.contextTypes = {
