@@ -9,6 +9,11 @@
       margin-right:auto !important;
     }
   }
+  .message {
+    color:red;
+    word-wrap: break-word;
+    max-width:210px;
+  }
 }
 
 .users-menu{

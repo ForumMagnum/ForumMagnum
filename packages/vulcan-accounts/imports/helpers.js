@@ -65,11 +65,11 @@ export function validateEmail(email, showMessage, clearMessage) {
   if (passwordSignupFields() === "USERNAME_AND_OPTIONAL_EMAIL" && email === '') {
     return true;
   }
-  if (Accounts.ui._options.emailPattern.test(email)) {
-    return true;
-  } else if (!email || email.length === 0) {
+  if (!email || email.length === 0) {
     showMessage("accounts.error_email_required", 'warning', false, 'email');
     return false;
+  } else if (Accounts.ui._options.emailPattern.test(email)) {
+    return true;
   } else {
     showMessage("accounts.error_invalid_email", 'warning', false, 'email');
     return false;
