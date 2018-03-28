@@ -16,9 +16,11 @@ class RecentDiscussionThread extends PureComponent {
   render() {
     const { post, results, loading, editMutation, currentUser } = this.props
 
-    if (!loading && results && !results.length) {
+    if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
+
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount == null})
     return (
       <div className="recent-discussion-thread-wrapper">
         <Link to={Posts.getPageUrl(post)}>
@@ -26,18 +28,15 @@ class RecentDiscussionThread extends PureComponent {
           <span className="recent-discussion-thread-author-name">by {post.user.displayName}</span>
         </Link>
         { this.state.showExcerpt ?
-          <div className="recent-discussion-thread-highlight">
-            { post.excerpt && post.excerpt }...
-            <Link className="recent-discussion-read-more" to={Posts.getPageUrl(post)}>
-              ({parseInt(post.wordCount/300) || 1} min read)
-            </Link>
+          <div className={highlightClasses}>
+            { post.htmlHighlight ?
+              <div className="post-highlight" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+              :
+              <div className="post-highlight excerpt" dangerouslySetInnerHTML={{__html: post.excerpt}}/>
+            }
           </div>
-          : <div className="recent-discussion-thread-highlight" onClick={() => { this.setState({showExcerpt:true})}}>
-              { post.excerpt && post.excerpt.slice(0, !post.lastVisitedAt ? 300 : 0)}
-              { !post.lastVisitedAt && "..."}
-              <span className={classNames("recent-discussion-read-more", {read:post.lastVisitedAt})}>
-                {!post.lastVisitedAt ? "(Read more)" : "(Show Excerpt)"}
-              </span>
+          : <div className={highlightClasses} onClick={() => { this.setState({showExcerpt:true})}}>
+              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <div className="post-highlight excerpt" dangerouslySetInnerHTML={{__html: post.excerpt}}/>}
             </div>
         }
         <div className="recent-discussion-thread-comment-list">

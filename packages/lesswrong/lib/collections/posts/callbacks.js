@@ -9,6 +9,7 @@ import Localgroups from '../localgroups/collection.js';
 
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
+import marked from 'marked';
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -88,15 +89,21 @@ Posts.convertFromContentAsync = async function(content) {
  * @summary Takes in a content field, returns object with {htmlBody, body, excerpt}
 */
 
-Posts.convertFromContent = (content) => {
+Posts.convertFromContent = (content, post) => {
   const contentState = convertFromRaw(content);
   const htmlBody = draftToHTML(contentState)
   const body = turndownService.turndown(htmlBody)
+  const wordCount = body.split(" ").length
+  const excerpt = marked(body.slice(0,500) + "... (Read More)")
+  const htmlHighlight = marked(body.slice(0,1200) + `... [(${wordCount} more words)](/posts/${post._id}/${post.slug})`)
+  console.log("convertFromContent", body)
+
   return {
     htmlBody: htmlBody,
     body: body,
-    excerpt: body.slice(0,600),
-    wordCount: body.split(" ").length
+    excerpt: excerpt,
+    htmlHighlight: htmlHighlight,
+    wordCount: wordCount
   }
 }
 
@@ -104,23 +111,26 @@ Posts.convertFromContent = (content) => {
  * @summary Input is html, returns object with {body, excerpt}
 */
 
-Posts.convertFromHTML = (html) => {
+Posts.convertFromHTML = (html, post) => {
   const body = turndownService.turndown(html)
-  const excerpt = body.slice(0,600);
   const wordCount = body.split(" ").length
+  const excerpt = marked(body.slice(0,500) + "... (Read More)")
+  const htmlHighlight = marked(body.slice(0,1200) + `... [(${wordCount} more words)](/posts/${post._id}/${post.slug})`)
+  console.log("convertFromHTML", body)
   return {
     body,
     excerpt,
+    htmlHighlight,
     wordCount
   }
 }
 
 function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
-    const newPostFields = Posts.convertFromContent(post.content);
+    const newPostFields = Posts.convertFromContent(post.content, post);
     post = {...post, ...newPostFields}
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.htmlBody);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody, post);
     post = {...post, ...newPostFields}
   }
   return post
@@ -130,11 +140,11 @@ addCallback("posts.new.sync", PostsNewHTMLSerializeCallback);
 
 function PostsEditHTMLSerializeCallback (modifier, post) {
   if (modifier.$set && modifier.$set.content) {
-    const newPostFields = Posts.convertFromContent(modifier.$set.content)
+    const newPostFields = Posts.convertFromContent(modifier.$set.content, post)
     modifier.$set = {...modifier.$set, ...newPostFields}
     delete modifier.$unset.htmlBody;
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody);
+    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody, post);
     modifier.$set = {...modifier.$set, ...newPostFields}
   }
   return modifier

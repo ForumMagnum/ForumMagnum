@@ -97,6 +97,20 @@ Posts.addField([
   },
 
   /**
+    Html Body field, made editable to allow access in edit form
+  */
+  {
+    fieldName: 'htmlHighlight',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      hidden:true,
+      viewableBy: ['guests'],
+      control: "textarea",
+    }
+  },
+
+  /**
     Legacy: Boolean used to indicate that post was imported from old LW database
   */
   {
@@ -241,6 +255,19 @@ Posts.addField([
             return post.lastVisitDateDefault;
           }
         }
+      }
+    }
+  },
+
+  {
+    fieldName: 'lastCommentedAt',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      hidden: true,
+      viewableBy: ['guests'],
+      onInsert: () => {
+        return new Date();
       }
     }
   },

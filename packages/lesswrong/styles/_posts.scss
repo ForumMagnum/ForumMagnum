@@ -1358,3 +1358,14 @@ svg.drag-handle {
 .posts-page-event-links {
   font-weight: 400;
 }
+
+.recent-discussion-thread-highlight .post-highlight.excerpt {
+  cursor:pointer;
+}
+
+.post-highlight > p > strong:only-child,
+.post-highlight > h3,
+.post-highlight > h2,
+.post-highlight > h1 {
+  display:none;
+}

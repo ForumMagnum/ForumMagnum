@@ -115,6 +115,7 @@ registerFragment(`
     # body # We replaced this with content
     htmlBody # We replaced this with content
     excerpt # This won't work with content
+    htmlHighlight
     # content # Our replacement for body
     viewCount
     clickCount
@@ -340,6 +341,7 @@ registerFragment(`
     title
     baseScore
     hideFrontpageComments
+    htmlHighlight
     lastCommentedAt
     commentCount
     wordCount
