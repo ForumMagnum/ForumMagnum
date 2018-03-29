@@ -50,3 +50,4 @@ addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'Post
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome'});
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog'});
 addRoute({name: 'home', path: '/', componentName: 'Home'});
+addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});

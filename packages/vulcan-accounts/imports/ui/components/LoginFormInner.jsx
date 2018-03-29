@@ -158,6 +158,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
     }
   }
 
+  getErrorId(error) {
+    return `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_').replace(/[.]/g,'').replace(/[,]/g,'')}`;
+  }
+
   validateField(field, value) {
     const { formState } = this.state;
     switch(field) {
@@ -665,7 +669,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
         if (error) {
           // eslint-disable-next-line no-console
           console.log(error);
-          const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
           // LESSWRONG: ADDED LW 1.0 Password reattempt functionality
           if (error.error == 'legacy-account' && error.details && error.details.salt && error.details.username) {
             const {salt, username} = error.details;
@@ -678,13 +681,11 @@ export class AccountsLoginFormInner extends TrackerComponent {
                 self.clearDefaultFieldValues();
               } else {
                 console.log(error)
-                self.showMessage(error.reason);
+                self.showMessage("accounts.error_legacy_account_wrong_password");
               }
             })
-          } else if (this.context.intl.formatMessage({id: errorId})) {
-            self.showMessage(errorId);
           } else {
-            self.showMessage('accounts.error_unknown');
+            self.showMessage(this.getErrorId(error));
           }
         }
         else {
@@ -753,12 +754,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
         if (error instanceof Accounts.LoginCancelledError) {
           // do nothing
         } else {
-          const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          if (self.context.intl.formatMessage({id: errorId})) {
-            self.showMessage(errorId);
-          } else {
-            self.showMessage('accounts.error_unknown');
-          }
+          self.showMessage(this.getErrorId(error));
         }
       } else {
         self.props.handlers.switchToProfile();
@@ -826,13 +822,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
           // eslint-disable-next-line no-console
           console.log(error);
 
-          const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_').replace('.','')}`;
-
-          if (this.context.intl.formatMessage({id: errorId})){
-            this.showMessage(errorId, 'error');
-          } else {
-            this.showMessage('accounts.error_unknown', 'error');
-          }
+          this.showMessage(this.getErrorId(error), 'error');
 
           if (this.context.intl.formatMessage({id: `error.accounts_${error.reason}`})) {
             onSubmitHook(`error.accounts.${error.reason}`, formState);
@@ -888,8 +878,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
         // eslint-disable-next-line no-console
         console.log(error);
         if (error) {
-          const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          this.showMessage(errorId, 'error');
+          this.showMessage(this.getErrorId(error), 'error');
         }
         else {
           this.showMessage('accounts.info_email_sent', 'success', 5000);
@@ -922,8 +911,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (token) {
       Accounts.resetPassword(token, newPassword, (error) => {
         if (error) {
-          const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          this.showMessage(errorId, 'error');
+          this.showMessage(this.getErrorId(error), 'error');
           onSubmitHook(error, formState);
         }
         else {
@@ -940,8 +928,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     else {
       Accounts.changePassword(password, newPassword, (error) => {
         if (error) {
-          const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
-          this.showMessage(errorId, 'error');
+          this.showMessage(this.getErrorId(error), 'error');
           onSubmitHook(error, formState);
         }
         else {
@@ -959,7 +946,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (messageId) {
       this.setState(({ messages = [] }) => {
         messages.push({
-          message: this.context.intl.formatMessage({id: messageId}),
+          message: this.context.intl.formatMessage({id: messageId}) || messageId || "Unknown Error",
           type,
           ...(field && { field }),
         });
