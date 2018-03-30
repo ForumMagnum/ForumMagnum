@@ -340,6 +340,7 @@ registerFragment(`
     slug
     title
     baseScore
+    postedAt
     hideFrontpageComments
     htmlHighlight
     lastCommentedAt
@@ -347,6 +348,7 @@ registerFragment(`
     wordCount
     excerpt
     lastVisitedAt
+    userId
     user {
       ...UsersMinimumInfo
     }

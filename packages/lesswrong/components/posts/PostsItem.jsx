@@ -20,7 +20,7 @@ import IconButton from 'material-ui/IconButton';
 import Badge from 'material-ui/Badge';
 import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-
+import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 
 const paperStyle = {
@@ -191,8 +191,12 @@ class PostsItem extends PureComponent {
               </Link>
               <object>
                 <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
-                  {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
-                  {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
+                  {!(this.state.lastVisitedAt || this.state.readStatus) &&
+                    <span title="Unread" className="posts-item-unread-dot">•</span>}
+                  {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
+                  {post.user && <div className="posts-item-user">
+                    <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
+                    </div>}
                   {this.renderPostFeeds()}
                   {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
                   <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
@@ -241,8 +245,8 @@ class PostsItem extends PureComponent {
               { post.url && <p className="posts-page-content-body-link-post">
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </p>}
-              <div className="posts-item-highlight-content" >
-                <Components.PostsBody documentId={post._id}/>
+              <div className="post-highlight" >
+                <div className="post-body" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
               </div>
               { this.renderHighlightMenu() }
             </div>

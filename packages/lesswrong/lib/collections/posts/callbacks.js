@@ -7,9 +7,10 @@ import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import Localgroups from '../localgroups/collection.js';
 
+import marked from 'marked';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
-import marked from 'marked';
+
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -81,23 +82,41 @@ function postsEditDecreaseFrontpagePostCount (post, oldPost) {
 addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 
 Posts.convertFromContentAsync = async function(content) {
-  content = await preProcessLatex(content);
-  return Posts.convertFromContent(content)
+  const contentState = convertFromRaw(await preProcessLatex(content));
+  return {htmlBody: draftToHTML(contentState)}
 }
 
-/*
+Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
+  const highlight = body.replace(/< refresh to render LaTeX >/g, "< LaTeX Equation >")
+
+  if (body.length > 1800) {
+    // drop the last paragraph
+    const highlightShortened = highlight.slice(0,2200).split("\n\n").slice(0,-1).join("\n\n")
+    const highlightWordCount = highlightShortened.split(" ").length
+    const highlightWithContinue = highlightShortened + `... <div class="post-highlight-continue-reading">[(Continue, ${wordCount-highlightWordCount} more words)](/posts/${id}/${slug})</div>`
+    return marked(highlightWithContinue)
+  } else {
+    return marked(highlight)
+  }
+}
+
+Posts.createExcerpt = (body) => {
+  let excerpt = body.slice(0,300)
+  excerpt += `... <span class="post-excerpt-read-more">(Read More)</span>`
+  return marked(excerpt)
+}
+
+/*ws
  * @summary Takes in a content field, returns object with {htmlBody, body, excerpt}
 */
 
-Posts.convertFromContent = (content, post) => {
+Posts.convertFromContent = (content, id, slug) => {
   const contentState = convertFromRaw(content);
   const htmlBody = draftToHTML(contentState)
   const body = turndownService.turndown(htmlBody)
+  const excerpt = Posts.createExcerpt(body)
   const wordCount = body.split(" ").length
-  const excerpt = marked(body.slice(0,500) + "... (Read More)")
-  const htmlHighlight = marked(body.slice(0,1200) + `... [(${wordCount} more words)](/posts/${post._id}/${post.slug})`)
-  console.log("convertFromContent", body)
-
+  const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   return {
     htmlBody: htmlBody,
     body: body,
@@ -111,26 +130,25 @@ Posts.convertFromContent = (content, post) => {
  * @summary Input is html, returns object with {body, excerpt}
 */
 
-Posts.convertFromHTML = (html, post) => {
+Posts.convertFromHTML = (html, id, slug) => {
   const body = turndownService.turndown(html)
+  const excerpt = Posts.createExcerpt(body)
   const wordCount = body.split(" ").length
-  const excerpt = marked(body.slice(0,500) + "... (Read More)")
-  const htmlHighlight = marked(body.slice(0,1200) + `... [(${wordCount} more words)](/posts/${post._id}/${post.slug})`)
-  console.log("convertFromHTML", body)
+  const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   return {
     body,
     excerpt,
-    htmlHighlight,
-    wordCount
+    wordCount,
+    htmlHighlight
   }
 }
 
 function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
-    const newPostFields = Posts.convertFromContent(post.content, post);
+    const newPostFields = Posts.convertFromContent(post.content, post._id, post.slug);
     post = {...post, ...newPostFields}
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.htmlBody, post);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug);
     post = {...post, ...newPostFields}
   }
   return post
@@ -140,11 +158,11 @@ addCallback("posts.new.sync", PostsNewHTMLSerializeCallback);
 
 function PostsEditHTMLSerializeCallback (modifier, post) {
   if (modifier.$set && modifier.$set.content) {
-    const newPostFields = Posts.convertFromContent(modifier.$set.content, post)
+    const newPostFields = Posts.convertFromContent(modifier.$set.content, post._id, post.slug)
     modifier.$set = {...modifier.$set, ...newPostFields}
     delete modifier.$unset.htmlBody;
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody, post);
+    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody, post._id, post.slug);
     modifier.$set = {...modifier.$set, ...newPostFields}
   }
   return modifier
@@ -157,7 +175,7 @@ async function PostsEditHTMLSerializeCallbackAsync (post) {
     const newPostFields = await Posts.convertFromContentAsync(post.content);
     Posts.update({_id: post._id}, {$set: newPostFields})
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.htmlBody);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug);
     Posts.update({_id: post._id}, {$set: newPostFields})
   }
 }
