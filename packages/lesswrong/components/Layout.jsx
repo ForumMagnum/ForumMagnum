@@ -45,7 +45,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
 
           {/* Sign up user for Intercom, if they do not yet have an account */}
           {showIntercom(currentUser)}
-
+          <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
           <Components.Header {...this.props}/>
 
           <div className="main">
