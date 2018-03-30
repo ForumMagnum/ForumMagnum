@@ -4,8 +4,8 @@ import React from 'react';
 
 const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle}) => {
   return <div className="sequences-navigation-bottom-content">
-    {previousPost ? <div className="sequences-navigation-bottom-previous-post">
-      <Components.RecommendedReadingItem direction="Previous" post={previousPost} />
+    {(previousPost && sequence) ? <div className="sequences-navigation-bottom-previous-post">
+      <Components.RecommendedReadingItem direction="Previous" post={previousPost} sequence={sequence}/>
     </div> : null}
     <div className="sequences-navigation-bottom-divider"></div>
     { nextTitle ?
@@ -15,8 +15,8 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
         </Link>
       </div>
     : (
-      nextPost ? <div className="sequences-navigation-bottom-next-post">
-        <Components.RecommendedReadingItem direction="Next" post={nextPost} />
+      (nextPost && sequence) ? <div className="sequences-navigation-bottom-next-post">
+        <Components.RecommendedReadingItem direction="Next" post={nextPost} sequence={sequence}/>
       </div> : null
     ) }
   </div>

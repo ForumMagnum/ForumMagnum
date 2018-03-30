@@ -4,12 +4,12 @@ import classnames from 'classnames';
 import { Link } from 'react-router';
 import { Posts } from "meteor/example-forum";
 
-const RecommendedReadingItem = ({direction, post}) => {
+const RecommendedReadingItem = ({direction, post, sequence}) => {
   const commentCount = post.commentCount || "No"
 
   return (
     <div className={classnames("sequences-recommend-reading-item", direction)}>
-      <Link to={Posts.getPageUrl(post)}>
+      <Link to={`/s/${sequence._id}/p/${post._id}`}>
         <div className="sequences-recommended-reading-direction">{direction}:</div>
         <h3>{post.title}</h3>
         <div className="sequences-recommend-reading-item-meta">
