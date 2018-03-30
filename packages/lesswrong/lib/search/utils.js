@@ -206,6 +206,9 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
 }
 
 export function algoliaDocumentExport(documents, Collection, indexName, exportFunction, updateFunction) {
+  if (Meteor.isDevelopment) {  // Only run document export in production environment
+    return null
+  }
   const algoliaAppId = getSetting('algoliaAppId');
   const algoliaAdminKey = getSetting('algoliaAdminKey');
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
