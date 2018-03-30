@@ -148,7 +148,7 @@ const clearVotesClient = ({ document }) => {
 Clear all votes for a given document and user (server)
 
 */
-const clearVotesServer = ({ document, user, collection, updateDocument }) => {
+export const clearVotesServer = ({ document, user, collection, updateDocument }) => {
   const newDocument = _.clone(document);
   const votes = Votes.find({ documentId: document._id, userId: user._id}).fetch();
   if (votes.length) {
@@ -167,10 +167,9 @@ const clearVotesServer = ({ document, user, collection, updateDocument }) => {
 Cancel votes of a specific type on a given document (server)
 
 */
-const cancelVoteServer = ({ document, voteType, collection, user, updateDocument }) => {
+export const cancelVoteServer = ({ document, voteType, collection, user, updateDocument }) => {
 
   const newDocument = _.clone(document);
-
   const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType})
 
   // remove vote object

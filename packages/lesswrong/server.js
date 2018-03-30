@@ -14,6 +14,7 @@ import './lib/scripts/voteMigration.js';
 import './lib/scripts/slugDeduplication.js';
 import './lib/scripts/debuggingScripts.js';
 import './lib/scripts/importOldPasswords.js';
+import './lib/scripts/nullifyVotes.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
@@ -51,4 +52,4 @@ import './lib/collections/usercollectionrels/indexes.js';
 import './lib/collections/usersequencerels/indexes.js';
 import './lib/collections/posts/indexes.js';
 import './lib/collections/localgroups/indexes.js';
-import './lib/logging.js'; 
+import './lib/logging.js';

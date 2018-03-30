@@ -2,9 +2,11 @@ import Notifications from '../collections/notifications/collection.js';
 import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
 import Sequences from '../collections/sequences/collection.js';
+import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
+import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
 import {
   addCallback,
@@ -317,70 +319,28 @@ function userEditBannedCallbacksAsync(user, oldUser) {
 
 addCallback("users.edit.async", userEditBannedCallbacksAsync);
 
+// document, voteType, collection, user, updateDocument
 
-const reverseVote = (vote, collection, user, multiplier) => {
-  const item = collection.findOne({_id: vote.itemId});
-  if (item) {
-    collection.update({_id: vote.itemId}, {$set: {baseScore: (item.baseScore || 0) - (multiplier * vote.power)}})
-    if (item.userId !== user._id) {
-      Users.update({_id: item.userId}, {$inc: {karma: - (multiplier * vote.power)}})
-    }
+const reverseVote = (vote) => {
+  const collection = getCollection(vote.collectionName);
+  const document = collection.findOne({_id: vote.documentId});
+  const voteType = vote.type;
+  const user = Users.findOne({_id: vote.userId});
+  if (document && user) {
+    // { document, voteType, collection, user, updateDocument }
+    cancelVoteServer({document, voteType, collection, user, updateDocument: true})
   } else {
-    console.log("No item found corresponding to vote: ", vote);
+    console.log("No item or user found corresponding to vote: ", vote, document, user, voteType);
   }
 }
 
-const nullifyVotesForUserAndCollection = (user, collection) => {
+const nullifyVotesForUserAndCollection = async (user, collection) => {
   const collectionName = Utils.capitalize(collection._name);
-
-  if (user[`upvoted${collectionName}`] && user[`upvoted${collectionName}`].length){
-    let voteArray = [];
-    user[`upvoted${collectionName}`].forEach((vote) => {
-      const newVote = { ...vote, nullified: true }
-      voteArray.push(newVote)
-      reverseVote(vote, collection, user, 1)
-    })
-    Users.update({_id: user._id}, {$set: {[`upvoted${collectionName}`]: voteArray}})
-    console.log("Nullified n upvotes for user X: ", voteArray.length, user.displayName)
-  }
-
-  if (user[`downvoted${collectionName}`] && user[`downvoted${collectionName}`].length){
-    let voteArray = [];
-    user[`downvoted${collectionName}`].forEach((vote) => {
-      const newVote = { ...vote, nullified: true }
-      voteArray.push(newVote)
-      reverseVote(vote, collection, user, -1)
-    })
-    Users.update({_id: user._id}, {$set: {[`downvoted${collectionName}`]: voteArray}})
-    console.log("Nullified n downvotes for user X: ", voteArray.length, user.displayName)
-  }
-}
-
-const undoNullifyVotesForUserAndCollection = (user, collection) => {
-
-  const collectionName = Utils.capitalize(collection._name);
-
-  if (user[`upvoted${collectionName}`] && user[`upvoted${collectionName}`].length){
-    let voteArray = [];
-    user[`upvoted${collectionName}`].forEach((vote) => {
-      const newVote = { ...vote, nullified: false }
-      voteArray.push(newVote)
-      reverseVote(vote, collection, user, -1)
-    })
-    Users.update({_id: user._id}, {$set: {[`upvoted${collectionName}`]: voteArray}})
-    console.log("Denullified n upvotes for user X: ", voteArray.length, user.displayName)
-  }
-
-  if (user[`downvoted${collectionName}`] && user[`downvoted${collectionName}`].length){
-    let voteArray = [];
-    user[`downvoted${collectionName}`].forEach((vote) => {
-      const newVote = { ...vote, nullified: false }
-      voteArray.push(newVote)
-      reverseVote(vote, collection, user, 1)
-    })
-    Users.update({_id: user._id}, {$set: {[`downvoted${collectionName}`]: voteArray}})
-    console.log("Denullified n downvotes for user X: ", voteArray.length, user.displayName)
-  }
+  const votes = await Votes.find({collectionName: collectionName, userId: user._id}).fetch();
+  votes.forEach((vote) => {
+    reverseVote(vote, collection);
+  });
+  console.log(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
 function nullifyCommentVotes(user) {
@@ -396,28 +356,6 @@ function nullifyPostVotes(user) {
 }
 
 addCallback("users.nullifyVotes.async", nullifyPostVotes)
-
-function userEditUndoNullifyVotesCallbacksAsync(user, oldUser) {
-  if (!user.nullifyVotes && oldUser.nullifyVotes) {
-    runCallbacksAsync('users.undoNullifyVotes.async', user);
-  }
-  return user;
-}
-addCallback("users.edit.async", userEditUndoNullifyVotesCallbacksAsync);
-
-function undoNullifyCommentVotes(user) {
-  undoNullifyVotesForUserAndCollection(user, Comments);
-  return user;
-}
-
-addCallback("users.undoNullifyVotes.async", undoNullifyCommentVotes)
-
-function undoNullifyPostVotes(user) {
-  undoNullifyVotesForUserAndCollection(user, Posts);
-  return user;
-}
-
-addCallback("users.undoNullifyVotes.async", undoNullifyPostVotes)
 
 function userDeleteContent(user) {
   console.log("Deleting all content of user: ", user)
