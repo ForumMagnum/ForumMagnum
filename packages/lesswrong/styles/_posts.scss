@@ -1377,6 +1377,7 @@ svg.drag-handle {
     padding:10px;
     font-weight:500;
     font-size:20px;
+    line-height:20px;
 
     @include max-tiny() {
       padding:5px 5px 0 5px;
@@ -1397,7 +1398,7 @@ svg.drag-handle {
 }
 
 .post-highlight {
-  width:600px;
+  max-width:600px;
 }
 
 .recent-discussion-thread-highlight {
