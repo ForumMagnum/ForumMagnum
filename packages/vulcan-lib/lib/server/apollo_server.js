@@ -109,20 +109,6 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   config.configServer(graphQLServer);
 
-  // Use Engine middleware
-  if (engineApiKey) {
-    let engine = new ApolloEngine({ ...engineConfig });
-    engine.listen({
-    port: process.env.PORT,
-    graphqlPaths: ['/graphql'],
-    expressApp: graphQLServer,
-    launcherOptions: {
-      startupTimeout: 3000,
-    },
-  }, () => {
-    console.info('Started Apollo Engine');
-  });
-  }
 
   // compression
   graphQLServer.use(compression());
@@ -222,6 +208,14 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
     name: 'graphQLServerMiddleware_bindEnvironment',
     order: 30,
   });
+
+  // Use Engine middleware
+  if (engineApiKey) {
+    let engine = new ApolloEngine({ ...engineConfig });
+    engine.meteorListen(WebApp)
+  }
+
+
 };
 
 // createApolloServer when server startup
