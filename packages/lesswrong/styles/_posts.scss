@@ -296,7 +296,7 @@
       width:300px;
     }
     @include max-tiny() {
-      width:280px;
+      width:260px;
       overflow: hidden;
       white-space: pre-wrap;
       padding-left:0;
@@ -494,6 +494,15 @@
     }
   }
 
+  &.posts-sticky{
+    .posts-item-title::before {
+      font-size: $large-font;
+      content: url('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1501979389/Vector_jzpt6u.svg');
+      margin-right: 3px;
+    }
+  }
+}
+.posts-item, .recent-discussion-thread-wrapper {
   .upvoted {
     .upvote-button {
       .material-icons {
@@ -531,16 +540,7 @@
       color: rgba(160, 44, 44, 0.9) !important;
     }
   }
-
-  &.posts-sticky{
-    .posts-item-title::before {
-      font-size: $large-font;
-      content: url('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1501979389/Vector_jzpt6u.svg');
-      margin-right: 3px;
-    }
-  }
 }
-
 .posts-item-vote{
   display: inline;
   .vote {
@@ -1357,11 +1357,16 @@ svg.drag-handle {
   font-weight: 400;
 }
 
-.post-highlight > p > strong:only-child,
 .post-highlight > h3,
 .post-highlight > h2,
 .post-highlight > h1 {
-  display:none;
+  font-size: 1.2em;
+  margin-top:1em;
+}
+
+.post-highlight blockquote {
+  font-size:1em;
+  border-left: 3px solid #eee
 }
 
 
@@ -1398,7 +1403,9 @@ svg.drag-handle {
 }
 
 .post-highlight {
+  margin-top:5px;
   max-width:600px;
+  line-height:22px;
 }
 
 .recent-discussion-thread-highlight {
@@ -1441,10 +1448,10 @@ svg.drag-handle {
   .recent-discussion-username,
   .recent-discussion-thread-date,
   .posts-item-unread-dot,
-  .recent-discussion-thread-karma,
+  .vote-count,
   .recent-discussion-edit,
   .recent-discussion-thread-readtime {
-    margin-right:10px;
+    margin-right:8px;
   }
 }
 
