@@ -85,7 +85,9 @@ class RecentDiscussionThread extends PureComponent {
             </span>
           </Link>
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
-            {!(post.lastVisitedAt || this.state.readStatus) && <span title="Unread" className="posts-item-unread-dot">•</span>}
+            {!(post.lastVisitedAt || this.state.readStatus) &&
+              <span title="Unread" className="posts-item-unread-dot">•</span>
+            }
             {Posts.options.mutations.edit.check(currentUser, post) &&
               <Link className="recent-discussion-edit"
                 to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
@@ -95,9 +97,17 @@ class RecentDiscussionThread extends PureComponent {
             <span className="recent-discussion-username">
               <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
             </span>
-            {post.postedAt && !post.isEvent && <span className="recent-discussion-thread-date"> {moment(new Date(post.postedAt)).fromNow()} </span>}
+            {post.postedAt && !post.isEvent &&
+              <span className="recent-discussion-thread-date">
+                {moment(new Date(post.postedAt)).fromNow()}
+              </span>
+            }
             <span className="recent-discussion-thread-karma">{post.baseScore} Points</span>
-            {post.wordCount && !post.isEvent && <span className="recent-discussion-thread-readtime">{parseInt(post.wordCount/300) || 1 } min read</span>}
+            {post.wordCount && !post.isEvent &&
+              <span className="recent-discussion-thread-readtime">
+                {parseInt(post.wordCount/300) || 1 } min read
+              </span>
+            }
             <span className="recent-discussion-show-highlight">
 
               { this.state.showExcerpt ?

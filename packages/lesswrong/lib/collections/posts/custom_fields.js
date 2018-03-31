@@ -96,9 +96,6 @@ Posts.addField([
     }
   },
 
-  /**
-    Html Body field, made editable to allow access in edit form
-  */
   {
     fieldName: 'htmlHighlight',
     fieldSchema: {
@@ -106,7 +103,6 @@ Posts.addField([
       optional: true,
       hidden:true,
       viewableBy: ['guests'],
-      control: "textarea",
     }
   },
 

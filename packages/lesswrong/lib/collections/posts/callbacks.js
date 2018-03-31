@@ -101,7 +101,7 @@ Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
 }
 
 Posts.createExcerpt = (body) => {
-  let excerpt = body.slice(0,300)
+  let excerpt = body.slice(0,240)
   excerpt += `... <span class="post-excerpt-read-more">(Read More)</span>`
   return marked(excerpt)
 }
