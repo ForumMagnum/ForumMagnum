@@ -245,9 +245,12 @@ function CommentsNewNotifications(comment) {
         let parentCommentSubscribersToNotify = _.difference(parentComment.subscribers, notifiedUsers, [comment.userId, parentComment.userId]);
         createNotifications(parentCommentSubscribersToNotify, 'newReply', 'comment', comment._id);
         notifiedUsers = notifiedUsers.concat(parentCommentSubscribersToNotify);
-        // Separately notify author of comment with different notification, if they are subscribed
-        if (parentComment.subscribers.includes(parentComment.userId)) {
+
+        // Separately notify author of comment with different notification, if they are subscribed, and are NOT the author of the comment
+        if (parentComment.subscribers.includes(parentComment.userId) &&
+            !parentComment.subscribers.includes(comment.userId)) {
           createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
+          notifiedUsers = notifiedUsers.concat([parentComment.userId]);
         }
       }
     }
