@@ -7,7 +7,7 @@ class CommentEditor extends Component {
   constructor (props,context) {
     super(props,context);
     this.state  = {
-      editor: (props) => <Components.Loading />
+      editor: (props) => <div> Editor.Loading... </div>
     }
   }
 
@@ -25,8 +25,8 @@ class CommentEditor extends Component {
           <Components.MuiTextField
             {...this.props}
           />
-          :
-          <AsyncCommentEditor {...this.props}/>
+        :
+        <AsyncCommentEditor {...this.props}/>
         }
       </div>
     )
