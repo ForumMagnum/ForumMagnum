@@ -115,6 +115,7 @@ registerFragment(`
     # body # We replaced this with content
     htmlBody # We replaced this with content
     excerpt # This won't work with content
+    htmlHighlight
     # content # Our replacement for body
     viewCount
     clickCount
@@ -339,12 +340,15 @@ registerFragment(`
     slug
     title
     baseScore
+    postedAt
     hideFrontpageComments
+    htmlHighlight
     lastCommentedAt
     commentCount
     wordCount
     excerpt
     lastVisitedAt
+    userId
     user {
       ...UsersMinimumInfo
     }
