@@ -191,8 +191,6 @@ class PostsItem extends PureComponent {
               </Link>
               <object>
                 <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
-                  {!(this.state.lastVisitedAt || this.state.readStatus) &&
-                    <span title="Unread" className="posts-item-unread-dot">•</span>}
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
                   {post.user && <div className="posts-item-user">
                     <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>

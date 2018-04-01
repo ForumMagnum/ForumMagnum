@@ -349,6 +349,9 @@ registerFragment(`
     excerpt
     lastVisitedAt
     userId
+    currentUserVotes{
+      ...VoteFragment
+    }
     user {
       ...UsersMinimumInfo
     }

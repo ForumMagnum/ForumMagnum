@@ -85,7 +85,7 @@ class RecentDiscussionThread extends PureComponent {
             </span>
           </Link>
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
-            {!(post.lastVisitedAt || this.state.readStatus) &&
+            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
               <span title="Unread" className="posts-item-unread-dot">•</span>
             }
             {Posts.options.mutations.edit.check(currentUser, post) &&
@@ -102,7 +102,7 @@ class RecentDiscussionThread extends PureComponent {
                 {moment(new Date(post.postedAt)).fromNow()}
               </span>
             }
-            <span className="recent-discussion-thread-karma">{post.baseScore} Points</span>
+            <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
             {post.wordCount && !post.isEvent &&
               <span className="recent-discussion-thread-readtime">
                 {parseInt(post.wordCount/300) || 1 } min read
