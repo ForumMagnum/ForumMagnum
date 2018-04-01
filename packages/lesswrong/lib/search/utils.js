@@ -128,6 +128,7 @@ Posts.toAlgolia = (post) => {
     isFuture: post.isFuture,
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
+    draft: post.draft,
   };
   const postAuthor = Users.findOne({_id: post.userId});
   if (postAuthor) {
