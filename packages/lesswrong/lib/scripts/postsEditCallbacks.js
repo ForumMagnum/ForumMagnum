@@ -3,7 +3,7 @@ import { runCallbacks } from 'meteor/vulcan:core';
 
 Vulcan.runPostEditCallbacks = () => {
   let postCount = 0;
-  const posts = Posts.find().fetch()
+  const posts = Posts.find({draft:{$ne:true}}).fetch()
   posts.forEach((post) => {
     if (post.htmlBody) {
       try {
@@ -13,7 +13,7 @@ Vulcan.runPostEditCallbacks = () => {
       }
     }
     if (postCount % 100 == 0) {
-      console.log(`${postCount} posts / ${posts.length}`);
+      console.log(`${postCount} posts / ${posts.length}, ${post._id}, ${post.title}`);
     }
     postCount ++
   })

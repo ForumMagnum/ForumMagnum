@@ -352,6 +352,7 @@ registerFragment(`
     excerpt
     lastVisitedAt
     userId
+    url
     currentUserVotes{
       ...VoteFragment
     }
