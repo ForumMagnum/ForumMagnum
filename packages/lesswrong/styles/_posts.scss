@@ -296,7 +296,7 @@
       width:300px;
     }
     @include max-tiny() {
-      width:280px;
+      width:260px;
       overflow: hidden;
       white-space: pre-wrap;
       padding-left:0;
@@ -323,9 +323,6 @@
       display: inline;
       margin-right: 5px;
     }
-    .posts-item-user a {
-      color: rgba(0,0,0,0.5);
-    }
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -335,24 +332,13 @@
     }
     .posts-item-show-highlight-button {
       opacity:0;
-      .hide-highlight-button, .show-highlight-button {
-        color:rgba(0,0,0,.5) !important;
-        font-size:12px !important;
-        left:4px;
-      }
-      .hide-highlight-button {
-        top:2px;
-        transform: rotate(90deg);
-      }
-      .show-highlight-button {
-        top:4px;
-        transform: rotate(-90deg);
-      }
+      margin-left:4px;
     }
     &:hover {
       cursor: pointer;
       .posts-item-show-highlight-button {
         opacity:.7;
+        margin-left:4px;
       }
     }
 
@@ -393,7 +379,6 @@
     }
   }
   .posts-item-highlight-content {
-    max-height:485px;
     overflow: hidden;
     max-width:550px;
   }
@@ -509,6 +494,15 @@
     }
   }
 
+  &.posts-sticky{
+    .posts-item-title::before {
+      font-size: $large-font;
+      content: url('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1501979389/Vector_jzpt6u.svg');
+      margin-right: 3px;
+    }
+  }
+}
+.posts-item, .recent-discussion-thread-wrapper {
   .upvoted {
     .upvote-button {
       .material-icons {
@@ -546,16 +540,7 @@
       color: rgba(160, 44, 44, 0.9) !important;
     }
   }
-
-  &.posts-sticky{
-    .posts-item-title::before {
-      font-size: $large-font;
-      content: url('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1501979389/Vector_jzpt6u.svg');
-      margin-right: 3px;
-    }
-  }
 }
-
 .posts-item-vote{
   display: inline;
   .vote {
@@ -592,7 +577,19 @@
   flex-grow: 1;
 }
 
-
+.hide-highlight-button, .show-highlight-button {
+  color:rgba(0,0,0,.5) !important;
+  font-size:12px !important;
+  left:4px;
+}
+.hide-highlight-button {
+  top:2px;
+  transform: rotate(90deg);
+}
+.show-highlight-button {
+  top:4px;
+  transform: rotate(-90deg);
+}
 
 .posts-categories{
   display: inline;
@@ -602,7 +599,7 @@
   display: inline;
   font-size: 1rem;
   line-height: 1.4rem;
-  .users-name, .posts-item-date, .posts-item-comments, .posts-item-admin, .posts-actions, .posts-item-user {
+  .users-name, .posts-item-date, .posts-item-comments, .posts-item-admin, .posts-actions, .posts-item-user, .posts-item-unread-dot {
     display: inline;
   }
 }
@@ -1160,6 +1157,7 @@ svg.drag-handle {
   height:100%;
   width:50px;
   padding:17px 15px 15px 15px;
+  cursor:pointer;
 
   &:hover {
     background-color: rgba(0,0,0,.05);
@@ -1357,4 +1355,127 @@ svg.drag-handle {
 
 .posts-page-event-links {
   font-weight: 400;
+}
+
+.post-highlight > h3,
+.post-highlight > h2,
+.post-highlight > h1 {
+  font-size: 1.2em;
+  margin-top:1em;
+}
+
+.post-highlight blockquote {
+  font-size:1em;
+  border-left: 3px solid #eee
+}
+
+
+.recent-discussion-thread-wrapper {
+  margin-bottom:30px;
+
+  a:hover, a:visited, a:focus, a:active {
+    text-decoration: none !important;
+    color:rgba(0,0,0,.5);
+  }
+
+  .recent-discussion-thread-title {
+    padding:10px;
+    font-weight:500;
+    font-size:20px;
+    line-height:20px;
+
+    @include max-tiny() {
+      padding:5px 5px 0 5px;
+    }
+  }
+}
+
+.recent-discussion-thread-meta {
+  .recent-discussion-show-highlight {
+    opacity:0;
+    color:rgba(0,0,0,.4);
+  }
+  &:hover {
+    .recent-discussion-show-highlight {
+      opacity:1;
+    }
+  }
+}
+
+.post-highlight {
+  margin-top:5px;
+  max-width:600px;
+  line-height:22px;
+}
+
+.recent-discussion-thread-highlight {
+  padding-bottom:10px;
+  margin-left:10px;
+  margin-right:10px;
+  font-size:14px;
+
+  &.no-comments {
+    border-bottom:solid 1px rgba(0,0,0,.2);
+  }
+}
+.post-highlight-continue-reading {
+  a {
+    color:rgba(0,0,0,.45);
+    white-space: nowrap;
+    text-decoration: none;
+    &:hover {
+      color:rgba(0,0,0,.3) !important;
+    }
+  }
+}
+.post-excerpt-read-more {
+  cursor:pointer;
+  color:rgba(0,0,0,.45) !important;
+  margin-left:3px;
+
+  &:hover {
+    color:rgba(0,0,0,.3) !important;
+  }
+}
+
+.recent-discussion-thread-meta {
+  cursor:pointer;
+  margin-left:10px;
+  font-size:13px;
+  color:rgba(0,0,0,.5);
+  line-height:13px;
+
+  .recent-discussion-username,
+  .recent-discussion-thread-date,
+  .posts-item-unread-dot,
+  .vote-count,
+  .recent-discussion-edit,
+  .recent-discussion-thread-readtime {
+    margin-right:8px;
+  }
+}
+
+.recent-discussion-username a {
+  // font-weight:600;
+  // color:rgba(0,0,0,.55) !important;
+
+  &:hover {
+    color:rgba(0,0,0,.3) !important;
+  }
+}
+.posts-item-unread-dot {
+  color:rgba(100,170,105,.65);
+  font-size:30px;
+  // background: red;
+  line-height:0px;
+  position: relative;
+  top:5.5px;
+  margin-left:2px;
+  margin-right:5px;
+  font-family: $comments-font;
+}
+
+.posts-item-unread {
+  color:rgba(100,170,105,.86);
+  margin-right:6px;
 }

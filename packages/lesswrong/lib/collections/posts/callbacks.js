@@ -7,8 +7,10 @@ import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
 import Localgroups from '../localgroups/collection.js';
 
+import marked from 'marked';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
+
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -80,23 +82,55 @@ function postsEditDecreaseFrontpagePostCount (post, oldPost) {
 addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 
 Posts.convertFromContentAsync = async function(content) {
-  content = await preProcessLatex(content);
-  return Posts.convertFromContent(content)
+  const contentState = convertFromRaw(await preProcessLatex(content));
+  return {htmlBody: draftToHTML(contentState)}
 }
 
-/*
+Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
+  const highlight = body.replace(/< refresh to render LaTeX >/g, "< LaTeX Equation >")
+
+  if (body.length > 2000) {
+    // drop the last paragraph
+    const highlight2000Shortened = highlight.slice(0,2000).split("\n").slice(0,-1).join("\n")
+    const highlightnewlineShortened = highlight.split("\n\n").slice(0,6).join("\n\n")
+    if (highlightnewlineShortened.length > highlight2000Shortened.length) {
+      const highlightWordCount = highlight2000Shortened.split(" ").length
+      const highlightWithContinue = highlight2000Shortened + `<div class="post-highlight-continue-reading">[(Continue, ${wordCount-highlightWordCount} more words)](/posts/${id}/${slug})</div>`
+      return marked(highlightWithContinue)
+    } else {
+      const highlightWordCount = highlightnewlineShortened.split(" ").length
+      const highlightWithContinue = highlightnewlineShortened + `<div class="post-highlight-continue-reading">[(Continue, ${wordCount-highlightWordCount} more words)](/posts/${id}/${slug})</div>`
+      return marked(highlightWithContinue)
+    }
+
+  } else {
+    return marked(highlight)
+  }
+}
+
+Posts.createExcerpt = (body) => {
+  let excerpt = body.slice(0,240)
+  excerpt += `... <span class="post-excerpt-read-more">(Read More)</span>`
+  return marked(excerpt)
+}
+
+/*ws
  * @summary Takes in a content field, returns object with {htmlBody, body, excerpt}
 */
 
-Posts.convertFromContent = (content) => {
+Posts.convertFromContent = (content, id, slug) => {
   const contentState = convertFromRaw(content);
   const htmlBody = draftToHTML(contentState)
   const body = turndownService.turndown(htmlBody)
+  const excerpt = Posts.createExcerpt(body)
+  const wordCount = body.split(" ").length
+  const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   return {
     htmlBody: htmlBody,
     body: body,
-    excerpt: body.slice(0,600),
-    wordCount: body.split(" ").length
+    excerpt: excerpt,
+    htmlHighlight: htmlHighlight,
+    wordCount: wordCount
   }
 }
 
@@ -104,23 +138,25 @@ Posts.convertFromContent = (content) => {
  * @summary Input is html, returns object with {body, excerpt}
 */
 
-Posts.convertFromHTML = (html) => {
+Posts.convertFromHTML = (html, id, slug) => {
   const body = turndownService.turndown(html)
-  const excerpt = body.slice(0,600);
+  const excerpt = Posts.createExcerpt(body)
   const wordCount = body.split(" ").length
+  const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   return {
     body,
     excerpt,
-    wordCount
+    wordCount,
+    htmlHighlight
   }
 }
 
 function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
-    const newPostFields = Posts.convertFromContent(post.content);
+    const newPostFields = Posts.convertFromContent(post.content, post._id, post.slug);
     post = {...post, ...newPostFields}
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.htmlBody);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug);
     post = {...post, ...newPostFields}
   }
   return post
@@ -130,11 +166,11 @@ addCallback("posts.new.sync", PostsNewHTMLSerializeCallback);
 
 function PostsEditHTMLSerializeCallback (modifier, post) {
   if (modifier.$set && modifier.$set.content) {
-    const newPostFields = Posts.convertFromContent(modifier.$set.content)
+    const newPostFields = Posts.convertFromContent(modifier.$set.content, post._id, post.slug)
     modifier.$set = {...modifier.$set, ...newPostFields}
     delete modifier.$unset.htmlBody;
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody);
+    const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody, post._id, post.slug);
     modifier.$set = {...modifier.$set, ...newPostFields}
   }
   return modifier
@@ -147,7 +183,7 @@ async function PostsEditHTMLSerializeCallbackAsync (post) {
     const newPostFields = await Posts.convertFromContentAsync(post.content);
     Posts.update({_id: post._id}, {$set: newPostFields})
   } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.htmlBody);
+    const newPostFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug);
     Posts.update({_id: post._id}, {$set: newPostFields})
   }
 }

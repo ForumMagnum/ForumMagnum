@@ -96,6 +96,16 @@ Posts.addField([
     }
   },
 
+  {
+    fieldName: 'htmlHighlight',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      hidden:true,
+      viewableBy: ['guests'],
+    }
+  },
+
   /**
     Legacy: Boolean used to indicate that post was imported from old LW database
   */
@@ -241,6 +251,19 @@ Posts.addField([
             return post.lastVisitDateDefault;
           }
         }
+      }
+    }
+  },
+
+  {
+    fieldName: 'lastCommentedAt',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      hidden: true,
+      viewableBy: ['guests'],
+      onInsert: () => {
+        return new Date();
       }
     }
   },

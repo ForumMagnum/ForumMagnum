@@ -14,6 +14,7 @@ import './lib/scripts/voteMigration.js';
 import './lib/scripts/slugDeduplication.js';
 import './lib/scripts/debuggingScripts.js';
 import './lib/scripts/importOldPasswords.js';
+import './lib/scripts/postsEditCallbacks.js';
 import './lib/scripts/nullifyVotes.js';
 
 import './lib/collections/comments/callbacks.js';

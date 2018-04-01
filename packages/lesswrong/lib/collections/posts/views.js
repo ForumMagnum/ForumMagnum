@@ -282,7 +282,6 @@ Posts.addView("slugPost", terms => ({
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
-      commentCount: {$gt:0},
       baseScore: {$gt:0},
       hideFrontpageComments: {$ne: true},
       meta: null,

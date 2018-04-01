@@ -683,51 +683,6 @@ New CSS File
   }
 }
 
-.recent-discussion-thread-wrapper {
-  margin-bottom:30px;
-
-  a:hover, a:visited, a:focus, a:active {
-    text-decoration: none !important;
-    color:rgba(0,0,0,.5);
-  }
-
-  .recent-discussion-thread-title {
-    padding:10px;
-    font-family:$comments-font;
-    font-weight:600;
-    font-size:16px;
-
-    @include max-tiny() {
-      padding:5px 5px 0 5px;
-    }
-  }
-  .recent-discussion-thread-author-name {
-    padding-right:10px;
-    font-size:14px;
-    color:rgba(0,0,0,.5);
-  }
-}
-.recent-discussion-thread-highlight {
-  padding:0 10px 10px 10px;
-  font-size:14px;
-}
-
-.recent-discussion-read-more {
-  margin-left:5px;
-  color:rgba(0,0,0,.45);
-  cursor:pointer;
-  white-space: nowrap;
-
-  &.read {
-    float:right;
-    position:relative;
-    top:-28px;
-  }
-  &:hover {
-    color:rgba(0,0,0,.3);
-    text-decoration: none;
-  }
-}
 .comment-editor .mui-text-field {
   input, textarea {
     margin-top:0 !important;
