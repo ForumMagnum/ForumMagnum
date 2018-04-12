@@ -480,4 +480,44 @@ Users.addField([
       onInsert: (document, currentUser) => 0,
     }
   },
+
+  {
+    fieldName: 'mongoLocation',
+    fieldSchema: {
+      type: Object,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      hidden: true,
+      blackbox: true,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'googleLocation',
+    fieldSchema: {
+      type: Object,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      label: "Group Location",
+      control: 'LocationFormComponent',
+      blackbox: true,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'location',
+    fieldSchema: {
+      type: String,
+      searchable: true,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      hidden: true,
+      optional: true
+    }
+  },
 ]);

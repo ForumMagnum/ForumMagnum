@@ -47,6 +47,7 @@ import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
+import '../components/users/UsersAccount.jsx';
 import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';

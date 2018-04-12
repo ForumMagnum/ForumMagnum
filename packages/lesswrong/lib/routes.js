@@ -35,7 +35,7 @@ addRoute({ name: 'AllPosts', path: '/allPosts', componentName: 'AllPosts'})
 addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments'})
 addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome'})
-
+addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome'})
 
 //Route for testing the editor. Useful for debugging
 addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});

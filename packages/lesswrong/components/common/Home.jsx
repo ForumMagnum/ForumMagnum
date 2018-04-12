@@ -33,8 +33,6 @@ const testCollections = [
   }
 ]
 
-
-
 const Home = (props, context) => {
   const currentUser = props.currentUser
   const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
@@ -42,6 +40,7 @@ const Home = (props, context) => {
   if (recentPostsTerms.view === "curated" && currentUser) {
     recentPostsTerms.offset = 3
   }
+
   const curatedPostsTerms = {view:"curated", limit:3}
   let recentPostsTitle = "Recent Posts"
   switch (recentPostsTerms.view) {
@@ -54,6 +53,22 @@ const Home = (props, context) => {
     default:
       return "Recent Posts";
   }
+
+  const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
+  const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
+  let eventsListTerms = {
+    view: 'events',
+    limit: 3,
+  }
+  if (lat & lng) {
+    eventsListTerms = {
+      view: 'nearbyEvents',
+      lat: lat,
+      lng: lng,
+      limit: 3,
+    }
+  }
+
   return (
     <div className="home">
       { !currentUser ?
@@ -94,13 +109,16 @@ const Home = (props, context) => {
       <Components.Section
         title="Community"
         titleLink="/community"
-        titleComponent={<Link className="events-near-you" to="/community">Find Events Nearby</Link>}
+        titleComponent={<div>
+          <Link className="events-near-you" to="/community">
+            Find Events Nearby
+          </Link>
+        </div>}
       >
         <Components.PostsList
-          terms={{view:"communityFrontpagePosts"}}
-          showHeader={false}
-          loadMore={null}
-        />
+          terms={eventsListTerms}
+          showLoadMore={false}
+          showHeader={false} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments">
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
