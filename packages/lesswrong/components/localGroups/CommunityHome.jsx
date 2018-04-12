@@ -1,8 +1,16 @@
-import { Components, registerComponent, withCurrentUser, getFragment, withMessages } from 'meteor/vulcan:core';
+import {
+  Components,
+  registerComponent,
+  withCurrentUser,
+  getFragment,
+  withMessages,
+  withEdit
+} from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
 import { Link, withRouter } from 'react-router';
+import Users from 'meteor/vulcan:users';
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -15,12 +23,23 @@ class CommunityHome extends Component {
   }
 
   componentDidMount() {
-    if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.setState({
-          currentUserLocation: {lat: position.coords.latitude, lng: position.coords.longitude}
-        })
-      });
+    const currentUser = this.props.currentUser;
+    const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
+    const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
+    if (currentUserLat && currentUserLng) {
+      this.setState({
+        currentUserLocation: {lat: currentUserLat, lng: currentUserLng}
+      })
+    } else {
+      if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const navigatorLat = position.coords.latitude
+          const navigatorLng = position.coords.longitude
+          this.setState({
+            currentUserLocation: {lat: navigatorLat, lng: navigatorLng}
+          })
+        });
+      }
     }
   }
 
@@ -126,4 +145,10 @@ class CommunityHome extends Component {
   }
 }
 
-registerComponent('CommunityHome', CommunityHome, withCurrentUser, withMessages, withRouter);
+
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersProfile',
+};
+
+registerComponent('CommunityHome', CommunityHome, withCurrentUser, withMessages, withRouter, [withEdit, withEditOptions]);

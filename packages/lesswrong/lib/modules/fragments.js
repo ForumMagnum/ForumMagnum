@@ -82,6 +82,9 @@ extendFragment('UsersCurrent', `
   moderationStyle
   markDownCommentEditor
   markDownPostEditor
+  location
+  googleLocation
+  mongoLocation
 `);
 
 registerFragment(`
@@ -498,6 +501,9 @@ registerFragment(`
     sequenceDraftCount
     moderationStyle
     bannedUserIds
+    location
+    googleLocation
+    mongoLocation
   }
 `);
 

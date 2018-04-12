@@ -327,15 +327,17 @@ Posts.addView("nearbyEvents", function (terms) {
 
 Posts.addView("events", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
+  const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   return {
     selector: {
       isEvent: true,
+      createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
     },
     options: {
       sort: {
-        time: -1,
+        startTime: -1,
       }
     }
   }
