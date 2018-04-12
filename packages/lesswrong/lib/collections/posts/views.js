@@ -333,10 +333,12 @@ Posts.addView("events", function (terms) {
       isEvent: true,
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
       $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
     },
     options: {
       sort: {
+        baseScore: -1,
         startTime: -1,
       }
     }
