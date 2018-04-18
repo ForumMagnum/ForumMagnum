@@ -307,12 +307,6 @@
   }
 }
 
-.chapters-new-form {
-    max-width: 685px;
-    margin-left: auto;
-    margin-right: 90px;
-}
-
 .sequences-list-edit-item-title {
   display: inline;
   margin-right: 10px;
@@ -792,12 +786,38 @@ svg.drag-handle {
   }
 }
 
-
 .chapters-edit-form, .chapters-new-form {
-  padding:1em 0;
+  padding:1em;
+  max-width:695px;
+  margin-left: auto;
+  margin-right: 90px;
+  padding:15px;
+  border-radius:2px;
+  margin-bottom: 2em;
+
+  form {
+    clear:both;
+    overflow:auto;
+  }
+  .form-submit {
+    float:right;
+  }
   h3 {
     font-size:2em;
+    margin-bottom:1em;
   }
+  label.control-label {
+    display:none;
+  }
+  .col-sm-9 {
+    padding:0;
+  }
+  .input-title input {
+    font-size:2em;
+  }
+}
+.chapters-new-form {
+  border:solid 1px rgba(0,0,0,.2);
 }
 
 .sequences-grid-wrapper .posts-load-more {
