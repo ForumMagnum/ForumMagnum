@@ -697,3 +697,22 @@ New CSS File
   margin-top:-25px;
   color:rgba(0,0,0,.5);
 }
+
+.form-input.input-bonusKarmaAmount {
+  width:30px;
+  float:left;
+  margin-left:10px;
+  input { text-align: center };
+}
+.form-input.input-bonusKarmaReason {
+  width:calc(100% - 60px);
+  float:right;
+  margin-right:10px;
+}
+
+.comments-item-bonus-karma {
+  color:rgba(0,0,0,.7);
+  font-size:12px;
+  font-weight:300;
+  margin:8px 0;
+}

@@ -334,6 +334,14 @@ registerFragment(`
     }
     baseScore
     score
+    bonusKarmaAmount
+    bonusKarmaDate
+    bonusKarmaUser {
+      _id
+      slug
+      displayName
+    }
+    bonusKarmaReason
   }
 `);
 

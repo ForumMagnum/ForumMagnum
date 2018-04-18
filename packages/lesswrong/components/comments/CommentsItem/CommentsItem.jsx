@@ -103,6 +103,7 @@ class CommentsItem extends PureComponent {
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
         {!comment.deleted && this.renderCommentBottom()}
+        { this.renderBonusKarma() }
       </div>
     )
     if (comment) {
@@ -186,6 +187,18 @@ class CommentsItem extends PureComponent {
         </div>
       </div>
     )
+  }
+
+  renderBonusKarma = () => {
+    const comment = this.props.comment;
+    if (comment.bonusKarmaAmount && comment.bonusKarmaReason) {
+      return <div className="comments-item-bonus-karma">
+        <div>
+          "{comment.bonusKarmaReason}" – awarded {comment.bonusKarmaAmount} bonus karma
+          {comment.bonusKarmaUser && " by "}{comment.bonusKarmaUser.displayName}</div>
+      </div>
+    }
+
   }
 
   renderMenu = () => {
