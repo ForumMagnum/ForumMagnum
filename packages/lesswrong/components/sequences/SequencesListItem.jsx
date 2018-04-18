@@ -10,7 +10,7 @@ const SequencesListItem = ({sequence, currentUser}) => {
     <NoSSR>
       <Image
         className="sequences-list-item-image"
-        publicId={sequence.gridImageId || "Group_ybgiy6.png"}
+        publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
         dpr="auto"
         responsive={true}
         sizes="100vw"
