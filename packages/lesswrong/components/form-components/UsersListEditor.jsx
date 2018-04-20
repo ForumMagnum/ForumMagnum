@@ -82,7 +82,7 @@ class UsersListEditor extends Component {
   render() {
     return (
       <div className="users-list-editor">
-        {this.props.label && <h5>{this.props.label}</h5>}
+        {this.props.label && <div className="users-list-editor-title">{this.props.label}</div>}
         <SortableList
           axis="xy"
           items={this.state.userIds}

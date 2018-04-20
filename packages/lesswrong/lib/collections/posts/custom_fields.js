@@ -535,9 +535,32 @@ Posts.addField([
     }
   },
   {
+    fieldName: 'karmaThreshold',
+    fieldSchema: {
+      type: String,
+      order:100,
+      viewableBy: ['members'],
+      group: moderationGroup,
+      insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
+      editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
+      optional: true,
+      control: 'select',
+      label: "Karma Threshold",
+      form: {
+        options: [
+          {value: "", label: "None"},
+          {value: 100, label: "100"},
+          {value: 500, label: "500"},
+          {value: 1000, label: "1000"},
+        ]
+      },
+    }
+  },
+  {
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
+      order:110,
       viewableBy: ['members'],
       group: moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),

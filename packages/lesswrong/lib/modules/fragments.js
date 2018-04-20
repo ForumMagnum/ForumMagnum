@@ -195,6 +195,7 @@ registerFragment(`
     canonicalSequenceId
     canonicalBookId
     bannedUserIds
+    karmaThreshold
     user {
       groups
       moderationStyle
