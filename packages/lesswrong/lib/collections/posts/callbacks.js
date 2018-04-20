@@ -89,27 +89,22 @@ Posts.convertFromContentAsync = async function(content) {
 Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
   const highlight = body.replace(/< refresh to render LaTeX >/g, "< LaTeX Equation >")
 
-  if (body.length > 2000) {
+  if (body.length > 2200) {
     // drop the last paragraph
-    const highlight2000Shortened = highlight.slice(0,2000).split("\n").slice(0,-1).join("\n")
+    const highlight2000Shortened = highlight.slice(0,2200).split("\n").slice(0,-1).join("\n")
     const highlightnewlineShortened = highlight.split("\n\n").slice(0,6).join("\n\n")
     if (highlightnewlineShortened.length > highlight2000Shortened.length) {
-      const highlightWordCount = highlight2000Shortened.split(" ").length
-      const highlightWithContinue = highlight2000Shortened + `<div class="post-highlight-continue-reading">[(Continue, ${wordCount-highlightWordCount} more words)](/posts/${id}/${slug})</div>`
-      return marked(highlightWithContinue)
+      return marked(highlight2000Shortened)
     } else {
-      const highlightWordCount = highlightnewlineShortened.split(" ").length
-      const highlightWithContinue = highlightnewlineShortened + `<div class="post-highlight-continue-reading">[(Continue, ${wordCount-highlightWordCount} more words)](/posts/${id}/${slug})</div>`
-      return marked(highlightWithContinue)
+      return marked(highlightnewlineShortened)
     }
-
   } else {
     return marked(highlight)
   }
 }
 
 Posts.createExcerpt = (body) => {
-  let excerpt = body.slice(0,240)
+  let excerpt = body.slice(0,400)
   excerpt += `... <span class="post-excerpt-read-more">(Read More)</span>`
   return marked(excerpt)
 }

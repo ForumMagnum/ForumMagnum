@@ -1422,6 +1422,10 @@ svg.drag-handle {
   }
 }
 .post-highlight-continue-reading {
+  // This is temporary until we've re-run all the highlight callbacks
+  display:none;
+}
+.post-highlight-continue {
   a {
     color:rgba(0,0,0,.45);
     white-space: nowrap;

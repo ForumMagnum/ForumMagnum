@@ -141,7 +141,12 @@ class RecentDiscussionThread extends PureComponent {
           <div className={highlightClasses}>
             { this.renderLinkPost() }
             { post.htmlHighlight ?
-              <div className="post-highlight" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+              <div>
+                <div className="post-highlight" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+                <Link to={Posts.getPageUrl(post)}>
+                  (Continue Reading{ post.wordCount - 280 && ` - ${post.wordCount - 280} more words`})
+                </Link>
+              </div>
               :
               <div className="post-highlight excerpt" dangerouslySetInnerHTML={{__html: post.excerpt}}/>
             }
