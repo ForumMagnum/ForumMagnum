@@ -90,10 +90,10 @@ Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
   const highlight = body.replace(/< refresh to render LaTeX >/g, "< LaTeX Equation >")
   if (body.length > 2400) {
     // drop the last paragraph
-    const highlight2300Shortened = highlight.slice(0,2400).split("\n").slice(0,-1).join("\n")
+    const highlight2400Shortened = highlight.slice(0,2400).split("\n").slice(0,-1).join("\n")
     const highlightnewlineShortened = highlight.split("\n\n").slice(0,5).join("\n\n")
-    if (highlightnewlineShortened.length > highlight2300Shortened.length) {
-      return marked(highlight2300Shortened)
+    if (highlightnewlineShortened.length > highlight2400Shortened.length) {
+      return marked(highlight2400Shortened)
     } else {
       return marked(highlightnewlineShortened)
     }
