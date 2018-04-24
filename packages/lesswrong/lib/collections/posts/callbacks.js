@@ -103,9 +103,15 @@ Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
 }
 
 Posts.createExcerpt = (body) => {
-  const excerpt = body.slice(0,400).split("[").slice(0, -1).join('[')
-  const excerptWithReadMore = excerpt + `... <span class="post-excerpt-read-more">(Read More)</span>`
-  return marked(excerptWithReadMore)
+  const excerpt = body.slice(0,400)
+  if (excerpt.includes("[")) {
+    const excerptTrimLink = excerpt.split("[").slice(0, -1).join('[')
+    const excerptWithReadMore = excerptTrimLink + `... <span class="post-excerpt-read-more">(Read More)</span>`
+    return marked(excerptWithReadMore)
+  } else {
+    const excerptWithReadMore = excerpt + `... <span class="post-excerpt-read-more">(Read More)</span>`
+    return marked(excerptWithReadMore)
+  }
 }
 
 /*ws
