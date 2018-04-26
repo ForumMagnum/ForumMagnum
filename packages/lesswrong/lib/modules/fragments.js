@@ -338,31 +338,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment RecentDiscussionThreadsList on Post {
-    _id
-    slug
-    title
-    baseScore
-    postedAt
-    hideFrontpageComments
-    htmlHighlight
-    lastCommentedAt
-    commentCount
-    wordCount
-    excerpt
-    lastVisitedAt
-    userId
-    url
-    currentUserVotes{
-      ...VoteFragment
-    }
-    user {
-      ...UsersMinimumInfo
-    }
-  }
-`);
-
-registerFragment(`
   fragment SelectCommentsList on Comment {
     ...CommentsList
     post {

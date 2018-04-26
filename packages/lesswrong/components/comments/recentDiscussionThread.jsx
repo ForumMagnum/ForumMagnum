@@ -90,7 +90,7 @@ class RecentDiscussionThread extends PureComponent {
         <div className="recent-discussion-thread-post">
           <Link to={Posts.getPageUrl(post)}>
             <span className={classNames("recent-discussion-thread-title", {unread: !post.lastVisitedAt})}>
-              {post.title}
+              {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
             </span>
           </Link>
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
