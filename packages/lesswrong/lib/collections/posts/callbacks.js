@@ -26,8 +26,15 @@ function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   }
   return newPost
 }
-
 addCallback("posts.edit.async", PostsEditRunPostUndraftedAsyncCallbacks);
+
+function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
+  if (newPost.draft && !oldPost.draft) {
+    runCallbacksAsync("posts.draft.async", newPost, oldPost)
+  }
+  return newPost
+}
+addCallback("posts.edit.async", PostsEditRunPostDraftedAsyncCallbacks);
 
 /**
  * @summary set postedAt when a post is moved out of drafts
@@ -40,6 +47,22 @@ function PostsSetPostedAt (modifier, post) {
   return modifier;
 }
 addCallback("posts.undraft.sync", PostsSetPostedAt);
+
+/**
+ * @summary increment postCount when post is undrafted
+ */
+function postsUndraftIncrementPostCount (post, oldPost) {
+  Users.update({_id: post.userId}, {$inc: {postCount: 1}})
+}
+addCallback("posts.undraft.async", postsUndraftIncrementPostCount);
+
+/**
+ * @summary decrement postCount when post is drafted
+ */
+function postsDraftDecrementPostCount (post, oldPost) {
+  Users.update({_id: post.userId}, {$inc: {postCount: -1}})
+}
+addCallback("posts.draft.async", postsDraftDecrementPostCount);
 
 /**
  * @summary update frontpagePostCount when post is moved into frontpage
