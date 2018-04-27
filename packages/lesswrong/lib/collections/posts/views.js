@@ -285,6 +285,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       baseScore: {$gt:0},
       hideFrontpageComments: {$ne: true},
       meta: null,
+      groupId: null,
       isEvent: null,
     },
     options: {
