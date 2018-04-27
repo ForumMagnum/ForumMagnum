@@ -67,13 +67,13 @@ Comments.addView("recentComments", function (terms) {
 });
 
 Comments.addView("recentDiscussionThread", function (terms) {
-  const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
+  const eighteenHoursAgo = new Date(new Date().getTime()-(18*60*60*1000));
   return {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
       deletedPublic: {$ne: true},
-      postedAt: {$gt: twoDaysAgo}
+      postedAt: {$gt: eighteenHoursAgo}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };
