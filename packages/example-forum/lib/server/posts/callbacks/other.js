@@ -21,6 +21,11 @@ registerSetting('forum.trackClickEvents', true, 'Track clicks to posts pages');
  * @summary Increment the user's post count
  */
 function PostsNewIncrementPostCount(post) {
+  // LESSWRONG – Fixing post count bug. See issue #488
+  if (post.draft === true) {
+    return;
+  }
+
   var userId = post.userId;
   Users.update({ _id: userId }, { $inc: { 'postCount': 1 } });
 }
@@ -106,8 +111,8 @@ function PostsClickTracking(post, ip) {
 }
 
 // track links clicked, locally in Events collection
-// note: this event is not sent to segment cause we cannot access the current user 
-// in our server-side route /out -> sending an event would create a new anonymous 
+// note: this event is not sent to segment cause we cannot access the current user
+// in our server-side route /out -> sending an event would create a new anonymous
 // user: the free limit of 1,000 unique users per month would be reached quickly
 addCallback('posts.click.async', PostsClickTracking);
 
