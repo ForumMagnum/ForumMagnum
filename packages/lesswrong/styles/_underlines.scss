@@ -41,10 +41,10 @@
     // @include text-background($background, $underline);
     // @include text-selection($selection);
 
-    color: $text;
+    color: $post-link-green;
     text-decoration: underline;
     text-decoration-skip: ink;
-    text-decoration-color: $underline;
+    text-decoration-color: $post-link-green;
     text-decoration-style: solid;
     -webkit-text-decoration-skip: ink;
     -webkit-text-decoration-color: $underline;
@@ -60,7 +60,11 @@
     &:before {
         text-shadow: none;
     }
+    &:hover {
+      color: $post-link-hover !important;
+      text-decoration-color: $post-link-hover !important;
+    }
     &:visited {
-        color: $underline;
+        color: $post-link-green !important;
     }
 }
