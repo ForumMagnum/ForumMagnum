@@ -246,10 +246,66 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
+      order:30,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
       control: 'datetime'
+    }
+  },
+
+  {
+    fieldName: 'bonusKarmaAmount',
+    fieldSchema: {
+      type: Number,
+      order:50,
+      optional: true,
+      viewableBy: ['guests'],
+      placeholder: "10",
+      editableBy: ['sunshineRegiment', 'admins'],
+    }
+  },
+
+  {
+    fieldName: 'bonusKarmaReason',
+    fieldSchema: {
+      type: String,
+      order:60,
+      optional: true,
+      placeholder:"Bonus Karma Reason",
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+    }
+  },
+
+  {
+    fieldName: 'bonusKarmaDate',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      hidden:true,
+    }
+  },
+
+  {
+    fieldName: 'bonusKarmaUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      hidden: true,
+      resolveAs: {
+        fieldName: 'bonusKarmaUser',
+        type: 'User',
+        resolver: async (comment, args, context) => {
+          if (!comment.bonusKarmaUserId) return null;
+          const user = await context.Users.loader.load(comment.bonusKarmaUserId);
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+        },
+        addOriginalField: true
+      },
     }
   },
 
