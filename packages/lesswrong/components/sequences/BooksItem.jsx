@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, ModalTrigger, Components } from 'meteor/vulcan:core';
-import htmlToText from 'html-to-text';
-import Users from 'meteor/vulcan:users';
-import { editorHasContent } from '../../lib/modules/utils'
+import { registerComponent, Components } from 'meteor/vulcan:core';
 
 class BooksItem extends Component {
   constructor(props) {

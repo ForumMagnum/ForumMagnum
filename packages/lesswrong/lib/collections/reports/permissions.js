@@ -1,6 +1,5 @@
 import Users from 'meteor/vulcan:users';
 import Reports from './collection.js';
-import Conversations from '../conversations/collection.js'
 
 const membersActions = [
   'reports.new',

@@ -1,7 +1,6 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';
-import Chapters from '../chapters/collection.js';
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten

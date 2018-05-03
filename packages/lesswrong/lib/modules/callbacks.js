@@ -1,7 +1,6 @@
 import Notifications from '../collections/notifications/collection.js';
 import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
-import Sequences from '../collections/sequences/collection.js';
 import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
@@ -22,7 +21,6 @@ import { performSubscriptionAction } from '../subscriptions/mutations.js';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { anchorate } from 'anchorate';
 
 
 function updateConversationActivity (message) {
@@ -224,6 +222,7 @@ function PostsNewNotifications (post) {
 }
 addCallback("posts.new.async", PostsNewNotifications);
 
+
 // add new comment notification callback on comment submit
 function CommentsNewNotifications(comment) {
   // note: dummy content has disableNotifications set to true
@@ -275,18 +274,6 @@ function messageNewNotification(message) {
 addCallback("messages.new.async", messageNewNotification);
 
 
-
-
-
-
-//
-// function reactRouterAnchorTags(unusedItem) {
-//   anchorate();
-//   return unusedItem;
-// }
-//
-// addCallback("router.onUpdate", reactRouterAnchorTags);
-
 function userEditVoteBannedCallbacksAsync(user, oldUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
     runCallbacksAsync('users.voteBanned.async', user);
@@ -295,6 +282,7 @@ function userEditVoteBannedCallbacksAsync(user, oldUser) {
 }
 addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
 
+
 function userEditNullifyVotesCallbacksAsync(user, oldUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
     runCallbacksAsync('users.nullifyVotes.async', user);
@@ -302,6 +290,7 @@ function userEditNullifyVotesCallbacksAsync(user, oldUser) {
   return user;
 }
 addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
+
 
 function userEditDeleteContentCallbacksAsync(user, oldUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
