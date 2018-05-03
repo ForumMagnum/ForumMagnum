@@ -163,6 +163,14 @@ registerFragment(`
     website
     contactInfo
     isEvent
+    bonusKarmaAmount
+    bonusKarmaDate
+    bonusKarmaUser {
+      _id
+      slug
+      displayName
+    }
+    bonusKarmaReason
   }
 `);
 

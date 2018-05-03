@@ -241,3 +241,16 @@ function PostsNewDefaultTypes (post) {
 }
 
 addCallback("posts.new.sync", PostsNewDefaultTypes);
+
+function CommentsBonusKarmaCallback (modifier, post, currentUser) {
+  if (modifier.$set && modifier.$set.bonusKarmaAmount) {
+    modifier.$set = {
+      ...modifier.$set,
+      bonusKarmaUserId: currentUser._id,
+      bonusKarmaDate: new Date()
+    }
+  }
+  return modifier
+}
+
+addCallback("comments.edit.sync", CommentsBonusKarmaCallback);
