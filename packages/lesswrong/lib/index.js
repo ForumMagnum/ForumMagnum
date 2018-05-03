@@ -109,9 +109,6 @@ import './helpers.js'
 import './routes.js';
 import './views.js';
 //
-// Settings for Vulcan
-import './modules/settings.js';
-//
 // Closed Beta Stuff
 import './scripts/configuration.js';
 
