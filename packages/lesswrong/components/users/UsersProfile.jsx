@@ -22,7 +22,7 @@ const UsersProfile = (props) => {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
-    const draftTerms = {view: "drafts", userId: user._id }
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id }
     const terms = {view: "new", ...query, userId: user._id};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}

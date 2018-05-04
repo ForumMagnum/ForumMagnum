@@ -25,8 +25,8 @@ const viewDataDict = {
     rss:true
   },
   'community': {
-    label: 'Personal Blogposts',
-    description: "Personal blogposts by LessWrong users\n (as well as curated and frontpage).",
+    label: 'All Posts',
+    description: "Includes personal and meta blogposts\n (as well as curated and frontpage).",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
     rssView: "community-rss",
