@@ -13,6 +13,7 @@ $lw-small: 715px;
 $lw-medium: 950px;
 $lw-large: 1100px;
 $lw-huge: 1200px;
+$lw-huger: 1400px;
 
 $menu-break-width: $lw-large;
 $posts-page-section-header-break-width: $lw-huge;
@@ -101,6 +102,11 @@ $very-small-break-width: $lw-tiny;
 }
 @mixin min-huge(){ // smaller than small-break
   @media screen and (min-width: $lw-huge) {
+    @content;
+  }
+}
+@mixin min-huger(){ // smaller than small-break
+  @media screen and (min-width: $lw-huger) {
     @content;
   }
 }

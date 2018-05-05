@@ -668,6 +668,19 @@ Posts.addField([
   },
 
   {
+    fieldName: 'reviewed',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      control: 'checkbox'
+    }
+  },
+
+  {
     fieldName: 'startTime',
     fieldSchema: {
       type: Date,

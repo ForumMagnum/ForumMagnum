@@ -163,6 +163,7 @@ registerFragment(`
     website
     contactInfo
     isEvent
+    reviewed
   }
 `);
 

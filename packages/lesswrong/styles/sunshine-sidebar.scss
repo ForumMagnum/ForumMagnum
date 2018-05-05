@@ -1,0 +1,116 @@
+.sunshine-sidebar {
+  position:fixed;
+  top:0px;
+  right:0;
+  width:250px;
+  display:none;
+
+  @include min-huger() {
+    display:block
+  }
+}
+.sunshine-sidebar-title {
+  font-size:20px;
+  line-height:53px;
+  border-bottom:solid 1px rgba(0,0,0,.1);
+  margin:10px 0 0px 10px;
+}
+
+.sunshine-new-posts-item {
+  position:relative;
+  padding-left:10px;
+  border-bottom:solid 1px rgba(0,0,0,.05);
+
+  a:hover, a:visited {
+    text-decoration: none;
+    color:rgba(0,0,0,.35);
+  }
+
+  .sunshine-new-posts-actions {
+    opacity:0;
+  }
+  &:hover {
+    .sunshine-new-posts-actions {
+      opacity:1;
+    }
+    .sunshine-new-posts-title, .sunshine-new-posts-meta {
+      width:125px;
+    }
+  }
+}
+.sunshine-new-posts-karma {
+  width:15px;
+  display:inline-block;
+}
+.sunshine-new-posts-title {
+  display:block;
+  margin-right:7px;
+  padding-top:3px;
+  font-size:14px;
+  font-weight:600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow:hidden;
+  text-decoration: none;
+}
+.sunshine-new-posts-meta {
+  color:rgba(0,0,0,.5);
+  line-height:16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow:hidden;
+  text-decoration: none;
+
+  a {
+    margin-right:7px;
+  }
+}
+.sunshine-new-posts-actions {
+  position:absolute;
+  top:0;
+  right:0;
+  height:100%;
+}
+.sunshine-new-posts-action {
+  float:right;
+  width:35px;
+  margin-top:15px;
+
+  span {
+    position:relative !important;
+    top:-6px !important;
+  }
+
+  &:hover {
+    cursor:pointer;
+    span {
+      color:rgba(0,0,0,.4) !important;
+    }
+  }
+
+  &.review {
+    span {
+      position:relative !important;
+      top:-3px !important;
+    }
+  }
+  &.clear {
+    span {
+      position:relative !important;
+      top:-2px !important;
+      right:-3px;
+
+    }
+    &:hover {
+      .sunshine-new-posts-item-delete-overlay {
+        background:rgba(255,50,0,.2);
+        position:absolute;
+        top:0;
+        right:0;
+        width:247px;
+        height:45px;
+        pointer-events: none;
+      }
+    }
+  }
+}
