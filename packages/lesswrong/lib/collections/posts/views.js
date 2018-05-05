@@ -386,3 +386,18 @@ Posts.addView("communityFrontpagePosts", function () {
     },
   }
 })
+
+Posts.addView("sunshineNewPosts", function () {
+  const twoDaysAgo = moment().subtract(2, 'days').toDate();
+  return {
+    selector: {
+      reviewed: {$ne: true},
+      createdAt: {$gt: twoDaysAgo},
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  }
+})

@@ -122,6 +122,9 @@ import '../components/sunshineDashboard/SunshineDashboard.jsx';
 import '../components/sunshineDashboard/ReportsList.jsx';
 import '../components/sunshineDashboard/ReportItem.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
+import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
+import '../components/sunshineDashboard/SunshineNewPostsItem.jsx';
+import '../components/sunshineDashboard/SunshineSidebar.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

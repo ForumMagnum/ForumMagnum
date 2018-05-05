@@ -51,6 +51,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
           <div className="main">
             <Components.FlashMessages />
             {children}
+            <Components.SunshineSidebar />
           </div>
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
         </div>
