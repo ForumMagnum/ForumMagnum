@@ -24,7 +24,9 @@ const FormSubmit = ({
   <div className="form-submit">
 
     {collectionName === "posts" && <span className="post-submit-buttons">
-      {!document.isEvent && <FlatButton
+      { !document.isEvent &&
+        !document.meta &&
+        Users.canDo(currentUser, 'posts.curate.all') && <FlatButton
         type="submit"
         hoverColor={"rgba(0, 0, 0, 0.05)"}
         style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
@@ -44,7 +46,7 @@ const FormSubmit = ({
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
         onTouchTap={() => addToAutofilledValues({draft: true})}/>
 
-      {Users.canDo(currentUser, 'posts.curate.all') && <FlatButton
+      {Users.canDo(currentUser, 'posts.curate.all') && !document.meta && <FlatButton
         type="submit"
         hoverColor={"rgba(0, 0, 0, 0.05)"}
         style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}

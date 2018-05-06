@@ -89,6 +89,8 @@ Posts.addView("curated-rss", terms => ({
 Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
+    meta: null,
+    $or: [{meta: false}, {sticky:false}],
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -192,6 +194,7 @@ Posts.addView("drafts", terms => {
       userId: terms.userId,
       draft: true,
       unlisted: null,
+      meta: null,
     },
     options: {
       sort: {createdAt: -1}
