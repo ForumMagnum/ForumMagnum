@@ -47,7 +47,11 @@ const Home = (props, context) => {
     case "frontpage":
       recentPostsTitle = "Frontpage Posts"; break;
     case "curated":
-      recentPostsTitle = "More Curated"; break;
+      if (currentUser) {
+        recentPostsTitle = "More Curated"; break;
+      } else {
+        recentPostsTitle = "Curated Posts"; break;
+      }
     case "community":
       recentPostsTitle = "All Posts"; break;
     default:
