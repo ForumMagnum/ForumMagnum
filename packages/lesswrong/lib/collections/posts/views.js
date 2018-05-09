@@ -404,3 +404,17 @@ Posts.addView("sunshineNewPosts", function () {
     }
   }
 })
+
+Posts.addView("sunshineCuratedSuggestions", function () {
+  return {
+    selector: {
+      suggestForCuratedUserIds: {$exists:true, $not: {$size: 0}},
+      reviewForCuratedUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
+  }
+})

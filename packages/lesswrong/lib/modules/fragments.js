@@ -164,6 +164,9 @@ registerFragment(`
     contactInfo
     isEvent
     reviewed
+    suggestForCuratedUserIds
+    suggestForCuratedUsernames
+    reviewForCuratedUserId
   }
 `);
 

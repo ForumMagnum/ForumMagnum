@@ -52,6 +52,7 @@ import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersNameWrapper.jsx';
+import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
@@ -124,6 +125,8 @@ import '../components/sunshineDashboard/ReportItem.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsItem.jsx';
+import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
+import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';
 
 // SequenceEditor
