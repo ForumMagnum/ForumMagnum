@@ -1,6 +1,6 @@
 # What's Lesswrong2?
 
-Lesswrong2 is a clean-slate overhaul of the [lesswrong](http://lesswrong.com) discussion platform. 
+Lesswrong2 is a clean-slate overhaul of the [lesswrong](http://lesswrong.com) discussion platform.
 
 The old lesswrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
 
@@ -125,7 +125,7 @@ In the future, it will be possible to create a user using the website itself, bu
 meteor shell
 Accounts.createUser({username:'<USERNAME>', email:'<EMAIL ADDRESS>', password:'<PASSWORD>'})
 ```
-This will return the _id of the new user. 
+This will return the _id of the new user.
 
 The first user you create will be an admin. If you'd like to create additional admins, you can exit the meteor shell and enter the mongo shell, using the new _id to change their admin status:
 
