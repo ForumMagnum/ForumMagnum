@@ -164,6 +164,7 @@ class PostsPage extends Component {
         <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
+        <Components.SuggestCurated post={post}/>
         {Posts.options.mutations.edit.check(this.props.currentUser, post) ?
           <div className="posts-page-content-body-metadata-action">
             <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
@@ -344,5 +345,5 @@ registerComponent(
   // HOC to provide a single mutation, based on mutationOptions
   withMutation(mutationOptions),
   // HOC to give access to the redux store & related actions
-  connect(mapStateToProps, mapDispatchToProps),
+  connect(mapStateToProps, mapDispatchToProps)
 );

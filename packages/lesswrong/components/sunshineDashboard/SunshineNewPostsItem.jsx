@@ -42,14 +42,14 @@ class SunshineNewPostsItem extends Component {
     if (this.props.post) {
       const post = this.props.post
       return (
-        <div className="sunshine-new-posts-item">
+        <div className="sunshine-sidebar-posts-item new-post">
           <Link to={Posts.getPageUrl(post)}
-            className="sunshine-new-posts-title">
+            className="sunshine-sidebar-posts-title">
               {post.title}
           </Link>
-          <div className="sunshine-new-posts-meta">
+          <div className="sunshine-sidebar-posts-meta">
             <Link
-              className="sunshine-new-posts-author"
+              className="sunshine-sidebar-posts-author"
               to={Users.getProfileUrl(post.user)}>
                 {post.user.displayName}
             </Link>
@@ -60,10 +60,11 @@ class SunshineNewPostsItem extends Component {
                 currentUser={this.props.currentUser}/>
             </div>
           </div>
-          <div className="sunshine-new-posts-actions">
+          <div className="sunshine-sidebar-posts-actions new-post">
             <Link
-              className="sunshine-new-posts-action clear"
+              className="sunshine-sidebar-posts-action clear"
               target="_blank"
+              title="Move to Drafts"
               to={Users.getProfileUrl(post.user)}
               onTouchTap={this.handleDelete}>
                 <FontIcon
@@ -71,26 +72,28 @@ class SunshineNewPostsItem extends Component {
                   className="material-icons">
                     clear
                 </FontIcon>
-                <div className="sunshine-new-posts-item-delete-overlay">
+                <div className="sunshine-sidebar-posts-item-delete-overlay">
 
                 </div>
             </Link>
             <span
-              className="sunshine-new-posts-action frontpage"
+              className="sunshine-sidebar-posts-action frontpage"
+              title="Move to Frontpage"
               onTouchTap={this.handleFrontpage}>
               <FontIcon
                 style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">
-                  supervisor_account
+                  thumb_up
               </FontIcon>
             </span>
             <span
-              className="sunshine-new-posts-action review"
+              className="sunshine-sidebar-posts-action review"
+              title="Leave on Personal Blog"
               onTouchTap={this.handleReview}>
               <FontIcon
                 style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">
-                  thumb_up
+                  done
               </FontIcon>
             </span>
           </div>

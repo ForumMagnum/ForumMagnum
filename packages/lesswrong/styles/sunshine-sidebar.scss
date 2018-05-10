@@ -1,59 +1,64 @@
 .sunshine-sidebar {
-  position:fixed;
+  position:absolute;
   top:0px;
   right:0;
   width:250px;
+  padding-top:52px;
   display:none;
 
-  @include min-huger() {
+  @include min-huge() {
     display:block
   }
 }
 .sunshine-sidebar-title {
-  font-size:20px;
-  line-height:53px;
-  border-bottom:solid 1px rgba(0,0,0,.1);
-  margin:10px 0 0px 10px;
+  border-top:solid 1px rgba(0,0,0,.3);
+  font-size:15px;
+  font-weight:600;
+  line-height:40px;
+  padding:5px 0 0px 5px;
+  margin-top:10px;
+  font-family: $comments-font;
 }
 
-.sunshine-new-posts-item {
+.sunshine-sidebar-posts-item {
   position:relative;
-  padding-left:10px;
-  border-bottom:solid 1px rgba(0,0,0,.05);
+  padding-left:15px;
+  border-top:solid 1px rgba(0,0,0,.1);
 
   a:hover, a:visited {
     text-decoration: none;
     color:rgba(0,0,0,.35);
   }
 
-  .sunshine-new-posts-actions {
+  .sunshine-sidebar-posts-actions {
     opacity:0;
   }
   &:hover {
-    .sunshine-new-posts-actions {
+    .sunshine-sidebar-posts-actions {
       opacity:1;
     }
-    .sunshine-new-posts-title, .sunshine-new-posts-meta {
-      width:125px;
+    .sunshine-sidebar-posts-title, .sunshine-sidebar-posts-meta {
+      width:105px;
     }
   }
 }
-.sunshine-new-posts-karma {
+.sunshine-sidebar-posts-karma {
   width:15px;
   display:inline-block;
 }
-.sunshine-new-posts-title {
+.sunshine-sidebar-posts-title {
   display:block;
   margin-right:7px;
   padding-top:3px;
   font-size:14px;
   font-weight:600;
+  color:rgba(0,0,0,.6);
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow:hidden;
   text-decoration: none;
 }
-.sunshine-new-posts-meta {
+.sunshine-sidebar-posts-meta {
   color:rgba(0,0,0,.5);
   line-height:16px;
   text-overflow: ellipsis;
@@ -64,14 +69,18 @@
   a {
     margin-right:7px;
   }
+
+  span, div {
+    margin-right:5px;
+  }
 }
-.sunshine-new-posts-actions {
+.sunshine-sidebar-posts-actions {
   position:absolute;
   top:0;
   right:0;
   height:100%;
 }
-.sunshine-new-posts-action {
+.sunshine-sidebar-posts-action {
   float:right;
   width:35px;
   margin-top:15px;
@@ -102,7 +111,7 @@
 
     }
     &:hover {
-      .sunshine-new-posts-item-delete-overlay {
+      .sunshine-sidebar-posts-item-delete-overlay {
         background:rgba(255,50,0,.2);
         position:absolute;
         top:0;
@@ -113,4 +122,23 @@
       }
     }
   }
+}
+
+.sunshine-curated-suggestions-list {
+  padding-bottom:200px;
+
+  .sunshine-sidebar-posts-item {
+    opacity:.1;
+  }
+
+  &:hover {
+    .sunshine-sidebar-posts-item {
+      opacity:1;
+    }
+  }
+}
+.curated-suggestion-suggestion-by {
+  font-size:11px;
+  color:rgba(0,0,0,.5);
+  font-family:$comments-font;
 }

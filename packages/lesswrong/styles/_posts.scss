@@ -1486,3 +1486,15 @@ svg.drag-handle {
   color:rgba(100,170,105,.86);
   margin-right:6px;
 }
+
+.posts-page-suggest-curated-button {
+  cursor:pointer;
+
+  &:hover {
+    color:rgba(0,0,0,.3);
+  }
+
+  &.suggested {
+    color:rgba(0,0,0,.4);
+  }
+}
