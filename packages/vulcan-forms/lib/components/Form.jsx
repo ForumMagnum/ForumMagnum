@@ -22,7 +22,10 @@ This component expects:
 
 */
 
-import { registerComponent, Components, runCallbacks, getCollection, getErrors, isIntlField } from 'meteor/vulcan:core';
+import {
+  registerComponent, Components, runCallbacks, getCollection,
+  getErrors, getSetting, Utils
+} from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
@@ -337,7 +340,7 @@ class Form extends Component {
     - path: for field-specific errors, the path of the field with the issue
     - properties: additional data. Will be passed to vulcan-i18n as values
     - message: if id cannot be used as i81n key, message will be used
-    
+
   */
   throwError = error => {
     let formErrors = getErrors(error);
@@ -531,6 +534,9 @@ class Form extends Component {
 
     // run error callback if it exists
     if (this.props.errorCallback) this.props.errorCallback(document, error);
+
+    // scroll back up to show error messages
+    Utils.scrollIntoView('.flash-message');
   };
 
   /*
