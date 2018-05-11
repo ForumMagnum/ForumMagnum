@@ -32,7 +32,6 @@ const UsersProfile = (props) => {
       const user = props.document;
       return (<div className="users-profile-actions">
         { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        { user.website && <div><a href={user.website}>{user.website}</a></div> }
         {props.currentUser && props.currentUser.isAdmin && <ModalTrigger label="Register new RSS Feed">
           <div><Components.newFeedButton user={user} /></div>
         </ModalTrigger>}
