@@ -252,4 +252,39 @@ Comments.addField([
     }
   },
 
+  {
+    fieldName: 'needsReview',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      control: "checkbox",
+      hidden: true,
+    }
+  },
+
+  {
+    fieldName: 'reviewedByUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      hidden: true,
+      resolveAs: {
+        fieldName: 'reviewedByUser',
+        type: 'User',
+        resolver: async (comment, args, context) => {
+          if (!comment.reviewedByUserId) return null;
+          const user = await context.Users.loader.load(comment.reviewedByUserId);
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+        },
+        addOriginalField: true
+      },
+    }
+  }
+
 ]);
