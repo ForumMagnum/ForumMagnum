@@ -125,6 +125,8 @@ import '../components/sunshineDashboard/ReportItem.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsItem.jsx';
+import '../components/sunshineDashboard/SunshineCommentsItem.jsx';
+import '../components/sunshineDashboard/SunshineCommentsList.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';

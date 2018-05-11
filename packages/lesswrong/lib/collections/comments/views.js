@@ -1,4 +1,5 @@
 import { Comments } from 'meteor/example-forum';
+import moment from 'moment';
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
@@ -93,5 +94,18 @@ Comments.addView("postCommentsUnread", function (terms) {
       deleted: {$ne: true }
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
+  };
+});
+
+Comments.addView("sunshineNewCommentsList", function (terms) {
+  const twoDaysAgo = moment().subtract(2, 'days').toDate();
+  return {
+    selector: {
+      needsReview: true,
+      reviewedByUserId: {$exists:false},
+      deletedPublic: {$ne: true},
+      postedAt: {$gt: twoDaysAgo},
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
