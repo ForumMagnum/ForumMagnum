@@ -38,7 +38,7 @@ class SuggestCurated extends Component {
         post.frontpageDate &&
         !post.curatedDate &&
         !post.reviewForCuratedUserId &&
-        Users.canDo(this.props.currentUser, "posts.suggestCurate")) {
+        Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return <div className="posts-page-suggest-curated">
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
             <span
