@@ -66,6 +66,15 @@ class SunshineCuratedSuggestionsItem extends Component {
             className="sunshine-sidebar-posts-title">
               {post.title}
           </Link>
+          <div className="sunshine-sidebar-content-hoverover">
+            <Link to={Posts.getPageUrl(post)}>
+              <h4>{ post.title }</h4>
+            </Link>
+            { post.url && <p className="sunshine-post-highlight-linkpost">
+              This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+            </p>}
+            <div dangerouslySetInnerHTML={{__html:post.htmlHighlight}} />
+          </div>
           <div className="sunshine-sidebar-item-meta">
             <span className="karma">
               { post.baseScore }
