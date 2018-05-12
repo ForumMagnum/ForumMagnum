@@ -28,6 +28,15 @@ Reports.addView("adminClaimedReports", function (terms) {
   };
 });
 
+Reports.addView("sunshineSidebarReports", function (terms) {
+  return {
+    selector: {
+      closedAt: {$exists: false}
+    },
+    options: {sort: {createdAt: 1}}
+  };
+});
+
 Reports.addView("closedReports", function (terms) {
   return {
     selector: {closedAt: {$exists: true }},

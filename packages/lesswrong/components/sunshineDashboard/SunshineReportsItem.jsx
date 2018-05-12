@@ -1,26 +1,35 @@
 import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Comments, Posts } from 'meteor/example-forum';
+import { Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
+import moment from 'moment';
 
-class SunshineCommentsItem extends Component {
+class SunshineReportsItem extends Component {
 
   handleReview = () => {
-    const { currentUser, comment, editMutation } = this.props
-    editMutation({
-      documentId: comment._id,
-      set: {reviewedByUserId : currentUser._id},
+    const { currentUser, report, reportEditMutation } = this.props
+    reportEditMutation({
+      documentId: report._id,
+      set: {
+        closedAt: new Date(),
+        claimedUserId: currentUser._id
+      },
       unset: {}
     })
   }
 
   handleDelete = () => {
-    const { currentUser, comment, editMutation } = this.props
+    const {
+      currentUser,
+      report,
+      editMutation,
+      reportEditMutation
+    } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       editMutation({
-        documentId: comment._id,
+        documentId: report.commentId,
         set: {
           deleted: true,
           deletedDate: new Date(),
@@ -29,22 +38,35 @@ class SunshineCommentsItem extends Component {
         },
         unset: {}
       })
+      reportEditMutation({
+        documentId: report._id,
+        set: {
+          closedAt: new Date(),
+          claimedUserId: currentUser._id
+        },
+        unset: {}
+      })
     }
   }
 
   render () {
-    const comment = this.props.comment
-    let commentExcerpt = comment.body.substring(0,40).split("\n\n");
-    if (comment) {
+    const report = this.props.report
+    if (report) {
       return (
-        <div className="sunshine-sidebar-item new-comment">
-          <Components.SunshineCommentsItemOverview comment={comment}/>
+        <div className="sunshine-sidebar-item new-report">
+          <Components.SunshineCommentsItemOverview comment={report.comment}/>
+          <div className="sunshine-sidebar-reported-by">
+            Reported by {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
+          </div>
+          <div className="sunshine-sidebar-report-description">
+            { report.description }
+          </div>
           <div className="sunshine-sidebar-posts-actions new-comment">
             <Link
               className="sunshine-sidebar-posts-action new-comment clear"
               target="_blank"
               title="Spam/Eugin (delete immediately)"
-              to={Users.getProfileUrl(comment.user)}
+              to={Users.getProfileUrl(report.comment.user)}
               onTouchTap={this.handleDelete}>
                 <FontIcon
                   style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
@@ -78,4 +100,9 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withCurrentUser);
+registerComponent(
+  'SunshineReportsItem',
+  SunshineReportsItem,
+  [withEdit, withEditOptions],
+  withCurrentUser
+);

@@ -42,23 +42,20 @@ class SunshineNewPostsItem extends Component {
     if (this.props.post) {
       const post = this.props.post
       return (
-        <div className="sunshine-sidebar-posts-item new-post">
+        <div className="sunshine-sidebar-item new-post">
           <Link to={Posts.getPageUrl(post)}
             className="sunshine-sidebar-posts-title">
               {post.title}
           </Link>
-          <div className="sunshine-sidebar-posts-meta">
+          <div className="sunshine-sidebar-item-meta">
+            <span className="karma">
+              { post.baseScore }
+            </span>
             <Link
               className="sunshine-sidebar-posts-author"
               to={Users.getProfileUrl(post.user)}>
                 {post.user.displayName}
             </Link>
-            <div className="posts-item-vote">
-              <Components.Vote
-                collection={Posts}
-                document={post}
-                currentUser={this.props.currentUser}/>
-            </div>
           </div>
           <div className="sunshine-sidebar-posts-actions new-post">
             <Link

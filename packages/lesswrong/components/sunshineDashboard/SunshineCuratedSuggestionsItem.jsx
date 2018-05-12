@@ -61,12 +61,15 @@ class SunshineCuratedSuggestionsItem extends Component {
     if (this.props.post) {
       const { currentUser, post } = this.props
       return (
-        <div className="sunshine-sidebar-posts-item curated-suggestion">
+        <div className="sunshine-sidebar-item curated-suggestion">
           <Link to={Posts.getPageUrl(post)}
             className="sunshine-sidebar-posts-title">
               {post.title}
           </Link>
-          <div className="sunshine-sidebar-posts-meta">
+          <div className="sunshine-sidebar-item-meta">
+            <span className="karma">
+              { post.baseScore }
+            </span>
             <Link
               className="sunshine-sidebar-posts-author"
               to={Users.getProfileUrl(post.user)}>
@@ -75,12 +78,6 @@ class SunshineCuratedSuggestionsItem extends Component {
             {post.postedAt && <span className="posts-item-date">
               {moment(new Date(post.postedAt)).fromNow()}
             </span>}
-            <div className="posts-item-vote">
-              <Components.Vote
-                collection={Posts}
-                document={post}
-                currentUser={this.props.currentUser}/>
-            </div>
           </div>
           <div className="curated-suggestion-suggestion-by">
             Endorsed by { post.suggestForCuratedUsernames }

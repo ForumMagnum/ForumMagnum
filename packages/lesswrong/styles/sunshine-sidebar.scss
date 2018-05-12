@@ -3,7 +3,7 @@
   top:0px;
   right:0;
   width:250px;
-  padding-top:52px;
+  padding-top:62px;
   display:none;
   background: white;
 
@@ -12,18 +12,17 @@
   }
 }
 .sunshine-sidebar-title {
-  border-top:solid 1px rgba(0,0,0,.3);
+  border-top:solid 1px rgba(0,0,0,.2);
   font-size:15px;
   font-weight:600;
   line-height:40px;
-  padding:5px 0 0px 5px;
-  margin-top:10px;
+  padding-left:12px;
   font-family: $comments-font;
 }
 
-.sunshine-sidebar-posts-item {
+.sunshine-sidebar-item {
   position:relative;
-  padding-left:15px;
+  padding:2px 0 2px 15px;
   border-top:solid 1px rgba(0,0,0,.1);
 
   .sunshine-sidebar-content-hoverover {
@@ -39,30 +38,30 @@
     opacity:0;
   }
   &:hover {
-    background:rgb(247,247,247);
+    background:rgb(250,250,250);
     .sunshine-sidebar-posts-actions {
       opacity:1;
     }
     .sunshine-sidebar-content-hoverover {
-      background:rgb(247,247,247);
+      background:rgb(250,250,250);
       padding:10px 20px 10px 10px;
       border:solid 1px rgba(0,0,0,.1);
-      border-right:none;
       box-shadow:-3px 0 5px 0px rgba(0,0,0,.1);
       display:inline;
       position:absolute;
-      right:240px;
+      right:250px;
       top:-1px;
       float:left;
       width:500px;
       z-index: 1;
     }
-    .sunshine-sidebar-posts-title, .sunshine-sidebar-posts-meta {
+    .sunshine-sidebar-posts-title,
+    .sunshine-sidebar-item-meta {
       width:105px;
     }
   }
-  &.new-comment:hover {
-    .sunshine-sidebar-posts-title, .sunshine-sidebar-posts-meta {
+  &.new-comment:hover, &.new-report:hover {
+    .sunshine-sidebar-comment-excerpt, .sunshine-sidebar-item-meta {
       width:145px;
     }
   }
@@ -75,7 +74,7 @@
   display:block;
   margin-right:7px;
   padding-top:3px;
-  font-size:14px;
+  font-size:13px;
   font-weight:600;
   color:rgba(0,0,0,.6);
   text-overflow: ellipsis;
@@ -83,13 +82,21 @@
   overflow:hidden;
   text-decoration: none;
 }
-.sunshine-sidebar-posts-meta {
-  color:rgba(0,0,0,.5);
-  line-height:16px;
+.sunshine-sidebar-comment-excerpt {
+  display:block;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow:hidden;
   text-decoration: none;
+}
+.sunshine-sidebar-item-meta {
+  color:rgba(0,0,0,.5);
+  line-height:14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow:hidden;
+  text-decoration: none;
+  font-size:12px;
 
   a {
     margin-right:7px;
@@ -166,19 +173,49 @@
 
 .sunshine-curated-suggestions-list {
   padding-bottom:200px;
-
-  .sunshine-sidebar-posts-item {
-    opacity:.1;
-  }
+  opacity:.1;
 
   &:hover {
-    .sunshine-sidebar-posts-item {
-      opacity:1;
-    }
+    opacity:1;
   }
 }
-.curated-suggestion-suggestion-by {
+
+@mixin sidebar-smalltext-style {
   font-size:11px;
   color:rgba(0,0,0,.5);
   font-family:$comments-font;
+  color:rgba(0,0,0,.35);
+}
+
+.sunshine-sidebar-reported-comments-item {
+  &:hover {
+    background:rgb(250,250,250);
+  }
+}
+
+.sunshine-new-posts-list {
+  background:rgba(0,80,0,.04);
+}
+.sunshine-reported-comments-list {
+  background:rgba(60,0,0,.04);
+}
+.sunshine-new-comments-list {
+  background:rgba(120,120,0,.08);
+}
+
+.sunshine-sidebar-reported-by {
+  margin-right:10px;
+  @include sidebar-smalltext-style;
+}
+.sunshine-sidebar-report-description {
+  padding:0 10px 8px 0;
+  line-height:12px;
+  @include sidebar-smalltext-style;
+}
+.curated-suggestion-suggestion-by {
+  @include sidebar-smalltext-style;
+}
+
+.sunshine-sidebar hr {
+  margin:0;
 }
