@@ -8,19 +8,21 @@ import FontIcon from 'material-ui/FontIcon';
 class SunshineNewPostsItem extends Component {
 
   handleReview = () => {
-    this.props.editMutation({
-      documentId: this.props.post._id,
-      set: {reviewed: true},
+    const { currentUser, post, editMutation } = this.props
+    editMutation({
+      documentId: post._id,
+      set: {reviewedByUserId: currentUser._id},
       unset: {}
     })
   }
 
   handleFrontpage = () => {
-    this.props.editMutation({
-      documentId: this.props.post._id,
+    const { currentUser, post, editMutation } = this.props
+    editMutation({
+      documentId: post._id,
       set: {
         frontpageDate: new Date(),
-        reviewed: true
+        reviewedByUserId: currentUser._id
       },
       unset: {}
     })

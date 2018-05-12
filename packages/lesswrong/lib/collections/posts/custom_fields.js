@@ -708,15 +708,24 @@ Posts.addField([
   },
 
   {
-    fieldName: 'reviewed',
+    fieldName: 'reviewedByUserId',
     fieldSchema: {
-      type: Boolean,
+      type: String,
       optional: true,
-      defaultValue: false,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['sunshineRegiment', 'admins'],
-      control: 'checkbox'
+      hidden: true,
+      resolveAs: {
+        fieldName: 'reviewedByUser',
+        type: 'User',
+        resolver: async (post, args, context) => {
+          if (!post.reviewedByUserId) return null;
+          const user = await context.Users.loader.load(post.reviewedByUserId);
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+        },
+        addOriginalField: true
+      },
     }
   },
 
