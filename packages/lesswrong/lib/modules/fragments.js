@@ -499,12 +499,33 @@ registerFragment(`
     }
     commentId
     comment {
+      _id
+      userId
+      user {
+        ...UsersMinimumInfo
+      }
       body
+      htmlBody
+      baseScore
+      postedAt
+      deleted
+      postId
+      post {
+        _id
+        slug
+        title
+        isEvent
+      }
     }
     postId
     post {
+      _id
+      slug
       title
+      isEvent
     }
+    closedAt
+    createdAt
     claimedUserId
     claimedUser {
       _id

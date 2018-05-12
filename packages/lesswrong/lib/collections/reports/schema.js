@@ -14,6 +14,7 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
+    hidden: true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
@@ -29,6 +30,7 @@ const schema = {
     optional: false,
     viewableBy: ['guests'],
     insertableBy: ['members'],
+    hidden: true,
     resolveAs: {
       fieldName: 'comment',
       type: 'Comment',
@@ -43,6 +45,7 @@ const schema = {
     optional: false,
     viewableBy: ['guests'],
     insertableBy: ['members'],
+    hidden: true,
     resolveAs: {
       fieldName: 'post',
       type: 'Post',
@@ -58,11 +61,13 @@ const schema = {
     insertableBy: ['members'],
     viewableBy: ['guests'],
     searchable: true,
+    hidden: true,
   },
   claimedUserId: {
     type: String,
     optional: true,
     viewableBy: ['guests'],
+    hidden: true,
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     resolveAs: {
@@ -80,6 +85,8 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    label: "Reason",
+    placeholder: "What are you reporting this comment for?",
     searchable: true,
   },
   createdAt: {

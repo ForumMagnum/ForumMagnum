@@ -7,7 +7,9 @@ const SunshineSidebar = (props) => {
     return (
       <div className="sunshine-sidebar">
         <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-        <Components.SunshineCommentsList terms={{view:"sunshineNewCommentsList"}}/>
+        <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
+        <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
+        <hr/>
         <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
       </div>
     )
