@@ -163,7 +163,7 @@ registerFragment(`
     website
     contactInfo
     isEvent
-    reviewed
+    reviewedByUserId
     suggestForCuratedUserIds
     suggestForCuratedUsernames
     reviewForCuratedUserId

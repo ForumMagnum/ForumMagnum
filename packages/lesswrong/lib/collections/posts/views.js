@@ -394,7 +394,7 @@ Posts.addView("sunshineNewPosts", function () {
   const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
-      reviewed: {$ne: true},
+      reviewedByUserId: {$exists: false},
       createdAt: {$gt: twoDaysAgo},
     },
     options: {
