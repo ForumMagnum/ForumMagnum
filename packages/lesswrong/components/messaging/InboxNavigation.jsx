@@ -31,7 +31,8 @@ class InboxNavigation extends Component {
       let notificationsSelect = (select == "Notifications");
 
       let conversationDetails = conversation ? <Components.ConversationDetails conversation={conversation}/> : <div></div>
-      let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : <p>You have no notifications.</p>
+      let thereAreNone = notificationsSelect ? <p>'You have no notifications.'</p> : <p>'There are no messages in this conversation.'</p>
+      let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : {thereAreNone}
 
       return (
         <Grid>
