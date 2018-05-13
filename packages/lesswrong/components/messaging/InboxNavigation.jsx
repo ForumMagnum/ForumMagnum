@@ -73,7 +73,7 @@ class InboxNavigation extends Component {
         </ListGroup>
       );
     } else {
-      return <div>Loading...</div>;
+      return <div></div>;
     }
   }
 
