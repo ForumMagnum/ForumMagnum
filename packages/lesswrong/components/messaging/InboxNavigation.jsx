@@ -30,6 +30,7 @@ class InboxNavigation extends Component {
       let conversation = results.length ? results.find(c => (c._id == select)) : null;
       let notificationsSelect = (select == "Notifications");
 
+      let conversationDetails = conversation ? <Components.ConversationDetails conversation={conversation}/> : <div></div>
       let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : <p>You have no notifications.</p>
 
       return (
@@ -39,7 +40,7 @@ class InboxNavigation extends Component {
             <Col xs={12} style={{position: "inherit"}} md={(notificationsSelect ? 9 : 6)}>
               {notificationsSelect ? notificationsWrapper : <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />}
             </Col>
-            {notificationsSelect ? <div></div> : <Col xs={12} md={3}><Components.ConversationDetails conversation={conversation}/></Col>}
+            {notificationsSelect ? <div></div> : <Col xs={12} md={3}>{conversationDetails}</Col>}
           </Row>
         </Grid>
       )
