@@ -16,18 +16,36 @@ class Vote extends PureComponent {
     this.hasVoted = this.hasVoted.bind(this);
   }
 
-  vote(e, type) {
+  vote(e, type, canBigVote) {
 
     e.preventDefault();
 
     const document = this.props.document;
     const collection = this.props.collection;
     const user = this.props.currentUser;
+    let newType = _.clone(type)
 
     if(!user){
       this.props.flash(this.context.intl.formatMessage({id: 'users.please_log_in'}));
     } else {
-      this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
+      console.log(canBigVote)
+      switch (type) {
+        case "bigUpvote":
+          if (canBigVote) {
+            return this.props.vote({document, voteType: newType, collection, currentUser: this.props.currentUser});
+          }
+          newType = "smallUpvote"
+          break;
+        case "bigDownvote":
+          if (canBigVote) {
+            return this.props.vote({document, voteType: newType, collection, currentUser: this.props.currentUser});
+          }
+          newType = "smallDownvote"
+          break;
+        default:
+          break;
+      }
+      this.props.vote({document, voteType: newType, collection, currentUser: this.props.currentUser});
     }
   }
 
@@ -36,14 +54,18 @@ class Vote extends PureComponent {
   }
 
   getActionClass() {
-    const isUpvoted = this.hasVoted('upvote');
-    const isDownvoted = this.hasVoted('downvote');
+    const isBigUpvoted = this.hasVoted('bigUpvote');
+    const isBigDownvoted = this.hasVoted('bigDownvote');
+    const isSmallUpvoted = this.hasVoted('smallUpvote') || this.hasVoted('bigUpvote');
+    const isSmallDownvoted = this.hasVoted('smallDownvote') || this.hasVoted('bigDownvote');
 
     const actionsClass = classNames(
       'vote',
-      {voted: isUpvoted || isDownvoted},
-      {upvoted: isUpvoted},
-      {downvoted: isDownvoted},
+      {voted: isBigUpvoted || isBigDownvoted || isSmallUpvoted || isSmallDownvoted},
+      {smallUpvoted: isSmallUpvoted},
+      {bigUpvoted: isBigUpvoted},
+      {smallDownvoted: isSmallDownvoted},
+      {bigDownvoted: isBigDownvoted},
     );
     return actionsClass;
   }
@@ -51,15 +73,29 @@ class Vote extends PureComponent {
   render() {
     return (
       <div className={this.getActionClass()}>
-        <div className="vote-count">{this.props.document.baseScore || 0} <span className="vote-count-text">{this.props.document.baseScore === 1 ? "point" : "points"}</span></div>
-        <a className="upvote-button" onClick={(e) => this.vote(e,'upvote')}>
-          <FontIcon className="material-icons">expand_less</FontIcon>
-          <div className="sr-only">Upvote</div>
-        </a>
-        <a className="downvote-button" onClick={(e) => this.vote(e,'downvote')}>
-          <FontIcon className="material-icons">expand_more</FontIcon>
-          <div className="sr-only">Downvote</div>
-        </a>
+        <span className="downvote-buttons">
+          <a className="big-downvote-button" onClick={(e) => this.vote(e,'bigDownvote', this.getActionClass().includes("smallDownvoted"))}>
+            <FontIcon className="material-icons">arrow_back_ios</FontIcon>
+            <div className="sr-only">Big Downvote</div>
+          </a>
+          <a className="small-downvote-button" onClick={(e) => this.vote(e,'smallDownvote')}>
+            <FontIcon className="material-icons">arrow_left</FontIcon>
+            <div className="sr-only">Small Downvote</div>
+          </a>
+        </span>
+        <div className="vote-count">
+          {this.props.document.baseScore || 0}
+        </div>
+        <span className="upvote-buttons">
+          <a className="small-upvote-button" onClick={(e) => this.vote(e,'smallUpvote')}>
+            <FontIcon className="material-icons">arrow_right</FontIcon>
+            <div className="sr-only">Small Upvote</div>
+          </a>
+          <a className="big-upvote-button" onClick={(e) => this.vote(e,'bigUpvote', this.getActionClass().includes("smallUpvoted"))}>
+            <FontIcon className="material-icons">arrow_forward_ios</FontIcon>
+            <div className="sr-only">Big Upvote</div>
+          </a>
+        </span>
       </div>
     )
   }

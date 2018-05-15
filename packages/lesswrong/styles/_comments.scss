@@ -104,12 +104,31 @@ $medium-text: $dark-grey;
       font-weight: 600;
     }
   }
-  .upvote-button, .downvote-button {
-    color: rgba(0,0,0,0.33);
-    .icon {
-      display: inline;
-      margin-left: 4px;
-      margin-right: 4px;
+  .small-upvote-button,
+  .small-downvote-button {
+    position:relative;
+    top:-2px;
+    .material-icons {
+      font-size:35px !important;
+    }
+  }
+  .big-upvote-button {
+    position:relative;
+    top:-2px;
+    // left: -2px;
+    .material-icons {
+      opacity:.25;
+      font-size:16px !important;
+      width:12px;
+    }
+  }
+  .big-downvote-button {
+    position:relative;
+    top:-2px;
+    .material-icons {
+      opacity:.25;
+      font-size:16px !important;
+      width:12px;
     }
   }
   .comments-item-bottom {
@@ -354,43 +373,35 @@ New CSS File
   .vote {
     .material-icons {
       vertical-align:middle;
-      font-size: 16px !important;
-      border-radius: 100%;
-      color: rgba(0,0,0,0.5) !important;
-      &:hover {
-        background-color: rgba(0,0,0,0.05);
-      }
+      line-height:16px;
+      font-weight:900;
+      color: rgba(0,0,0,0.3) !important;
     }
   }
 
-  .upvoted {
-    .upvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(100, 169, 105, 0.9) !important;
-      }
+  .smallUpvoted {
+    .small-upvote-button .material-icons {
+      color: rgba(100, 169, 105, 0.5) !important;
     }
-
-    .downvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
+    .big-upvote-button .material-icons {
+      opacity:.7;
     }
   }
-
-  .downvoted {
-    .downvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(160, 44, 44, 0.9) !important;
-      }
+  .bigUpvoted .big-upvote-button .material-icons {
+    color: rgba(100, 169, 105, 1) !important;
+    opacity:1;
+  }
+  .smallDownvoted {
+    .small-downvote-button .material-icons {
+      color: rgba(160, 44, 44, 0.5) !important;
     }
-
-    .upvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
+    .big-downvote-button .material-icons {
+      opacity:.7;
     }
+  }
+  .bigDownvoted .big-downvote-button .material-icons {
+    color: rgba(160, 44, 44, 1) !important;
+    opacity:1;
   }
 }
 
