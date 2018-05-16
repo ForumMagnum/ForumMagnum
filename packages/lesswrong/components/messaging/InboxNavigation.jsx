@@ -73,7 +73,7 @@ class InboxNavigation extends Component {
         </ListGroup>
       );
     } else {
-      return <div></div>;
+      return this.props.loading ? <div>Loading...</div> : <div></div>;
     }
   }
 
