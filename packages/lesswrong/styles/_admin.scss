@@ -1,3 +1,8 @@
+.admin-home-layout {
+  width:920px;
+  margin:auto;
+}
+
 .moderation-log, .admin-home.page {
   font-family:$comments-font;
 
@@ -22,6 +27,14 @@
   padding:10px;
   margin:1%;
   border-radius:2px;
+}
+
+.admin-recent-logins {
+  background-color:rgba(50,100,50,.1);
+}
+
+.admin-all-users {
+  background-color:rgba(100,50,50,.1);
 }
 
 .moderation-log-users-banned-from-posts,
