@@ -726,6 +726,7 @@
   .posts-page-content-body {
     position: relative;
     width: $post-width;
+    min-height:100px;
     font-size: 20px;
     margin-left: auto;
     margin-right: auto;
@@ -1496,5 +1497,27 @@ svg.drag-handle {
 
   &.suggested {
     color:rgba(0,0,0,.4);
+  }
+}
+
+.posts-page-admin-actions-wrapper {
+  height:50px;
+  .posts-page-admin-actions {
+    display:none;
+
+    div {
+      cursor:pointer;
+      &:hover {
+        color:rgba(0,0,0,.35);
+      }
+    }
+  }
+  &:hover {
+    .posts-page-admin-actions {
+      display:block;
+    }
+    .posts-page-admin-more-options {
+      color:rgba(0,0,0,.2);
+    }
   }
 }
