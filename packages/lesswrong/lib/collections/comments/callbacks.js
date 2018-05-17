@@ -231,14 +231,3 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
 }
 
 addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
-
-export async function CommentNeedsReview (comment) {
-  const user = Users.findOne(comment.userId)
-  if (user.karma < 10) {
-    Comments.update({_id: comment._id }, {$set: {
-      needsReview: true
-    }})
-  }
-}
-
-addCallback("comments.new.async", CommentNeedsReview);

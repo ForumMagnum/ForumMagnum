@@ -253,19 +253,6 @@ Comments.addField([
   },
 
   {
-    fieldName: 'needsReview',
-    fieldSchema: {
-      type: Boolean,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
-      control: "checkbox",
-      hidden: true,
-    }
-  },
-
-  {
     fieldName: 'reviewedByUserId',
     fieldSchema: {
       type: String,
