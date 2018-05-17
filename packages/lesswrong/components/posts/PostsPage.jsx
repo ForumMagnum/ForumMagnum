@@ -20,7 +20,7 @@ import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
-
+// import Users from "meteor/vulcan:users";
 
 class PostsPage extends Component {
   renderCommentViewSelector() {
@@ -164,14 +164,14 @@ class PostsPage extends Component {
         <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
-        <Components.SuggestCurated post={post}/>
-        {Posts.options.mutations.edit.check(this.props.currentUser, post) ?
+        {Posts.options.mutations.edit.check(this.props.currentUser, post) &&
           <div className="posts-page-content-body-metadata-action">
             <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
               Edit
             </Link>
-          </div> : null
+          </div>
         }
+        <Components.PostsPageAdminActions post={post} />
         {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
           <div className="posts-page-content-body-metadata-action">
             <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
