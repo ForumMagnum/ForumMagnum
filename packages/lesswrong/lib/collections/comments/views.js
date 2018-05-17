@@ -101,7 +101,7 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
   const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
-      needsReview: true,
+      baseScore: {$lt:2},
       reviewedByUserId: {$exists:false},
       deletedPublic: {$ne: true},
       postedAt: {$gt: twoDaysAgo},
