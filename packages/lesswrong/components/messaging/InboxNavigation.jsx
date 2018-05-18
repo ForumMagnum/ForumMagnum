@@ -27,10 +27,10 @@ class InboxNavigation extends Component {
     const messagesTerms = {view: 'messagesConversation', conversationId: select};
 
     if(currentUser && results) {
-      let conversation = results.length ? results.find(c => (c._id == select)) : null;
+      let conversation = results.length && results.find(c => (c._id == select));
       let notificationsSelect = (select == "Notifications");
 
-      let conversationDetails = conversation ? <Components.ConversationDetails conversation={conversation}/> : <div></div>
+      let conversationDetails = conversation && <Components.ConversationDetails conversation={conversation}/>
       let thereAreNone = notificationsSelect ? <p>You have no notifications.</p> : <p>There are no messages in this conversation.</p>
       let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : thereAreNone
 
@@ -73,7 +73,7 @@ class InboxNavigation extends Component {
         </ListGroup>
       );
     } else {
-      return this.props.loading ? <div>Loading...</div> : <div></div>;
+      return this.props.loading && <div>Loading...</div>;
     }
   }
 
