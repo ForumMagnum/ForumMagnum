@@ -124,3 +124,26 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
     res.end("Please provide a URL");
   }
 });
+
+// Route for old comment links
+
+Picker.route('/usersById/:_id', (params, req, res, next) => {
+  if(params._id){
+    try {
+      const user = Users.findOne({_id: params._id});
+      if (user) {
+        res.writeHead(301, {'Location': Users.getProfileUrl(user, true)});
+        res.end();
+      } else {
+        // don't redirect if we can't find a user with that _id
+        res.end(`No user found with: ${params._id}`);
+      }
+    } catch (error) {
+      console.log('// User by Id error')
+      console.log(error)
+      console.log(params)
+    }
+  } else {
+    res.end("Please provide a URL");
+  }
+});

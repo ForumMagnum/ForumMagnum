@@ -9,6 +9,7 @@ const SunshineSidebar = (props) => {
         <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
         <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
+        <Components.SunshineDownvotesList terms={{view:"sunshineDownvotes", limit:200}}/>
         <hr/>
         <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
       </div>

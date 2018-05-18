@@ -97,6 +97,11 @@ import './collections/users/permissions.js';
 import './collections/comments/custom_fields.js';
 import './collections/comments/permissions.js';
 import './collections/comments/views.js';
+
+// Votes
+import './collections/votes/custom_fields.js';
+import './collections/votes/views.js';
+import './collections/votes/fragments.js';
 //
 //
 //
