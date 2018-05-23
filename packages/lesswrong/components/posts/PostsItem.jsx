@@ -245,6 +245,11 @@ class PostsItem extends PureComponent {
               </p>}
               <div className="post-highlight" >
                 <div className="post-body" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+                <div className="post-highlight-continue">
+                  {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
+                    (Continue Reading{` – ${post.wordCount - 280} more words`})
+                  </Link>}
+                </div>
               </div>
               { this.renderHighlightMenu() }
             </div>

@@ -82,6 +82,9 @@ extendFragment('UsersCurrent', `
   moderationStyle
   markDownCommentEditor
   markDownPostEditor
+  location
+  googleLocation
+  mongoLocation
 `);
 
 registerFragment(`
@@ -160,6 +163,10 @@ registerFragment(`
     website
     contactInfo
     isEvent
+    reviewedByUserId
+    suggestForCuratedUserIds
+    suggestForCuratedUsernames
+    reviewForCuratedUserId
   }
 `);
 
@@ -335,30 +342,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment RecentDiscussionThreadsList on Post {
-    _id
-    slug
-    title
-    baseScore
-    postedAt
-    hideFrontpageComments
-    htmlHighlight
-    lastCommentedAt
-    commentCount
-    wordCount
-    excerpt
-    lastVisitedAt
-    userId
-    currentUserVotes{
-      ...VoteFragment
-    }
-    user {
-      ...UsersMinimumInfo
-    }
-  }
-`);
-
-registerFragment(`
   fragment SelectCommentsList on Comment {
     ...CommentsList
     post {
@@ -498,6 +481,9 @@ registerFragment(`
     sequenceDraftCount
     moderationStyle
     bannedUserIds
+    location
+    googleLocation
+    mongoLocation
   }
 `);
 
@@ -513,12 +499,33 @@ registerFragment(`
     }
     commentId
     comment {
+      _id
+      userId
+      user {
+        ...UsersMinimumInfo
+      }
       body
+      htmlBody
+      baseScore
+      postedAt
+      deleted
+      postId
+      post {
+        _id
+        slug
+        title
+        isEvent
+      }
     }
     postId
     post {
+      _id
+      slug
       title
+      isEvent
     }
+    closedAt
+    createdAt
     claimedUserId
     claimedUser {
       _id

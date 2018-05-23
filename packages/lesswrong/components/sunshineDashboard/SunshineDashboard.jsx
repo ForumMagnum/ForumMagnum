@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Components, registerComponent, withList, withCurrentUser, Loading , withEdit} from 'meteor/vulcan:core';
 import Reports from '../../lib/collections/reports/collection.js'
 import FlatButton from 'material-ui/FlatButton';
+import Users from 'meteor/vulcan:users';
+import { Error404 } from 'meteor/vulcan:core';
 
 const UserRenderer = (props) => <Components.UsersName user={props.document.user} />
 
@@ -47,25 +49,29 @@ const SunshineDashboard = (props, context) => {
         component: claimButton,
       }
     ]
-    return (
-      <div className="sunshine-dashboard">
-        <h1>Sunshine Dashboard</h1>
-        <h3>Unclaimed Reports</h3>
-        <Components.Datatable
-          showEdit={true}
-          collection={Reports}
-          columns={columns}
-          options={{
-            fragmentName: 'unclaimedReportsList',
-            terms: {view: 'unclaimedReports'},
-            limit: 20
-          }}
-        />
-      </div>
-    )
+    if (Users.canDo(props.currentUser, "posts.moderate.all")) {
+      return (
+        <div className="sunshine-dashboard">
+          <h1>Sunshine Dashboard</h1>
+          <h3>Unclaimed Reports</h3>
+          <Components.Datatable
+            showEdit={true}
+            collection={Reports}
+            columns={columns}
+            options={{
+              fragmentName: 'unclaimedReportsList',
+              terms: {view: 'unclaimedReports'},
+              limit: 20
+            }}
+          />
+        </div>
+      )
+    } else {
+      return <Error404/>
+    }
   }
 
-withEditOptions = {
+const withEditOptions = {
   collection: Reports,
   fragmentName: 'unclaimedReportsList',
 }

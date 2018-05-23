@@ -32,6 +32,11 @@ import RSSFeeds from './collections/rssfeeds/collection.js'
 import './collections/rssfeeds/views.js'
 import './rss-integration/callbacks.js'
 //
+// Reports
+import Reports from './collections/reports/collection.js'
+import './collections/reports/views.js'
+import './collections/reports/permissions.js'
+
 // LWEvents
 import LWEvents from './collections/lwevents/collection.js';
 import './collections/lwevents/permissions.js';
@@ -109,9 +114,6 @@ import './helpers.js'
 import './routes.js';
 import './views.js';
 //
-// Settings for Vulcan
-import './modules/settings.js';
-//
 // Closed Beta Stuff
 import './scripts/configuration.js';
 
@@ -130,6 +132,7 @@ export {
   Sequences,
   Collections,
   LWEvents,
+  Reports,
   Books,
   Bans,
   UserSequenceRels,

@@ -1,4 +1,5 @@
 import { Comments } from 'meteor/example-forum';
+import moment from 'moment';
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
@@ -67,13 +68,13 @@ Comments.addView("recentComments", function (terms) {
 });
 
 Comments.addView("recentDiscussionThread", function (terms) {
-  const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
+  const eighteenHoursAgo = new Date(new Date().getTime()-(18*60*60*1000));
   return {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
       deletedPublic: {$ne: true},
-      postedAt: {$gt: twoDaysAgo}
+      postedAt: {$gt: eighteenHoursAgo}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };
@@ -93,5 +94,18 @@ Comments.addView("postCommentsUnread", function (terms) {
       deleted: {$ne: true }
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
+  };
+});
+
+Comments.addView("sunshineNewCommentsList", function (terms) {
+  const twoDaysAgo = moment().subtract(2, 'days').toDate();
+  return {
+    selector: {
+      baseScore: {$lt:2},
+      reviewedByUserId: {$exists:false},
+      deletedPublic: {$ne: true},
+      postedAt: {$gt: twoDaysAgo},
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });

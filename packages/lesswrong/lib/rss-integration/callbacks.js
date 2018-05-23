@@ -1,5 +1,4 @@
-import { addCallback, editMutation } from 'meteor/vulcan:core';
-import RSSFeeds from '../collections/rssfeeds/collection.js';
+import { addCallback } from 'meteor/vulcan:core';
 
 async function populateRawFeed(feed) {
   const feedparser = require('feedparser-promised');

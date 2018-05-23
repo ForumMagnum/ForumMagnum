@@ -101,3 +101,26 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
     res.end("Please provide a URL");
   }
 });
+
+// Route for old images
+
+Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res, next) => {
+  if(params.imageName){
+    try {
+      res.writeHead(
+        301,
+        {'Location':
+          `https://raw.githubusercontent.com/tricycle/lesswrong/master/r2/r2/public/static/imported/${params.year}/${params.month}/${params.day}/${params.imageName}`
+        }
+      )
+      res.end()
+    } catch (error) {
+      console.log('// Legacy Comment error')
+      console.log(error)
+      console.log(params)
+      res.end("Invalid image url")
+    }
+  } else {
+    res.end("Please provide a URL");
+  }
+});

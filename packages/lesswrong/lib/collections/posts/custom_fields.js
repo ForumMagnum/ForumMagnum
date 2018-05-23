@@ -283,6 +283,46 @@ Posts.addField([
       group: formGroups.admin,
     }
   },
+  {
+    fieldName: 'suggestForCuratedUserIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['members'],
+      insertableBy: ['trustLevel1', 'sunshineRegiment', 'admins'],
+      editableBy: ['trustLevel1', 'sunshineRegiment', 'admins'],
+      optional: true,
+      label: "Suggested for Curated by",
+      control: "UsersListEditor",
+      resolveAs: {
+        fieldName: 'suggestForCuratedUsernames',
+        type: 'String',
+        resolver: (post, args, context) => {
+          // TODO - Turn this into a proper resolve field.
+          // Ran into weird issue trying to get this to be a proper "users"
+          // resolve field. Wasn't sure it actually needed to be anyway,
+          // did a hacky thing.
+          const users = _.map(post.suggestForCuratedUserIds,
+            (userId => {
+              return context.Users.findOne({ _id: userId }).displayName
+            })
+          )
+          if (users.length) {
+            return users.join(", ")
+          } else {
+            return null
+          }
+        },
+        addOriginalField: true,
+      }
+    }
+  },
+  {
+    fieldName: 'suggestForCuratedUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
 
   /**
     frontpageDate: Date at which the post was promoted to frontpage (null or false if it never has been promoted to frontpage)
@@ -664,6 +704,39 @@ Posts.addField([
       editableBy: ['sunshineRegiment'],
       insertableBy: ['members'],
       optional: true
+    }
+  },
+
+  {
+    fieldName: 'reviewedByUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      hidden: true,
+      resolveAs: {
+        fieldName: 'reviewedByUser',
+        type: 'User',
+        resolver: async (post, args, context) => {
+          if (!post.reviewedByUserId) return null;
+          const user = await context.Users.loader.load(post.reviewedByUserId);
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+        },
+        addOriginalField: true
+      },
+    }
+  },
+
+  {
+    fieldName: 'reviewForCuratedUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins']
     }
   },
 

@@ -1,7 +1,6 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';
-import Chapters from '../chapters/collection.js';
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
@@ -90,6 +89,8 @@ Posts.addView("curated-rss", terms => ({
 Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
+    meta: null,
+    $or: [{meta: false}, {sticky:false}],
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -193,6 +194,7 @@ Posts.addView("drafts", terms => {
       userId: terms.userId,
       draft: true,
       unlisted: null,
+      meta: null,
     },
     options: {
       sort: {createdAt: -1}
@@ -285,6 +287,8 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       baseScore: {$gt:0},
       hideFrontpageComments: {$ne: true},
       meta: null,
+      groupId: null,
+      isEvent: null,
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -327,15 +331,19 @@ Posts.addView("nearbyEvents", function (terms) {
 
 Posts.addView("events", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
+  const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   return {
     selector: {
       isEvent: true,
+      createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
       $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
     },
     options: {
       sort: {
-        time: -1,
+        baseScore: -1,
+        startTime: -1,
       }
     }
   }
@@ -379,5 +387,34 @@ Posts.addView("communityFrontpagePosts", function () {
     selector: {
       _id: {$in: ['bDnFhJBcLQvCY3vJW', 'YdcF6WbBmJhaaDqoD']}
     },
+  }
+})
+
+Posts.addView("sunshineNewPosts", function () {
+  const twoDaysAgo = moment().subtract(2, 'days').toDate();
+  return {
+    selector: {
+      reviewedByUserId: {$exists: false},
+      createdAt: {$gt: twoDaysAgo},
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  }
+})
+
+Posts.addView("sunshineCuratedSuggestions", function () {
+  return {
+    selector: {
+      suggestForCuratedUserIds: {$exists:true, $not: {$size: 0}},
+      reviewForCuratedUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
   }
 })

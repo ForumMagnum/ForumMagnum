@@ -26,6 +26,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ["admins"],
     insertableBy: ['admins'],
+    placeholder:"Title",
   },
 
   subtitle: {
@@ -34,6 +35,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ["admins"],
     insertableBy: ['admins'],
+    placeholder:"Subtitle",
   },
 
   description: {

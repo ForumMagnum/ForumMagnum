@@ -22,7 +22,7 @@ const UsersProfile = (props) => {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
-    const draftTerms = {view: "drafts", userId: user._id }
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id }
     const terms = {view: "new", ...query, userId: user._id};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
@@ -32,7 +32,6 @@ const UsersProfile = (props) => {
       const user = props.document;
       return (<div className="users-profile-actions">
         { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        { user.website && <div><a href={user.website}>{user.website}</a></div> }
         {props.currentUser && props.currentUser.isAdmin && <ModalTrigger label="Register new RSS Feed">
           <div><Components.newFeedButton user={user} /></div>
         </ModalTrigger>}

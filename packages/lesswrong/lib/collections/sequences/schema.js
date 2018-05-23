@@ -127,7 +127,7 @@ const schema = {
 
   gridImageId: {
     type: String,
-    optional: false,
+    optional: true,
     order:25,
     viewableBy: ['guests'],
     editableBy: ['members'],
@@ -140,7 +140,7 @@ const schema = {
 
   bannerImageId: {
     type: String,
-    optional: false,
+    optional: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],

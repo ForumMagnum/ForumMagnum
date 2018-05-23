@@ -1,5 +1,4 @@
 import './lib/index.js';
-// import './lib/init_script.js';
 import './lib/database-import/database_import.js';
 import './lib/database-import/database_import_new.js';
 import './lib/rss-integration/cron.js';

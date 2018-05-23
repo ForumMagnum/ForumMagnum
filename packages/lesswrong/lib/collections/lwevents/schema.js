@@ -4,8 +4,6 @@ A SimpleSchema-compatible JSON schema
 
 */
 
-import Users from 'meteor/vulcan:users';
-
 //define schema
 const schema = {
   _id: {

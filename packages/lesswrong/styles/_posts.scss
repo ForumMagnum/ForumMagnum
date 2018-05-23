@@ -726,6 +726,7 @@
   .posts-page-content-body {
     position: relative;
     width: $post-width;
+    min-height:100px;
     font-size: 20px;
     margin-left: auto;
     margin-right: auto;
@@ -1328,11 +1329,6 @@ svg.drag-handle {
     float: none;
   }
 }
-
-
-.search-results-posts-item {
-  cursor:pointer;
-}
 .posts-list-editor-item-title-link {
   float:right;
   margin-right:10px;
@@ -1412,6 +1408,9 @@ svg.drag-handle {
   max-width:600px;
   line-height:22px;
 }
+.recent-discussion-highlight-link-post {
+  font-size:13px;
+}
 
 .recent-discussion-thread-highlight {
   padding-bottom:10px;
@@ -1424,6 +1423,10 @@ svg.drag-handle {
   }
 }
 .post-highlight-continue-reading {
+  // This is temporary until we've re-run all the highlight callbacks
+  display:none;
+}
+.post-highlight-continue {
   a {
     color:rgba(0,0,0,.45);
     white-space: nowrap;
@@ -1483,4 +1486,38 @@ svg.drag-handle {
 .posts-item-unread {
   color:rgba(100,170,105,.86);
   margin-right:6px;
+}
+
+.posts-page-suggest-curated-button {
+  cursor:pointer;
+
+  &:hover {
+    color:rgba(0,0,0,.3);
+  }
+
+  &.suggested {
+    color:rgba(0,0,0,.4);
+  }
+}
+
+.posts-page-admin-actions-wrapper {
+  height:50px;
+  .posts-page-admin-actions {
+    display:none;
+
+    div {
+      cursor:pointer;
+      &:hover {
+        color:rgba(0,0,0,.35);
+      }
+    }
+  }
+  &:hover {
+    .posts-page-admin-actions {
+      display:block;
+    }
+    .posts-page-admin-more-options {
+      color:rgba(0,0,0,.2);
+    }
+  }
 }

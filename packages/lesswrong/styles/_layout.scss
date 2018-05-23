@@ -105,9 +105,9 @@
 }
 //
 .wrapper {
-  @include very-small-break {
+  @include max-small {
     .main {
-      padding: 0px 5px;
+      padding: 0px 10px;
       margin-top: 20px !important;
     }
   }

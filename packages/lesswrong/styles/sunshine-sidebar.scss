@@ -1,0 +1,228 @@
+.sunshine-sidebar {
+  position:absolute;
+  top:0px;
+  right:0;
+  width:250px;
+  padding-top:62px;
+  display:none;
+  background: white;
+
+  @include min-huge() {
+    display:block
+  }
+}
+.sunshine-sidebar-title {
+  border-top:solid 1px rgba(0,0,0,.2);
+  font-size:15px;
+  font-weight:600;
+  line-height:40px;
+  padding-left:12px;
+  font-family: $comments-font;
+}
+
+.sunshine-sidebar-item {
+  position:relative;
+  padding:2px 0 2px 15px;
+  border-top:solid 1px rgba(0,0,0,.1);
+
+  .sunshine-sidebar-content-hoverover {
+    display:none;
+  }
+
+  a:hover, a:visited {
+    text-decoration: none;
+    color:rgba(0,0,0,.35);
+  }
+
+  .sunshine-sidebar-posts-actions {
+    opacity:0;
+  }
+  &:hover {
+    background:rgb(250,250,250);
+    .sunshine-sidebar-posts-actions {
+      opacity:1;
+    }
+    .sunshine-sidebar-content-hoverover {
+      background:rgb(250,250,250);
+      padding:10px 20px 10px 10px;
+      border:solid 1px rgba(0,0,0,.1);
+      box-shadow:-3px 0 5px 0px rgba(0,0,0,.1);
+      display:inline;
+      position:absolute;
+      right:250px;
+      top:-1px;
+      float:left;
+      width:500px;
+      z-index: 1;
+
+      img {
+        width:100%;
+      }
+    }
+    .sunshine-sidebar-posts-title,
+    .sunshine-sidebar-item-meta {
+      width:105px;
+    }
+  }
+  &.new-comment:hover, &.new-report:hover {
+    .sunshine-sidebar-comment-excerpt, .sunshine-sidebar-item-meta {
+      width:145px;
+    }
+  }
+}
+.sunshine-sidebar-posts-karma {
+  width:15px;
+  display:inline-block;
+}
+.sunshine-sidebar-posts-title {
+  display:block;
+  margin-right:7px;
+  padding-top:3px;
+  font-size:13px;
+  font-weight:600;
+  color:rgba(0,0,0,.6);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow:hidden;
+  text-decoration: none;
+}
+.sunshine-sidebar-comment-excerpt {
+  display:block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow:hidden;
+  text-decoration: none;
+}
+.sunshine-sidebar-item-meta {
+  color:rgba(0,0,0,.5);
+  line-height:14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow:hidden;
+  text-decoration: none;
+  font-size:12px;
+
+  a {
+    margin-right:7px;
+  }
+
+  span {
+    margin-right:5px;
+  }
+}
+.sunshine-sidebar-posts-actions {
+  position:absolute;
+  top:0;
+  right:0;
+  height:100%;
+}
+.sunshine-sidebar-posts-action {
+  float:right;
+  width:35px;
+  margin-top:15px;
+
+  span {
+    position:relative !important;
+    top:-6px !important;
+  }
+
+  &:hover {
+    cursor:pointer;
+    span {
+      color:rgba(0,0,0,.4) !important;
+    }
+  }
+
+  &.new-comment.review {
+    span {
+      position:relative !important;
+      top:-5px !important;
+    }
+  }
+
+  &.new-comment.clear {
+    span {
+      position:relative !important;
+      top:-5px !important;
+    }
+  }
+
+  &.review {
+    span {
+      position:relative !important;
+      top:-3px !important;
+    }
+  }
+  &.clear {
+    span {
+      position:relative !important;
+      top:-2px !important;
+      right:-3px;
+
+    }
+    &:hover {
+      .sunshine-sidebar-posts-item-delete-overlay {
+        background:rgba(255,50,0,.2);
+        position:absolute;
+        top:0;
+        right:0;
+        width:250px;
+        height:100%;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+
+.sunshine-curated-suggestions-list {
+  padding-bottom:200px;
+  opacity:.1;
+
+  &:hover {
+    opacity:1;
+  }
+}
+
+@mixin sidebar-smalltext-style {
+  font-size:11px;
+  color:rgba(0,0,0,.5);
+  font-family:$comments-font;
+  color:rgba(0,0,0,.35);
+}
+
+.sunshine-sidebar-reported-comments-item {
+  &:hover {
+    background:rgb(250,250,250);
+  }
+}
+
+.sunshine-new-posts-list {
+  background:rgba(0,80,0,.04);
+}
+.sunshine-reported-comments-list {
+  background:rgba(60,0,0,.04);
+}
+.sunshine-new-comments-list {
+  background:rgba(120,120,0,.08);
+}
+
+.sunshine-sidebar-reported-by {
+  margin-right:10px;
+  @include sidebar-smalltext-style;
+}
+.sunshine-sidebar-report-description {
+  padding:0 10px 8px 0;
+  line-height:12px;
+  @include sidebar-smalltext-style;
+}
+.curated-suggestion-suggestion-by {
+  @include sidebar-smalltext-style;
+}
+
+.sunshine-sidebar hr {
+  margin:0;
+}
+.sunshine-post-highlight-linkpost {
+  font-size:12px;
+}

@@ -4,9 +4,6 @@ A SimpleSchema-compatible JSON schema
 
 */
 
-import Users from 'meteor/vulcan:users';
-import Sequences from '../sequences/collection.js'
-
 //define schema
 const schema = {
   _id: {

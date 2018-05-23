@@ -1,5 +1,4 @@
 import Users from 'meteor/vulcan:users';
-import { Comments } from "meteor/example-forum";
 
 const sunshineRegimentActions = [
   'comments.softRemove.all',

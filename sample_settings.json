@@ -17,8 +17,8 @@
 
     "googleAnalytics": {
       "apiKey": "foo123"
-    }
-
+    },
+    "intercomToken":"faken-token"
   },
 
   "defaultEmail": "hello@world.com",

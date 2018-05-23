@@ -33,7 +33,7 @@ const SequencesGridItem = ({
     </div>
     <div className="sequences-grid-item-bottom">
       <div className="sequences-grid-item-image">
-        <NoSSR><Image publicId={sequence.gridImageId || "Group_ybgiy6.png"} dpr="auto" responsive={true} sizes="100vw" cloudName="lesswrong-2-0" quality="auto" height={124} width={315} crop="fill" gravity="custom"/></NoSSR>
+        <NoSSR><Image publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"} dpr="auto" responsive={true} sizes="100vw" cloudName="lesswrong-2-0" quality="auto" height={124} width={315} crop="fill" gravity="custom"/></NoSSR>
       </div>
     </div>
   </div>;
