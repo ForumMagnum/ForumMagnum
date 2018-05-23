@@ -79,7 +79,38 @@ $medium-text: $dark-grey;
   @include comment-style()
 }
 // Experimental CSS modifications for Comments
-
+.material-icons {
+  &.upvoting0 {
+    opacity:0;
+  }
+  &.upvoting1 {
+    opacity:.1;
+  }
+  &.upvoting2 {
+    opacity:.2;
+  }
+  &.upvoting3 {
+    opacity:.3;
+  }
+  &.upvoting4 {
+    opacity:.4;
+  }
+  &.upvoting5 {
+    opacity:.5;
+  }
+  &.upvoting6 {
+    opacity:.6;
+  }
+  &.upvoting7 {
+    opacity:.7;
+  }
+  &.upvoting8 {
+    opacity:.8;
+  }
+  &.upvoting9 {
+    opacity:1;
+  }
+}
 
 .comments-item{
   .comments-item-body {
@@ -109,26 +140,76 @@ $medium-text: $dark-grey;
     position:relative;
     top:-2px;
     .material-icons {
-      font-size:35px !important;
+      opacity:.5;
+      font-size:16px !important;
+      color:rgba(100,170,100,.5) !important;
+      &.upvoting0 {
+        color:rgba(0,0,0,.3) !important;
+      }
     }
+  }
+  .small-upvote-button {
+    left:-2px;
+  }
+  .big-vote-progress {
+    position:absolute;
+    top:-5px;
+    left:-3px;
+    width:30px;
+    height:30px;
+    border-radius: 50%;
+    z-index: 2;
   }
   .big-upvote-button {
     position:relative;
     top:-2px;
-    // left: -2px;
+    left: -13px;
     .material-icons {
-      opacity:.25;
-      font-size:16px !important;
+      opacity:0;
+      font-size:20px !important;
       width:12px;
+
+      &.upvoting0 {
+        opacity:0;
+      }
+      &.upvoting1 {
+        opacity:.1;
+      }
+      &.upvoting2 {
+        opacity:.2;
+      }
+      &.upvoting3 {
+        opacity:.3;
+      }
+      &.upvoting4 {
+        opacity:.4;
+      }
+      &.upvoting5 {
+        opacity:.5;
+      }
+      &.upvoting6 {
+        opacity:.6;
+      }
+      &.upvoting7 {
+        opacity:.7;
+      }
+      &.upvoting8 {
+        opacity:.8;
+      }
+      &.upvoting9 {
+        opacity:1;
+        color:rgba(100,205,100,1) !important;
+        font-size:25px !important;
+      }
     }
   }
   .big-downvote-button {
     position:relative;
     top:-2px;
+    left:13px;
     .material-icons {
-      opacity:.25;
-      font-size:16px !important;
-      width:12px;
+      opacity:0;
+      font-size:20px !important;
     }
   }
   .comments-item-bottom {
@@ -369,7 +450,6 @@ New CSS File
 
 .comments-item-vote{
   display: inline-block;
-  margin-right: 10px;
   .vote {
     .material-icons {
       vertical-align:middle;
@@ -381,27 +461,25 @@ New CSS File
 
   .smallUpvoted {
     .small-upvote-button .material-icons {
-      color: rgba(100, 169, 105, 0.5) !important;
-    }
-    .big-upvote-button .material-icons {
-      opacity:.7;
+      color: rgba(100, 169, 105, 0.7) !important;
+      opacity:1;
     }
   }
   .bigUpvoted .big-upvote-button .material-icons {
     color: rgba(100, 169, 105, 1) !important;
     opacity:1;
+    font-size:22px !important;
   }
   .smallDownvoted {
     .small-downvote-button .material-icons {
       color: rgba(160, 44, 44, 0.5) !important;
-    }
-    .big-downvote-button .material-icons {
-      opacity:.7;
+      opacity:1;
     }
   }
   .bigDownvoted .big-downvote-button .material-icons {
     color: rgba(160, 44, 44, 1) !important;
     opacity:1;
+    font-size:22px !important;
   }
 }
 
