@@ -43,7 +43,7 @@ export const servePostRSS = (terms, url) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: Users.getUserNameById(post.userId),
+      author: Users.getDisplayNameById(post.userId),
       date: post.postedAt,
       guid: post._id,
       url: Posts.getPageUrl(post, true)
