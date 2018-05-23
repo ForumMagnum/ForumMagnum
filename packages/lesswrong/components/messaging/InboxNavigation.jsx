@@ -20,24 +20,28 @@ import Conversations from '../../lib/collections/conversations/collection.js';
 class InboxNavigation extends Component {
 
   render() {
-
     const results = this.props.results;
     const currentUser = this.props.currentUser;
     const select = this.props.location.query.select;
 
     const messagesTerms = {view: 'messagesConversation', conversationId: select};
 
-    if(currentUser && results && results.length) {
-      let conversation = results.find(c => (c._id == select));
+    if(currentUser && results) {
+      let conversation = results.length && results.find(c => (c._id == select));
       let notificationsSelect = (select == "Notifications");
+
+      let conversationDetails = conversation && <Components.ConversationDetails conversation={conversation}/>
+      let thereAreNone = notificationsSelect ? <p>You have no notifications.</p> : <p>There are no messages in this conversation.</p>
+      let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : thereAreNone
+
       return (
         <Grid>
           <Row className="Inbox-Grid">
             <Col xs={12} md={3}>{this.renderNavigation()}</Col>
             <Col xs={12} style={{position: "inherit"}} md={(notificationsSelect ? 9 : 6)}>
-              {notificationsSelect ? <Components.NotificationsWrapper/> : <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />}
+              {notificationsSelect ? notificationsWrapper : <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />}
             </Col>
-            {notificationsSelect ? <div></div> : <Col xs={12} md={3}><Components.ConversationDetails conversation={conversation}/></Col>}
+            {notificationsSelect ? <div></div> : <Col xs={12} md={3}>{conversationDetails}</Col>}
           </Row>
         </Grid>
       )
@@ -69,7 +73,7 @@ class InboxNavigation extends Component {
         </ListGroup>
       );
     } else {
-      return <div>Loading...</div>;
+      return this.props.loading && <div>Loading...</div>;
     }
   }
 
