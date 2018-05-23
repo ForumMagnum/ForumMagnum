@@ -142,11 +142,6 @@
       border-top-width: 3px;
       content: "";
     }
-    .section-title-bottom {
-      a {
-        @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3));
-      }
-    }
     .section-title-top {
       a:hover {
         text-decoration: none;

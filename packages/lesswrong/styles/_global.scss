@@ -21,7 +21,7 @@ a{
 }
 
 div p a, div ul a, div ol a {
-  @include link-underline(#fff, rgba(0,0,0,0.87), #b4d5f3, rgba(0,0,0,0.3))
+  @include link-styling()
 }
 
 

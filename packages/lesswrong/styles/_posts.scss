@@ -41,7 +41,7 @@
     }
     a {
       color: rgba(0,0,0,0.6);
-      @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3))
+      @include link-styling()
     }
     a:visited {
       color: inherit;
@@ -80,7 +80,7 @@
 .posts-views, .comments-views{
   .posts-views-dropdown, .comments-views-dropdown {
     div div {
-      @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3))
+      @include link-styling()
     }
     div div:hover {
       color: rgba(0,0,0,0.4) !important;
@@ -198,7 +198,7 @@
   }
   a {
     text-transform: lowercase;
-    @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3));
+    @include link-styling();
   }
   a:hover {
     text-decoration: none;
@@ -1078,7 +1078,7 @@ svg.drag-handle {
 
 .posts-page-comments-load-all-comment {
   a {
-    @include link-underline(#fff, rgba(0,0,0,0.6), #b4d5f3, rgba(0,0,0,0.3));
+    @include link-styling();
   }
 }
 
@@ -1373,11 +1373,6 @@ svg.drag-handle {
 
 .recent-discussion-thread-wrapper {
   margin-bottom:30px;
-
-  a:hover, a:visited, a:focus, a:active {
-    text-decoration: none !important;
-    color:rgba(0,0,0,.5);
-  }
 
   .recent-discussion-thread-title {
     padding:10px;
