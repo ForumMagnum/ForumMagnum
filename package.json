@@ -67,7 +67,7 @@
     "graphql-date": "^1.0.2",
     "graphql-server-express": "^0.6.0",
     "graphql-tag": "^2.0.0",
-    "graphql-tools": "^2.19.0",
+    "graphql-tools": "^3.0.2",
     "graphql-type-json": "^0.1.4",
     "handlebars": "^4.0.5",
     "he": "^1.1.1",
