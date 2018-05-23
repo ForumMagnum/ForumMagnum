@@ -113,6 +113,7 @@ import './legacy-redirects/views.js';
 import './helpers.js'
 import './routes.js';
 import './views.js';
+import './scrollRestoration.js';
 //
 // Closed Beta Stuff
 import './scripts/configuration.js';
