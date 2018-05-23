@@ -22,7 +22,6 @@ Accounts.validateLoginAttempt((attempt) => {
     return false;
   }
   const ban = Bans.findOne({ip: attempt.connection && ForwardedWhitelist.getClientIP(attempt.connection)});
-  console.log("Validating login attempt: ", attempt, ban);
   if (ban && new Date(ban.expirationDate) > new Date()) {
     throw new Meteor.Error('address-banned', 'Your ip-address is banned until ' + new Date(ban.expirationDate) + ' for ' + ban.reason);
   } else {

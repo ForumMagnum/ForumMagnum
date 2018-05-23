@@ -113,17 +113,18 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // compression
   graphQLServer.use(compression());
-  function customDetection(req){
-    var ipAddress;
-    ipAddress = req.connection.remoteAddress.replace(/\//g, '.');
-    console.info("ipAddress: ", ipAddress);
-    return ipAddress;
-  }
-
-  //LESSWRONG: Timber logging integration
-  // if (timberApiKey) {
-  //   graphQLServer.use(timber.middlewares.express())
+  // function customDetection(req){
+  //   var ipAddress;
+  //   ipAddress = req.connection.remoteAddress.replace(/\//g, '.');
+  //   console.info("ipAddress: ", ipAddress);
+  //   return ipAddress;
   // }
+
+  // LESSWRONG: Timber logging integration
+  if (timberApiKey) {
+    console.log("Starting timber integration")
+    graphQLServer.use(timber.middlewares.express())
+  }
 
 
   // LESSWRONG: ACTIVATE IP FILTER
