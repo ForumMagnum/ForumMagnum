@@ -18,29 +18,22 @@ class Vote extends PureComponent {
     this.bigVotingTimer = undefined
 
     this.state = {
-      upvoting: 0,
       bigUpvoting: 0,
-      downvoting: 0,
       bigDownvoting: 0,
     };
   }
-  upvoting = () => {
-    this.setState({upvoting: this.state.upvoting + 1.25})
-    if (this.state.upvoting < 100) {
-      this.setState({bigUpvoting: parseInt(this.state.upvoting/10)})
-    } else {
-      this.setState({bigUpvoting: 9})
-    }
-    console.log(this.state.bigUpvoting)
-  }
 
-  startBigUpvoting = () => {
-    this.repeatUpvoting()
+  endBigDownvoting = () => {
+    if (this.state.bigDownvoting >= 9) {
+      this.vote("bigDownvote")
+    } else {
+      this.vote("smallDownvote")
+    }
+    this.clearState()
   }
 
   endBigUpvoting = () => {
     if (this.state.bigUpvoting >= 9) {
-      console.log("BIG!!!!!!!!!!!!")
       this.vote("bigUpvote")
     } else {
       this.vote("smallUpvote")
@@ -50,12 +43,24 @@ class Vote extends PureComponent {
 
   clearState = () => {
     clearTimeout(this.bigVotingTimer)
-    this.setState({upvoting: 0, bigUpvoting:0})
+    this.setState({
+      bigUpvoting: 0,
+      bigDownvoting: 0,
+    })
+  }
+
+  repeatDownvoting = () => {
+    if (this.state.bigDownvoting < 9) {
+      this.setState({bigDownvoting: this.state.bigDownvoting + 1})
+    }
+    this.bigVotingTimer = setTimeout(this.repeatDownvoting, 60)
   }
 
   repeatUpvoting = () => {
-    this.upvoting()
-    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 1)
+    if (this.state.bigUpvoting < 9) {
+      this.setState({bigUpvoting: this.state.bigUpvoting + 1})
+    }
+    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 60)
   }
 
   showReply(event) {
@@ -100,13 +105,18 @@ class Vote extends PureComponent {
     return (
       <div className={this.getActionClass()}>
         <span className="downvote-buttons">
-          <a className="big-downvote-button" onClick={(e) => this.vote(e,'bigDownvote', this.getActionClass().includes("smallDownvoted"))}>
-            <FontIcon className="material-icons">arrow_back_ios</FontIcon>
+          <a className="big-downvote-button">
+            <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+              arrow_back_ios
+            </FontIcon>
             <div className="sr-only">Big Downvote</div>
           </a>
-          <a className="small-downvote-button"
-            // onMouseDown ={ this.startDow }
-          >
+          <a className="small-downvote-button">
+            <div className="voting-button"
+              onMouseDown={this.repeatDownvoting}
+              onMouseUp={this.endBigDownvoting}
+              onMouseOut={this.clearState}
+            />
             <FontIcon className="material-icons">arrow_back_ios</FontIcon>
             <div className="sr-only">Small Downvote</div>
           </a>
@@ -116,19 +126,18 @@ class Vote extends PureComponent {
         </div>
         <span className="upvote-buttons">
           <a className="small-upvote-button">
-            <FontIcon className={`material-icons upvoting${this.state.bigUpvoting}`}>
+            <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
               arrow_forward_ios
             </FontIcon>
             <div className="sr-only">Small Upvote</div>
-            <div
-              className="big-vote-progress"
-              onMouseDown={this.startBigUpvoting}
+            <div className="voting-button"
+              onMouseDown={this.repeatUpvoting}
               onMouseUp={this.endBigUpvoting}
               onMouseOut={this.clearState}
             />
           </a>
           <a className="big-upvote-button">
-            <FontIcon className={`material-icons upvoting${this.state.bigUpvoting}`}>
+            <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
               arrow_forward_ios
             </FontIcon>
             <div className="sr-only">Big Upvote</div>

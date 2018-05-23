@@ -151,7 +151,7 @@ $medium-text: $dark-grey;
   .small-upvote-button {
     left:-2px;
   }
-  .big-vote-progress {
+  .voting-button {
     position:absolute;
     top:-5px;
     left:-3px;
@@ -160,6 +160,42 @@ $medium-text: $dark-grey;
     border-radius: 50%;
     z-index: 2;
   }
+
+  .big-upvote-button .material-icons,
+  .big-downvote-button .material-icons {
+    &.big-voting0 {
+      opacity:0;
+    }
+    &.big-voting1 {
+      opacity:.1;
+    }
+    &.big-voting2 {
+      opacity:.2;
+    }
+    &.big-voting3 {
+      opacity:.3;
+    }
+    &.big-voting4 {
+      opacity:.4;
+    }
+    &.big-voting5 {
+      opacity:.5;
+    }
+    &.big-voting6 {
+      opacity:.6;
+    }
+    &.big-voting7 {
+      opacity:.7;
+    }
+    &.big-voting8 {
+      opacity:.8;
+    }
+    &.big-voting9 {
+      opacity:1;
+      font-size:25px !important;
+    }
+  }
+
   .big-upvote-button {
     position:relative;
     top:-2px;
@@ -169,51 +205,27 @@ $medium-text: $dark-grey;
       font-size:20px !important;
       width:12px;
 
-      &.upvoting0 {
-        opacity:0;
-      }
-      &.upvoting1 {
-        opacity:.1;
-      }
-      &.upvoting2 {
-        opacity:.2;
-      }
-      &.upvoting3 {
-        opacity:.3;
-      }
-      &.upvoting4 {
-        opacity:.4;
-      }
-      &.upvoting5 {
-        opacity:.5;
-      }
-      &.upvoting6 {
-        opacity:.6;
-      }
-      &.upvoting7 {
-        opacity:.7;
-      }
-      &.upvoting8 {
-        opacity:.8;
-      }
-      &.upvoting9 {
-        opacity:1;
+      &.big-voting9 {
         color:rgba(100,205,100,1) !important;
-        font-size:25px !important;
       }
     }
   }
   .big-downvote-button {
     position:relative;
     top:-2px;
-    left:13px;
+    left:3px;
     .material-icons {
       opacity:0;
       font-size:20px !important;
+      width:12px;
+
+      &.big-voting9 {
+        color:rgba(205,105,100,1) !important;
+      }
     }
   }
   .comments-item-bottom {
-    padding-bottom: 9px;
+    padding: 5px 0 5px 0;
     font-size: 12px;
     .vote {
       font-weight: 300;
@@ -528,9 +540,9 @@ New CSS File
   border:solid 1px rgba(0,0,0,.2);
 }
 
-.comments-item-reply-link {
-  float:left;
-}
+// .comments-item-reply-link {
+//   float:left;
+// }
 .form-section {
 
 }

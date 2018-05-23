@@ -177,12 +177,6 @@ class CommentsItem extends PureComponent {
               <FormattedMessage id="comments.reply"/>
             </a>
           }
-          <div className="comments-item-vote">
-            <Components.Vote
-              collection={Comments}
-              document={this.props.comment}
-              currentUser={this.props.currentUser}/>
-          </div>
         </div>
       </div>
     )
