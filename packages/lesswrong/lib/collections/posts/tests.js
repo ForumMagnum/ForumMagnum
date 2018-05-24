@@ -46,15 +46,6 @@ describe('PostsEdit', async () => {
   });
 });
 
-describe('Posts.maxBaseScore', async () => {
-  it("initializes at the original voting power of the author", async () => {
-    const user = await createDummyUser();
-    const post = await createDummyPost(user);
-    const updatedPost = await Posts.find({_id: post._id}).fetch();
-    updatedPost[0].maxBaseScore.should.be.equal(1)
-  });
-})
-
 describe('Posts RSS Views', async () => {
   it("only shows curated posts in curated-rss view", async () => {
     const user = await createDummyUser();

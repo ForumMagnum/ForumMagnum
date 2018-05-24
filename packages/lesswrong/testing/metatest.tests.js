@@ -1,6 +1,7 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
+import { Posts } from 'meteor/example-forum';
 
 import {
   createDummyUser,
@@ -11,6 +12,23 @@ chai.should();
 chai.use(chaiAsPromised);
 
 describe('Utils', async () => {
+  before(async (done) => {
+    let vulcanLoaded = false;
+    //eslint-disable-next-line no-console
+    console.log("Holding off tests until startup")
+    while (!vulcanLoaded) {
+      try {
+        //eslint-disable-next-line no-console
+        console.log("Holding off tests until startup")
+        Posts.findOne()
+        vulcanLoaded = true;
+      } catch(e) {
+        //eslint-disable-next-line no-console
+        console.error(e)
+      }
+    }
+    done()
+  })
   describe('createDummyUser', async () => {
     it('generates appropriate email', async () => {
       const user = await createDummyUser()
