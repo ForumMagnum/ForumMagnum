@@ -49,10 +49,10 @@ if (postgresImport) {
       if (!users[row.thing_id]) {
         users[row.thing_id] = {};
         users[row.thing_id]['legacyId'] = row.thing_id;
-      };
+      }
       if (row.value) {
         users[row.thing_id][row.key] = row.value;
-      };
+      }
     });
 
     processedUsers = [];
@@ -93,7 +93,7 @@ if (postgresImport) {
 
           if(err.code == 11000) {
             user.username = user.username + "_duplicate" + Math.random().toString();
-          };
+          }
           newMutation({
             collection: Users,
             document: user,
@@ -105,7 +105,7 @@ if (postgresImport) {
             console.log("Imported users up to Nr.: " + n);
           }
         }
-      };
+      }
     });
   };
 
@@ -118,14 +118,14 @@ if (postgresImport) {
         };
         if (user.deleted) {
           set.deleted = true;
-        };
+        }
         editMutation({
           collection: Users,
           documentId: user._id,
           set: set,
           validate: false,
         })
-      };
+      }
     });
   };
 
@@ -137,10 +137,10 @@ if (postgresImport) {
       // If post does not exist in post dictionary, initiate it
       if (!posts[row.thing_id]) {
         posts[row.thing_id] = {};
-      };
+      }
       if (row.value) {
         posts[row.thing_id][row.key] = row.value;
-      };
+      }
     });
 
     // Write datetime python pickle objects to csv file, because the universe
@@ -199,7 +199,7 @@ if (postgresImport) {
           currentUser: user,
           validate: false,
         })
-      };
+      }
     })
   }
 
@@ -224,11 +224,11 @@ if (postgresImport) {
         // console.log(set);
         if (row.deleted) {
           set.status = 3;
-        };
+        }
         if (row.spam) {
           set.status = 3;
           set.legacySpam = true;
-        };
+        }
 
         set.baseScore = set.ups - set.downs;
 
@@ -240,7 +240,7 @@ if (postgresImport) {
         if (n % 1000 == 0) {
           console.log("Processed post metadata for posts: " + n);
         }
-      };
+      }
     });
   };
 
@@ -342,7 +342,7 @@ if (postgresImport) {
       // comment = runCallbacks(`comments.new.sync`, comment, author);
       if (comment.body) {
         comment.htmlBody = Utils.sanitize(marked(comment.body));
-      };
+      }
 
 
 
@@ -371,7 +371,7 @@ if (postgresImport) {
         // console.log(postSearchTime[0]);
         // console.log("Insert Comment Average: ");
         // console.log(insertCommentAverage - postSearchAverage);
-      };
+      }
 
       processedComments[comment.legacyId] = comment;
     });
@@ -401,10 +401,10 @@ if (postgresImport) {
         if (row.deleted) {
           set.deleted = true;
           set.isDeleted = true;
-        };
+        }
         if (row.spam) {
           set.spam = true;
-        };
+        }
 
         set.baseScore = row.ups - row.downs;
         // console.log(set)
@@ -605,7 +605,7 @@ if (postgresImport) {
       .catch((err) => {
         console.log("Welp, we failed at processing importing LessWrong 1.0 user data. We are sorry.", err);
       });
-  };
+  }
 
   function queryAndProcessUsersMeta() {
     db.any('SELECT thing_id, deleted, date from reddit_thing_account', [true])
@@ -617,7 +617,7 @@ if (postgresImport) {
       .catch((err) => {
         console.log("Welp, we failed at processing processing LessWrong 1.0 user metadata. We are sorry.", err);
       });
-  };
+  }
 
   function queryAndProcessPosts() {
     db.any('SELECT thing_id, key, value from reddit_data_link', [true])
@@ -629,7 +629,7 @@ if (postgresImport) {
       .catch((err) => {
         console.log("Welp, we failed at processing LessWrong 1.0 post data. I am sorry.", err);
       })
-  };
+  }
 
   function queryAndProcessPostsMeta() {
     db.any('SELECT thing_id, ups, downs, deleted, spam, descendant_karma, date from reddit_thing_link', [true])
@@ -641,7 +641,7 @@ if (postgresImport) {
       .catch((err) => {
         console.log("Welp, we failed at processing LessWrong 1.0 post metadata. I am sorry.", err);
       })
-  };
+  }
 
   function queryAndProcessComments() {
     db.any('SELECT thing_id, key, value from reddit_data_comment', [true])
@@ -654,7 +654,7 @@ if (postgresImport) {
       .catch((err) => {
         console.log("Welp, we failed at processing LessWrong 1.0 comment data. I am sorry.", err);
       });
-  };
+  }
 
   function queryAndProcessCommentsMeta() {
     db.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true])
@@ -733,4 +733,4 @@ if (postgresImport) {
   //   datePickleImport();
   // }
 
-};
+}

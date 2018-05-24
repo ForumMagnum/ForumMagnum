@@ -67,7 +67,7 @@ class PostsPageAdminActions extends Component {
       return null
     }
   }
-};
+}
 
 PostsPageAdminActions.displayName = "PostsPageAdminActions";
 

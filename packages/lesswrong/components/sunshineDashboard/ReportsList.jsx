@@ -27,7 +27,7 @@ class ReportsList extends Component {
       )
     }
   }
-};
+}
 
 const reportsOptions = {
   collection: Reports,

@@ -374,7 +374,7 @@ function userDeleteContent(user) {
       validate: false,
     })
 
-    const notifications = Notifications.find({documentId: comment._id}).fetch();;
+    const notifications = Notifications.find({documentId: comment._id}).fetch();
     console.log(`Deleting notifications for comment ${comment._id}: `, notifications);
     notifications.forEach((notification) => {
       removeMutation({
