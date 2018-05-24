@@ -1,3 +1,4 @@
+/* global cloudinary */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {registerComponent} from 'meteor/vulcan:core';
@@ -30,7 +31,8 @@ class ImageUpload extends Component {
       const fieldName = this.props.name;
       addValues({[fieldName]: imageInfo[0].public_id})
     } else {
-      console.log("Image Upload failed");
+      //eslint-disable-next-line no-console
+      console.error("Image Upload failed");
     }
   }
 

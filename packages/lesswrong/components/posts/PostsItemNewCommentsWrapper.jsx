@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent, Utils} from 'meteor/vulcan:core';
+import { withList, Components, registerComponent} from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 import { unflatten } from '../../lib/modules/utils/unflatten';
 
@@ -11,12 +11,9 @@ const PostsItemNewCommentsWrapper = (props, /* context*/) => {
     results,
     loadMore,
     networkStatus,
-    totalCount,
     currentUser,
     highlightDate,
     post,
-    postId,
-    terms,
   } = props;
 
   const loadingMore = networkStatus === 2;

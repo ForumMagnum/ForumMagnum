@@ -42,7 +42,6 @@ import LWEvents from './collections/lwevents/collection.js';
 import './collections/lwevents/permissions.js';
 import './collections/lwevents/fragments.js';
 import './collections/lwevents/views.js';
-import './events/callbacks_sync.js';
 
 // Bans
 import Bans from './collections/bans/collection.js';

@@ -12,7 +12,7 @@ const genContentBlock = () =>
     key: generateRandomKey(),
     type: 'unstyled',
     text: '',
-    characterList: List(),
+    characterList: new List(),
   });
 
 const insertNewLine = (editorState, block, insertAt = 'after') => {

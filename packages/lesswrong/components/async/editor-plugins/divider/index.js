@@ -16,6 +16,7 @@ const createDividerPlugin = (
       };
     }
   },
+  //eslint-disable-next-line react/display-name
   DividerButton: (props) => (
     <DividerButton {...props} blockType={blockType} />
   ),

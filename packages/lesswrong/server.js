@@ -39,8 +39,6 @@ import './lib/legacy-redirects/routes.js';
 
 export * from './lib/index.js';
 
-import './lib/collections/sequences/seed.js';
-
 import './lib/scripts/fixSSCDrafts.js';
 
 import './lib/modules/connection_logs.js';

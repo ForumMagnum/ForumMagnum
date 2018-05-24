@@ -1,9 +1,9 @@
-import { runQuery, newMutation, removeCallback, addCallback } from 'meteor/vulcan:core';
+import { newMutation, removeCallback, addCallback } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum'
 import Conversations from '../lib/collections/conversations/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
-import {Editor, ContentState, convertToRaw} from 'draft-js';
+import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
 
 export const createDefaultUser = async() => {

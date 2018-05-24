@@ -42,7 +42,8 @@ class AsyncCommentEditor extends Component {
       try {
         state = EditorState.createWithContent(convertFromRaw(document.content));
       } catch(e) {
-        console.log("Invalid comment content, restoring from HTML instead", document);
+        // eslint-disable-next-line no-console
+        console.warn("Invalid comment content, restoring from HTML instead", document);
         state = document && document.htmlBody && EditorState.createWithContent(htmlToDraft(document.htmlBody, {flat: true}))
       }
     } else if (document && document.htmlBody) {
@@ -55,10 +56,12 @@ class AsyncCommentEditor extends Component {
     const savedState = this.getSavedState();
     if (savedState) {
       try {
+        // eslint-disable-next-line no-console
         console.log("Restoring saved comment state: ", savedState);
         state = EditorState.createWithContent(convertFromRaw(savedState))
       } catch(e) {
-        console.log(e)
+        // eslint-disable-next-line no-console
+        console.error(e)
       }
     }
 
@@ -191,7 +194,6 @@ class AsyncCommentEditor extends Component {
       // Only save to localStorage on every 10th content change
       this.changeCount = this.changeCount + 1;
       if (this.changeCount % 10 === 0) {
-        console.log("saving...");
         const contentState = editorState.getCurrentContent();
         this.setSavedState(convertToRaw(contentState));
       }

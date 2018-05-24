@@ -22,7 +22,6 @@ class ReportForm extends Component {
   };
 
   render() {
-    const currentUser = this.props.currentUser;
     return (
         <Dialog
           title={this.props.title}
@@ -40,8 +39,7 @@ class ReportForm extends Component {
               link: this.props.link
             }}
             successCallback={this.handleClose}
-          >
-          </ Components.SmartForm>
+          />
         </Dialog>
       )
   }

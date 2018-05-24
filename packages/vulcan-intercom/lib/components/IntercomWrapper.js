@@ -6,12 +6,13 @@ const IntercomWrapper = ({ currentUser }) => {
   const appId = getSetting('intercom.appId');
 
   if (!appId) {
+    //eslint-disable-next-line no-console
     console.warn('Please add intercom.appId to your public settings or disable the vulcan:intercom package.');
     return null;
   }
 
-  return currentUser ? <Intercom 
-    appID={appId} 
+  return currentUser ? <Intercom
+    appID={appId}
     email={currentUser.email}
     name={currentUser.displayName}
     _id={currentUser._id}

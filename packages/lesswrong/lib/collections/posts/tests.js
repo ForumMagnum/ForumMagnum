@@ -1,10 +1,9 @@
 import React from 'react';
-import { chai, expect } from 'meteor/practicalmeteor:chai';
+import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
-import { getFragmentText } from 'meteor/vulcan:lib';
 import { createDummyUser, createDummyPost } from '../../../testing/utils.js'
-import { Posts, Comments } from "meteor/example-forum";
+import { Posts } from "meteor/example-forum";
 
 chai.should();
 chai.use(chaiAsPromised);

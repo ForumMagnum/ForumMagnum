@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core'
-import { InstantSearch, Configure, Index } from 'react-instantsearch/dom';
+import { InstantSearch, Configure } from 'react-instantsearch/dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import algoliaClient from 'algoliasearch/src/browser/builds/algoliasearch'
 import Autosuggest from 'react-autosuggest';

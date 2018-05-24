@@ -94,6 +94,7 @@ Posts.increaseClicks = (post, ip) => {
     try {
       existingClickEvent = Events.findOne({name: 'click', 'properties.postId': post._id, 'properties.ip': ip});
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error);
     }
 

@@ -13,25 +13,30 @@ Vulcan.populateNotifications = async ({username,
   const user = Users.findOne({username});
   const randomUser = Users.findOne({_id: {$ne: user._id}});
   if (messageNotifications > 0) {
+    //eslint-disable-next-line no-console
     console.log("generating new messages...")
     const conversation = await createDummyConversation(randomUser, {participantIds: [randomUser._id, user._id]});
     _.times(messageNotifications, () => createDummyMessage(randomUser, {conversationId: conversation._id}))
   }
   if (postNotifications > 0) {
+    //eslint-disable-next-line no-console
     console.log("generating new posts...")
     try {
       performSubscriptionAction('subscribe', Users, randomUser._id, user)
     } catch(err) {
+      //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
     _.times(postNotifications, () => createDummyPost(randomUser))
   }
   if (commentNotifications > 0) {
     const post = Posts.findOne(); // Grab random post
+    //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
       performSubscriptionAction('subscribe', Posts, post._id, user)
     } catch(err) {
+      //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
     _.times(commentNotifications, () => createDummyComment(randomUser, {postId: post._id}));
@@ -39,10 +44,12 @@ Vulcan.populateNotifications = async ({username,
   }
   if (replyNotifications > 0) {
     const post = Posts.findOne();
+    //eslint-disable-next-line no-console
     console.log("generating new replies...")
     try {
       performSubscriptionAction('subscribe', Users, randomUser._id, user);
     } catch(err) {
+      //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
     const comment = createDummyComment(user, {postId: post._id});

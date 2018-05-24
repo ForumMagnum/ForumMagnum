@@ -1,10 +1,10 @@
 import { Posts } from 'meteor/example-forum';
-import { Utils } from 'meteor/vulcan:core';
 
 const runDeduplication = false;
 
 async function slugDeduplication() {
   try {
+    //eslint-disable-next-line no-console
     console.log("Running slugDeduplication");
     let duplicateSlugsPromise = Posts.rawCollection().aggregate([
       {"$group" : { "_id": "$slug", "count": { "$sum": 1 } } },
@@ -24,6 +24,7 @@ async function slugDeduplication() {
       duplicatePosts.slice(1).forEach((post) => { //Highest-karma post gets to keep the slug, all others get new slugs
           newSlug = post.slug + "-" + index;
           if (postCount % 100 === 0) {
+            //eslint-disable-next-line no-console
             console.log("Processed n posts: ", postCount);
           }
           // Posts.update({_id: post._id}, {$set: {slug: newSlug}});
@@ -40,9 +41,11 @@ async function slugDeduplication() {
     })
 
      let postUpdateCursor = await Posts.rawCollection().bulkWrite(dedupActions, {ordered: false})
+     //eslint-disable-next-line no-console
      console.log(postUpdateCursor);
   } catch(e) {
-    console.log(e)
+    //eslint-disable-next-line no-console
+    console.error(e)
   }
 }
 

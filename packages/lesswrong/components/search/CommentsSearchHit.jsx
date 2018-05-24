@@ -1,11 +1,7 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import { Posts, Comments } from 'meteor/example-forum';
 import moment from 'moment';
 import { Link } from 'react-router';
-import { InstantSearch, Hits, SearchBox, Highlight, RefinementList, Pagination, CurrentRefinements, ClearAll, Snippet} from 'react-instantsearch/dom';
-import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
-import IconButton from 'material-ui/IconButton';
-import Badge from 'material-ui/Badge';
+import { Snippet } from 'react-instantsearch/dom';
 
 import React, { PureComponent } from 'react';
 

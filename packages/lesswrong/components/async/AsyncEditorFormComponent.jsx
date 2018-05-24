@@ -70,11 +70,13 @@ class AsyncEditorFormComponent extends Component {
     const savedState = this.getSavedState();
     if (savedState) {
       try {
+        // eslint-disable-next-line no-console
         console.log("Restoring saved document state: ", savedState);
         state = EditorState.createWithContent(convertFromRaw(savedState))
         return state;
       } catch(e) {
-        console.log(e)
+        // eslint-disable-next-line no-console
+        console.error(e)
       }
     }
 
@@ -83,7 +85,8 @@ class AsyncEditorFormComponent extends Component {
         state = EditorState.createWithContent(convertFromRaw(document[name]));
         return state;
       } catch(e) {
-        console.log("Invalid document content, trying to restore from HTML instead", document);
+        // eslint-disable-next-line no-console
+        console.error("Invalid document content, trying to restore from HTML instead", document);
       }
     }
     if (document && document.htmlBody && Meteor.isClient) {
@@ -218,7 +221,6 @@ class AsyncEditorFormComponent extends Component {
       // Only save to localStorage on every 30th content change
       this.changeCount = this.changeCount + 1;
       if (this.changeCount % 30 === 0) {
-        console.log("saving...");
         const rawContent = convertToRaw(editorState.getCurrentContent());
         this.setSavedState(rawContent);
       }

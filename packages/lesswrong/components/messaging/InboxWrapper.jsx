@@ -10,9 +10,7 @@ import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:co
 
 class InboxWrapper extends Component {
   render () {
-
     const terms = {view: 'userConversations', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
-    console.log("ConversationsList Terms", terms);
     return(
       <div className="wrapper">
           {!!this.props.currentUser ? <Components.InboxNavigation terms={terms}/> : <div></div>}

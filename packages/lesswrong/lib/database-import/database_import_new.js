@@ -1,11 +1,9 @@
+/* global Vulcan */
 import Users from 'meteor/vulcan:users';
 import { Posts, Comments } from 'meteor/example-forum';
-import { newMutation, editMutation, Utils } from 'meteor/vulcan:core';
-import { getVotePower } from 'meteor/vulcan:voting';
-import update from 'immutability-helper';
+import { newMutation, Utils } from 'meteor/vulcan:core';
 import moment from 'moment';
 import marked from 'marked';
-import fs from 'fs';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
@@ -29,8 +27,8 @@ Vulcan.postgresImport = async () => {
   /*
     USER DATA IMPORT
   */
-
-  console.log("Starting user data import");
+  //eslint-disable-next-line no-console
+  console.info("Starting user data import");
 
   // Query for user data
   const rawUserData = await database.any('SELECT thing_id, key, value from reddit_data_account', [true]);
@@ -59,6 +57,7 @@ Vulcan.postgresImport = async () => {
     POST DATA IMPORT
   */
 
+  //eslint-disable-next-line no-console
   console.log("Starting post data import");
 
   // Query for post data
@@ -87,6 +86,7 @@ Vulcan.postgresImport = async () => {
     COMMENT DATA IMPORT
   */
 
+  //eslint-disable-next-line no-console
   console.log("Starting the comment data import");
 
   // Query for comment data
@@ -109,15 +109,18 @@ Vulcan.postgresImport = async () => {
 
   commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
 
+  //eslint-disable-next-line no-console
   console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
 
   await upsertProcessedComments(commentData, legacyIdToCommentMap);
 
+  //eslint-disable-next-line no-console
   console.log("Finished Upserting comments");
 
   // construct comment lookup table to avoid repeated querying
   legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
+  //eslint-disable-next-line no-console
   console.log("Finished comment data import");
 }
 
@@ -133,9 +136,9 @@ Vulcan.syncUserPostCount = async () => {
   const postCounters = await Posts.rawCollection().aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}
   ])
-  console.log(postCounters);
+  //eslint-disable-next-line no-console
+  console.log("Started updating post counts:", postCounters);
   const postCounterArray = await postCounters.toArray();
-  console.log(postCounterArray);
   const userUpdates = postCounterArray.map((counter) => ({
     updateOne :
     {
@@ -144,7 +147,8 @@ Vulcan.syncUserPostCount = async () => {
     }
   }))
   const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false})
-  console.log(userUpdateCursor);
+  //eslint-disable-next-line no-console
+  console.log("Finished updating users:", userUpdateCursor);
 }
 
 const deepObjectExtend = (target, source) => {
@@ -178,7 +182,7 @@ const upsertProcessedPosts = async (posts, postMap) => {
       }
     }
   })
-  const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
+  await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
   // console.log("Upserted posts: ", postUpdateCursor);
 }
 
@@ -186,8 +190,10 @@ const upsertProcessedUsers = async (users, userMap) => {
   let userCounter = 0;
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
+  //eslint-disable-next-line no-console
   console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
   const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
+  //eslint-disable-next-line no-console
   console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
   if (usersToInsert && _.size(usersToInsert)) {
@@ -195,6 +201,7 @@ const upsertProcessedUsers = async (users, userMap) => {
       await insertUser(usersToInsert[key]);
       userCounter++;
       if(userCounter % 1000 == 0){
+        //eslint-disable-next-line no-console
         console.log("UserCounter: " + userCounter);
       }
     }
@@ -206,6 +213,7 @@ const bulkUpdateUsers = async (users, userMap) => {
     const oldUser = userMap.get(newUser.legacyId);
     let set = {legacyData: newUser.legacyData, deleted: newUser.deleted, username: newUser.username};
     if (newUser.legacyData.email !== oldUser.legacyData.email && oldUser.email === oldUser.legacyData.email) {
+      //eslint-disable-next-line no-console
       console.log("Found email change", newUser.username, newUser.legacyData.email, oldUser.email);
       set.email = newUser.legacyData.email;
       set.emails = [{address: newUser.legacyData.email, verified: true}]
@@ -220,6 +228,7 @@ const bulkUpdateUsers = async (users, userMap) => {
     }
   })
   const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
+  //eslint-disable-next-line no-console
   console.log("userUpdateCursor: ", userUpdateCursor);
 }
 
@@ -241,9 +250,11 @@ const insertUser = async (user) => {
           validate: false
         })
       } catch(err) {
-        console.log("User Import failed", err, user);
+        //eslint-disable-next-line no-console
+        console.error("User Import failed", err, user);
       }
     } else {
+      //eslint-disable-next-line no-console
       console.error("User Import failed", err, user);
     }
   }
@@ -296,14 +307,17 @@ const upsertProcessedComments = async (comments, commentMap) => {
   })
   if (postUpdates && _.size(postUpdates)) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
+    //eslint-disable-next-line no-console
     console.log("postUpdateCursor", postUpdateCursor);
   }
   if (userUpdates && _.size(userUpdates)) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
+    //eslint-disable-next-line no-console
     console.log("userUpdateCursor", userUpdateCursor);
   }
   if (commentUpdates && _.size(commentUpdates)) {
     const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
+    //eslint-disable-next-line no-console
     console.log("commentUpdateCursor", commentUpdateCursor);
   }
 }
@@ -358,8 +372,10 @@ const legacyPostToNewPost = (post, legacyId, user) => {
 }
 
 const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
-  if (!author) {console.log("Missing author for comment:", comment)}
-  if (!parentPost) {console.log("Missing parent post for comment: ", comment)}
+  //eslint-disable-next-line no-console
+  if (!author) {console.warn("Missing author for comment:", comment)}
+  //eslint-disable-next-line no-console
+  if (!parentPost) {console.warn("Missing parent post for comment: ", comment)}
   return {
     _id: Random.id(),
     legacy: true,

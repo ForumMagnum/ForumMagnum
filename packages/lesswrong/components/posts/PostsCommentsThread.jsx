@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Posts } from "meteor/example-forum";
-import { withList, Components, registerComponent, withEdit } from 'meteor/vulcan:core';
-import LWEvents from '../../lib/collections/lwevents/collection.js';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 
 const PostsCommentsThread =
   ({comments,

@@ -1,6 +1,4 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
-import IconButton from 'material-ui/IconButton'
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
 

@@ -1,18 +1,11 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery } from 'meteor/vulcan:core';
 
 import {
   createDummyUser,
   createDummyPost,
-  dummyPostTitle,
-  dummyPostBody,
-  clearDatabase
 } from './utils.js'
-
-import Users from 'meteor/vulcan:users';
-import { Posts, Comments } from 'meteor/example-forum'
 
 chai.should();
 chai.use(chaiAsPromised);

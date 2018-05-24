@@ -9,7 +9,8 @@ function GroupsNewDefaultPost (group, context) {
     sticky: true,
   }
   const post = {...groupWelcomePostTemplate, ...newFields};
-  console.log("Creating new post for new group", post);
+  //eslint-disable-next-line no-console
+  console.info("Creating new post for new group", post);
   newMutation({
     collection: Posts,
     document: post,

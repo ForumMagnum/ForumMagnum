@@ -3,7 +3,7 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
-import { InstantSearch, Hits, SearchBox, Highlight, RefinementList, Pagination, CurrentRefinements, ClearAll, Snippet} from 'react-instantsearch/dom';
+import { Highlight, Snippet} from 'react-instantsearch/dom';
 import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
 import IconButton from 'material-ui/IconButton';
 import Badge from 'material-ui/Badge';
@@ -41,8 +41,6 @@ const PostsSearchHit = ({hit, clickAction, router}) => {
               <Highlight attributeName="title" hit={hit} tagName="mark" />
 
             </h3>
-            {/*this.renderPostFeeds() */}
-            
 
             <object><div className="posts-item-meta">
               {hit.postedAt ? <div className="posts-item-date"> {moment(new Date(hit.postedAt)).fromNow()} </div> : null}

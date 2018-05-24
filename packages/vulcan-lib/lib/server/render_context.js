@@ -9,7 +9,7 @@ import { RoutePolicy } from 'meteor/routepolicy';
 import { WebApp } from 'meteor/webapp';
 
 import { reducer as idle, middleware as idleMiddleware } from '../modules/redux-idle-monitor'
-import { thunk, readyStatePromise, createLogger, crashReporter } from 'redux-middleware'
+import { thunk, readyStatePromise, crashReporter } from 'redux-middleware'
 
 
 import {

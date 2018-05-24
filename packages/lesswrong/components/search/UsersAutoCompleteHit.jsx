@@ -1,8 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
-import RemoveIcon from 'material-ui/svg-icons/navigation/close';
-import classNames from 'classnames'
 
 
 const UsersAutoCompleteHit = ({document, removeItem }) => {

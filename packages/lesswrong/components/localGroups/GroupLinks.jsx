@@ -1,9 +1,6 @@
-/* global google */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { Marker, InfoWindow } from "react-google-maps"
-import { Link } from 'react-router';
 import LinkIcon from 'material-ui/svg-icons/content/link';
 import SvgIcon from 'material-ui/SvgIcon';
 import IconButton from 'material-ui/IconButton';

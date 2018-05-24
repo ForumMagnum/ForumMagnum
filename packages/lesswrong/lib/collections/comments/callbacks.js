@@ -132,34 +132,6 @@ function NewCommentsEmptyCheck (comment, user) {
   return comment;
 }
 
-function EditCommentsEmptyCheck (modifier, user) {
-  const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
-
-  const isSetEmpty = (modifier) => {
-    return (
-      _.isEmpty(modifier.$set) ||
-      (
-        !modifier.$set.htmlBody &&
-        !modifier.$set.body &&
-        (!modifier.$set.content || !convertFromRaw(modifier.$set.content).hasText())
-      )
-    )
-  }
-  const isUnsetEmpty = (modifier) => {
-    return (
-      _.isEmpty(modifier.$set) && (
-        modifier.$unset.htmlBody ||
-        modifier.$unset.body ||
-        modifier.$unset.content
-      )
-    )
-  }
-  if (isSetEmpty(modifier) && isUnsetEmpty(modifier)) {
-    throw new EmptyCommentError({data: {break: true, value: modifier}});
-  }
-  return modifier;
-}
-
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 

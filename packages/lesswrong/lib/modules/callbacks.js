@@ -75,6 +75,7 @@ const getLink = (documentType, documentId) => {
     case "message":
       return Messages.getLink(document);
     default:
+      //eslint-disable-next-line no-console
       console.error("Invalid notification type");
   }
 }
@@ -109,6 +110,7 @@ const notificationMessage = (notificationType, documentType, documentId) => {
       let conversation = Conversations.findOne(document.conversationId);
       return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
     default:
+      //eslint-disable-next-line no-console
       console.error("Invalid notification type");
   }
 }
@@ -124,6 +126,7 @@ const getDocument = (documentType, documentId) => {
     case "message":
       return Messages.findOne(documentId);
     default:
+      //eslint-disable-next-line no-console
       console.error("Invalid documentType type");
   }
 }
@@ -163,15 +166,17 @@ function PostsApprovedNotification(post) {
 addCallback("posts.approve.async", PostsApprovedNotification);
 
 function PostsUndraftNotification(post) {
-  console.log("Post undrafted, creating notifications");
-  PostsNewNotifications(post);
+  //eslint-disable-next-line no-console
+  console.info("Post undrafted, creating notifications");
+
+  postsNewNotifications(post);
 }
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
 /**
  * @summary Add new post notification callback on post submit
  */
-function PostsNewNotifications (post) {
+function postsNewNotifications (post) {
   if (post.status === Posts.config.STATUS_PENDING || post.draft) {
     // if post is pending or saved to draft, only notify admins
     let adminIds = _.pluck(Users.find({isAdmin: true}), '_id');
@@ -220,7 +225,7 @@ function PostsNewNotifications (post) {
 
   }
 }
-addCallback("posts.new.async", PostsNewNotifications);
+addCallback("posts.new.async", postsNewNotifications);
 
 
 // add new comment notification callback on comment submit
@@ -321,7 +326,8 @@ const reverseVote = (vote) => {
     // { document, voteType, collection, user, updateDocument }
     cancelVoteServer({document, voteType, collection, user, updateDocument: true})
   } else {
-    console.log("No item or user found corresponding to vote: ", vote, document, user, voteType);
+    //eslint-disable-next-line no-console
+    console.info("No item or user found corresponding to vote: ", vote, document, user, voteType);
   }
 }
 
@@ -331,7 +337,8 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   votes.forEach((vote) => {
     reverseVote(vote, collection);
   });
-  console.log(`Nullified ${votes.length} votes for user ${user.username}`);
+  //eslint-disable-next-line no-console
+  console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
 function nullifyCommentVotes(user) {
@@ -349,9 +356,11 @@ function nullifyPostVotes(user) {
 addCallback("users.nullifyVotes.async", nullifyPostVotes)
 
 function userDeleteContent(user) {
-  console.log("Deleting all content of user: ", user)
+  //eslint-disable-next-line no-console
+  console.warn("Deleting all content of user: ", user)
   const posts = Posts.find({userId: user._id}).fetch();
-  console.log("Deleting posts: ", posts);
+  //eslint-disable-next-line no-console
+  console.info("Deleting posts: ", posts);
   posts.forEach((post) => {
     editMutation({
       collection: Posts,
@@ -363,7 +372,8 @@ function userDeleteContent(user) {
     })
   })
   const comments = Comments.find({userId: user._id}).fetch();
-  console.log("Deleting comments: ", comments);
+  //eslint-disable-next-line no-console
+  console.info("Deleting comments: ", comments);
   comments.forEach((comment) => {
     editMutation({
       collection: Comments,
@@ -375,7 +385,8 @@ function userDeleteContent(user) {
     })
 
     const notifications = Notifications.find({documentId: comment._id}).fetch();
-    console.log(`Deleting notifications for comment ${comment._id}: `, notifications);
+    //eslint-disable-next-line no-console
+    console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
     notifications.forEach((notification) => {
       removeMutation({
         collection: Notifications,
@@ -383,7 +394,8 @@ function userDeleteContent(user) {
       })
     })
   })
-  console.log("Deleted n posts and m comments: ", posts.length, comments.length);
+  //eslint-disable-next-line no-console
+  console.info("Deleted n posts and m comments: ", posts.length, comments.length);
 }
 
 addCallback("users.deleteContent.async", userDeleteContent);
@@ -439,7 +451,8 @@ addCallback("users.new.sync", fixUsernameOnExternalLogin);
 
 function fixUsernameOnGithubLogin(user) {
   if (user.services && user.services.github) {
-    console.log("Github login detected, setting username and slug manually");
+    //eslint-disable-next-line no-console
+    console.info("Github login detected, setting username and slug manually");
     user.username = user.services.github.username;
     user.slug = user.services.github.username;
   }
@@ -450,7 +463,6 @@ addCallback("users.new.sync", fixUsernameOnGithubLogin);
 // cut Meteor connection after client is expired (2min 20sec)
 function disconnectUserOnExpired() {
   if (Meteor.isClient) {
-    console.log("Disconnecting meteor connection");
     Meteor.disconnect();
   }
 }
@@ -460,7 +472,6 @@ addCallback("idleStatus.expired.async", disconnectUserOnExpired);
 // Reconnect client after he becomes active again
 function reconnectUserOnActive() {
   if (Meteor.isClient) {
-    console.log("Reconnecting user to Meteor");
     Meteor.reconnect();
   }
 }

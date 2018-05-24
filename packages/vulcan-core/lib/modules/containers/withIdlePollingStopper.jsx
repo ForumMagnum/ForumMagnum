@@ -10,7 +10,6 @@ const withIdlePollingStoper = (stopPollingIdleStatus) => (WrappedComponent) => {
       }
       if (this.props.pollInterval > 0) {
         this.props.startPolling(this.props.pollInterval);
-        console.log("Initalizing IdleStopper, starting polling...");
       }
     }
 
@@ -18,11 +17,9 @@ const withIdlePollingStoper = (stopPollingIdleStatus) => (WrappedComponent) => {
       if (stopPollingIdleStatus === this.props.idleStatus && this.state.polling && this.props.pollInterval > 0) {
         this.props.stopPolling();
         this.setState({polling: false});
-        console.log("Stopping polling");
       } else if (this.props.idleStatus === "ACTIVE" && !this.state.polling && this.props.pollInterval > 0) {
         this.props.startPolling(this.props.pollInterval);
         this.setState({polling: true});
-        console.log("Starting polling again");
       }
     }
 
@@ -32,9 +29,7 @@ const withIdlePollingStoper = (stopPollingIdleStatus) => (WrappedComponent) => {
       } else {
         return true;
       }
-
     }
-
     render() {
       return <WrappedComponent {...this.props} />
     }

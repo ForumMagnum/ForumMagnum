@@ -1,5 +1,5 @@
 import React from 'react';
-import { chai, expect } from 'meteor/practicalmeteor:chai';
+import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost, addTestToCallbackOnce, createDummyComment, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
 import { performSubscriptionAction } from '../../subscriptions/mutations.js';
@@ -111,7 +111,7 @@ describe('notification generation', async () => {
     const comment = await createDummyComment(user2, {postId: post._id});
     performSubscriptionAction('subscribe', Comments, comment._id, user3)
     addTestToCallbackOnce('comments.new.async', commentTestNotificationGeneration, done);
-    const reply = await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
+    await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
   });
   it("generates notifications for new private messages", async (done) => {
     const user = await createDummyUser()
@@ -125,7 +125,7 @@ describe('notification generation', async () => {
     }
     const conversation = await createDummyConversation(user, {participantIds: [user._id, otherUser._id]});
     const message1 = await createDummyMessage(user, {conversationId: conversation._id});
-    const message2 = await createDummyMessage(otherUser, {conversationId: conversation._id});
+    await createDummyMessage(otherUser, {conversationId: conversation._id});
     addTestToCallbackOnce('messages.new.async', messageTestNotificationGeneration, done);
 
   });

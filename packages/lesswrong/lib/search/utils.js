@@ -9,13 +9,14 @@ import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { draftToHTML } from '../editor/utils.js';
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import { convertFromRaw } from 'draft-js';
 
 const contentToHtml = (content) => {
   if (content) {
     try {
       return draftToHTML(convertFromRaw(content));
     } catch(e) {
+      //eslint-disable-next-line no-console
       console.log("Failed to convert content to html:", e);
     }
   } else {
@@ -165,8 +166,10 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
   const algoliaAppId = getSetting('algoliaAppId');
   const algoliaAdminKey = getSetting('algoliaAdminKey');
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
+  //eslint-disable-next-line no-console
   console.log(`Exporting ${indexName}...`);
   let algoliaIndex = client.initIndex(indexName);
+  //eslint-disable-next-line no-console
   console.log("Initiated Index connection", algoliaIndex)
 
   let importCount = 0;
@@ -179,6 +182,7 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
     importBatch = [...importBatch, ...batchContainer];
     importCount++;
     if (importCount % 100 == 0) {
+      //eslint-disable-next-line no-console
       console.log("Imported n posts: ",  importCount, importBatch.length)
       algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
         if(error) {
@@ -203,6 +207,7 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
       // console.log("object " + content + " indexed");
     });
   });
+  //eslint-disable-next-line no-console
   console.log("Encountered the following errors: ", totalErrors)
 }
 

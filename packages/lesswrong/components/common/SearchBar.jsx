@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import algoliaClient from 'algoliasearch/src/browser/builds/algoliasearch'
-import Paper from 'material-ui/Paper';
 import PropTypes from 'prop-types';
 import {
   InstantSearch,
-  Hits, SearchBox,
-  Highlight,
-  RefinementList,
+  Hits,
+  SearchBox,
   Pagination,
-  CurrentRefinements,
-  ClearAll,
-  Snippet,
   Configure,
   Index } from 'react-instantsearch/dom';
 import FontIcon from 'material-ui/FontIcon';

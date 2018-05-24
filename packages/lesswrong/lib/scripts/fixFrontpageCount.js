@@ -10,7 +10,8 @@ async function fixFrontpagePostCount() {
       {$group: {_id: '$userId', count: {$sum: 1}}},
       {$sort: {count: -1}},
     ])
-    console.log(frontpageCountsPromise);
+    //eslint-disable-next-line no-console
+    console.log("Fixing frontpage counts", frontpageCountsPromise);
     let frontpageCounts = await frontpageCountsPromise;
     let frontpageCountsArray = await frontpageCounts.toArray();
     const userUpdates = frontpageCountsArray.map((postCount) => (
@@ -22,9 +23,11 @@ async function fixFrontpagePostCount() {
        }
      }))
      let userUpdatesCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false})
-     console.log(userUpdatesCursor);
+     //eslint-disable-next-line no-console
+     console.log("Finished updating frontpage post counts: ", userUpdatesCursor);
    } catch (e) {
-     console.log(e);
+     //eslint-disable-next-line no-console
+     console.error(e);
    }
 }
 

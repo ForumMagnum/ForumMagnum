@@ -33,6 +33,7 @@ export const htmlToDraft = convertFromHTML({
 })
 
 export const draftToHTML = convertToHTML({
+  //eslint-disable-next-line react/display-name
   styleToHTML: (style) => {
     if (style === 'STRIKETHROUGH') {
       return <span style={{textDecoration: 'line-through'}} />;
@@ -66,6 +67,7 @@ export const draftToHTML = convertToHTML({
     }
     return originalText;
   },
+  //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
      const type = block.type;
      if (type === 'atomic') {

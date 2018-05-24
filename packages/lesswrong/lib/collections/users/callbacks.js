@@ -9,7 +9,8 @@ function updateTrustedStatus ({newDocument, vote}) {
   if (user.karma >= TRUSTLEVEL1_THRESHOLD && (!Users.getGroups(user).includes('trustLevel1'))) {
     Users.update(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = Users.findOne(newDocument.userId)
-    console.log("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
+    //eslint-disable-next-line no-console
+    console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
 }
 

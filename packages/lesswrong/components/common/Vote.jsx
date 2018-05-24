@@ -7,9 +7,6 @@ import { /*FormattedMessage,*/ intlShape } from 'meteor/vulcan:i18n';
 
 import FontIcon from 'material-ui/FontIcon';
 
-import UpvoteIcon from 'material-ui/svg-icons/navigation/expand-less';
-import DownvoteIcon from 'material-ui/svg-icons/navigation/expand-more';
-
 class Vote extends PureComponent {
 
   constructor() {

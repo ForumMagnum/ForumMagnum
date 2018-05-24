@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { STATES } from 'meteor/vulcan:accounts';
 
 import Popover from 'material-ui/Popover';
 import FlatButton from 'material-ui/FlatButton';
@@ -29,8 +28,6 @@ class UsersAccountMenu extends PureComponent {
   }
 
   render() {
-    let { state } = this.props;
-
     const labelStyle = {
       color: this.props.color
     }

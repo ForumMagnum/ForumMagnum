@@ -5,10 +5,6 @@ import moment from 'moment';
 import { Link, withRouter } from 'react-router';
 import { Highlight } from 'react-instantsearch/dom';
 
-const isLeftClick = (event) => {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey;
-}
-
 const PostsListEditorSearchHit = ({hit, clickAction, router}) => {
   // If clickAction is provided, disable link and replace with TouchTap of the action
   return (

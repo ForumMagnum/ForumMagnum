@@ -1,22 +1,16 @@
-import { Components, registerComponent, withCurrentUser, withList, withEdit } from 'meteor/vulcan:core';
-import Users from "meteor/vulcan:users";
+import { Components, registerComponent, withCurrentUser, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-
-import Popover from 'material-ui/Popover';
-import {List, ListItem} from 'material-ui/List';
 import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
 import Badge from 'material-ui/Badge';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import AllIcon from 'material-ui/svg-icons/social/notifications';
 import ClearIcon from 'material-ui/svg-icons/content/clear';
-import UnreadIcon from 'material-ui/svg-icons/action/visibility-off';
 import PostsIcon from 'material-ui/svg-icons/action/description';
 import CommentsIcon from 'material-ui/svg-icons/editor/mode-comment';
 import MessagesIcon from 'material-ui/svg-icons/communication/forum';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
-import { Link } from 'react-router';
 import Notifications from '../../lib/collections/notifications/collection.js'
 
 

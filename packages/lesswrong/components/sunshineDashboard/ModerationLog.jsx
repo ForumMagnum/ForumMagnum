@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Bans } from 'meteor/lesswrong';
 import { Posts, Comments } from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';

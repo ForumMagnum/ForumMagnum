@@ -147,8 +147,6 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
    const genericMutationFunction = (collectionName, action) => {
      // return the method code
      return function(root, { documentId }, context) {
-       console.log("genericMutationFunction collectionName: ", collectionName);
-
        // extract the current user & the relevant collection from the graphql server context
        const { currentUser, [Utils.capitalize(collectionName)]: collection } = context;
 

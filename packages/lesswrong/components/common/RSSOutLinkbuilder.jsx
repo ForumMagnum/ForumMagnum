@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
 import { rssTermsToUrl } from "meteor/example-forum";
@@ -48,8 +47,8 @@ class RSSOutLinkbuilder extends Component {
         rssTerms: { view: props.view, karmaThreshold: 0}
       }
     } else {
-      console.log("Unclear how to build RSS links for: ");
-      console.log(props);
+      //eslint-disable-next-line no-console
+      console.error("Unclear how to build RSS links for: ", props);
       this.state = {
         rssTerms: { view: "rss", karmaThreshold: 0 }
       }

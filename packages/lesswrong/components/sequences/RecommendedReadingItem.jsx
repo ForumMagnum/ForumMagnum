@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import classnames from 'classnames';
 import { Link } from 'react-router';
-import { Posts } from "meteor/example-forum";
 
 const RecommendedReadingItem = ({direction, post, sequence}) => {
   const commentCount = post.commentCount || "No"

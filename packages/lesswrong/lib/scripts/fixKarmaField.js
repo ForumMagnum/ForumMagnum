@@ -29,6 +29,7 @@ if (fixKarma) {
       usersCount++;
 
       if (usersCount % 1000 == 0 ){
+        //eslint-disable-next-line no-console
         console.log("Updated karma of n users: ", usersCount);
       }
     }
