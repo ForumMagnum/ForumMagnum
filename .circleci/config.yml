@@ -72,7 +72,7 @@ jobs:
           command: meteor yarn lint
       - run:
           name: testing
-          command: TOOL_NODE_FLAGS="--max_old_space_size=4096" meteor yarn test
+          command: TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
       # move meteor bin so it can be properly cached
       - run:
           name: copy meteor bin to build cache
