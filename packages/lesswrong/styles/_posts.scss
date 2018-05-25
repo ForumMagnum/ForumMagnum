@@ -502,54 +502,6 @@
     }
   }
 }
-.posts-item, .recent-discussion-thread-wrapper {
-  .upvoted {
-    .upvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(100, 169, 105, 0.9) !important;
-      }
-    }
-
-    .downvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
-    }
-
-    .vote-count {
-      color: rgba(100, 169, 105, 0.9) !important;
-    }
-  }
-
-  .downvoted {
-    .downvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(160, 44, 44, 0.9) !important;
-      }
-    }
-
-    .upvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
-    }
-
-    .vote-count {
-      color: rgba(160, 44, 44, 0.9) !important;
-    }
-  }
-}
-.posts-item-vote{
-  display: inline;
-  .vote {
-    display: inline;
-  }
-  .upvote-button, .downvote-button {
-    display: none; //Hide vote buttons for vote-items
-  }
-}
 
 .upvote-button{
   .icon{
@@ -561,7 +513,7 @@
 }
 
 .vote-count{
-  display: inline;
+  // display: inline;
 }
 
 .downvote-button{
@@ -631,84 +583,83 @@
         position: relative;
         font-size: 20px;
         color: rgba(0,0,0,0.5);
+        margin-top:-35px;
+        margin-bottom:-30px;
         .vote-count {
           position: relative;
-
-          &:before, &:after {
-            content: "";
-            position: absolute;
-            border-bottom: 1px solid rgba(0,0,0,0.5);
-            width: 75px;
-            top: 12px;
-          }
-          &:before {
-            left:-87px;
-          }
-          &:after {
-            right:-87px;
-          }
           margin-right: 0px;
           .vote-count-text {
             display: none;
           }
         }
-        .material-icons {
-          color: rgba(0,0,0,0.4) !important;
-          border-radius: 100%;
+        .upvote-buttons {
+          position:relative;
+          top:-73px;
+        }
+        .small-upvote-button .material-icons {
+          transform: rotate(-90deg);
+          top:20px;
+          left:6px;
+        }
+        .big-upvote-button .material-icons {
+          transform: rotate(-90deg);
+          top:31px;
+          left:0px;
+        }
+        .small-downvote-button .material-icons {
+          transform: rotate(-90deg);
+          left:-6px;
+        }
+        .downvote-buttons {
+          position:relative;
+          top:50px;
+        }
+        .big-downvote-button {
+          top:20px;
+          left:10px;
+          .material-icons {
+            transform: rotate(-90deg);
+          }
         }
 
-        .material-icons:hover {
-          background-color: rgba(0,0,0,0.05);
+        .small-upvote-button,
+        .small-downvote-button {
+          .material-icons {
+            font-size:20px !important;
+          }
         }
-
-        .upvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: -17px;
-          width: 30px;
-          height: 20px;
-        }
-        .downvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: 25px;
-          width: 30px;
-          height: 20px;
+        .lw-tooltip {
+          display:none !important;
         }
       }
-      .upvoted {
-        .upvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(100, 169, 105, 0.9) !important;
-          }
-        }
-
-        .downvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
+      .big-upvote-button .material-icons,
+      .big-downvote-button .material-icons {
+        font-size:35px !important;
+        &.big-voting9 {
+          font-weight:900;
         }
       }
-
-      .downvoted {
-        .downvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(160, 44, 44, 0.9) !important;
-          }
+      .vote-count {
+        position: relative;
+        line-height:20px;
+        &:before, &:after {
+          content: "";
+          position: absolute;
+          border-bottom: 1px solid rgba(0,0,0,0.5);
+          width: 75px;
+          top: 18px;
         }
-
-        .upvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
+        &:before {
+          top:5px;
+          left:225px;
+        }
+        &:after {
+          top:5px;
+          right:225px;
+        }
+        margin-right: 0px;
+        .vote-count-text {
+          display: none;
         }
       }
     }
@@ -763,11 +714,13 @@
     margin-bottom: 30px;
     .posts-page-content-footer-voting {
       text-align: center;
-      margin-bottom: 15px;
+      // margin-bottom: 15px;
       .vote {
         position: relative;
         font-size: 30px;
         color: rgba(0,0,0,0.5);
+        margin-top:-30px;
+        margin-bottom:-30px;
         .vote-count {
           position: relative;
           margin-right: 0px;
@@ -775,65 +728,51 @@
             display: none;
           }
         }
-        .material-icons {
-          color: rgba(0,0,0,0.4) !important;
-          border-radius: 100%;
-          font-size: 45px !important;
+        .upvote-buttons {
+          position:relative;
+          top:-102px;
+        }
+        .small-upvote-button .material-icons {
+          transform: rotate(-90deg);
+          top:20px;
+          left:6px;
+        }
+        .big-upvote-button .material-icons {
+          transform: rotate(-90deg);
+          top:30px;
+          left:-5px;
+        }
+        .small-downvote-button .material-icons {
+          transform: rotate(-90deg);
+          left:-6px;
+        }
+        .downvote-buttons {
+          position:relative;
+          top:90px;
+        }
+        .big-downvote-button {
+          top:24px;
+          left:15px;
+          .material-icons {
+            transform: rotate(-90deg);
+          }
         }
 
-        .material-icons:hover {
-          background-color: rgba(0,0,0,0.05);
+        .small-upvote-button,
+        .small-downvote-button {
+          .material-icons {
+            font-size:30px !important;
+          }
         }
-
-        .upvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: -23px;
-          width: 50px;
-          height: 30px;
-
-        }
-        .downvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: 30px;
-          width: 50px;
-          height: 30px;
+        .lw-tooltip {
+          display:none !important;
         }
       }
-      .upvoted {
-        .upvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(100, 169, 105, 0.9) !important;
-          }
-        }
-
-        .downvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
-        }
-      }
-
-      .downvoted {
-        .downvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(160, 44, 44, 0.9) !important;
-          }
-        }
-
-        .upvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
+      .big-upvote-button .material-icons,
+      .big-downvote-button .material-icons {
+        font-size:40px !important;
+        &.big-voting9 {
+          font-weight:900;
         }
       }
     }

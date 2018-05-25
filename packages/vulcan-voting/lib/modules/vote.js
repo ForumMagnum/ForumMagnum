@@ -25,7 +25,7 @@ const userSmallVotePower = (user, multiplier) => {
     // return multiplier * (Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5)))
 }
 const userBigVotePower = (user, multiplier) => {
-  return 2 * multiplier
+  return 3 * multiplier
     // return multiplier * (Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5)))
 }
 //

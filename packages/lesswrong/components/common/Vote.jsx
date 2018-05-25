@@ -53,14 +53,14 @@ class Vote extends PureComponent {
     if (this.state.bigDownvoting < 9) {
       this.setState({bigDownvoting: this.state.bigDownvoting + 1})
     }
-    this.bigVotingTimer = setTimeout(this.repeatDownvoting, 60)
+    this.bigVotingTimer = setTimeout(this.repeatDownvoting, 50)
   }
 
   repeatUpvoting = () => {
     if (this.state.bigUpvoting < 9) {
       this.setState({bigUpvoting: this.state.bigUpvoting + 1})
     }
-    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 60)
+    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 50)
   }
 
   showReply(event) {
@@ -101,48 +101,54 @@ class Vote extends PureComponent {
     return actionsClass;
   }
 
+  renderTooltip = () => <div className="voting-tooltip">Click-and-hold for strong upvote</div>
+
   render() {
     return (
-      <div className={this.getActionClass()}>
-        <span className="downvote-buttons">
-          <a className="big-downvote-button">
-            <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
-              arrow_back_ios
-            </FontIcon>
-            <div className="sr-only">Big Downvote</div>
-          </a>
-          <a className="small-downvote-button">
-            <div className="voting-button"
+      <div className="vote-wrapper">
+        <div className={this.getActionClass()}>
+          <Components.Tooltip tooltip={this.renderTooltip()}>
+            <span className="downvote-buttons"
               onMouseDown={this.repeatDownvoting}
               onMouseUp={this.endBigDownvoting}
               onMouseOut={this.clearState}
-            />
-            <FontIcon className="material-icons">arrow_back_ios</FontIcon>
-            <div className="sr-only">Small Downvote</div>
-          </a>
-        </span>
-        <div className="vote-count">
-          {this.props.document.baseScore || 0}
-        </div>
-        <span className="upvote-buttons">
-          <a className="small-upvote-button">
-            <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
-              arrow_forward_ios
-            </FontIcon>
-            <div className="sr-only">Small Upvote</div>
-            <div className="voting-button"
+            >
+              <a className="big-downvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+                  arrow_back_ios
+                </FontIcon>
+                <div className="sr-only">Big Downvote</div>
+              </a>
+              <a className="small-downvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+                  arrow_back_ios
+                </FontIcon>
+                <div className="sr-only">Small Downvote</div>
+              </a>
+            </span>
+            <div className="vote-count">
+              {this.props.document.baseScore || 0}
+            </div>
+            <span className="upvote-buttons"
               onMouseDown={this.repeatUpvoting}
               onMouseUp={this.endBigUpvoting}
               onMouseOut={this.clearState}
-            />
-          </a>
-          <a className="big-upvote-button">
-            <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
-              arrow_forward_ios
-            </FontIcon>
-            <div className="sr-only">Big Upvote</div>
-          </a>
-        </span>
+            >
+              <a className="small-upvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
+                  arrow_forward_ios
+                </FontIcon>
+                <div className="sr-only">Small Upvote</div>
+              </a>
+              <a className="big-upvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
+                  arrow_forward_ios
+                </FontIcon>
+                <div className="sr-only">Big Upvote</div>
+              </a>
+            </span>
+          </Components.Tooltip>
+        </div>
       </div>
     )
   }

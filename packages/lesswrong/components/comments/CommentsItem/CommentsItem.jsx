@@ -119,9 +119,6 @@ class CommentsItem extends PureComponent {
               <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
               {!comment.deleted && <span>
                 <Components.UsersName user={comment.user}/>
-                <div className="comments-item-vote">
-                  <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
-                </div>
               </span>}
               {comment.deleted && <span>[comment deleted] </span>}
               <div className="comments-item-date">
@@ -138,6 +135,9 @@ class CommentsItem extends PureComponent {
                   </FontIcon>
                 </a>
                 }
+              </div>
+              <div className="comments-item-vote">
+                <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
               </div>
               {this.renderMenu()}
             </div>

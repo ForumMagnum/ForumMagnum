@@ -1,0 +1,106 @@
+.vote-wrapper {
+  .voting-button {
+    position:absolute;
+    top:-5px;
+    left:-3px;
+    width:30px;
+    height:30px;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .small-downvote-button .material-icons {
+    color:rgba(170,100,100,1) !important;
+  }
+  .small-upvote-button .material-icons {
+    color:rgba(100,140,100,1) !important;
+  }
+  .small-upvote-button,
+  .small-downvote-button {
+    position:relative;
+    top:-2px;
+    .material-icons {
+      opacity:.5;
+      font-size:16px !important;
+      &.big-voting0 {
+        color:rgba(0,0,0,.5) !important;
+      }
+    }
+  }
+  .big-upvote-button {
+    position:relative;
+    top:-2px;
+    left: -10px;
+    .material-icons {
+      opacity:0;
+      font-size:20px !important;
+      width:12px;
+
+      &.big-voting9 {
+        color:rgba(100,190,100,1) !important;
+      }
+    }
+  }
+  .big-downvote-button {
+    position:relative;
+    top:-2px;
+    left:3px;
+    .material-icons {
+      opacity:0;
+      font-size:20px !important;
+      width:12px;
+
+      &.big-voting9 {
+        color:rgba(205,105,100,1) !important;
+      }
+    }
+  }
+  .big-upvote-button .material-icons,
+  .big-downvote-button .material-icons {
+    &.big-voting0 { opacity:0;  }
+    &.big-voting1 { opacity:0; }
+    &.big-voting2 { opacity:0; }
+    &.big-voting3 { opacity:.1; }
+    &.big-voting4 { opacity:.2; }
+    &.big-voting5 { opacity:.3; }
+    &.big-voting6 { opacity:.4; }
+    &.big-voting7 { opacity:.5; }
+    &.big-voting8 { opacity:.6; }
+    &.big-voting9 {
+      opacity:.7;
+      font-size:1.5em !important;
+    }
+  }
+  .smallUpvoted {
+    .small-upvote-button .material-icons {
+      color: rgba(100, 169, 105, 0.7) !important;
+      opacity:1;
+    }
+  }
+  .bigUpvoted .big-upvote-button .material-icons {
+    color: rgba(100, 169, 105, 1) !important;
+    opacity:1;
+    font-size:22px !important;
+  }
+  .smallDownvoted {
+    .small-downvote-button .material-icons {
+      color: rgba(160, 44, 44, 0.5) !important;
+      opacity:1;
+    }
+  }
+  .bigDownvoted .big-downvote-button .material-icons {
+    color: rgba(160, 44, 44, 1) !important;
+    opacity:1;
+    font-size:22px !important;
+  }
+}
+
+.comments-item {
+  .voting-tooltip {
+    position:absolute;
+    top:1px;
+    left:70px;
+    font-size:13px;
+    width:300px;
+    color:rgba(0,0,0,.3);
+  }
+}
