@@ -17,17 +17,9 @@ const membersActions = [
   'comments.edit.own',
   'comments.remove.own',
   'comments.upvote',
-  'comments.smallUpvote',
-  'comments.bigUpvote',
   'comments.cancelUpvote',
-  'comments.cancelSmallUpvote',
-  'comments.cancelBigUpvote',
   'comments.downvote',
-  'comments.smallDownvote',
-  'comments.bigDownvote',
   'comments.cancelDownvote',
-  'comments.cancelSmallDownvote',
-  'comments.cancelBigDownvote',
 ];
 Users.groups.members.can(membersActions);
 
