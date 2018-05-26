@@ -408,7 +408,7 @@ Posts.addView("sunshineNewPosts", function () {
 Posts.addView("sunshineCuratedSuggestions", function () {
   return {
     selector: {
-      suggestForCuratedUserIds: {$exists:true, $not: {$size: 0}},
+      suggestForCuratedUserIds: {$exists:true, $ne: []},
       reviewForCuratedUserId: {$exists:false}
     },
     options: {
