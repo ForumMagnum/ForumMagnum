@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import withCurrentUser from '../containers/withCurrentUser.js';
 import withList from '../containers/withList.js';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
-import Button from 'react-bootstrap/lib/Button';
 import { getFieldValue } from './Card.jsx';
 
 /*
@@ -82,6 +81,9 @@ Datatable.propTypes = {
   showEdit: PropTypes.bool,
   showNew: PropTypes.bool,
   showSearch: PropTypes.bool,
+  newFormOptions: PropTypes.object,
+  editFormOptions: PropTypes.object,
+  emptyState: PropTypes.object,
 }
 
 Datatable.defaultProps = {
@@ -98,12 +100,12 @@ DatatableAbove Component
 
 */
 const DatatableAbove = (props) => {
-  const { showSearch, showNew, canInsert, value, updateQuery, options } = props;
+  const { collection, currentUser, showSearch, showNew, canInsert, value, updateQuery, options, newFormOptions } = props;
 
   return (
     <div className="datatable-above">
       {showSearch && <input className="datatable-search form-control" placeholder="Search…" type="text" name="datatableSearchQuery" value={value} onChange={updateQuery} />}
-      {showNew && canInsert && <Components.NewButton {...props} mutationFragmentName={options && options.fragmentName} />}
+      {showNew && canInsert && <Components.NewButton collection={collection} currentUser={currentUser} mutationFragmentName={options && options.fragmentName} {...newFormOptions}/>}
     </div>
   )
 }
@@ -185,7 +187,7 @@ const DatatableContents = (props) => {
           <div className="datatable-list-load-more">
             {isLoadingMore ?
               <Components.Loading/> :
-              <Button bsStyle="primary" onClick={e => {e.preventDefault(); loadMore();}}>Load More ({count}/{totalCount})</Button>
+              <Components.Button variant="primary" onClick={e => {e.preventDefault(); loadMore();}}>Load More ({count}/{totalCount})</Components.Button>
             }
           </div>
         }
@@ -201,17 +203,20 @@ DatatableRow Component
 */
 const DatatableRow = (props, { intl }) => {
 
-  const { collection, columns, document, showEdit, currentUser, options } = props;
+  const { collection, columns, document, showEdit, currentUser, options, editFormOptions, rowClass } = props;
   const canEdit = collection && collection.options && collection.options.mutations && collection.options.mutations.edit && collection.options.mutations.edit.check(currentUser, document);
 
+  const row = typeof rowClass === 'function' ? rowClass(document) : rowClass || '';
+  const modalProps = { title: <code>{document._id}</code> };
+
   return (
-  <tr className="datatable-item">
+  <tr className={`datatable-item ${row}`}>
 
     {_.sortBy(columns, column => column.order).map((column, index) => <Components.DatatableCell key={index} column={column} document={document} currentUser={currentUser} />)}
 
     {showEdit && canEdit ?
       <td>
-        <Components.EditButton {...props} mutationFragmentName={options && options.fragmentName}/>
+        <Components.EditButton collection={collection} documentId={document._id} currentUser={currentUser} mutationFragmentName={options && options.fragmentName} modalProps={modalProps} {...editFormOptions}/>
       </td>
     : null}
 
@@ -230,7 +235,7 @@ DatatableCell Component
 
 */
 const DatatableCell = ({ column, document, currentUser }) => {
-  const Component = column.component || Components[column.componentName] || Components.DatatableDefaultCell;
+  const Component = column.component || column.componentName && Components[column.componentName] || Components.DatatableDefaultCell;
   const columnName = column.name || column;
   return (
     <td className={`datatable-item-${columnName.toLowerCase().replace(/\s/g,'-')}`}><Component column={column} document={document} currentUser={currentUser} /></td>

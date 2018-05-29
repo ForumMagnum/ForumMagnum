@@ -77,7 +77,7 @@ export const getDefaultResolvers = (collectionName, resolverOptions = defaultOpt
         debug('');
         debugGroup(`--------------- start \x1b[35m${collectionName} single\x1b[0m resolver ---------------`);
         debug(`Options: ${JSON.stringify(resolverOptions)}`);
-        debug(`DocumentId: ${documentId}`);
+        debug(`DocumentId: ${documentId}, Slug: ${slug}`);
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -90,7 +90,7 @@ export const getDefaultResolvers = (collectionName, resolverOptions = defaultOpt
         // don't use Dataloader if doc is selected by slug
         const doc = documentId
           ? await collection.loader.load(documentId)
-          : slug ? await Connectors.get(collection, { slug }) : await Connectors.get();
+          : slug ? await Connectors.get(collection, { slug }) : await Connectors.get(collection);
 
         if (!doc) {
           const MissingDocumentError = createError('app.missing_document', { message: 'app.missing_document' });

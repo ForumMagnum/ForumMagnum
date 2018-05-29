@@ -2,10 +2,9 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { applyRouterMiddleware } from 'react-router';
 import { useScroll } from 'react-router-scroll';
+import { CookiesProvider } from 'react-cookie';
 
 import { Meteor } from 'meteor/meteor';
-
-import { idleActions } from 'meteor/vulcan:lib';
 
 import {
   Components,
@@ -66,16 +65,14 @@ Meteor.startup(() => {
         onUpdate: () => {
           // the first argument is an item to iterate on, needed by vulcan:lib/callbacks
           // note: this item is not used in this specific callback: router.onUpdate
-          runCallbacks('router.onUpdate', {}, store, apolloClient);
+          // runCallbacks('router.onUpdate', {}, store, apolloClient);
         },
         render: applyRouterMiddleware(useScroll((prevRouterProps, nextRouterProps) => {
-          // if the action is REPLACE, or this is the initialization of the router, return false so that we don't jump back to top of page
-          return !(nextRouterProps.location.action === 'REPLACE' || !prevRouterProps);
+          // if the action is REPLACE, return false so that we don't jump back to top of page
+          return !(nextRouterProps.location.action === 'REPLACE');
         }))
       }));
-      //Initialize redux-idle-monitor
-      store.dispatch(idleActions.start())
-      return <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>;
+      return <ApolloProvider store={store} client={apolloClient}><CookiesProvider>{app}</CookiesProvider></ApolloProvider>;
     },
   };
 

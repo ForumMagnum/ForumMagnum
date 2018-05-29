@@ -27,4 +27,7 @@ export * from './fragment_matcher.js';
 export * from './debug.js';
 export { middleware as idleMiddleware, reducer as idleReducer, actions as idleActions, IDLE_STATUSES} from './redux-idle-monitor';
 export * from './startup.js';
+export * from './errors.js';
+export * from './intl.js';
+export * from './detect_locale.js';
 // export * from './resolvers.js';

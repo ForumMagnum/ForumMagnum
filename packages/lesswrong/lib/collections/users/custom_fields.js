@@ -102,6 +102,7 @@ Users.addField([
   {
     fieldName: 'website',
     fieldSchema: {
+      type: String,
       regEx: null,
       order: 30,
     }
@@ -110,6 +111,7 @@ Users.addField([
   {
     fieldName: 'bio',
     fieldSchema: {
+      type: String,
       order: 40,
     }
   },
@@ -176,6 +178,7 @@ Users.addField([
   {
     fieldName: 'twitterUsername',
     fieldSchema: {
+      type: String,
       hidden: true,
     }
   },

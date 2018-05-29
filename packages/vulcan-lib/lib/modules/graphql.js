@@ -10,15 +10,16 @@ import GraphQLDate from 'graphql-date';
 import Vulcan from './config.js'; // used for global export
 import { Utils } from './utils.js';
 import { disableFragmentWarnings } from 'graphql-tag';
+import { isIntlField } from './intl.js';
 
 disableFragmentWarnings();
 
 // get GraphQL type for a given schema and field name
-const getGraphQLType = (schema, fieldName) => {
+const getGraphQLType = (schema, fieldName, isInputType) => {
 
   const field = schema[fieldName];
   const type = field.type.singleType;
-  const typeName = typeof type === 'function' ? type.name : type;
+  const typeName = typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
 
   switch (typeName) {
 
@@ -78,7 +79,7 @@ export const GraphQLSchema = {
   },
   // get extra schemas defined manually
   getAdditionalSchemas() {
-    const additionalSchemas = this.schemas.join('');
+    const additionalSchemas = this.schemas.join('\n');
     return additionalSchemas;
   },
 
@@ -112,6 +113,11 @@ export const GraphQLSchema = {
     this.context = deepmerge(this.context, object);
   },
 
+  directives: {},
+  addDirective(directive) {
+    this.directives = deepmerge(this.directives, directive);
+  },
+  
   // generate a GraphQL schema corresponding to a given collection
   generateSchema(collection) {
 
@@ -128,6 +134,8 @@ export const GraphQLSchema = {
       // console.log(field, fieldName)
 
       const fieldType = getGraphQLType(schema, fieldName);
+      // note: intl field have a String "normal" type but a JSON input type
+      const fieldInputType = getGraphQLType(schema, fieldName, true);
 
       // only include fields that are viewable/insertable/editable and don't contain "$" in their name
       // note: insertable/editable fields must be included in main schema in case they're returned by a mutation
@@ -135,6 +143,9 @@ export const GraphQLSchema = {
 
         const fieldDescription = field.description ? `# ${field.description}
   ` : '';
+
+        const fieldDirective = isIntlField(field) ? ` @intl` : '';
+        const fieldArguments = isIntlField(field) ? `(locale: String)` : '';
 
         // if field has a resolveAs, push it to schema
         if (field.resolveAs) {
@@ -147,9 +158,13 @@ export const GraphQLSchema = {
             // get resolver name from resolveAs object, or else default to field name
             const resolverName = field.resolveAs.fieldName || fieldName;
 
+            // use specified GraphQL type or else convert schema type
+            const fieldGraphQLType = field.resolveAs.type || fieldType;
+
             // if resolveAs is an object, first push its type definition
             // include arguments if there are any
-            mainSchema.push(`${resolverName}${field.resolveAs.arguments ? `(${field.resolveAs.arguments})` : ''}: ${field.resolveAs.type}`);
+            // note: resolved fields are not internationalized
+            mainSchema.push(`${resolverName}${field.resolveAs.arguments ? `(${field.resolveAs.arguments})` : ''}: ${fieldGraphQLType}`);
 
             // then build actual resolver object and pass it to addGraphQLResolvers
             const resolver = {
@@ -163,14 +178,14 @@ export const GraphQLSchema = {
           // if addOriginalField option is enabled, also add original field to schema
           if (field.resolveAs.addOriginalField && fieldType) {
             mainSchema.push(
-`${fieldDescription}${fieldName}: ${fieldType}`);
+`${fieldDescription}${fieldName}${fieldArguments}: ${fieldType}${fieldDirective}`);
           }
 
         } else {
           // try to guess GraphQL type
           if (fieldType) {
             mainSchema.push(
-`${fieldDescription}${fieldName}: ${fieldType}`);
+`${fieldDescription}${fieldName}${fieldArguments}: ${fieldType}${fieldDirective}`);
           }
         }
 
@@ -183,11 +198,18 @@ export const GraphQLSchema = {
           const isRequired = '';
 
           // 2. input schema
-          inputSchema.push(`${fieldName}: ${fieldType}${isRequired}`);
+          inputSchema.push(`${fieldName}: ${fieldInputType}${isRequired}`);
 
           // 3. unset schema
           unsetSchema.push(`${fieldName}: Boolean`);
 
+        }
+
+        // if field is i18nized, add foo_intl field containing all languages
+        if (isIntlField(field)) {
+          mainSchema.push(`${fieldName}_intl: [IntlValue]`);
+          inputSchema.push(`${fieldName}_intl: [IntlValueInput]`);
+          unsetSchema.push(`${fieldName}_intl: Boolean`);
         }
       }
     });
@@ -246,3 +268,4 @@ export const addGraphQLMutation = GraphQLSchema.addMutation.bind(GraphQLSchema);
 export const addGraphQLResolvers = GraphQLSchema.addResolvers.bind(GraphQLSchema);
 export const removeGraphQLResolver = GraphQLSchema.removeResolver.bind(GraphQLSchema);
 export const addToGraphQLContext = GraphQLSchema.addToContext.bind(GraphQLSchema);
+export const addGraphQLDirective = GraphQLSchema.addDirective.bind(GraphQLSchema);

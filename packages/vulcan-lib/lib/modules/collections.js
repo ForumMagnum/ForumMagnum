@@ -6,6 +6,8 @@ import { runCallbacks } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import escapeStringRegexp from 'escape-string-regexp';
+import { isIntlField } from './intl.js';
+const wrapAsync = (Meteor.wrapAsync)? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug.js';
 
 registerSetting('maxDocumentsPerRequest', 1000, 'Maximum documents per request');
@@ -79,6 +81,16 @@ Mongo.Collection.prototype.addView = function (viewName, view) {
   this.views[viewName] = view;
 };
 
+/**
+ * @summary Allow mongodb aggregation
+ * @param {Array} pipelines mongodb pipeline
+ * @param {Object} options mongodb option object 
+ */
+Mongo.Collection.prototype.aggregate = function (pipelines, options) {
+  var coll = this.rawCollection();
+  return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
+};
+
 // see https://github.com/dburles/meteor-collection-helpers/blob/master/collection-helpers.js
 Mongo.Collection.prototype.helpers = function(helpers) {
   var self = this;
@@ -114,6 +126,24 @@ export const createCollection = options => {
 
   // add views
   collection.views = [];
+
+  // generate foo_intl fields
+  Object.keys(schema).forEach(fieldName => {
+    const fieldSchema = schema[fieldName];
+    if (fieldSchema.type && fieldSchema.type.name === 'IntlString') {
+      // make non-intl field optional
+      schema[fieldName].optional = true;
+
+      schema[`${fieldName}_intl`] = {
+        ...schema[fieldName], // copy properties from regular field
+        type: Array,
+      }
+      schema[`${fieldName}_intl.$`] = {
+        type: Object,
+        blackbox: true,
+      }
+    }
+  });
 
   if (schema) {
     // attach schema to collection
@@ -301,9 +331,10 @@ export const createCollection = options => {
       }
     }
 
-    // limit number of items to 200 by default
+    // limit number of items to 1000 by default
     const maxDocuments = getSetting('maxDocumentsPerRequest', 1000);
-    parameters.options.limit = (!terms.limit || terms.limit < 1 || terms.limit > maxDocuments) ? maxDocuments : terms.limit;
+    const limit = terms.limit || parameters.options.limit;
+    parameters.options.limit = (!limit || limit < 1 || limit > maxDocuments) ? maxDocuments : limit;
 
     // console.log(parameters);
 
