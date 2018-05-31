@@ -2,7 +2,7 @@ import { debug, debugGroup, debugGroupEnd, runCallbacksAsync } from 'meteor/vulc
 import { createError } from 'apollo-errors';
 import Votes from './votes/collection.js';
 import Users from 'meteor/vulcan:users';
-import { recalculateScore } from './scoring.js';
+import { recalculateScore, recalculateBaseScore } from './scoring.js';
 
 /*
 
@@ -111,7 +111,7 @@ const addVoteServer = (voteOptions) => {
   delete vote.__typename;
   Votes.insert(vote);
 
-  newDocument.baseScore = document.baseScore ? document.baseScore + vote.power : vote.power;
+  newDocument.baseScore = recalculateBaseScore(newDocument)
   newDocument.score = recalculateScore(newDocument);
 
   if (updateDocument) {
@@ -167,7 +167,7 @@ export const clearVotesServer = ({ document, user, collection, updateDocument })
   if (votes.length) {
     Votes.remove({documentId: document._id, userId: user._id});
     if (updateDocument) {
-      collection.update({_id: document._id}, {$inc: {baseScore: -calculateTotalPower(votes) }});
+      collection.update({_id: document._id}, {$set: {baseScore: recalculateBaseScore(document)}});
     }
     newDocument.baseScore -= calculateTotalPower(votes);
     newDocument.score = recalculateScore(newDocument);
@@ -184,15 +184,21 @@ export const cancelVoteServer = ({ document, voteType, collection, user, updateD
 
   const newDocument = _.clone(document);
   const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType})
-
   // remove vote object
   Votes.remove({_id: vote._id});
-  newDocument.baseScore -= vote.power;
+  newDocument.baseScore = recalculateBaseScore(newDocument);
   newDocument.score = recalculateScore(newDocument);
 
   // update document score
   if (updateDocument) {
-    collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }, $set: {inactive: false, score: newDocument.score}});
+    collection.update(
+      {_id: document._id},
+      {$set: {
+        inactive: false,
+        score: newDocument.score,
+        baseScore: newDocument.baseScore
+      }}
+    );
   }
 
 
@@ -289,7 +295,7 @@ if set to true, this will perform its own database updates. If false, will only
 return an updated document without performing any database operations on it.
 
 */
-export const performVoteServer = ({ documentId, document, voteType = 'upvote', collection, voteId, user, updateDocument = true }) => {
+export const performVoteServer = ({ documentId, document, voteType = 'bigUpvote', collection, voteId, user, updateDocument = true }) => {
 
   const collectionName = collection.options.collectionName;
   document = document || collection.findOne(documentId);
@@ -320,7 +326,6 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
 
 
   } else {
-
     // console.log('action: vote')
 
     if (voteTypes[voteType].exclusive) {

@@ -15,12 +15,8 @@ Posts.checkAccess = (currentUser, post) => {
 const votingActions = [
   'posts.smallDownvote',
   'posts.bigDownvote',
-  'posts.cancelSmallDownvote',
-  'posts.cancelBigDownvote',
   'posts.smallUpvote',
   'posts.bigUpvote',
-  'posts.cancelSmallUpvote',
-  'posts.cancelBigUpvote',
 ]
 
 Users.groups.members.can(votingActions);

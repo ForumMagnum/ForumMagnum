@@ -10,12 +10,8 @@ Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 const votingActions = [
   'comments.smallDownvote',
   'comments.bigDownvote',
-  'comments.cancelSmallDownvote',
-  'comments.cancelBigDownvote',
   'comments.smallUpvote',
   'comments.bigUpvote',
-  'comments.cancelSmallUpvote',
-  'comments.cancelBigUpvote',
 ]
 
 Users.groups.members.can(votingActions);
