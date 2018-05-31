@@ -56,9 +56,8 @@
   }
   .big-upvote-button .material-icons,
   .big-downvote-button .material-icons {
-    &.big-voting0 { opacity:0;  }
-    &.big-voting1 { opacity:0; }
-    &.big-voting2 { opacity:0; }
+    opacity:0;
+
     &.big-voting3 { opacity:.1; }
     &.big-voting4 { opacity:.2; }
     &.big-voting5 { opacity:.3; }

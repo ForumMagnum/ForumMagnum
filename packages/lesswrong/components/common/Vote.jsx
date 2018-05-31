@@ -53,14 +53,14 @@ class Vote extends PureComponent {
     if (this.state.bigDownvoting < 9) {
       this.setState({bigDownvoting: this.state.bigDownvoting + 1})
     }
-    this.bigVotingTimer = setTimeout(this.repeatDownvoting, 50)
+    this.bigVotingTimer = setTimeout(this.repeatDownvoting, 100)
   }
 
   repeatUpvoting = () => {
     if (this.state.bigUpvoting < 9) {
       this.setState({bigUpvoting: this.state.bigUpvoting + 1})
     }
-    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 50)
+    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 100)
   }
 
   showReply(event) {

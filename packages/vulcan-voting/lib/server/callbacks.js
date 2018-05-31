@@ -84,8 +84,10 @@ function updateKarma({newDocument, vote}, collection, user, context) {
   }
 }
 
-addCallback("votes.upvote.async", updateKarma);
-addCallback("votes.downvote.async", updateKarma);
+addCallback("votes.smallUpvote.async", updateKarma);
+addCallback("votes.bigUpvote.async", updateKarma);
+addCallback("votes.smallDownvote.async", updateKarma);
+addCallback("votes.bigDowvote.async", updateKarma);
 
 function cancelVoteKarma({newDocument, vote}, collection, user, context) {
   // only update karma is the operation isn't done by the item's author
