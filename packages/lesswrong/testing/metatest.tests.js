@@ -1,7 +1,6 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { Posts } from 'meteor/example-forum';
 
 import {
   createDummyUser,
@@ -24,8 +23,8 @@ describe('Utils', async () => {
     while (!vulcanLoaded) {
       await sleep(1000)
       try {
-        //eslint-disable-next-line no-console
         let user = await createDummyUser();
+        //eslint-disable-next-line no-console
         console.log("Holding off tests until startup", user)
         if(user._id) {
           vulcanLoaded = true;
