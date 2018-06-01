@@ -1,5 +1,4 @@
 import { Accounts } from 'meteor/accounts-base';
-import Users from 'meteor/vulcan:users';
 import { getSetting } from 'meteor/vulcan:lib';
 
 if (!Meteor.isPackageTest) {

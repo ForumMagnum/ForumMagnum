@@ -18,15 +18,15 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug', (params, req, res, next) => 
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+        res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
       }
     } catch (error) {
-      console.log('// Legacy Post error')
-      console.log(error)
-      console.log(params)
+      //eslint-disable-next-line no-console
+      console.error('// Legacy Post error', error, params)
+      res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
     }
   } else {
-    res.end("Please provide a URL");
+    res.status(404).end("Please provide a URL");
   }
 });
 
@@ -45,15 +45,15 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+        res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
       }
     } catch (error) {
-      console.log('// Legacy Post error')
-      console.log(error)
-      console.log(params)
+      //eslint-disable-next-line no-console
+      console.log('// Legacy comment error', error, params)
+      res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
     }
   } else {
-    res.end("Please provide a URL");
+    res.status(404).end("Please provide a URL");
   }
 });
 
@@ -67,15 +67,15 @@ Picker.route('/user/:slug/:category?/:filter?', (params, req, res, next) => {
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.end(`No legacy user found with: ${params.slug}`);
+        res.status(404).end(`No legacy user found with: ${params.slug}`);
       }
     } catch (error) {
-      console.log('// Legacy User error')
-      console.log(error)
-      console.log(params)
+      //eslint-disable-next-line no-console
+      console.log('// Legacy User error', error, params);
+      res.status(404).end(`No legacy user found with: ${params.slug}`);
     }
   } else {
-    res.end("Please provide a URL");
+    res.status(404).end("Please provide a URL");
   }
 });
 
@@ -90,15 +90,14 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.end(`No comment found with: ${params.commentId}`);
+        res.status(404).end(`No comment found with: ${params.commentId}`);
       }
     } catch (error) {
-      console.log('// Legacy Comment error')
-      console.log(error)
-      console.log(params)
+      //eslint-disable-next-line no-console
+      console.error('// Legacy Comment error', error, params)
     }
   } else {
-    res.end("Please provide a URL");
+    res.status(404).end("Please provide a URL");
   }
 });
 
@@ -115,12 +114,11 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
       )
       res.end()
     } catch (error) {
-      console.log('// Legacy Comment error')
-      console.log(error)
-      console.log(params)
-      res.end("Invalid image url")
+      //eslint-disable-next-line no-console
+      console.error('// Legacy Comment error', error, params)
+      res.status(404).end("Invalid image url")
     }
   } else {
-    res.end("Please provide a URL");
+    res.status(404).end("Please provide a URL");
   }
 });

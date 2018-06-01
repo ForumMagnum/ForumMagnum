@@ -1,7 +1,6 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery, newMutation } from 'meteor/vulcan:core';
 import { batchUpdateScore, recalculateScore, performVoteServer } from 'meteor/vulcan:voting';
 
 import {
@@ -9,8 +8,7 @@ import {
   createDummyPost,
 } from './utils.js'
 
-import Users from 'meteor/vulcan:users';
-import { Posts, Comments } from 'meteor/example-forum'
+import { Posts } from 'meteor/example-forum'
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -147,4 +145,5 @@ describe('Voting', async () => {
   })
 })
 
-process.on('unhandledRejection', r => console.log(r));
+//eslint-disable-next-line no-console
+process.on('unhandledRejection', r => console.error(r));

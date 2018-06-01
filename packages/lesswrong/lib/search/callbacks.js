@@ -1,11 +1,9 @@
-import { addCallback, newMutation, editMutation, Utils } from 'meteor/vulcan:core';
+import { addCallback } from 'meteor/vulcan:core';
 import { Posts, Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
-import RSSFeeds from '../collections/rssfeeds/collection.js';
 import Sequences from '../collections/sequences/collection.js';
 import { algoliaDocumentExport } from './utils.js';
 import { Components } from 'meteor/vulcan:core';
-import htmlToText from 'html-to-text';
 import ReactDOMServer from 'react-dom/server';
 
 function newCommentAlgoliaIndex(comment) {

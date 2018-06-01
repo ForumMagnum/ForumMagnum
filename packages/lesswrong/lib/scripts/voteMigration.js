@@ -1,4 +1,3 @@
-import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Votes } from 'meteor/vulcan:voting';
 import { getSetting } from 'meteor/vulcan:core';
@@ -8,9 +7,11 @@ async function runVoteMigration(collectionName) {
   try {
     //Abort early if votes collection is not empty
     if (Votes.findOne()) {
-      console.log("Votes collection non-empty, aborting migration")
+      //eslint-disable-next-line no-console
+      console.error("Votes collection non-empty, aborting migration")
       return
     }
+    //eslint-disable-next-line no-console
     console.log("Initializing vote migration for collection: ", collectionName)
     let newUpvotesPromise = Users.rawCollection().aggregate([
       {$match: {["upvoted" + collectionName]: {$exists: true}}},
@@ -49,12 +50,14 @@ async function runVoteMigration(collectionName) {
       vote._id = Random.id();
       return { insertOne : vote }
     })
+    //eslint-disable-next-line no-console
     console.log("Migrating " + newVoteMutations.length + " votes...")
     await Votes.rawCollection().bulkWrite(newVoteMutations, {ordered: false})
+    //eslint-disable-next-line no-console
     console.log("Finished vote migration for collection: ", collectionName);
    } catch (e) {
-     console.log("Error during vote migration:");
-    console.log(e);
+     //eslint-disable-next-line no-console
+     console.error("Error during vote migration:", e);
    }
 }
 

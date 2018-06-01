@@ -20,7 +20,6 @@ import { Collections } from '../modules/collections.js';
 import findByIds from '../modules/findbyids.js';
 import { runCallbacks } from '../modules/callbacks.js';
 
-import { IpFilter } from 'express-ipfilter';
 import timber from 'timber';
 import cors from 'cors';
 
@@ -122,7 +121,8 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // LESSWRONG: Timber logging integration
   if (timberApiKey) {
-    console.log("Starting timber integration")
+    //eslint-disable-next-line no-console
+    console.info("Starting timber integration")
     graphQLServer.use(timber.middlewares.express())
   }
 

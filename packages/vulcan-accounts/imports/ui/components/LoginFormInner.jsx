@@ -680,7 +680,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
                 self.props.handlers.switchToProfile();
                 self.clearDefaultFieldValues();
               } else {
-                console.log(error)
+                //eslint-disable-next-line no-console
+                console.error(error)
                 self.showMessage("accounts.error_legacy_account_wrong_password");
               }
             })

@@ -1,5 +1,5 @@
 import { getSetting, registerSetting, debug } from 'meteor/vulcan:core';
-import { updateScore, batchUpdateScore } from './scoring.js';
+import { batchUpdateScore } from './scoring.js';
 import { VoteableCollections } from '../modules/make_voteable.js';
 
 registerSetting('voting.scoreUpdateInterval', 60, 'How often to update scores, in seconds');

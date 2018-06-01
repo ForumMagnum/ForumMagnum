@@ -1,6 +1,6 @@
 import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Comments, Posts } from 'meteor/example-forum';
+import { Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
@@ -34,7 +34,6 @@ class SunshineCommentsItem extends Component {
 
   render () {
     const comment = this.props.comment
-    let commentExcerpt = comment.body.substring(0,40).split("\n\n");
     if (comment) {
       return (
         <div className="sunshine-sidebar-item new-comment">

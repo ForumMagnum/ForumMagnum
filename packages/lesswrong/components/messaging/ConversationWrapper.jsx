@@ -14,7 +14,6 @@ class ConversationWrapper extends Component {
 
   renderMessages(results, currentUser) {
     if (results && results.length) {
-      console.log("ConversationWrapper results", results);
       return (
         <div>
           {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
@@ -47,7 +46,10 @@ class ConversationWrapper extends Component {
               collection={Messages}
               prefilledProps={ {conversationId: conversation._id} }
               mutationFragment={getFragment("messageListFragment")}
-              errorCallback={(message)=> console.log("Failed to send", message)}
+              errorCallback={(message) => {
+                //eslint-disable-next-line no-console
+                console.error("Failed to send", message)
+              }}
             />
           </div>
         </div>

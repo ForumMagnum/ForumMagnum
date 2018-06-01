@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import Helmet from 'react-helmet';
 import PropTypes from 'prop-types';
-import { registerComponent, Components, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
 import Geosuggest from 'react-geosuggest';
 
 class LocationFormComponent extends Component {

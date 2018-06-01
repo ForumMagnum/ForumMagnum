@@ -4,7 +4,6 @@ import { intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import { Components } from 'meteor/vulcan:core';
 import { registerComponent } from 'meteor/vulcan:core';
-import { isEmptyValue } from '../modules/utils';
 
 class FormComponent extends PureComponent {
 

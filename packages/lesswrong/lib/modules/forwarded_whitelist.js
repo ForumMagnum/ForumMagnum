@@ -10,7 +10,8 @@ if(getSetting("forwardedWhitelist")) {
       if(!err) {
         records.forEach((rec) => {
           whitelist[rec.address] = true;
-          console.log("Adding " + hostname + ": " + rec.address + " to whitelist.");
+          //eslint-disable-next-line no-console
+          console.info("Adding " + hostname + ": " + rec.address + " to whitelist.");
         });
       }
     });

@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
-import IconButton from 'material-ui/IconButton';
-import RemoveIcon from 'material-ui/svg-icons/content/remove-circle-outline';
-import DragIcon from 'material-ui/svg-icons/editor/drag-handle';
 
+// React sortable has constructors that don't work like normal constructors
+//eslint-disable-next-line babel/new-cap
 const SortableItem = SortableElement(({userId, currentUser, removeItem}) =>
   <li className="users-list-editor-item">
     <Components.SingleUsersItemWrapper documentId={userId} currentUser={currentUser} removeItem={removeItem} />
   </li>
 );
 
+// React sortable has constructors that don't work like normal constructors
+//eslint-disable-next-line babel/new-cap
 const SortableList = SortableContainer(({items, currentUser, removeItem}) => {
   return (
     <div>

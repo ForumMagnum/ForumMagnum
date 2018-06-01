@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import unionClassNames from 'union-class-names';
 import AddLinkForm from './AddImageForm.jsx';
 
 export default class ImageButton extends Component {

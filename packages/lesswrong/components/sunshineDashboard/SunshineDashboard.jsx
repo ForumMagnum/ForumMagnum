@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList, withCurrentUser, Loading , withEdit} from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser , withEdit} from 'meteor/vulcan:core';
 import Reports from '../../lib/collections/reports/collection.js'
 import FlatButton from 'material-ui/FlatButton';
 import Users from 'meteor/vulcan:users';
@@ -25,7 +25,7 @@ const SunshineDashboard = (props, context) => {
     const editMutation = props.editMutation;
     const currentUser = props.currentUser;
     const claimButton = (props) => {
-      handleTouchTap = () => {
+      const handleTouchTap = () => {
         editMutation({
           documentId: props.document._id,
           set: {claimedUserId: currentUser._id},

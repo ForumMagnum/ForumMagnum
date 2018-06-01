@@ -1,6 +1,6 @@
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Comments, Posts } from 'meteor/example-forum';
+import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';

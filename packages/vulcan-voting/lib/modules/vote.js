@@ -1,4 +1,4 @@
-import { debug, debugGroup, debugGroupEnd, runCallbacksAsync, runCallbacks, addCallback } from 'meteor/vulcan:core';
+import { debug, debugGroup, debugGroupEnd, runCallbacksAsync } from 'meteor/vulcan:core';
 import { createError } from 'apollo-errors';
 import Votes from './votes/collection.js';
 import Users from 'meteor/vulcan:users';
@@ -290,7 +290,8 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
   if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
-    console.log("performVoteServer permission error:", document, user, !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`))
+    //eslint-disable-next-line no-console
+    console.error("performVoteServer permission error:", document, user, !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`))
     const VoteError = createError('voting.no_permission', {message: 'voting.no_permission'});
     throw new VoteError();
   }

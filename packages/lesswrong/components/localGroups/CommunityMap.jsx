@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList, getSetting} from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import { Localgroups } from '../../lib/index.js';
 import mapStyle from './mapStyles.js';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps"

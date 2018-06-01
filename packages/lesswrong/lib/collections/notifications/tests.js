@@ -1,5 +1,5 @@
 import React from 'react';
-import { chai, expect } from 'meteor/practicalmeteor:chai';
+import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost, addTestToCallbackOnce, createDummyComment, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
 import { performSubscriptionAction } from '../../subscriptions/mutations.js';
@@ -63,26 +63,24 @@ describe('notification generation', async () => {
   it("generates notifications for new posts", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    async function testNotificationGeneration(post) {
+    async function testNotificationGeneration(notification) {
       const notifications = await Notifications.find({userId: otherUser._id}).fetch();
       notifications.should.have.lengthOf(1);
-      notifications[0].should.have.property('documentId', post._id);
       notifications[0].should.have.property('type', 'newPost');
     }
-    addTestToCallbackOnce('posts.new.async', testNotificationGeneration, done);
+    addTestToCallbackOnce('notifications.new.async', testNotificationGeneration, done);
     performSubscriptionAction('subscribe', Users, user._id, otherUser)
     await createDummyPost(user);
   });
   it("generates notifications for new comments to post", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    async function commentTestNotificationGeneration(comment) {
+    async function commentTestNotificationGeneration(notification) {
       const notifications = await Notifications.find({userId: user._id}).fetch();
       notifications.should.have.lengthOf(1);
-      notifications[0].should.have.property('documentId', comment._id);
       notifications[0].should.have.property('type', 'newComment');
     }
-    addTestToCallbackOnce('comments.new.async', commentTestNotificationGeneration, done);
+    addTestToCallbackOnce('notifications.new.async', commentTestNotificationGeneration, done);
     const post = await createDummyPost(user);
     await createDummyComment(otherUser, {postId: post._id});
   });
@@ -111,7 +109,7 @@ describe('notification generation', async () => {
     const comment = await createDummyComment(user2, {postId: post._id});
     performSubscriptionAction('subscribe', Comments, comment._id, user3)
     addTestToCallbackOnce('comments.new.async', commentTestNotificationGeneration, done);
-    const reply = await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
+    await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
   });
   it("generates notifications for new private messages", async (done) => {
     const user = await createDummyUser()
@@ -125,7 +123,7 @@ describe('notification generation', async () => {
     }
     const conversation = await createDummyConversation(user, {participantIds: [user._id, otherUser._id]});
     const message1 = await createDummyMessage(user, {conversationId: conversation._id});
-    const message2 = await createDummyMessage(otherUser, {conversationId: conversation._id});
+    await createDummyMessage(otherUser, {conversationId: conversation._id});
     addTestToCallbackOnce('messages.new.async', messageTestNotificationGeneration, done);
 
   });

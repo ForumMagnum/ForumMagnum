@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, getFragment, withMessages, withDocument, getSetting} from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, withMessages, withDocument } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';

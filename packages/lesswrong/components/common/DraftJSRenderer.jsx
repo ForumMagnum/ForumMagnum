@@ -1,4 +1,3 @@
-/* global google */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components, Utils } from 'meteor/vulcan:core';
@@ -11,7 +10,8 @@ class DraftJSRenderer extends PureComponent {
       const contentState = convertFromRaw(this.props.content);
       htmlBody = {__html: Utils.draftToHTML(contentState)};
     } catch(err) {
-      console.log("invalid draftContentState", this.props.content);
+      //eslint-disable-next-line no-console
+      console.error("invalid draftContentState", this.props.content);
     }
     return <div dangerouslySetInnerHTML={htmlBody}/>
   }

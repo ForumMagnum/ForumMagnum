@@ -1,6 +1,5 @@
 import { Components, replaceComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 

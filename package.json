@@ -8,7 +8,8 @@
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings.json",
     "lint": "eslint --cache --ext .jsx,js packages",
-    "test": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app"
+    "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app",
+    "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.46",

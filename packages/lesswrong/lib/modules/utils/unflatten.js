@@ -8,7 +8,7 @@ export const unflatten = function(array, options, parent, level=0, tree){
 
   level++;
 
-  ids = array.map((comment)=>comment._id)
+  let ids = array.map((comment)=>comment._id)
 
   tree = typeof tree !== "undefined" ? tree : [];
 

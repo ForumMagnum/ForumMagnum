@@ -1,6 +1,4 @@
-
 import Users from "meteor/vulcan:users";
-import LWEvents from "./collections/lwevents/collection.js";
 
 // Comments.addDefaultView(function (terms) {
 //   return {

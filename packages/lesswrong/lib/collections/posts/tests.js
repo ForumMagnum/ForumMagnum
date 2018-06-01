@@ -1,10 +1,8 @@
 import React from 'react';
-import { chai, expect } from 'meteor/practicalmeteor:chai';
+import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
-import { getFragmentText } from 'meteor/vulcan:lib';
 import { createDummyUser, createDummyPost } from '../../../testing/utils.js'
-import { Posts, Comments } from "meteor/example-forum";
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -46,15 +44,6 @@ describe('PostsEdit', async () => {
     return response.should.be.rejectedWith(expectedError);
   });
 });
-
-describe('Posts.maxBaseScore', async () => {
-  it("initializes at the original voting power of the author", async () => {
-    const user = await createDummyUser();
-    const post = await createDummyPost(user);
-    const updatedPost = await Posts.find({_id: post._id}).fetch();
-    updatedPost[0].maxBaseScore.should.be.equal(1)
-  });
-})
 
 describe('Posts RSS Views', async () => {
   it("only shows curated posts in curated-rss view", async () => {

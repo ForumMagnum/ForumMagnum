@@ -40,15 +40,18 @@ if (runSSCFix) {
 
     async function allCodexPosts() {
       let queryResult = await completeCodex();
+      //eslint-disable-next-line no-console
       console.log(queryResult);
 
       let allCodexPosts = [];
 
       queryResult.data.CollectionsSingle.books.forEach((book) => {
+        //eslint-disable-next-line no-console
         console.log("Adding posts for book...")
         allCodexPosts = allCodexPosts.concat(book.posts);
         book.sequences.forEach((sequence) => {
           sequence.chapters.forEach((chapter) => {
+            //eslint-disable-next-line no-console
             console.log("Adding Posts for chapter...")
             allCodexPosts = allCodexPosts.concat(chapter.posts);
           })
@@ -60,8 +63,10 @@ if (runSSCFix) {
     async function updateCodexDrafts() {
       let allCodexPostIds = await allCodexPosts();
       allCodexPostIds = allCodexPostIds.map((post) => post._id);
+      //eslint-disable-next-line no-console
       console.log(allCodexPostIds)
       Posts.update({_id: {$in: allCodexPostIds}}, {$set: {draft: false}}, {multi: true})
+      //eslint-disable-next-line no-console
       console.log("Updated codex draft status");
     }
 

@@ -14,11 +14,14 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
         document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
       })
     }
+    //eslint-disable-next-line no-console
     console.log(rssFeed);
     for (let i of _.range(1,pages)) {
       const newPosts = await feedparser.parse(rssURL+i)
+      //eslint-disable-next-line no-console
       console.log("Importing RSS posts page " + i);
       rssPageImports.push(i);
+      //eslint-disable-next-line no-console
       console.log("RSS Pages Imported So far: ", rssPageImports.sort());
       newPosts.forEach(function (newPost) {
         var body;
@@ -64,12 +67,14 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
               validate: false,
             })
           }
-          console.log("Post already imported: ", oldPost.title);
+          //eslint-disable-next-line no-console
+          console.warn("Post already imported: ", oldPost.title);
         }
       })
     }
   } catch (e) {
-    console.log(e)
+    //eslint-disable-next-line no-console
+    console.error(e)
   }
 }
 

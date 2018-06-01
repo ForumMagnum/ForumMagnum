@@ -1,6 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { registerComponent, Components, withList } from 'meteor/vulcan:core';
-import Localgroups from '../../lib/collections/localgroups/collection.js';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 
 const LocalGroupsItem = ({group}) => {

@@ -10,7 +10,6 @@ import { Components, registerComponent, getFragment } from "meteor/vulcan:core";
 import Conversations from '../../lib/collections/conversations/collection.js';
 
 const TitleEditForm = props =>{
-  console.log("TitleEdit Form props: ",  props);
   return <Components.SmartForm
     collection={Conversations}
     documentId={props.documentId}

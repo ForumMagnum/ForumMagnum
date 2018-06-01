@@ -8,13 +8,10 @@ import Headroom from 'react-headroom'
 
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import AppBar from 'material-ui/AppBar';
-import IconButton from 'material-ui/IconButton';
-import NotificationsIcon from 'material-ui/svg-icons/social/notifications-none';
 
 import { withApollo } from 'react-apollo';
 import { Posts } from 'meteor/example-forum';
 import Sequences from '../../lib/collections/sequences/collection'
-import Localgroups from '../../lib/collections/localgroups/collection'
 import Users from 'meteor/vulcan:users';
 
 const appBarStyle = {

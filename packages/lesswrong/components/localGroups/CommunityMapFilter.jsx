@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import Paper from 'material-ui/Paper';
 import { withRouter } from 'react-router';
-import ActionFavorite from 'material-ui/svg-icons/action/favorite';
-import ActionFavoriteBorder from 'material-ui/svg-icons/action/favorite-border';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Checkbox from 'material-ui/Checkbox';
 

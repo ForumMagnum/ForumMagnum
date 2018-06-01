@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import DatePicker from 'material-ui/DatePicker';
 import { withRouter } from 'react-router'
-import { withCurrentUser, withEdit, Components, registerComponent} from 'meteor/vulcan:core';
+import { withCurrentUser, Components, registerComponent} from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 

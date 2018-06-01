@@ -9,6 +9,7 @@ Vulcan.importLW1Passwords = async () =>
     userCounter++;
     Accounts.setPassword(user._id, user.legacyData.password);
     if(userCounter % 100 === 0) {
+      //eslint-disable-next-line no-console
       console.log(userCounter);
     }
   })
@@ -23,6 +24,7 @@ Vulcan.importLW1Passwords2 = async () =>
     userCounter++;
     Accounts.setPassword(user._id, user.legacyData.password);
     if(userCounter % 100 === 0) {
+      //eslint-disable-next-line no-console
       console.log(userCounter);
     }
   })

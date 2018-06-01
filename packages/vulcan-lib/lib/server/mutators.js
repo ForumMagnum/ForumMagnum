@@ -143,8 +143,10 @@ export const editMutation = async ({ collection, documentId, set = {}, unset = {
 
     // LESSWRONG - added custom message (showing all validation errors instead of a generic message)
     if (validationErrors.length) {
-      console.log('// validationErrors')
-      console.log(validationErrors)
+      //eslint-disable-next-line no-console
+      console.error('// validationErrors')
+      //eslint-disable-next-line no-console
+      console.error(validationErrors)
       const EditDocumentValidationError = createError('app.validation_error', {message: JSON.stringify(validationErrors)});
       throw new EditDocumentValidationError({data: {break: true, errors: validationErrors}});
     }

@@ -61,15 +61,18 @@ jobs:
             meteor npm -v
             echo "Java version:"
             java -version
-      - run: 
+      - run:
           name: install yarn
           command: meteor npm i -g yarn
-      - run: 
+      - run:
           name: install npm packages
           command: meteor yarn
       - run:
           name: code linting
           command: meteor yarn lint
+      - run:
+          name: testing
+          command: TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
       # move meteor bin so it can be properly cached
       - run:
           name: copy meteor bin to build cache
@@ -94,6 +97,3 @@ jobs:
           paths:
             - ./node_modules/
             - ~/.npm/
-
-
-

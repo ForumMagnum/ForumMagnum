@@ -136,6 +136,8 @@ function updateCollectionPosts(posts, collectionSlug) {
 async function UpdateCollectionLinks (book) {
   const collectionId = book.collectionId
   const results = await getAllCollectionPosts(collectionId)
+
+  //eslint-disable-next-line no-console
   console.log(`Updating Collection Links for ${collectionId}...`)
 
   Collections.update(collectionId, { $set: {
@@ -145,6 +147,7 @@ async function UpdateCollectionLinks (book) {
   updateCollectionSequences(results.sequences, results.collectionSlug)
   updateCollectionPosts(results.posts, results.collectionSlug)
 
+  //eslint-disable-next-line no-console
   console.log(`...finished Updating Collection Links for ${collectionId}`)
 }
 addCallback("books.edit.async", UpdateCollectionLinks);

@@ -3,25 +3,18 @@ import { Components, withCurrentUser, AdminColumns } from 'meteor/vulcan:core';
 import { Bans, LWEvents } from 'meteor/lesswrong';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
-import moment from 'moment';
 
 import '../modules/columns.js';
 
 import { addAdminColumn } from 'meteor/vulcan:core';
 
 const UserIPsDisplay = ({column, document}) => {
-  console.log("document.IPs: ", document.IPs);
   return <div>
     {document.IPs && document.IPs.map(ip => <div>{ip}</div>)}
   </div>
 }
 
-const DateDisplay = ({document, name}) => <div>
-  {moment(document[name].date)}
-</div>
-
 const EventPropertiesDisplay = ({column, document}) => {
-  console.log("EventPropertiesDisplay", column, document);
   return <div>
     {document[column.name] && document[column.name].ip},
     {document[column.name] && document[column.name].type}

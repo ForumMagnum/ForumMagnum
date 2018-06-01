@@ -79,7 +79,8 @@ const addJob = function () {
 
         }).catch( (error) => {
           // console.log(feed);
-          console.log('RSS error: ', error);
+          //eslint-disable-next-line no-console
+          console.error('RSS error: ', error);
         });
      })
     }

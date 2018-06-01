@@ -7,6 +7,7 @@ function initializeTimber() {
     const transport = new timber.transports.HTTPS(timberApiKey);
     timber.install(transport);
   } else {
+    //eslint-disable-next-line no-console
     console.warn("No Timber API key provided. Provide one if you want a better logging experience.")
   }
 }

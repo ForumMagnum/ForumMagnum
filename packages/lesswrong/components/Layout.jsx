@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 
-import Intercom, { IntercomAPI } from 'react-intercom';
+import Intercom from 'react-intercom';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();

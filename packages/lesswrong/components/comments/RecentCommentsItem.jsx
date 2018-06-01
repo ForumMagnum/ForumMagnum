@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
 import { Comments, Posts } from "meteor/example-forum";
