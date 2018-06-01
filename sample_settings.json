@@ -2,7 +2,6 @@
   "public": {
     "title": "LessWrong Development Server",
     "tagline":"A community blog devoted to refining the art of rationality",
-
     "logoUrl": "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1498011194/LessWrong_Logo_skglnw.svg",
     "logoHeight": "50",
     "logoWidth": "200",
@@ -39,5 +38,6 @@
      "twitter": {
        "consumerKey": "foo",
        "secret": "bar"
-   }
+     }
+  }
 }
