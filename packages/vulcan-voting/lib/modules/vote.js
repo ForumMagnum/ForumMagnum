@@ -188,7 +188,7 @@ export const clearVotesServer = ({ document, user, collection, updateDocument })
       // LESSWRONG – recalculateBaseScore
       collection.update({_id: document._id}, {$set: {baseScore: recalculateBaseScore(document)}});
     }
-    newDocument.baseScore = recalculateScore(newDocument);
+    newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
   }
   return newDocument;
@@ -343,6 +343,8 @@ export const performVoteServer = ({ documentId, document, voteType = 'bigUpvote'
 
 
   } else {
+
+    // console.log('action: vote')
 
     if (voteTypes[voteType].exclusive) {
       document = clearVotesServer(voteOptions)
