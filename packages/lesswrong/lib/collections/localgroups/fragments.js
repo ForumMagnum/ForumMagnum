@@ -13,7 +13,6 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
-    type
     types
     description
     contactInfo
