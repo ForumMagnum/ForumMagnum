@@ -1,1 +1,0 @@
-VulcanJS admin package.
