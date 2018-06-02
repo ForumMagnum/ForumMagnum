@@ -17,6 +17,7 @@ class EditUrl extends Component {
   toggleEditor = () => {this.setState({active: !this.state.active})}
 
   render() {
+    console.log("EditURL props: ", this.props);
     return (
       <div className="posts-edit-url">
         <div className="row">
@@ -30,13 +31,12 @@ class EditUrl extends Component {
           </div>
           <div className="col-md-8">
             <Input
-              name={ this.props.name }
-              label={ this.props.label }
+              {...this.props.inputProperties}
               placeholder={ this.props.placeholder }
               hidden={ !this.state.active}
-              value={this.state.active ? this.state.url : ""}
               type={this.state.active ? "url" : "hidden"}
-              layout="elementOnly" />
+              layout="elementOnly"
+            />
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@ class EditUrl extends Component {
 }
 
 EditUrl.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
 };
