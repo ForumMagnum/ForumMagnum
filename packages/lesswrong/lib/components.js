@@ -118,6 +118,9 @@ import '../components/search/SequencesSearchHit.jsx';
 import '../components/search/SequencesSearchAutoComplete.jsx';
 import '../components/search/UsersSearchAutoComplete.jsx';
 import '../components/search/UsersAutoCompleteHit.jsx';
+
+import '../components/admin/AdminDashboard.jsx';
+
 import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/SunshineDashboard.jsx';

@@ -47,7 +47,7 @@ addRoute({name:'Localgroups.single',   path:'groups/:groupId', componentName: 'L
 addRoute({name:'events.single',   path:'events/:_id(/:slug)', componentName: 'PostsSingle'});
 addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'PostsSingle'});
 
-addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome'});
+addRoute({ name: 'admin', path: '/admin', componentName: 'AdminDashboard'});
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog'});
 addRoute({name: 'home', path: '/', componentName: 'Home'});
 addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
