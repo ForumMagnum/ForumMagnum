@@ -1,7 +1,6 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { Posts } from 'meteor/example-forum';
 
 import {
   createDummyUser,
@@ -11,17 +10,25 @@ import {
 chai.should();
 chai.use(chaiAsPromised);
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 describe('Utils', async () => {
-  before(async (done) => {
+  before(async function(done) {
+    this.timeout(20000)
     let vulcanLoaded = false;
     //eslint-disable-next-line no-console
     console.log("Holding off tests until startup")
     while (!vulcanLoaded) {
+      await sleep(1000)
       try {
+        let user = await createDummyUser();
         //eslint-disable-next-line no-console
-        console.log("Holding off tests until startup")
-        Posts.findOne()
-        vulcanLoaded = true;
+        console.log("Holding off tests until startup", user)
+        if(user._id) {
+          vulcanLoaded = true;
+        }
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(e)

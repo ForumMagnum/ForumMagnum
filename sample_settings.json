@@ -1,37 +1,43 @@
 {
   "public": {
-
-    "title": "Your site title",
-    "tagline":"Your site tagline",
-
-    "logoUrl": "http://placekitten.com/250/80",
-    "logoHeight": "80",
-    "logoWidth": "250",
-    "faviconUrl": "/favicon.ico",
-
+    "title": "LessWrong Development Server",
+    "tagline":"A community blog devoted to refining the art of rationality",
+    "logoUrl": "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1498011194/LessWrong_Logo_skglnw.svg",
+    "logoHeight": "50",
+    "logoWidth": "200",
+    "faviconUrl": "http://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
+    "requirePostsApproval":false,
+    "requireViewInvite":false,
+    "requirePostInvite":false,
+    "enableNewsletter":false,
+    "newsletterFrequency": [1, 2, 3, 4],
+    "autoSubscribe":false,
+    "emailNotifications":true,
+    "postInterval": 20,
+    "RSSLinksPointTo": "post",
+    "commentInterval": 20,
+    "maxPostsPerDay": 10,
+    "startInvitesCount": 5,
+    "postsPerPage": 10,
+    "siteImage": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg",
     "language": "en",
     "locale": "en",
-
     "twitterAccount": "foo",
     "facebookPage": "http://facebook.com/foo",
-
-    "googleAnalytics": {
-      "apiKey": "foo123"
-    },
-    "intercomToken":"faken-token"
+    "runVoteMigration": false,
+    "embedProvider": "builtin"
   },
 
-  "defaultEmail": "hello@world.com",
-  "mailUrl": "smtp://username%40yourdomain.mailgun.org:yourpassword123@smtp.mailgun.org:587/",
+  "defaultEmail": "no-reply@lesserwrong.com",
+  "scoreUpdateInterval": "30",
+  "forwardedWhitelist": ["outgoing-addresses.greaterwrong.com"],
+  "newsletterExcerptLength": 20,
+  "postExcerptLength": 30,
 
   "oAuth": {
-    "twitter": {
-      "consumerKey": "foo",
-      "secret": "bar"
-    },
-    "facebook": {
-      "appId": "foo",
-      "secret": "bar"
-    }
+     "twitter": {
+       "consumerKey": "foo",
+       "secret": "bar"
+     }
   }
 }

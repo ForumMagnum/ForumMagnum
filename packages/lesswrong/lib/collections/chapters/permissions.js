@@ -1,5 +1,4 @@
 import Users from 'meteor/vulcan:users';
-import Chapters from './collection.js';
 
 const membersActions = [
   "chapters.view.own",
@@ -16,8 +15,3 @@ const adminActions = [
   "chapters.remove.all",
 ];
 Users.groups.admins.can(adminActions);
-
-Chapters.checkAccess = (user, document) => {
-  if (!user || !document) return false;
-  return Users.owns(user, document) ? Users.canDo(user, 'chapters.view.own') : (Users.canDo(user, `conversations.view.all`) || !document.draft)
-};

@@ -42,4 +42,9 @@ const UserSequenceRels = createCollection({
 
 });
 
+UserSequenceRels.checkAccess = (user, document) => {
+  if (!user || !document) return false;
+  return Users.owns(user, document) ? Users.canDo(user, 'notifications.view.own') : Users.canDo(user, `conversations.view.all`)
+};
+
 export default UserSequenceRels;

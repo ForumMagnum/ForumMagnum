@@ -16,10 +16,3 @@ const adminActions= [
   'sequences.new.all'
 ]
 Users.groups.admins.can(adminActions);
-
-// Ray 5/2/2018 – is this commented out code still relevant?
-
-// Sequences.checkAccess = (user, document) => {
-//   console.log("Sequences checkAccess function: ", user, document);
-//   if (!user || !document) return false;
-//   return Users.owns(user, document) ? Users.canDo(user, 'sequences.view.own') : (Users.canDo(user, `sequences.view.all`) || !document.draft)};

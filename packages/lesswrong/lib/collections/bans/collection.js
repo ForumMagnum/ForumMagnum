@@ -42,4 +42,9 @@ const Bans = createCollection({
 
 });
 
+Bans.checkAccess = (user, document) => {
+  if (!user || !document) return false;
+  return Users.canDo(user, 'bans.view')
+};
+
 export default Bans;
