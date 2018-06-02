@@ -65,26 +65,6 @@ const schema = {
     label: "Local Group Name"
   },
 
-  type: {
-    type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    control: 'select',
-    optional: true,
-    form: {
-      noneOptionLabel: "Select Group Type",
-      options: function () { // options for the select form control
-        return [
-          {value: "LW", label: "LessWrong Group"},
-          {value: "SSC", label: "SlateStarCodex Group"},
-          {value: "EA", label: "Effective Altruism Group"},
-          {value: "other", label: "Other"},
-        ];
-      }
-    },
-  },
-
   types: {
     type: Array,
     viewableBy: ['guests'],
