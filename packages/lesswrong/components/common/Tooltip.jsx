@@ -10,7 +10,7 @@ class Tooltip extends Component {
   render () {
     const { children, tooltip } = this.props
     return (
-      <div className="lw-tooltip-wrapper"
+      <span className="lw-tooltip-wrapper"
         onMouseOver={this.handleHoverOver}
         onMouseLeave={this.handleHoverExit}
       >
@@ -18,7 +18,7 @@ class Tooltip extends Component {
         <div className="lw-tooltip">
           { tooltip }
         </div>
-      </div>
+      </span>
     )
   }
 }

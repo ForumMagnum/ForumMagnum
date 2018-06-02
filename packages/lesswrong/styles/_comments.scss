@@ -128,6 +128,7 @@ $medium-text: $dark-grey;
     .comments-item-reply-link {
       margin-right: 5px;
       display: inline;
+      color:rgba(0,0,0,.5);
     }
   }
   blockquote {
@@ -290,10 +291,9 @@ New CSS File
 
   .comments-item-date{
     display: inline-block;
-    margin-right: $hmargin;
+    margin-right: 2px;
     color: rgba(0,0,0,0.5);
     font-size: $small-font;
-    margin-right: 8px;
     a {
       color: rgba(0,0,0,0.5);
       .comments-item-permalink{
@@ -310,6 +310,7 @@ New CSS File
   }
   .comments-item-origin {
     display: inline-block;
+    margin-right: $hmargin;
     color: rgba(0,0,0,0.4);
     .comments-item-origin-post-title {
       color: rgba(0,0,0,0.5)
@@ -654,4 +655,22 @@ New CSS File
   float:right;
   margin-top:-25px;
   color:rgba(0,0,0,.5);
+}
+
+
+.comments-item-vote {
+  .vote.bigDownvoted {
+    margin-left:5px;
+  }
+
+  .big-upvote-button {
+    position:relative;
+    top:-2px;
+    left: -11px;
+  }
+  .big-downvote-button {
+    position:relative;
+    top:-2px;
+    left:4px;
+  }
 }

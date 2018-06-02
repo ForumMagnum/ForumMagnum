@@ -89,19 +89,20 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                   </FontIcon>
                 ) : level != 1 && <div className="recent-comment-username-spacing">○</div>}
                 <Components.UsersName user={comment.user}/>
-
-                <div className="comments-item-vote recent-comments-item-vote ">
-                  <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
-                </div>
                 { comment.post && (
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
-                      <div className="comments-item-date">{moment(new Date(comment.postedAt)).fromNow()}</div>
+                      <div className="comments-item-date">
+                        {moment(new Date(comment.postedAt)).fromNow()}
+                        <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
+                      </div>
                       { showTitle && comment.post && comment.post.title}
-                      <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
                     </div>
                   </Link>
                 )}
+                <div className="comments-item-vote recent-comments-item-vote ">
+                  <Components.Vote collection={Comments} document={comment} currentUser={this.props.currentUser}/>
+                </div>
                 { level === 1 && this.renderMenu() }
               </div></object>
               {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}

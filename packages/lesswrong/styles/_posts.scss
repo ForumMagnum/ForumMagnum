@@ -578,13 +578,15 @@
     margin-bottom: 40px;
     .posts-page-content-header-voting {
       text-align: center;
-      margin-bottom: 15px;
+      .lw-tooltip-wrapper {
+        display:block;
+      }
       .vote {
         position: relative;
         font-size: 20px;
         color: rgba(0,0,0,0.5);
         margin-top:-35px;
-        margin-bottom:-30px;
+        margin-bottom:-1  0px;
         .vote-count {
           position: relative;
           margin-right: 0px;
@@ -601,10 +603,14 @@
           top:20px;
           left:6px;
         }
-        .big-upvote-button .material-icons {
-          transform: rotate(-90deg);
+        .big-upvote-button {
+          position: relative;
           top:31px;
-          left:0px;
+          left:-10px;
+
+          .material-icons {
+            transform: rotate(-90deg);
+          }
         }
         .small-downvote-button .material-icons {
           transform: rotate(-90deg);
@@ -615,8 +621,10 @@
           top:50px;
         }
         .big-downvote-button {
-          top:20px;
+          position: relative;
+          top:18px;
           left:10px;
+
           .material-icons {
             transform: rotate(-90deg);
           }
@@ -713,6 +721,10 @@
   .posts-page-content-footer {
     margin-bottom: 30px;
     .posts-page-content-footer-voting {
+      .lw-tooltip-wrapper {
+        display:block;
+      }
+
       text-align: center;
       // margin-bottom: 15px;
       .vote {
@@ -720,7 +732,7 @@
         font-size: 30px;
         color: rgba(0,0,0,0.5);
         margin-top:-30px;
-        margin-bottom:-30px;
+        margin-bottom:-15px;
         .vote-count {
           position: relative;
           margin-right: 0px;
@@ -737,10 +749,13 @@
           top:20px;
           left:6px;
         }
-        .big-upvote-button .material-icons {
-          transform: rotate(-90deg);
-          top:30px;
-          left:-5px;
+        .big-upvote-button {
+          position: relative;
+          top:28px;
+          left:-15px;
+          .material-icons {
+            transform: rotate(-90deg);
+          }
         }
         .small-downvote-button .material-icons {
           transform: rotate(-90deg);
@@ -751,7 +766,8 @@
           top:90px;
         }
         .big-downvote-button {
-          top:24px;
+          position: relative;
+          top:23px;
           left:15px;
           .material-icons {
             transform: rotate(-90deg);
@@ -1325,18 +1341,6 @@ svg.drag-handle {
   }
 }
 
-.recent-discussion-thread-meta {
-  .recent-discussion-show-highlight {
-    opacity:0;
-    color:rgba(0,0,0,.4);
-  }
-  &:hover {
-    .recent-discussion-show-highlight {
-      opacity:1;
-    }
-  }
-}
-
 .post-highlight {
   margin-top:5px;
   max-width:600px;
@@ -1387,10 +1391,20 @@ svg.drag-handle {
   color:rgba(0,0,0,.5);
   line-height:13px;
 
+  .recent-discussion-show-highlight {
+    opacity:0;
+    color:rgba(0,0,0,.4);
+  }
+  &:hover {
+    .recent-discussion-show-highlight {
+      opacity:1;
+    }
+  }
+
   .recent-discussion-username,
   .recent-discussion-thread-date,
   .posts-item-unread-dot,
-  .vote-count,
+  .posts-item-points,
   .recent-discussion-edit,
   .recent-discussion-thread-readtime {
     margin-right:8px;
@@ -1408,7 +1422,6 @@ svg.drag-handle {
 .posts-item-unread-dot {
   color:rgba(100,170,105,.65);
   font-size:30px;
-  // background: red;
   line-height:0px;
   position: relative;
   top:5.5px;
