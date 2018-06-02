@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
 import ListGroupItem from 'react-bootstrap/lib/ListGroupItem';
-import { Components, registerComponent, ModalTrigger, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 
 class ConversationDetails extends Component {
 
@@ -29,10 +29,10 @@ class ConversationDetails extends Component {
 
             <ListGroupItem>Created At: {conversation.createdAt}</ListGroupItem>
             <ListGroupItem>More information about current conversation will be implemented soon!</ListGroupItem>
-              <ListGroupItem>
-                <ModalTrigger label="Edit Title" >
-                  <Components.TitleEditForm documentId={conversation._id} currentUser={this.props.currentUser} />
-                </ModalTrigger>
+            <ListGroupItem>
+              <Components.ModalTrigger label="Edit Title" >
+                <Components.TitleEditForm documentId={conversation._id} currentUser={this.props.currentUser} />
+              </Components.ModalTrigger>
               </ListGroupItem>
           </ListGroup>
         </div>

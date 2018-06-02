@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection, Connectors } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { Utils, getCollection, Connectors, Locales } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -18,7 +18,8 @@ import { Utils, getCollection, Connectors } from 'meteor/vulcan:lib'; // import 
 ///////////////////////////////////////
 
 const adminGroup = {
-  name: "admin",
+  name: 'admin',
+  order: 100,
 };
 
 const ownsOrIsAdmin = (user, document) => {
@@ -82,6 +83,16 @@ const schema = {
     viewableBy: ['guests'],
     group: adminGroup,
   },
+  locale: {
+    type: String,
+    label: "Preferred Language",
+    optional: true,
+    control: 'select',
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    viewableBy: ['guests'],
+    options: () => Locales.map(({ id, label }) => ({ value: id, label })),
+  },
   profile: {
     type: Object,
     optional: true,
@@ -98,7 +109,7 @@ const schema = {
     type: Object,
     optional: true,
     blackbox: true,
-    viewableBy: ['guests'],
+    viewableBy: ownsOrIsAdmin,
   },
   /**
     The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
@@ -289,6 +300,7 @@ const schema = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     viewableBy: ['guests'],
+    group: adminGroup,
     form: {
       options: function () {
         const groups = _.without(_.keys(getCollection('Users').groups), "guests", "members", "admins");
@@ -311,6 +323,18 @@ const schema = {
       type: 'String',
       resolver: (user, args, { Users }) => {
         return Users.getProfileUrl(user, true);
+      },
+    }
+  },
+
+  editUrl: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (user, args, { Users }) => {
+        return Users.getEditUrl(user, true);
       },
     }
   }

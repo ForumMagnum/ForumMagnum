@@ -4,7 +4,7 @@
 
 Paginated items container
 
-Options:
+Options: 
 
   - queryName: an arbitrary name for the query
   - collection: the collection to fetch the documents from
@@ -14,7 +14,7 @@ Options:
   - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
   - terms: an object that defines which documents to fetch
 
-Props Received:
+Props Received: 
 
   - terms: an object that defines which documents to fetch
 
@@ -31,9 +31,9 @@ Terms object can have the following properties:
   - query: String # search query
   - postId: String
   - limit: String
-
+         
 */
-
+     
 import React, { Component } from 'react';
 import { withApollo, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -42,26 +42,22 @@ import { getSetting, getFragment, getFragmentName, getCollection } from 'meteor/
 import Mingo from 'mingo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
-import withIdle from './withIdle.jsx';
-import withIdlePollingStopper from './withIdlePollingStopper.jsx'
-// import IDLE_STATUSES from 'meteor/vulcan:core'
 
 const withList = (options) => {
 
   // console.log(options)
-
+  
   const {
     collectionName,
-    stopPollingIdleStatus = "INACTIVE",
     limit = 10,
-    pollInterval = getSetting('pollInterval', 0),
+    pollInterval = getSetting('pollInterval', 20000),
     totalResolver = true,
     enableCache = false,
     extraQueries,
   } = options;
-
+  
   const collection = options.collection || getCollection(collectionName);
-
+  
   const queryName = options.queryName || `${collection.options.collectionName}ListQuery`;
   const listResolverName = collection.options.resolvers.list && collection.options.resolvers.list.name;
   const totalResolverName = collection.options.resolvers.total && collection.options.resolvers.total.name;
@@ -91,163 +87,137 @@ const withList = (options) => {
     ${fragment}
   `;
 
-  const stateHoC = withState('paginationTerms', 'setPaginationTerms', props => {
+  return compose(
 
-    // get initial limit from props, or else options
-    const paginationLimit = props.terms && props.terms.limit || limit;
-    const paginationTerms = {
-      limit: paginationLimit,
-      itemsPerPage: paginationLimit,
-    };
+    // wrap component with Apollo HoC to give it access to the store
+    withApollo, 
 
-    return paginationTerms;
-  });
+    // wrap component with HoC that manages the terms object via its state
+    withState('paginationTerms', 'setPaginationTerms', props => {
 
-  const graphQLHoC = graphql(
+      // get initial limit from props, or else options
+      const paginationLimit = props.terms && props.terms.limit || limit;
+      const paginationTerms = {
+        limit: paginationLimit, 
+        itemsPerPage: paginationLimit, 
+      };
+      
+      return paginationTerms;
+    }),
 
-    query,
+    // wrap component with graphql HoC
+    graphql(
 
-    {
-      alias: 'withList',
+      query,
 
-      // graphql query options
-      options({terms, paginationTerms, client: apolloClient}) {
-        // get terms from options, then props, then pagination
-        const mergedTerms = {...options.terms, ...terms, ...paginationTerms};
+      {
+        alias: 'withList',
+        
+        // graphql query options
+        options({terms, paginationTerms, client: apolloClient, currentUser}) {
+          // get terms from options, then props, then pagination
+          const mergedTerms = {...options.terms, ...terms, ...paginationTerms};
 
-        const graphQLOptions = {
-          variables: {
-            terms: mergedTerms,
-            enableCache,
-          },
-          // note: pollInterval can be set to 0 to disable polling (20s by default)
-          pollInterval,
-          reducer: (previousResults, action) => {
+          const graphQLOptions = {
+            variables: {
+              terms: mergedTerms,
+              enableCache,
+            },
+            // note: pollInterval can be set to 0 to disable polling (20s by default)
+            pollInterval,
+            reducer: (previousResults, action) => {
 
-            // see queryReducer function defined below
-            return queryReducer(previousResults, action, collection, mergedTerms, listResolverName, totalResolverName, queryName, apolloClient);
+              // see queryReducer function defined below
+              return queryReducer(previousResults, action, collection, mergedTerms, listResolverName, totalResolverName, queryName, apolloClient);
+            
+            },
+          };
 
-          },
-        };
+          if (options.fetchPolicy) {
+            graphQLOptions.fetchPolicy = options.fetchPolicy
+          }
 
-        if (options.fetchPolicy) {
-          graphQLOptions.fetchPolicy = options.fetchPolicy
-        }
+          // set to true if running into https://github.com/apollographql/apollo-client/issues/1186
+          if (options.notifyOnNetworkStatusChange) {
+            graphQLOptions.notifyOnNetworkStatusChange = options.notifyOnNetworkStatusChange
+          }
+          
+          return graphQLOptions;
+        },
 
-        // set to true if running into https://github.com/apollographql/apollo-client/issues/1186
-        if (options.notifyOnNetworkStatusChange) {
-          graphQLOptions.notifyOnNetworkStatusChange = options.notifyOnNetworkStatusChange
-        }
+        // define props returned by graphql HoC
+        props(props) {
 
-        return graphQLOptions;
-      },
+          // see https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+          const refetch = props.data.refetch,
+                // results = Utils.convertDates(collection, props.data[listResolverName]),
+                results = props.data[listResolverName],
+                totalCount = props.data[totalResolverName],
+                networkStatus = props.data.networkStatus,
+                loadingInitial = props.data.networkStatus === 1,
+                loading = props.data.networkStatus === 1,
+                loadingMore = props.data.networkStatus === 2,
+                error = props.data.error,
+                propertyName = options.propertyName || 'results';
 
-      // define props returned by graphql HoC
-      props(props) {
+          if (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
 
-        // see https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
-        const refetch = props.data.refetch,
-              // results = Utils.convertDates(collection, props.data[listResolverName]),
-              results = props.data[listResolverName],
-              totalCount = props.data[totalResolverName],
-              networkStatus = props.data.networkStatus,
-              stopPolling = props.data.stopPolling,
-              startPolling = props.data.startPolling,
-              loading = props.data.networkStatus === 1,
-              loadingMore = props.data.networkStatus === 2,
-              error = props.data.error,
-              propertyName = options.propertyName || 'results';
+          return {
+            // see https://github.com/apollostack/apollo-client/blob/master/src/queries/store.ts#L28-L36
+            // note: loading will propably change soon https://github.com/apollostack/apollo-client/issues/831
+            loading,
+            loadingInitial,
+            loadingMore,
+            [ propertyName ]: results,
+            totalCount,
+            refetch,
+            networkStatus,
+            error,
+            count: results && results.length,
 
-        if (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
+            // regular load more (reload everything)
+            loadMore(providedTerms) {
+              // if new terms are provided by presentational component use them, else default to incrementing current limit once
+              const newTerms = typeof providedTerms === 'undefined' ? { /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms, limit: results.length + props.ownProps.paginationTerms.itemsPerPage } : providedTerms;
+              
+              props.ownProps.setPaginationTerms(newTerms);
+            },
 
-        return {
-          // see https://github.com/apollostack/apollo-client/blob/master/src/queries/store.ts#L28-L36
-          // note: loading will propably change soon https://github.com/apollostack/apollo-client/issues/831
-          loading,
-          loadingMore,
-          [ propertyName ]: results,
-          totalCount,
-          refetch,
-          stopPolling,
-          startPolling,
-          networkStatus,
-          error,
-          count: results && results.length,
+            // incremental loading version (only load new content)
+            // note: not compatible with polling
+            loadMoreInc(providedTerms) {
 
-          // regular load more (reload everything)
-          loadMore(providedTerms) {
-            // if new terms are provided by presentational component use them, else default to incrementing current limit once
-            const newTerms = typeof providedTerms === 'undefined' ? { /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms, limit: results.length + props.ownProps.paginationTerms.itemsPerPage } : providedTerms;
+              // get terms passed as argument or else just default to incrementing the offset
+              const newTerms = typeof providedTerms === 'undefined' ? { ...props.ownProps.terms, ...props.ownProps.paginationTerms, offset: results.length } : providedTerms;
+              
+              return props.data.fetchMore({
+                variables: { terms: newTerms }, // ??? not sure about 'terms: newTerms'
+                updateQuery(previousResults, { fetchMoreResult }) {
+                  // no more post to fetch
+                  if (!fetchMoreResult.data) {
+                    return previousResults;
+                  }
+                  const newResults = {};
+                  newResults[listResolverName] = [...previousResults[listResolverName], ...fetchMoreResult.data[listResolverName]];
+                  // return the previous results "augmented" with more
+                  return {...previousResults, ...newResults};
+                },
+              });
+            },
 
-            props.ownProps.setPaginationTerms(newTerms);
-          },
-
-          // incremental loading version (only load new content)
-          // note: not compatible with polling
-          loadMoreInc(providedTerms) {
-
-            // get terms passed as argument or else just default to incrementing the offset
-            const newTerms = typeof providedTerms === 'undefined' ? { ...props.ownProps.terms, ...props.ownProps.paginationTerms, offset: results.length } : providedTerms;
-
-            return props.data.fetchMore({
-              variables: { terms: newTerms }, // ??? not sure about 'terms: newTerms'
-              updateQuery(previousResults, { fetchMoreResult }) {
-                // no more post to fetch
-                if (!fetchMoreResult.data) {
-                  return previousResults;
-                }
-                const newResults = {};
-                newResults[listResolverName] = [...previousResults[listResolverName], ...fetchMoreResult.data[listResolverName]];
-                // return the previous results "augmented" with more
-                return {...previousResults, ...newResults};
-              },
-            });
-          },
-
-          fragmentName,
-          fragment,
-          ...props.ownProps, // pass on the props down to the wrapped component
-          data: props.data,
-        };
-      },
-    }
-  )
-  if (pollInterval > 0) {
-    return compose(
-      // wrap component with Apollo HoC to give it access to the store
-      withApollo,
-
-      // wrap component with HoC that manages the terms object via its state
-      stateHoC,
-
-      // wrap component with withIdle to get access to idle state
-      withIdle,
-
-      // wrap component with graphql HoC
-      graphQLHoC,
-
-      // wrap component with idle polling stopper
-      withIdlePollingStopper(stopPollingIdleStatus)
+            fragmentName,
+            fragment,
+            ...props.ownProps, // pass on the props down to the wrapped component
+            data: props.data,
+          };
+        },
+      }
     )
-  } else {
-    return compose(
-      // wrap component with Apollo HoC to give it access to the store
-      withApollo,
-
-      // wrap component with HoC that manages the terms object via its state
-      stateHoC,
-
-      // wrap component with graphql HoC
-      graphQLHoC,
-    )
-  }
+  );
 }
-
-
-
 
 
 // define query reducer separately
@@ -268,7 +238,7 @@ const queryReducer = (previousResults, action, collection, mergedTerms, listReso
   const result = collection.getParameters(mergedTerms, apolloClient);
   const { selector, options } = result;
 
-  const mingoQuery = Mingo.Query(selector);
+  const mingoQuery = new Mingo.Query(selector);
 
   // function to remove a document from a results object, used by edit and remove cases below
   const removeFromResults = (results, document) => {

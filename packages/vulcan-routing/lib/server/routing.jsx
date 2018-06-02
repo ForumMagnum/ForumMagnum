@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { getDataFromTree, ApolloProvider } from 'react-apollo';
-import { idleActions } from 'meteor/vulcan:lib';
+import { CookiesProvider } from 'react-cookie';
 
 import { Meteor } from 'meteor/meteor';
 
@@ -68,10 +68,8 @@ Meteor.startup(() => {
       const { apolloClient, store } = getRenderContext();
       store.reload();
       store.dispatch({ type: '@@nova/INIT' }) // the first dispatch will generate a newDispatch function from middleware
-      //Initialize redux-idle-monitor
-      store.dispatch(idleActions.start())
       const app = runCallbacks('router.server.wrapper', appGenerator(), { req, res, store, apolloClient });
-      return <UserAgentProvider userAgent={req.headers['user-agent']}><ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider></UserAgentProvider>;
+      return <UserAgentProvider userAgent={req.headers['user-agent']}><ApolloProvider store={store} client={apolloClient}><CookiesProvider cookies={req.universalCookies}>{app}</CookiesProvider></ApolloProvider></UserAgentProvider>;
     },
     preRender(req, res, app) {
       runCallbacks('router.server.preRender', { req, res, app });

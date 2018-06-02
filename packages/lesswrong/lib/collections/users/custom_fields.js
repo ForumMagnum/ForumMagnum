@@ -99,17 +99,12 @@ Users.addField([
       hidden: true,
     }
   },
-  {
-    fieldName: 'website',
-    fieldSchema: {
-      regEx: null,
-      order: 30,
-    }
-  },
 
   {
     fieldName: 'bio',
     fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
       order: 40,
     }
   },

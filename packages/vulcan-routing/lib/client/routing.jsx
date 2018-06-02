@@ -2,10 +2,9 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { applyRouterMiddleware } from 'react-router';
 import { useScroll } from 'react-router-scroll';
+import { CookiesProvider } from 'react-cookie';
 
 import { Meteor } from 'meteor/meteor';
-
-import { idleActions } from 'meteor/vulcan:lib';
 
 import {
   Components,
@@ -73,9 +72,7 @@ Meteor.startup(() => {
           return !(nextRouterProps.location.action === 'REPLACE' || !prevRouterProps);
         }))
       }));
-      //Initialize redux-idle-monitor
-      store.dispatch(idleActions.start())
-      return <ApolloProvider store={store} client={apolloClient}>{app}</ApolloProvider>;
+      return <ApolloProvider store={store} client={apolloClient}><CookiesProvider>{app}</CookiesProvider></ApolloProvider>;
     },
   };
 

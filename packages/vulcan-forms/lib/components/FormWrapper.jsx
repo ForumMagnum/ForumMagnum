@@ -27,6 +27,7 @@ component is also added to wait for withDocument's loading prop to be false)
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
+import { withRouter } from 'react-router'
 import { withApollo, compose } from 'react-apollo';
 import {
   Components,
@@ -38,8 +39,8 @@ import {
   withRemove,
   getFragment,
   getCollection,
+  isIntlField,
 } from 'meteor/vulcan:core';
-import Form from './Form.jsx';
 import gql from 'graphql-tag';
 import { withDocument } from 'meteor/vulcan:core';
 import { graphql } from 'react-apollo';
@@ -59,7 +60,7 @@ class FormWrapper extends PureComponent {
 
   // return the current schema based on either the schema or collection prop
   getSchema() {
-    return this.props.schema ? this.props.schema : Utils.stripTelescopeNamespace(this.getCollection().simpleSchema()._schema);
+    return this.props.schema ? this.props.schema : this.getCollection().simpleSchema()._schema;
   }
 
   // if a document is being passed, this is an edit form
@@ -90,7 +91,7 @@ class FormWrapper extends PureComponent {
       queryFields = _.intersection(queryFields, fields);
       mutationFields = _.intersection(mutationFields, fields);
     }
-
+    
     // generate query fragment based on the fields that can be edited. Note: always add _id.
     const generatedQueryFragment = gql`
       fragment ${fragmentName} on ${this.getCollection().typeName} {
@@ -98,6 +99,7 @@ class FormWrapper extends PureComponent {
         ${queryFields.join('\n')}
       }
     `
+
     // generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
     const generatedMutationFragment = gql`
       fragment ${fragmentName} on ${this.getCollection().typeName} {
@@ -180,9 +182,9 @@ class FormWrapper extends PureComponent {
     // displays the loading state if needed, and passes on loading and document/data
     const Loader = props => {
       const { document, loading } = props;
-      return (!document && loading) ?
+      return loading ?
         <Components.Loading /> :
-        <Form
+        <Components.Form
           document={document}
           loading={loading}
           {...childProps}
@@ -229,7 +231,7 @@ class FormWrapper extends PureComponent {
       } else {
         WrappedComponent = compose(
           withNew(mutationOptions)
-        )(Form);
+        )(Components.Form);
       }
       return <WrappedComponent {...childProps} />;
     }
@@ -269,7 +271,13 @@ FormWrapper.propTypes = {
   prefilledProps: PropTypes.object,
   layout: PropTypes.string,
   fields: PropTypes.arrayOf(PropTypes.string),
+  hideFields: PropTypes.arrayOf(PropTypes.string),
   showRemove: PropTypes.bool,
+  submitLabel: PropTypes.string,
+  cancelLabel: PropTypes.string,
+  revertLabel: PropTypes.string,
+  repeatErrors: PropTypes.bool,
+  warnUnsavedChanges: PropTypes.bool,
 
   // callbacks
   submitCallback: PropTypes.func,
@@ -277,6 +285,7 @@ FormWrapper.propTypes = {
   removeSuccessCallback: PropTypes.func,
   errorCallback: PropTypes.func,
   cancelCallback: PropTypes.func,
+  revertCallback: PropTypes.func,
 
   currentUser: PropTypes.object,
   client: PropTypes.object,
@@ -291,4 +300,4 @@ FormWrapper.contextTypes = {
   intl: intlShape
 }
 
-registerComponent('SmartForm', FormWrapper, withCurrentUser, withApollo);
+registerComponent('SmartForm', FormWrapper, withCurrentUser, withApollo, withRouter);
