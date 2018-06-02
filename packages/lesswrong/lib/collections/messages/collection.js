@@ -43,4 +43,10 @@ const Messages = createCollection({
 
 });
 
+Messages.checkAccess = (user, document) => {
+  if (!user || !document) return false;
+  return Conversations.findOne({_id: document.conversationId}).participantIds.includes(user._id) ?
+    Users.canDo(user, 'messages.view.own') : Users.canDo(user, `messages.view.all`)
+};
+
 export default Messages;

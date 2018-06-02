@@ -42,4 +42,9 @@ const LWEvents = createCollection({
 
 });
 
+LWEvents.checkAccess = (user, document) => {
+  if (!user || !document) return false;
+  return Users.owns(user, document) ? Users.canDo(user, 'events.view.own') : Users.canDo(user, `events.view.all`)
+};
+
 export default LWEvents;
