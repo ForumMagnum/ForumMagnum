@@ -680,7 +680,7 @@ class Form extends Component {
             />
           ))}
 
-          {this.props.repeatErrors && this.renderErrors()}
+          {this.props.repeatErrors && <Components.FormErrors errors={this.state.errors} />}
 
           <Components.FormSubmit
             submitLabel={this.props.submitLabel}
