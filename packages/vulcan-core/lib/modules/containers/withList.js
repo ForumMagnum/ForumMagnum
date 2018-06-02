@@ -50,7 +50,7 @@ const withList = (options) => {
   const {
     collectionName,
     limit = 10,
-    pollInterval = getSetting('pollInterval', 20000),
+    pollInterval = getSetting('pollInterval', 0),
     totalResolver = true,
     enableCache = false,
     extraQueries,
