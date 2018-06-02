@@ -1,3 +1,8 @@
+// # Vulcan Modifications
+
+// ## Accounts
+import './modules/accounts/modify_accounts_ui';
+
 // Subscriptions
 import './collections/subscription_fields.js';
 //MomentJS configuration
