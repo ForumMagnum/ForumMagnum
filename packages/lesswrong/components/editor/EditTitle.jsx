@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Textarea } from 'formsy-react-components';
 
 const EditTitle = (props) => {
-  console.log("EditTitle props:", props);
   return <Textarea
     className="posts-edit-header-title"
     {...props.inputProperties}

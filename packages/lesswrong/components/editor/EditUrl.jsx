@@ -17,7 +17,6 @@ class EditUrl extends Component {
   toggleEditor = () => {this.setState({active: !this.state.active})}
 
   render() {
-    console.log("EditURL props: ", this.props);
     return (
       <div className="posts-edit-url">
         <div className="row">
