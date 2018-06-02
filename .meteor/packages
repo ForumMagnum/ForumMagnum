@@ -19,6 +19,7 @@ vulcan:embed
 ############ Theme Packages ############
 
 # vulcan:base-styles            # default styling
+vulcan:ui-bootstrap
 
 ############ Language Packages ############
 
