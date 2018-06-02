@@ -18,7 +18,7 @@ class ImageUpload extends Component {
     this.state = {
       imageId,
     }
-    const addValues = context.addToAutofilledValues;
+    const addValues = context.updateCurrentValues;
     const addToSuccessForm = context.addToSuccessForm;
     addValues({[fieldName]: imageId});
     addToSuccessForm((results) => this.setImageInfo({} ,""));
@@ -27,7 +27,7 @@ class ImageUpload extends Component {
   setImageInfo = (error, imageInfo) => {
     if (imageInfo && imageInfo[0] && imageInfo[0].public_id ) {
       this.setState({imageId: imageInfo[0].public_id});
-      const addValues = this.context.addToAutofilledValues;
+      const addValues = this.context.updateCurrentValues;
       const fieldName = this.props.name;
       addValues({[fieldName]: imageInfo[0].public_id})
     } else {
@@ -99,7 +99,7 @@ class ImageUpload extends Component {
 ImageUpload.displayName = "ImageUpload"
 
 ImageUpload.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 

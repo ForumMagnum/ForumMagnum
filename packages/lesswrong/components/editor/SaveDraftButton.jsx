@@ -24,7 +24,7 @@ class SaveDraftButton extends Component {
 }
 
 SaveDraftButton.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
 };

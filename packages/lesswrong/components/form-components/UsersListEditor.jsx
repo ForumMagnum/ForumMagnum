@@ -34,12 +34,12 @@ class UsersListEditor extends Component {
     this.state = {
       userIds: userIds,
     }
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: userIds});
   }
   onSortEnd = ({oldIndex, newIndex}) => {
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     const newIds = arrayMove(this.state.userIds, oldIndex, newIndex);
     this.setState({
       userIds: newIds,
@@ -52,7 +52,7 @@ class UsersListEditor extends Component {
       userIds: newIds,
     })
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
   removeUserId = (userId) => {
@@ -61,7 +61,7 @@ class UsersListEditor extends Component {
       userIds: newIds,
     })
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
   shouldCancelStart = (e) => {
@@ -103,7 +103,7 @@ class UsersListEditor extends Component {
 //
 
 UsersListEditor.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
