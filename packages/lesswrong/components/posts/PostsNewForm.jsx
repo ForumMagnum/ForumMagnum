@@ -24,7 +24,7 @@ const PostsNewForm = (props, context) => {
         prefilledProps={prefilledProps}
         successCallback={post => {
           props.router.push({pathname: Posts.getPageUrl(post)});
-          props.flash(context.intl.formatMessage({id: "posts.created_message"}), "success");
+          props.flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
         eventForm={props.router.location.query && props.router.location.query.eventForm}
         repeatErrors
@@ -39,10 +39,6 @@ PostsNewForm.propTypes = {
   router: PropTypes.object,
   flash: PropTypes.func,
 }
-
-PostsNewForm.contextTypes = {
-  closeCallback: PropTypes.func,
-};
 
 PostsNewForm.displayName = "PostsNewForm";
 
