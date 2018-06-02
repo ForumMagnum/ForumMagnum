@@ -9,6 +9,7 @@ import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
 import {
   addCallback,
+  removeCallback,
   newMutation,
   editMutation,
   removeMutation,
@@ -460,20 +461,4 @@ function fixUsernameOnGithubLogin(user) {
 }
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
 
-// cut Meteor connection after client is expired (2min 20sec)
-function disconnectUserOnExpired() {
-  if (Meteor.isClient) {
-    Meteor.disconnect();
-  }
-}
-
-addCallback("idleStatus.expired.async", disconnectUserOnExpired);
-
-// Reconnect client after he becomes active again
-function reconnectUserOnActive() {
-  if (Meteor.isClient) {
-    Meteor.reconnect();
-  }
-}
-
-addCallback("idleStatus.active.async", reconnectUserOnActive);
+removeCallback('router.onUpdate', 'RouterClearMessages');
