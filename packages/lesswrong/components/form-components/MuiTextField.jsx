@@ -14,14 +14,14 @@ class MuiTextField extends Component {
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({content: ""}))
-    this.context.addToAutofilledValues({
+    this.context.updateCurrentValues({
       [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
     })
   }
 
   onChange = (event, value) => {
     this.setState({content: value})
-    this.context.addToAutofilledValues({
+    this.context.updateCurrentValues({
       [this.props.name]: value
     })
   }
@@ -51,7 +51,7 @@ class MuiTextField extends Component {
 }
 
 MuiTextField.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 

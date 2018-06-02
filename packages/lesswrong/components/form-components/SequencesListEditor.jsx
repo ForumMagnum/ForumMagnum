@@ -38,7 +38,7 @@ class SequencesListEditor extends Component {
     this.state = {
       sequenceIds: sequenceIds,
     }
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: sequenceIds});
 
     const addToSuccessForm = this.context.addToSuccessForm;
@@ -46,7 +46,7 @@ class SequencesListEditor extends Component {
   }
   onSortEnd = ({oldIndex, newIndex}) => {
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     const newIds = arrayMove(this.state.sequenceIds, oldIndex, newIndex);
     this.setState({
       sequenceIds: newIds,
@@ -59,7 +59,7 @@ class SequencesListEditor extends Component {
       sequenceIds: newIds,
     })
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
   removeSequenceId = (sequenceId) => {
@@ -68,7 +68,7 @@ class SequencesListEditor extends Component {
       sequenceIds: newIds || [],
     })
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
   resetSequenceIds = (args) => {
@@ -97,7 +97,7 @@ class SequencesListEditor extends Component {
 //
 
 SequencesListEditor.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 

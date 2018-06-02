@@ -18,7 +18,7 @@ const FormSubmit = ({
                       currentUser
                     },
                     {
-                      addToAutofilledValues,
+                      updateCurrentValues,
                       addToDeletedValues
                     }) => (
   <div className="form-submit">
@@ -33,7 +33,7 @@ const FormSubmit = ({
         label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
         onTouchTap={() => {
-          addToAutofilledValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
+          updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
           if (document.frontpageDate) {addToDeletedValues('frontpageDate')}
         }
         }/>}
@@ -44,7 +44,7 @@ const FormSubmit = ({
         style={{paddingBottom: "2px", fontFamily: commentFonts}}
         label={"Save as draft"}
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-        onTouchTap={() => addToAutofilledValues({draft: true})}/>
+        onTouchTap={() => updateCurrentValues({draft: true})}/>
 
       {Users.canDo(currentUser, 'posts.curate.all') && !document.meta && <FlatButton
         type="submit"
@@ -53,7 +53,7 @@ const FormSubmit = ({
         label={document.curatedDate ? "Remove from curated" : "Promote to curated"}
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
         onTouchTap={() => {
-          addToAutofilledValues({curatedDate: document.curatedDate ? null : new Date()})
+          updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
           if (document.curatedDate) {addToDeletedValues('curatedDate')}}
         }/>
       }
@@ -78,7 +78,7 @@ const FormSubmit = ({
       className="primary-form-submit-button"
       hoverColor={"rgba(0, 0, 0, 0.05)"}
       style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
-      onTouchTap={() => collectionName === "posts" && addToAutofilledValues({draft: false})}
+      onTouchTap={() => collectionName === "posts" && updateCurrentValues({draft: false})}
       label={"Submit" }
       labelStyle={{fontSize: "16px", color: "rgba(100, 169, 105, 0.9)"}}
     />
@@ -111,7 +111,7 @@ FormSubmit.propTypes = {
 };
 
 FormSubmit.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToDeletedValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,

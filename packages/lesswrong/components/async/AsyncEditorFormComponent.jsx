@@ -253,7 +253,7 @@ class AsyncEditorFormComponent extends Component {
 }
 
 AsyncEditorFormComponent.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
 };

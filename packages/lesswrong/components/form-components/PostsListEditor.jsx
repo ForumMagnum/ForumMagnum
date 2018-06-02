@@ -35,7 +35,7 @@ class PostsListEditor extends Component {
     this.state = {
       postIds: postIds,
     }
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: postIds});
 
     const addToSuccessForm = this.context.addToSuccessForm;
@@ -43,7 +43,7 @@ class PostsListEditor extends Component {
   }
   onSortEnd = ({oldIndex, newIndex}) => {
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     const newIds = arrayMove(this.state.postIds, oldIndex, newIndex);
     this.setState({
       postIds: newIds,
@@ -56,7 +56,7 @@ class PostsListEditor extends Component {
       postIds: newIds,
     })
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
   removePostId = (postId) => {
@@ -65,7 +65,7 @@ class PostsListEditor extends Component {
       postIds: newIds,
     })
     const fieldName = this.props.name;
-    const addValues = this.context.addToAutofilledValues;
+    const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
   resetPostIds = (args) => {
@@ -103,7 +103,7 @@ class PostsListEditor extends Component {
 //
 
 PostsListEditor.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 

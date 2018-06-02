@@ -14,19 +14,19 @@ class MultiSelectButtons extends Component {
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({options: []}))
-    this.context.addToAutofilledValues({
+    this.context.updateCurrentValues({
       [this.props.name]: this.props.document && this.props.document[this.props.name] || []
     })
   }
 
   handleClick = (option) => {
     if (this.state.options && this.state.options.includes(option)) {
-      this.context.addToAutofilledValues({
+      this.context.updateCurrentValues({
         [this.props.name]: _.without(this.state.options, option)
       })
       this.setState({options: _.without(this.state.options, option)})
     } else {
-      this.context.addToAutofilledValues({
+      this.context.updateCurrentValues({
         [this.props.name]: [...this.state.options, option]
       })
       this.setState({options: [...this.state.options, option]})
@@ -57,7 +57,7 @@ class MultiSelectButtons extends Component {
 }
 
 MultiSelectButtons.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 

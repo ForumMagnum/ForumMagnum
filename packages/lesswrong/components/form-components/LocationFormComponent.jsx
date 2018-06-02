@@ -13,7 +13,7 @@ class LocationFormComponent extends Component {
 
   componentDidMount() {
     const { document } = this.props;
-    this.context.addToAutofilledValues({
+    this.context.updateCurrentValues({
       location: document && document.location || "",
       googleLocation: document && document.googleLocation,
       mongoLocation: document && document.mongoLocation
@@ -22,7 +22,7 @@ class LocationFormComponent extends Component {
 
   handleSuggestSelect = (suggestion) => {
     if (suggestion && suggestion.gmaps) {
-      this.context.addToAutofilledValues({
+      this.context.updateCurrentValues({
         location: suggestion.label,
         googleLocation: suggestion.gmaps,
         mongoLocation: {
@@ -50,7 +50,7 @@ class LocationFormComponent extends Component {
 }
 
 LocationFormComponent.contextTypes = {
-  addToAutofilledValues: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
