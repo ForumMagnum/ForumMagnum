@@ -5,6 +5,9 @@ import { Comments } from '../modules/comments/index.js';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
 
+// LESSWRONG - this import wasn't needed until fixing author below.
+import Users from 'meteor/vulcan:users';
+
 registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -37,7 +40,10 @@ export const servePostRSS = (terms, url) => {
     const feedItem = {
       title: post.title,
       description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
-      author: post.author,
+      // LESSWRONG - changed how author is set for RSS because
+      // LessWrong posts don't reliably have post.author defined.
+      //author: post.author,
+      author: Users.getDisplayNameById(post.userId),
       date: post.postedAt,
       guid: post._id,
       url: Posts.getPageUrl(post, true)
