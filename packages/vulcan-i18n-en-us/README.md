@@ -1,1 +1,0 @@
-Vulcan i18n en_US package.
