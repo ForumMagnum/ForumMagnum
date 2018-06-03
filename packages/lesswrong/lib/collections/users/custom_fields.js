@@ -7,6 +7,17 @@ const moderationGroup = {
 }
 
 Users.addField([
+
+  {
+    fieldName: 'createdAt',
+    fieldSchema: {
+      type: Date,
+      onInsert: (user, options) => {
+        return user.createdAt || new Date();
+      }
+    }
+  },
+
   /**
     Legacy: Boolean used to indicate that post was imported from old LW database
   */
@@ -107,10 +118,61 @@ Users.addField([
     }
   },
 
+  /**
+    Bio (Markdown version)
+  */
   {
     fieldName: 'bio',
     fieldSchema: {
+      type: String,
+      optional: true,
+      control: "textarea",
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      viewableBy: ['guests'],
       order: 40,
+      searchable: true
+    }
+  },
+
+  /**
+    Bio (Markdown version)
+  */
+  {
+    fieldName: 'htmlBio',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  /**
+    Karma field
+  */
+  {
+    fieldName: 'karma',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  /**
+    Website
+  */
+  {
+    fieldName: 'website',
+    fieldSchema: {
+      type: String,
+      hidden: true,
+      optional: true,
+      control: "text",
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      viewableBy: ['guests'],
+      order: 50,
     }
   },
 
