@@ -103,7 +103,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment LWPostsList on Post {
+  fragment PostsList on Post {
     # example-forum
     _id
     title
@@ -172,7 +172,7 @@ registerFragment(`
 
 registerFragment(`
   fragment EventsList on Post {
-    ...LWPostsList
+    ...PostsList
     location
     googleLocation
     mongoLocation
@@ -188,7 +188,7 @@ registerFragment(`
 
 registerFragment(`
   fragment LWPostsPage on Post {
-    ...LWPostsList
+    ...PostsList
     body
     htmlBody
     content

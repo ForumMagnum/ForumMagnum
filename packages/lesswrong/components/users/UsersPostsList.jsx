@@ -56,7 +56,7 @@ UsersPostsList.propTypes = {
 const options = {
   collection: Posts,
   queryName: 'usersPostsListQuery',
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
   totalResolver: true,
   enableCache: true
 };

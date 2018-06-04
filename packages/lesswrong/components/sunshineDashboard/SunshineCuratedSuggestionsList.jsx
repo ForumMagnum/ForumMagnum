@@ -25,7 +25,8 @@ class SunshineCuratedSuggestionsList extends Component {
 const withListOptions = {
   collection: Posts,
   queryName: 'sunshineCuratedsuggestionsListQuery',
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
+
 };
 
 registerComponent(

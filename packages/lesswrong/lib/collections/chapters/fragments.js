@@ -12,7 +12,7 @@ registerFragment(`
     sequenceId
     postIds
     posts {
-      ...LWPostsList
+      ...PostsList
     }
   }
 `);

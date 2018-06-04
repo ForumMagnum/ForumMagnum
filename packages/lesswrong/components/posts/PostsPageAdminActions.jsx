@@ -73,7 +73,7 @@ PostsPageAdminActions.displayName = "PostsPageAdminActions";
 
 const withEditOptions = {
   collection: Posts,
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
 };
 
 

@@ -115,6 +115,6 @@ class SunshineNewPostsItem extends Component {
 
 const withEditOptions = {
   collection: Posts,
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
 }
 registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withEdit, withEditOptions], withCurrentUser);

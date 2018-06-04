@@ -30,7 +30,7 @@ const RecentDiscussionThreadsList = ({results, loading, loadMore, networkStatus,
 const discussionThreadsOptions = {
   collection: Posts,
   queryName: 'selectCommentsListQuery',
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
   totalResolver: false,
   pollInterval: 0,
   enableCache: true,

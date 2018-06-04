@@ -63,7 +63,7 @@ class SuggestCurated extends Component {
 
 const withEditOptions = {
   collection: Posts,
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
 }
 
 registerComponent(

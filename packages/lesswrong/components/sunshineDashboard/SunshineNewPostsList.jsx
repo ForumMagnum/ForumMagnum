@@ -26,7 +26,7 @@ class SunshineNewPostsList extends Component {
 const withListOptions = {
   collection: Posts,
   queryName: 'sunshineNewPostsListQuery',
-  fragmentName: 'LWPostsList',
+  fragmentName: 'PostsList',
 };
 
 registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withCurrentUser);
