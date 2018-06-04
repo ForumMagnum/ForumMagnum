@@ -1,7 +1,11 @@
 // # Vulcan Modifications
 
 // ## Accounts
-import './modules/accounts/modify_accounts_ui';
+import './modules/accounts/modify_accounts_ui.js';
+
+// ## Voting
+import './modules/voting/new_vote_types.js';
+import './modules/voting/callbacks.js';
 
 // Subscriptions
 import './collections/subscription_fields.js';
