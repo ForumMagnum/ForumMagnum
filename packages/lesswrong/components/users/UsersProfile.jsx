@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent, ModalTrigger } from 'meteor/vulcan:core';
+import { Components, replaceComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -32,9 +32,9 @@ const UsersProfile = (props) => {
       const user = props.document;
       return (<div className="users-profile-actions">
         { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        {props.currentUser && props.currentUser.isAdmin && <ModalTrigger label="Register new RSS Feed">
+        {props.currentUser && props.currentUser.isAdmin && <Components.ModalTrigger label="Register new RSS Feed">
           <div><Components.newFeedButton user={user} /></div>
-        </ModalTrigger>}
+        </Components.ModalTrigger>}
         <Components.ShowIf check={Users.options.mutations.edit.check} document={user}>
           <div><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></div>
         </Components.ShowIf>
