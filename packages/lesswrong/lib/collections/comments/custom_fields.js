@@ -4,6 +4,22 @@ import { Comments } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 
 Comments.addField([
+
+  {
+    fieldName: 'body',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      control: "textarea",
+      optional: true,
+      hidden: true,
+      // LESSWRONG: Drastically increased original Vulcan character limit
+      max: 1000000,
+    }
+  },
+
   /**
     Ory Editor content JSON
   */
