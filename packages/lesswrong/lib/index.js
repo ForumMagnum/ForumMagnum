@@ -93,6 +93,7 @@ import './subscriptions/permissions.js';
 import './collections/posts/custom_fields.js';
 import './collections/posts/views.js';
 import './collections/posts/permissions.js';
+import './collections/posts/helpers.js';
 //
 // Users
 import './collections/users/custom_fields.js';
