@@ -29,4 +29,5 @@ addStrings('en', {
   "accounts.error_error_too_many_requests_please_slow_down_you_must_wait_8_seconds_before_trying_again":"Error, too many requests. Please slow down. You must wait 8 seconds before trying again.",
   "accounts.error_legacy_account_wrong_password": "Wrong password",
   "users.unsubscribe": "Unsubscribe from this user's posts",
+  "comments.author_has_banned_you": "This post's author has blocked you from commenting.",
 })
