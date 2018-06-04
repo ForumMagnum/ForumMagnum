@@ -40,7 +40,6 @@ import '../components/common/Vote.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
-import '../components/common/Category.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/Tooltip.jsx';
 
