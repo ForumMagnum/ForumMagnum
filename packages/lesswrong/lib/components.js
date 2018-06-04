@@ -67,6 +67,7 @@ import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
+import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsCommentsThreadWrapper.jsx';
