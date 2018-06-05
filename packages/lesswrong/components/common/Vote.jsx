@@ -81,7 +81,7 @@ vote(type, canBigVote) {
   const user = this.props.currentUser;
 
   if(!user){
-    this.props.flash(this.context.intl.formatMessage({id: 'users.please_log_in'}));
+    this.props.flash({id: 'users.please_log_in', type: 'success'});
   } else {
     this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
   }

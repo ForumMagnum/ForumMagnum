@@ -35,11 +35,11 @@ class SubscribeToActionHandler extends Component {
       await this.props[`${documentType + Utils.capitalize(action)}`]({documentId: document._id});
 
       // success message will be for example posts.subscribed
-      this.props.flash(this.context.intl.formatMessage(
-        {id: `${documentType}.${action}d`},
+      this.props.flash(
+        {id: `${documentType}.${action}d`,
         // handle usual name properties
-        {name: document.name || document.title || document.displayName}
-      ), "success");
+        name: document.name || document.title || document.displayName
+      , type: "success"});
 
 
     } catch(error) {
