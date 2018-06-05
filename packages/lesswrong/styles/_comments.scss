@@ -78,8 +78,6 @@ $medium-text: $dark-grey;
 .comments-item-text {
   @include comment-style()
 }
-// Experimental CSS modifications for Comments
-
 
 .comments-item{
   .comments-item-body {
@@ -104,16 +102,9 @@ $medium-text: $dark-grey;
       font-weight: 600;
     }
   }
-  .upvote-button, .downvote-button {
-    color: rgba(0,0,0,0.33);
-    .icon {
-      display: inline;
-      margin-left: 4px;
-      margin-right: 4px;
-    }
-  }
+
   .comments-item-bottom {
-    padding-bottom: 9px;
+    padding: 5px 0 5px 0;
     font-size: 12px;
     .vote {
       font-weight: 300;
@@ -137,6 +128,7 @@ $medium-text: $dark-grey;
     .comments-item-reply-link {
       margin-right: 5px;
       display: inline;
+      color:rgba(0,0,0,.5);
     }
   }
   blockquote {
@@ -299,10 +291,9 @@ New CSS File
 
   .comments-item-date{
     display: inline-block;
-    margin-right: $hmargin;
+    margin-right: 2px;
     color: rgba(0,0,0,0.5);
     font-size: $small-font;
-    margin-right: 8px;
     a {
       color: rgba(0,0,0,0.5);
       .comments-item-permalink{
@@ -319,6 +310,7 @@ New CSS File
   }
   .comments-item-origin {
     display: inline-block;
+    margin-right: $hmargin;
     color: rgba(0,0,0,0.4);
     .comments-item-origin-post-title {
       color: rgba(0,0,0,0.5)
@@ -350,46 +342,13 @@ New CSS File
 
 .comments-item-vote{
   display: inline-block;
-  margin-right: 10px;
+  position:relative;
+  left:-10px;
   .vote {
     .material-icons {
       vertical-align:middle;
-      font-size: 16px !important;
-      border-radius: 100%;
-      color: rgba(0,0,0,0.5) !important;
-      &:hover {
-        background-color: rgba(0,0,0,0.05);
-      }
-    }
-  }
-
-  .upvoted {
-    .upvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(100, 169, 105, 0.9) !important;
-      }
-    }
-
-    .downvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
-    }
-  }
-
-  .downvoted {
-    .downvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(160, 44, 44, 0.9) !important;
-      }
-    }
-
-    .upvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
+      line-height:16px;
+      font-weight:900;
     }
   }
 }
@@ -439,9 +398,9 @@ New CSS File
   border:solid 1px rgba(0,0,0,.2);
 }
 
-.comments-item-reply-link {
-  float:left;
-}
+// .comments-item-reply-link {
+//   float:left;
+// }
 .form-section {
 
 }
@@ -696,4 +655,22 @@ New CSS File
   float:right;
   margin-top:-25px;
   color:rgba(0,0,0,.5);
+}
+
+
+.comments-item-vote {
+  .vote.bigDownvoted {
+    margin-left:5px;
+  }
+
+  .big-upvote-button {
+    position:relative;
+    top:-2px;
+    left: -11px;
+  }
+  .big-downvote-button {
+    position:relative;
+    top:-2px;
+    left:4px;
+  }
 }

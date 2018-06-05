@@ -6,3 +6,12 @@ const sunshineRegimentActions = [
   'comments.edit.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
+
+const votingActions = [
+  'comments.smallDownvote',
+  'comments.bigDownvote',
+  'comments.smallUpvote',
+  'comments.bigUpvote',
+]
+
+Users.groups.members.can(votingActions);

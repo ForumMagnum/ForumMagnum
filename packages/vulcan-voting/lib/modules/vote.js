@@ -2,7 +2,7 @@ import { debug, debugGroup, debugGroupEnd, runCallbacksAsync } from 'meteor/vulc
 import { createError } from 'apollo-errors';
 import Votes from './votes/collection.js';
 import Users from 'meteor/vulcan:users';
-import { recalculateScore } from './scoring.js';
+import { recalculateScore, recalculateBaseScore } from './scoring.js';
 
 /*
 
@@ -20,12 +20,37 @@ export const addVoteType = (voteType, voteTypeOptions) => {
   voteTypes[voteType] = voteTypeOptions;
 }
 
-const userVotePower = (user, multiplier) => {
-    return multiplier * (Math.floor(1 + Math.log(1 + Math.max((user.karma || 0), 0)) / Math.log(5)))
+// LESSWRONG – Added userSmallVotePower and userBigVotePower
+
+const userSmallVotePower = (user, multiplier) => {
+  if (user.karma >= 25000) { return 3 * multiplier }
+  if (user.karma >= 1000) { return 2 * multiplier }
+  return 1 * multiplier
 }
 
-addVoteType('upvote', {power: (user) => userVotePower(user, 1), exclusive: true});
-addVoteType('downvote', {power: (user) => userVotePower(user, -1), exclusive: true});
+const userBigVotePower = (user, multiplier) => {
+  if (user.karma >= 500000) { return 16 * multiplier } // Thousand year old vampire
+  if (user.karma >= 250000) { return 15 * multiplier }
+  if (user.karma >= 175000) { return 14 * multiplier }
+  if (user.karma >= 100000) { return 13 * multiplier }
+  if (user.karma >= 75000) { return 12 * multiplier }
+  if (user.karma >= 50000) { return 11 * multiplier }
+  if (user.karma >= 25000) { return 10 * multiplier }
+  if (user.karma >= 10000) { return 9 * multiplier }
+  if (user.karma >= 5000) { return 8 * multiplier }
+  if (user.karma >= 2500) { return 7 * multiplier }
+  if (user.karma >= 1000) { return 6 * multiplier }
+  if (user.karma >= 500) { return 5 * multiplier }
+  if (user.karma >= 250) { return 4 * multiplier }
+  if (user.karma >= 100) { return 3 * multiplier }
+  if (user.karma >= 10) { return 2 * multiplier }
+  return 1 * multiplier
+}
+
+addVoteType('smallUpvote', {power: (user) => userSmallVotePower(user, 1), exclusive: true});
+addVoteType('smallDownvote', {power: (user) => userSmallVotePower(user, -1), exclusive: true});
+addVoteType('bigUpvote', {power: (user) => userBigVotePower(user, 1), exclusive: true});
+addVoteType('bigDownvote', {power: (user) => userBigVotePower(user, -1), exclusive: true});
 
 /*
 
@@ -98,7 +123,8 @@ const addVoteServer = (voteOptions) => {
   delete vote.__typename;
   Votes.insert(vote);
 
-  newDocument.baseScore = document.baseScore ? document.baseScore + vote.power : vote.power;
+  // LESSWRONG – recalculateBaseScore
+  newDocument.baseScore = recalculateBaseScore(newDocument)
   newDocument.score = recalculateScore(newDocument);
 
   if (updateDocument) {
@@ -152,11 +178,16 @@ export const clearVotesServer = ({ document, user, collection, updateDocument })
   const newDocument = _.clone(document);
   const votes = Votes.find({ documentId: document._id, userId: user._id}).fetch();
   if (votes.length) {
+    // LESSWRONG – run the votes.cancel.async callbacks for each vote
+    votes.forEach((vote)=> {
+      runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
+    })
     Votes.remove({documentId: document._id, userId: user._id});
     if (updateDocument) {
-      collection.update({_id: document._id}, {$inc: {baseScore: -calculateTotalPower(votes) }});
+      // LESSWRONG – recalculateBaseScore
+      collection.update({_id: document._id}, {$set: {baseScore: recalculateBaseScore(document)}});
     }
-    newDocument.baseScore -= calculateTotalPower(votes);
+    newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
   }
   return newDocument;
@@ -171,18 +202,23 @@ export const cancelVoteServer = ({ document, voteType, collection, user, updateD
 
   const newDocument = _.clone(document);
   const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType})
-
   // remove vote object
   Votes.remove({_id: vote._id});
-  newDocument.baseScore -= vote.power;
+  // LESSWRONG – recalculateBaseScore
+  newDocument.baseScore = recalculateBaseScore(newDocument);
   newDocument.score = recalculateScore(newDocument);
 
   // update document score
   if (updateDocument) {
-    collection.update({_id: document._id}, {$inc: {baseScore: -vote.power }, $set: {inactive: false, score: newDocument.score}});
+    collection.update(
+      {_id: document._id},
+      {$set: {
+        inactive: false,
+        score: newDocument.score,
+        baseScore: newDocument.baseScore
+      }}
+    );
   }
-
-
   return {newDocument, vote};
 }
 
@@ -241,7 +277,7 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
     throw new Error(`Cannot perform operation '${collectionName.toLowerCase()}.${voteType}'`);
   }
 
-  const voteOptions = {document, collection, voteType, user, voteId};
+  let voteOptions = {document, collection, voteType, user, voteId};
 
   if (hasVotedClient({document, voteType})) {
 
@@ -254,7 +290,7 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
     // console.log('action: vote')
 
     if (voteTypes[voteType].exclusive) {
-      clearVotesClient({document, collection, voteType, user, voteId})
+      voteOptions.document = clearVotesClient({document, collection, voteType, user, voteId})
     }
 
     returnedDocument = addVoteClient(voteOptions);
@@ -276,7 +312,7 @@ if set to true, this will perform its own database updates. If false, will only
 return an updated document without performing any database operations on it.
 
 */
-export const performVoteServer = ({ documentId, document, voteType = 'upvote', collection, voteId, user, updateDocument = true }) => {
+export const performVoteServer = ({ documentId, document, voteType = 'bigUpvote', collection, voteId, user, updateDocument = true }) => {
 
   const collectionName = collection.options.collectionName;
   document = document || collection.findOne(documentId);
@@ -297,7 +333,6 @@ export const performVoteServer = ({ documentId, document, voteType = 'upvote', c
   }
 
   if (hasVotedServer({document, voteType, user})) {
-
     // console.log('action: cancel')
 
     // runCallbacks(`votes.cancel.sync`, document, collection, user);

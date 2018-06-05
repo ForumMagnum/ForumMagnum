@@ -111,7 +111,9 @@ class RecentDiscussionThread extends PureComponent {
                 {moment(new Date(post.postedAt)).fromNow()}
               </span>
             }
-            <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={currentUser}/> </div>
+            <span className="posts-item-points">
+              { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
+            </span>
             {post.wordCount && !post.isEvent &&
               <span className="recent-discussion-thread-readtime">
                 {parseInt(post.wordCount/300) || 1 } min read

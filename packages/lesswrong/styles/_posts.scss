@@ -502,54 +502,6 @@
     }
   }
 }
-.posts-item, .recent-discussion-thread-wrapper {
-  .upvoted {
-    .upvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(100, 169, 105, 0.9) !important;
-      }
-    }
-
-    .downvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
-    }
-
-    .vote-count {
-      color: rgba(100, 169, 105, 0.9) !important;
-    }
-  }
-
-  .downvoted {
-    .downvote-button {
-      .material-icons {
-        font-weight: 900;
-        color: rgba(160, 44, 44, 0.9) !important;
-      }
-    }
-
-    .upvote-button {
-      .material-icons {
-        color: rgba(0, 0, 0, 0.3) !important;
-      }
-    }
-
-    .vote-count {
-      color: rgba(160, 44, 44, 0.9) !important;
-    }
-  }
-}
-.posts-item-vote{
-  display: inline;
-  .vote {
-    display: inline;
-  }
-  .upvote-button, .downvote-button {
-    display: none; //Hide vote buttons for vote-items
-  }
-}
 
 .upvote-button{
   .icon{
@@ -561,7 +513,7 @@
 }
 
 .vote-count{
-  display: inline;
+  // display: inline;
 }
 
 .downvote-button{
@@ -626,89 +578,96 @@
     margin-bottom: 40px;
     .posts-page-content-header-voting {
       text-align: center;
-      margin-bottom: 15px;
+      .lw-tooltip-wrapper {
+        display:block;
+      }
       .vote {
         position: relative;
         font-size: 20px;
         color: rgba(0,0,0,0.5);
+        margin-top:-35px;
+        margin-bottom:-1  0px;
         .vote-count {
           position: relative;
-
-          &:before, &:after {
-            content: "";
-            position: absolute;
-            border-bottom: 1px solid rgba(0,0,0,0.5);
-            width: 75px;
-            top: 12px;
-          }
-          &:before {
-            left:-87px;
-          }
-          &:after {
-            right:-87px;
-          }
           margin-right: 0px;
           .vote-count-text {
             display: none;
           }
         }
-        .material-icons {
-          color: rgba(0,0,0,0.4) !important;
-          border-radius: 100%;
+        .upvote-buttons {
+          position:relative;
+          top:-73px;
+        }
+        .small-upvote-button .material-icons {
+          transform: rotate(-90deg);
+          top:20px;
+          left:6px;
+        }
+        .big-upvote-button {
+          position: relative;
+          top:31px;
+          left:-10px;
+
+          .material-icons {
+            transform: rotate(-90deg);
+          }
+        }
+        .small-downvote-button .material-icons {
+          transform: rotate(-90deg);
+          left:-6px;
+        }
+        .downvote-buttons {
+          position:relative;
+          top:50px;
+        }
+        .big-downvote-button {
+          position: relative;
+          top:18px;
+          left:10px;
+
+          .material-icons {
+            transform: rotate(-90deg);
+          }
         }
 
-        .material-icons:hover {
-          background-color: rgba(0,0,0,0.05);
+        .small-upvote-button,
+        .small-downvote-button {
+          .material-icons {
+            font-size:20px !important;
+          }
         }
-
-        .upvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: -17px;
-          width: 30px;
-          height: 20px;
-        }
-        .downvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: 25px;
-          width: 30px;
-          height: 20px;
+        .lw-tooltip {
+          display:none !important;
         }
       }
-      .upvoted {
-        .upvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(100, 169, 105, 0.9) !important;
-          }
-        }
-
-        .downvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
+      .big-upvote-button .material-icons,
+      .big-downvote-button .material-icons {
+        font-size:35px !important;
+        &.big-voting9 {
+          font-weight:900;
         }
       }
-
-      .downvoted {
-        .downvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(160, 44, 44, 0.9) !important;
-          }
+      .vote-count {
+        position: relative;
+        line-height:20px;
+        &:before, &:after {
+          content: "";
+          position: absolute;
+          border-bottom: 1px solid rgba(0,0,0,0.5);
+          width: 75px;
+          top: 18px;
         }
-
-        .upvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
+        &:before {
+          top:5px;
+          left:225px;
+        }
+        &:after {
+          top:5px;
+          right:225px;
+        }
+        margin-right: 0px;
+        .vote-count-text {
+          display: none;
         }
       }
     }
@@ -762,12 +721,18 @@
   .posts-page-content-footer {
     margin-bottom: 30px;
     .posts-page-content-footer-voting {
+      .lw-tooltip-wrapper {
+        display:block;
+      }
+
       text-align: center;
-      margin-bottom: 15px;
+      // margin-bottom: 15px;
       .vote {
         position: relative;
         font-size: 30px;
         color: rgba(0,0,0,0.5);
+        margin-top:-30px;
+        margin-bottom:-15px;
         .vote-count {
           position: relative;
           margin-right: 0px;
@@ -775,65 +740,55 @@
             display: none;
           }
         }
-        .material-icons {
-          color: rgba(0,0,0,0.4) !important;
-          border-radius: 100%;
-          font-size: 45px !important;
+        .upvote-buttons {
+          position:relative;
+          top:-102px;
+        }
+        .small-upvote-button .material-icons {
+          transform: rotate(-90deg);
+          top:20px;
+          left:6px;
+        }
+        .big-upvote-button {
+          position: relative;
+          top:28px;
+          left:-15px;
+          .material-icons {
+            transform: rotate(-90deg);
+          }
+        }
+        .small-downvote-button .material-icons {
+          transform: rotate(-90deg);
+          left:-6px;
+        }
+        .downvote-buttons {
+          position:relative;
+          top:90px;
+        }
+        .big-downvote-button {
+          position: relative;
+          top:23px;
+          left:15px;
+          .material-icons {
+            transform: rotate(-90deg);
+          }
         }
 
-        .material-icons:hover {
-          background-color: rgba(0,0,0,0.05);
+        .small-upvote-button,
+        .small-downvote-button {
+          .material-icons {
+            font-size:30px !important;
+          }
         }
-
-        .upvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: -23px;
-          width: 50px;
-          height: 30px;
-
-        }
-        .downvote-button {
-          position: absolute;
-          margin-left: auto;
-          margin-right: auto;
-          left: 0px;
-          right: 0px;
-          top: 30px;
-          width: 50px;
-          height: 30px;
+        .lw-tooltip {
+          display:none !important;
         }
       }
-      .upvoted {
-        .upvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(100, 169, 105, 0.9) !important;
-          }
-        }
-
-        .downvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
-        }
-      }
-
-      .downvoted {
-        .downvote-button {
-          .material-icons {
-            font-weight: 900;
-            color: rgba(160, 44, 44, 0.9) !important;
-          }
-        }
-
-        .upvote-button {
-          .material-icons {
-            color: rgba(0, 0, 0, 0.3) !important;
-          }
+      .big-upvote-button .material-icons,
+      .big-downvote-button .material-icons {
+        font-size:40px !important;
+        &.big-voting9 {
+          font-weight:900;
         }
       }
     }
@@ -1386,18 +1341,6 @@ svg.drag-handle {
   }
 }
 
-.recent-discussion-thread-meta {
-  .recent-discussion-show-highlight {
-    opacity:0;
-    color:rgba(0,0,0,.4);
-  }
-  &:hover {
-    .recent-discussion-show-highlight {
-      opacity:1;
-    }
-  }
-}
-
 .post-highlight {
   margin-top:5px;
   max-width:600px;
@@ -1448,10 +1391,20 @@ svg.drag-handle {
   color:rgba(0,0,0,.5);
   line-height:13px;
 
+  .recent-discussion-show-highlight {
+    opacity:0;
+    color:rgba(0,0,0,.4);
+  }
+  &:hover {
+    .recent-discussion-show-highlight {
+      opacity:1;
+    }
+  }
+
   .recent-discussion-username,
   .recent-discussion-thread-date,
   .posts-item-unread-dot,
-  .vote-count,
+  .posts-item-points,
   .recent-discussion-edit,
   .recent-discussion-thread-readtime {
     margin-right:8px;
@@ -1469,7 +1422,6 @@ svg.drag-handle {
 .posts-item-unread-dot {
   color:rgba(100,170,105,.65);
   font-size:30px;
-  // background: red;
   line-height:0px;
   position: relative;
   top:5.5px;

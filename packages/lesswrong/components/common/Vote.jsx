@@ -14,12 +14,61 @@ class Vote extends PureComponent {
     this.vote = this.vote.bind(this);
     this.getActionClass = this.getActionClass.bind(this);
     this.hasVoted = this.hasVoted.bind(this);
+
+    this.bigVotingTimer = undefined
+
+    this.state = {
+      bigUpvoting: 0,
+      bigDownvoting: 0,
+    };
   }
 
-  vote(e, type) {
+  endBigDownvoting = () => {
+    if (this.state.bigDownvoting >= 9) {
+      this.vote("bigDownvote")
+    } else {
+      this.vote("smallDownvote")
+    }
+    this.clearState()
+  }
 
-    e.preventDefault();
+  endBigUpvoting = () => {
+    if (this.state.bigUpvoting >= 9) {
+      this.vote("bigUpvote")
+    } else {
+      this.vote("smallUpvote")
+    }
+    this.clearState()
+  }
 
+  clearState = () => {
+    clearTimeout(this.bigVotingTimer)
+    this.setState({
+      bigUpvoting: 0,
+      bigDownvoting: 0,
+    })
+  }
+
+  repeatDownvoting = () => {
+    if (this.state.bigDownvoting < 9) {
+      this.setState({bigDownvoting: this.state.bigDownvoting + 1})
+    }
+    this.bigVotingTimer = setTimeout(this.repeatDownvoting, 100)
+  }
+
+  repeatUpvoting = () => {
+    if (this.state.bigUpvoting < 9) {
+      this.setState({bigUpvoting: this.state.bigUpvoting + 1})
+    }
+    this.bigVotingTimer = setTimeout(this.repeatUpvoting, 100)
+  }
+
+  showReply(event) {
+    event.preventDefault();
+    this.setState({showReply: true});
+  }
+
+  vote(type, canBigVote) {
     const document = this.props.document;
     const collection = this.props.collection;
     const user = this.props.currentUser;
@@ -36,30 +85,70 @@ class Vote extends PureComponent {
   }
 
   getActionClass() {
-    const isUpvoted = this.hasVoted('upvote');
-    const isDownvoted = this.hasVoted('downvote');
+    const isBigUpvoted = this.hasVoted('bigUpvote');
+    const isBigDownvoted = this.hasVoted('bigDownvote');
+    const isSmallUpvoted = this.hasVoted('smallUpvote') || this.hasVoted('bigUpvote');
+    const isSmallDownvoted = this.hasVoted('smallDownvote') || this.hasVoted('bigDownvote');
 
     const actionsClass = classNames(
       'vote',
-      {voted: isUpvoted || isDownvoted},
-      {upvoted: isUpvoted},
-      {downvoted: isDownvoted},
+      {voted: isBigUpvoted || isBigDownvoted || isSmallUpvoted || isSmallDownvoted},
+      {smallUpvoted: isSmallUpvoted},
+      {bigUpvoted: isBigUpvoted},
+      {smallDownvoted: isSmallDownvoted},
+      {bigDownvoted: isBigDownvoted},
     );
     return actionsClass;
   }
 
+  renderTooltip = () => <div className="voting-tooltip">Click-and-hold for strong upvote</div>
+
   render() {
     return (
-      <div className={this.getActionClass()}>
-        <div className="vote-count">{this.props.document.baseScore || 0} <span className="vote-count-text">{this.props.document.baseScore === 1 ? "point" : "points"}</span></div>
-        <a className="upvote-button" onClick={(e) => this.vote(e,'upvote')}>
-          <FontIcon className="material-icons">expand_less</FontIcon>
-          <div className="sr-only">Upvote</div>
-        </a>
-        <a className="downvote-button" onClick={(e) => this.vote(e,'downvote')}>
-          <FontIcon className="material-icons">expand_more</FontIcon>
-          <div className="sr-only">Downvote</div>
-        </a>
+      <div className="vote-wrapper">
+        <div className={this.getActionClass()}>
+          <Components.Tooltip tooltip={this.renderTooltip()}>
+            <span className="downvote-buttons"
+              onMouseDown={this.repeatDownvoting}
+              onMouseUp={this.endBigDownvoting}
+              onMouseOut={this.clearState}
+            >
+              <a className="big-downvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+                  arrow_back_ios
+                </FontIcon>
+                <div className="sr-only">Big Downvote</div>
+              </a>
+              <a className="small-downvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+                  arrow_back_ios
+                </FontIcon>
+                <div className="sr-only">Small Downvote</div>
+              </a>
+            </span>
+            <div className="vote-count">
+              {this.props.document.baseScore || 0}
+            </div>
+            <span className="upvote-buttons"
+              onMouseDown={this.repeatUpvoting}
+              onMouseUp={this.endBigUpvoting}
+              onMouseOut={this.clearState}
+            >
+              <a className="small-upvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
+                  arrow_forward_ios
+                </FontIcon>
+                <div className="sr-only">Small Upvote</div>
+              </a>
+              <a className="big-upvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
+                  arrow_forward_ios
+                </FontIcon>
+                <div className="sr-only">Big Upvote</div>
+              </a>
+            </span>
+          </Components.Tooltip>
+        </div>
       </div>
     )
   }

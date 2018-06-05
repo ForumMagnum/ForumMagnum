@@ -13,13 +13,13 @@ Users.groups.guests.can(guestsActions);
 
 const membersActions = [
   'comments.view',
-  'comments.new', 
-  'comments.edit.own', 
-  'comments.remove.own', 
-  'comments.upvote', 
-  'comments.cancelUpvote', 
+  'comments.new',
+  'comments.edit.own',
+  'comments.remove.own',
+  'comments.upvote',
+  'comments.cancelUpvote',
   'comments.downvote',
-  'comments.cancelDownvote'
+  'comments.cancelDownvote',
 ];
 Users.groups.members.can(membersActions);
 

@@ -13,6 +13,15 @@ Posts.checkAccess = (currentUser, post) => {
   }
 }
 
+const votingActions = [
+  'posts.smallDownvote',
+  'posts.bigDownvote',
+  'posts.smallUpvote',
+  'posts.bigUpvote',
+]
+
+Users.groups.members.can(votingActions);
+
 const sunshineRegimentActions = [
   'posts.edit.all',
   'posts.curate.all',

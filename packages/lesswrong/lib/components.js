@@ -17,9 +17,6 @@ import '../components/feeds/editFeedButton.jsx';
 import '../components/feeds/feedItem.jsx';
 import '../components/feeds/feedList.jsx';
 
-// Outgoing RSS Feed builder
-import '../components/common/RSSOutLinkbuilder.jsx';
-
 import '../components/notifications/NotificationsMenu.jsx';
 import '../components/notifications/NotificationsList.jsx';
 import '../components/notifications/NotificationsItem.jsx';
@@ -28,7 +25,9 @@ import '../components/notifications/NotificationsFullscreenItem.jsx';
 import '../components/notifications/NotificationsFullscreenList.jsx';
 import '../components/notifications/NotificationsWrapper.jsx';
 import '../components/notifications/SubscribeTo.jsx';
+
 import '../components/Layout.jsx';
+
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
@@ -43,6 +42,11 @@ import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/Category.jsx';
 import '../components/common/DraftJSRenderer.jsx';
+import '../components/common/Tooltip.jsx';
+
+// Outgoing RSS Feed builder
+import '../components/common/RSSOutLinkbuilder.jsx';
+
 import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/users/UsersMenu.jsx';

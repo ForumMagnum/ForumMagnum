@@ -86,3 +86,20 @@
     margin-left:10px;
   }
 }
+
+.lw-tooltip-wrapper {
+  position:relative;
+  .lw-tooltip {
+    position:absolute;
+    top:0;
+    opacity:0;
+    font-size:13px;
+    transition:.25s;
+  }
+
+  &:hover {
+    .lw-tooltip {
+      opacity: 1;
+    }
+  }
+}
