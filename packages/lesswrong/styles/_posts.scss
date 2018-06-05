@@ -41,10 +41,12 @@
     }
     a {
       color: rgba(0,0,0,0.6);
-      @include link-styling()
     }
     a:visited {
       color: inherit;
+    }
+    a:hover {
+      text-decoration: none;
     }
   }
   a:hover {
@@ -690,6 +692,7 @@
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 40px;
+
     .posts-page-content-body-metadata {
       position: absolute;
       right: 100%;
@@ -1467,4 +1470,7 @@ svg.drag-handle {
       color:rgba(0,0,0,.2);
     }
   }
+}
+.posts-page-content-body-html.content-body a {
+  @include posts-link-styling();
 }

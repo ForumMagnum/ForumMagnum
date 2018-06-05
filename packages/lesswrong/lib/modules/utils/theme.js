@@ -13,7 +13,7 @@ const getHeaderColorPost = (postId, store) => {
   } else if (post && post.userId) {
     const user = Users.findOneInStore(store, post.userId)
     if (user) {
-      return "#F0F4F7" //<Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
+      return "#F4F4F4" //<Link className="header-site-section user" to={ Users.getProfileUrl(user) }>{ user.displayName }</Link>
     }
   }
 }
@@ -63,7 +63,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
   muiTheme.palette.header = "#FCFCFC"
 
   if (routeName == "users.single") {
-    muiTheme.palette.header = "#F0F4F7"
+    muiTheme.palette.header = "#F4F4F4"
     muiTheme.palette.accent1Color = "rgba(130,195,246,.5)"
     muiTheme.palette.accent2Color = "rgba(130,195,246,1)"
   } else if (routeName == "posts.single") {
@@ -83,7 +83,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
     muiTheme.palette.accent2Color = "rgb(136, 172, 184)"
 
   } else if (routeName == "Meta") {
-    muiTheme.palette.header = "#E6F2F1"
+    muiTheme.palette.header = "#E6F0F0"
     muiTheme.palette.accent1Color = "rgba(105,201,192,.5)"
     muiTheme.palette.accent2Color = "rgba(105,201,192,1)"
   }
