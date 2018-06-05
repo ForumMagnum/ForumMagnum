@@ -1,10 +1,11 @@
-import { Components, registerComponent, withCurrentUser, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, withMessages, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import FlatButton from 'material-ui/FlatButton';
 import { Accounts } from 'meteor/accounts-base';
+import { withRouter } from 'react-router'
 
 const UsersEditForm = (props, context) => {
   return (
@@ -31,8 +32,11 @@ const UsersEditForm = (props, context) => {
           collection={Users}
           {...props.terms}
           successCallback={user => {
-            props.flash(context.intl.formatMessage({ id: 'users.edit_success' }, {name: Users.getDisplayName(user)}), 'success')
+            props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
+            console.log("Users.getProfile", Users.getProfileUrl(user), user)
+            props.router.push(Users.getProfileUrl(user));
           }}
+          mutationFragment={getFragment('UsersProfile')}
           showRemove={false}
         />
       </div>
@@ -51,4 +55,4 @@ UsersEditForm.contextTypes = {
 
 UsersEditForm.displayName = 'UsersEditForm';
 
-registerComponent('UsersEditForm', UsersEditForm, withMessages, withCurrentUser);
+registerComponent('UsersEditForm', UsersEditForm, withMessages, withCurrentUser, withRouter);
