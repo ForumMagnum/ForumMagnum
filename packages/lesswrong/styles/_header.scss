@@ -501,6 +501,14 @@ $header-mobile: 43px !important;
     text-decoration: none;
   }
 }
+.notifications-menu-hidden-tab {
+  pointer-events: none;
+}
+.notifications-hide-button {
+  position:absolute;
+  top:0;
+  right:5px;
+}
 
 .notifications-list-empty {
   padding: 10px;
