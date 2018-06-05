@@ -43,6 +43,7 @@ class ConversationWrapper extends Component {
           {this.renderMessages(results, currentUser)}
           <div className="messages-smart-form">
             <Components.SmartForm
+              key={conversation._id}
               collection={Messages}
               prefilledProps={ {conversationId: conversation._id} }
               mutationFragment={getFragment("messageListFragment")}
