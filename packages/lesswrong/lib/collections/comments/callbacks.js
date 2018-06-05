@@ -1,10 +1,11 @@
 import React from 'react';
 import { Comments, Posts } from "meteor/example-forum";
-import { addCallback, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
+import { addCallback, removeCallback, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import { preProcessLatex } from '../../editor/server/utils.js';
+import { performVoteServer } from 'meteor/vulcan:voting';
 
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
@@ -203,3 +204,19 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
 }
 
 addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
+
+//LESSWRONG: Remove original LWCommentsNewUpvoteOwnComment from Vulcan
+removeCallback('comments.new.after', 'CommentsNewUpvoteOwnComment');
+
+/**
+ * @summary Make users upvote their own new comments
+ */
+
+ // LESSWRONG – bigUpvote
+function LWCommentsNewUpvoteOwnComment(comment) {
+  var commentAuthor = Users.findOne(comment.userId);
+  const votedComent = performVoteServer({ document: comment, voteType: 'bigUpvote', collection: Comments, user: commentAuthor })
+  return {...comment, ...votedComent};
+}
+
+addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
