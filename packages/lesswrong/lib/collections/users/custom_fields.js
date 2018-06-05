@@ -18,6 +18,14 @@ Users.addField([
     }
   },
 
+  // LESSWRONG: Overwrite Vulcan locale field to be hidden by default
+  {
+    fieldName: 'locale',
+    fieldSchema: {
+        hidden: true
+    }
+  },
+
   /**
     Legacy: Boolean used to indicate that post was imported from old LW database
   */
