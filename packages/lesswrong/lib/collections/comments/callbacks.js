@@ -213,10 +213,10 @@ removeCallback('comments.new.after', 'CommentsNewUpvoteOwnComment');
  */
 
  // LESSWRONG – bigUpvote
-function LWCommentsNewUpvoteOwnComment(comment) {
+async function LWCommentsNewUpvoteOwnComment(comment) {
   var commentAuthor = Users.findOne(comment.userId);
-  const votedComent = performVoteServer({ document: comment, voteType: 'bigUpvote', collection: Comments, user: commentAuthor })
-  return {...comment, ...votedComent};
+  const votedComment = await performVoteServer({ document: comment, voteType: 'bigUpvote', collection: Comments, user: commentAuthor })
+  return {...comment, ...votedComment};
 }
 
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);

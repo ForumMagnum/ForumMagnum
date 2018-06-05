@@ -246,11 +246,11 @@ addCallback("posts.new.sync", PostsNewDefaultTypes);
 //LESSWRONG: Remove original CommentsNewUpvoteOwnComment from Vulcan
 removeCallback('posts.new.after', 'PostsNewUpvoteOwnPost');
 
-
- // LESSWRONG - bigUpvote
-function LWPostsNewUpvoteOwnPost(post) {
-  var postAuthor = Users.findOne(post.userId);
-  return {...post, ...performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor, updateDocument: true })};
+// LESSWRONG – bigUpvote
+async function LWPostsNewUpvoteOwnPost(post) {
+ var postAuthor = Users.findOne(post.userId);
+ const votedPost = await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ return {...post, ...votedPost};
 }
 
 addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
