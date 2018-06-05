@@ -29,10 +29,10 @@ class ConversationDetails extends Component {
 
             <ListGroupItem>Created At: {conversation.createdAt}</ListGroupItem>
             <ListGroupItem>More information about current conversation will be implemented soon!</ListGroupItem>
-              <ListGroupItem>
-                <ModalTrigger label="Edit Title" >
-                  <Components.TitleEditForm documentId={conversation._id} currentUser={this.props.currentUser} />
-                </ModalTrigger>
+            <ListGroupItem>
+              <Components.ModalTrigger label="Edit Title" >
+                <Components.TitleEditForm documentId={conversation._id} currentUser={this.props.currentUser} />
+              </Components.ModalTrigger>
               </ListGroupItem>
           </ListGroup>
         </div>
