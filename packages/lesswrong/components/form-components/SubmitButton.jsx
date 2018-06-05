@@ -7,7 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 class SubmitButton extends Component {
   render() {
     const fieldName = this.props.name;
-    return <FlatButton onTouchTap={() => this.context.updateCurrentValues({[fieldName]: true}, true)} label={this.props.label} />
+    return <FlatButton onClick={() => this.context.updateCurrentValues({[fieldName]: true}, true)} label={this.props.label} />
   }
 }
 

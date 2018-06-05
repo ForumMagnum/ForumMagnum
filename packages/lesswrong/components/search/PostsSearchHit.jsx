@@ -26,7 +26,7 @@ const isLeftClick = (event) => {
 }
 
 const PostsSearchHit = ({hit, clickAction, router}) => {
-  // If clickAction is provided, disable link and replace with TouchTap of the action
+  // If clickAction is provided, disable link and replace with Click of the action
   return <div className="search-results-posts-item">
     <div className="posts-item">
       <Link

@@ -24,7 +24,7 @@ class CommentsListSection extends Component {
   }
 
   renderHighlightDateSelector = () => <div className="highlight-date-selector">
-    Highlighting new comments since <a className="highlight-date-selector-date" onTouchTap={(e) => this.refs.dp.openDialog()}>{moment(this.state.highlightDate).calendar()}</a>
+    Highlighting new comments since <a className="highlight-date-selector-date" onClick={(e) => this.refs.dp.openDialog()}>{moment(this.state.highlightDate).calendar()}</a>
     <DatePicker
       autoOk={true}
       className="highlight-date-selector-dialog"
@@ -45,7 +45,7 @@ class CommentsListSection extends Component {
       return (
         <span className="posts-page-comments-count">
           Rendering {this.props.commentCount}/{this.props.totalComments} comments, {this.renderCommentSort()}
-          {this.props.loadingMoreComments ? <Components.Loading /> : <a onTouchTap={() => this.props.loadMoreComments()}>(show more)</a>}
+          {this.props.loadingMoreComments ? <Components.Loading /> : <a onClick={() => this.props.loadMoreComments()}>(show more)</a>}
         </span>
       )
     } else {

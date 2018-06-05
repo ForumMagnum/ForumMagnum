@@ -26,7 +26,7 @@ class DialogGroup extends Component {
   };
 
   render() {
-    const actions = this.props.actions.map(action => <span onTouchTap={this.handleClose}>{action}</span>)
+    const actions = this.props.actions.map(action => <span onClick={this.handleClose}>{action}</span>)
 
     return (
       <span className="dialog-trigger-group">

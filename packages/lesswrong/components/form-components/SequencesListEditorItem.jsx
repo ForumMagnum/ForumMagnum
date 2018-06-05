@@ -24,7 +24,7 @@ const SequencesListEditorItem = ({document, loading, documentId, ...props}) => {
             {document.commentCount || "?"} comments
           </div>
           <div className="sequences-list-edit-item-remove">
-            <RemoveIcon className="remove-icon" onTouchTap={() => props.removeItem(documentId)} />
+            <RemoveIcon className="remove-icon" onClick={() => props.removeItem(documentId)} />
           </div>
         </div>
       </div>

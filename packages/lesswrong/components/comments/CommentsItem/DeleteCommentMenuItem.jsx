@@ -74,7 +74,7 @@ class DeleteCommentMenuItem extends PureComponent {
       return (
         <MenuItem
           className="comment-menu-item-delete"
-          onTouchTap={()=>{this.setState({open:true})}}
+          onClick={()=>{this.setState({open:true})}}
           primaryText="Delete"
         >
           <Dialog
@@ -102,7 +102,7 @@ class DeleteCommentMenuItem extends PureComponent {
         </MenuItem>
       )
     } else if (this.props.comment.deleted) {
-      return <MenuItem onTouchTap={ this.handleUndoDelete } primaryText="Undo Delete" />
+      return <MenuItem onClick={ this.handleUndoDelete } primaryText="Undo Delete" />
     }
   }
 }

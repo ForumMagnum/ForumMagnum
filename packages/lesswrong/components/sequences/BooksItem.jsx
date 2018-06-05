@@ -22,7 +22,7 @@ class BooksItem extends Component {
     {book.subtitle ?   <div className="books-item-subtitle">
         {book.subtitle}
       </div> : null}
-    {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
+    {canEdit ? <a onClick={this.showEdit}>edit</a> : null}
   </div>
 
   render() {

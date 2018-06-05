@@ -32,7 +32,7 @@ const NotificationsMenuButton = (props) => {
 
   return (
     <Badge style={badgeContainerStyle} badgeContent={(filteredResults && filteredResults.length) || ""} primary={true} badgeStyle={badgeStyle}>
-      <IconButton className="notifications-menu-button" onTouchTap={props.toggle} style={notificationButtonStyle} iconStyle={ notificationIconStyle }>
+      <IconButton className="notifications-menu-button" onClick={props.toggle} style={notificationButtonStyle} iconStyle={ notificationIconStyle }>
         {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
       </IconButton>
     </Badge>

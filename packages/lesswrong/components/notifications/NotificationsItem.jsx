@@ -44,7 +44,7 @@ class NotificationsItem extends Component {
       <ListItem
         containerElement={<Link to={notification.link} />}
         className={classNames('notifications-item', {read: notification.createdAt < lastNotificationsCheck || this.state.clicked})}
-        onTouchTap={() => this.setState({clicked: true})}
+        onClick={() => this.setState({clicked: true})}
         secondaryText={notification.message}
         secondaryTextLines={2}
         leftIcon={this.renderNotificationIcon(notification.type)}

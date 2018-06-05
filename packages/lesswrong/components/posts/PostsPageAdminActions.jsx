@@ -48,15 +48,15 @@ class PostsPageAdminActions extends Component {
         <div className="posts-page-admin-actions-wrapper">
           <div className="posts-page-admin-more-options">...</div>
           <div className="posts-page-admin-actions">
-            { !post.meta && <div onTouchTap={this.handleMoveToMeta }>
+            { !post.meta && <div onClick={this.handleMoveToMeta }>
               Move to Meta
             </div>}
-            { !post.frontpageDate && <div onTouchTap={this.handleMoveToFrontpage }>
+            { !post.frontpageDate && <div onClick={this.handleMoveToFrontpage }>
               Move to Frontpage
             </div>}
             { (post.frontpageDate ||
                post.meta ||
-               post.curatedDate) && <div onTouchTap={this.handleMoveToPersonalBlog }>
+               post.curatedDate) && <div onClick={this.handleMoveToPersonalBlog }>
               Move to Personal Blog
             </div>}
             <Components.SuggestCurated post={post}/>

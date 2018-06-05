@@ -67,7 +67,7 @@ class SequencesPage extends Component {
             {document.userId ? <div className="sequences-author-top">
               by <Link className="sequences-author-top-name" to={Users.getProfileUrl(document.user)}>{document.user.displayName}</Link>
             </div> : null}
-            {canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}
+            {canEdit ? <a onClick={this.showEdit}>edit</a> : null}
           </div>}>
           <div className="sequences-description content-body">
             {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}

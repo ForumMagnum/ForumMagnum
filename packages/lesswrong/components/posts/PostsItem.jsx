@@ -114,7 +114,7 @@ class PostsItem extends PureComponent {
   renderHighlightMenu = () => {
     return (
       <div className="posts-item-highlight-footer" >
-        <span className="posts-item-hide-highlight" onTouchTap={this.toggleHighlight}>
+        <span className="posts-item-hide-highlight" onClick={this.toggleHighlight}>
           <FontIcon className={classNames("material-icons")}>
             subdirectory_arrow_left
           </FontIcon>
@@ -188,7 +188,7 @@ class PostsItem extends PureComponent {
                 </h3>
               </Link>
               <object>
-                <div className="posts-item-meta" onTouchTap={this.toggleHighlight}>
+                <div className="posts-item-meta" onClick={this.toggleHighlight}>
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
                   {post.user && <div className="posts-item-user">
                     <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
@@ -220,14 +220,14 @@ class PostsItem extends PureComponent {
                   </div>
                 </div>
               </object>
-              <div className="post-category-display-container" onTouchTap={this.toggleHighlight}>
+              <div className="post-category-display-container" onClick={this.toggleHighlight}>
                 <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
               </div>
             </div>
           </div>
 
           <div
-            onTouchTap={this.toggleNewComments}
+            onClick={this.toggleNewComments}
             className={classNames(
               "posts-item-comments",
               {
@@ -258,7 +258,7 @@ class PostsItem extends PureComponent {
           { this.state.showNewComments &&
             <div className="posts-item-new-comments-section">
               <div className="post-item-new-comments-header">
-                <span className="posts-item-hide-comments" onTouchTap={this.toggleNewComments}>
+                <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
                   <FontIcon className={classNames("material-icons")}>
                     subdirectory_arrow_left
                   </FontIcon>
@@ -284,7 +284,7 @@ class PostsItem extends PureComponent {
                 />
               </div>}
               <div className="post-item-new-comments-footer">
-                <span className="posts-item-hide-comments" onTouchTap={this.toggleNewComments}>
+                <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
                   <FontIcon className={classNames("material-icons")}>
                     subdirectory_arrow_left
                   </FontIcon>

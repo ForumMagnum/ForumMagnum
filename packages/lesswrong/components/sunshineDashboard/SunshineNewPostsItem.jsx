@@ -74,7 +74,7 @@ class SunshineNewPostsItem extends Component {
               target="_blank"
               title="Move to Drafts"
               to={Users.getProfileUrl(post.user)}
-              onTouchTap={this.handleDelete}>
+              onClick={this.handleDelete}>
                 <FontIcon
                   style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                   className="material-icons">
@@ -87,7 +87,7 @@ class SunshineNewPostsItem extends Component {
             <span
               className="sunshine-sidebar-posts-action frontpage"
               title="Move to Frontpage"
-              onTouchTap={this.handleFrontpage}>
+              onClick={this.handleFrontpage}>
               <FontIcon
                 style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">
@@ -97,7 +97,7 @@ class SunshineNewPostsItem extends Component {
             <span
               className="sunshine-sidebar-posts-action review"
               title="Leave on Personal Blog"
-              onTouchTap={this.handleReview}>
+              onClick={this.handleReview}>
               <FontIcon
                 style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">

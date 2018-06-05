@@ -24,7 +24,7 @@ const PostsItemWrapper = ({document, loading, ...props}) => {
             {document.commentCount} comments
           </div>
           <div className="posts-list-edit-item-remove">
-            <RemoveIcon className="remove-icon" onTouchTap={() => props.removeItem(document._id)} />
+            <RemoveIcon className="remove-icon" onClick={() => props.removeItem(document._id)} />
           </div>
         </div>
       </div>

@@ -43,13 +43,13 @@ class SuggestCurated extends Component {
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
             <span
               className="posts-page-suggest-curated-button"
-              onTouchTap={this.handleSuggestCurated}
+              onClick={this.handleSuggestCurated}
               >
               Suggest Curation
             </span> :
             <span
               className="posts-page-suggest-curated-button suggested"
-              onTouchTap={this.handleUnsuggestCurated}
+              onClick={this.handleUnsuggestCurated}
               >
               Unsuggest Curation
             </span>

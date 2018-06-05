@@ -22,7 +22,7 @@ class ChaptersItem extends Component {
     {chapter.subtitle ?   <div className="chapters-item-subtitle">
       {chapter.subtitle}
     </div> : null}
-    {canEdit ? <a onTouchTap={this.showEdit}>Add/Remove Posts</a> : null}
+    {canEdit ? <a onClick={this.showEdit}>Add/Remove Posts</a> : null}
   </div>
 
   render() {

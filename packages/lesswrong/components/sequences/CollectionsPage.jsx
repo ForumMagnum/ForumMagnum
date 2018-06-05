@@ -35,7 +35,7 @@ class CollectionsPage extends Component {
       const collection = document;
       const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
       return (<div className="collections-page">
-        <Components.Section titleComponent={canEdit ? <a onTouchTap={this.showEdit}>edit</a> : null}>
+        <Components.Section titleComponent={canEdit ? <a onClick={this.showEdit}>edit</a> : null}>
           <div className="collections-header">
             <h1 className="collections-title">{collection.title}</h1>
             <div className="collections-description">

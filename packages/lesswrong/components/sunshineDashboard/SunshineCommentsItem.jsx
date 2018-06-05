@@ -44,7 +44,7 @@ class SunshineCommentsItem extends Component {
               target="_blank"
               title="Spam/Eugin (delete immediately)"
               to={Users.getProfileUrl(comment.user)}
-              onTouchTap={this.handleDelete}>
+              onClick={this.handleDelete}>
                 <FontIcon
                   style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                   className="material-icons">
@@ -57,7 +57,7 @@ class SunshineCommentsItem extends Component {
             <span
               className="sunshine-sidebar-posts-action new-comment review"
               title="Mark as Reviewed"
-              onTouchTap={this.handleReview}>
+              onClick={this.handleReview}>
               <FontIcon
                 style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">

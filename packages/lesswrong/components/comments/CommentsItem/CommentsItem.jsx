@@ -234,7 +234,7 @@ class CommentsItem extends PureComponent {
             { this.state.showStats &&
               <Dialog title="Comment Stats"
                 modal={false}
-                actions={<FlatButton label="Close" primary={true} onTouchTap={ this.hideStats }/>}
+                actions={<FlatButton label="Close" primary={true} onClick={ this.hideStats }/>}
                 open={this.state.showStats}
                 onRequestClose={this.hideStats}
               >
@@ -249,7 +249,7 @@ class CommentsItem extends PureComponent {
 
   renderStatsMenuItem = () => {
     if (Users.canDo(this.props.currentUser, "comments.edit.all")) {
-      return <MenuItem primaryText="Stats" onTouchTap={this.showStats} />
+      return <MenuItem primaryText="Stats" onClick={this.showStats} />
     }
   }
 
@@ -269,7 +269,7 @@ class CommentsItem extends PureComponent {
       return (
         <MenuItem
           className="comment-menu-item-report"
-          onTouchTap={this.showReport}
+          onClick={this.showReport}
           primaryText="Report"
         />
       )
@@ -282,7 +282,7 @@ class CommentsItem extends PureComponent {
           return (
             <MenuItem
               className="comment-menu-item-edit"
-              onTouchTap={this.showEdit}
+              onClick={this.showEdit}
               primaryText="Edit"
             />
           )

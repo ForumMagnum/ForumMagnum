@@ -77,11 +77,11 @@ class SearchBar extends Component {
         onSearchStateChange={this.queryStateControl}
       >
         <div className={"search-bar " + inputOpenClass}>
-          <div className="search-bar-box" onTouchTap={this.handleSearchTap}>
+          <div className="search-bar-box" onClick={this.handleSearchTap}>
             <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
             <SearchBox resetComponent={<div className="search-box-reset"></div>} focusShortcuts={[]}/>
           </div>
-          <div className="search-bar-close" onTouchTap={this.closeSearch}>
+          <div className="search-bar-close" onClick={this.closeSearch}>
             <FontIcon className="material-icons" style={closeIconStyle}>close</FontIcon>
           </div>
         </div>

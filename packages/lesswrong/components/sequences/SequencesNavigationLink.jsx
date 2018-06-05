@@ -23,7 +23,7 @@ const SequencesNavigationLink = ({
           disabled={ !slug && !documentId }
           iconClassName="material-icons"
           tooltip={post && post.title}
-          onTouchTap={() => router.push(documentUrl)}>
+          onClick={() => router.push(documentUrl)}>
           { direction === "left" ? "navigate_before" : "navigate_next" }
        </IconButton>
      )

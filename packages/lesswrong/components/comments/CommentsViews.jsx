@@ -85,7 +85,7 @@ class CommentsViews extends Component {
                 key={view}
                 value={view}
                 primaryText={viewNames[view]}
-                onTouchTap={() => router.replace({...currentLocation, query: {...currentQuery, view: view, postId: props.postId}})}
+                onClick={() => router.replace({...currentLocation, query: {...currentQuery, view: view, postId: props.postId}})}
                 />
             }
           )}

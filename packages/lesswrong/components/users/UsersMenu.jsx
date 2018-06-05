@@ -20,7 +20,7 @@ class UsersMenu extends PureComponent {
     }
   }
 
-  handleTouchTap = (event) => {
+  handleClick = (event) => {
     event.preventDefault();
     this.setState({
       open:true,
@@ -45,7 +45,7 @@ class UsersMenu extends PureComponent {
 
     return (
       <div className="users-menu">
-        <FlatButton labelStyle={ labelStyle } label={Users.getDisplayName(currentUser)} onTouchTap={this.handleTouchTap} />
+        <FlatButton labelStyle={ labelStyle } label={Users.getDisplayName(currentUser)} onClick={this.handleClick} />
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
@@ -57,7 +57,7 @@ class UsersMenu extends PureComponent {
             <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
             <MenuItem primaryText="Profile" containerElement={<Link to={`/users/${currentUser.slug}`}/>} />
             <MenuItem primaryText="Edit Account" containerElement={<Link to={`/account`}/>} />
-            <MenuItem primaryText="Log Out" onTouchTap={() => Meteor.logout(() => client.resetStore())} />
+            <MenuItem primaryText="Log Out" onClick={() => Meteor.logout(() => client.resetStore())} />
           </Menu>
         </Popover>
       </div>

@@ -14,32 +14,32 @@ const NavigationMenu = ({open, handleClose, handleToggle}) =>
     containerStyle={{height: "100vh"}}
     overlayStyle={{height: "100vh"}}
   >
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
     <Divider />
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>
     <MenuItem
-      onTouchTap={handleClose}
+      onClick={handleClose}
       innerDivStyle={{paddingLeft:"35px" }}
       containerElement={<Link to={"/rationality"}/>}>
       RATIONALITY: A-Z
     </MenuItem>
     <MenuItem
-      onTouchTap={handleClose}
+      onClick={handleClose}
       innerDivStyle={{paddingLeft:"35px" }}
       containerElement={<Link to={"/codex"}/>}>
       THE CODEX
     </MenuItem>
     <MenuItem
-      onTouchTap={handleClose}
+      onClick={handleClose}
       innerDivStyle={{paddingLeft:"35px" }}
       containerElement={<Link to={"/hpmor"}/>}>
       HPMOR
     </MenuItem>
     <Divider />
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-    <MenuItem onTouchTap={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT </MenuItem>
   {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
 </Drawer>;
 

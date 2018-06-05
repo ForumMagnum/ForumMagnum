@@ -13,7 +13,7 @@ class UsersAccountMenu extends PureComponent {
     }
   }
 
-  handleTouchTap = (event) => {
+  handleClick = (event) => {
     event.preventDefault();
     this.setState({
       open:true,
@@ -34,7 +34,7 @@ class UsersAccountMenu extends PureComponent {
 
     return (
       <div className="users-menu">
-        <FlatButton labelStyle={ labelStyle } label="Login" onTouchTap={this.handleTouchTap} />
+        <FlatButton labelStyle={ labelStyle } label="Login" onClick={this.handleClick} />
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}

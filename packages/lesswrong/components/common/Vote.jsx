@@ -150,7 +150,7 @@ render() {
             onMouseDown={this.repeatDownvoting}
             onMouseUp={this.endBigDownvoting}
             onMouseOut={this.clearState}
-            onTouchTap={this.downvoteNext}
+            onClick={this.downvoteNext}
           >
             <a className="big-downvote-button">
               <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
@@ -165,14 +165,14 @@ render() {
               <div className="sr-only">Small Downvote</div>
             </a>
           </span>
-          <div className="vote-count" onTouchTap={this.logMyVotes}>
+          <div className="vote-count" onClick={this.logMyVotes}>
             {this.props.document.baseScore || 0}
           </div>
           <span className="upvote-buttons"
             onMouseDown={this.repeatUpvoting}
             onMouseUp={this.endBigUpvoting}
             onMouseOut={this.clearState}
-            onTouchTap={this.upvoteNext}
+            onClick={this.upvoteNext}
           >
             <a className="small-upvote-button">
               <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>

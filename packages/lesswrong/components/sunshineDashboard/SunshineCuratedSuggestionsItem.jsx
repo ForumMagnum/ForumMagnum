@@ -95,7 +95,7 @@ class SunshineCuratedSuggestionsItem extends Component {
             <span
               className="sunshine-sidebar-posts-action clear"
               title="Remove from Curation Suggestions"
-              onTouchTap={this.handleDisregardForCurated}>
+              onClick={this.handleDisregardForCurated}>
               <FontIcon
                 style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">
@@ -105,7 +105,7 @@ class SunshineCuratedSuggestionsItem extends Component {
             <span
               className="sunshine-sidebar-posts-action curate"
               title="Curate Post"
-              onTouchTap={this.handleCurate}>
+              onClick={this.handleCurate}>
               <FontIcon
                 style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
                 className="material-icons">
@@ -116,7 +116,7 @@ class SunshineCuratedSuggestionsItem extends Component {
               <span
                 className="sunshine-sidebar-posts-action clear"
                 title="Endorse Curation"
-                onTouchTap={this.handleSuggestCurated}>
+                onClick={this.handleSuggestCurated}>
                 <FontIcon
                   style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                   className="material-icons">
@@ -126,7 +126,7 @@ class SunshineCuratedSuggestionsItem extends Component {
               <span
                 className="sunshine-sidebar-posts-action clear"
                 title="Unendorse Curation"
-                onTouchTap={this.handleUnsuggestCurated}>
+                onClick={this.handleUnsuggestCurated}>
                 <FontIcon
                   style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
                   className="material-icons">

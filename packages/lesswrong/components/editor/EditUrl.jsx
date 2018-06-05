@@ -26,7 +26,7 @@ class EditUrl extends Component {
               hoverColor={"#ccc"}
               style={{color: "#fff"}}
               label={this.state.active ? "Create Text Post" : "Create Link Post" }
-              onTouchTap={this.toggleEditor}/>
+              onClick={this.toggleEditor}/>
           </div>
           <div className="col-md-8">
             <Input

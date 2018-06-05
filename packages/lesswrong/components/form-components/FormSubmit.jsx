@@ -32,7 +32,7 @@ const FormSubmit = ({
         style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
         label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-        onTouchTap={() => {
+        onClick={() => {
           updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
           if (document.frontpageDate) {addToDeletedValues('frontpageDate')}
         }
@@ -44,7 +44,7 @@ const FormSubmit = ({
         style={{paddingBottom: "2px", fontFamily: commentFonts}}
         label={"Save as draft"}
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-        onTouchTap={() => updateCurrentValues({draft: true})}/>
+        onClick={() => updateCurrentValues({draft: true})}/>
 
       {Users.canDo(currentUser, 'posts.curate.all') && !document.meta && <FlatButton
         type="submit"
@@ -52,7 +52,7 @@ const FormSubmit = ({
         style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
         label={document.curatedDate ? "Remove from curated" : "Promote to curated"}
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-        onTouchTap={() => {
+        onClick={() => {
           updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
           if (document.curatedDate) {addToDeletedValues('curatedDate')}}
         }/>
@@ -66,7 +66,7 @@ const FormSubmit = ({
               className="form-cancel"
               hoverColor={"rgba(0, 0, 0, 0.05)"}
               style={{paddingBottom: "2px", fontFamily: commentFonts}}
-              onTouchTap={(e) => {e.preventDefault(); cancelCallback(document)}}
+              onClick={(e) => {e.preventDefault(); cancelCallback(document)}}
               label={"Cancel"}
               labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
             />
@@ -78,7 +78,7 @@ const FormSubmit = ({
       className="primary-form-submit-button"
       hoverColor={"rgba(0, 0, 0, 0.05)"}
       style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
-      onTouchTap={() => collectionName === "posts" && updateCurrentValues({draft: false})}
+      onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
       label={"Submit" }
       labelStyle={{fontSize: "16px", color: "rgba(100, 169, 105, 0.9)"}}
     />

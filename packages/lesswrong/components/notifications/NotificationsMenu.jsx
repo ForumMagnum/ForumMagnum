@@ -94,7 +94,7 @@ class NotificationsMenu extends Component {
                     style={tabLabelStyle}
                     onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
                   />
-                  <ClearIcon onTouchTap={this.props.handleToggle} style={cancelStyle} />
+                  <ClearIcon onClick={this.props.handleToggle} style={cancelStyle} />
                 </Tabs>
                 <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
               </div>

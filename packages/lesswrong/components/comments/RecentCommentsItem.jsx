@@ -35,7 +35,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p key={ comment._id + paragraphCounter++}>{text}</p>);
       return <div className="recent-comments-item-text comments-item-text content-body">
         {commentExcerpt}
-        <p>{lastElement + "..."}<a className="read-more" onTouchTap={() => this.setState({expanded: true})}>(read more)</a> </p>
+        <p>{lastElement + "..."}<a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> </p>
       </div>
     } else {
       return (
@@ -82,7 +82,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
               <object><div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId ? (
                   <FontIcon
-                    onTouchTap={this.toggleShowParent}
+                    onClick={this.toggleShowParent}
                     className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                   >
                     subdirectory_arrow_left

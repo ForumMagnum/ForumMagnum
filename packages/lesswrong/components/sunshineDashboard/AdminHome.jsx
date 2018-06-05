@@ -143,17 +143,17 @@ class AdminHome extends PureComponent {
                   openImmediately={true}
                 >
                   <MenuItem value={1} primaryText="Created At (Descending)"
-                    onTouchTap={(e) => {this.setState({allUsersValue:1, view:'LWUsersAdmin', sortUsersBy:{createdAt:-1}})}}/>
+                    onClick={(e) => {this.setState({allUsersValue:1, view:'LWUsersAdmin', sortUsersBy:{createdAt:-1}})}}/>
                   <MenuItem value={2} primaryText="Created At (Ascending)"
-                    onTouchTap={(e) => {this.setState({allUsersValue:2, view:'LWUsersAdmin', sortUsersBy:{createdAt:1}})}}/>
+                    onClick={(e) => {this.setState({allUsersValue:2, view:'LWUsersAdmin', sortUsersBy:{createdAt:1}})}}/>
                   <MenuItem value={3} primaryText="Karma (Descending)"
-                    onTouchTap={(e) => {this.setState({allUsersValue:3, view:'LWUsersAdmin', sortUsersBy:{karma:-1}})}}/>
+                    onClick={(e) => {this.setState({allUsersValue:3, view:'LWUsersAdmin', sortUsersBy:{karma:-1}})}}/>
                   <MenuItem value={4} primaryText="Karma (Ascending)"
-                    onTouchTap={(e) => {this.setState({allUsersValue:4, view:'LWUsersAdmin', sortUsersBy:{karma:1}})}}/>
+                    onClick={(e) => {this.setState({allUsersValue:4, view:'LWUsersAdmin', sortUsersBy:{karma:1}})}}/>
                   <MenuItem value={5} primaryText="Sunshines"
-                    onTouchTap={(e) => {this.setState({allUsersValue:5, view:'LWSunshinesList', sortUsersBy:{karma:1}})}} />
+                    onClick={(e) => {this.setState({allUsersValue:5, view:'LWSunshinesList', sortUsersBy:{karma:1}})}} />
                   <MenuItem value={6} primaryText="TrustLevel1"
-                    onTouchTap={(e) => {this.setState({allUsersValue:6, view:'LWTrustLevel1List', sortUsersBy:{karma:1}})}} />
+                    onClick={(e) => {this.setState({allUsersValue:6, view:'LWTrustLevel1List', sortUsersBy:{karma:1}})}} />
                 </DropDownMenu>
                 <Components.Datatable
                   collection={Users}

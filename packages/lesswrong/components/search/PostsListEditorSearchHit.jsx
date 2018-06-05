@@ -6,7 +6,7 @@ import { Link, withRouter } from 'react-router';
 import { Highlight } from 'react-instantsearch/dom';
 
 const PostsListEditorSearchHit = ({hit, clickAction, router}) => {
-  // If clickAction is provided, disable link and replace with TouchTap of the action
+  // If clickAction is provided, disable link and replace with Click of the action
   return (
     <div
       className="search-results-posts-item posts-item"

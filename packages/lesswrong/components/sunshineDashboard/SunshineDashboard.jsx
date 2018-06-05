@@ -25,14 +25,14 @@ const SunshineDashboard = (props, context) => {
     const editMutation = props.editMutation;
     const currentUser = props.currentUser;
     const claimButton = (props) => {
-      const handleTouchTap = () => {
+      const handleClick = () => {
         editMutation({
           documentId: props.document._id,
           set: {claimedUserId: currentUser._id},
           unset: {}
         })
       }
-      return <FlatButton label="Claim" onTouchTap={handleTouchTap} />
+      return <FlatButton label="Claim" onClick={handleClick} />
     }
     const columns = [
       { name: 'user',

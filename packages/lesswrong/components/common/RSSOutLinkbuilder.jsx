@@ -56,7 +56,7 @@ class RSSOutLinkbuilder extends Component {
     this.state = {...this.state, open:false, copied:false}
   }
 
-  handleTouchTap = (event) => {
+  handleClick = (event) => {
     event.preventDefault();
     this.setState({
       open: !this.state.open,
@@ -93,7 +93,7 @@ class RSSOutLinkbuilder extends Component {
       />
     ];
     return (
-      <span className="rss-out-linkbuilder"><span className="rss-out-linkbuilder-button"><div onTouchTap={(e) => {this.handleTouchTap(e)}}><FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> Create an RSS Feed</div></span>
+      <span className="rss-out-linkbuilder"><span className="rss-out-linkbuilder-button"><div onClick={(e) => {this.handleClick(e)}}><FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> Create an RSS Feed</div></span>
         <Dialog
           title="RSS Link Builder"
           actions={actions}
