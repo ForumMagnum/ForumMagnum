@@ -17,8 +17,9 @@ export const createDefaultUser = async() => {
 }
 
 export const createDummyPost = async (user, data) => {
+  const defaultUser = await createDefaultUser();
   const defaultData = {
-    userId: user ? user._id : await createDefaultUser()._id,
+    userId: (user && user._id) ? user._id : defaultUser._id,
     title: Random.id(),
   }
   const postData = {...defaultData, ...data};
