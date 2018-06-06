@@ -85,7 +85,7 @@ jobs:
           name: testing
           command: |
             printenv
-            TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
+            METEOR_PACKAGE_DIRS="../Vulcan/packages:../Vulcan-Starter/packages" TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
       # move meteor bin so it can be properly cached
       - run:
           name: copy meteor bin to build cache
