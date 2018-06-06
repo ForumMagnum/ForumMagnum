@@ -33,7 +33,6 @@ const UsersEditForm = (props, context) => {
           {...props.terms}
           successCallback={user => {
             props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
-            console.log("Users.getProfile", Users.getProfileUrl(user), user)
             props.router.push(Users.getProfileUrl(user));
           }}
           mutationFragment={getFragment('UsersProfile')}

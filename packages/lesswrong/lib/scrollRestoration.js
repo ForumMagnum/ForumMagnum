@@ -9,7 +9,10 @@ function rememberScrollPositionOnPageReload() {
     if ('scrollRestoration' in window.history) {
       try {
         window.history.scrollRestoration = 'auto';
-      } catch (e) {}
+      } catch (e) {
+        //eslint-disable-next-line no-console
+        console.error(e)
+      }
     }
   });
 }

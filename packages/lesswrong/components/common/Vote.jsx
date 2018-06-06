@@ -135,9 +135,11 @@ renderStrongVoteTooltip = () => <div className="voting-tooltip">
 </div>
 
 logMyVotes = () => {
+  //eslint-disable-next-line no-console
   console.log(" ")
   this.props.document.currentUserVotes.forEach((vote)=> {
-    console.log(vote.voteType, vote.power)
+    //eslint-disable-next-line no-console
+    console.info(vote.voteType, vote.power)
   })
 }
 
