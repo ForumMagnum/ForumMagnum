@@ -201,7 +201,7 @@ Posts.addField([
     fieldName: 'body',
     fieldSchema: {
       type: String,
-      max: 1000000, 
+      max: 1000000000, 
       optional: true,
       viewableBy: ['guests'],
       insertableBy: ['members'],
