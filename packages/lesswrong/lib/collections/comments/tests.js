@@ -2,27 +2,16 @@ import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
+import { createDummyUser } from '../../../testing/utils.js'
+
 
 chai.should();
 chai.use(chaiAsPromised);
 
 
 describe('CommentsNew', async () => {
-  it('should throw error if a user is not included', async () => {
-
-    const query = `
-      mutation CommentsNew {
-        CommentsNew(document:{content:{}}){
-          body
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:undefined})
-    const expectedError = '{"id":"app.operation_not_allowed","value":"check"}'
-
-    return response.should.be.rejectedWith(expectedError);
-  });
   it('should return data if a user is provided', async () => {
+    const user = await createDummyUser()
     const query = `
       mutation CommentsNew {
         CommentsNew(document:{content:{}}){
@@ -30,7 +19,7 @@ describe('CommentsNew', async () => {
         }
       }
     `;
-    const response = runQuery(query, {})
+    const response = runQuery(query, {}, {currentUser: user})
     const expectedOutput = { data: { CommentsNew: { body: null } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
