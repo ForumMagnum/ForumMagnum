@@ -231,7 +231,11 @@ figure:after {
 .public-DraftStyleDefault-block a {
   @include link-styling()
 }
-
+.posts-edit-form .public-DraftStyleDefault-block a,
+.posts-new-form .public-DraftStyleDefault-block a,
+ {
+  @include posts-link-styling()
+}
 
 .image-form-invalid {
   color: #e65757;

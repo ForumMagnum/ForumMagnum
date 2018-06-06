@@ -149,7 +149,7 @@ class Header extends Component {
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"};
     const header = this.props.muiTheme.palette.header
 
-    appBarStyle.backgroundColor = header ? header : "#F0F4F7"
+    appBarStyle.backgroundColor = header ? header : "#fff"
 
     return (
       <div>
