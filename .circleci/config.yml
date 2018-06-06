@@ -28,7 +28,10 @@ jobs:
             git clone https://github.com/VulcanJS/Vulcan.git Vulcan
             git clone https://github.com/VulcanJS/Vulcan-Starter.git Vulcan-Starter
             ls
-            export METEOR_PACKAGE_DIRS="./Vulcan/packages:./Vulcan-Starter/packages"
+            cd app
+            ls
+            cd ..
+            export METEOR_PACKAGE_DIRS="../Vulcan/packages:../Vulcan-Starter/packages"
       # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
       - restore_cache:
           key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
