@@ -9,7 +9,7 @@
     "start": "meteor --settings settings.json",
     "lint": "eslint --cache --ext .jsx,js packages",
     "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app",
-    "test": "METEOR_PACKAGE_DIRS=./Vulcan/packages:./Vulcan-Starter/packages meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
+    "test": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once"
   },
   "dependencies": {
