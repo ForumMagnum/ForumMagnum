@@ -71,8 +71,14 @@ jobs:
           name: code linting
           command: meteor yarn lint
       - run:
+          name: clone Vulcan
+          command: |
+            cd ..
+            git clone https://github.com/VulcanJS/Vulcan.git ../Vulcan
+            git clone https://github.com/VulcanJS/Vulcan-Starter.git ../Vulcan-Starter
+      - run:
           name: testing
-          command: TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
+          command: METEOR_PACKAGE_DIRS="../Vulcan/packages:../Vulcan-Starter/packages" TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
       # move meteor bin so it can be properly cached
       - run:
           name: copy meteor bin to build cache
