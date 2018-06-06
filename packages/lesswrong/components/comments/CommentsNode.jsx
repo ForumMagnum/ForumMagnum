@@ -59,7 +59,16 @@ class CommentsNode extends PureComponent {
       "comments-node-even" : comment.level % 2 === 0,
       "comments-node-odd"  : comment.level % 2 != 0,
       "comments-node-linked" : router.location.hash === "#" + comment._id && this.state.finishedScroll,
-      "comments-node-deleted" : comment.deleted
+      "comments-node-deleted" : comment.deleted,
+      "comments-node-its-getting-nested-here": comment.level > 8,
+      "comments-node-so-take-off-all-your-margins": comment.level > 12,
+      "comments-node-im-getting-so-nested": comment.level > 16,
+      "comments-node-im-gonna-drop-my-margins": comment.level > 20,
+      "comments-node-what-are-you-even-arguing-about": comment.level > 24,
+      "comments-node-are-you-sure-this-is-a-good-idea": comment.level > 28,
+      "comments-node-seriously-what-the-fuck": comment.level > 32,
+      "comments-node-are-you-curi-and-lumifer-specifically": comment.level > 36,
+      "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": comment.level > 40,
     })
 
     return (
