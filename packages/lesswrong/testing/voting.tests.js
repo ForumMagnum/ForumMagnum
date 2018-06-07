@@ -15,7 +15,8 @@ chai.use(chaiAsPromised);
 
 describe('Voting', async () => {
   describe('batchUpdating', async () => {
-    it('updates if post in the future', async () => {
+    it('updates if post in the future', async function(){
+      this.timeout(20000)
       const user = await createDummyUser();
       const currentTime = new Date();
       const tomorrow = currentTime.getTime()+(1*24*60*60*1000)
@@ -88,7 +89,7 @@ describe('Voting', async () => {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
-      performVoteServer({ documentId: post._id, voteType: 'upvote', collection: Posts, user })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       updatedPost[0].postedAt.should.be.closeTo(yesterday, 1000);
@@ -100,7 +101,7 @@ describe('Voting', async () => {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      performVoteServer({ documentId: post._id, voteType: 'upvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       updatedPost[0].score.should.be.above(preUpdatePost[0].score);
@@ -111,7 +112,7 @@ describe('Voting', async () => {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      performVoteServer({ documentId: post._id, voteType: 'downvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       updatedPost[0].score.should.be.below(preUpdatePost[0].score);
@@ -122,8 +123,8 @@ describe('Voting', async () => {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      performVoteServer({ documentId: post._id, voteType: 'upvote', collection: Posts, user: otherUser })
-      performVoteServer({ documentId: post._id, voteType: 'downvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       updatedPost[0].score.should.be.below(preUpdatePost[0].score);
@@ -135,8 +136,8 @@ describe('Voting', async () => {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      performVoteServer({ documentId: post._id, voteType: 'downvote', collection: Posts, user: otherUser })
-      performVoteServer({ documentId: post._id, voteType: 'upvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       updatedPost[0].score.should.be.above(preUpdatePost[0].score);

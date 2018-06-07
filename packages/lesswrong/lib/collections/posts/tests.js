@@ -39,7 +39,7 @@ describe('PostsEdit', async () => {
         }
       }
     `;
-    const response = runQuery(query,{},{currentUser:{_id:user2._id}})
+    const response = runQuery(query,{},{currentUser:user2})
     const expectedError = '{"id":"app.operation_not_allowed","value":"check"}'
     return response.should.be.rejectedWith(expectedError);
   });
