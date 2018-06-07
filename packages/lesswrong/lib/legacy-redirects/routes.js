@@ -18,15 +18,20 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug', (params, req, res, next) => 
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+        //eslint-disable-next-line no-console
+        console.log('// Missing legacy post', params);
+        res.statusCode = 404
+        res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
       }
     } catch (error) {
       //eslint-disable-next-line no-console
       console.error('// Legacy Post error', error, params)
-      res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+      res.statusCode = 404
+      res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
     }
   } else {
-    res.status(404).end("Please provide a URL");
+    res.statusCode = 404
+    res.end("Please provide a URL");
   }
 });
 
@@ -45,20 +50,24 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+        res.statusCode = 404
+        res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
       }
     } catch (error) {
       //eslint-disable-next-line no-console
       console.log('// Legacy comment error', error, params)
-      res.status(404).end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+      res.statusCode = 404
+      res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
     }
   } else {
-    res.status(404).end("Please provide a URL");
+    res.statusCode = 404
+    res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
   }
 });
 
 // Route for old user links
 Picker.route('/user/:slug/:category?/:filter?', (params, req, res, next) => {
+  res.statusCode = 404
   if(params.slug){
     try {
       const user = Users.findOne({$or: [{slug: params.slug}, {username: params.slug}]});
@@ -66,16 +75,20 @@ Picker.route('/user/:slug/:category?/:filter?', (params, req, res, next) => {
         res.writeHead(301, {'Location': Users.getProfileUrl(user)});
         res.end();
       } else {
-        // don't redirect if we can't find a post for that link
-        res.status(404).end(`No legacy user found with: ${params.slug}`);
+        //eslint-disable-next-line no-console
+        console.log('// Missing legacy user', params);
+        res.statusCode = 404
+        res.end(`No legacy user found with: ${params.slug}`);
       }
     } catch (error) {
       //eslint-disable-next-line no-console
       console.log('// Legacy User error', error, params);
-      res.status(404).end(`No legacy user found with: ${params.slug}`);
+      res.statusCode = 404
+      res.end(`No legacy user found with: ${params.slug}`);
     }
   } else {
-    res.status(404).end("Please provide a URL");
+    res.statusCode = 404
+    res.end(`No legacy user found with: ${params.slug}`);
   }
 });
 
@@ -90,14 +103,20 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
-        res.status(404).end(`No comment found with: ${params.commentId}`);
+        //eslint-disable-next-line no-console
+        console.log('// Missing legacy comment', params);
+        res.statusCode = 404
+        res.end(`No comment found with: ${params.commentId}`);
       }
     } catch (error) {
       //eslint-disable-next-line no-console
       console.error('// Legacy Comment error', error, params)
+      res.statusCode = 404
+      res.end(`No comment found with: ${params.commentId}`);
     }
   } else {
-    res.status(404).end("Please provide a URL");
+    res.statusCode = 404
+    res.end("Please provide a URL");
   }
 });
 
@@ -116,9 +135,11 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
     } catch (error) {
       //eslint-disable-next-line no-console
       console.error('// Legacy Comment error', error, params)
-      res.status(404).end("Invalid image url")
+      res.statusCode = 404;
+      res.end("Invalid image url")
     }
   } else {
-    res.status(404).end("Please provide a URL");
+    res.statusCode = 404;
+    res.end("Please provide a URL")
   }
 });
