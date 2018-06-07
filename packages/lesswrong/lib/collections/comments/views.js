@@ -11,6 +11,18 @@ Comments.addDefaultView(terms => {
   });
 })
 
+Comments.addView("commentReplies", function (terms) {
+  console.log("CommentReplies view activated", terms)
+  return {
+    selector: {
+      parentCommentId: terms.parentCommentId,
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }
+})
+
 Comments.addView("postCommentsDeleted", function (terms) {
   return {
     selector: {

@@ -43,7 +43,7 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res
       const post = Posts.findOne({"legacyData.url": {$regex: "\/lw\/"+params.id+"\/.*"}});
       const comment = Comments.findOne({"legacyId": parseInt(params.commentId, 36).toString()});
       if (post && comment) {
-        res.writeHead(301, {'Location': Posts.getPageUrl(post)+"#"+comment._id});
+        res.writeHead(301, {'Location': Comments.getPageUrl(comment)});
         res.end();
       } else if (post) {
         res.writeHead(301, {'Location': Posts.getPageUrl(post)});
@@ -99,7 +99,7 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
     try {
       const comment = Comments.findOne({_id: params.commentId});
       if (comment) {
-        res.writeHead(301, {'Location': Comments.getPageUrl(comment, true)});
+        res.writeHead(301, {'Location': Comments.getPageUrl(comment)});
         res.end();
       } else {
         // don't redirect if we can't find a post for that link
@@ -142,4 +142,56 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
     res.statusCode = 404;
     res.end("Please provide a URL")
   }
+});
+
+
+// Legacy RSS Routes
+
+// Route for old comment rss feeds
+Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
+  if(params.id){
+    try {
+      const post = Posts.findOne({"legacyData.url": {$regex: "\/lw\/"+params.id+"\/.*"}});
+      const comment = Comments.findOne({"legacyId": parseInt(params.commentId, 36).toString()});
+      if (post && comment) {
+        res.writeHead(301, {'Location': Comments.getRSSUrl(comment)});
+        res.end();
+      } else if (post) {
+        res.writeHead(301, {'Location': Posts.getPageUrl(post)});
+        res.end();
+      } else {
+        // don't redirect if we can't find a post for that link
+        res.statusCode = 404
+        res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.log('// Legacy comment error', error, params)
+      res.statusCode = 404
+      res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+    }
+  } else {
+    res.statusCode = 404
+    res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+  }
+});
+
+// Route for old general RSS (all posts)
+Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
+  res.writeHead(301, {'Location': '/feed.xml'})
+});
+
+// Route for old general RSS (all posts)
+Picker.route('/.rss', (params, req, res, next) => {
+  res.writeHead(301, {'Location': '/feed.xml'})
+});
+
+// Route for old general RSS (all posts)
+Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
+  res.writeHead(301, {'Location': '/feed.xml'})
+});
+
+// Route for old promoted RSS (promoted posts)
+Picker.route('/promoted/.rss', (params, req, res, next) => {
+  res.writeHead(301, {'Location': '/feed.xml?view=curated-rss'})
 });
