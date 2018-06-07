@@ -20,6 +20,8 @@ Meteor.onConnection((connection) => {
     currentUser: dummyUser,
     validate: false,
   })
+  //eslint-disable-next-line no-console
+  console.info("new Meteor connection:", document)
 
   connection.onClose(() => {
     const document = {
@@ -30,6 +32,8 @@ Meteor.onConnection((connection) => {
         id: connection.id,
       }
     }
+    //eslint-disable-next-line no-console
+    console.info("closed Meteor connection:", document)
     newMutation({
       collection: LWEvents,
       document: document,
