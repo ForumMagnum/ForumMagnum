@@ -177,13 +177,13 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req
 });
 
 // Route for old general RSS (all posts)
-Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
+Picker.route('/.rss', (params, req, res, next) => {
   res.writeHead(301, {'Location': '/feed.xml'})
 });
 
-// Route for old general RSS (all posts)
-Picker.route('/.rss', (params, req, res, next) => {
-  res.writeHead(301, {'Location': '/feed.xml'})
+// Route for old general RSS (all comments)
+Picker.route('comments/.rss', (params, req, res, next) => {
+  res.writeHead(301, {'Location': '/feed.xml?type=comments'})
 });
 
 // Route for old general RSS (all posts)
