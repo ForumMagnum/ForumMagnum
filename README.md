@@ -1,12 +1,10 @@
-# What's Lesswrong2?
+# What's LessWrong2?
 
-Lesswrong2 is a clean-slate overhaul of the [lesswrong](http://lesswrong.com) discussion platform.
+LessWrong2 is a clean-slate overhaul of the [LessWrong](http://lesswrong.com) discussion platform.
 
-The old lesswrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
+The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
 
-Lesswrong2 on the other hand is based on [contemporary](http://vulcanjs.org/) [web](https://facebook.github.io/react/) [technologies](http://dev.apollodata.com/) designed to make rapid development much easier. It solves the problems that caused the old codebase to stagnate by being written with tools that are meticulously well-documented. We hope that this will allow us to rapidly improve the site and bring it up to date with what tools for [creating](https://medium.com/) [intellectual](https://www.quora.com/) [progress](https://stackexchange.com/) look like in 2017.
-
-# Technologies
+## Technologies
 
 Lesswrong2 is built on top of four major open-source libraries.
 
@@ -18,20 +16,80 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 4. [Draft](https://draftjs.org/) is a framework developed by Facebook for creating text editors. The content and message editors on Lesswrong2 are implemented on top of Draft.
 
-# Contributing
+## Running locally
 
-To get LessWrong2 working on your local machine:
+### Requirements
 
-```
-git clone https://github.com/Discordius/Lesswrong2.git
-cd Lesswrong2
-npm install
-npm start
-```
+  * MacOS or Linux
+    * Known to work on MacOS 10.13 and Ubuntu 16.04, should work on others
+  * Node
+    * see `.nvmrc` for the required node version
+    * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
 
-This should get a server running for most common setups. If you run into any snags, let us know.
+### Installation
 
-## Read the Docs
+LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* changes to VulcanJS itself as well as their example-forum. We try to keep the changes to each codebase distinct, and have factored our web app into three repos.
+
+I recommend starting by creating a folder to store all of them:
+
+    mkdir lesswrongSuite
+    cd lesswrongSuite2
+
+Clone the three repos:
+
+    git clone https://github.com/Discordius/Lesswrong2.
+    git clone https://github.com/LessWrong2/Vulcan-Starter.git
+    git clone https://github.com/LessWrong2/Vulcan.git
+
+You'll mostly be working in Lesswrong2. To ensure that it has access to the code in the other repos,
+
+Install node dependencies:
+
+    cd Lesswrong2
+    npm install
+
+Start the development server:
+
+    npm start
+
+You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
+
+If it is NOT working, there is most likely some issues with your `npm install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself. You may find some help in the [README for Vulcan-Starter](https://github.com/VulcanJS/Vulcan-Starter)
+
+It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
+
+## Contributing
+
+### What Contributions Are Helpful?
+The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/Discordius/Lesswrong2/issues/554).
+
+In particular, you can filter them by the tag “[good first issue](https://github.com/Discordius/Lesswrong2/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
+
+There are [also issues tagged “help wanted.”](https://github.com/Discordius/Lesswrong2/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3A%22help+wanted%22) These are issues that might be a bit complex, but which don’t require much context or understanding of our longterm goals or philosophy to implement.
+
+#### Creating Issues
+
+You can create a new issue. If so, please leave it untagged for the time being (so that admins can quickly look for untagged issues, and sort through them)
+
+*Bugs* – If you run into a bug, the most helpful thing to do is to search for related keywords in the issue tracker. If you can’t find anything relevant, create a new issue. Try to provide as specific information as possible (your browser, exact links to the post or page where you had the issue, information on how to replicate the bug if you can)
+
+*Feature Requests* – Feature requests will often need to undergo some discussion to get refined into something executable, and may sometimes need to be split into sub-features.
+
+Features tend to cluster into either “things that are pretty straightforward and we almost certainly want to do” and “things that we have weird conceptual philosophical opinions about that may sometimes be hard to explain succinctly.” (An upcoming post will go into some of this).
+
+After you’ve posted a feature, an admin will tag it (If it’s been a week and we haven’t done so, feel free to bug us about it. We’re still adapting to the role of “open source facilitators” so we may drup things a bit)
+
+#### Creating a Branch
+
+If you are creating a branch for an existing issue, use this naming schema: branchTitle[issueNumber]. For example, if addressing this issue, your branch might be defaultSettingsFix425.
+
+Once you create the branch, please comment on the issue so that people know someone is working on it.
+
+If you’re creating a branch for an issue that *hasn’t* been created yet, first create an issue for it.
+
+(Disclaimer: this is a different practice than what the full-time developers of the site are currently doing, which means we’ll probably fail at it a bunch, and for commits that take less than a day we may just skip it for momentum reasons. It seems most important for open source contributors to stick to it to maintain sanity as more people work on the codebase)
+
+### Read the Docs
 
 The best way to get familiar with our stack is to read the Vulcan and GraphQL documentation pages.
 1. Read about [Vulcan's architecture](http://docs.vulcanjs.org/architecture.html)
@@ -40,69 +98,57 @@ The best way to get familiar with our stack is to read the Vulcan and GraphQL do
 4. Understand [Vulcan's data layer](http://docs.vulcanjs.org/schemas.html)
 5. Complete the [GraphQL tutorial](http://graphql.org/learn/)
 
-## Understand the Package System
+### Understanding the codebase
 
-The Lesswong2 project uses "package" in two different and related ways. In a Vulcan application, each package is a _standalone feature_ which provides some functionality to the site, and can be toggled on or off. All of the features that come with Vulcan out-of-the-box are generally found in the `packages` directory.
+LessWrong 2 is built on VulcanJS, a generic framework for online forums. VulcanJS is in turn built on technologies including:
 
-In addition to the default Vulcan packages, we've extended the platform with our own packages which are stored in the `packages/lesswrong/lib` directory. All of the features that we've added to Vulcan in order to make it suitable for running lesswrong reside in this directory.
+  * **MeteorJS** - an underlying framework that you should rarely have to think about while coding for LW.
+  * **MongoDB** - a NoSQL database. There is no formal schema.
+  * **ReactJS** – for the front end.
+  * **GraphQL** – our backend API. The main difference between this and a REST API is that you can query multiple resources at once.
 
-### Vulcan Packages
-Vulcan packages have the following properties:
+Eventually, it’ll be helpful to have a good understanding of each of those technologies (both to develop new features and fix many kinds of bugs). But for now, the most useful things to know are:
 
-* They are conceptual (e.g. "posts", "votes"), rather than semantic (e.g. "homepage"), organization.
-* The app works whether a given non-core package is toggled on or off. For example, if I disable upvoting functionality, the page should load as usual, except the posts will not have upvoting buttons.
-* They can be toggled on/off by importing the package in the parent feature's "package.js" file.
+* **Collections** – Mongo databases are organized around *collections* of documents. For example, the Users collection is where the user objects live. Mongo databases do not technically have a rigid schema, but VulcanJS has a pattern for files that determine the intended schema (which is used by the API, forms and permissions systems to determine what database modifications are allowed)
 
-Packages usually have a directory structure that looks like this:
-```
-.
-├── package.js -- sets the package name and version, and defines the set of other packages imported by your package
-└── lib -- the core functionality of your package
-|   └── containers -- higher-order-components which give access to some data (e.g. the current user) in the props of a wrapped component
-|       └── ...
-|   ├── server -- contains routing information
-|       └── ...
-|   ├── collection.js -- GraphQL collection (e.g. Users or Posts) which is where all instances of your package's data model (e.g. User) will be accessible
-|   ├── fragments.js -- some reusable GraphQL queries for convenience
-|   ├── mutations.js -- GraphQL mutators for your collection (new, edit, remove)
-|   ├── permissions.js -- permissions for accessing data from the GraphQL collection
-|   ├── resolvers.js -- GraphQL resolvers for your collection (list, single, total)
-|   ├── schema.js -- GraphQL schema for your package's feature (e.g. fields of a User)
-|   └── server.js -- re-exports files in server/*
-```
-You'll notice some packages are missing some of the above or have additional files. Do not worry, this simply means the package does not require that functionality (e.g. some features don't define new data to store). Also, string searches for specific functions are your friend here.
+* **Components** – Our React components are organized in a folder structure based loosely on our collections. (i.e. components related to the `User` collection go in the `packages/lesswrong/components/users` folder).
 
-### Lesswrong2 Packages
+  Some edge cases just go in a randomly picked folder (such as the RecentDiscussion components, which involve both comments and posts, but live in the comments folder)
 
-Lesswrong2 packages are Vulcan packages, but they have a slightly different default directory structure. Each feature we've extended Vulcan with resides in a top level folder in the `packages/lesswrong/lib` directory. In addition to the package folders, there are these special folders that store cross-cutting aspects of our code.
+  There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
-To create your own package, create a folder named after the concept it's associated with. For example, we currently have folders for `voting`, `messages`, and `subscriptions`. Then place any cross-cutting files in the folders listed below:
+  We use Vulcan’s `registerComponent` function to add them as children to a central “Components” component. [(read more here)](http://docs.vulcanjs.org/theming.html)
 
-```
-.
-├── collections -- GraphQL collections for each of the modules
-├── component-replacements -- Contains React components that replace existing components from various Vulcan packages.
-├── modules -- Contains utility files that interact with GraphQL, Apollo or Vulcan that don't really fit anywhere else.
-├── stylesheets -- Custom stylesheets for components defined by packages in this directory.
-...
-├── helpers.js -- Some collections have helper functions which are stored here. These are operations you might want to perform on a collection which aren't just mutations and resolvers.
-├── routes.js -- contains routing information.
-├── components.js -- contains imports for all of the components corresponding to our packages.
-...
-```
+* **withComponents (Higher Order Components)** – VulcanJS makes a lot of use of React’s [higher order components](https://reactjs.org/docs/higher-order-components.html). Often you need a component to have access to particular attributes (the currentUser object, or a function that can edit a given document). Vulcan has a series of components that wrap around other components. They have a names like `withCurrentUser`, `withEditMutation`, `withDocument`. Wrapping a component in a `withX` typically passes extra information in as a prop.
 
-## Development Tips
+* **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
 
-### Getting Started
+A Vulcan project is divided into packages. It comes with several base packages that provide core functionality (users, voting, routing, etc).
 
-To set up the project, navigate to the project folder in terminal, then run `npm install`. Then run npm start and you should be good to go.
+The two packages you’ll most likely need to pay attention to are:
 
-### Iteration
+* `packges/example-forum` – A sample forum that defines some key collections (posts, comments, and notifications, as well as “categories” [basically tags] which we aren’t currently using).
+
+  We avoid editing example-forum if we can, so we can more easily upgrade it when the main Vulcan branch updates. Instead, if a function in example-forum doesn’t suit our needs, we replace in our custom lesswrong package.
+
+  However, in some cases it’s impractical to avoid changing example-forum. When we do, we add a nearby comment:
+
+      // LESSWRONG – [text explaining the change]
+
+  So we can easily search for LESSWRONG and find all changes we’ve made.
+
+* `packages/lesswrong` – Our primary codebase.
+
+This includes new collections, components, and additional functions/attributes/extensions for objects in example-forum.
+
+### Development Tips
+
+#### Iteration
 * Prefer `_.range(n).forEach(i => my_function())` over `for (var i=0; i<n; i++)...`
 * If the body of a for loop performs a stateful action (i.e. modifies a variable outside the scope of the for body), use `forEach`. Else, use `map`.
 * Use underscore.js when possible.
 
-### Style guide
+#### Style guide
 
 * [Syntax rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#syntax)
 * [Comments and documentation](https://github.com/Khan/style-guides/blob/master/style/javascript.md#comments-and-documentation)
@@ -116,30 +162,3 @@ To set up the project, navigate to the project folder in terminal, then run `npm
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
 * If you fix a bug, **write a test for it**.
-
-## Creating a user ##
-
-In the future, it will be possible to create a user using the website itself, but for now they must be created manually in the meteor shell.
-
-```
-meteor shell
-Accounts.createUser({username:'<USERNAME>', email:'<EMAIL ADDRESS>', password:'<PASSWORD>'})
-```
-This will return the _id of the new user.
-
-The first user you create will be an admin. If you'd like to create additional admins, you can exit the meteor shell and enter the mongo shell, using the new _id to change their admin status:
-
-```
-meteor mongo
-db.users.update({_id:'<EXAMPLE_USER_ID>'}, {$set: {isAdmin:true}})
-```
-
-If you are using the development database instead of a local database, then instead of using meteor mongo, you will need to log into the remote mongo database.
-
-First, install mongodb if you haven't already. On Mac this is:
-
-```brew install mongodb```
-
-Then, log into the development server (you'll need to ask Oliver for the password)
-
-```mongo ds155813-a0.mlab.com:55813/lesswrong2 -u lesswrong2 -p <password>```
