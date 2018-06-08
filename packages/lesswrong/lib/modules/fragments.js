@@ -167,6 +167,9 @@ registerFragment(`
     suggestForCuratedUserIds
     suggestForCuratedUsernames
     reviewForCuratedUserId
+    allVotes {
+      ...VoteMinimumInfo
+    }
   }
 `);
 
@@ -338,6 +341,9 @@ registerFragment(`
     }
     baseScore
     score
+    allVotes {
+      ...VoteMinimumInfo
+    }
   }
 `);
 
@@ -535,5 +541,12 @@ registerFragment(`
     }
     link
     description
+  }
+`);
+
+registerFragment(`
+  fragment VoteMinimumInfo on Vote {
+    _id
+    voteType
   }
 `);

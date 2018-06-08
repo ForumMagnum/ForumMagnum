@@ -606,11 +606,10 @@
           left:6px;
         }
         .big-upvote-button {
-          position: relative;
-          top:31px;
-          left:-10px;
-
           .material-icons {
+            position: relative;
+            top:31px;
+            left:-10px;
             transform: rotate(-90deg);
           }
         }
@@ -623,11 +622,10 @@
           top:50px;
         }
         .big-downvote-button {
-          position: relative;
-          top:18px;
-          left:10px;
-
           .material-icons {
+            position: relative;
+            top:18px;
+            left:10px;
             transform: rotate(-90deg);
           }
         }
@@ -638,8 +636,29 @@
             font-size:20px !important;
           }
         }
-        .lw-tooltip {
-          display:none !important;
+        .lw-tooltip-wrapper {
+          display:inline;
+        }
+        .voting-tooltip {
+          position:relative;
+          text-align: center;
+          width:200px;
+          color:rgba(0,0,0,.3);
+
+          &.upvote {
+            left:32px;
+            top:20px;
+          }
+
+          &.downvote {
+            top:-7px;
+            left:40px;
+          }
+        }
+        .vote-info-tooltip {
+          position:relative;
+          left:32px;
+          top:17px;
         }
       }
       .big-upvote-button .material-icons,
@@ -729,7 +748,6 @@
       }
 
       text-align: center;
-      // margin-bottom: 15px;
       .vote {
         position: relative;
         font-size: 30px;
@@ -753,11 +771,11 @@
           left:6px;
         }
         .big-upvote-button {
-          position: relative;
-          top:28px;
-          left:-15px;
           .material-icons {
             transform: rotate(-90deg);
+            position: relative;
+            top:28px;
+            left:-15px;
           }
         }
         .small-downvote-button .material-icons {
@@ -769,11 +787,11 @@
           top:90px;
         }
         .big-downvote-button {
-          position: relative;
-          top:23px;
-          left:15px;
           .material-icons {
             transform: rotate(-90deg);
+            position: relative;
+            top:23px;
+            left:15px;
           }
         }
 
@@ -783,8 +801,29 @@
             font-size:30px !important;
           }
         }
-        .lw-tooltip {
-          display:none !important;
+        .lw-tooltip-wrapper {
+          display:inline;
+        }
+        .voting-tooltip {
+          position:relative;
+          text-align: center;
+          width:200px;
+          color:rgba(0,0,0,.3);
+
+          &.upvote {
+            left:38px;
+            top:30px;
+          }
+
+          &.downvote {
+            top:12px;
+            left:40px;
+          }
+        }
+        .vote-info-tooltip {
+          position:relative;
+          left:34px;
+          top:12px;
         }
       }
       .big-upvote-button .material-icons,
