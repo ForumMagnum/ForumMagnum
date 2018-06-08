@@ -21,7 +21,7 @@ Meteor.onConnection((connection) => {
     validate: false,
   })
   //eslint-disable-next-line no-console
-  console.info("new Meteor connection:", document)
+  console.info("new Meteor connection:", connection)
 
   connection.onClose(() => {
     const document = {
@@ -33,7 +33,7 @@ Meteor.onConnection((connection) => {
       }
     }
     //eslint-disable-next-line no-console
-    console.info("closed Meteor connection:", document)
+    console.info("closed Meteor connection:", connection)
     newMutation({
       collection: LWEvents,
       document: document,
