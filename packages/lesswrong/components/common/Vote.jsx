@@ -130,66 +130,75 @@ getActionClass() {
   return actionsClass;
 }
 
-renderStrongVoteTooltip = () => <div className="voting-tooltip">
+renderStrongUpvoteTooltip = () => <div className="voting-tooltip upvote">
   Click-and-hold for strong upvote.
 </div>
 
-logMyVotes = () => {
-  //eslint-disable-next-line no-console
-  console.log(" ")
-  this.props.document.currentUserVotes.forEach((vote)=> {
-    //eslint-disable-next-line no-console
-    console.info(vote.voteType, vote.power)
-  })
-}
+renderStrongDownvoteTooltip = () => <div className="voting-tooltip downvote">
+  Click-and-hold for strong downvote.
+</div>
+
+renderVoteInfoTooltip = () => <div className="vote-info-tooltip">
+  { this.props.document &&
+    this.props.document.allVotes &&
+    <div className="votes-count-info">
+      {this.props.document.allVotes.length} {this.props.document.allVotes.length == 1 ? "Vote" : "Votes"}
+    </div>
+  }
+</div>
 
 render() {
   return (
     <div className="vote-wrapper">
       <div className={this.getActionClass()}>
-        <Components.Tooltip tooltip={this.renderStrongVoteTooltip()}>
           <span className="downvote-buttons"
             onMouseDown={this.repeatDownvoting}
             onMouseUp={this.endBigDownvoting}
             onMouseOut={this.clearState}
             onClick={this.downvoteNext}
           >
-            <a className="big-downvote-button">
-              <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
-                arrow_back_ios
-              </FontIcon>
-              <div className="sr-only">Big Downvote</div>
-            </a>
-            <a className="small-downvote-button">
-              <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
-                arrow_back_ios
-              </FontIcon>
-              <div className="sr-only">Small Downvote</div>
-            </a>
+            <Components.Tooltip tooltip={this.renderStrongDownvoteTooltip()} delay={10}>
+              <a className="big-downvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+                  arrow_back_ios
+                </FontIcon>
+                <div className="sr-only">Big Downvote</div>
+              </a>
+              <a className="small-downvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigDownvoting}`}>
+                  arrow_back_ios
+                </FontIcon>
+                <div className="sr-only">Small Downvote</div>
+              </a>
+            </Components.Tooltip>
+
           </span>
-          <div className="vote-count" onClick={this.logMyVotes}>
+        <div className="vote-count">
+          <Components.Tooltip tooltip={this.renderVoteInfoTooltip()} delay={10}>
             {this.props.document.baseScore || 0}
-          </div>
+          </Components.Tooltip>
+        </div>
           <span className="upvote-buttons"
             onMouseDown={this.repeatUpvoting}
             onMouseUp={this.endBigUpvoting}
             onMouseOut={this.clearState}
             onClick={this.upvoteNext}
           >
-            <a className="small-upvote-button">
-              <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
-                arrow_forward_ios
-              </FontIcon>
-              <div className="sr-only">Small Upvote</div>
-            </a>
-            <a className="big-upvote-button">
-              <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
-                arrow_forward_ios
-              </FontIcon>
-              <div className="sr-only">Big Upvote</div>
-            </a>
-          </span>
-        </Components.Tooltip>
+            <Components.Tooltip tooltip={this.renderStrongUpvoteTooltip()} delay={10}>
+              <a className="small-upvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
+                  arrow_forward_ios
+                </FontIcon>
+                <div className="sr-only">Small Upvote</div>
+              </a>
+              <a className="big-upvote-button">
+                <FontIcon className={`material-icons big-voting${this.state.bigUpvoting}`}>
+                  arrow_forward_ios
+                </FontIcon>
+                <div className="sr-only">Big Upvote</div>
+              </a>
+            </Components.Tooltip>
+        </span>
       </div>
     </div>
   )
@@ -198,14 +207,10 @@ render() {
 }
 
 Vote.propTypes = {
-document: PropTypes.object.isRequired, // the document to upvote
-collection: PropTypes.object.isRequired, // the collection containing the document
-vote: PropTypes.func.isRequired, // mutate function with callback inside
-currentUser: PropTypes.object, // user might not be logged in, so don't make it required
-};
-
-Vote.contextTypes = {
-intl: intlShape
+  document: PropTypes.object.isRequired, // the document to upvote
+  collection: PropTypes.object.isRequired, // the collection containing the document
+  vote: PropTypes.func.isRequired, // mutate function with callback inside
+  currentUser: PropTypes.object, // user might not be logged in, so don't make it required
 };
 
 registerComponent('Vote', Vote, withMessages, withVote);
