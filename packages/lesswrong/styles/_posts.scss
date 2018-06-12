@@ -620,6 +620,7 @@
         .downvote-buttons {
           position:relative;
           top:50px;
+          cursor: pointer;
         }
         .big-downvote-button {
           .material-icons {
@@ -655,11 +656,27 @@
             left:40px;
           }
         }
-        .vote-info-tooltip {
-          position:relative;
-          left:32px;
-          top:17px;
+
+        .vote-count {
+          .lw-tooltip-wrapper {
+            position:relative;
+            .vote-count-number {
+              display:block;
+              margin-left: 50%;
+              transform: translate(-50%, 0);
+              pointer-events: none;
+            }
+            .vote-info-tooltip {
+              position:relative;
+              left:25px;
+              top:-17px;
+              background: rgba(255,255,255,.9);
+              z-index:1;
+              line-height:12px;
+            }
+          }
         }
+
       }
       .big-upvote-button .material-icons,
       .big-downvote-button .material-icons {
@@ -785,6 +802,7 @@
         .downvote-buttons {
           position:relative;
           top:90px;
+          cursor: pointer;
         }
         .big-downvote-button {
           .material-icons {
@@ -817,13 +835,24 @@
 
           &.downvote {
             top:12px;
-            left:40px;
+            left:46px;
           }
         }
-        .vote-info-tooltip {
-          position:relative;
-          left:34px;
-          top:12px;
+        .vote-count {
+          .lw-tooltip-wrapper {
+            position:relative;
+            .vote-count-number {
+              display:block;
+              margin-left: 50%;
+              transform: translate(-50%, 0);
+            }
+
+            .vote-info-tooltip {
+              position:relative;
+              left:26px;
+              top:-40px;
+            }
+          }
         }
       }
       .big-upvote-button .material-icons,
@@ -1370,6 +1399,11 @@ svg.drag-handle {
 
 .recent-discussion-thread-wrapper {
   margin-bottom:30px;
+
+  a:hover, a:visited, a:active {
+    text-decoration: none !important;
+    color:rgba(0,0,0,.5);
+  }
 
   .recent-discussion-thread-title {
     padding:10px;

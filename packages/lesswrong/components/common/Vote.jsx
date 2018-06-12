@@ -175,7 +175,9 @@ render() {
           </span>
         <div className="vote-count">
           <Components.Tooltip tooltip={this.renderVoteInfoTooltip()} delay={10}>
-            {this.props.document.baseScore || 0}
+            <span className="vote-count-number">
+              {this.props.document.baseScore || 0}
+            </span>
           </Components.Tooltip>
         </div>
           <span className="upvote-buttons"
