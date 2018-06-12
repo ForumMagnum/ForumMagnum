@@ -31,7 +31,7 @@ const PostsSearchHit = ({hit, clickAction, router}) => {
     <div className="posts-item">
       <Link
         onClick={(event) => isLeftClick(event) && clickAction()}
-        to={Posts.getLink(hit)}
+        to={Posts.getPageUrl(hit)}
         target={Posts.getLinkTarget(hit)}
         className="posts-item-title-link"
       >
