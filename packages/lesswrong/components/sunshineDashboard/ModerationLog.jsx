@@ -15,11 +15,19 @@ const PostDisplay = ({column, document}) => {
 }
 
 const UserDisplay = ({column, document}) => {
+  const user = document.user || document.user || document
+  return <div>
+    <Components.UsersName user={user} />
+  </div>
+}
+
+const DeletedByUserDisplay = ({column, document}) => {
   const user = document.deletedByUser || document.user || document
   return <div>
     <Components.UsersName user={user} />
   </div>
 }
+
 
 const BannedUsersDisplay = ({column, document}) => {
   const bannedUsers = document[column.name]
@@ -42,7 +50,7 @@ const deletedCommentColumns = [
   },
   {
     name: 'deletedByUser',
-    component: UserDisplay,
+    component: DeletedByUserDisplay,
   },
   {
     name: 'deletedDate',
