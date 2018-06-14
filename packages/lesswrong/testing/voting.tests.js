@@ -13,10 +13,10 @@ import { Posts } from 'meteor/example-forum'
 chai.should();
 chai.use(chaiAsPromised);
 
-describe('Voting', async () => {
-  describe('batchUpdating', async () => {
+describe('Voting', async function() {
+  describe('batchUpdating', async function() {
+    this.timeout(20000)
     it('updates if post in the future', async function(){
-      this.timeout(20000)
       const user = await createDummyUser();
       const currentTime = new Date();
       const tomorrow = currentTime.getTime()+(1*24*60*60*1000)
