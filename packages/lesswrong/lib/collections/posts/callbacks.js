@@ -221,7 +221,8 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   }
 }
 
-addCallback("votes.upvote.async", increaseMaxBaseScore);
+addCallback("votes.smallUpvote.async", increaseMaxBaseScore);
+addCallback("votes.bigUpvote.async", increaseMaxBaseScore);
 
 function PostsNewDefaultLocation (post) {
   if (post.isEvent && post.groupId && !post.location) {

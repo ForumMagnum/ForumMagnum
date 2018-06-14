@@ -606,11 +606,10 @@
           left:6px;
         }
         .big-upvote-button {
-          position: relative;
-          top:31px;
-          left:-10px;
-
           .material-icons {
+            position: relative;
+            top:31px;
+            left:-10px;
             transform: rotate(-90deg);
           }
         }
@@ -621,13 +620,13 @@
         .downvote-buttons {
           position:relative;
           top:50px;
+          cursor: pointer;
         }
         .big-downvote-button {
-          position: relative;
-          top:18px;
-          left:10px;
-
           .material-icons {
+            position: relative;
+            top:18px;
+            left:10px;
             transform: rotate(-90deg);
           }
         }
@@ -638,9 +637,46 @@
             font-size:20px !important;
           }
         }
-        .lw-tooltip {
-          display:none !important;
+        .lw-tooltip-wrapper {
+          display:inline;
         }
+        .voting-tooltip {
+          position:relative;
+          text-align: center;
+          width:200px;
+          color:rgba(0,0,0,.3);
+
+          &.upvote {
+            left:32px;
+            top:20px;
+          }
+
+          &.downvote {
+            top:-7px;
+            left:40px;
+          }
+        }
+
+        .vote-count {
+          .lw-tooltip-wrapper {
+            position:relative;
+            .vote-count-number {
+              display:block;
+              margin-left: 50%;
+              transform: translate(-50%, 0);
+              pointer-events: none;
+            }
+            .vote-info-tooltip {
+              position:relative;
+              left:25px;
+              top:-17px;
+              background: rgba(255,255,255,.9);
+              z-index:1;
+              line-height:12px;
+            }
+          }
+        }
+
       }
       .big-upvote-button .material-icons,
       .big-downvote-button .material-icons {
@@ -729,7 +765,6 @@
       }
 
       text-align: center;
-      // margin-bottom: 15px;
       .vote {
         position: relative;
         font-size: 30px;
@@ -753,11 +788,11 @@
           left:6px;
         }
         .big-upvote-button {
-          position: relative;
-          top:28px;
-          left:-15px;
           .material-icons {
             transform: rotate(-90deg);
+            position: relative;
+            top:28px;
+            left:-15px;
           }
         }
         .small-downvote-button .material-icons {
@@ -767,13 +802,14 @@
         .downvote-buttons {
           position:relative;
           top:90px;
+          cursor: pointer;
         }
         .big-downvote-button {
-          position: relative;
-          top:23px;
-          left:15px;
           .material-icons {
             transform: rotate(-90deg);
+            position: relative;
+            top:23px;
+            left:15px;
           }
         }
 
@@ -783,8 +819,40 @@
             font-size:30px !important;
           }
         }
-        .lw-tooltip {
-          display:none !important;
+        .lw-tooltip-wrapper {
+          display:inline;
+        }
+        .voting-tooltip {
+          position:relative;
+          text-align: center;
+          width:200px;
+          color:rgba(0,0,0,.3);
+
+          &.upvote {
+            left:38px;
+            top:30px;
+          }
+
+          &.downvote {
+            top:12px;
+            left:46px;
+          }
+        }
+        .vote-count {
+          .lw-tooltip-wrapper {
+            position:relative;
+            .vote-count-number {
+              display:block;
+              margin-left: 50%;
+              transform: translate(-50%, 0);
+            }
+
+            .vote-info-tooltip {
+              position:relative;
+              left:26px;
+              top:-40px;
+            }
+          }
         }
       }
       .big-upvote-button .material-icons,
@@ -1331,6 +1399,11 @@ svg.drag-handle {
 
 .recent-discussion-thread-wrapper {
   margin-bottom:30px;
+
+  a:hover, a:visited, a:active {
+    text-decoration: none !important;
+    color:rgba(0,0,0,.5);
+  }
 
   .recent-discussion-thread-title {
     padding:10px;
