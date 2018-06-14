@@ -1,6 +1,6 @@
 import { Posts } from "meteor/example-forum";
 import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
+import { Components, Connectors } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 
@@ -201,7 +201,7 @@ Posts.addField([
     fieldName: 'body',
     fieldSchema: {
       type: String,
-      max: 1000000000, 
+      max: 1000000000,
       optional: true,
       viewableBy: ['guests'],
       insertableBy: ['members'],
@@ -244,10 +244,10 @@ Posts.addField([
       resolveAs: {
         fieldName: 'lastVisitedAt',
         type: 'Date',
-        resolver: (post, args, context) => {
-          if(context.currentUser){
-            const event = context.LWEvents.findOne({name:'post-view', documentId: post._id, userId: context.currentUser._id}, {sort:{createdAt:-1}});
-            return event ? event.createdAt : post.lastVisitDateDefault;
+        resolver: async (post, args, { LWEvents, currentUser }) => {
+          if(currentUser){
+            const event = await Connectors.get(LWEvents, {name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+            return event.createdAt
           } else {
             return post.lastVisitDateDefault;
           }
