@@ -17,14 +17,14 @@ Accounts.validateLoginAttempt((attempt) => {
   }
 })
 
-Accounts.validateLoginAttempt((attempt) => {
-  if (!attempt.allowed) {
-    return false;
-  }
-  const ban = Bans.findOne({ip: attempt.connection && ForwardedWhitelist.getClientIP(attempt.connection)});
-  if (ban && new Date(ban.expirationDate) > new Date()) {
-    throw new Meteor.Error('address-banned', 'Your ip-address is banned until ' + new Date(ban.expirationDate) + ' for ' + ban.reason + ' address: ' + ban.ip, {attempt: attempt, connection: attempt.connection});
-  } else {
-    return true;
-  }
-})
+// Accounts.validateLoginAttempt((attempt) => {
+//   if (!attempt.allowed) {
+//     return false;
+//   }
+//   const ban = Bans.findOne({ip: attempt.connection && ForwardedWhitelist.getClientIP(attempt.connection)});
+//   if (ban && new Date(ban.expirationDate) > new Date()) {
+//     throw new Meteor.Error('address-banned', 'Your ip-address is banned until ' + new Date(ban.expirationDate) + ' for ' + ban.reason + ' address: ' + ban.ip, {attempt: attempt, connection: attempt.connection});
+//   } else {
+//     return true;
+//   }
+// })
