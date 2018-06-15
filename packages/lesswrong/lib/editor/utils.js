@@ -5,6 +5,14 @@ import { Utils } from 'meteor/vulcan:core';
 
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
+    // console.log("htmlToEntity: ", nodeName, node);
+    if (nodeName === 'img') {
+      return createEntity(
+        'IMAGE',
+        'IMMUTABLE',
+        {src: node.src}
+      )
+    }
     if (nodeName === 'a') {
       return createEntity(
         'LINK',
@@ -12,8 +20,19 @@ export const htmlToDraft = convertFromHTML({
         {url: node.href}
       )
     }
+    // if (nodeName === 'img') {
+    //   console.log("image detected: ", node, node.src)
+    //   return createEntity(
+    //     'IMAGE',
+    //     'IMMUTABLE',
+    //     {src: node.src}
+    //   )
+    // }
   },
-  htmlToBlock: (nodeName, node) => {
+  htmlToBlock: (nodeName, node, lastList, inBlock) => {
+    if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG' || (nodeName === 'img' && inBlock !== 'atomic')) {
+        return 'atomic';
+    }
     // if (nodeName === 'blockquote') {
     //   return {
     //     type: 'blockquote',
@@ -40,7 +59,7 @@ export const draftToHTML = convertToHTML({
     }
   },
   entityToHTML: (entity, originalText) => {
-    if (entity.type === 'image') {
+    if (entity.type === 'image' || entity.type === 'IMAGE') {
       let classNames = 'draft-image '
       if (entity.data.alignment) {
         classNames = classNames + entity.data.alignment;

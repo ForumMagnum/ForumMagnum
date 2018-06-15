@@ -50,7 +50,7 @@ export default class AddImageForm extends Component {
   }
 
   addImage = (editorState, url, extraData) => {
-    const urlType = 'image';
+    const urlType = 'IMAGE';
     const contentState = editorState.getCurrentContent();
     const contentStateWithEntity = contentState.createEntity(urlType, 'IMMUTABLE', { ...extraData, src: url });
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
