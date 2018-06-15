@@ -336,6 +336,8 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   const collectionName = Utils.capitalize(collection._name);
   const votes = await Votes.find({collectionName: collectionName, userId: user._id}).fetch();
   votes.forEach((vote) => {
+    //eslint-disable-next-line no-console
+    console.log("reversing vote: ", vote)
     reverseVote(vote, collection);
   });
   //eslint-disable-next-line no-console
