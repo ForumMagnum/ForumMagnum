@@ -23,6 +23,7 @@ Accounts.validateLoginAttempt((attempt) => {
   }
   const ban = Bans.findOne({ip: attempt.connection && ForwardedWhitelist.getClientIP(attempt.connection)});
   if (ban && new Date(ban.expirationDate) > new Date()) {
+    // eslint-disable-next-line no-console
     console.warn("IP address is banned: ", attempt, attempt.connection, ban)
     return true;
   } else {

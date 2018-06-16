@@ -12,7 +12,6 @@ Comments.addDefaultView(terms => {
 })
 
 Comments.addView("commentReplies", function (terms) {
-  console.log("CommentReplies view activated", terms)
   return {
     selector: {
       parentCommentId: terms.parentCommentId,

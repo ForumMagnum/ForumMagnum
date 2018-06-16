@@ -130,6 +130,8 @@ import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/SunshineDashboard.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
+import '../components/sunshineDashboard/SunshineNewUsersItem.jsx';
+import '../components/sunshineDashboard/SunshineNewUsersList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsItem.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItem.jsx';

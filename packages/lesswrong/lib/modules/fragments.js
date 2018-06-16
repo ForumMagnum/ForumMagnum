@@ -366,6 +366,22 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SunshineUsersList on User {
+    ...UsersMinimumInfo
+    karma
+    createdAt
+    email
+    commentCount
+    postCount
+    allVotes {
+      _id
+      voteType
+      documentId
+    }
+  }
+`);
+
+registerFragment(`
   fragment newRSSFeedFragment on RSSFeed {
     _id
     userId

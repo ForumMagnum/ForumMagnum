@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withVote, hasVotedClient } from 'meteor/vulcan:voting';
-import { /*FormattedMessage,*/ intlShape } from 'meteor/vulcan:i18n';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 import FontIcon from 'material-ui/FontIcon';
