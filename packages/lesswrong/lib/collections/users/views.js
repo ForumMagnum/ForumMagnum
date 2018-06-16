@@ -38,7 +38,8 @@ Users.addView("sunshineNewUsers", function () {
   return {
     selector: {
       createdAt: {$gt: twoDaysAgo},
-      reviewedByUserId: {$exists: false}
+      reviewedByUserId: {$exists: false},
+      banned: {$exists: false},
     },
   }
 })
