@@ -590,4 +590,51 @@ Users.addField([
       optional: true
     }
   },
+
+  {
+    fieldName: 'reviewedByUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      hidden: true,
+      resolveAs: {
+        fieldName: 'reviewedByUser',
+        type: 'User',
+        resolver: async (user, args, context) => {
+          if (!user.reviewedByUserId) return null;
+          const reviewUser = await context.Users.loader.load(user.reviewedByUserId);
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, reviewUser);
+        },
+        addOriginalField: true
+      },
+    }
+  },
+
+  {
+    fieldName: 'allVotes',
+    fieldSchema: {
+      type: Array,
+      optional: true,
+      viewableBy: ['admins', 'sunshineRegiment'],
+      resolveAs: {
+        type: '[Vote]',
+        resolver: async (document, args, { Users, Votes, currentUser }) => {
+          const votes = await Votes.find({ userId: document._id }).fetch();
+          if (!votes.length) return [];
+          return Users.restrictViewableFields(currentUser, Votes, votes);
+        },
+      }
+    }
+  },
+
+  {
+    fieldName: 'allVotes.$',
+    fieldSchema: {
+      type: Object,
+      optional: true
+    }
+  }
 ]);

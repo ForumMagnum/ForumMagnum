@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import moment from 'moment';
 
 Users.addView('LWSunshinesList', function(terms) {
   return {
@@ -28,6 +29,16 @@ Users.addView("usersWithBannedUsers", function () {
   return {
     selector: {
       bannedUserIds: {$exists: true}
+    },
+  }
+})
+
+Users.addView("sunshineNewUsers", function () {
+  const twoDaysAgo = moment().subtract(2, 'days').toDate();
+  return {
+    selector: {
+      createdAt: {$gt: twoDaysAgo},
+      reviewedByUserId: {$exists: false}
     },
   }
 })

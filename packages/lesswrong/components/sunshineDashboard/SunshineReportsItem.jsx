@@ -73,9 +73,7 @@ class SunshineReportsItem extends Component {
                   className="material-icons">
                     clear
                 </FontIcon>
-                <div className="sunshine-sidebar-posts-item-delete-overlay">
-
-                </div>
+                <div className="sunshine-sidebar-posts-item-delete-overlay"/>
             </Link>
             <span
               className="sunshine-sidebar-posts-action new-comment review"

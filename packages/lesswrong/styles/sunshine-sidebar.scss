@@ -58,6 +58,10 @@
       img {
         width:100%;
       }
+
+      &.user {
+        width:250px;
+      }
     }
     .sunshine-sidebar-posts-title,
     .sunshine-sidebar-item-meta {
@@ -153,7 +157,7 @@
       top:-3px !important;
     }
   }
-  &.clear {
+  &.clear, &.purge {
     span {
       position:relative !important;
       top:-2px !important;
