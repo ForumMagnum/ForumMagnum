@@ -314,13 +314,16 @@ class CommentsItem extends PureComponent {
   renderReply = () => {
     const levelClass = (this.props.comment.level + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
+    const { currentUser, post, comment } = this.props
+
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
         <Components.CommentsNewForm
-          postId={this.props.comment.postId}
-          parentComment={this.props.comment}
+          postId={comment.postId}
+          parentComment={comment}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
+          prefilledProps={{af:Comments.defaultToAlignment(currentUser, post, comment)}}
           type="reply"
         />
       </div>
