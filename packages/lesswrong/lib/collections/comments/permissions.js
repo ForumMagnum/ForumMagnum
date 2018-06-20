@@ -15,3 +15,5 @@ const votingActions = [
 ]
 
 Users.groups.members.can(votingActions);
+
+Users.groups.alignmentForum.can(['comments.alignment.new'])

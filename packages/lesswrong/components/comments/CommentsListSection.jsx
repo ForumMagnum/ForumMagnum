@@ -6,6 +6,7 @@ import { withRouter } from 'react-router'
 import { withCurrentUser, Components, registerComponent} from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
+import { Comments } from "meteor/example-forum";
 
 const datePickerTextFieldStyle = {
   display: 'none',
@@ -100,6 +101,7 @@ class CommentsListSection extends Component {
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
               postId={postId}
+              prefilledProps={{af: Comments.defaultToAlignment(currentUser, post)}}
               type="comment"
             />
           </div>

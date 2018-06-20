@@ -51,3 +51,5 @@ addRoute({ name: 'admin', path: '/admin', componentName: 'AdminDashboard'});
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog'});
 addRoute({name: 'home', path: '/', componentName: 'Home'});
 addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
+
+addRoute({name:'alignment.forum',   path:'/alignment', componentName: 'AlignmentForumHome'});

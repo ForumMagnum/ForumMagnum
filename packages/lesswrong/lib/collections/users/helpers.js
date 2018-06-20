@@ -131,3 +131,18 @@ Users.useMarkdownPostEditor = (user) => {
   }
   return user && user.markDownPostEditor
 }
+
+
+Users.canMakeAlignmentPost = (user, post) => {
+  if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.edit")) {
+    return true
+  }
+  if (!user || !post) {
+    return false
+  }
+  return !!(
+    user._id === post.userId &&
+    Users.canDo(user,"posts.alignment.edit") &&
+    Users.owns(user, post)
+  )
+}
