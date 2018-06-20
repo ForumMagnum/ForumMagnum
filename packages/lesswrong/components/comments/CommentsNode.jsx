@@ -55,6 +55,7 @@ class CommentsNode extends PureComponent {
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const borderColor = this.state.hover ? muiTheme && muiTheme.palette.accent2Color : muiTheme && muiTheme.palette.accent1Color
     const nodeClass = classNames("comments-node", {
+      "af":comment.af,
       "comments-node-root" : comment.level === 1,
       "comments-node-even" : comment.level % 2 === 0,
       "comments-node-odd"  : comment.level % 2 != 0,

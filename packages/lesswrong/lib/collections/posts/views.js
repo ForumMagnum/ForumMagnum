@@ -409,3 +409,29 @@ Posts.addView("sunshineCuratedSuggestions", function () {
     }
   }
 })
+
+Posts.addView("alignmentForumPosts", terms => ({
+  selector: {
+    af: true,
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("afRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      baseScore: {$gt:0},
+      hideFrontpageComments: {$ne: true},
+      af: true,
+      meta: null,
+      groupId: null,
+      isEvent: null,
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
