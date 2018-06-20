@@ -11,8 +11,7 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug', (params, req, res, next) => 
   if(params.id){
 
     try {
-      const post = Posts.findOne({"legacyData.url": {$regex: "\/lw\/"+params.id+"\/.*"}});
-
+      const post = Posts.findOne({"legacyId": parseInt(params.id, 36).toString()});
       if (post) {
         res.writeHead(301, {'Location': Posts.getPageUrl(post)});
         res.end();
@@ -40,7 +39,7 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res
   if(params.id){
 
     try {
-      const post = Posts.findOne({"legacyData.url": {$regex: "\/lw\/"+params.id+"\/.*"}});
+      const post = Posts.findOne({"legacyId": parseInt(params.id, 36).toString()});
       const comment = Comments.findOne({"legacyId": parseInt(params.commentId, 36).toString()});
       if (post && comment) {
         res.writeHead(301, {'Location': Comments.getPageUrl(comment)});
@@ -151,7 +150,7 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
 Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
   if(params.id){
     try {
-      const post = Posts.findOne({"legacyData.url": {$regex: "\/lw\/"+params.id+"\/.*"}});
+      const post = Posts.findOne({"legacyId": parseInt(params.id, 36).toString()});
       const comment = Comments.findOne({"legacyId": parseInt(params.commentId, 36).toString()});
       if (post && comment) {
         res.writeHead(301, {'Location': Comments.getRSSUrl(comment)});
