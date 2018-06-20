@@ -61,7 +61,9 @@ class Header extends Component {
 
   userPostSubtitle = (postId) => {
     const post = Posts.findOneInStore(this.props.client.store, postId)
-    if (post && (post.frontpageDate)) {
+    if (post && post.af) {
+      return this.alignmentSubtitle()
+    } else if (post && post.frontpageDate) {
       return null
     } else if (post && post.meta) {
       return this.metaSubtitle()
@@ -74,25 +76,25 @@ class Header extends Component {
   }
 
   rationalitySubtitle = () => {
-    return <Link className="header-site-subtitle" to={ "/rationality" }>
+    return <Link className="header-site-subtitle" to="/rationality">
               Rationality: A-Z
            </Link>
   }
 
   hpmorSubtitle = () => {
-    return <Link className="header-site-subtitle" to={ "/hpmor" }>
+    return <Link className="header-site-subtitle" to="/hpmor">
               HPMoR
            </Link>
   }
 
   codexSubtitle = () => {
-    return <Link className="header-site-subtitle" to={ "/codex" }>
+    return <Link className="header-site-subtitle" to="/codex">
       SlateStarCodex
            </Link>
   }
 
   metaSubtitle = () => {
-    return <Link className="header-site-subtitle" to={ "/meta" }>
+    return <Link className="header-site-subtitle" to="/meta">
               Meta
            </Link>
   }
@@ -111,13 +113,23 @@ class Header extends Component {
   }
 
   communitySubtitle = () => {
-    return <Link className="header-site-subtitle" to={ "/community" }>
+    return <Link className="header-site-subtitle" to="/community">
               Community
+           </Link>
+  }
+
+  alignmentSubtitle = () => {
+    return <Link className="header-site-subtitle" to="/alignment">
+              AGI Alignment
            </Link>
   }
 
   getSubtitle = () => {
     const routeName = this.props.routes[1].name
+
+    const query = this.props.location &&
+                     this.props.location.query
+
     if (routeName == "users.single") {
       return this.profileSubtitle(this.props.params.slug)
     } else if (routeName == "posts.single") {
@@ -140,6 +152,8 @@ class Header extends Component {
       return this.communitySubtitle()
     } else if (routeName == "groups.post") {
       return this.communitySubtitle()
+    } else if ((routeName == "alignment.forum") || (query && query.af)) {
+      return this.alignmentSubtitle()
     }
   }
 

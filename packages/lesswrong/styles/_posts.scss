@@ -1527,13 +1527,6 @@ svg.drag-handle {
   height:50px;
   .posts-page-admin-actions {
     display:none;
-
-    div {
-      cursor:pointer;
-      &:hover {
-        color:rgba(0,0,0,.35);
-      }
-    }
   }
   &:hover {
     .posts-page-admin-actions {
@@ -1542,6 +1535,12 @@ svg.drag-handle {
     .posts-page-admin-more-options {
       color:rgba(0,0,0,.2);
     }
+  }
+}
+.posts-page-admin-action {
+  cursor:pointer;
+  &:hover {
+    color:rgba(0,0,0,.35);
   }
 }
 .posts-page-content-body-html.content-body a {

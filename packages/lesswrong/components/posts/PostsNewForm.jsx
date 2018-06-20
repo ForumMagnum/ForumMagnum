@@ -10,6 +10,7 @@ const PostsNewForm = (props, context) => {
   const prefilledProps = {
     isEvent: props.router.location.query && props.router.location.query.eventForm,
     meta: props.router.location.query && !!props.router.location.query.meta,
+    af: props.router.location.query && !!props.router.location.query.af,
     groupId: props.router.location.query && props.router.location.query.groupId
   }
   return <Components.ShowIf
