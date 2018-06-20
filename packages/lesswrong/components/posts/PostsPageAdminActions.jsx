@@ -28,6 +28,22 @@ class PostsPageAdminActions extends Component {
     })
   }
 
+  handleMoveToAlignmentForum = () => {
+    const { post, editMutation } = this.props
+    editMutation({
+      documentId: post._id,
+      set: { af: true },
+    })
+  }
+
+  handleRemoveFromAlignmentForum = () => {
+    const { post, editMutation } = this.props
+    editMutation({
+      documentId: post._id,
+      set: { af: false },
+    })
+  }
+
   handleMoveToPersonalBlog = () => {
     const { post, editMutation } = this.props
     editMutation({
@@ -41,26 +57,42 @@ class PostsPageAdminActions extends Component {
     })
   }
 
+
+
   render() {
     const { currentUser, post } = this.props
-    if (post && Users.canDo(currentUser, "posts.edit.all")) {
+    if (post) {
       return (
         <div className="posts-page-admin-actions-wrapper">
-          <div className="posts-page-admin-more-options">...</div>
-          <div className="posts-page-admin-actions">
-            { !post.meta && <div onClick={this.handleMoveToMeta }>
-              Move to Meta
-            </div>}
-            { !post.frontpageDate && <div onClick={this.handleMoveToFrontpage }>
-              Move to Frontpage
-            </div>}
-            { (post.frontpageDate ||
-               post.meta ||
-               post.curatedDate) && <div onClick={this.handleMoveToPersonalBlog }>
-              Move to Personal Blog
-            </div>}
-            <Components.SuggestCurated post={post}/>
-          </div>
+          { Users.canMakeAlignmentPost(currentUser, post) &&
+            !post.af && <div className="posts-page-admin-action"
+              onClick={this.handleMoveToAlignmentForum }>
+            Make Alignment Post
+          </div>}
+          { Users.canMakeAlignmentPost(currentUser, post) &&
+            post.af && <div className="posts-page-admin-action"
+              onClick={this.handleRemoveFromAlignmentForum }>
+            Remove Alignment Post
+          </div>}
+          { Users.canDo(currentUser, "posts.edit.all") &&
+            <div>
+              <div className="posts-page-admin-more-options">...</div>
+              <div className="posts-page-admin-actions">
+                { !post.meta && <div className="posts-page-admin-action" onClick={this.handleMoveToMeta }>
+                  Move to Meta
+                </div>}
+                { !post.frontpageDate && <div className="posts-page-admin-action" onClick={this.handleMoveToFrontpage }>
+                  Move to Frontpage
+                </div>}
+                { (post.frontpageDate ||
+                   post.meta ||
+                   post.curatedDate) && <div className="posts-page-admin-action" onClick={this.handleMoveToPersonalBlog }>
+                  Move to Personal Blog
+                </div>}
+                <Components.SuggestCurated post={post}/>
+              </div>
+            </div>
+         }
         </div>
       )
     } else {

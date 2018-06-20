@@ -1,4 +1,5 @@
 import { Comments, Posts } from 'meteor/example-forum';
+import Users from "meteor/vulcan:users";
 
 /**
  * @summary Get URL of a comment page.
@@ -15,3 +16,11 @@ Comments.getRSSUrl = function(comment, isAbsolute = false){
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };
+
+Comments.defaultToAlignment = (currentUser, post, comment) => {
+  if (comment) {
+    return (Users.canDo(currentUser, "comments.alignment.new") && post.af && comment.af)
+  } else {
+    return (Users.canDo(currentUser, "comments.alignment.new") && post.af)
+  }
+}

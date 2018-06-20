@@ -704,3 +704,12 @@ New CSS File
     left:4px;
   }
 }
+
+.comments-node.af {
+  border:solid $alignment-highlight 1.5px !important;
+  border-right:none !important;
+
+  &.comments-node-root {
+    border-right:solid $alignment-highlight 2px !important;
+  }
+}

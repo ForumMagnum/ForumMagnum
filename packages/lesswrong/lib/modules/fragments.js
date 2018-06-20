@@ -167,6 +167,7 @@ registerFragment(`
     suggestForCuratedUserIds
     suggestForCuratedUsernames
     reviewForCuratedUserId
+    af
     allVotes {
       ...VoteMinimumInfo
     }
@@ -344,6 +345,7 @@ registerFragment(`
     allVotes {
       ...VoteMinimumInfo
     }
+    af
   }
 `);
 

@@ -190,3 +190,7 @@ import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/LocationFormComponent.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
+
+
+import '../components/alignmentforum/AlignmentForumHome.jsx';
+import '../components/alignmentforum/AlignmentCheckbox.jsx';

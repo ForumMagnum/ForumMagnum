@@ -34,3 +34,6 @@ Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
 Users.groups.trustLevel1.can(['posts.moderate.own', 'posts.suggestCurate']);
 Users.groups.canCommentLock.can(['posts.commentLock.own']);
+
+Users.groups.alignmentForum.can(['posts.alignment.new']);
+Users.groups.alignmentForum.can(['posts.alignment.edit']);
