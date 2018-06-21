@@ -55,7 +55,7 @@ class SearchBar extends Component {
   }
 
   handleKeyDown = (event) => {
-    if (event.keyCode === 27 /*ESC*/) this.closeSearch();
+    if (event.key === 'Escape') this.closeSearch();
   }
 
   queryStateControl = (searchState) => {
