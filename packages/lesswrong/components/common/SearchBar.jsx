@@ -54,6 +54,10 @@ class SearchBar extends Component {
     this.setState({inputOpen: true, searchOpen: this.state.currentQuery});
   }
 
+  handleKeyDown = (event) => {
+    if (event.keyCode === 27 /*ESC*/) this.closeSearch();
+  }
+
   queryStateControl = (searchState) => {
     this.setState({currentQuery: searchState.query});
     if (searchState.query) {
@@ -76,7 +80,7 @@ class SearchBar extends Component {
         algoliaClient={algoliaClient("Z0GR6EXQHD", "0b1d20b957917dbb5e1c2f3ad1d04ee2")}
         onSearchStateChange={this.queryStateControl}
       >
-        <div className={"search-bar " + inputOpenClass}>
+        <div className={"search-bar " + inputOpenClass} onKeyDown={this.handleKeyDown}>
           <div className="search-bar-box" onClick={this.handleSearchTap}>
             <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
             <SearchBox resetComponent={<div className="search-box-reset"></div>} focusShortcuts={[]}/>
