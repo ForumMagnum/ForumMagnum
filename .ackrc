@@ -1,0 +1,8 @@
+--ignore-dir=.git
+--ignore-dir=build
+--ignore-dir=.circleci
+--ignore-dir=.github
+--ignore-dir=.meteor
+--ignore-dir=node_modules
+--ignore-dir=.vscode
+--ignore-dir=.vulcan
