@@ -56,3 +56,6 @@ typings
 *.swp
 *.un~
 yarn.lock
+
+*.swp
+*.un~

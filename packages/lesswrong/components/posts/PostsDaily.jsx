@@ -11,8 +11,8 @@ const PostsDaily = props => {
   const terms = {
     view: 'top',
     meta: null, // Show both frontpage and meta posts on daily
-    after: moment().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
-    before: moment().format('YYYY-MM-DD'),
+    after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
+    before: moment().utc().format('YYYY-MM-DD'),
   };
 
   return <Components.PostsDailyList terms={terms}/>
