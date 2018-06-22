@@ -227,24 +227,6 @@ Posts.addView("all_drafts", terms => ({
   }
 }));
 
-
-/**
- * @summary User posts view
- */
-Posts.addView("userPosts", terms => ({
-  selector: {
-    userId: terms.userId,
-    status: Posts.config.STATUS_APPROVED,
-    isFuture: {$ne: true},
-  },
-  options: {
-    limit: 5,
-    sort: {
-      postedAt: -1
-    }
-  }
-}));
-
 /**
  * @summary User upvoted posts view
  */

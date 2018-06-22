@@ -53,6 +53,6 @@ packages/nova-router/.npm
 npm-debug.log
 
 typings
-
 *.swp
 *.un~
+yarn.lock
