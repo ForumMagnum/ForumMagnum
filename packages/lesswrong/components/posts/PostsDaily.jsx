@@ -15,7 +15,6 @@ const PostsDaily = props => {
     before: moment().utc().format('YYYY-MM-DD'),
   };
 
-  console.log('PostsDaily.terms: ', terms);
   return <Components.PostsDailyList terms={terms}/>
 };
 

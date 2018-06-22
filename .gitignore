@@ -57,4 +57,3 @@ yarn.lock
 
 *.swp
 *.un~
->>>>>>> -#569 setup repo to support ack, asdf, and vim temp files
