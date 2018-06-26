@@ -44,7 +44,7 @@ const UsersProfile = (props) => {
     }
 
     const renderMeta = (props) => {
-      const {karma, postCount, commentCount} = props.document;
+      const {karma, postCount, commentCount, afKarma} = props.document;
       return <div className="users-profile-header-meta">
         <div title="Karma" className="users-profile-header-meta-karma">
           <FontIcon className="material-icons" style={iconStyle}>star</FontIcon>
@@ -57,6 +57,10 @@ const UsersProfile = (props) => {
         <div title="Comments" className="users-profile-header-meta-comment-count">
           <FontIcon className="material-icons" style={iconStyle}>message</FontIcon>
           {commentCount || 0}
+        </div>
+        <div title="Comments" className="users-profile-header-meta-comment-count">
+          AF 
+          {afKarma || 0}
         </div>
       </div>
     }

@@ -128,7 +128,7 @@ class Header extends Component {
     const routeName = this.props.routes[1].name
 
     const query = this.props.location &&
-                     this.props.location.query
+                  this.props.location.query
 
     if (routeName == "users.single") {
       return this.profileSubtitle(this.props.params.slug)
