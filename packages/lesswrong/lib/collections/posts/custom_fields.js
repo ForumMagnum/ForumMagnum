@@ -905,4 +905,14 @@ Posts.addField([
       insertableBy: ['alignmentForum'],
     }
   },
+
+  {
+    fieldName: 'afBaseScore',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      label: "Alignment Base Score",
+      viewableBy: ['guests'],
+    }
+  },
 ]);
