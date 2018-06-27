@@ -63,11 +63,7 @@ class Header extends Component {
     const post = Posts.findOneInStore(this.props.client.store, postId)
     if (post && post.af) {
       return this.alignmentSubtitle()
-<<<<<<< HEAD
     } else if (post && post.frontpageDate) {
-=======
-    } else if (post && (post.frontpageDate)) {
->>>>>>> Alignment Forum Tags
       return null
     } else if (post && post.meta) {
       return this.metaSubtitle()
@@ -131,12 +127,8 @@ class Header extends Component {
   getSubtitle = () => {
     const routeName = this.props.routes[1].name
 
-<<<<<<< HEAD
     const query = this.props.location &&
-=======
-    const location = this.props.location &&
->>>>>>> Alignment Forum Tags
-                     this.props.location.query
+                  this.props.location.query
 
     if (routeName == "users.single") {
       return this.profileSubtitle(this.props.params.slug)
@@ -160,11 +152,7 @@ class Header extends Component {
       return this.communitySubtitle()
     } else if (routeName == "groups.post") {
       return this.communitySubtitle()
-<<<<<<< HEAD
     } else if ((routeName == "alignment.forum") || (query && query.af)) {
-=======
-    } else if ((routeName == "alignment.forum") || (location && location.af)) {
->>>>>>> Alignment Forum Tags
       return this.alignmentSubtitle()
     }
   }
