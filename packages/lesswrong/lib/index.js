@@ -107,6 +107,9 @@ import './collections/comments/custom_fields.js';
 import './collections/comments/permissions.js';
 import './collections/comments/views.js';
 import './collections/comments/helpers.js';
+
+// Votes
+import './collections/votes/custom_fields.js';
 //
 //
 //
@@ -131,6 +134,10 @@ import './scripts/configuration.js';
 // Algolia Search Integration
 import './search/utils.js';
 import './search/callbacks.js';
+
+// // Alignment Forum
+import './modules/alignmentForum/callbacks.js';
+import './modules/alignmentForum/permissions.js';
 
 import './components.js';
 //
