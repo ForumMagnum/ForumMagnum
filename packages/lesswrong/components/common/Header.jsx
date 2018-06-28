@@ -177,8 +177,8 @@ class Header extends Component {
               >
                 <div className="header-title">
                   <Link to="/">
-                    <span className="min-small">{getSetting('AlignmentForum', false) ? 'ALIGNMENT-FORUM' : 'LESSWRONG'}</span>
-                    <span className="max-small">{getSetting('AlignmentForum', false) ? 'AF' : 'LW'}</span>
+                    <span className="min-small">{getSetting('forumSettings.headerTitle', 'LESSWRONG')}</span>
+                    <span className="max-small">{getSetting('forumSettings.shortForumTitle', 'LW')}</span>
                   </Link>
                   <span className="min-small">{ siteSection}</span>
                 </div>
