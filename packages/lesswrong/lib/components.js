@@ -1,3 +1,5 @@
+import { getSetting } from 'meteor/vulcan:core';
+
 import '../components/messaging/TitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
 import '../components/messaging/MessageItem.jsx';
@@ -191,6 +193,7 @@ import '../components/form-components/LocationFormComponent.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
 
-
-import '../components/alignmentforum/AlignmentForumHome.jsx';
 import '../components/alignmentforum/AlignmentCheckbox.jsx';
+if(getSetting('AlignmentForum', false)) {
+    import '../components/alignmentforum/AlignmentForumHome.jsx';
+}
