@@ -1,9 +1,14 @@
+import { getSetting } from 'meteor/vulcan:core';
 import Notifications from './collection.js';
 
 // will be common to all other view unless specific properties are overwritten
 Notifications.addDefaultView(function (terms) {
+  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   return {
-    options: {limit: 1000}
+    selector: {
+      ...alignmentForum
+    },
+    options: {limit: 1000},
   };
 });
 

@@ -7,6 +7,7 @@
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
     "start": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings.json",
+    "start-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings-af.json",
     "lint": "eslint --cache --ext .jsx,js packages",
     "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app",
     "test": "TOOL_NODE_FLAGS=--max-old-space-size=4096 METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",

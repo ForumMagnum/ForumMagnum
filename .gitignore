@@ -23,6 +23,7 @@ settings.json
 settings-dev.json
 settings-dev-livedb.json
 settings-dev-live.json
+settings*
 settings.json.not-used
 .idea
 

@@ -1,12 +1,15 @@
+import { getSetting } from 'meteor/vulcan:core'
 import { Comments } from 'meteor/example-forum';
 import moment from 'moment';
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
+  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$ne: true}}],
       ...validFields,
+      ...alignmentForum,
     }
   });
 })
