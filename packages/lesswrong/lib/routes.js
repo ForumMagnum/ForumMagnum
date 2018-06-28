@@ -1,4 +1,4 @@
-import { addRoute } from 'meteor/vulcan:core';
+import { addRoute, getSetting} from 'meteor/vulcan:core';
 
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper' });
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm' });
@@ -49,7 +49,13 @@ addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'Post
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminDashboard'});
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog'});
-addRoute({name: 'home', path: '/', componentName: 'Home'});
+
 addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
 
-addRoute({name:'alignment.forum',   path:'/alignment', componentName: 'AlignmentForumHome'});
+if(getSetting('AlignmentForum', false)) {
+    console.log("Adding AlignmentForum home route", getSetting('AlignmentForum', false))
+    addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
+} else {
+    console.log("Adding normal home route", getSetting('AlignmentForum', false))
+    addRoute({name: 'home', path: '/', componentName: 'Home'});
+}
