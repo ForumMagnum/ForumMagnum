@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
@@ -61,7 +61,7 @@ class Header extends Component {
 
   userPostSubtitle = (postId) => {
     const post = Posts.findOneInStore(this.props.client.store, postId)
-    if (post && post.af) {
+    if (!getSetting('AlignmentForum', false) && post && post.af) {
       return this.alignmentSubtitle()
     } else if (post && post.frontpageDate) {
       return null
@@ -120,8 +120,8 @@ class Header extends Component {
 
   alignmentSubtitle = () => {
     return <Link className="header-site-subtitle" to="/alignment">
-              AGI Alignment
-           </Link>
+      AGI Alignment
+    </Link>
   }
 
   getSubtitle = () => {
@@ -152,9 +152,9 @@ class Header extends Component {
       return this.communitySubtitle()
     } else if (routeName == "groups.post") {
       return this.communitySubtitle()
-    } else if ((routeName == "alignment.forum") || (query && query.af)) {
+    } else if (!getSetting('AlignmentForum', false) && routeName == "alignment.forum" || (query && query.af)) {
       return this.alignmentSubtitle()
-    }
+    } 
   }
 
   render() {
@@ -177,8 +177,8 @@ class Header extends Component {
               >
                 <div className="header-title">
                   <Link to="/">
-                    <span className="min-small">LESSWRONG</span>
-                    <span className="max-small">LW</span>
+                    <span className="min-small">{getSetting('forumSettings.headerTitle', 'LESSWRONG')}</span>
+                    <span className="max-small">{getSetting('forumSettings.shortForumTitle', 'LW')}</span>
                   </Link>
                   <span className="min-small">{ siteSection}</span>
                 </div>
