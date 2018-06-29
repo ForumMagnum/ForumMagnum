@@ -15,7 +15,7 @@ import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
-import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
+import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";

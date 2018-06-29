@@ -9,7 +9,7 @@ import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
 import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MenuItem from 'material-ui/MenuItem';
 import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
