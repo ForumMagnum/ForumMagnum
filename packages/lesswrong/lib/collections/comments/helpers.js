@@ -1,5 +1,6 @@
 import { Comments, Posts } from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
+import { getSetting } from 'meteor/vulcan:core';
 
 /**
  * @summary Get URL of a comment page.
@@ -18,6 +19,7 @@ Comments.getRSSUrl = function(comment, isAbsolute = false){
 };
 
 Comments.defaultToAlignment = (currentUser, post, comment) => {
+  if (getSetting('AlignmentForum')) { return true }
   if (comment) {
     return (Users.canDo(currentUser, "comments.alignment.new") && post.af && comment.af)
   } else {
