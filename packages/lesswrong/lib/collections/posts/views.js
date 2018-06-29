@@ -53,6 +53,15 @@ Posts.addView("top", terms => ({
   }
 }));
 
+Posts.addView("daily", terms => ({
+  selector: {
+    baseScore: {$gt: terms.karmaThreshold || -100}
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$exists: true},
