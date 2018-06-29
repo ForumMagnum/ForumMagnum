@@ -1,3 +1,21 @@
 import Users from 'meteor/vulcan:users'
 
-Users.groups.alignmentForum.can(["votes.alignment"]);
+Users.createGroup("alignmentForum");
+Users.createGroup("alignmentForumAdmins");
+
+const alignmentForumActions = [
+  'votes.alignment',
+  'posts.alignment.new',
+  'posts.alignment.edit',
+  'comments.alignment.new'
+]
+
+Users.groups.alignmentForum.can(alignmentForumActions);
+
+const alignmentForumAdminsActions = [
+  'votes.alignment',
+  'posts.alignment.edit.all',
+  'comments.alignment.edit.all'
+]
+
+Users.groups.alignmentAdmins.can(alignmentForumAdminsActions);
