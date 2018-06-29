@@ -2,11 +2,20 @@ import React, { Component } from 'react';
 import { Components, registerComponent, withList, Loading, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import { Posts, Comments } from 'meteor/example-forum';
 
-const RecentDiscussionThreadsList = ({results, loading, loadMore, networkStatus, editMutation, currentUser}) => {
+const RecentDiscussionThreadsList = ({
+  results,
+  loading,
+  loadMore,
+  networkStatus,
+  editMutation,
+  currentUser,
+  threadView = "recentDiscussionThread"
+}) => {
   const loadingMore = networkStatus === 2;
   if (!loading && results && !results.length) {
     return null
   }
+
   return (
     <div>
       <div className="discussion-thread-list">
@@ -16,7 +25,7 @@ const RecentDiscussionThreadsList = ({results, loading, loadMore, networkStatus,
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
-              terms={{view:'recentDiscussionThread', postId:post._id}}
+              terms={{view:threadView, postId:post._id}}
               currentUser={currentUser}
               editMutation={editMutation}/>
 

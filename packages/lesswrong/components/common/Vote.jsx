@@ -147,6 +147,7 @@ renderVoteInfoTooltip = () => <div className="vote-info-tooltip">
 </div>
 
 render() {
+  const { document } = this.props
   return (
     <div className="vote-wrapper">
       <div className={this.getActionClass()}>
@@ -175,7 +176,7 @@ render() {
         <div className="vote-count">
           <Components.Tooltip tooltip={this.renderVoteInfoTooltip()} delay={10}>
             <span className="vote-count-number">
-              {this.props.document.baseScore || 0}
+              {document.baseScore || 0} { document.afBaseScore ? <span>({document.afBaseScore})</span> : null}
             </span>
           </Components.Tooltip>
         </div>

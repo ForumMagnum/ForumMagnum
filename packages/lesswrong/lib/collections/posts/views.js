@@ -1,5 +1,6 @@
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
+import { getSetting } from 'meteor/vulcan:core';
 import moment from 'moment';
 
 /**
@@ -7,6 +8,7 @@ import moment from 'moment';
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'frontpage', 'userId', 'meta', 'groupId');
+  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
@@ -17,6 +19,7 @@ Posts.addDefaultView(terms => {
       groupId: {$exists: false},
       isEvent: {$ne: true},
       ...validFields,
+      ...alignmentForum
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
@@ -406,6 +409,32 @@ Posts.addView("sunshineCuratedSuggestions", function () {
       sort: {
         createdAt: 1,
       }
+    }
+  }
+})
+
+Posts.addView("alignmentForumPosts", terms => ({
+  selector: {
+    af: true,
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
+Posts.addView("afRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      baseScore: {$gt:0},
+      hideFrontpageComments: {$ne: true},
+      af: true,
+      meta: null,
+      groupId: null,
+      isEvent: null,
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
     }
   }
 })

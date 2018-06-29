@@ -23,6 +23,7 @@ settings.json
 settings-dev.json
 settings-dev-livedb.json
 settings-dev-live.json
+settings*
 settings.json.not-used
 .idea
 
@@ -53,6 +54,10 @@ packages/nova-router/.npm
 npm-debug.log
 
 typings
+*.swp
+*.un~
+yarn.lock
+
 *.swp
 *.un~
 yarn.lock
