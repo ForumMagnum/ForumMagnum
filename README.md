@@ -61,11 +61,11 @@ It will start out with an empty database. (This means that some of the hardcoded
 ## Contributing
 
 ### What Contributions Are Helpful?
-The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/Discordius/Lesswrong2/issues/554).
+The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/LessWrong2/Lesswrong2/issues).
 
-In particular, you can filter them by the tag “[good first issue](https://github.com/Discordius/Lesswrong2/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
+In particular, you can filter them by the tag “[good first issue](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%2200.+Good+First+Issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
 
-There are [also issues tagged “help wanted.”](https://github.com/Discordius/Lesswrong2/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3A%22help+wanted%22) These are issues that might be a bit complex, but which don’t require much context or understanding of our longterm goals or philosophy to implement.
+There are [also issues tagged “help wanted.”](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) These are issues that might be a bit complex, but which don’t require much context or understanding of our longterm goals or philosophy to implement.
 
 #### Creating Issues
 
