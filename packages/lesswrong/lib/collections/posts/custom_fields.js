@@ -289,8 +289,8 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['members'],
-      insertableBy: ['trustLevel1', 'sunshineRegiment', 'admins'],
-      editableBy: ['trustLevel1', 'sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
       optional: true,
       label: "Suggested for Curated by",
       control: "UsersListEditor",

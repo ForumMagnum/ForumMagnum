@@ -19,11 +19,8 @@ deploy.sh
 dump/
 dump/*
 
-settings.json
-settings-dev.json
-settings-dev-livedb.json
-settings-dev-live.json
-settings.json.not-used
+settings*
+
 .idea
 
 scratch
