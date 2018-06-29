@@ -2,7 +2,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'formsy-react-components';
-import classNames from 'classnames';
 
 class AlignmentCheckbox extends Component {
 

@@ -53,9 +53,7 @@ addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLo
 addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
 
 if(getSetting('AlignmentForum', false)) {
-    console.log("Adding AlignmentForum home route", getSetting('AlignmentForum', false))
     addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
 } else {
-    console.log("Adding normal home route", getSetting('AlignmentForum', false))
     addRoute({name: 'home', path: '/', componentName: 'Home'});
 }
