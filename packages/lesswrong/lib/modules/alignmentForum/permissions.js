@@ -10,7 +10,7 @@ const alignmentForumActions = [
   'comments.alignment.new'
 ]
 
-Users.groups.alignmentForum.can(alignmentForumActions);
+Users.groups.alignmentForumAdmins.can(alignmentForumActions);
 
 const alignmentForumAdminsActions = [
   'votes.alignment',
@@ -18,4 +18,4 @@ const alignmentForumAdminsActions = [
   'comments.alignment.edit.all'
 ]
 
-Users.groups.alignmentAdmins.can(alignmentForumAdminsActions);
+Users.groups.alignmentForumAdmins.can(alignmentForumAdminsActions);
