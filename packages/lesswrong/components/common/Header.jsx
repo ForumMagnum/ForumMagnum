@@ -57,8 +57,8 @@ class Header extends Component {
     };
   }
 
-  handleNavigationToggle = (state) => this.setState({navigationOpen: !state.navigationOpen});
-  handleNavigationClose = () => this.setState({navigationOpen: false});
+  handleNavigationToggle = (state) => this.setState({navigationOpen: !state.navigationOpen})
+  handleNavigationClose = () => this.setState({navigationOpen: false})
 
   handleNotificationToggle = (state) => {
     this.props.editMutation({
@@ -66,17 +66,17 @@ class Header extends Component {
       set: {lastNotificationsCheck: new Date()},
       unset: {}
     })
-    this.setState({notificationOpen: !state.notificationOpen});
+    this.setState({notificationOpen: !state.notificationOpen})
   }
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   render() {
-    const { currentUser, classes, routes, location, params, client } = this.props;
-    const { notificationOpen, navigationOpen } = this.state;
-    const routeName = routes[1].name;
-    const query = location && location.query;
-    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client);
-    const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"};
+    const { currentUser, classes, routes, location, params, client } = this.props
+    const { notificationOpen, navigationOpen } = this.state
+    const routeName = routes[1].name
+    const query = location && location.query
+    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client)
+    const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     return (
       <div className={classes.root}>
