@@ -34,8 +34,7 @@ const options = {
   queryName: 'PostCommentsThreadQuery',
   fragmentName: 'CommentsList',
   // enableCache: true,
-  // limit: 50,
-  // totalResolver: false,
+  totalResolver: true,
 };
 
 registerComponent('PostsCommentsThreadWrapper', PostsCommentsThreadWrapper, [withList, options]);

@@ -50,6 +50,15 @@ Posts.addView("top", terms => ({
   }
 }));
 
+Posts.addView("daily", terms => ({
+  selector: {
+    baseScore: {$gt: terms.karmaThreshold || -100}
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$exists: true},
@@ -224,24 +233,6 @@ Posts.addView("all_drafts", terms => ({
   },
   options: {
     sort: {createdAt: -1}
-  }
-}));
-
-
-/**
- * @summary User posts view
- */
-Posts.addView("userPosts", terms => ({
-  selector: {
-    userId: terms.userId,
-    status: Posts.config.STATUS_APPROVED,
-    isFuture: {$ne: true},
-  },
-  options: {
-    limit: 5,
-    sort: {
-      postedAt: -1
-    }
   }
 }));
 

@@ -319,6 +319,7 @@ const queryOptions = {
   fragmentName: 'LWPostsPage',
   totalResolver: false,
   enableCache: true,
+  ssr: true
 };
 
 const mutationOptions = {
