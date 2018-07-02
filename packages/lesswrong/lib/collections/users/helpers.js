@@ -137,6 +137,9 @@ Users.canMakeAlignmentPost = (user, post) => {
   if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.edit")) {
     return true
   }
+  if (Users.canDo(user,"posts.alignment.edit.all")) {
+    return true
+  }
   if (!user || !post) {
     return false
   }

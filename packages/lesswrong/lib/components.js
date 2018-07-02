@@ -196,4 +196,5 @@ import '../components/form-components/MultiSelectButtons.jsx';
 import '../components/alignmentforum/AlignmentCheckbox.jsx';
 if(getSetting('AlignmentForum', false)) {
     import '../components/alignmentforum/AlignmentForumHome.jsx';
+    import '../components/alignmentforum/withSetAlignmentPost.jsx';
 }

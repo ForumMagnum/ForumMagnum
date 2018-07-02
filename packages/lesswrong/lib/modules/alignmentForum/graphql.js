@@ -9,7 +9,7 @@ import Users from "meteor/vulcan:users";
 
 const alignmentCommentResolvers = {
   Mutation: {
-    moderateComment(root, { commentId, af }, context) {
+    alignmentComment(root, { commentId, af }, context) {
       const comment = context.Comments.findOne(commentId)
 
       if (Users.canDo(context.currentUser, "comments.alignment.edit.all")) {
@@ -32,7 +32,7 @@ addGraphQLMutation('alignmentComment(commentId: String, af: Boolean): Comment');
 
 const alignmentPostResolvers = {
   Mutation: {
-    moderateComment(root, { postId, af }, context) {
+    alignmentPost(root, { postId, af }, context) {
       const post = context.Posts.findOne(postId)
 
       if (Users.canDo(context.currentUser, "posts.alignment.edit.all")) {

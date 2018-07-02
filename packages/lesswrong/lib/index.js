@@ -18,6 +18,7 @@ import './modules/permissions.js';
 // Alignment Forum
 import './modules/alignmentForum/callbacks.js';
 import './modules/alignmentForum/permissions.js';
+import './modules/alignmentForum/graphql.js';
 // Notifications
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/custom_fields.js';
