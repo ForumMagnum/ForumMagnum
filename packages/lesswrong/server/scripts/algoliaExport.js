@@ -1,7 +1,7 @@
 /* global Vulcan */
 import { Posts, Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
-import Sequences from '../collections/sequences/collection.js';
+import Sequences from '../../lib/collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 
