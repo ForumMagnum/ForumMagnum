@@ -75,7 +75,7 @@ class Header extends Component {
     const { notificationOpen, navigationOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
-    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client)
+    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     return (
