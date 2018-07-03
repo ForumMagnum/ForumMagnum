@@ -57,16 +57,16 @@ class Header extends Component {
     };
   }
 
-  handleNavigationToggle = (state) => this.setState({navigationOpen: !state.navigationOpen})
+  handleNavigationToggle = (muiState) => this.setState({navigationOpen: !this.state.navigationOpen})
   handleNavigationClose = () => this.setState({navigationOpen: false})
 
-  handleNotificationToggle = (state) => {
+  handleNotificationToggle = (muiState) => {
     this.props.editMutation({
       documentId: this.props.currentUser._id,
       set: {lastNotificationsCheck: new Date()},
       unset: {}
     })
-    this.setState({notificationOpen: !state.notificationOpen})
+    this.setState({notificationOpen: !this.state.notificationOpen})
   }
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
