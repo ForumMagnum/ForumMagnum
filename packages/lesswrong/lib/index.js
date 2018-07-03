@@ -39,7 +39,6 @@ import './collections/conversations/permissions.js';
 // RSSFeeds
 import RSSFeeds from './collections/rssfeeds/collection.js'
 import './collections/rssfeeds/views.js'
-import './rss-integration/callbacks.js'
 //
 // Reports
 import Reports from './collections/reports/collection.js'
@@ -119,17 +118,11 @@ import './i18n-en-us/en_US.js';
 // // General
 import './modules/callbacks.js';
 
-// Legacy Post Redirect
-import './legacy-redirects/views.js';
-
 // // Misc.
 import './helpers.js'
 import './routes.js';
 import './views.js';
 import './scrollRestoration.js';
-//
-// Closed Beta Stuff
-import './scripts/configuration.js';
 
 // Algolia Search Integration
 import './search/utils.js';

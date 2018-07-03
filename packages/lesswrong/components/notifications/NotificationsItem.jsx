@@ -3,10 +3,10 @@ import classNames from 'classnames';
 import React, { Component } from 'react';
 import {ListItem} from 'material-ui/List';
 import { Link } from 'react-router';
-import AllIcon from 'material-ui/svg-icons/social/notifications';
-import PostsIcon from 'material-ui/svg-icons/action/description';
-import CommentsIcon from 'material-ui/svg-icons/editor/mode-comment';
-import MessagesIcon from 'material-ui/svg-icons/communication/forum';
+import AllIcon from '@material-ui/icons/Notifications';
+import PostsIcon from '@material-ui/icons/Description';
+import CommentsIcon from '@material-ui/icons/ModeComment';
+import MessagesIcon from '@material-ui/icons/Forum';
 
 const iconStyles = {
   marginTop: '24px',

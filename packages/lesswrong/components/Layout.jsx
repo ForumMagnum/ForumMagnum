@@ -10,10 +10,9 @@ import Intercom from 'react-intercom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
 import Typekit from 'react-typekit';
-
 
 const Layout = ({currentUser, children, currentRoute, params, client}, { userAgent }) => {
 
@@ -31,12 +30,13 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
     }
 
     return <div className="wrapper tk-warnock-pro" id="wrapper">
-      <MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
+      <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <Helmet>
             <title>{getSetting('forumSettings.tabTitle', 'LessWrong 2.0')}</title>
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
           </Helmet>
           <Typekit kitId="jvr1gjm" />
@@ -55,7 +55,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
           </div>
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
         </div>
-      </MuiThemeProvider>
+      </V0MuiThemeProvider>
     </div>
 }
 
