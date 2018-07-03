@@ -45,6 +45,9 @@ const styles = theme => ({
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  negativeRightMargin: {
+    marginRight: -theme.spacing.unit,
   }
 });
 
@@ -103,7 +106,7 @@ class Header extends Component {
                   </Link>
                 </Hidden>
               </Typography>
-              <div>
+              <div className={classes.negativeRightMargin}>
                 <NoSSR><Components.SearchBar /></NoSSR>
                 {currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
                 {currentUser && <Components.NotificationsMenuButton toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
