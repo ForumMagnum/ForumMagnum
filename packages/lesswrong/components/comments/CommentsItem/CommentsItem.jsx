@@ -9,7 +9,7 @@ import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
 import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MenuItem from 'material-ui/MenuItem';
 import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
@@ -202,6 +202,7 @@ class CommentsItem extends PureComponent {
               { this.renderReportMenuItem() }
               { this.renderStatsMenuItem() }
               { this.renderDeleteMenuItem() }
+              { this.renderMoveToAlignmentMenuItem() }
               { Users.canModeratePost(this.props.currentUser, post) &&
                 post.user && Users.canModeratePost(post.user, post) &&
                 <MenuItem
@@ -289,6 +290,18 @@ class CommentsItem extends PureComponent {
     }
   }
 
+  renderMoveToAlignmentMenuItem = () =>  {
+    const { currentUser, comment, post } = this.props
+    if (Users.canMakeAlignmentPost(currentUser, post)) {
+      return (
+        <Components.MoveToAlignmentMenuItem
+          currentUser={currentUser}
+          comment={comment}
+        />
+      )
+    }
+  }
+
   renderDeleteMenuItem = () =>  {
     if (Users.canModeratePost(this.props.currentUser, this.props.post)) {
       return (
@@ -314,13 +327,16 @@ class CommentsItem extends PureComponent {
   renderReply = () => {
     const levelClass = (this.props.comment.level + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
+    const { currentUser, post, comment } = this.props
+
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
         <Components.CommentsNewForm
-          postId={this.props.comment.postId}
-          parentComment={this.props.comment}
+          postId={comment.postId}
+          parentComment={comment}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
+          prefilledProps={{af:Comments.defaultToAlignment(currentUser, post, comment)}}
           type="reply"
         />
       </div>

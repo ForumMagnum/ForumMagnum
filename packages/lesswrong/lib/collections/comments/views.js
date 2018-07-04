@@ -1,12 +1,15 @@
+import { getSetting } from 'meteor/vulcan:core'
 import { Comments } from 'meteor/example-forum';
 import moment from 'moment';
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
+  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$ne: true}}],
       ...validFields,
+      ...alignmentForum,
     }
   });
 })
@@ -79,13 +82,27 @@ Comments.addView("recentComments", function (terms) {
 });
 
 Comments.addView("recentDiscussionThread", function (terms) {
-  const eighteenHoursAgo = new Date(new Date().getTime()-(18*60*60*1000));
+  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
       deletedPublic: {$ne: true},
       postedAt: {$gt: eighteenHoursAgo}
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5}
+  };
+})
+
+Comments.addView("afRecentDiscussionThread", function (terms) {
+  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  return {
+    selector: {
+      postId: terms.postId,
+      score: {$gt:0},
+      deletedPublic: {$ne: true},
+      postedAt: {$gt: eighteenHoursAgo},
+      af: true,
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };

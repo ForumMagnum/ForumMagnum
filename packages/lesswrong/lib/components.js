@@ -1,3 +1,5 @@
+import { getSetting } from 'meteor/vulcan:core';
+
 import '../components/messaging/TitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
 import '../components/messaging/MessageItem.jsx';
@@ -95,6 +97,7 @@ import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/MoveToAlignmentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 
 import '../components/comments/recentDiscussionThread.jsx';
@@ -190,3 +193,10 @@ import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/LocationFormComponent.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
+
+import '../components/alignment-forum/AlignmentCheckbox.jsx';
+if(getSetting('AlignmentForum', false)) {
+    import '../components/alignment-forum/AlignmentForumHome.jsx';
+    import '../components/alignment-forum/withSetAlignmentPost.jsx';
+    import '../components/alignment-forum/withSetAlignmentComment.jsx';
+}

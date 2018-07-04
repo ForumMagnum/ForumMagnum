@@ -220,3 +220,38 @@ async function LWCommentsNewUpvoteOwnComment(comment) {
 }
 
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
+
+const updateParentsSetAFtrue = (comment) => {
+  Comments.update({_id:comment.parentCommentId}, {$set: {af: true}});
+  const parent = Comments.findOne({_id: comment.parentCommentId});
+  if (parent) {
+    updateParentsSetAFtrue(parent)
+  }
+}
+
+const updateChildrenSetAFfalse = (comment) => {
+  const children = Comments.find({parentCommentId: comment._id}).fetch();
+  children.forEach((child)=> {
+    Comments.update({_id:child._id}, {$set: {af: false}});
+    updateChildrenSetAFfalse(child)
+  })
+}
+
+function CommentsAlignmentEdit (comment, oldComment) {
+  if (comment.af && !oldComment.af) {
+    updateParentsSetAFtrue(comment);
+  }
+  if (!comment.af && oldComment.af) {
+    updateChildrenSetAFfalse(comment);
+  }
+}
+addCallback("comments.edit.async", CommentsAlignmentEdit);
+addCallback("comments.alignment.async", CommentsAlignmentEdit);
+
+
+function CommentsAlignmentNew (comment) {
+  if (comment.af) {
+    updateParentsSetAFtrue(comment);
+  }
+}
+addCallback("comments.new.async", CommentsAlignmentNew);

@@ -11,8 +11,14 @@ import './modules/voting/callbacks.js';
 import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
-//// Permissions
+
+// Permissions
 import './modules/permissions.js';
+
+// Alignment Forum
+import './modules/alignment-forum/callbacks.js';
+import './modules/alignment-forum/permissions.js';
+import './modules/alignment-forum/graphql.js';
 // Notifications
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/custom_fields.js';
@@ -39,7 +45,6 @@ import './collections/conversations/permissions.js';
 // RSSFeeds
 import RSSFeeds from './collections/rssfeeds/collection.js'
 import './collections/rssfeeds/views.js'
-import './rss-integration/callbacks.js'
 //
 // Reports
 import Reports from './collections/reports/collection.js'
@@ -107,6 +112,9 @@ import './collections/comments/custom_fields.js';
 import './collections/comments/permissions.js';
 import './collections/comments/views.js';
 import './collections/comments/helpers.js';
+
+// Votes
+import './collections/votes/custom_fields.js';
 //
 //
 //
@@ -116,17 +124,11 @@ import './i18n-en-us/en_US.js';
 // // General
 import './modules/callbacks.js';
 
-// Legacy Post Redirect
-import './legacy-redirects/views.js';
-
 // // Misc.
 import './helpers.js'
 import './routes.js';
 import './views.js';
 import './scrollRestoration.js';
-//
-// Closed Beta Stuff
-import './scripts/configuration.js';
 
 // Algolia Search Integration
 import './search/utils.js';

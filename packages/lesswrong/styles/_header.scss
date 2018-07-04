@@ -1,95 +1,5 @@
 $header-mobile: 43px !important;
 
-.header {
-  @include max-tiny {
-    height: $header-mobile;
-
-    > div:nth-child(1) {
-      height: $header-mobile;
-      padding-left:0 !important;
-
-      > div {
-        > div {
-          height:32px;
-        }
-
-      }
-
-      > button {
-        padding: 10px !important;
-        width:26px !important;
-        height:26px !important;
-        color: red !important;
-        margin:0 !important;
-      }
-    }
-  }
-}
-
-.logo{
-  @include small{
-    text-align: center;
-  }
-  @include medium-large{
-    display: flex;
-    align-items: baseline;
-    .logo-text{
-      margin-right: $hmargin;
-    }
-    .logo-image{
-      margin-right: $hmargin;
-      img{
-        max-width: 150px;
-        max-height: 100px;
-      }
-    }
-  }
-  .tagline{
-    font-size: 1.35rem;
-  }
-}
-
-// This is an id instead of a class because the class wasn't rendering for weird reasons
-// If you can fix it, change it to a class
-.header-title {
-  font-size: 19px;
-  position:absolute;
-  top:17px;
-  left:64px;
-
-  @include max-tiny {
-    top:5px;
-    left:46px;
-  }
-
-  color:$medium-text;
-  a {
-    text-decoration:none;
-  }
-  a:hover {
-    text-decoration:none;
-    color:$light-text;
-  }
-  a.logo-user {
-    color:$medium-text;
-    &:hover {
-      color:$light-text;
-    }
-  }
-}
-.header-site-subtitle {
-  margin-left: 1em;
-  padding-left: 1em;
-  text-transform: uppercase;
-  border-left:1px solid $dark-grey;
-  @include max-tiny {
-    display:none;
-  }
-  color:$dark-text;
-  &:hover {
-    color:$light-text;
-  }
-}
 .nav{
   @include flex-center;
   @include small{
@@ -110,24 +20,11 @@ $header-mobile: 43px !important;
   }
 }
 
-.header-wrapper {
-  height: 64px;
-  @include max-tiny {
-    height: $header-mobile;
-  }
-}
-
 
 .users-account-menu, .users-menu{
   display: inline-block;
   vertical-align: text-bottom;
   margin-top: 5px;
-
-  @include max-tiny {
-    position:relative;
-    top:-10px;
-    right:-2px;
-  }
 
   color: rgba(0,0,0,0.5) !important;
   .dropdown-toggle{
@@ -158,18 +55,6 @@ $header-mobile: 43px !important;
 
 .search {
   display: inline-block;
-  @include max-tiny {
-    padding:0 !important;
-    height:32px !important;
-  }
-}
-
-.notifications-menu-button {
-  @include max-tiny {
-    padding: 0px !important;
-    top: -8px;
-    height: 43px !important;
-  }
 }
 
 .search-bar {
@@ -177,13 +62,6 @@ $header-mobile: 43px !important;
   position: relative;
   .search-bar-box {
     display: inline-block;
-    @include max-tiny {
-      padding-right:7px;
-      span {
-        padding:0 !important;
-        top:-12px !important;
-      }
-    }
   }
   .search-bar-close {
     display: none;
@@ -191,11 +69,6 @@ $header-mobile: 43px !important;
     top: 15px;
     right: 5px;
     cursor: pointer;
-  }
-  .ais-SearchBox__root {
-    @include max-tiny {
-      height:32px;
-    }
   }
   .ais-SearchBox__submit {
     display: none;
@@ -210,11 +83,6 @@ $header-mobile: 43px !important;
     background-color: transparent;
     cursor: pointer;
     width:0;
-    @include max-tiny {
-      position:relative !important;
-      top:-14px !important;
-      padding-left:24px;
-    }
   }
   &.open .search-bar-close {
     display: inline-block;
@@ -249,9 +117,6 @@ $header-mobile: 43px !important;
   width: 100%;
   top: 64px;
   background-color: white;
-  @include max-small() {
-    top: 80px;
-  }
   .search-results-posts-item {
     cursor:pointer;
     .posts-item {

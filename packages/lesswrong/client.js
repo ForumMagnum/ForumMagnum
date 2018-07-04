@@ -1,3 +1,3 @@
-import './lib/modules/disconnect_meteor.js';
-import './lib/index.js';
+import './client/disconnect_meteor.js';
+import './client/themeProvider.js';
 export * from './lib/index.js';
