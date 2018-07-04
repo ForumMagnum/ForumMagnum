@@ -28,6 +28,7 @@ import {
   BoldButton,
   UnderlineButton,
   BlockquoteButton,
+  CodeBlockButton,
 } from 'draft-js-buttons';
 
 const HeadlineOneButton = createBlockStyleButton({
@@ -124,6 +125,7 @@ class AsyncEditorFormComponent extends Component {
         HeadlineOneButton,
         HeadlineTwoButton,
         BlockquoteButton,
+        CodeBlockButton,
         dividerPlugin.DividerButton,
         ImageButton,
       ]
