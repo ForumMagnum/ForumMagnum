@@ -1,7 +1,13 @@
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import {
+  Components,
+  registerComponent,
+  withEdit,
+  withCurrentUser
+} from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
+import withSetAlignmentPost from "../alignment-forum/withSetAlignmentPost.jsx";
 
 class PostsPageAdminActions extends Component {
 
@@ -29,18 +35,18 @@ class PostsPageAdminActions extends Component {
   }
 
   handleMoveToAlignmentForum = () => {
-    const { post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: { af: true },
+    const { post, setAlignmentPostMutation } = this.props
+    setAlignmentPostMutation({
+      postId: post._id,
+      af: true,
     })
   }
 
   handleRemoveFromAlignmentForum = () => {
-    const { post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: { af: false },
+    const { post, setAlignmentPostMutation } = this.props
+    setAlignmentPostMutation({
+      postId: post._id,
+      af: false,
     })
   }
 
@@ -108,10 +114,15 @@ const withEditOptions = {
   fragmentName: 'PostsList',
 };
 
+const setAlignmentOptions = {
+  fragmentName: "PostsList"
+}
+
 
 registerComponent(
   'PostsPageAdminActions',
   PostsPageAdminActions,
   [withEdit, withEditOptions],
+  [withSetAlignmentPost, setAlignmentOptions],
   withCurrentUser
 );

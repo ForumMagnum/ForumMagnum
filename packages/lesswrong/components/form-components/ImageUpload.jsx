@@ -5,7 +5,7 @@ import {registerComponent} from 'meteor/vulcan:core';
 import Helmet from 'react-helmet';
 import FlatButton from 'material-ui/FlatButton';
 import { Image } from 'cloudinary-react';
-import ImageIcon from 'material-ui/svg-icons/image/image';
+import ImageIcon from '@material-ui/icons/Image';
 
 class ImageUpload extends Component {
   constructor(props, context) {

@@ -9,7 +9,7 @@ import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
 import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MenuItem from 'material-ui/MenuItem';
 import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
@@ -202,6 +202,7 @@ class CommentsItem extends PureComponent {
               { this.renderReportMenuItem() }
               { this.renderStatsMenuItem() }
               { this.renderDeleteMenuItem() }
+              { this.renderMoveToAlignmentMenuItem() }
               { Users.canModeratePost(this.props.currentUser, post) &&
                 post.user && Users.canModeratePost(post.user, post) &&
                 <MenuItem
@@ -286,6 +287,18 @@ class CommentsItem extends PureComponent {
               primaryText="Edit"
             />
           )
+    }
+  }
+
+  renderMoveToAlignmentMenuItem = () =>  {
+    const { currentUser, comment, post } = this.props
+    if (Users.canMakeAlignmentPost(currentUser, post)) {
+      return (
+        <Components.MoveToAlignmentMenuItem
+          currentUser={currentUser}
+          comment={comment}
+        />
+      )
     }
   }
 
