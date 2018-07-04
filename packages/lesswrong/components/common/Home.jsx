@@ -64,7 +64,7 @@ const Home = (props, context) => {
     view: 'events',
     limit: 3,
   }
-  if (lat & lng) {
+  if (lat && lng) {
     eventsListTerms = {
       view: 'nearbyEvents',
       lat: lat,
