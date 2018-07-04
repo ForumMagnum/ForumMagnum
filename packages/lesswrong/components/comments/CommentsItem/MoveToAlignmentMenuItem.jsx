@@ -1,0 +1,59 @@
+import React, { PureComponent } from 'react';
+import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
+import MenuItem from 'material-ui/MenuItem';
+import PropTypes from 'prop-types';
+import withSetAlignmentComment from '../../alignmentForum/withSetAlignmentComment.jsx'
+import { withApollo } from 'react-apollo'
+
+class MoveToAlignmentMenuItem extends PureComponent {
+
+  handleMoveToAlignmentForum = async () => {
+    const { comment, setAlignmentCommentMutation, client } = this.props
+    await setAlignmentCommentMutation({
+      commentId: comment._id,
+      af: true,
+    })
+    client.resetStore()
+  }
+
+  handleRemoveFromAlignmentForum = async () => {
+    const { comment, setAlignmentCommentMutation, client } = this.props
+    await setAlignmentCommentMutation({
+      commentId: comment._id,
+      af: false,
+    })
+    client.resetStore()
+  }
+
+  render() {
+    const { comment } = this.props
+
+    if (!this.props.comment.af) {
+      return (
+        <MenuItem
+          className="comment-menu-item-alignment"
+          onClick={ this.handleMoveToAlignmentForum}
+          primaryText="Move to Alignment Forum"
+        />
+      )
+    } else if (comment.af) {
+      return <MenuItem
+        onClick={ this.handleRemoveFromAlignmentForum }
+        primaryText="Remove from Alignment"
+      />
+    }
+  }
+}
+
+const mutationOptions = {
+  fragmentName: "CommentsList"
+};
+
+registerComponent(
+  'MoveToAlignmentMenuItem',
+   MoveToAlignmentMenuItem,
+   [withSetAlignmentComment, mutationOptions],
+   withMessages,
+   withApollo,
+);
+export default MoveToAlignmentMenuItem;

@@ -229,12 +229,25 @@ const updateParentsSetAFtrue = (comment) => {
   }
 }
 
+const updateChildrenSetAFfalse = (comment) => {
+  const children = Comments.find({parentCommentId: comment._id}).fetch();
+  children.forEach((child)=> {
+    Comments.update({_id:child._id}, {$set: {af: false}});
+    updateChildrenSetAFfalse(child)
+  })
+}
+
 function CommentsAlignmentEdit (comment, oldComment) {
   if (comment.af && !oldComment.af) {
     updateParentsSetAFtrue(comment);
   }
+  if (!comment.af && oldComment.af) {
+    updateChildrenSetAFfalse(comment);
+  }
 }
 addCallback("comments.edit.async", CommentsAlignmentEdit);
+addCallback("comments.alignment.async", CommentsAlignmentEdit);
+
 
 function CommentsAlignmentNew (comment) {
   if (comment.af) {

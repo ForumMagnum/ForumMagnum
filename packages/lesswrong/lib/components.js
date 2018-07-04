@@ -97,6 +97,7 @@ import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/MoveToAlignmentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 
 import '../components/comments/recentDiscussionThread.jsx';
@@ -193,8 +194,9 @@ import '../components/form-components/LocationFormComponent.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
 
-import '../components/alignmentforum/AlignmentCheckbox.jsx';
+import '../components/alignmentForum/AlignmentCheckbox.jsx';
 if(getSetting('AlignmentForum', false)) {
-    import '../components/alignmentforum/AlignmentForumHome.jsx';
-    import '../components/alignmentforum/withSetAlignmentPost.jsx';
+    import '../components/alignmentForum/AlignmentForumHome.jsx';
+    import '../components/alignmentForum/withSetAlignmentPost.jsx';
+    import '../components/alignmentForum/withSetAlignmentComment.jsx';
 }

@@ -7,7 +7,7 @@ import {
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
-import withSetAlignmentPost from "../alignmentforum/withSetAlignmentPost";
+import withSetAlignmentPost from "../alignmentForum/withSetAlignmentPost";
 
 class PostsPageAdminActions extends Component {
 
