@@ -28,6 +28,7 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
 
   render() {
     return <MenuItem
+      className="comment-menu-item-ban-from-user"
       onClick={ this.handleBanUserFromAllPosts }
       primaryText="From All Your Posts" />
   }

@@ -206,6 +206,7 @@ class CommentsItem extends PureComponent {
               { Users.canModeratePost(this.props.currentUser, post) &&
                 post.user && Users.canModeratePost(post.user, post) &&
                 <MenuItem
+                  className="comment-menu-item-ban-user-submenu"
                   primaryText="Ban User"
                   rightIcon={<ArrowDropRight />}
                   menuItems={[
@@ -256,6 +257,7 @@ class CommentsItem extends PureComponent {
   renderSubscribeMenuItem = () => {
     return(
       <MenuItem
+             className="comment-menu-item-subscribe"
              primaryText="Subscribe"
              disabled={!this.props.currentUser}>
       {this.props.currentUser && <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />}
@@ -267,6 +269,7 @@ class CommentsItem extends PureComponent {
     if (Users.canDo(this.props.currentUser, "reports.new")) {
       return (
         <MenuItem
+          className="comment-menu-item-report"
           onClick={this.showReport}
           primaryText="Report"
         />
@@ -279,6 +282,7 @@ class CommentsItem extends PureComponent {
         Users.owns(this.props.currentUser, this.props.comment)) {
           return (
             <MenuItem
+              className="comment-menu-item-edit"
               onClick={this.showEdit}
               primaryText="Edit"
             />

@@ -43,12 +43,14 @@ class MoveToAlignmentMenuItem extends PureComponent {
     if (!this.props.comment.af) {
       return (
         <MenuItem
+          className="comment-menu-item-move-to-alignment"
           onClick={ this.handleMoveToAlignmentForum}
           primaryText="Move to Alignment Forum"
         />
       )
     } else if (comment.af) {
       return <MenuItem
+        className="comment-menu-item-remove-from-alignment"
         onClick={ this.handleRemoveFromAlignmentForum }
         primaryText="Remove from Alignment"
       />
