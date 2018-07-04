@@ -73,7 +73,6 @@ class DeleteCommentMenuItem extends PureComponent {
     if (!this.props.comment.deleted) {
       return (
         <MenuItem
-          className="comment-menu-item-delete"
           onClick={()=>{this.setState({open:true})}}
           primaryText="Delete"
         >
