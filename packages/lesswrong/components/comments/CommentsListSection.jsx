@@ -95,8 +95,9 @@ class CommentsListSection extends Component {
         {!currentUser &&
           <div>
             <Components.ModalTrigger
-              component={<a href="#"><FormattedMessage id="comments.please_log_in"/></a>}
-            size="small">
+              component={<a href="#">
+                <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
+              </a>} size="small">
               <Components.AccountsLoginForm/>
             </Components.ModalTrigger>
           </div>
