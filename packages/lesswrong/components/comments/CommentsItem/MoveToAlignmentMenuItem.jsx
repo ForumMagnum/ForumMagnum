@@ -8,21 +8,33 @@ import { withApollo } from 'react-apollo'
 class MoveToAlignmentMenuItem extends PureComponent {
 
   handleMoveToAlignmentForum = async () => {
-    const { comment, setAlignmentCommentMutation, client } = this.props
+    const {
+      comment,
+      setAlignmentCommentMutation,
+      client,
+      flash
+    } = this.props
     await setAlignmentCommentMutation({
       commentId: comment._id,
       af: true,
     })
     client.resetStore()
+    flash({id:"alignment.move_comment"})
   }
 
   handleRemoveFromAlignmentForum = async () => {
-    const { comment, setAlignmentCommentMutation, client } = this.props
+    const {
+      comment,
+      setAlignmentCommentMutation,
+      client,
+      flash
+    } = this.props
     await setAlignmentCommentMutation({
       commentId: comment._id,
       af: false,
     })
     client.resetStore()
+    flash({id:"alignment.remove_comment"})
   }
 
   render() {
