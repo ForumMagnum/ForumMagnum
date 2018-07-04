@@ -202,6 +202,7 @@ class CommentsItem extends PureComponent {
               { this.renderReportMenuItem() }
               { this.renderStatsMenuItem() }
               { this.renderDeleteMenuItem() }
+              { this.renderMoveToAlignmentMenuItem() }
               { Users.canModeratePost(this.props.currentUser, post) &&
                 post.user && Users.canModeratePost(post.user, post) &&
                 <MenuItem
@@ -286,6 +287,18 @@ class CommentsItem extends PureComponent {
               primaryText="Edit"
             />
           )
+    }
+  }
+
+  renderMoveToAlignmentMenuItem = () =>  {
+    const { currentUser, comment, post } = this.props
+    if (Users.canMakeAlignmentPost(currentUser, post)) {
+      return (
+        <Components.MoveToAlignmentMenuItem
+          currentUser={currentUser}
+          comment={comment}
+        />
+      )
     }
   }
 

@@ -11,8 +11,14 @@ import './modules/voting/callbacks.js';
 import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
-//// Permissions
+
+// Permissions
 import './modules/permissions.js';
+
+// Alignment Forum
+import './modules/alignment-forum/callbacks.js';
+import './modules/alignment-forum/permissions.js';
+import './modules/alignment-forum/graphql.js';
 // Notifications
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/custom_fields.js';
@@ -127,10 +133,6 @@ import './scrollRestoration.js';
 // Algolia Search Integration
 import './search/utils.js';
 import './search/callbacks.js';
-
-// // Alignment Forum
-import './modules/alignmentForum/callbacks.js';
-import './modules/alignmentForum/permissions.js';
 
 import './components.js';
 //
