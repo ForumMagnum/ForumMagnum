@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import PropTypes from 'prop-types';
-import withSetAlignmentComment from '../../alignmentForum/withSetAlignmentComment.jsx'
+import withSetAlignmentComment from '../../alignment-forum/withSetAlignmentComment.jsx'
 import { withApollo } from 'react-apollo'
 
 class MoveToAlignmentMenuItem extends PureComponent {

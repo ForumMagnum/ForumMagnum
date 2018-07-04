@@ -194,9 +194,9 @@ import '../components/form-components/LocationFormComponent.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
 
-import '../components/alignmentForum/AlignmentCheckbox.jsx';
+import '../components/alignment-forum/AlignmentCheckbox.jsx';
 if(getSetting('AlignmentForum', false)) {
-    import '../components/alignmentForum/AlignmentForumHome.jsx';
-    import '../components/alignmentForum/withSetAlignmentPost.jsx';
-    import '../components/alignmentForum/withSetAlignmentComment.jsx';
+    import '../components/alignment-forum/AlignmentForumHome.jsx';
+    import '../components/alignment-forum/withSetAlignmentPost.jsx';
+    import '../components/alignment-forum/withSetAlignmentComment.jsx';
 }
