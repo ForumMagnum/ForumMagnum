@@ -84,10 +84,6 @@ Users.isAllowedToComment = (user, post) => {
     return false
   }
 
-  if (Users.userIsBannedFromPost(user, post)) {
-    return false
-  }
-
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return false
   }
