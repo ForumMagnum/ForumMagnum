@@ -84,7 +84,7 @@ class Header extends Component {
     return (
       <div className={classes.root}>
         <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
-          <AppBar className={classes.appBar}>
+          <AppBar className={classes.appBar} position="static">
             <Toolbar>
               <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
                 <MenuIcon />
@@ -126,7 +126,7 @@ Header.displayName = "Header";
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,
-  routes: PropTypes.object.isRequired,
+  routes: PropTypes.array.isRequired,
   location: PropTypes.object.isRequired,
   params: PropTypes.object,
   client: PropTypes.object.isRequired,
