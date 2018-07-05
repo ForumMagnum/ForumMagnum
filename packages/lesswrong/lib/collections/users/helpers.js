@@ -1,5 +1,6 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
+import { getSetting } from 'meteor/vulcan:core';
 
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
@@ -73,6 +74,12 @@ Users.isAllowedToComment = (user, post) => {
     return true
   }
 
+  if (getSetting('AlignmentForum', false)) {
+    if (!Users.canDo(user, 'comments.alignment.new')) {
+      return false
+    }
+  }
+
   if (Users.userIsBannedFromPost(user, post)) {
     return false
   }
@@ -95,7 +102,11 @@ Users.blockedCommentingReason = (user, post) => {
   if (Users.userIsBannedFromPost(user, post)) {
     return "This post's author has blocked you from commenting."
   }
-
+  if (getSetting('AlignmentForum', false)) {
+    if (!Users.canDo(user, 'comments.alignment.new')) {
+      return "You must be approved by an admin to comment on Alignment Forum"
+    }
+  }
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return "This post's author has blocked you from commenting."
   }

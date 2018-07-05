@@ -33,6 +33,7 @@ addStrings('en', {
 })
 
 addStrings('en', {
+  "alignment.comments.please_log_in": "Please log in to comment. (New users must be approved by admins)",
   "alignment.remove_comment": "Comment and its children removed from Alignment Forum",
   "alignment.move_comment": "Comment and its parents moved to Alignment Forum",
 })
