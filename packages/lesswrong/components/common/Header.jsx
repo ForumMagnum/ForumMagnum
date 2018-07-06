@@ -163,8 +163,9 @@ class Header extends Component {
               >
                 <div className="header-title">
                   <Link to="/">
-                    <span className="min-small">LESSWRONG</span>
-                    <span className="max-small">LW</span>
+                    {/* TODO just one thing here */}
+                    <span className="min-small">EA FORUM BETA</span>
+                    <span className="max-small">EA FORUM</span>
                   </Link>
                   <span className="min-small">{ siteSection}</span>
                 </div>

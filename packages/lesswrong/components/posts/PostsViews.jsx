@@ -8,14 +8,6 @@ import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 
 const viewDataDict = {
-  'curated': {
-    label: "Curated Posts",
-    description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    categoryIcon:"star",
-    rssView: "curated-rss",
-    rss:true
-  },
   'frontpage': {
     label:'Frontpage Posts',
     description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
@@ -54,7 +46,8 @@ const viewDataDict = {
   'scheduled': 'scheduled posts',
   'all_drafts': 'all drafts',
 }
-const defaultViews = ["curated", "frontpage"];
+// TODO replace list with single value
+const defaultViews = ["frontpage"];
 const defaultExpandedViews = ["community"];
 
 const ChipStyle = {
@@ -98,7 +91,7 @@ class PostsViews extends Component {
 
   getCurrentView = () => {
     const props = this.props;
-    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
+    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || "frontpage";
   }
 
   renderMenu = (viewData, view) => {
