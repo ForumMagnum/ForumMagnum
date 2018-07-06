@@ -57,7 +57,7 @@ registerFragment(`
 `);
 
 extendFragment('UsersCurrent', `
-  karma
+  ...UsersMinimumInfo
   voteBanned
   banned
   nullifyVotes

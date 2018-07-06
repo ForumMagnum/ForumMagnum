@@ -26,7 +26,10 @@ async function updateAlignmentKarmaServer (newDocument, vote, userMultiplier) {
     const collection = getCollection(vote.collectionName)
 
     collection.update({_id: newDocument._id}, {$set: {afBaseScore: newAFBaseScore}});
-    Users.update({_id:author._id}, {$inc:{afKarma: userMultiplier * votePower}})
+
+    if (voter._id != author._id) {
+      Users.update({_id:author._id}, {$inc:{afKarma: userMultiplier * votePower}})
+    }
 
     return {
       newDocument:{
@@ -57,19 +60,40 @@ addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
 
 function updateAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
+
   return {
     ...document,
-    afBaseScore: document.afBaseScore + votePower,
+    afBaseScore: (document.afBaseScore || 0) + votePower,
   };
 }
 
 addCallback("votes.bigDownvote.client", updateAlignmentKarmaClientCallback);
 addCallback("votes.bigUpvote.client", updateAlignmentKarmaClientCallback);
-addCallback("votes.smallDownpvote.client", updateAlignmentKarmaClientCallback);
+addCallback("votes.smallDownvote.client", updateAlignmentKarmaClientCallback);
 addCallback("votes.smallUpvote.client", updateAlignmentKarmaClientCallback);
 
-async function cancelAlignmentKarmaCallback ({newDocument, vote}) {
+async function cancelAlignmentKarmaServerCallback ({newDocument, vote}) {
   return await updateAlignmentKarmaServer(newDocument, vote, -1)
 }
 
-addCallback("votes.cancel.sync", cancelAlignmentKarmaCallback);
+addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);
+
+function cancelAlignmentKarmaClientCallback (document, collection, voter, voteType) {
+  const votePower = getVotePower(voter.afKarma, voteType)
+  return {
+    ...document,
+    afBaseScore: document.afBaseScore - votePower,
+  };
+}
+
+addCallback("votes.cancel.client", cancelAlignmentKarmaClientCallback);
+
+function clearAlignmentKarmaClientCallback (document, collection, voter) {
+  let newDocument = { ...document }
+  document.currentUserVotes.forEach((vote)=> {
+    newDocument = cancelAlignmentKarmaClientCallback(document, collection, voter, vote.voteType)
+  })
+  return newDocument
+}
+
+addCallback("votes.clear.client", clearAlignmentKarmaClientCallback);
