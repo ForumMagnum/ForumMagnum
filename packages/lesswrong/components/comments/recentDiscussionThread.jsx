@@ -163,10 +163,13 @@ class RecentDiscussionThread extends PureComponent {
           <div className={"comments-items"}>
             {results.map(comment =>
               <div key={comment._id}>
-                <Components.RecentCommentsItem
-                  comment={comment}
+                <Components.CommentsNode
                   currentUser={currentUser}
-                  editMutation={editMutation}/>
+                  comment={comment}
+                  key={comment._id}
+                  editMutation={editMutation}
+                  post={post}
+                />
               </div>
             )}
           </div>}
