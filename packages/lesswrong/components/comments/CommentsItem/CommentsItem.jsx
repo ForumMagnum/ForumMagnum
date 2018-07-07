@@ -105,6 +105,7 @@ class CommentsItem extends PureComponent {
         {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
+
     if (comment) {
       return (
         <div className={
@@ -115,8 +116,9 @@ class CommentsItem extends PureComponent {
           )}
         >
           <div className="comments-item-body">
-            <div className="comments-item-meta">
+            <div className="comments-item-meta recent-comments-node">
               <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
+              {this.renderShowParent()}
               {!comment.deleted && <span>
                 <Components.UsersName user={comment.user}/>
               </span>}
@@ -150,6 +152,20 @@ class CommentsItem extends PureComponent {
     } else {
       return null
     }
+  }
+
+  renderShowParent = () => {
+    const comment = this.props.comment;
+    const level = this.props.level || 1
+
+    return comment.parentCommentId ? (
+      <FontIcon
+        //onClick={this.toggleShowParent}
+        className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+      >
+        subdirectory_arrow_left
+      </FontIcon>
+    ) : level != 1 && <div className="recent-comment-username-spacing">○</div>
   }
 
   renderCommentBottom = () => {
