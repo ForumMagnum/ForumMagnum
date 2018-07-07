@@ -27,10 +27,6 @@ async function updateAlignmentKarmaServer (newDocument, vote, userMultiplier) {
 
     collection.update({_id: newDocument._id}, {$set: {afBaseScore: newAFBaseScore}});
 
-    if (voter._id != author._id) {
-      Users.update({_id:author._id}, {$inc:{afKarma: userMultiplier * votePower}})
-    }
-
     return {
       newDocument:{
         ...newDocument,
@@ -55,8 +51,27 @@ async function updateAlignmentKarmaServerCallback ({newDocument, vote}) {
 
 addCallback("votes.bigDownvote.sync", updateAlignmentKarmaServerCallback);
 addCallback("votes.bigUpvote.sync", updateAlignmentKarmaServerCallback);
-addCallback("votes.smallDownpvote.sync", updateAlignmentKarmaServerCallback);
+addCallback("votes.smallDownvote.sync", updateAlignmentKarmaServerCallback);
 addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
+
+async function updateAlignmentUserKarmaServer ({newDocument, vote}) {
+  if (newDocument.userId != vote.userId) {
+    Users.update({_id:newDocument.userId}, {$inc:{afKarma: vote.afPower || 0}})
+  }
+}
+
+addCallback("votes.bigDownvote.async", updateAlignmentUserKarmaServer);
+addCallback("votes.bigUpvote.async", updateAlignmentUserKarmaServer);
+addCallback("votes.smallDownvote.async", updateAlignmentUserKarmaServer);
+addCallback("votes.smallUpvote.async", updateAlignmentUserKarmaServer);
+
+async function cancelAlignmentUserKarmaServer ({newDocument, vote}) {
+  if (newDocument.userId != vote.userId) {
+    Users.update({_id:newDocument.userId}, {$inc:{afKarma: -vote.afPower || 0}})
+  }
+}
+
+addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
 
 function updateAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
