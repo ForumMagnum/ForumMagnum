@@ -1,6 +1,6 @@
 # What's LessWrong2?
 
-LessWrong2 is a clean-slate overhaul of the [LessWrong](http://lesswrong.com) discussion platform.
+LessWrong2 is a clean-slate overhaul of the [LessWrong](https://lesswrong.com) discussion platform.
 
 The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
 
@@ -12,7 +12,7 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 2. [React](https://facebook.github.io/react/) is a user interface programming library developed by Facebook that lets us define interface elements declaratively in the form of components. We use it to define how to render and manage state for all parts of the site.
 
-3. [GraphQL](http://graphql.org/) is a query language for the Mongo datastore. Vulcan mostly deals with GraphQL for us, but occasionally we use it to define APIs for accessing and mutating our data.
+3. [GraphQL](https://graphql.org/) is a query language for the Mongo datastore. Vulcan mostly deals with GraphQL for us, but occasionally we use it to define APIs for accessing and mutating our data.
 
 4. [Draft](https://draftjs.org/) is a framework developed by Facebook for creating text editors. The content and message editors on Lesswrong2 are implemented on top of Draft.
 
@@ -33,11 +33,11 @@ LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* change
 I recommend starting by creating a folder to store all of them:
 
     mkdir lesswrongSuite
-    cd lesswrongSuite2
+    cd lesswrongSuite
 
 Clone the three repos:
 
-    git clone https://github.com/Discordius/Lesswrong2.
+    git clone https://github.com/LessWrong/Lesswrong2
     git clone https://github.com/LessWrong2/Vulcan-Starter.git
     git clone https://github.com/LessWrong2/Vulcan.git
 
@@ -94,9 +94,9 @@ If you’re creating a branch for an issue that *hasn’t* been created yet, fir
 The best way to get familiar with our stack is to read the Vulcan and GraphQL documentation pages.
 1. Read about [Vulcan's architecture](http://docs.vulcanjs.org/architecture.html)
 2. Learn how to [customize and extend Vulcan](http://docs.vulcanjs.org/example-customization.html)
-3. Understand [components and theming](http://nova-docs.telescopeapp.org/theming.html)
+3. Understand [components and theming](http://docs.vulcanjs.org/theming.html)
 4. Understand [Vulcan's data layer](http://docs.vulcanjs.org/schemas.html)
-5. Complete the [GraphQL tutorial](http://graphql.org/learn/)
+5. Complete the [GraphQL tutorial](https://graphql.org/learn/)
 
 ### Understanding the codebase
 
