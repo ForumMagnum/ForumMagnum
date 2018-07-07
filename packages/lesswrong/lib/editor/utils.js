@@ -48,6 +48,13 @@ export const htmlToDraft = convertFromHTML({
         inlineStyleRanges: [ { offset: 0, length: 2, style: 'ITALIC' } ],
       }
     }
+    if (nodeName === 'pre' && node.firstChild.nodeName === 'code') {
+      return {
+        type: 'code-block',
+        data: {},
+        text: node.firstChild.textContent,
+      };
+    }
   }
 })
 
@@ -103,6 +110,9 @@ export const draftToHTML = convertToHTML({
      }
      if (type === 'divider') {
        return <hr className="dividerBlock" />
+     }
+     if (type === 'code-block') {
+       return { start: '<pre><code>', end: '</code></pre>' }
      }
     //  return <span/>;
    },
