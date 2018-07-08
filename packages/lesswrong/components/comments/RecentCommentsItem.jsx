@@ -83,7 +83,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 { comment.parentCommentId ? (
                   <FontIcon
                     onClick={this.toggleShowParent}
-                    className={classNames("material-icons","comments-show-parent",{active:this.state.showParent})}
+                    className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                   >
                     subdirectory_arrow_left
                   </FontIcon>
