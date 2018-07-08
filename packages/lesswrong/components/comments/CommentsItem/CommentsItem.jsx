@@ -156,16 +156,15 @@ class CommentsItem extends PureComponent {
 
   renderShowParent = () => {
     const comment = this.props.comment;
-    const level = this.props.level || 1
+    const level = this.props.comment.level || 1
 
-    return comment.parentCommentId ? (
+    return (comment.parentCommentId && (level === 1)) &&
       <FontIcon
         //onClick={this.toggleShowParent}
         className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
       >
         subdirectory_arrow_left
       </FontIcon>
-    ) : level != 1 && <div className="recent-comment-username-spacing">○</div>
   }
 
   renderCommentBottom = () => {
