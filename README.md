@@ -33,7 +33,7 @@ LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* change
 I recommend starting by creating a folder to store all of them:
 
     mkdir lesswrongSuite
-    cd lesswrongSuite2
+    cd lesswrongSuite
 
 Clone the three repos:
 
