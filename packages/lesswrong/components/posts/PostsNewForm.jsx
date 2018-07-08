@@ -9,6 +9,7 @@ const PostsNewForm = (props, context) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const prefilledProps = {
     isEvent: props.router.location.query && props.router.location.query.eventForm,
+    types: props.router.location.query && props.router.location.query.ssc ? ['SSC'] : [],
     meta: props.router.location.query && !!props.router.location.query.meta,
     frontpageDate: getSetting("AlignmentForum", false) ? new Date() : null,
     af: getSetting("AlignmentForum", false) || (props.router.location.query && !!props.router.location.query.af),
