@@ -30,8 +30,12 @@ import {
 } from 'draft-js-buttons';
 
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
-
+import { codeStyle } from './codeStyle.js'
 import { htmlToDraft } from '../../lib/editor/utils.js'
+
+const styleMap = {
+  ...codeStyle
+}
 
 class AsyncCommentEditor extends Component {
   constructor(props, context) {
@@ -217,6 +221,7 @@ class AsyncCommentEditor extends Component {
           onChange={this.onChange}
           plugins={this.plugins}
           keyBindingFn={myKeyBindingFn}
+          customStyleMap={styleMap}
           ref={(element) => { this.editor = element; }}
         />
         <InlineToolbar />
