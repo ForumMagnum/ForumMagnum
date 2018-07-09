@@ -64,6 +64,10 @@ Users.userIsBannedFromAllPosts = (user, post) => {
   )
 }
 
+Users.userFailsKarmaThreshold = (user, post) => {
+  return (post.karmaThreshold && user.karma < parseInt(post.karmaThreshold))
+}
+
 Users.isAllowedToComment = (user, post) => {
   if (!user) {
     return false
@@ -80,6 +84,11 @@ Users.isAllowedToComment = (user, post) => {
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return false
   }
+
+  if (Users.userFailsKarmaThreshold(user, post)) {
+    return false
+  }
+
   if (post.commentsLocked) {
     return false
   }
