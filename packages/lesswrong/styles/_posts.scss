@@ -1547,6 +1547,13 @@ svg.drag-handle {
   @include posts-link-styling();
 }
 
+.posts-page-content-body-html {
+  td, th {
+    padding: 10px 16px;
+    border: 1px solid $light-border;
+  }
+}
+
 
 .posts-daily-wrapper {
   @include min-medium() {

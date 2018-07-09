@@ -28,6 +28,7 @@ import {
   BoldButton,
   UnderlineButton,
   BlockquoteButton,
+  CodeBlockButton,
 } from 'draft-js-buttons';
 
 const HeadlineOneButton = createBlockStyleButton({
@@ -124,6 +125,7 @@ class AsyncEditorFormComponent extends Component {
         HeadlineOneButton,
         HeadlineTwoButton,
         BlockquoteButton,
+        CodeBlockButton,
         dividerPlugin.DividerButton,
         ImageButton,
       ]
@@ -236,15 +238,17 @@ class AsyncEditorFormComponent extends Component {
     const className = classNames("editor", "content-body", {"content-editor-is-empty": !contentState.hasText()})
 
     return (
-      <div className={className} onClick={this.focus}>
-        <Editor
-          editorState={this.state.editorState}
-          onChange={this.onChange}
-          spellCheck={true}
-          plugins={this.plugins}
-          keyBindingFn={myKeyBindingFn}
-          ref={(element) => { this.editor = element; }}
-        />
+      <div>
+        <div className={className} onClick={this.focus}>
+          <Editor
+            editorState={this.state.editorState}
+            onChange={this.onChange}
+            spellCheck={true}
+            plugins={this.plugins}
+            keyBindingFn={myKeyBindingFn}
+            ref={(element) => { this.editor = element; }}
+          />
+        </div>
         <InlineToolbar />
         <AlignmentTool />
       </div>
