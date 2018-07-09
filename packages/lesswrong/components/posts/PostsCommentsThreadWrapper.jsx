@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent, Utils} from 'meteor/vulcan:core';
+import { withList, Components, registerComponent} from 'meteor/vulcan:core';
+import { unflatten } from '../../lib/modules/utils/unflatten';
 import { Comments } from 'meteor/example-forum';
 
 
@@ -12,7 +13,7 @@ const PostsCommentsThreadWrapper = (props, /* context*/) => {
     return <div className="posts-comments-thread"><Components.Loading/></div>
   } else {
     const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
-    const nestedComments = Utils.unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
+    const nestedComments = unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
     return (
       <div className="posts-comments-thread-wrapper">
         <Components.PostsCommentsThread

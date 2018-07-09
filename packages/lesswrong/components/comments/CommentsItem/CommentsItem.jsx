@@ -42,6 +42,7 @@ class CommentsItem extends PureComponent {
       showEdit: false,
       showReport: false,
       showStats: false,
+      showParent: false
     };
   }
 
@@ -88,6 +89,10 @@ class CommentsItem extends PureComponent {
     this.props.flash("Successfully deleted comment", "success");
   }
 
+  toggleShowParent = () => {
+    this.setState({showParent:!this.state.showParent})
+  }
+
   handleLinkClick = (event) => {
     const { comment, router } = this.props;
     event.preventDefault()
@@ -99,24 +104,48 @@ class CommentsItem extends PureComponent {
   render() {
     const currentUser = this.props.currentUser;
     const comment = this.props.comment;
+    const level = this.props.comment.level || 1;
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
         {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
+
     if (comment) {
       return (
         <div className={
           classNames(
             "comments-item",
+            "recent-comments-node",
             {deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic}
+            "public-deleted": comment.deletedPublic,
+            "showParent": this.state.showParent},
           )}
         >
+
+          { comment.parentCommentId && this.state.showParent && (
+            <div className="recent-comment-parent">
+              <Components.RecentCommentsSingle
+                currentUser={this.props.currentUser}
+                documentId={comment.parentCommentId}
+                level={level + 1}
+                expanded={true}
+                key={comment.parentCommentId}
+              />
+            </div>
+          )}
+
           <div className="comments-item-body">
             <div className="comments-item-meta">
               <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
+              {(comment.parentCommentId && (level === 1)) &&
+                <FontIcon
+                  onClick={this.toggleShowParent}
+                  className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+                >
+                  subdirectory_arrow_left
+                </FontIcon>}
               {!comment.deleted && <span>
                 <Components.UsersName user={comment.user}/>
               </span>}
