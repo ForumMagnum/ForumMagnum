@@ -89,6 +89,7 @@ export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
      const type = block.type;
+
      if (type === 'atomic') {
        if (block.data && block.data.mathjax && block.data.html) {
          return `<div><style>${block.data.css}</style>${block.data.html}</div>`
@@ -101,6 +102,9 @@ export const draftToHTML = convertToHTML({
      if (type === 'blockquote') {
        return <blockquote />
      }
+    if (type === 'code-block') {
+      return {start: '<pre><code>', end: '</code></pre>'};
+    }
      if (type === 'divider') {
        return <hr className="dividerBlock" />
      }

@@ -120,7 +120,7 @@ class SearchBar extends Component {
                   <div className="search-results-users-heading">
                     <h2>Users</h2>
                   </div>
-                  <div className="search-resulsts-users-content" >
+                  <div className="search-results-users-content" >
                     <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={this.closeSearch} {...props} />} />
                   </div>
                 </Index>
