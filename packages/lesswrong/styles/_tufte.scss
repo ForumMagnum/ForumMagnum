@@ -233,6 +233,8 @@ body {
 
   code { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
          font-size: 1.0rem;
+         background: rgba(0,0,0,.08);
+         border-radius: 2px;
          line-height: 1.42; }
 
   .sans > code { font-size: 1.2rem; }
