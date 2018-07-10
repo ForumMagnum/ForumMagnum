@@ -84,7 +84,7 @@ describe('Commenting while banned from post --', async () => {
       />,
       {context:{client:mockClient}}
     )
-    expect(commentsListSection.find(".posts-comments-thread-new")).to.have.length(1);
+    expect(commentsListSection.find("#posts-thread-new-comment")).to.have.length(1);
     const commentsListSection2 = shallow(
       <CommentsListSection
         { ...commentListMockProps}
@@ -93,7 +93,7 @@ describe('Commenting while banned from post --', async () => {
       />,
       {context:{client:mockClient}}
     )
-    expect(commentsListSection2.find(".posts-comments-thread-new")).to.have.length(1);
+    expect(commentsListSection2.find("#posts-thread-new-comment")).to.have.length(1);
   });
   it('commentsListSection does NOT render new-comment-form when user is in a Post bannedUserIds list', () => {
     const commentsListSection = shallow(
@@ -104,7 +104,7 @@ describe('Commenting while banned from post --', async () => {
       />,
       {context:{client:mockClient}}
     )
-    expect(commentsListSection.find(".posts-comments-thread-new")).to.have.length(0);
+    expect(commentsListSection.find("#posts-thread-new-comment")).to.have.length(0);
   });
   it('commentsListSection renders new-comment-form when user is NOT in a User bannedUserIds list', () => {
     const commentsListSection = shallow(
@@ -115,7 +115,7 @@ describe('Commenting while banned from post --', async () => {
       />,
       {context:{client:mockClient}}
     )
-    expect(commentsListSection.find(".posts-comments-thread-new")).to.have.length(1);
+    expect(commentsListSection.find("#posts-thread-new-comment")).to.have.length(1);
   });
   it('commentsListSection does NOT render new-comment-form when user is in a User bannedUserIds list', () => {
     const commentsListSection = shallow(
@@ -126,7 +126,7 @@ describe('Commenting while banned from post --', async () => {
       />,
       {context:{client:mockClient}}
     )
-    expect(commentsListSection.find(".posts-comments-thread-new")).to.have.length(0);
+    expect(commentsListSection.find("#posts-thread-new-comment")).to.have.length(0);
   });
   it('commentsListSection does NOT render banned_message when user is NOT in a User bannedUserIds list', () => {
     const commentsListSection = shallow(

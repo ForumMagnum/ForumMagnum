@@ -135,7 +135,7 @@ class CommentsListSection extends Component {
           </div>
         }
         {currentUser && Users.isAllowedToComment(currentUser, post) &&
-          <div className={classes.newComment}>
+          <div id="posts-thread-new-comment" className={classes.newComment}>
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
               postId={postId}
