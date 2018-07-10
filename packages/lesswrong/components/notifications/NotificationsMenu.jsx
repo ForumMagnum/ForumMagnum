@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
 import Badge from 'material-ui/Badge';
 import {Tabs, Tab} from 'material-ui/Tabs';
-import AllIcon from '@material-ui/icons/Notifications';
-import ClearIcon from '@material-ui/icons/Clear';
-import PostsIcon from '@material-ui/icons/Description';
-import CommentsIcon from '@material-ui/icons/ModeComment';
-import MessagesIcon from '@material-ui/icons/Forum';
+import AllIcon from 'material-ui/svg-icons/social/notifications';
+import ClearIcon from 'material-ui/svg-icons/content/clear';
+import PostsIcon from 'material-ui/svg-icons/action/description';
+import CommentsIcon from 'material-ui/svg-icons/editor/mode-comment';
+import MessagesIcon from 'material-ui/svg-icons/communication/forum';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection.js'
@@ -44,7 +44,7 @@ class NotificationsMenu extends Component {
     super(props);
     this.state = {
       notificationTerms: {view: 'userNotifications'},
-      lastNotificationsCheck: props.currentUser ? (props.currentUser.lastNotificationsCheck||"") : ""
+      lastNotificationsCheck: (props.currentUser && props.currentUser.lastNotificationsCheck) || ""
     }
   }
 
