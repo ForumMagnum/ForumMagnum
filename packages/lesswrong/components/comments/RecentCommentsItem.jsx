@@ -1,7 +1,7 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
-import { Comments, Posts } from "meteor/example-forum";
+import { Posts } from "meteor/example-forum";
 import { Link } from 'react-router';
 import FontIcon from 'material-ui/FontIcon';
 import classNames from 'classnames';

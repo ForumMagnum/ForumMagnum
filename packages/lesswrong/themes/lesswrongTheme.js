@@ -1,6 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
-import lightGreen from '@material-ui/core/colors/lightGreen';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 const sansSerifStack = [
