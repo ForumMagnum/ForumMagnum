@@ -12,10 +12,8 @@ export const recalculateAFBaseScore = async (document) => {
 async function updateAlignmentKarmaServer (newDocument, vote, userMultiplier) {
   // Update a
   const voter = Users.findOne(vote.userId)
-  const author = Users.findOne(newDocument.userId)
   if (
     Users.canDo(voter, "votes.alignment") &&
-    Users.canDo(author, "votes.alignment") &&
     newDocument.af
   ) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
@@ -54,21 +52,36 @@ addCallback("votes.bigUpvote.sync", updateAlignmentKarmaServerCallback);
 addCallback("votes.smallDownvote.sync", updateAlignmentKarmaServerCallback);
 addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
 
-async function updateAlignmentUserKarmaServer ({newDocument, vote}) {
+async function updateAlignmentUserServer (newDocument, vote, multiplier) {
   if (newDocument.userId != vote.userId) {
-    Users.update({_id:newDocument.userId}, {$inc:{afKarma: vote.afPower || 0}})
+    const documentUser = Users.findOne({_id:newDocument.userId})
+    const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
+    if (newAfKarma > 0) {
+      Users.update({_id:newDocument.userId}, {
+        $set: {afKarma: newAfKarma },
+        $push: {groups: 'alignmentVoters'}
+      })
+    } else {
+      Users.update({_id:newDocument.userId}, {
+        $set: {afKarma: newAfKarma },
+        $pull: {groups: 'alignmentVoters'}
+      })
+    }
   }
 }
 
-addCallback("votes.bigDownvote.async", updateAlignmentUserKarmaServer);
-addCallback("votes.bigUpvote.async", updateAlignmentUserKarmaServer);
-addCallback("votes.smallDownvote.async", updateAlignmentUserKarmaServer);
-addCallback("votes.smallUpvote.async", updateAlignmentUserKarmaServer);
+async function updateAlignmentUserServerCallback ({newDocument, vote}) {
+  updateAlignmentUserServer(newDocument, vote, 1)
+}
+
+addCallback("votes.bigDownvote.async", updateAlignmentUserServerCallback);
+addCallback("votes.bigUpvote.async", updateAlignmentUserServerCallback);
+addCallback("votes.smallDownvote.async", updateAlignmentUserServerCallback);
+addCallback("votes.smallUpvote.async", updateAlignmentUserServerCallback);
 
 async function cancelAlignmentUserKarmaServer ({newDocument, vote}) {
-  if (newDocument.userId != vote.userId) {
-    Users.update({_id:newDocument.userId}, {$inc:{afKarma: -vote.afPower || 0}})
-  }
+  updateAlignmentUserServer(newDocument, vote, -1)
+
 }
 
 addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
@@ -76,10 +89,14 @@ addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
 function updateAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
 
-  return {
-    ...document,
-    afBaseScore: (document.afBaseScore || 0) + votePower,
-  };
+  if (document.af && Users.canDo(voter, "votes.alignment")) {
+    return {
+      ...document,
+      afBaseScore: (document.afBaseScore || 0) + votePower,
+    };
+  } else {
+    return document
+  }
 }
 
 addCallback("votes.bigDownvote.client", updateAlignmentKarmaClientCallback);
