@@ -26,7 +26,19 @@ const styles = theme => ({
   },
   afScoreNumber: {
     marginLeft: 3,
-  }
+  },
+  tooltip: {
+    color: theme.palette.grey[500],
+    fontSize: '1rem',
+    backgroundColor: 'white',
+    transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
+    marginLeft: 5,
+    '&$open': {
+      opacity: 1,
+      transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms'
+    }
+  },
+  open: {}
 })
 
 class CommentsVote extends PureComponent {
@@ -37,14 +49,22 @@ class CommentsVote extends PureComponent {
 
     return (
       <div className={classNames("comments-item-vote"), classes.vote}>
-        <Components.VoteButton
-          orientation="left"
-          color="error"
-          voteType="Downvote"
-          document={comment}
-          currentUser={currentUser}
-          collection={Comments}
-        />
+        <Tooltip
+          title="Click-and-hold for strong vote"
+          placement="right"
+          classes={{tooltip: classes.tooltip, open: classes.open}}
+        >
+          <span>
+            <Components.VoteButton
+              orientation="left"
+              color="error"
+              voteType="Downvote"
+              document={comment}
+              currentUser={currentUser}
+              collection={Comments}
+            />
+          </span>
+        </Tooltip>
         <Tooltip
           title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
           placement="right"
@@ -54,18 +74,33 @@ class CommentsVote extends PureComponent {
             {baseScore || 0}
           </span>
         </Tooltip>
-        <Components.VoteButton
-          orientation="right"
-          color="secondary"
-          voteType="Upvote"
-          document={comment}
-          currentUser={currentUser}
-          collection={Comments}
-        />
-        {!!comment.af && !getSetting('AlignmentForum', false) && <span className={classes.afScore}>
-          <span className={classes.afSymbol}>Ω</span>
-          <span className={classes.afScoreNumber}>{comment.afBaseScore || 0}</span>
-        </span>}
+        <Tooltip
+          title="Click-and-hold for strong vote"
+          placement="right"
+          classes={{tooltip: classes.tooltip, open: classes.open}}
+        >
+          <span>
+            <Components.VoteButton
+              orientation="right"
+              color="secondary"
+              voteType="Upvote"
+              document={comment}
+              currentUser={currentUser}
+              collection={Comments}
+            />
+          </span>
+        </Tooltip>
+        {!!comment.af && !getSetting('AlignmentForum', false) &&
+          <Tooltip
+            title="Alignment Forum karma"
+            placement="right"
+            classes={{tooltip: classes.tooltip, open: classes.open}}
+          >
+            <span className={classes.afScore}>
+              <span className={classes.afSymbol}>Ω</span>
+              <span className={classes.afScoreNumber}>{comment.afBaseScore || 0}</span>
+            </span>
+          </Tooltip>}
       </div>)
     }
 }
