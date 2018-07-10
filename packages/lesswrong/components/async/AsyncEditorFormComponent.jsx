@@ -21,6 +21,7 @@ import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
+import { codeStyle } from './codeStyle.js'
 
 import {
   createBlockStyleButton,
@@ -28,7 +29,6 @@ import {
   BoldButton,
   UnderlineButton,
   BlockquoteButton,
-  CodeBlockButton,
 } from 'draft-js-buttons';
 
 const HeadlineOneButton = createBlockStyleButton({
@@ -49,7 +49,9 @@ const HeadlineTwoButton = createBlockStyleButton({
     </svg>),
 });
 
-
+const styleMap = {
+  ...codeStyle
+}
 
 import { htmlToDraft } from '../../lib/editor/utils.js'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
@@ -125,7 +127,6 @@ class AsyncEditorFormComponent extends Component {
         HeadlineOneButton,
         HeadlineTwoButton,
         BlockquoteButton,
-        CodeBlockButton,
         dividerPlugin.DividerButton,
         ImageButton,
       ]
@@ -246,6 +247,7 @@ class AsyncEditorFormComponent extends Component {
             spellCheck={true}
             plugins={this.plugins}
             keyBindingFn={myKeyBindingFn}
+            customStyleMap={styleMap}
             ref={(element) => { this.editor = element; }}
           />
         </div>

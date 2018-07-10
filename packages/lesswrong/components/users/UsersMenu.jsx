@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 
@@ -54,7 +54,12 @@ class UsersMenu extends PureComponent {
           onRequestClose={this.handleRequestClose}
         >
           <Menu>
-            <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
+            { !getSetting('AlignmentForum')
+                ? <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
+                : Users.canDo(currentUser, 'posts.alignment.new')
+                  ? <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
+                  : null
+            }
             <MenuItem primaryText="Profile" containerElement={<Link to={`/users/${currentUser.slug}`}/>} />
             <MenuItem primaryText="Edit Account" containerElement={<Link to={`/account`}/>} />
             <MenuItem primaryText="Log Out" onClick={() => Meteor.logout(() => client.resetStore())} />
