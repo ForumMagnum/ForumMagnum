@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import DatePicker from 'material-ui/DatePicker';
 import { withRouter } from 'react-router'
 import {
   withCurrentUser,
@@ -12,14 +11,34 @@ import {
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import { Comments } from "meteor/example-forum";
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
 
-const datePickerTextFieldStyle = {
-  display: 'none',
-  boxShadow: 'none',
-  hr: {
-    display: 'none',
+const styles = theme => ({
+  meta: {
+    fontSize: 14,
+    clear: 'both',
+    overflow: 'auto',
+    paddingBottom: 5,
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  inline: {
+    display: 'inline'
+  },
+  link: {
+    color: theme.palette.secondary.main,
+  },
+  newComment: {
+    padding: '0 10px',
+    border: 'solid 1px rgba(0,0,0,.2)',
+    position: 'relative',
   }
-}
+})
 
 class CommentsListSection extends Component {
   constructor(props) {
@@ -29,56 +48,69 @@ class CommentsListSection extends Component {
     }
   }
 
-  renderHighlightDateSelector = () => <div className="highlight-date-selector">
-    Highlighting new comments since <a className="highlight-date-selector-date" onClick={(e) => this.refs.dp.openDialog()}>{moment(this.state.highlightDate).calendar()}</a>
-    <DatePicker
-      autoOk={true}
-      className="highlight-date-selector-dialog"
-      value={this.state.highlightDate}
-      onChange={(dummy, date) => {
-        this.setState({highlightDate: new Date(date)})}
-      }
-      hintText="Select new highlight date"
-      textFieldStyle={datePickerTextFieldStyle}
-      ref="dp"
-      maxDate={new Date()}
-      id="datepicker"
-    />
-  </div>
+  handleClick = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
 
-  renderCommentCount = () => {
-    if (this.props.commentCount < this.props.totalComments) {
-      return (
-        <span className="posts-page-comments-count">
-          Rendering {this.props.commentCount}/{this.props.totalComments} comments, {this.renderCommentSort()}
-          {this.props.loadingMoreComments ? <Components.Loading /> : <a onClick={() => this.props.loadMoreComments()}>(show more)</a>}
-        </span>
-      )
-    } else {
-      return (
-        <span className="posts-page-comments-count">
-          { this.props.totalComments } comments, {this.renderCommentSort()}
-        </span>
-      )
-    }
+  handleClose = () => {
+    this.setState({ anchorEl: null })
   }
 
-  renderCommentSort = () => <span className="posts-page-comments-sort">sorted by <Components.CommentsViews postId={this.props.postId} /></span>
+  handleDateChange = (date) => {
+    this.setState({ highlightDate: date, anchorEl: null });
+  }
 
-  renderTitleComponent = () => (
-    <div className="posts-page-comments-title-component">
-      { this.renderCommentCount() }
-      { this.renderHighlightDateSelector() }
+  renderTitleComponent = () => {
+    const { commentCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
+    const { anchorEl, highlightDate } = this.state
+    const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
+    return <div className={this.props.classes.meta}>
+      <Typography
+        variant="body2"
+        color="textSecondary"
+        component='span'
+        className={this.props.classes.inline}>
+        {
+          (commentCount < totalComments) ?
+            <span>
+              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews postId={this.props.postId} />
+              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments()}> (show more) </a>}
+            </span> :
+            <span>
+              { totalComments } comments, sorted by <Components.CommentsViews postId={this.props.postId} />
+            </span>
+        }
+      </Typography>
+      <Typography
+        variant="body2"
+        color="textSecondary"
+        component='span'
+        className={this.props.classes.inline}
+      >
+        Highlighting new comments since <a className={classes.link} onClick={this.handleClick}>
+          {moment(highlightDate).calendar()}
+        </a>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={this.handleClose}
+        >
+          {currentUser && <Components.LastVisitList
+            terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
+            clickCallback={this.handleDateChange}/>}
+          <Divider />
+          {suggestedHighlightDates.map((date) => {
+            return <MenuItem onClick={() => this.handleDateChange(date)}>
+              {date.calendar().toString()}
+            </MenuItem>
+          })}
+        </Menu>
+      </Typography>
     </div>
-  )
+  }
 
   render() {
-    const {
-      currentUser,
-      comments,
-      postId,
-      post,
-    } = this.props;
+    const { currentUser, comments, postId, post, classes } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -103,7 +135,7 @@ class CommentsListSection extends Component {
           </div>
         }
         {currentUser && Users.isAllowedToComment(currentUser, post) &&
-          <div className="posts-comments-thread-new">
+          <div id="posts-thread-new-comment" className={classes.newComment}>
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
               postId={postId}
@@ -125,7 +157,5 @@ class CommentsListSection extends Component {
   }
 }
 
-
-
-registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter);
+registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter, withStyles(styles));
 export default CommentsListSection

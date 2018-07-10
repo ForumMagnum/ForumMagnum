@@ -66,3 +66,9 @@ h1 {
   padding: 20px;
   font-size: 17px;
 }
+
+// Global link styling
+a:hover, a:active, a:focus {
+  text-decoration: none;
+  opacity: 0.3;
+}

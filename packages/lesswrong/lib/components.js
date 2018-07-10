@@ -38,7 +38,7 @@ import '../components/common/Meta.jsx';
 import '../components/common/AllPosts.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
-import '../components/common/Vote.jsx';
+import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
@@ -71,12 +71,12 @@ import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
-import '../components/posts/PostsCommentsThreadWrapper.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
 import '../components/posts/PostsListHeader.jsx';
 import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
+import '../components/posts/PostsVote.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
@@ -108,6 +108,7 @@ import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsLoadMore.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
+import '../components/comments/CommentsVote.jsx';
 import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
@@ -115,6 +116,7 @@ import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
+import '../components/comments/LastVisitList.jsx'
 
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';

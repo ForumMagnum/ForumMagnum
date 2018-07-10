@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 import Intercom from 'react-intercom';
 
@@ -13,8 +14,23 @@ injectTapEventPlugin();
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
 import Typekit from 'react-typekit';
+import { withStyles } from '@material-ui/core/styles';
 
-const Layout = ({currentUser, children, currentRoute, params, client}, { userAgent }) => {
+
+
+const styles = theme => ({
+  main: {
+    margin: '64px auto 15px auto',
+    maxWidth: 1200,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20,
+      paddingLeft: theme.spacing.unit,
+      paddingRight: theme.spacing.unit,
+    },
+  }
+})
+
+const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -32,6 +48,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
     return <div className="wrapper tk-warnock-pro" id="wrapper">
       <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
+          <CssBaseline />
           <Helmet>
             <title>{getSetting('forumSettings.tabTitle', 'LessWrong 2.0')}</title>
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
@@ -48,7 +65,7 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
           <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
           <Components.Header {...this.props}/>
 
-          <div className="main">
+          <div className={classes.main}>
             <Components.FlashMessages />
             {children}
             <Components.SunshineSidebar />
@@ -65,4 +82,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withApollo);
+replaceComponent('Layout', Layout, withApollo, withStyles(styles));

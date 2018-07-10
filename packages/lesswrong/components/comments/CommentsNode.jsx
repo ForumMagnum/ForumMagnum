@@ -3,10 +3,35 @@ import { withRouter } from 'react-router';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
 import muiThemeable from 'material-ui/styles/muiThemeable';
+import { withStyles } from '@material-ui/core/styles';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
+
+const styles = theme => ({
+  node: {
+    // Higher specificity to override child class (variant syntax)
+    '&$new': {
+      borderLeft: `solid 5px ${theme.palette.secondary.light}`
+    },
+    '&$newHover': {
+      borderLeft: `solid 5px ${theme.palette.secondary.main}`
+    },
+    '&$deleted': {
+      opacity: 0.6
+    }
+  },
+  child: {
+    marginLeft: 10,
+    marginBottom: 10,
+    borderLeft: `solid 1px ${theme.palette.grey[300]}`,
+    borderTop: `solid 1px ${theme.palette.grey[300]}`,
+    borderBottom: `solid 1px ${theme.palette.grey[300]}`,
+  },
+  new: {},
+  newHover: {},
+  deleted: {},
+})
 
 class CommentsNode extends PureComponent {
   constructor(props) {
@@ -51,37 +76,45 @@ class CommentsNode extends PureComponent {
       muiTheme,
       router,
       frontPage,
+      classes,
+      child
     } = this.props;
+    const { hover, collapsed, finishedScroll } = this.state
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
-    const borderColor = this.state.hover ? muiTheme && muiTheme.palette.accent2Color : muiTheme && muiTheme.palette.accent1Color
-    const nodeClass = classNames("comments-node", {
-      "af":comment.af,
-      "comments-node-root" : comment.level === 1,
-      "comments-node-even" : comment.level % 2 === 0,
-      "comments-node-odd"  : comment.level % 2 != 0,
-      "comments-node-linked" : router.location.hash === "#" + comment._id && this.state.finishedScroll,
-      "comments-node-deleted" : comment.deleted,
-      "comments-node-its-getting-nested-here": comment.level > 8,
-      "comments-node-so-take-off-all-your-margins": comment.level > 12,
-      "comments-node-im-getting-so-nested": comment.level > 16,
-      "comments-node-im-gonna-drop-my-margins": comment.level > 20,
-      "comments-node-what-are-you-even-arguing-about": comment.level > 24,
-      "comments-node-are-you-sure-this-is-a-good-idea": comment.level > 28,
-      "comments-node-seriously-what-the-fuck": comment.level > 32,
-      "comments-node-are-you-curi-and-lumifer-specifically": comment.level > 36,
-      "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": comment.level > 40,
-    })
+    const nodeClass = classNames(
+      "comments-node",
+      classes.node,
+      {
+        "af":comment.af,
+        "comments-node-root" : comment.level === 1,
+        "comments-node-even" : comment.level % 2 === 0,
+        "comments-node-odd"  : comment.level % 2 != 0,
+        "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
+        "comments-node-its-getting-nested-here": comment.level > 8,
+        "comments-node-so-take-off-all-your-margins": comment.level > 12,
+        "comments-node-im-getting-so-nested": comment.level > 16,
+        "comments-node-im-gonna-drop-my-margins": comment.level > 20,
+        "comments-node-what-are-you-even-arguing-about": comment.level > 24,
+        "comments-node-are-you-sure-this-is-a-good-idea": comment.level > 28,
+        "comments-node-seriously-what-the-fuck": comment.level > 32,
+        "comments-node-are-you-curi-and-lumifer-specifically": comment.level > 36,
+        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": comment.level > 40,
+        [classes.child]: child,
+        [classes.new]: newComment,
+        [classes.newHover]: newComment && hover,
+        [classes.deleted]: comment.deleted,
+      }
+    )
 
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
         <div className={nodeClass}
           onMouseEnter={this.toggleHover}
           onMouseLeave={this.toggleHover}
-          id={comment._id}
-          style={newComment ? {borderLeft:"solid 5px " + borderColor} : {}}>
+          id={comment._id}>
           <div ref="comment">
             <Components.CommentsItem
-              collapsed={this.state.collapsed}
+              collapsed={collapsed}
               toggleCollapse={this.toggleCollapse}
               currentUser={currentUser}
               comment={comment}
@@ -92,11 +125,12 @@ class CommentsNode extends PureComponent {
               frontPage={frontPage}
             />
           </div>
-          {!this.state.collapsed && comment.childrenResults ?
+          {!collapsed && comment.childrenResults ?
             <div className="comments-children">
               <div className="comments-parent-scroll" onClick={this.scrollIntoView}></div>
               {comment.childrenResults.map(comment =>
-                <Components.CommentsNode currentUser={currentUser}
+                <Components.CommentsNode child
+                  currentUser={currentUser}
                   comment={comment}
                   key={comment._id}
                   muiTheme={muiTheme}
@@ -119,4 +153,4 @@ CommentsNode.propTypes = {
   router: PropTypes.object.isRequired
 };
 
-replaceComponent('CommentsNode', CommentsNode, withRouter, muiThemeable());
+replaceComponent('CommentsNode', CommentsNode, withRouter, muiThemeable(), withStyles((styles)));
