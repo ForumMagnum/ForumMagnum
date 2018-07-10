@@ -199,7 +199,7 @@ class PostsItem extends PureComponent {
                   {this.renderPostFeeds()}
                   {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
                   <div className="posts-item-points">
-                    { baseScore } { baseScore == 1 ? "point" : "points"}
+                    { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
                   </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
