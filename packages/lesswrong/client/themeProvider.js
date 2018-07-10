@@ -1,13 +1,14 @@
 import React from 'react';
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import theme from '../themes/lesswrongTheme';
+import lwTheme from '../themes/lesswrongTheme';
+import afTheme from '../themes/alignmentForumTheme';
 import JssCleanup from '../components/themes/JssCleanup';
 
 
 function wrapWithMuiTheme (app) {
   return (
-    <MuiThemeProvider theme={theme}>
+    <MuiThemeProvider theme={getSetting('AlignmentForum', false) ? afTheme : lwTheme}>
       <JssCleanup>
         {app}
       </JssCleanup>

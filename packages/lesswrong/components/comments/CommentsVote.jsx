@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -31,6 +31,7 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser } = this.props
+    const baseScore = getSetting('AlignmentForum', false) ? comment.baseScore : comment.afBaseScore
 
     return (
       <div className={classNames("comments-item-vote"), classes.vote}>
@@ -43,7 +44,7 @@ class CommentsVote extends PureComponent {
           collection={Comments}
         />
         <span className={classes.voteScore}>
-          {comment.baseScore || 0}
+          {baseScore || 0}
         </span>
         <Components.VoteButton
           orientation="right"
@@ -53,7 +54,7 @@ class CommentsVote extends PureComponent {
           currentUser={currentUser}
           collection={Comments}
         />
-        {!!comment.af && <span className={classes.afScore}>
+        {!!comment.af && !getSetting('AlignmentForum', false) && <span className={classes.afScore}>
           <span className={classes.afSymbol}>Ω</span>
           <span className={classes.afScoreNumber}>{comment.afBaseScore || 0}</span>
         </span>}

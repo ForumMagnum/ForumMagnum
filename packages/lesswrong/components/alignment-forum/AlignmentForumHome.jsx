@@ -2,7 +2,6 @@ import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:co
 import React from 'react';
 import { Link } from 'react-router';
 import Users from "meteor/vulcan:users";
-import('../../styles/alignment-forum.scss');
 
 const AlignmentForumHome = ({currentUser}) => {
   let recentPostsTerms = {view: 'alignmentForumPosts', limit: 10}

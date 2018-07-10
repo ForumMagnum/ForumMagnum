@@ -86,3 +86,27 @@
         color: $post-link-green !important;
     }
 }
+
+@mixin af-link-styling() {
+  color: rgba(63, 81, 181, 1) !important;
+
+  &:hover {
+    color: rgba(63, 81, 181, 0.7) !important;
+  }
+  &:visited {
+      color: rgba(63, 81, 181, 0.9) !important;
+  }
+}
+
+@mixin af-posts-link-styling() {
+  @include link-underline(#fff, #b4d5f3, rgba(63, 81, 181, 0.7))
+
+  color: rgba(63, 81, 181, 1) !important;
+
+  &:hover {
+    color: rgba(63, 81, 181, 0.7) !important;
+  }
+  &:visited {
+      color: rgba(63, 81, 181, 0.9) !important;
+  }
+}

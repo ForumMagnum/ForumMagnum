@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -31,16 +31,17 @@ const styles = theme => ({
     verticalAlign: 'text-bottom',
     fontSize: 19,
     marginTop: 1,
+    color: theme.palette.primary.contrastText,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
-      color: theme.palette.primary.dark
+      opacity: 0.7,
     }
   },
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
-    borderLeft: `1px solid ${theme.palette.primary.dark}`,
+    borderLeft: `1px solid ${theme.palette.primary.contrastText}`,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -74,7 +75,7 @@ class Header extends Component {
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   render() {
-    const { currentUser, classes, routes, location, params, client } = this.props
+    const { currentUser, classes, routes, location, params, client, theme } = this.props
     const { notificationOpen, navigationOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
@@ -107,9 +108,9 @@ class Header extends Component {
                 </Hidden>
               </Typography>
               <div className={classes.negativeRightMargin}>
-                <NoSSR><Components.SearchBar /></NoSSR>
-                {currentUser ? <Components.UsersMenu /> : <Components.UsersAccountMenu />}
-                {currentUser && <Components.NotificationsMenuButton toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                <NoSSR><Components.SearchBar color={theme.palette.primary.contrastText} /></NoSSR>
+                {currentUser ? <Components.UsersMenu color={theme.palette.primary.contrastText} /> : <Components.UsersAccountMenu color={theme.palette.primary.contrastText} />}
+                {currentUser && <Components.NotificationsMenuButton color={theme.palette.primary.contrastText} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
               </div>
             </Toolbar>
           </AppBar>
@@ -137,4 +138,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles));
+registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles), withTheme());

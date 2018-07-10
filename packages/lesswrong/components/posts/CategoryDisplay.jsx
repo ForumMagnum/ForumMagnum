@@ -2,6 +2,7 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Tooltip from 'material-ui/internal/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
+import { withTheme } from '@material-ui/core/styles';
 
 const categoryTooltips = {
   "star": <div className="post-category-tooltip"><div>Curated Content</div></div>,
@@ -20,10 +21,10 @@ class CategoryDisplay extends PureComponent {
   }
 
   render() {
-    const { post, read } = this.props;
+    const { post, read, theme } = this.props;
 
     const categoryIcon = (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
-    const iconColor = read ? "rgba(0,0,0,.2)" : "rgba(100, 169, 105, 0.7)";
+    const iconColor = read ? "rgba(0,0,0,.2)" : theme.palette.primary.light;
 
     if (categoryIcon) {
       return (
@@ -45,4 +46,4 @@ class CategoryDisplay extends PureComponent {
   }
 }
 
-registerComponent('CategoryDisplay', CategoryDisplay);
+registerComponent('CategoryDisplay', CategoryDisplay, withTheme());

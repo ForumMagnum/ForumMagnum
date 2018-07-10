@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -46,6 +46,7 @@ class PostsVote extends PureComponent {
   render() {
     const { post, classes, currentUser, collection } = this.props
     const allVotes = post && post.allVotes;
+    const baseScore = getSetting('AlignmentForum', false) ? post.baseScore : post.afBaseScore
 
     return (
         <div className={classes.voteBlock}>
@@ -70,10 +71,10 @@ class PostsVote extends PureComponent {
             placement="right"
             classes={{tooltip: classes.tooltip, open: classes.open}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{post.baseScore || 0}</Typography>
+            <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
           </Tooltip>
 
-          {!!post.afBaseScore &&
+          {!!post.afBaseScore && !getSetting('AlignmentForum', false) &&
             <Tooltip
               title="Alignment Forum karma"
               placement="right"

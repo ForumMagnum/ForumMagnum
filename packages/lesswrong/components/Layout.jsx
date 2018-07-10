@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
-
+import classNames from 'classnames'
 import Intercom from 'react-intercom';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -45,7 +45,7 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
       }
     }
 
-    return <div className="wrapper tk-warnock-pro" id="wrapper">
+    return <div className={classNames("wrapper", "tk-warnock-pro", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
       <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <CssBaseline />

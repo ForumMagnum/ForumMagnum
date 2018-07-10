@@ -27,7 +27,7 @@ const NotificationsMenuButton = (props) => {
     backgroundColor: props.open ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0)"
   }
   const notificationIconStyle = {
-    color: props.open ? "#FFFFFF" : "rgba(0,0,0,0.6)",
+    color: props.open ? "#FFFFFF" : (props.color || "rgba(0,0,0,0.6)"),
   }
 
   return (
