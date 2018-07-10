@@ -79,18 +79,6 @@
   }
 }
 
-.posts-views, .comments-views{
-  .posts-views-dropdown, .comments-views-dropdown {
-    div div {
-      @include link-styling()
-    }
-    div div:hover {
-      color: rgba(0,0,0,0.4) !important;
-    }
-  }
-  display: inline-block;
-}
-
 .posts-views {
   .view-chip {
     color: $light-green;
@@ -190,26 +178,6 @@
 
 .posts-views-chip-inactive:hover {
   color: rgba(0, 0, 0, .3);
-}
-
-.highlight-date-selector {
-  float: right;
-  margin:0;
-  color:rgba(0,0,0,.6);
-
-  @include max-tiny() {
-    float:left;
-  }
-  .highlight-date-selector-date {
-    display: inline-block;
-  }
-  a {
-    text-transform: lowercase;
-    @include link-styling();
-  }
-  a:hover {
-    text-decoration: none;
-  }
 }
 
 
