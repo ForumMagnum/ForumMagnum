@@ -1,12 +1,11 @@
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
 import { withRouter } from 'react-router'
 import Users from 'meteor/vulcan:users';
-
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import { withStyles } from '@material-ui/core/styles';
 
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
@@ -17,79 +16,65 @@ const viewNames = {
   'postCommentsReported': 'reported',
 }
 
-const DropdownStyle = {
-  textShadow: 'inherit',
-  display: 'inline-block',
-  fontSize: 'inherit',
-  height: 'auto',
-};
-
-const DropdownUnderlineStyle = {
-  display: 'none',
-};
-
-const DropdownIconStyle = {
-  display: 'none',
-};
-
-const DropdownLabelStyle = {
-  lineHeight: 'normal',
-  overflow: 'inherit',
-  paddingLeft: '0px',
-  paddingRight: '0px',
-  height: 'normal',
-  color: 'inherit',
-};
-
-const DropdownListStyle = {
-  paddingTop: '4px',
-}
+const styles = theme => ({
+  link: {
+    color: theme.palette.secondary.main,
+  }
+})
 
 class CommentsViews extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      view: _.clone(props.router.location.query).view || "postCommentsTop"
+      anchorEl: null,
     }
   }
 
-  handleChange = (event, index, value) => this.setState({view: value});
+  handleClick = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
+
+  handleViewClick = (view) => {
+    const { router, postId } = this.props
+    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
+    this.setState({ anchorEl: null })
+    router.replace({...router.location, query: {...currentQuery, view: view, postId: postId}})
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null })
+  }
 
   render() {
-    const props = this.props;
-    const router = props.router;
-    let views = ["postCommentsTop", "postCommentsNew", "postCommentsBest"];
-    const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"];
+    const { currentUser, router, classes } = this.props
+    const { anchorEl } = this.state
+    let views = ["postCommentsTop", "postCommentsNew", "postCommentsBest"]
+    const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
+    const currentView = _.clone(router.location.query).view || "postCommentsTop"
 
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'};
-    const currentLocation = router.location;
-
-    if (Users.canDo(props.currentUser, "comments.softRemove.all")) {
+    if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
     }
+
     return (
       <div className="comments-views">
-        <DropDownMenu
-          value={this.state.view}
-          onChange={this.handleChange}
-          maxHeight={150}
-          style={DropdownStyle}
-          underlineStyle={DropdownUnderlineStyle}
-          iconStyle={DropdownIconStyle}
-          labelStyle={DropdownLabelStyle}
-          listStyle={DropdownListStyle}
-          className="comments-views-dropdown"
+        <a className={classes.link} onClick={this.handleClick}>
+          {viewNames[currentView]}
+        </a>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={this.handleClose}
         >
           {views.map(view => {
-            return <MenuItem
+            return(
+              <MenuItem
                 key={view}
-                value={view}
-                primaryText={viewNames[view]}
-                onClick={() => router.replace({...currentLocation, query: {...currentQuery, view: view, postId: props.postId}})}
-                />
-            }
-          )}
-        </DropDownMenu>
+                onClick={() => this.handleViewClick(view)}
+              >
+                {viewNames[view]}
+              </MenuItem>)})}
+        </Menu>
       </div>
   )}
 }
@@ -103,11 +88,6 @@ CommentsViews.defaultProps = {
   defaultView: "postCommentsTop"
 };
 
-CommentsViews.contextTypes = {
-  currentRoute: PropTypes.object,
-  intl: intlShape
-};
-
 CommentsViews.displayName = "PostsViews";
 
-registerComponent('CommentsViews', CommentsViews, withRouter, withCurrentUser);
+registerComponent('CommentsViews', CommentsViews, withRouter, withCurrentUser, withStyles(styles));

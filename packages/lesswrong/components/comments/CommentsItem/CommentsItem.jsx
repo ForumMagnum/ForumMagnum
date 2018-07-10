@@ -97,8 +97,7 @@ class CommentsItem extends PureComponent {
   }
 
   render() {
-    const currentUser = this.props.currentUser;
-    const comment = this.props.comment;
+    const { comment } = this.props
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
@@ -136,13 +135,10 @@ class CommentsItem extends PureComponent {
                 </a>
                 }
               </div>
-              <div className="comments-item-vote">
-                <Components.Vote collection={Comments} document={this.props.comment} currentUser={currentUser}/>
-              </div>
+              <Components.CommentsVote comment={comment} />
               {this.renderMenu()}
             </div>
             { commentBody }
-
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
