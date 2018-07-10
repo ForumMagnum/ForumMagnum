@@ -35,7 +35,7 @@ class PostsItem extends PureComponent {
       categoryHover: false,
       showNewComments: false,
       lastVisitedAt: props.post.lastVisitedAt,
-      lastCommentedAt: props.post.lastCommentedAt,
+      lastCommentedAt: Posts.getLastCommentedAt(props.post),
       readStatus: false,
     }
   }
@@ -140,7 +140,7 @@ class PostsItem extends PureComponent {
 
     const {post, inlineCommentCount, currentUser} = this.props;
 
-    const commentCount = post.commentCount ? post.commentCount : 0
+    let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";
@@ -161,7 +161,7 @@ class PostsItem extends PureComponent {
         <div>
           <CommentIcon className="posts-item-comment-icon" style={commentCountIconStyle}/>
           <div className="posts-item-comment-count">
-            {post.commentCount || 0}
+            { commentCount }
           </div>
         </div>
       )

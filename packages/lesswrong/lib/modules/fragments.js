@@ -157,6 +157,8 @@ registerFragment(`
     reviewForCuratedUserId
     af
     afBaseScore
+    afCommentCount
+    afLastCommentedAt
     allVotes {
       ...VoteMinimumInfo
     }

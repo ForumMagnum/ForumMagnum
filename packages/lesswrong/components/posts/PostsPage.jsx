@@ -123,7 +123,9 @@ class PostsPage extends Component {
     return 'postCommentsTop';
   }
 
-  getCommentCountStr = (count) => {
+  getCommentCountStr = (post) => {
+    let count = Posts.getCommentCount(post)
+
     if (!count) {
         return "No comments"
     } else if (count == 1) {
@@ -224,7 +226,7 @@ class PostsPage extends Component {
         {this.renderEventLinks()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
-        <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
+        <a href="#comments">{ this.getCommentCountStr(post) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
         {Posts.options.mutations.edit.check(this.props.currentUser, post) &&
