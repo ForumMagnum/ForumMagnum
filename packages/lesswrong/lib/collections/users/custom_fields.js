@@ -636,5 +636,16 @@ Users.addField([
       type: Object,
       optional: true
     }
-  }
+  },
+
+  {
+    fieldName: 'afKarma',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      label: "Alignment Base Score",
+      defaultValue: false,
+      viewableBy: ['guests'],
+    }
+  },
 ]);

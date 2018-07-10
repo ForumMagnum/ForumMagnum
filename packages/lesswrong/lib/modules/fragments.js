@@ -5,18 +5,6 @@ extendFragment('UsersAdmin', `
 `);
 
 registerFragment(`
-  fragment UsersMinimumInfo on User {
-    # vulcan:users
-    _id
-    slug
-    username
-    displayName
-    emailHash
-    karma
-  }
-`);
-
-registerFragment(`
   fragment conversationsListFragment on Conversation {
     _id
     title
@@ -69,7 +57,7 @@ registerFragment(`
 `);
 
 extendFragment('UsersCurrent', `
-  karma
+  ...UsersMinimumInfo
   voteBanned
   banned
   nullifyVotes
@@ -167,6 +155,8 @@ registerFragment(`
     suggestForCuratedUserIds
     suggestForCuratedUsernames
     reviewForCuratedUserId
+    af
+    afBaseScore
     allVotes {
       ...VoteMinimumInfo
     }
@@ -344,6 +334,8 @@ registerFragment(`
     allVotes {
       ...VoteMinimumInfo
     }
+    af
+    afBaseScore
   }
 `);
 
@@ -480,6 +472,8 @@ registerFragment(`
     username
     displayName
     emailHash
+    karma
+    afKarma
   }
 `);
 
@@ -493,7 +487,6 @@ registerFragment(`
     htmlBio
     website
     groups
-    karma
     # example-forum
     postCount
     frontpagePostCount
@@ -564,5 +557,35 @@ registerFragment(`
   fragment VoteMinimumInfo on Vote {
     _id
     voteType
+  }
+`);
+
+registerFragment(`
+  fragment WithVotePost on Post {
+    __typename
+    _id
+    currentUserVotes{
+      _id
+      voteType
+      power
+    }
+    baseScore
+    score
+    afBaseScore
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteComment on Comment {
+    __typename
+    _id
+    currentUserVotes{
+      _id
+      voteType
+      power
+    }
+    baseScore
+    score
+    afBaseScore
   }
 `);

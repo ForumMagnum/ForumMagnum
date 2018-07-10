@@ -4,6 +4,7 @@ import {
   withCurrentUser,
   withMutation,
   getActions,
+  getSetting,
 } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -15,11 +16,12 @@ import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
-import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
+import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
+import { withTheme } from '@material-ui/core/styles';
 
 const paperStyle = {
   backgroundColor: 'inherit',
@@ -143,6 +145,7 @@ class PostsItem extends PureComponent {
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";
     if (this.state.showHighlight) postClass += " show-highlight";
+    const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     const renderCommentsButton = () => {
       const read = this.state.lastVisitedAt;
@@ -151,7 +154,7 @@ class PostsItem extends PureComponent {
       const commentCountIconStyle = {
         width:"30px",
         height:"30px",
-        color: (read && newComments && !this.state.readStatus) ? this.props.muiTheme.palette.accent1Color : "rgba(0,0,0,.15)",
+        color: (read && newComments && !this.state.readStatus) ? this.props.theme.palette.secondary.light : "rgba(0,0,0,.15)",
       }
 
       return (
@@ -192,11 +195,11 @@ class PostsItem extends PureComponent {
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
                   {post.user && <div className="posts-item-user">
                     <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
-                    </div>}
+                  </div>}
                   {this.renderPostFeeds()}
                   {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
                   <div className="posts-item-points">
-                    { post.baseScore } { post.baseScore == 1 ? "point" : "points"} 
+                    { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
                   </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
@@ -326,4 +329,5 @@ replaceComponent(
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
+  withTheme()
 );
