@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -21,7 +21,7 @@ const styles = theme => ({
   },
   afScore: {
     fontSize: '1.1rem',
-    marginLeft: 4,
+    marginLeft: 7,
   },
   afScoreNumber: {
     marginLeft: 3,
@@ -67,4 +67,4 @@ CommentsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('CommentsVote', CommentsVote, withStyles(styles));
+registerComponent('CommentsVote', CommentsVote, withStyles(styles), withCurrentUser);

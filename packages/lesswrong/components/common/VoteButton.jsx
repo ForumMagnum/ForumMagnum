@@ -35,7 +35,7 @@ const styles = theme => ({
   },
   bigArrow: {
     position: 'absolute',
-    top: '-46%',
+    top: '-50%',
     fontSize: '100%',
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
