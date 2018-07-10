@@ -42,10 +42,10 @@ const styles = theme => ({
   open: {}
 })
 
-class Vote extends PureComponent {
+class PostsVote extends PureComponent {
   render() {
-    const { document, classes, currentUser, collection } = this.props
-    const allVotes = document && document.allVotes;
+    const { post, classes, currentUser, collection } = this.props
+    const allVotes = post && post.allVotes;
 
     return (
         <div className={classes.voteBlock}>
@@ -59,7 +59,7 @@ class Vote extends PureComponent {
                 orientation="up"
                 color="secondary"
                 voteType="Upvote"
-                document={document}
+                document={post}
                 currentUser={currentUser}
                 collection={collection}
               />
@@ -70,10 +70,10 @@ class Vote extends PureComponent {
             placement="right"
             classes={{tooltip: classes.tooltip, open: classes.open}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{document.baseScore || 0}</Typography>
+            <Typography variant="headline" className={classes.voteScore}>{post.baseScore || 0}</Typography>
           </Tooltip>
 
-          {!!document.afBaseScore &&
+          {!!post.afBaseScore &&
             <Tooltip
               title="Alignment Forum karma"
               placement="right"
@@ -82,11 +82,11 @@ class Vote extends PureComponent {
               <Typography
                 variant="headline"
                 className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
-                Ω	{document.afBaseScore}
+                Ω	{post.afBaseScore}
               </Typography>
             </Tooltip>
           }
-            <Tooltip
+          <Tooltip
             title="Click-and-hold for strong vote"
             placement="right"
             classes={{tooltip: classes.tooltip, open: classes.open}}
@@ -96,7 +96,7 @@ class Vote extends PureComponent {
                 orientation="down"
                 color="error"
                 voteType="Downvote"
-                document={document}
+                document={post}
                 currentUser={currentUser}
                 collection={collection}
               />
@@ -106,11 +106,11 @@ class Vote extends PureComponent {
     }
 }
 
-Vote.propTypes = {
-  document: PropTypes.object.isRequired, // the document to upvote
+PostsVote.propTypes = {
+  post: PropTypes.object.isRequired, // the document to upvote
   collection: PropTypes.object.isRequired, // the collection containing the document
   currentUser: PropTypes.object, // user might not be logged in, so don't make it required
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('Vote', Vote, withStyles(styles));
+registerComponent('PostsVote', PostsVote, withStyles(styles));

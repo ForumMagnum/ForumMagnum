@@ -271,7 +271,7 @@ class PostsPage extends Component {
               { this.renderSequenceNavigation() }
               <div className={classes.voteTop}>
                 <hr className={classes.voteDivider}/>
-                <Components.Vote collection={Posts} document={post} currentUser={currentUser}/>
+                <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
                 <hr className={classes.voteDivider}/>
               </div>
               <Typography variant="title" color="textSecondary" className={classes.author}>
@@ -289,7 +289,7 @@ class PostsPage extends Component {
             </div>
             <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
-                <Components.Vote collection={Posts} document={post} currentUser={currentUser}/>
+                <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
               </div>
               <Typography variant="headline" color="textSecondary" className={classes.author}>
                 <Components.UsersName user={post.user} />
