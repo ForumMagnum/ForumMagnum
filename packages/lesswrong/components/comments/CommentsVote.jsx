@@ -45,7 +45,7 @@ class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser } = this.props
     const allVotes = comment && comment.allVotes;
-    const baseScore = getSetting('AlignmentForum', false) ? comment.baseScore : comment.afBaseScore
+    const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     return (
       <div className={classNames("comments-item-vote"), classes.vote}>
