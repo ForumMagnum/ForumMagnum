@@ -4,8 +4,8 @@ import Notifications from '../../lib/collections/notifications/collection.js';
 import Badge from 'material-ui/Badge';
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import IconButton from 'material-ui/IconButton';
-import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
-import NotificationsNoneIcon from 'material-ui/svg-icons/social/notifications-none';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 
 const badgeContainerStyle = {
   padding: 'none',
@@ -27,7 +27,7 @@ const NotificationsMenuButton = (props) => {
     backgroundColor: props.open ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0)"
   }
   const notificationIconStyle = {
-    color: props.open ? "#FFFFFF" : "rgba(0,0,0,0.6)",
+    color: props.open ? "#FFFFFF" : (props.color || "rgba(0,0,0,0.6)"),
   }
 
   return (

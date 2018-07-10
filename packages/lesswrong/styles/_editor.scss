@@ -305,3 +305,11 @@ figure:after {
     border-bottom:none !important;
   }
 }
+.posts-new-form .alignment-checkbox-wrapper,
+.posts-edit-form .alignment-checkbox-wrapper {
+  margin-left:18px;
+
+  .alignment-checkbox-warning {
+    display:none;
+  }
+}

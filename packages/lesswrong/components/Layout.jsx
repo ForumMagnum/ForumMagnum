@@ -1,21 +1,36 @@
-import { Components, replaceComponent} from 'meteor/vulcan:core';
+import { Components, replaceComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch/dom';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
-
+import CssBaseline from '@material-ui/core/CssBaseline';
+import classNames from 'classnames'
 import Intercom from 'react-intercom';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
 import Typekit from 'react-typekit';
+import { withStyles } from '@material-ui/core/styles';
 
 
-const Layout = ({currentUser, children, currentRoute, params, client}, { userAgent }) => {
+
+const styles = theme => ({
+  main: {
+    margin: '64px auto 15px auto',
+    maxWidth: 1200,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20,
+      paddingLeft: theme.spacing.unit,
+      paddingRight: theme.spacing.unit,
+    },
+  }
+})
+
+const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -30,13 +45,15 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
       }
     }
 
-    return <div className="wrapper tk-warnock-pro" id="wrapper">
-      <MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
+    return <div className={classNames("wrapper", "tk-warnock-pro", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
+      <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
+          <CssBaseline />
           <Helmet>
-            <title>LessWrong 2.0</title>
+            <title>{getSetting('forumSettings.tabTitle', 'LessWrong 2.0')}</title>
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
           </Helmet>
           <Typekit kitId="jvr1gjm" />
@@ -48,14 +65,14 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
           <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
           <Components.Header {...this.props}/>
 
-          <div className="main">
+          <div className={classes.main}>
             <Components.FlashMessages />
             {children}
             <Components.SunshineSidebar />
           </div>
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
         </div>
-      </MuiThemeProvider>
+      </V0MuiThemeProvider>
     </div>
 }
 
@@ -65,4 +82,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withApollo);
+replaceComponent('Layout', Layout, withApollo, withStyles(styles));

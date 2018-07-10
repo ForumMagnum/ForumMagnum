@@ -14,4 +14,5 @@ function updateTrustedStatus ({newDocument, vote}) {
   }
 }
 
-addCallback("votes.upvote.async", updateTrustedStatus);
+addCallback("votes.smallUpvote.async", updateTrustedStatus);
+addCallback("votes.bigUpvote.async", updateTrustedStatus);

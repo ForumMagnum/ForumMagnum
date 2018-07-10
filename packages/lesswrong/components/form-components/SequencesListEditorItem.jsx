@@ -1,8 +1,8 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
-import DragIcon from 'material-ui/svg-icons/editor/drag-handle';
-import RemoveIcon from 'material-ui/svg-icons/navigation/close';
+import DragIcon from '@material-ui/icons/DragHandle';
+import RemoveIcon from '@material-ui/icons/Close';
 
 
 const SequencesListEditorItem = ({document, loading, documentId, ...props}) => {
