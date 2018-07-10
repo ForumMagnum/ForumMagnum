@@ -4,6 +4,7 @@ import {
   withCurrentUser,
   withMutation,
   getActions,
+  getSetting,
 } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -144,6 +145,7 @@ class PostsItem extends PureComponent {
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";
     if (this.state.showHighlight) postClass += " show-highlight";
+    const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     const renderCommentsButton = () => {
       const read = this.state.lastVisitedAt;
@@ -197,7 +199,7 @@ class PostsItem extends PureComponent {
                   {this.renderPostFeeds()}
                   {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
                   <div className="posts-item-points">
-                    { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
+                    { baseScore } { baseScore == 1 ? "point" : "points"}
                   </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
