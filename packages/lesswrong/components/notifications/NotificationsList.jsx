@@ -9,7 +9,7 @@ class NotificationsList extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      lastNotificationsCheck: props.currentUser.lastNotificationsCheck,
+      lastNotificationsCheck: (props.currentUser.lastNotificationsCheck || ""),
     }
   }
 

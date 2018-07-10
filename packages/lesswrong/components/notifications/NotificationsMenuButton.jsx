@@ -19,7 +19,9 @@ const badgeStyle = {
 const NotificationsMenuButton = (props) => {
   let filteredResults = [];
   if (props.currentUser) {
-    filteredResults = props.results && _.filter(props.results, (x) => x.createdAt > props.currentUser.lastNotificationsCheck);
+    filteredResults = props.results && _.filter(props.results,
+      (x) => !props.currentUser.lastNotificationsCheck || x.createdAt > props.currentUser.lastNotificationsCheck
+    );
   }
 
 
