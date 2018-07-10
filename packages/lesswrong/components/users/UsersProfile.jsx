@@ -28,6 +28,7 @@ const UsersProfile = (props) => {
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
+
     const renderActions = (props) => {
       const user = props.document;
       return (<div className="users-profile-actions">
@@ -45,6 +46,7 @@ const UsersProfile = (props) => {
 
     const renderMeta = (props) => {
       const {karma, postCount, commentCount, afKarma} = props.document;
+
       return <div className="users-profile-header-meta">
         <div title="Karma" className="users-profile-header-meta-karma">
           <FontIcon className="material-icons" style={iconStyle}>star</FontIcon>
@@ -58,10 +60,12 @@ const UsersProfile = (props) => {
           <FontIcon className="material-icons" style={iconStyle}>message</FontIcon>
           {commentCount || 0}
         </div>
-        <div title="Comments" className="users-profile-header-meta-comment-count">
-          AF 
-          {afKarma || 0}
-        </div>
+        { afKarma ?
+          <div title="Comments" className="users-profile-header-meta-comment-count">
+            AF {afKarma || 0}
+          </div>
+          : null
+        }
       </div>
     }
 

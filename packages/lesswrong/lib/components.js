@@ -195,8 +195,8 @@ import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
+import '../components/alignment-forum/withSetAlignmentPost.jsx';
+import '../components/alignment-forum/withSetAlignmentComment.jsx';
 if(getSetting('AlignmentForum', false)) {
     import '../components/alignment-forum/AlignmentForumHome.jsx';
-    import '../components/alignment-forum/withSetAlignmentPost.jsx';
-    import '../components/alignment-forum/withSetAlignmentComment.jsx';
 }

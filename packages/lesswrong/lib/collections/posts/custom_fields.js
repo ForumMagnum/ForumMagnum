@@ -896,6 +896,7 @@ Posts.addField([
   {
     fieldName: 'af',
     fieldSchema: {
+      order:10,
       type: Boolean,
       optional: true,
       label: "Alignment Forum",
@@ -903,6 +904,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['alignmentForum'],
       insertableBy: ['alignmentForum'],
+      control: 'AlignmentCheckbox'
     }
   },
 
