@@ -20,7 +20,8 @@ const mockClient = new ApolloClient()
 
 const commentListMockProps = {
   store: {},
-  router: { location: {query:()=>{}}, push: ()=>{}}
+  router: { location: {query:()=>{}}, push: ()=>{}},
+  classes: {}
 }
 
 describe('Commenting while banned from post --', async () => {
