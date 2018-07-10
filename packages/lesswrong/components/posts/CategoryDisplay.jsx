@@ -24,7 +24,7 @@ class CategoryDisplay extends PureComponent {
     const { post, read, theme } = this.props;
 
     const categoryIcon = (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
-    const iconColor = read ? "rgba(0,0,0,.2)" : theme.palette.primary.light;
+    const iconColor = read ? "rgba(0,0,0,.2)" : theme.palette.secondary.light;
 
     if (categoryIcon) {
       return (
