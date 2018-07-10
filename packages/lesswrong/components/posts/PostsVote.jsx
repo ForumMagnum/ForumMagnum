@@ -46,7 +46,7 @@ class PostsVote extends PureComponent {
   render() {
     const { post, classes, currentUser, collection } = this.props
     const allVotes = post && post.allVotes;
-    const baseScore = getSetting('AlignmentForum', false) ? post.baseScore : post.afBaseScore
+    const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     return (
         <div className={classes.voteBlock}>

@@ -17,6 +17,9 @@ const viewNames = {
 }
 
 const styles = theme => ({
+  root: {
+    display: 'inline'
+  },
   link: {
     color: theme.palette.secondary.main,
   }
@@ -57,7 +60,7 @@ class CommentsViews extends Component {
     }
 
     return (
-      <div className="comments-views">
+      <div className={classes.root}>
         <a className={classes.link} onClick={this.handleClick}>
           {viewNames[currentView]}
         </a>
