@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Comments } from "meteor/example-forum";
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   vote: {
@@ -31,6 +32,7 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser } = this.props
+    const allVotes = comment && comment.allVotes;
     const baseScore = getSetting('AlignmentForum', false) ? comment.baseScore : comment.afBaseScore
 
     return (
@@ -43,9 +45,15 @@ class CommentsVote extends PureComponent {
           currentUser={currentUser}
           collection={Comments}
         />
-        <span className={classes.voteScore}>
-          {baseScore || 0}
-        </span>
+        <Tooltip
+          title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
+          placement="right"
+          classes={{tooltip: classes.tooltip, open: classes.open}}
+        >
+          <span className={classes.voteScore}>
+            {baseScore || 0}
+          </span>
+        </Tooltip>
         <Components.VoteButton
           orientation="right"
           color="secondary"

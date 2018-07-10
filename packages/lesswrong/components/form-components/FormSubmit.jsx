@@ -82,7 +82,7 @@ const FormSubmit = ({
       style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
       onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
       label={"Submit" }
-      labelStyle={{fontSize: "16px", color: theme.palette.primary.main}}
+      labelStyle={{fontSize: "16px", color: theme.palette.secondary.main}}
     />
 
     {/* <Button type="submit" bsStyle="primary">

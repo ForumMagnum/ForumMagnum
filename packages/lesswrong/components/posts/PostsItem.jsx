@@ -152,7 +152,7 @@ class PostsItem extends PureComponent {
       const commentCountIconStyle = {
         width:"30px",
         height:"30px",
-        color: (read && newComments && !this.state.readStatus) ? this.props.theme.palette.primary.light : "rgba(0,0,0,.15)",
+        color: (read && newComments && !this.state.readStatus) ? this.props.theme.palette.secondary.light : "rgba(0,0,0,.15)",
       }
 
       return (
