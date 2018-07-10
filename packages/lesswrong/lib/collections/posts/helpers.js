@@ -1,6 +1,5 @@
 import { Posts } from 'meteor/example-forum';
-import { Utils } from 'meteor/vulcan:core';
-
+import { Utils, getSetting } from 'meteor/vulcan:core';
 /**
  * @summary Get URL of a post page.
  * @param {Object} post
@@ -17,3 +16,19 @@ Posts.getPageUrl = function(post, isAbsolute = false){
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
+
+Posts.getCommentCount = (post) => {
+  if (getSetting('AlignmentForum')) {
+    return post.afCommentCount || 0;
+  } else {
+    return post.commentCount || 0;
+  }
+}
+
+Posts.getLastCommentedAt = (post) => {
+  if (getSetting('AlignmentForum')) {
+    return post.afLastCommentedAt;
+  } else {
+    return post.lastCommentedAt;
+  }
+}
