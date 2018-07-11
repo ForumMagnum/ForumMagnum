@@ -1,5 +1,8 @@
 import Users from 'meteor/vulcan:users';
 
+// TODO: IBETA ONLY Only logged-in users can see forum posts
+Users.groups.guests.cannot('comments.view')
+
 const sunshineRegimentActions = [
   'comments.softRemove.all',
   'comments.replyOnBlocked.all',

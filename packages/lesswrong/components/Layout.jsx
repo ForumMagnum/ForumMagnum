@@ -48,11 +48,13 @@ const Layout = ({currentUser, children, currentRoute, params, client}, { userAge
           <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
           <Components.Header {...this.props}/>
 
-          <div className="main">
-            <Components.FlashMessages />
+          {/* TODO: IBETA ONLY Only logged-in users should see page content */}
+          {!!currentUser && <div className="main">
+            <Components.FlashMessages/>
             {children}
-            <Components.SunshineSidebar />
-          </div>
+            <Components.SunshineSidebar/>
+          </div>}
+          {!currentUser && <p>Please log in to see content during internal beta</p>}
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
         </div>
       </MuiThemeProvider>
