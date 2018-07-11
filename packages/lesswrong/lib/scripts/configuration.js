@@ -1,4 +1,4 @@
 import { Accounts } from 'meteor/accounts-base';
 
-// TODO try setting to true once people have their accounts
-Accounts._options.forbidClientAccountCreation = false;
+// TODO: IBETA ONLY
+Accounts._options.forbidClientAccountCreation = true;
