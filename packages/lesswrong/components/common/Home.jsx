@@ -1,6 +1,5 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
 
 const Home = (props, context) => {
   const currentUser = props.currentUser
@@ -17,22 +16,7 @@ const Home = (props, context) => {
     case "community":
       recentPostsTitle = "All Posts"; break;
     default:
-      return "Recent Posts";
-  }
-
-  const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms = {
-    view: 'events',
-    limit: 3,
-  }
-  if (lat & lng) {
-    eventsListTerms = {
-      view: 'nearbyEvents',
-      lat: lat,
-      lng: lng,
-      limit: 3,
-    }
+      recentPostsTitle = "Recent Posts";
   }
 
   return (
