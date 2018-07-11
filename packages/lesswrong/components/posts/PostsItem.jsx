@@ -203,9 +203,11 @@ class PostsItem extends PureComponent {
                   </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
-                  {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
                   {this.renderEventDetails()}
                   <div className="posts-item-show-highlight-button">
+                    {currentUser && currentUser.isAdmin &&
+                      <Components.PostsStats post={post} />
+                    }
                     { this.state.showHighlight ?
                       <span>
                         Hide Highlight
