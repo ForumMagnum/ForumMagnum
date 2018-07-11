@@ -338,6 +338,7 @@ registerFragment(`
     }
     af
     afBaseScore
+    needsReview
   }
 `);
 
