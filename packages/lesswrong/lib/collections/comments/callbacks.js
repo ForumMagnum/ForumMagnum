@@ -255,3 +255,11 @@ function CommentsAlignmentNew (comment) {
   }
 }
 addCallback("comments.new.async", CommentsAlignmentNew);
+
+function NewCommentNeedsReview (comment) {
+  const user = Users.findOne({_id:comment.userId})
+  if (user.karma < 100) {
+    Comments.update({_id:comment._id}, {$set: {needsReview: true}});
+  }
+}
+addCallback("comments.new.async", NewCommentNeedsReview);
