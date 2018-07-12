@@ -59,7 +59,7 @@ const styles = theme => ({
     mainContent: {
       position: 'relative',
       maxWidth: 650,
-      minHeight: 100,
+      minHeight: 200,
       fontSize: 20,
       marginLeft: 'auto',
       marginRight: 'auto',
