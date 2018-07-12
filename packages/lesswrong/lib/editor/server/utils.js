@@ -27,7 +27,7 @@ export const preProcessLatex = async (content) => {
             math: value.data.teX,
             format: "inline-TeX",
             html: true,
-            css: true,
+            css: false,
       })
       value.data = {...value.data, html: mathJax.html, css: mathJax.css};
       entityMap[key] = value;
@@ -43,7 +43,7 @@ export const preProcessLatex = async (content) => {
         math: block.data.teX,
         format: "TeX",
         html: true,
-        css: true,
+        css: false,
       })
       block.data = {...block.data, html: mathJax.html, css: mathJax.css};
     }

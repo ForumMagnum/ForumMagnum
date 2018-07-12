@@ -79,7 +79,7 @@ export const draftToHTML = convertToHTML({
     }
     if (entity.type === 'INLINETEX') {
       if (entity.data.html) {
-        return `<span><style>${entity.data.css}</style>${entity.data.html}</span>`
+        return `<span>${entity.data.html}</span>`
       } else {
         return `<span class="draft-latex-placeholder"> &lt; refresh to render LaTeX &gt; </span>`
       }
@@ -92,7 +92,7 @@ export const draftToHTML = convertToHTML({
 
      if (type === 'atomic') {
        if (block.data && block.data.mathjax && block.data.html) {
-         return `<div><style>${block.data.css}</style>${block.data.html}</div>`
+         return `<div>${block.data.html}</div>`
        } else if (block.data && block.data.mathjax) {
          return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
        } else {
