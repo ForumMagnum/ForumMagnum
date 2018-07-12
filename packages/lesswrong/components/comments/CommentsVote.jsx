@@ -8,7 +8,7 @@ import { Comments } from "meteor/example-forum";
 
 const styles = theme => ({
   vote: {
-    fontSize: 19,
+    fontSize: 25,
     lineHeight: 0.6,
   },
   voteScore: {
