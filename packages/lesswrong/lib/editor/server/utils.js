@@ -19,8 +19,6 @@ mjAPI.config({
 mjAPI.start();
 
 export const preProcessLatex = async (content) => {
-  let entityMap = content.entityMap;
-  
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
   // inline with the first (and only the first) MathJax element; this ensures
   // that it ends up in feeds, in greaterwrong's scrapes, etc, whereas if it
@@ -32,10 +30,12 @@ export const preProcessLatex = async (content) => {
   //
   // The MathJax stylesheet varies with its configuration, but (we're pretty
   // sure) does not vary with the content of what it's rendering.
-  var mathjaxStyleUsed = false;
   
-  for (let key in entityMap) { // Can't use forEach with await
-    let value = entityMap[key];
+  // gets set to true if a stylesheet has already been added
+  let mathjaxStyleUsed = false;
+  
+  for (let key in content.entityMap) { // Can't use forEach with await
+    let value = content.entityMap[key];
     if(value.type === "INLINETEX" && value.data.teX) {
       const mathJax = await mjAPI.typeset({
             math: value.data.teX,
@@ -44,18 +44,16 @@ export const preProcessLatex = async (content) => {
             css: !mathjaxStyleUsed,
       })
       value.data = {...value.data, html: mathJax.html};
-      if(!mathjaxStyleUsed) {
+      if (!mathjaxStyleUsed) {
         value.data.css = mathJax.css;
         mathjaxStyleUsed = true;
       }
-      entityMap[key] = value;
+      content.entityMap[key] = value;
     }
   }
-  content.entityMap = entityMap;
 
-  let blocks = content.blocks;
-  for (let key in blocks) {
-    const block = blocks[key];
+  for (let key in content.blocks) {
+    const block = content.blocks[key];
     if (block.type === "atomic" && block.data.mathjax) {
       const mathJax = await mjAPI.typeset({
         math: block.data.teX,
@@ -64,13 +62,12 @@ export const preProcessLatex = async (content) => {
         css: !mathjaxStyleUsed,
       })
       block.data = {...block.data, html: mathJax.html};
-      if(!mathjaxStyleUsed) {
+      if (!mathjaxStyleUsed) {
         block.data.css = mathJax.css;
         mathjaxStyleUsed = true;
       }
     }
   }
-  content.blocks = blocks;
 
   return content;
 }
