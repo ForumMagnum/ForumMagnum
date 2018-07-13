@@ -114,7 +114,7 @@ function cancelAlignmentKarmaClientCallback (document, collection, voter, voteTy
   const votePower = getVotePower(voter.afKarma, voteType)
   return {
     ...document,
-    afBaseScore: document.afBaseScore - votePower,
+    afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
   };
 }
 

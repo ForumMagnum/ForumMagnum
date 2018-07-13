@@ -891,30 +891,4 @@ Posts.addField([
       optional: true,
     }
   },
-
-  // This post will appear in alignment forum view
-  {
-    fieldName: 'af',
-    fieldSchema: {
-      order:10,
-      type: Boolean,
-      optional: true,
-      label: "Alignment Forum",
-      defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['alignmentForum'],
-      insertableBy: ['alignmentForum'],
-      control: 'AlignmentCheckbox'
-    }
-  },
-
-  {
-    fieldName: 'afBaseScore',
-    fieldSchema: {
-      type: Number,
-      optional: true,
-      label: "Alignment Base Score",
-      viewableBy: ['guests'],
-    }
-  },
 ]);

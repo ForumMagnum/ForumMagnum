@@ -104,7 +104,6 @@ registerFragment(`
     frontpageDate
     meta
     # body # We replaced this with content
-    htmlBody # We replaced this with content
     excerpt # This won't work with content
     htmlHighlight
     # content # Our replacement for body
@@ -157,6 +156,8 @@ registerFragment(`
     reviewForCuratedUserId
     af
     afBaseScore
+    afCommentCount
+    afLastCommentedAt
     allVotes {
       ...VoteMinimumInfo
     }
@@ -336,6 +337,7 @@ registerFragment(`
     }
     af
     afBaseScore
+    needsReview
   }
 `);
 

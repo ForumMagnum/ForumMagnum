@@ -389,6 +389,7 @@ Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
       reviewedByUserId: {$exists: false},
+      frontpageDate: {$ne: true },
       createdAt: {$gt: twoDaysAgo},
     },
     options: {

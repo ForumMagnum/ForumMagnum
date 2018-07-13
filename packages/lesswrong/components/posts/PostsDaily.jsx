@@ -35,7 +35,7 @@ class PostsDaily extends Component {
       view: 'daily',
       meta: null, // Show both frontpage and meta posts on daily
       after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
-      before: moment().utc().format('YYYY-MM-DD'),
+      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
       karmaThreshold: this.state.hideLowKarma ? -10 : -100
     };
 
