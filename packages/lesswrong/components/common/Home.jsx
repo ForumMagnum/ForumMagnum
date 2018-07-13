@@ -1,7 +1,7 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from 'react-router';
-
+import { withStyles } from '@material-ui/core/styles';
 
 const testCollections = [
   {
@@ -33,10 +33,21 @@ const testCollections = [
   }
 ]
 
+const styles = theme => ({
+    root: {
+      [theme.breakpoints.up('md')]: {
+        marginRight: 90,
+      },
+      [theme.breakpoints.down('sm')]: {
+        marginRight: 0
+      }
+    }
+})
+
 const Home = (props, context) => {
-  const currentUser = props.currentUser
-  const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
-  let recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : _.clone(props.location.query)
+  const { currentUser, router, classes } = props;
+  const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
+  let recentPostsTerms = _.isEmpty(location.query) ? {view: currentView, limit: 10} : _.clone(location.query)
   if (recentPostsTerms.view === "curated" && currentUser) {
     recentPostsTerms.offset = 3
   }
@@ -74,7 +85,7 @@ const Home = (props, context) => {
   }
 
   return (
-    <div className="home">
+    <div className={classes.root}>
       { !currentUser ?
         <Components.Section
           contentStyle={{marginTop: '-20px'}}
@@ -85,25 +96,23 @@ const Home = (props, context) => {
           <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
           <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
           <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
-        </Components.Section>
-        :
+        </Components.Section> :
         <div>
           <Components.Section
             title="Recommended Sequences"
             titleLink="/library"
             titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
           >
-              <Components.SequencesGridWrapper
-                terms={{view:"curatedSequences", limit:3}}
-                showAuthor={true}
-                showLoadMore={false}
-              className="frontpage-sequences-grid-list" />
+            <Components.SequencesGridWrapper
+              terms={{view:"curatedSequences", limit:3}}
+              showAuthor={true}
+              showLoadMore={false}
+            className="frontpage-sequences-grid-list" />
           </Components.Section>
           <Components.Section title="Curated Content">
             <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
           </Components.Section>
-        </div>
-      }
+        </div>}
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
@@ -131,4 +140,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser);
+registerComponent('Home', Home, withCurrentUser, withStyles(styles));
