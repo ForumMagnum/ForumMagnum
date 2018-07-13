@@ -44,7 +44,7 @@ class NotificationsMenu extends Component {
     super(props);
     this.state = {
       notificationTerms: {view: 'userNotifications'},
-      lastNotificationsCheck: props.currentUser ? props.currentUser.lastNotificationsCheck : ""
+      lastNotificationsCheck: (props.currentUser && props.currentUser.lastNotificationsCheck) || ""
     }
   }
 
