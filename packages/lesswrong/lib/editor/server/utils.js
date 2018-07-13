@@ -20,6 +20,20 @@ mjAPI.start();
 
 export const preProcessLatex = async (content) => {
   let entityMap = content.entityMap;
+  
+  // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
+  // inline with the first (and only the first) MathJax element; this ensures
+  // that it ends up in feeds, in greaterwrong's scrapes, etc, whereas if it
+  // were part of the site's top-level styles, it wouldn't. This leads to
+  // at most one copy per LaTeX-using post or comment; so there's some
+  // duplication, but not the extreme amount of duplication we had before
+  // (where a single post that used LaTeX heavily added ~80 copies of 19kb
+  // each to the front page).
+  //
+  // The MathJax stylesheet varies with its configuration, but (we're pretty
+  // sure) does not vary with the content of what it's rendering.
+  var mathjaxStyleUsed = false;
+  
   for (let key in entityMap) { // Can't use forEach with await
     let value = entityMap[key];
     if(value.type === "INLINETEX" && value.data.teX) {
@@ -27,9 +41,13 @@ export const preProcessLatex = async (content) => {
             math: value.data.teX,
             format: "inline-TeX",
             html: true,
-            css: false,
+            css: !mathjaxStyleUsed,
       })
-      value.data = {...value.data, html: mathJax.html, css: mathJax.css};
+      value.data = {...value.data, html: mathJax.html};
+      if(!mathjaxStyleUsed) {
+        value.data.css = mathJax.css;
+        mathjaxStyleUsed = true;
+      }
       entityMap[key] = value;
     }
   }
@@ -43,9 +61,13 @@ export const preProcessLatex = async (content) => {
         math: block.data.teX,
         format: "TeX",
         html: true,
-        css: false,
+        css: !mathjaxStyleUsed,
       })
-      block.data = {...block.data, html: mathJax.html, css: mathJax.css};
+      block.data = {...block.data, html: mathJax.html};
+      if(!mathjaxStyleUsed) {
+        block.data.css = mathJax.css;
+        mathjaxStyleUsed = true;
+      }
     }
   }
   content.blocks = blocks;
