@@ -97,6 +97,8 @@
     }
     .sequences-grid-item-image {
       width: 203px;
+      height: 80px;
+      background-color: rgba(0,0,0,0.05);
       @include very-small-break() {
         width: 100%;
       }
