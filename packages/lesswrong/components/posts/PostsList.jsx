@@ -74,7 +74,8 @@ const options = {
   fragmentName: 'PostsList',
   totalResolver: false,
   enableCache: true,
-  fetchPolicy: 'cache-and-network'
+  fetchPolicy: 'cache-and-network',
+  ssr: true
 };
 
 registerComponent('PostsList', PostsList, withCurrentUser, [withList, options]);
