@@ -20,8 +20,8 @@ const styles = theme => ({
     }
   },
   smallArrow: {
-    fontSize: '70%',
-    opacity: 0.7
+    fontSize: '50%',
+    opacity: 0.5
   },
   up: {},
   right: {
@@ -35,14 +35,14 @@ const styles = theme => ({
   },
   bigArrow: {
     position: 'absolute',
-    top: '-50%',
-    fontSize: '100%',
+    top: '-70%',
+    fontSize: '82%',
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
   bigArrowCompleted: {
-    fontSize: '110%',
-    top: '-58%',
+    fontSize: '90%',
+    top: '-75%',
   },
   // Classes for the animation transitions of the bigArrow. See Transition component
   entering: {
