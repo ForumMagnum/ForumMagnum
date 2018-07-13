@@ -367,11 +367,11 @@ registerFragment(`
     email
     commentCount
     postCount
-    allVotes {
-      _id
-      voteType
-      documentId
-    }
+    voteCount
+    smallUpvoteCount
+    bigUpvoteCount
+    smallDownvoteCount
+    bigDownvoteCount
   }
 `);
 

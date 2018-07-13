@@ -28,3 +28,27 @@ function cancelVoteKarma({newDocument, vote}, collection, user, context) {
 }
 
 addCallback("votes.cancel.async", cancelVoteKarma);
+
+
+async function incVoteCount ({newDocument, vote},) {
+  const field = vote.voteType + "Count"
+
+  if (newDocument.userId !== vote.userId) {
+    Users.update({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
+  }
+}
+
+addCallback("votes.bigDownvote.async", incVoteCount);
+addCallback("votes.bigUpvote.async", incVoteCount);
+addCallback("votes.smallDownvote.async", incVoteCount);
+addCallback("votes.smallUpvote.async", incVoteCount);
+
+async function cancelVoteCount ({newDocument, vote}) {
+  const field = vote.voteType + "Count"
+
+  if (newDocument.userId !== vote.userId) {
+    Users.update({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
+  }
+}
+
+addCallback("votes.cancel.async", cancelVoteCount);
