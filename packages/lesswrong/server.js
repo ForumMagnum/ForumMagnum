@@ -15,6 +15,7 @@ import './lib/scripts/debuggingScripts.js';
 import './lib/scripts/importOldPasswords.js';
 import './lib/scripts/postsEditCallbacks.js';
 import './lib/scripts/nullifyVotes.js';
+import './lib/scripts/eafIBetaInvites.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
@@ -32,6 +33,7 @@ import './lib/events/server.js';
 import './lib/modules/indexes.js';
 
 // Closed Beta stuff
+// TODO Q Also where reset password is
 import './lib/scripts/invites.js';
 
 // Old LW posts and comment rerouting

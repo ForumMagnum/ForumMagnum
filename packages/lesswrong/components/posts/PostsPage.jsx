@@ -190,6 +190,8 @@ class PostsPage extends Component {
 
     } else if (!this.props.document) {
 
+      if (!this.props.currentUser) return <p>Please log in to see content during internal beta</p>
+
       // console.log(`// missing post (_id: ${this.props.documentId})`);
       return <div className="posts-page"><FormattedMessage id="app.404"/></div>
 
@@ -199,6 +201,7 @@ class PostsPage extends Component {
       const htmlBody = {__html: post.htmlBody};
       let query = this.props.location && this.props.location.query
       const commentTerms = _.isEmpty(query) ? {view: 'postCommentsTop', limit: 500}: {...query, limit:500};
+
       return (
         <div className="posts-page">
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
