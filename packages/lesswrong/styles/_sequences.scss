@@ -102,6 +102,9 @@
       @include very-small-break() {
         width: 100%;
       }
+      @include section-header-break() {
+        height: auto,
+      }
       img {
         width: 203px;
         height: 80px;
