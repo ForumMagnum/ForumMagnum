@@ -277,17 +277,9 @@ class PostsItem extends PureComponent {
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={this.state.lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:12, postId:this.props.post._id}}
+                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
-              { post.commentCount > 10 && <div>
-                <div className="posts-item-top-comments-title">Top Comments</div>
-                <Components.RecentComments
-                  terms={{view: 'topRecentComments', limit: 3, postId:post._id}}
-                  fontSize="small"
-                  loadMore={false}
-                />
-              </div>}
               <div className="post-item-new-comments-footer">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
                   <FontIcon className={classNames("material-icons")}>

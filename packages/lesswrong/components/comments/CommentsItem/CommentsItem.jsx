@@ -42,6 +42,7 @@ class CommentsItem extends PureComponent {
       showEdit: false,
       showReport: false,
       showStats: false,
+      showParent: false
     };
   }
 
@@ -88,6 +89,10 @@ class CommentsItem extends PureComponent {
     this.props.flash("Successfully deleted comment", "success");
   }
 
+  toggleShowParent = () => {
+    this.setState({showParent:!this.state.showParent})
+  }
+
   handleLinkClick = (event) => {
     const { comment, router } = this.props;
     event.preventDefault()
@@ -96,26 +101,74 @@ class CommentsItem extends PureComponent {
     return false;
   }
 
-  render() {
+  renderExcerpt() {
     const { comment } = this.props
+
+    if (comment.body) {
+      let commentExcerpt = comment.body.substring(0,300).split("\n\n");
+      const lastElement = commentExcerpt.slice(-1)[0];
+      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
+        (text, i) => <p key={ comment._id + i}>{text}</p>);
+      return <div className="recent-comments-item-text comments-item-text content-body">
+        {commentExcerpt}
+        <p>{lastElement + "..."}
+          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> 
+        </p>
+      </div>
+    } else {
+      return null
+    }
+  }
+
+  render() {
+    const { comment, currentUser, frontPage } = this.props
+    const level = comment.level || 1;
+    const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
+
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
         {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
+
     if (comment) {
       return (
         <div className={
           classNames(
             "comments-item",
+            "recent-comments-node",
             {deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic}
+            "public-deleted": comment.deletedPublic,
+            "showParent": this.state.showParent},
           )}
         >
+
+          { comment.parentCommentId && this.state.showParent && (
+            <div className="recent-comment-parent root">
+              <Components.RecentCommentsSingle
+                currentUser={currentUser}
+                documentId={comment.parentCommentId}
+                level={level + 1}
+                expanded={true}
+                key={comment.parentCommentId}
+              />
+            </div>
+          )}
+
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
+              {(comment.parentCommentId && (level === 1)) &&
+                <FontIcon
+                  onClick={this.toggleShowParent}
+                  className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+                >
+                  subdirectory_arrow_left
+                </FontIcon>}
+              { !frontPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+                  [<span>{this.props.collapsed ? "+" : "-"}</span>]
+                </a>
+              }
               {!comment.deleted && <span>
                 <Components.UsersName user={comment.user}/>
               </span>}
@@ -138,7 +191,7 @@ class CommentsItem extends PureComponent {
               <Components.CommentsVote comment={comment} />
               {this.renderMenu()}
             </div>
-            { commentBody }
+            { (frontPage && !expanded) ? this.renderExcerpt() : commentBody}
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
@@ -149,13 +202,12 @@ class CommentsItem extends PureComponent {
   }
 
   renderCommentBottom = () => {
-    const comment = this.props.comment;
-    const currentUser = this.props.currentUser;
+    const { comment, currentUser } = this.props;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
     const showReplyButton = (
       !comment.isDeleted &&
-      !!this.props.currentUser &&
+      !!currentUser &&
       (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
       Users.isAllowedToComment(currentUser, this.props.post)
     )
@@ -179,7 +231,7 @@ class CommentsItem extends PureComponent {
   }
 
   renderMenu = () => {
-    const comment = this.props.comment;
+    const { comment, currentUser } = this.props;
     const post = this.props.post || comment.post;
     if (comment && post) {
       return (
@@ -199,7 +251,7 @@ class CommentsItem extends PureComponent {
               { this.renderStatsMenuItem() }
               { this.renderDeleteMenuItem() }
               { this.renderMoveToAlignmentMenuItem() }
-              { Users.canModeratePost(this.props.currentUser, post) &&
+              { Users.canModeratePost(currentUser, post) &&
                 post.user && Users.canModeratePost(post.user, post) &&
                 <MenuItem
                   className="comment-menu-item-ban-user-submenu"
@@ -209,12 +261,12 @@ class CommentsItem extends PureComponent {
                     <Components.BanUserFromPostMenuItem
                       comment={comment}
                       post={post}
-                      currentUser={this.props.currentUser}
+                      currentUser={currentUser}
                     />,
                     <Components.BanUserFromAllPostsMenuItem
                       comment={comment}
                       post={post}
-                      currentUser={this.props.currentUser}
+                      currentUser={currentUser}
                     />
                   ]}
                 />}
@@ -224,7 +276,7 @@ class CommentsItem extends PureComponent {
                 commentId={comment._id}
                 postId={comment.postId}
                 link={"/posts/" + comment.postId + "/a/" + comment._id}
-                userId={this.props.currentUser._id}
+                userId={currentUser._id}
                 open={true}
               />
             }
