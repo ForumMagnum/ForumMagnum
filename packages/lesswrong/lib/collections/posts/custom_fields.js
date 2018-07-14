@@ -13,14 +13,20 @@ export const formGroups = {
     name: "event details",
     order: 1,
     label: "Event Details"
+  },
+  moderationGroup: {
+    order: 60,
+    name: "moderation",
+    label: "Moderation",
+    startCollapsed: true,
+  },
+  options: {
+    order:50,
+    label: "Options",
+    name: "options",
+    startCollapsed: true,
   }
 };
-
-const moderationGroup = {
-  order:60,
-  name: "moderation",
-  label: "Moderation",
-}
 
 Posts.addField([
   /**
@@ -580,7 +586,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['members'],
-      group: moderationGroup,
+      group: formGroups.moderation,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       optional: true,
@@ -600,7 +606,7 @@ Posts.addField([
     fieldSchema: {
       type: Boolean,
       viewableBy: ['guests'],
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
       editableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
       optional: true,
@@ -892,7 +898,6 @@ Posts.addField([
     }
   },
 
-
   {
     fieldName: 'metaSticky',
     fieldSchema: {
@@ -916,6 +921,27 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  {
+    fieldName: 'sharedWithUsers',
+    fieldSchema: {
+      type: Array,
+      group: formGroups.options,
+      viewableBy: ['members'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      control: "UsersListEditor",
+    }
+  },
+
+  {
+    fieldName: 'sharedWithUsers.$',
+    fieldSchema: {
+      type: String,
+      optional: true
     }
   },
 ]);

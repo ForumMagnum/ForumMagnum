@@ -2,6 +2,11 @@ import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
 import { getSetting } from 'meteor/vulcan:core';
 
+
+Users.isSharedOn = (currentUser, document) => {
+  return (document.sharedWithUsers && document.sharedWithUsers.includes(currentUser._id))
+}
+
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
     return true
