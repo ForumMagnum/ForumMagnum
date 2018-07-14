@@ -47,7 +47,7 @@ const styles = theme => ({
 const Home = (props, context) => {
   const { currentUser, router, classes } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
-  let recentPostsTerms = _.isEmpty(location.query) ? {view: currentView, limit: 10} : _.clone(location.query)
+  let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
   if (recentPostsTerms.view === "curated" && currentUser) {
     recentPostsTerms.offset = 3
   }
