@@ -178,6 +178,9 @@
     textarea {
       line-height:1.35em;
       min-height:90px;
+      padding: 8px;
+      border: 1px solid rgba(221,221,221,0.75);
+      box-shadow: none;
     }
   }
   .form-component-checkbox {
@@ -185,9 +188,14 @@
     .control-label.col-sm-3 {
       display:none;
     }
+    
+    .checkbox {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
   }
   .form-section-heading {
-    padding:1em 0;
+    padding-bottom: 0;
   }
 }
 

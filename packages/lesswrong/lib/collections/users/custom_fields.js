@@ -574,7 +574,8 @@ Users.addField([
       label: "Group Location",
       control: 'LocationFormComponent',
       blackbox: true,
-      optional: true
+      optional: true,
+      order: 35
     }
   },
 

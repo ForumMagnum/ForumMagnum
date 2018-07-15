@@ -34,13 +34,21 @@ class LocationFormComponent extends Component {
   }
 
   render() {
+    // Class names used here correspond to Bootstrap classes; this element
+    // needs to match the elements emitted by vulcan-forms, which emits the
+    // same classes (.form-group, .row, .control-label, .col-sm-3, .col-sm-9,
+    // .form-control).
     if (this.props.document) {
-      return <div className="location-suggest">
-        <Geosuggest
-          placeholder="Location"
-          onSuggestSelect={this.handleSuggestSelect}
-          initialValue={this.state.location}
-        />
+      return <div className="form-group row location-suggest">
+        <label className="control-label col-sm-3">Location</label>
+        <div class="col-sm-9">
+          <Geosuggest
+            placeholder=""
+            onSuggestSelect={this.handleSuggestSelect}
+            inputClassName="form-control"
+            initialValue={this.state.location}
+          />
+        </div>
       </div>
     } else {
       return null
