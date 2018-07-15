@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
 
-const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, titleLink, titleComponent, children}) => {
+const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, titleLink, titleComponent, subscribeLinks = null, children}) => {
 
   return (
     <div className="section" style={{width: `${titleWidth+contentWidth+5}px`, display: 'flex'}}>
@@ -11,6 +11,7 @@ const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, tit
           {title && !titleLink && <h2>{title}</h2> }
           {title && titleLink && <Link to={titleLink}><h2>{title}</h2></Link> }
         </div>
+        { subscribeLinks }
         <div className="section-title-bottom">
           {titleComponent ? titleComponent : null}
         </div>
