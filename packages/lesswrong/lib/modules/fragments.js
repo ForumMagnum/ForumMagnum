@@ -73,6 +73,7 @@ extendFragment('UsersCurrent', `
   location
   googleLocation
   mongoLocation
+  emailSubscribedToCurated
 `);
 
 registerFragment(`

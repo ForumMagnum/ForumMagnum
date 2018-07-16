@@ -252,7 +252,7 @@ function PostsCurateNotification (post, oldPost) {
   console.log("Checking if mutation was curating a post");
   if(post.curatedDate && !oldPost.curatedDate) {
     console.log("Mutation curated a post; looking for users to email");
-    let usersToNotify = Users.find({'email_subscribe_to_curated': true}, {fields: {_id:1, email:1}}).fetch();
+    let usersToNotify = Users.find({'emailSubscribedToCurated': true}, {fields: {_id:1, email:1}}).fetch();
     sendEmailPostNotifications(usersToNotify, "curated", post._id);
   }
 }

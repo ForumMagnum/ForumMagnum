@@ -1,10 +1,12 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FontIcon from 'material-ui/FontIcon';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
+import { withStyles } from '@material-ui/core/styles';
+import Users from 'meteor/vulcan:users';
 
 const SubscribeIcon = ({className, icon, hoverText, onClick, href}) => {
   return (
@@ -33,13 +35,17 @@ const feedlyIcon =
      id="path2-1" />
   </svg>
 
-const dialogStyle = {
-  maxWidth: "530px"
-};
-
-const copyButtonLabelStyle = {
-  color: "rgba(100,169,105,1)"
-};
+const styles = theme => ({
+  dialog: {
+    maxWidth: "530px"
+  },
+  copyButton: {
+    color: "rgba(100,169,105,1)"
+  },
+  subscriptionDialog: {
+    "line-height": 1.1
+  }
+})
 
 
 class SubscribeLinks extends Component {
@@ -52,6 +58,7 @@ class SubscribeLinks extends Component {
   initialState() {
     return {
       generalDialogVisible: false,
+      emailDialogVisible: false,
       rssDialogVisible: false,
       copiedToClipboard: false
     }
@@ -62,17 +69,23 @@ class SubscribeLinks extends Component {
       generalDialogVisible: true
     })
   }
+  
   clickSubscribeEmail(event) {
-    alert("Sorry, not implemented yet")
+    this.setState({
+      emailDialogVisible: true
+    });
   }
+  
   clickSubscribeRSS(event) {
     this.setState({
       rssDialogVisible: true
     })
   }
+  
   getRssLink() {
     return this.makeAbsolute("/feed.xml?view="+this.props.section.rssView)
   }
+  
   makeAbsolute(feedLink) {
     if(feedLink.startsWith("http")) {
       return feedLink;
@@ -84,8 +97,17 @@ class SubscribeLinks extends Component {
         return siteUrl + feedLink;
     }
   }
+  
   getFeedlyLink() {
     return "https://www.feedly.com/i/subscription/feed/"+encodeURIComponent(this.getRssLink())
+  }
+  
+  subscribeByEmail = () => {
+    this.props.editMutation({
+      documentId: this.props.currentUser._id,
+      set: {emailSubscribedToCurated:true},
+      unset: {}
+    })
   }
   
   closeAll = (event) => {
@@ -97,7 +119,35 @@ class SubscribeLinks extends Component {
     return this.rssDialog()
   }
   
+  emailDialog() {
+    const { classes } = this.props;
+    return (
+      <Dialog
+        title={"Subscribe to "+this.props.section.label+" by Email"}
+        actions={[
+          <FlatButton
+            label={this.props.currentUser.emailSubscribeToCurated ? "Unsubscribe" : "Subscribe"}
+            onClick={this.subscribeByEmail}
+          />,
+          <FlatButton
+            label="OK"
+            primary={true}
+            onClick={this.closeAll}
+          />
+        ]}
+        open={this.state.emailDialogVisible}
+        onRequestClose={this.closeAll}
+        modal={false}
+        contentStyle={classes.dialog}
+        className={classes.subscriptionDialog}
+      >
+        <div>{this.props.section.description}</div>
+      </Dialog>
+    )
+  }
+  
   rssDialog() {
+    const { classes } = this.props;
     return (
       <Dialog
         title={"Subscribe to "+this.props.section.label+" with RSS"}
@@ -105,7 +155,7 @@ class SubscribeLinks extends Component {
           <CopyToClipboard
             text={this.getRssLink()}
             onCopy={(text, result) => this.setState({copiedToClipboard: true})}>
-            <FlatButton labelStyle={copyButtonLabelStyle} label={this.state.copiedToClipboard?"Copied!":"Copy Link"}/>
+            <FlatButton className={classes.copyButton} label={this.state.copiedToClipboard?"Copied!":"Copy Link"}/>
           </CopyToClipboard>,
           <FlatButton
             label="Close"
@@ -116,9 +166,10 @@ class SubscribeLinks extends Component {
         open={this.state.rssDialogVisible}
         onRequestClose={this.closeAll}
         modal={false}
-        contentStyle={dialogStyle}
+        contentStyle={classes.dialog}
+        className={classes.subscriptionDialog}
       >
-        <div>{this.props.feedDescription}</div>
+        <div>{this.props.section.description}</div>
         <div>Paste this link into your RSS reader:</div>
         <TextField
           id="rssLinkTextField"
@@ -129,14 +180,14 @@ class SubscribeLinks extends Component {
           style={{width:"100%"}}
           readOnly />
         <div>
-          (Don't have an RSS reader? Try <a href={this.getFeedlyLink()}>Feedly</a> or
-          <a onClick={(e)=>{this.clickSubscribeEmail(e)}}>subscribe by email</a>.)
+          (Don't have an RSS reader? Try <a href={this.getFeedlyLink()}>Feedly</a> or <a onClick={(e)=>{this.clickSubscribeEmail(e)}}>subscribe by email</a>.)
         </div>
       </Dialog>
     )
   }
   
   render() {
+    const { classes } = this.props;
     return (
       <div className="subscribeLinks">
         <a className="subscribeText" onClick={(e) => {this.clickSubscribeGeneral(e)}}>
@@ -159,6 +210,7 @@ class SubscribeLinks extends Component {
             hoverText="via Feedly"
             href={this.getFeedlyLink()} />
         </span>
+        { this.state.emailDialogVisible && this.emailDialog() }
         { this.state.rssDialogVisible && this.rssDialog() }
         { this.state.generalDialogVisible && this.generalSubscriptionDialog() }
       </div>
@@ -166,4 +218,9 @@ class SubscribeLinks extends Component {
   }
 }
 
-registerComponent('SubscribeLinks', SubscribeLinks);
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+};
+
+registerComponent('SubscribeLinks', SubscribeLinks, withCurrentUser, [withEdit, withEditOptions], withStyles(styles));

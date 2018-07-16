@@ -496,7 +496,7 @@ Users.addField([
     Email settings
   */
   {
-    fieldName: 'email_subscribe_to_curated',
+    fieldName: 'emailSubscribedToCurated',
     fieldSchema: {
       type: Boolean,
       control: 'checkbox',
