@@ -6,6 +6,23 @@ const moderationGroup = {
   label: "Moderation",
 }
 
+const postCounts = {
+  order: 65,
+  name: "postCounts",
+  label: "Post Counts",
+}
+
+const modHammersGroup = {
+  oder: 75,
+  name: "modHammers",
+  label: "Modhammers",
+}
+
+const notificationsGroup = {
+  name: "notifications",
+  label: "Notifications"
+}
+
 Users.addField([
 
   {
@@ -351,6 +368,7 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
+      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
@@ -368,6 +386,7 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
+      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
@@ -385,6 +404,7 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
+      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
@@ -402,6 +422,7 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
+      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
@@ -454,6 +475,7 @@ Users.addField([
 
   /**
     Overwrite email notification settings to be hidden (for now) TODO: Get email notifications to run properly
+    (These settings are all defined by Vulcan-Starter in Vulcan-Starter/packages/example-forum/lib/modules/notifications/custom_fields.js)
   */
   {
     fieldName: 'notifications_comments',
@@ -467,6 +489,19 @@ Users.addField([
       hidden: true,
     }
   },
+  {
+    fieldName: 'notifications_posts',
+    fieldSchema: {
+      group: null,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'notifications_users',
+    fieldSchema: {
+      hidden: true,
+    }
+  },
 
   /**
     New Notifications settings
@@ -474,21 +509,15 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
-      group: null,
+      group: notificationsGroup,
       label: "Notifications for Comments on My Posts"
     }
   },
   {
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
-      group: null,
+      group: notificationsGroup,
       label: "Notifications For Replies to My Comments"
-    }
-  },
-  {
-    fieldName: 'notifications_posts',
-    fieldSchema: {
-      group: null
     }
   },
   
@@ -499,6 +528,7 @@ Users.addField([
     fieldName: 'emailSubscribedToCurated',
     fieldSchema: {
       type: Boolean,
+      group: notificationsGroup,
       control: 'checkbox',
       label: "Email me new posts in Curated",
       insertableBy: ['members'],
@@ -528,6 +558,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
+      group: postCounts,
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
@@ -544,6 +575,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
+      group: postCounts,
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
@@ -560,6 +592,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
+      group: postCounts,
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
