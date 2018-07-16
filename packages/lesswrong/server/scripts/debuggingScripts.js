@@ -1,5 +1,4 @@
 /* global Vulcan */
-import { newMutation } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils.js';
@@ -105,6 +104,7 @@ function makeLoremIpsumBody(numParagraphs, paragraphLength) {
 // slow.
 Vulcan.createTestPostSet = async () =>
 {
+  //eslint-disable-next-line no-console
   console.log("Creating a set of bulky posts to test for load-time problems. This may take awhile...");
   await Vulcan.createBulkyTestPost({
     postTitle: "Test post with 100 flat comments",
@@ -146,6 +146,7 @@ Vulcan.createTestPostSet = async () =>
     commentParagraphLength: 100000,
     numRootComments: 1,
   });
+  //eslint-disable-next-line no-console
   console.log("Finished creating bulky test posts.");
 }
 
