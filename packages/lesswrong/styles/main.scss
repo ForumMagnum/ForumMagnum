@@ -296,6 +296,11 @@ then moved to more specific files as it becomes necessary.
   padding: 2px;
 }
 
+.subscribeLinks .subscribeIcon:hover {
+  padding: 2px;
+  opacity: 1;
+}
+
 .subscribeLinks .subscribeIcon:hover svg {
   filter: none;
 }
