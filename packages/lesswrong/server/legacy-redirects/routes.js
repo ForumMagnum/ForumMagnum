@@ -7,7 +7,7 @@ import Users from 'meteor/vulcan:users';
 
 
 // Route for old post links
-Picker.route('/:section?/:subreddit?/lw/:id/:slug', (params, req, res, next) => {
+Picker.route('/:section?/:subreddit?/lw/:id/:slug?', (params, req, res, next) => {
   if(params.id){
 
     try {
