@@ -100,7 +100,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                     </div>
                   </Link>
                 )}
-                <Components.CommentsVote comment={comment} />
+                <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
               </div></object>
               {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}

@@ -188,7 +188,7 @@ class CommentsItem extends PureComponent {
                 </a>
                 }
               </div>
-              <Components.CommentsVote comment={comment} />
+              <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
             { (frontPage && !expanded) ? this.renderExcerpt() : commentBody}

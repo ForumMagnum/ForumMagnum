@@ -113,4 +113,4 @@ CommentsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('CommentsVote', CommentsVote, withStyles(styles), withCurrentUser);
+registerComponent('CommentsVote', CommentsVote, withStyles(styles));
