@@ -35,7 +35,7 @@ class PostsItem extends PureComponent {
       categoryHover: false,
       showNewComments: false,
       lastVisitedAt: props.post.lastVisitedAt,
-      lastCommentedAt: props.post.lastCommentedAt,
+      lastCommentedAt: Posts.getLastCommentedAt(props.post),
       readStatus: false,
     }
   }
@@ -140,7 +140,7 @@ class PostsItem extends PureComponent {
 
     const {post, inlineCommentCount, currentUser} = this.props;
 
-    const commentCount = post.commentCount ? post.commentCount : 0
+    let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";
@@ -161,7 +161,7 @@ class PostsItem extends PureComponent {
         <div>
           <CommentIcon className="posts-item-comment-icon" style={commentCountIconStyle}/>
           <div className="posts-item-comment-count">
-            {post.commentCount || 0}
+            { commentCount }
           </div>
         </div>
       )
@@ -203,9 +203,11 @@ class PostsItem extends PureComponent {
                   </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
-                  {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
                   {this.renderEventDetails()}
                   <div className="posts-item-show-highlight-button">
+                    {currentUser && currentUser.isAdmin &&
+                      <Components.PostsStats post={post} />
+                    }
                     { this.state.showHighlight ?
                       <span>
                         Hide Highlight
@@ -275,17 +277,9 @@ class PostsItem extends PureComponent {
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={this.state.lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:12, postId:this.props.post._id}}
+                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
-              { post.commentCount > 10 && <div>
-                <div className="posts-item-top-comments-title">Top Comments</div>
-                <Components.RecentComments
-                  terms={{view: 'topRecentComments', limit: 3, postId:post._id}}
-                  fontSize="small"
-                  loadMore={false}
-                />
-              </div>}
               <div className="post-item-new-comments-footer">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
                   <FontIcon className={classNames("material-icons")}>

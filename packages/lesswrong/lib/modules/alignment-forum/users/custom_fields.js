@@ -7,7 +7,6 @@ Users.addField([
       type: Number,
       optional: true,
       label: "Alignment Base Score",
-      defaultValue: false,
       viewableBy: ['guests'],
     }
   },

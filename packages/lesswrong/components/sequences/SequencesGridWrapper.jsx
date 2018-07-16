@@ -45,6 +45,7 @@ const options = {
   queryName: "SequencesGridWrapperQuery",
   fragmentName: 'SequencesPageFragment',
   totalResolver: true,
+  ssr: true
 }
 
 

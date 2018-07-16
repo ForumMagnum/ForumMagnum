@@ -77,6 +77,7 @@ import '../components/posts/PostsListHeader.jsx';
 import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsVote.jsx';
+import '../components/posts/PostsStats.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';

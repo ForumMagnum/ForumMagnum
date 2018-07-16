@@ -19,6 +19,7 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
         <Components.RecommendedReadingItem direction="Next" post={nextPost} sequence={sequence}/>
       </div> : null
     ) }
+    <div className="sequences-navigation-bottom-clear"></div>
   </div>
 };
 

@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Comments } from "meteor/example-forum";
-import Tooltip from '@material-ui/core/Tooltip';
+// import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   vote: {
-    fontSize: 19,
+    fontSize: 25,
     lineHeight: 0.6,
   },
   voteScore: {
@@ -44,63 +44,65 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser } = this.props
-    const allVotes = comment && comment.allVotes;
+    // const allVotes = comment && comment.allVotes;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     return (
       <div className={classNames("comments-item-vote"), classes.vote}>
-        <Tooltip
+        {/* <Tooltip
           title="Click-and-hold for strong vote"
           placement="right"
           classes={{tooltip: classes.tooltip, open: classes.open}}
-        >
-          <span>
-            <Components.VoteButton
-              orientation="left"
-              color="error"
-              voteType="Downvote"
-              document={comment}
-              currentUser={currentUser}
-              collection={Comments}
-            />
-          </span>
-        </Tooltip>
-        <Tooltip
+        > */}
+        <span>
+          <Components.VoteButton
+            orientation="left"
+            color="error"
+            voteType="Downvote"
+            document={comment}
+            currentUser={currentUser}
+            collection={Comments}
+          />
+        </span>
+        {/* </Tooltip> */}
+        {/* <Tooltip
           title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
           placement="right"
           classes={{tooltip: classes.tooltip, open: classes.open}}
-        >
-          <span className={classes.voteScore}>
-            {baseScore || 0}
-          </span>
-        </Tooltip>
-        <Tooltip
+        > */}
+        <span className={classes.voteScore}>
+          {baseScore || 0}
+        </span>
+        {/* </Tooltip> */}
+        {/* <Tooltip
           title="Click-and-hold for strong vote"
           placement="right"
           classes={{tooltip: classes.tooltip, open: classes.open}}
-        >
-          <span>
-            <Components.VoteButton
-              orientation="right"
-              color="secondary"
-              voteType="Upvote"
-              document={comment}
-              currentUser={currentUser}
-              collection={Comments}
-            />
-          </span>
-        </Tooltip>
+        > */}
+        <span>
+          <Components.VoteButton
+            orientation="right"
+            color="secondary"
+            voteType="Upvote"
+            document={comment}
+            currentUser={currentUser}
+            collection={Comments}
+          />
+        </span>
+        {/* </Tooltip> */}
         {!!comment.af && !getSetting('AlignmentForum', false) &&
-          <Tooltip
-            title="Alignment Forum karma"
-            placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
-          >
-            <span className={classes.afScore}>
-              <span className={classes.afSymbol}>Ω</span>
-              <span className={classes.afScoreNumber}>{comment.afBaseScore || 0}</span>
-            </span>
-          </Tooltip>}
+          <span className={classes.afScore}>
+            <span className={classes.afSymbol}>Ω</span>
+            <span className={classes.afScoreNumber}>{comment.afBaseScore || 0}</span>
+          </span>
+          // {/* <Tooltip
+          //   title="Alignment Forum karma"
+          //   placement="right"
+          //   classes={{tooltip: classes.tooltip, open: classes.open}}
+          // >*/}
+
+          // {/* </Tooltip>*/}
+        }
       </div>)
     }
 }

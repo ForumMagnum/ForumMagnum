@@ -808,7 +808,7 @@ svg.drag-handle {
 .sequences-navigation-top {
     text-align: center;
     margin-top: -15px;
-    margin-bottom: 5px;
+    margin-bottom: 25px;
 }
 
 .sequences-navigation-top-left, .sequences-navigation-top-right {
@@ -1200,7 +1200,6 @@ svg.drag-handle {
 }
 
 .posts-page-admin-actions-wrapper {
-  height:50px;
   .posts-page-admin-actions {
     display:none;
   }
@@ -1258,4 +1257,8 @@ svg.drag-handle {
 .posts-daily-content-wrapper {
   margin-top:-12px;
   margin-left:15px;
+}
+
+.posts-stats-item {
+  margin-right:5px;
 }
