@@ -491,6 +491,22 @@ Users.addField([
       group: null
     }
   },
+  
+  /**
+    Email settings
+  */
+  {
+    fieldName: 'email_subscribe_to_curated',
+    fieldSchema: {
+      type: Boolean,
+      control: 'checkbox',
+      label: "Email me new posts in Curated",
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      viewableBy: ['members'],
+    }
+  },
+  
   /**
     Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   */
