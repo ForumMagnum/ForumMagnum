@@ -61,19 +61,15 @@ const FormSubmit = ({
       }
     </span>}
 
-    {
-        cancelCallback
-          ?
-            <FlatButton
-              className="form-cancel"
-              hoverColor={"rgba(0, 0, 0, 0.05)"}
-              style={{paddingBottom: "2px", fontFamily: commentFonts}}
-              onClick={(e) => {e.preventDefault(); cancelCallback(document)}}
-              label={"Cancel"}
-              labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-            />
-          : null
-    }
+    {!!cancelCallback &&
+      <FlatButton
+        className="form-cancel"
+        hoverColor={"rgba(0, 0, 0, 0.05)"}
+        style={{paddingBottom: "2px", fontFamily: commentFonts}}
+        onClick={(e) => {e.preventDefault(); cancelCallback(document)}}
+        label={"Cancel"}
+        labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
+      />}
 
     <FlatButton
       type="submit"
@@ -85,15 +81,8 @@ const FormSubmit = ({
       labelStyle={{fontSize: "16px", color: theme.palette.secondary.main}}
     />
 
-    {/* <Button type="submit" bsStyle="primary">
-      {submitLabel ? submitLabel : <FormattedMessage id="forms.submit"/>}
-    </Button> */}
-
     {collectionName === "comments" && document && document.postId && <span className="comment-submit-buttons">
       <Components.ModerationGuidelinesLink showModeratorAssistance documentId={document.postId}/>
-      {/* <div className="comment-editor-moderation-guidelines">
-
-      </div> */}
     </span>}
   </div>
 );
@@ -107,6 +96,7 @@ FormSubmit.propTypes = {
   deleteDocument: PropTypes.func,
   collectionName: PropTypes.string,
   classes: PropTypes.object,
+  theme: PropTypes.object,
 };
 
 FormSubmit.contextTypes = {

@@ -3,6 +3,9 @@ import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 const sansSerifStack = [
+  '"freight-sans-pro"',
+  'Frutiger', '"Frutiger Linotype"',
+  'Univers',
   'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
