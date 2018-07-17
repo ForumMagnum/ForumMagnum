@@ -111,20 +111,35 @@ class SubscribeLinks extends Component {
   
   emailDialog() {
     const { classes } = this.props;
+    let alreadySubscribed = this.props.currentUser.emailSubscribedToCurated
+    
+    let actions = [];
+    if(alreadySubscribed) {
+      actions = [
+        <FlatButton
+          label="OK"
+          primary={true}
+          onClick={this.closeAll}
+        />
+      ];
+    } else {
+      actions = [
+        <FlatButton
+          label={"Subscribe"}
+          onClick={this.subscribeByEmail}
+        />,
+        <FlatButton
+          label="Cancel"
+          primary={true}
+          onClick={this.closeAll}
+        />
+      ];
+    }
+    
     return (
       <Dialog
         title={"Subscribe to "+this.props.section.label+" by Email"}
-        actions={[
-          <FlatButton
-            label={this.props.currentUser.emailSubscribeToCurated ? "Unsubscribe" : "Subscribe"}
-            onClick={this.subscribeByEmail}
-          />,
-          <FlatButton
-            label="OK"
-            primary={true}
-            onClick={this.closeAll}
-          />
-        ]}
+        actions={actions}
         open={this.state.emailDialogVisible}
         onRequestClose={this.closeAll}
         modal={false}
@@ -132,6 +147,12 @@ class SubscribeLinks extends Component {
         className={classes.subscriptionDialog}
       >
         <div>{this.props.section.description}</div>
+        
+        {alreadySubscribed &&
+          <div>
+            <p>You are subscribed to this email feed.</p>
+            <a href="/account">Edit subscription settings</a>
+          </div>}
       </Dialog>
     )
   }
