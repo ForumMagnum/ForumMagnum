@@ -61,7 +61,7 @@ const FormSubmit = ({
       }
     </span>}
 
-    {cancelCallback &&
+    {!!cancelCallback &&
       <FlatButton
         className="form-cancel"
         hoverColor={"rgba(0, 0, 0, 0.05)"}
