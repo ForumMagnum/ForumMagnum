@@ -8,17 +8,6 @@ import FlatButton from 'material-ui/FlatButton';
 import { withStyles } from '@material-ui/core/styles';
 import Users from 'meteor/vulcan:users';
 
-const SubscribeIcon = ({className, icon, hoverText, onClick, href}) => {
-  return (
-    <a className={"subscribeIcon "+className} onClick={onClick} href={href}>
-      {icon}
-      <div className="subscribeIconHoverText">
-        {hoverText}
-      </div>
-    </a>
-  );
-}
-
 // Source: https://www.vectorlogo.zone/logos/feedly/index.html
 const feedlyIcon = 
   <svg
@@ -57,6 +46,7 @@ class SubscribeLinks extends Component {
   
   initialState() {
     return {
+      hoverText: null,
       generalDialogVisible: false,
       emailDialogVisible: false,
       rssDialogVisible: false,
@@ -186,25 +176,54 @@ class SubscribeLinks extends Component {
     )
   }
   
+  emailSubscriptionEnabled() {
+    return this.props.currentUser && this.props.currentUser.email
+  }
+  
+  clearHover = () => {
+    this.setState({hoverText: null});
+  }
+  
+  subscribeIcon = ({className, icon, hoverText, onClick, href}) => {
+    return (
+      <a className={"subscribeIcon "+className}
+          onClick={onClick}
+          onMouseEnter={(e) => this.setState({hoverText: hoverText})}
+          onMouseLeave={(e) => this.clearHover()}
+          href={href}>
+        {icon}
+      </a>
+    );
+  }
+  
   render() {
     const { classes } = this.props;
     return (
       <div className="subscribeLinks">
-        <a className="subscribeText" onClick={(e) => {this.clickSubscribeGeneral(e)}}>
-          Subscribe
-        </a>
+        { this.state.hoverText &&
+            <span className="subscribeIconHoverText">
+              {this.state.hoverText}
+            </span>
+        }
+        { !this.state.hoverText && 
+            <a className="subscribeText" onClick={(e) => {this.clickSubscribeGeneral(e)}}>
+              Subscribe
+            </a> }
         <span className="subscribeIcons">
-          <SubscribeIcon
-            className="subscribeEmail"
-            icon={<FontIcon className="material-icons">email</FontIcon>}
-            hoverText="via Email"
-            onClick={(e) => {this.clickSubscribeEmail(e)}} />
-          <SubscribeIcon
+          {
+            this.emailSubscriptionEnabled() &&
+              <this.subscribeIcon
+                className="subscribeEmail"
+                icon={<FontIcon className="material-icons">email</FontIcon>}
+                hoverText="via Email"
+                onClick={(e) => {this.clickSubscribeEmail(e)}} />
+          }
+          <this.subscribeIcon
             className="subscribeRSS"
             icon={<FontIcon className="material-icons">rss_feed</FontIcon>}
             hoverText="via RSS"
             onClick={(e) => {this.clickSubscribeRSS(e)}} />
-          <SubscribeIcon
+          <this.subscribeIcon
             className="subscribeFeedly"
             icon={feedlyIcon}
             hoverText="via Feedly"
