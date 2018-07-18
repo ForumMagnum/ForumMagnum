@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Accounts, Components, registerComponent, getSetting, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FontIcon from 'material-ui/FontIcon';
@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import { withStyles } from '@material-ui/core/styles';
 import Users from 'meteor/vulcan:users';
+import classNames from 'classnames';
 
 // Source: https://www.vectorlogo.zone/logos/feedly/index.html
 const feedlyIcon = 
@@ -25,8 +26,8 @@ const feedlyIcon =
   </svg>
 
 const styles = theme => ({
-  dialog: {
-    maxWidth: "530px"
+  dialogPaper: {
+    maxWidth: "530px",
   },
   copyButton: {
     color: "rgba(100,169,105,1)"
@@ -47,17 +48,14 @@ class SubscribeLinks extends Component {
   initialState() {
     return {
       hoverText: null,
-      generalDialogVisible: false,
       emailDialogVisible: false,
       rssDialogVisible: false,
       copiedToClipboard: false
     }
   }
   
+  
   clickSubscribeGeneral(event) {
-    this.setState({
-      generalDialogVisible: true
-    })
   }
   
   clickSubscribeEmail(event) {
@@ -71,6 +69,7 @@ class SubscribeLinks extends Component {
       rssDialogVisible: true
     })
   }
+  
   
   getRssLink() {
     return this.makeAbsolute("/feed.xml?view="+this.props.section.rssView)
@@ -92,43 +91,85 @@ class SubscribeLinks extends Component {
     return "https://www.feedly.com/i/subscription/feed/"+encodeURIComponent(this.getRssLink())
   }
   
+  
   subscribeByEmail = () => {
     this.props.editMutation({
       documentId: this.props.currentUser._id,
       set: {emailSubscribedToCurated:true},
       unset: {}
     })
+    
+    if (!this.emailAddressIsVerified()) {
+      this.sendVerificationEmail();
+    }
+  }
+  
+  // Return true if the current user's account has at least one verified
+  // email address.
+  emailAddressIsVerified = () => {
+    var emails = this.props.currentUser.emails;
+    for (var i=0; i<emails.length; i++) {
+      if (emails[i].verified)
+        return true;
+    }
+    return false;
+  }
+  
+  sendVerificationEmail = () => {
+    console.log("Sending confirmation email");
+    this.props.editMutation({
+      documentId: this.props.currentUser._id,
+      set: {whenConfirmationEmailSent:new Date()},
+      unset: {}
+    });
   }
   
   closeAll = (event) => {
     this.setState(this.initialState());
   }
   
-  generalSubscriptionDialog() {
-    // TODO
-    return this.rssDialog()
+  clearHover = () => {
+    this.setState({hoverText: null});
   }
+  
   
   emailDialog() {
     const { classes } = this.props;
     let alreadySubscribed = this.props.currentUser.emailSubscribedToCurated
     
     let actions = [];
-    if(alreadySubscribed) {
+    let formBody = null;
+    if (alreadySubscribed) {
       actions = [
         <FlatButton
+          key="okButton"
           label="OK"
           primary={true}
           onClick={this.closeAll}
         />
       ];
+      
+      if (this.emailAddressIsVerified()) {
+        formBody =
+          <div>
+            <p>You are subscribed to this email feed.</p>
+            <a href="/account">Edit subscription settings</a>
+          </div>
+      } else {
+        formBody =
+          <div>
+            <p>You need to verify your email address. You should have just received a confirmation link.</p>
+          </div>
+      }
     } else {
       actions = [
         <FlatButton
+          key="subscribeButton"
           label={"Subscribe"}
           onClick={this.subscribeByEmail}
         />,
         <FlatButton
+          key="cancelButton"
           label="Cancel"
           primary={true}
           onClick={this.closeAll}
@@ -143,16 +184,12 @@ class SubscribeLinks extends Component {
         open={this.state.emailDialogVisible}
         onRequestClose={this.closeAll}
         modal={false}
-        contentStyle={classes.dialog}
-        className={classes.subscriptionDialog}
+        classes={{
+          root: classNames(classes.dialog, classes.subscriptionDialog)
+        }}
       >
         <div>{this.props.section.description}</div>
-        
-        {alreadySubscribed &&
-          <div>
-            <p>You are subscribed to this email feed.</p>
-            <a href="/account">Edit subscription settings</a>
-          </div>}
+        {formBody}
       </Dialog>
     )
   }
@@ -177,8 +214,9 @@ class SubscribeLinks extends Component {
         open={this.state.rssDialogVisible}
         onRequestClose={this.closeAll}
         modal={false}
-        contentStyle={classes.dialog}
-        className={classes.subscriptionDialog}
+        classes={{
+          root: classNames(classes.dialog, classes.subscriptionDialog)
+        }}
       >
         <div>{this.props.section.description}</div>
         <div>Paste this link into your RSS reader:</div>
@@ -201,10 +239,6 @@ class SubscribeLinks extends Component {
     return this.props.currentUser && this.props.currentUser.email
   }
   
-  clearHover = () => {
-    this.setState({hoverText: null});
-  }
-  
   subscribeIcon = ({className, icon, hoverText, onClick, href}) => {
     return (
       <a className={"subscribeIcon "+className}
@@ -218,7 +252,6 @@ class SubscribeLinks extends Component {
   }
   
   render() {
-    const { classes } = this.props;
     return (
       <div className="subscribeLinks">
         { this.state.hoverText &&
@@ -252,7 +285,6 @@ class SubscribeLinks extends Component {
         </span>
         { this.state.emailDialogVisible && this.emailDialog() }
         { this.state.rssDialogVisible && this.rssDialog() }
-        { this.state.generalDialogVisible && this.generalSubscriptionDialog() }
       </div>
     )
   }

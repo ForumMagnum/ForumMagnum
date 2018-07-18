@@ -42,6 +42,33 @@ Users.addField([
         hidden: true
     }
   },
+  
+  /**
+    Emails (not to be confused with email). This field belongs to Meteor's
+    accounts system; we should never write it, but we do need to read it to find
+    out whether a user's email address is verified.
+  */
+  {
+    fieldName: 'emails',
+    fieldSchema: {
+      hidden: true,
+      viewableBy: ['members'],
+    }
+  },
+  
+  /**
+  */
+  {
+    fieldName: 'whenConfirmationEmailSent',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      hidden: true,
+      viewableBy: ['members'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+    }
+  },
 
   /**
     Legacy: Boolean used to indicate that post was imported from old LW database
@@ -528,6 +555,7 @@ Users.addField([
     fieldName: 'emailSubscribedToCurated',
     fieldSchema: {
       type: Boolean,
+      optional: true,
       group: notificationsGroup,
       control: 'checkbox',
       label: "Email me new posts in Curated",
