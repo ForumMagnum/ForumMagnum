@@ -74,12 +74,6 @@ Users.isAllowedToComment = (user, post) => {
     return true
   }
 
-  if (getSetting('AlignmentForum', false)) {
-    if (!Users.canDo(user, 'comments.alignment.new')) {
-      return false
-    }
-  }
-
   if (Users.userIsBannedFromPost(user, post)) {
     return false
   }
@@ -89,6 +83,12 @@ Users.isAllowedToComment = (user, post) => {
   }
   if (post.commentsLocked) {
     return false
+  }
+
+  if (getSetting('AlignmentForum', false)) {
+    if (!Users.canDo(user, 'comments.alignment.new')) {
+      return Users.owns(user, post)
+    }
   }
 
   return true
