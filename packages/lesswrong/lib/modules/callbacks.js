@@ -70,13 +70,12 @@ const sendEmailPostNotifications = async (users, notificationType, postId) => {
   let email = await VulcanEmail.build({
     emailName: "newPost",
     variables: {
-      postId: post._id
+      documentId: post._id
     },
     locale: "en"
   });
   
   users.forEach(user => {
-    console.log("User with email: "+user.email);
     if(user.email) {
       VulcanEmail.send(user.email, email.subject, email.html, email.text, false);
     }
@@ -249,9 +248,7 @@ function postsNewNotifications (post) {
 addCallback("posts.new.async", postsNewNotifications);
 
 function PostsCurateNotification (post, oldPost) {
-  console.log("Checking if mutation was curating a post");
   if(post.curatedDate && !oldPost.curatedDate) {
-    console.log("Mutation curated a post; looking for users to email");
     let usersToNotify = Users.find({'emailSubscribedToCurated': true}, {fields: {_id:1, email:1}}).fetch();
     sendEmailPostNotifications(usersToNotify, "curated", post._id);
   }

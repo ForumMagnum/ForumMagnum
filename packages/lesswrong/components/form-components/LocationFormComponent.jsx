@@ -41,7 +41,7 @@ class LocationFormComponent extends Component {
     if (this.props.document) {
       return <div className="form-group row location-suggest">
         <label className="control-label col-sm-3">Location</label>
-        <div class="col-sm-9">
+        <div className="col-sm-9">
           <Geosuggest
             placeholder=""
             onSuggestSelect={this.handleSuggestSelect}

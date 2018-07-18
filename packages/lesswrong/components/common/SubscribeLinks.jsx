@@ -93,15 +93,26 @@ class SubscribeLinks extends Component {
   
   
   subscribeByEmail = () => {
+    let mutation = {emailSubscribedToCurated:true}
+    
+    if (!this.emailAddressIsVerified()) {
+      // Updating whenConfirmationEmailSent sets off a trigger
+      // which causes the email to actually be sent.
+      //
+      // We combine these into one editMutation call to work
+      // around a bug in Vulcan's callbacks, where a pair
+      // of edits a->b->c will trigger two callbacks that
+      // say the edit was a->c, resulting in two confirmation
+      // emails sent at once.
+      mutation.whenConfirmationEmailSent = new Date();
+    }
+    
     this.props.editMutation({
       documentId: this.props.currentUser._id,
-      set: {emailSubscribedToCurated:true},
+      set: mutation,
       unset: {}
     })
     
-    if (!this.emailAddressIsVerified()) {
-      this.sendVerificationEmail();
-    }
   }
   
   // Return true if the current user's account has at least one verified

@@ -21,6 +21,7 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 function maybeSendVerificationEmail (user, oldUser)
 {
   if((""+oldUser.whenConfirmationEmailSent) != (""+user.whenConfirmationEmailSent)) {
+    console.info("Sending verification email for "+user.displayName+" to "+user.email);
     Accounts.sendVerificationEmail(user._id);
   }
 }
