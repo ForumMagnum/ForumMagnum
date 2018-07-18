@@ -27,6 +27,15 @@ const paperStyle = {
   backgroundColor: 'inherit',
 }
 
+const isSticky = (post, terms) => {
+  if (post && terms && terms.forum) {
+    return (
+      post.sticky ||
+      (terms.af && post.afSticky) ||
+      (terms.meta && post.metaSticky)
+    )
+  }
+}
 
 class PostsItem extends PureComponent {
   constructor(props, context) {
@@ -138,12 +147,12 @@ class PostsItem extends PureComponent {
 
   render() {
 
-    const {post, inlineCommentCount, currentUser} = this.props;
+    const {post, inlineCommentCount, currentUser, terms} = this.props;
 
     let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
-    if (post.sticky) postClass += " posts-sticky";
+    if (isSticky(post, terms)) postClass += " posts-sticky";
     if (this.state.showHighlight) postClass += " show-highlight";
     const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 

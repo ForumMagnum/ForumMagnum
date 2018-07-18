@@ -100,6 +100,7 @@ registerFragment(`
     postedAt
     createdAt
     sticky
+    metaSticky
     status
     frontpageDate
     meta
@@ -158,6 +159,7 @@ registerFragment(`
     afBaseScore
     afCommentCount
     afLastCommentedAt
+    afSticky
     allVotes {
       ...VoteMinimumInfo
     }
