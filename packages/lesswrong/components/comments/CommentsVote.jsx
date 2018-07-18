@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -113,4 +113,4 @@ CommentsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('CommentsVote', CommentsVote, withStyles(styles), withCurrentUser);
+registerComponent('CommentsVote', CommentsVote, withStyles(styles));
