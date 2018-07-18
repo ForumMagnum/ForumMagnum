@@ -92,7 +92,7 @@ function updateAlignmentKarmaClientCallback (document, collection, voter, voteTy
   if (document.af && Users.canDo(voter, "votes.alignment")) {
     return {
       ...document,
-      afBaseScore: (document.afBaseScore || 0) + votePower,
+      afBaseScore: (document.afBaseScore || 0) + (votePower || 0),
     };
   } else {
     return document
@@ -112,10 +112,16 @@ addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);
 
 function cancelAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
-  return {
-    ...document,
-    afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
-  };
+
+  if (document.af && Users.canDo(voter, "votes.alignment")) {
+    return {
+      ...document,
+      afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
+    };
+  } else {
+    return document
+  }
+
 }
 
 addCallback("votes.cancel.client", cancelAlignmentKarmaClientCallback);
