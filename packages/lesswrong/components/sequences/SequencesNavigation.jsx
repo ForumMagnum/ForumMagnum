@@ -1,14 +1,21 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import { Link } from 'react-router';
-import React from 'react';
+import React, { Component } from 'react';
 
-const SequencesNavigation = ({
-    document,
-    documentId,
-    loading,
-    post
-  }) => {
+class SequencesNavigation extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+  
+  render() {
+    if (this.state.error) {
+      return <div className="errorText">Error rendering sequences navigation panel: {this.state.error}</div>
+    }
+    
+    let {document, documentId, loading, post} = this.props;
+    
     let prevPostUrl = ""
     let nextPostUrl = ""
 
@@ -72,6 +79,11 @@ const SequencesNavigation = ({
       </div>
     )
   }
+  
+  componentDidCatch(error, info) {
+    this.setState({error:error.toString()});
+  }
+}
 
 const options = {
   collection: Sequences,
