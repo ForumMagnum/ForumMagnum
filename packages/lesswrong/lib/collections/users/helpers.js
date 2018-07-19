@@ -1,5 +1,6 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
+import { getSetting } from 'meteor/vulcan:core';
 
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
@@ -84,6 +85,12 @@ Users.isAllowedToComment = (user, post) => {
     return false
   }
 
+  if (getSetting('AlignmentForum', false)) {
+    if (!Users.canDo(user, 'comments.alignment.new')) {
+      return Users.owns(user, post)
+    }
+  }
+
   return true
 }
 
@@ -95,7 +102,11 @@ Users.blockedCommentingReason = (user, post) => {
   if (Users.userIsBannedFromPost(user, post)) {
     return "This post's author has blocked you from commenting."
   }
-
+  if (getSetting('AlignmentForum', false)) {
+    if (!Users.canDo(user, 'comments.alignment.new')) {
+      return "You must be approved by an admin to comment on Alignment Forum"
+    }
+  }
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return "This post's author has blocked you from commenting."
   }
@@ -130,4 +141,22 @@ Users.useMarkdownPostEditor = (user) => {
     return true
   }
   return user && user.markDownPostEditor
+}
+
+
+Users.canMakeAlignmentPost = (user, post) => {
+  if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.edit")) {
+    return true
+  }
+  if (Users.canDo(user,"posts.alignment.edit.all")) {
+    return true
+  }
+  if (!user || !post) {
+    return false
+  }
+  return !!(
+    user._id === post.userId &&
+    Users.canDo(user,"posts.alignment.edit") &&
+    Users.owns(user, post)
+  )
 }

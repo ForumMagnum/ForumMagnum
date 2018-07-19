@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
-import CloseIcon from 'material-ui/svg-icons/navigation/close';
+import CloseIcon from '@material-ui/icons/Close';
 
 class LocalGroupMarker extends PureComponent {
   // March 13th 2018: If this is still around in six months, probably time to say goodbye

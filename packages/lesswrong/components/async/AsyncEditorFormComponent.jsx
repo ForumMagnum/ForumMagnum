@@ -21,6 +21,7 @@ import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
+import { codeStyle } from './codeStyle.js'
 
 import {
   createBlockStyleButton,
@@ -48,7 +49,9 @@ const HeadlineTwoButton = createBlockStyleButton({
     </svg>),
 });
 
-
+const styleMap = {
+  ...codeStyle
+}
 
 import { htmlToDraft } from '../../lib/editor/utils.js'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
@@ -236,15 +239,18 @@ class AsyncEditorFormComponent extends Component {
     const className = classNames("editor", "content-body", {"content-editor-is-empty": !contentState.hasText()})
 
     return (
-      <div className={className} onClick={this.focus}>
-        <Editor
-          editorState={this.state.editorState}
-          onChange={this.onChange}
-          spellCheck={true}
-          plugins={this.plugins}
-          keyBindingFn={myKeyBindingFn}
-          ref={(element) => { this.editor = element; }}
-        />
+      <div>
+        <div className={className} onClick={this.focus}>
+          <Editor
+            editorState={this.state.editorState}
+            onChange={this.onChange}
+            spellCheck={true}
+            plugins={this.plugins}
+            keyBindingFn={myKeyBindingFn}
+            customStyleMap={styleMap}
+            ref={(element) => { this.editor = element; }}
+          />
+        </div>
         <InlineToolbar />
         <AlignmentTool />
       </div>

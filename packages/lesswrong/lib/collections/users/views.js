@@ -38,6 +38,11 @@ Users.addView("sunshineNewUsers", function () {
   return {
     selector: {
       createdAt: {$gt: twoDaysAgo},
+      $or: [
+        { voteCount: {$gt: 0}},
+        { commentCount: {$gt: 0}},
+        { postCount: {$gt: 0}},
+      ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
     },

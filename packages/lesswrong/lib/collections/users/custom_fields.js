@@ -636,5 +636,62 @@ Users.addField([
       type: Object,
       optional: true
     }
-  }
+  },
+
+  {
+    fieldName: 'afKarma',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      label: "Alignment Base Score",
+      defaultValue: false,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'voteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      label: "Small Upvote Count",
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'smallUpvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'smallDownvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'bigUpvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'bigDownvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
 ]);

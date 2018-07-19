@@ -20,7 +20,70 @@ import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 // import Users from "meteor/vulcan:users";
+
+const styles = theme => ({
+    header: {
+      maxWidth: 650,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginBottom: 40,
+    },
+    title: {
+      textAlign: 'center',
+      margin: '45px 0',
+      color: theme.palette.text.primary,
+    },
+    voteTop: {
+      position: 'relative',
+      fontSize: 35,
+      marginTop: -35,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      textAlign: 'center'
+    },
+    voteDivider: {
+      borderTopColor: theme.palette.grey[600],
+      width: 80,
+      WebkitMarginBefore: 0,
+      WebkitMarginAfter: 0,
+      WebkitMarginStart: 0,
+      WebkitMarginEnd: 0
+    },
+    author: {
+      textAlign: 'center',
+    },
+    mainContent: {
+      position: 'relative',
+      maxWidth: 650,
+      minHeight: 200,
+      fontSize: 20,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginBottom: 40,
+    },
+    linkPost: {
+      marginBottom: 10,
+      paddingTop: 1,
+      '& > a': {
+        color: theme.palette.secondary.light
+      }
+    },
+    voteBottom: {
+      position: 'relative',
+      fontSize: 45,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      textAlign: 'center',
+    },
+    postFooter: {
+      marginBottom: 30,
+    }
+})
 
 class PostsPage extends Component {
   renderCommentViewSelector() {
@@ -60,7 +123,9 @@ class PostsPage extends Component {
     return 'postCommentsTop';
   }
 
-  getCommentCountStr = (count) => {
+  getCommentCountStr = (post) => {
+    let count = Posts.getCommentCount(post)
+
     if (!count) {
         return "No comments"
     } else if (count == 1) {
@@ -161,7 +226,7 @@ class PostsPage extends Component {
         {this.renderEventLinks()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
-        <a href="#comments">{ this.getCommentCountStr(post.commentCount) }</a>
+        <a href="#comments">{ this.getCommentCountStr(post) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
         {Posts.options.mutations.edit.check(this.props.currentUser, post) &&
@@ -184,61 +249,58 @@ class PostsPage extends Component {
   }
 
   render() {
-    if (this.props.loading) {
-
-      return <div className="posts-page"><Components.Loading/></div>
-
-    } else if (!this.props.document) {
-
-      // console.log(`// missing post (_id: ${this.props.documentId})`);
-      return <div className="posts-page"><FormattedMessage id="app.404"/></div>
-
+    const { loading, document, currentUser, location, classes } = this.props
+    if (loading) {
+      return <div><Components.Loading/></div>
+    } else if (!document) {
+      return <div><FormattedMessage id="app.404"/></div>
     } else {
-      const post = this.props.document;
-      const userId = this.props.currentUser && this.props.currentUser._id;
-      const htmlBody = {__html: post.htmlBody};
-      let query = this.props.location && this.props.location.query
-      const commentTerms = _.isEmpty(query) ? {view: 'postCommentsTop', limit: 500}: {...query, limit:500};
+
+      const post = document
+      const htmlBody = {__html: post.htmlBody}
+      let query = location && location.query
+      const commentTerms = _.isEmpty(query) ? {view: 'postCommentsTop', limit: 500} : {...query, limit:500}
+
       return (
-        <div className="posts-page">
+        <div>
           <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
-          <div className="posts-page-content">
-            <div className="posts-page-content-header">
-              <div className="posts-page-content-header-title">
-                <h1>{post.draft && <span className="posts-page-content-header-title-draft">[Draft] </span>}{post.title}</h1>
-              </div>
+          <div>
+            <div className={classes.header}>
+              <Typography variant="display3" className={classes.title}>
+                {post.draft && '[Draft]'}{post.title}
+              </Typography>
               {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
               { this.renderSequenceNavigation() }
-              <div className="posts-page-content-header-voting">
-                <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
+              <div className={classes.voteTop}>
+                <hr className={classes.voteDivider}/>
+                <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                <hr className={classes.voteDivider}/>
               </div>
-              <div className="posts-page-content-header-author">
+              <Typography variant="title" color="textSecondary" className={classes.author}>
                 <Components.UsersName user={post.user} />
-              </div>
+              </Typography>
             </div>
-            <div className="posts-page-content-body">
+            <div className={classes.mainContent}>
               {this.renderPostMetadata()}
-              {post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
-              { post.url && <p className="posts-page-content-body-link-post">
+              { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
+              { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-              </p>}
-              {post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div>}
-              {post.categories && post.categories.length > 0 ? <div className="posts-page-content-body-tags">
-                Tags: <span className="posts-page-content-body-tags-list"> {post.categories.map(category => <a href={"/categories/"+category.id +"/"+category.slug}>{category.name}</a>)} </span>
-              </div> : null}
+              </Typography>}
+              {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
+              { post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
-            <div className="posts-page-content-footer">
-              <div className="posts-page-content-footer-voting">
-                <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/>
+            <div className={classes.postFooter}>
+              <div className={classes.voteBottom}>
+                <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
               </div>
-              <div className="posts-page-content-footer-author">
+              <Typography variant="headline" color="textSecondary" className={classes.author}>
                 <Components.UsersName user={post.user} />
-              </div>
+              </Typography>
             </div>
           </div>
           {this.renderRecommendedReading()}
-          <div className="posts-page-comments" id="comments">
-            <Components.PostsCommentsThreadWrapper terms={{...commentTerms, postId: post._id}} userId={userId} post={post}/>
+          <div id="comments">
+            <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
           </div>
         </div>
       );
@@ -295,7 +357,6 @@ class PostsPage extends Component {
         } else if (this.props.documentId){
           eventProperties.documentId = this.props.documentId;
         }
-        // console.log("Registered event: ", eventProperties);
         registerEvent('post-view', eventProperties);
       }
     } catch(error) {
@@ -346,5 +407,7 @@ registerComponent(
   // HOC to provide a single mutation, based on mutationOptions
   withMutation(mutationOptions),
   // HOC to give access to the redux store & related actions
-  connect(mapStateToProps, mapDispatchToProps)
+  connect(mapStateToProps, mapDispatchToProps),
+  // HOC to add JSS styles to component
+  withStyles(styles)
 );

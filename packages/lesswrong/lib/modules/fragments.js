@@ -5,18 +5,6 @@ extendFragment('UsersAdmin', `
 `);
 
 registerFragment(`
-  fragment UsersMinimumInfo on User {
-    # vulcan:users
-    _id
-    slug
-    username
-    displayName
-    emailHash
-    karma
-  }
-`);
-
-registerFragment(`
   fragment conversationsListFragment on Conversation {
     _id
     title
@@ -69,7 +57,7 @@ registerFragment(`
 `);
 
 extendFragment('UsersCurrent', `
-  karma
+  ...UsersMinimumInfo
   voteBanned
   banned
   nullifyVotes
@@ -112,11 +100,11 @@ registerFragment(`
     postedAt
     createdAt
     sticky
+    metaSticky
     status
     frontpageDate
     meta
     # body # We replaced this with content
-    htmlBody # We replaced this with content
     excerpt # This won't work with content
     htmlHighlight
     # content # Our replacement for body
@@ -167,6 +155,11 @@ registerFragment(`
     suggestForCuratedUserIds
     suggestForCuratedUsernames
     reviewForCuratedUserId
+    af
+    afBaseScore
+    afCommentCount
+    afLastCommentedAt
+    afSticky
     allVotes {
       ...VoteMinimumInfo
     }
@@ -344,6 +337,9 @@ registerFragment(`
     allVotes {
       ...VoteMinimumInfo
     }
+    af
+    afBaseScore
+    needsReview
   }
 `);
 
@@ -373,11 +369,11 @@ registerFragment(`
     email
     commentCount
     postCount
-    allVotes {
-      _id
-      voteType
-      documentId
-    }
+    voteCount
+    smallUpvoteCount
+    bigUpvoteCount
+    smallDownvoteCount
+    bigDownvoteCount
   }
 `);
 
@@ -480,6 +476,8 @@ registerFragment(`
     username
     displayName
     emailHash
+    karma
+    afKarma
   }
 `);
 
@@ -493,7 +491,6 @@ registerFragment(`
     htmlBio
     website
     groups
-    karma
     # example-forum
     postCount
     frontpagePostCount
@@ -564,5 +561,35 @@ registerFragment(`
   fragment VoteMinimumInfo on Vote {
     _id
     voteType
+  }
+`);
+
+registerFragment(`
+  fragment WithVotePost on Post {
+    __typename
+    _id
+    currentUserVotes{
+      _id
+      voteType
+      power
+    }
+    baseScore
+    score
+    afBaseScore
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteComment on Comment {
+    __typename
+    _id
+    currentUserVotes{
+      _id
+      voteType
+      power
+    }
+    baseScore
+    score
+    afBaseScore
   }
 `);

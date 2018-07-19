@@ -4,7 +4,7 @@ import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
 import { Highlight, Snippet} from 'react-instantsearch/dom';
-import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
+import CommentIcon from '@material-ui/icons/ModeComment';
 import IconButton from 'material-ui/IconButton';
 import Badge from 'material-ui/Badge';
 

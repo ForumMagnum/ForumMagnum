@@ -56,3 +56,7 @@ yarn.lock
 
 *.swp
 *.un~
+yarn.lock
+
+*.swp
+*.un~

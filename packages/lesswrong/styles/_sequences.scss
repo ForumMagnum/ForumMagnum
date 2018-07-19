@@ -97,8 +97,13 @@
     }
     .sequences-grid-item-image {
       width: 203px;
+      height: 80px;
+      background-color: rgba(0,0,0,0.05);
       @include very-small-break() {
         width: 100%;
+      }
+      @include section-header-break() {
+        height: auto,
       }
       img {
         width: 203px;
@@ -477,6 +482,9 @@ svg.drag-handle {
     font-weight: bold;
     color: rgba(0,0,0,0.5);
   }
+}
+.sequences-navigation-bottom-clear {
+  clear:both;
 }
 
 .sequences-navigation-bottom-divider {
