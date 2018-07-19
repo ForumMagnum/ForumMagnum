@@ -59,7 +59,7 @@ async function updateAlignmentUserServer (newDocument, vote, multiplier) {
     if (newAfKarma > 0) {
       Users.update({_id:newDocument.userId}, {
         $set: {afKarma: newAfKarma },
-        $push: {groups: 'alignmentVoters'}
+        $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
       Users.update({_id:newDocument.userId}, {
