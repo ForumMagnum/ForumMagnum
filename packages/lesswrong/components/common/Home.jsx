@@ -1,5 +1,6 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     root: {
@@ -31,7 +32,6 @@ const Home = (props, context) => {
     default:
       recentPostsTitle = "Recent Posts";
   }
-
 
   // TODO: IBETA ONLY Only logged-in users should see page content
   if (!currentUser) return <p>Please log in to see content during internal beta</p>
