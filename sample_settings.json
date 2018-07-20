@@ -28,12 +28,6 @@
     "embedProvider": "builtin"
   },
 
-  "galaxy.meteor.com": {
-    "env": {
-      "MONGO_URL": "mongodb://admin:Dkhky[e9HK4omvFMuUw@ds125001.mlab.com:25001/ibetaforum"
-    }
-  },
-
   "defaultEmail": "no-reply@lesserwrong.com",
   "scoreUpdateInterval": "30",
   "forwardedWhitelist": ["outgoing-addresses.greaterwrong.com"],
