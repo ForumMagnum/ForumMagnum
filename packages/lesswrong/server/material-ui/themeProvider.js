@@ -3,8 +3,7 @@ import React from 'react';
 import { addCallback, getSetting } from 'meteor/vulcan:core';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
-import lwTheme from '../../themes/lesswrongTheme';
-import afTheme from '../../themes/alignmentForumTheme';
+import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssCleanup from '../../components/themes/JssCleanup';
 
@@ -15,7 +14,7 @@ function wrapWithMuiTheme (app, { req, res, store, apolloClient }) {
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProvider theme={getSetting('AlignmentForum', false) ? afTheme : lwTheme} sheetsManager={new Map()}>
+      <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
         <JssCleanup>
           {app}
         </JssCleanup>
