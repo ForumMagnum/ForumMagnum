@@ -42,10 +42,11 @@ export const customizeTheme = (router, userAgent, params, store) => {
       "palette": {
         "primary1Color": "#f5f5f5",
         "primary2Color": "#eeeeee",
-        "accent1Color": "rgba(100, 169, 105, 0.5)",
-        "accent2Color": "rgba(100, 169, 105, 1)",
-        "accent3Color": "#c8e6c9",
-        "pickerHeaderColor": "#4caf50",
+        // TODO this is a bit hacky still
+        "accent1Color": "#0C869B",
+        "accent2Color": "#1B5266",
+        "accent3Color": "#0C869B",
+        "pickerHeaderColor": "#00B2BE",
       },
       "appBar": {
         "textColor": "rgba(0, 0, 0, 0.54)"
@@ -58,7 +59,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
         "primaryTextColor": "rgba(0,0,0,0.54)"
       },
       "checkbox": {
-        "checkedColor": "rgba(100, 169, 105, 0.7)",
+        "checkedColor": "#0C869B",
         "labelColor": "rgba(0,0,0,0.6)",
         "boxColor": "rgba(0,0,0,0.6)"
       },
@@ -70,10 +71,10 @@ export const customizeTheme = (router, userAgent, params, store) => {
       "palette": {
         "primary1Color": "#f5f5f5",
         "primary2Color": "#eeeeee",
-        "accent1Color": "rgba(100, 169, 105, 0.5)",
-        "accent2Color": "rgba(100, 169, 105, 1)",
-        "accent3Color": "#c8e6c9",
-        "pickerHeaderColor": "#4caf50",
+        "accent1Color": "#0C869B",
+        "accent2Color": "#1B5266",
+        "accent3Color": "#0C869B",
+        "pickerHeaderColor": "#00B2BE",
       },
       "appBar": {
         "textColor": "rgba(0, 0, 0, 0.54)"
@@ -86,7 +87,7 @@ export const customizeTheme = (router, userAgent, params, store) => {
         "primaryTextColor": "rgba(0,0,0,0.54)"
       },
       "checkbox": {
-        "checkedColor": "rgba(100, 169, 105, 0.7)",
+        "checkedColor": "#0C869B",
         "labelColor": "rgba(0,0,0,0.6)",
         "boxColor": "rgba(0,0,0,0.6)"
       },

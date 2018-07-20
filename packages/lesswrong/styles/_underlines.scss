@@ -64,26 +64,26 @@
 
 @mixin link-styling() {
 
-    color: $post-link-green !important;
+    color: $post-link-blue !important;
 
     &:hover {
       color: $post-link-hover !important;
     }
     &:visited {
-        color: $post-link-green !important;
+        color: $post-link-blue !important;
     }
 }
 
 @mixin posts-link-styling() {
     @include link-underline(#fff, #b4d5f3, $post-link-hover)
 
-    color: $post-link-green !important;
+    color: $post-link-blue !important;
 
     &:hover {
       color: $post-link-hover !important;
     }
     &:visited {
-        color: $post-link-green !important;
+        color: $post-link-blue !important;
     }
 }
 
