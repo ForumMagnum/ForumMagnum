@@ -317,7 +317,6 @@ h2,h3{page-break-after:avoid}
 body{font-family:Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:13px;line-height:1.846;color:#666}
 button,input,select,textarea{font-family:inherit;font-size:inherit;line-height:inherit}
 a{color:#588f27;text-decoration:none}
-a:focus,a:hover{color:#335317;text-decoration:underline}
 a:focus{outline:-webkit-focus-ring-color auto 5px;outline-offset:-2px}
 .carousel-inner>.item>a>img,.carousel-inner>.item>img,.img-responsive,.thumbnail a>img,.thumbnail>img{display:block;max-width:100%;height:auto}
 .img-rounded{border-radius:3px}
@@ -402,7 +401,6 @@ code,kbd{padding:2px 4px;font-size:90%;border-radius:3px}
 .blockquote-reverse .small:after,.blockquote-reverse footer:after,.blockquote-reverse small:after,blockquote.pull-right .small:after,blockquote.pull-right footer:after,blockquote.pull-right small:after{content:'\00A0 \2014'}
 address{margin-bottom:23px;font-style:normal;line-height:1.846}
 code,kbd,pre,samp{font-family:"Roboto Mono",Menlo,Monaco,Consolas,"Courier New",monospace}
-code{color:#c7254e;background-color:#f9f2f4}
 kbd{color:#fff;background-color:#333;box-shadow:inset 0 -1px 0 rgba(0,0,0,.25)}
 kbd kbd{padding:0;font-size:100%;box-shadow:none}
 pre{display:block;padding:11px;margin:0 0 11.5px;font-size:12px;line-height:1.846;word-break:break-all;word-wrap:break-word;color:#212121;background-color:#f5f5f5;border:1px solid #ccc;border-radius:3px}

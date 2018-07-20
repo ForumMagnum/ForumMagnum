@@ -1,10 +1,7 @@
-.home {
-  margin-right: 90px; //eyeballed adjustment for properly balancing the page
-}
 
 .wrapper {
   @include section-header-break {
-    .home, .collections-page {
+    .collections-page {
       margin-right: 0px;
     }
     .section {
@@ -108,7 +105,6 @@
   @include max-small {
     .main {
       padding: 0px 10px;
-      margin-top: 20px !important;
     }
   }
 }

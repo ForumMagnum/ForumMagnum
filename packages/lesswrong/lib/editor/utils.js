@@ -79,7 +79,7 @@ export const draftToHTML = convertToHTML({
     }
     if (entity.type === 'INLINETEX') {
       if (entity.data.html) {
-        return `<span><style>${entity.data.css}</style>${entity.data.html}</span>`
+        return `<span>${entity.data.css ? `<style>${entity.data.css}</style>` : ""}${entity.data.html}</span>`
       } else {
         return `<span class="draft-latex-placeholder"> &lt; refresh to render LaTeX &gt; </span>`
       }
@@ -89,9 +89,10 @@ export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
      const type = block.type;
+
      if (type === 'atomic') {
        if (block.data && block.data.mathjax && block.data.html) {
-         return `<div><style>${block.data.css}</style>${block.data.html}</div>`
+         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
        } else if (block.data && block.data.mathjax) {
          return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
        } else {
@@ -101,6 +102,9 @@ export const draftToHTML = convertToHTML({
      if (type === 'blockquote') {
        return <blockquote />
      }
+    if (type === 'code-block') {
+      return {start: '<pre><code>', end: '</code></pre>'};
+    }
      if (type === 'divider') {
        return <hr className="dividerBlock" />
      }

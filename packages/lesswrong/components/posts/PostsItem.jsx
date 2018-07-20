@@ -4,6 +4,7 @@ import {
   withCurrentUser,
   withMutation,
   getActions,
+  getSetting,
 } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -15,16 +16,26 @@ import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
-import CommentIcon from 'material-ui/svg-icons/editor/mode-comment';
+import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
+import { withTheme } from '@material-ui/core/styles';
 
 const paperStyle = {
   backgroundColor: 'inherit',
 }
 
+const isSticky = (post, terms) => {
+  if (post && terms && terms.forum) {
+    return (
+      post.sticky ||
+      (terms.af && post.afSticky) ||
+      (terms.meta && post.metaSticky)
+    )
+  }
+}
 
 class PostsItem extends PureComponent {
   constructor(props, context) {
@@ -33,7 +44,7 @@ class PostsItem extends PureComponent {
       categoryHover: false,
       showNewComments: false,
       lastVisitedAt: props.post.lastVisitedAt,
-      lastCommentedAt: props.post.lastCommentedAt,
+      lastCommentedAt: Posts.getLastCommentedAt(props.post),
       readStatus: false,
     }
   }
@@ -136,13 +147,14 @@ class PostsItem extends PureComponent {
 
   render() {
 
-    const {post, inlineCommentCount, currentUser} = this.props;
+    const {post, inlineCommentCount, currentUser, terms} = this.props;
 
-    const commentCount = post.commentCount ? post.commentCount : 0
+    let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
-    if (post.sticky) postClass += " posts-sticky";
+    if (isSticky(post, terms)) postClass += " posts-sticky";
     if (this.state.showHighlight) postClass += " show-highlight";
+    const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     const renderCommentsButton = () => {
       const read = this.state.lastVisitedAt;
@@ -151,14 +163,14 @@ class PostsItem extends PureComponent {
       const commentCountIconStyle = {
         width:"30px",
         height:"30px",
-        color: (read && newComments && !this.state.readStatus) ? this.props.muiTheme.palette.accent1Color : "rgba(0,0,0,.15)",
+        color: (read && newComments && !this.state.readStatus) ? this.props.theme.palette.secondary.light : "rgba(0,0,0,.15)",
       }
 
       return (
         <div>
           <CommentIcon className="posts-item-comment-icon" style={commentCountIconStyle}/>
           <div className="posts-item-comment-count">
-            {post.commentCount || 0}
+            { commentCount }
           </div>
         </div>
       )
@@ -192,17 +204,19 @@ class PostsItem extends PureComponent {
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
                   {post.user && <div className="posts-item-user">
                     <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
-                    </div>}
+                  </div>}
                   {this.renderPostFeeds()}
                   {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
                   <div className="posts-item-points">
-                    { post.baseScore } { post.baseScore == 1 ? "point" : "points"} 
+                    { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
                   </div>
                   {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
                   {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
-                  {currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
                   {this.renderEventDetails()}
                   <div className="posts-item-show-highlight-button">
+                    {currentUser && currentUser.isAdmin &&
+                      <Components.PostsStats post={post} />
+                    }
                     { this.state.showHighlight ?
                       <span>
                         Hide Highlight
@@ -272,17 +286,9 @@ class PostsItem extends PureComponent {
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={this.state.lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:12, postId:this.props.post._id}}
+                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
-              { post.commentCount > 10 && <div>
-                <div className="posts-item-top-comments-title">Top Comments</div>
-                <Components.RecentComments
-                  terms={{view: 'topRecentComments', limit: 3, postId:post._id}}
-                  fontSize="small"
-                  loadMore={false}
-                />
-              </div>}
               <div className="post-item-new-comments-footer">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
                   <FontIcon className={classNames("material-icons")}>
@@ -326,4 +332,5 @@ replaceComponent(
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
+  withTheme()
 );

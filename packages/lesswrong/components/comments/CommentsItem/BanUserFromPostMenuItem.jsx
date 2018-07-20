@@ -27,7 +27,11 @@ class BanUserFromPostMenuItem extends PureComponent {
   }
 
   render() {
-    return <MenuItem className="comment-menu-item-ban-from-post" onClick={ this.handleBanUserFromPost } primaryText="From This Post" />
+    return <MenuItem
+      className="comment-menu-item-ban-from-post"
+      onClick={ this.handleBanUserFromPost }
+      primaryText="From This Post"
+    />
   }
 }
 

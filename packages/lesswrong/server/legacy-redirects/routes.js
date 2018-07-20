@@ -7,7 +7,7 @@ import Users from 'meteor/vulcan:users';
 
 
 // Route for old post links
-Picker.route('/:section?/:subreddit?/lw/:id/:slug', (params, req, res, next) => {
+Picker.route('/:section?/:subreddit?/lw/:id/:slug?', (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -178,19 +178,23 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req
 // Route for old general RSS (all posts)
 Picker.route('/.rss', (params, req, res, next) => {
   res.writeHead(301, {'Location': '/feed.xml'})
+  res.end();
 });
 
 // Route for old general RSS (all comments)
 Picker.route('comments/.rss', (params, req, res, next) => {
   res.writeHead(301, {'Location': '/feed.xml?type=comments'})
+  res.end();
 });
 
 // Route for old general RSS (all posts)
 Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
   res.writeHead(301, {'Location': '/feed.xml'})
+  res.end();
 });
 
 // Route for old promoted RSS (promoted posts)
 Picker.route('/promoted/.rss', (params, req, res, next) => {
   res.writeHead(301, {'Location': '/feed.xml?view=curated-rss'})
+  res.end();
 });

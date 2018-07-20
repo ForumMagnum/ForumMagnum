@@ -4,7 +4,7 @@ import { Components, Connectors } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 
-const formGroups = {
+export const formGroups = {
   admin: {
     name: "admin",
     order: 2
@@ -890,5 +890,32 @@ Posts.addField([
       type: String,
       optional: true,
     }
-  }
+  },
+
+
+  {
+    fieldName: 'metaSticky',
+    fieldSchema: {
+      order:10,
+      type: Boolean,
+      optional: true,
+      label: "Meta Sticky",
+      defaultValue: false,
+      group: formGroups.admin,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+      control: 'checkbox',
+      onInsert: (post) => {
+        if(!post.metaSticky) {
+          return false;
+        }
+      },
+      onEdit: (modifier, post) => {
+        if (!modifier.$set.metaSticky) {
+          return false;
+        }
+      }
+    }
+  },
 ]);

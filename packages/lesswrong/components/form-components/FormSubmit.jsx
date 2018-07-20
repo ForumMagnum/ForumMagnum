@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Components, replaceComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import FlatButton from 'material-ui/FlatButton';
+import { withTheme } from '@material-ui/core/styles';
 
 const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
@@ -15,7 +16,8 @@ const FormSubmit = ({
                       deleteDocument,
                       collectionName,
                       classes,
-                      currentUser
+                      currentUser,
+                      theme
                     },
                     {
                       updateCurrentValues,
@@ -27,16 +29,16 @@ const FormSubmit = ({
       { !document.isEvent &&
         !document.meta &&
         Users.canDo(currentUser, 'posts.curate.all') && <FlatButton
-        type="submit"
-        hoverColor={"rgba(0, 0, 0, 0.05)"}
-        style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
-        label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
-        labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-        onClick={() => {
-          updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
-          if (document.frontpageDate) {addToDeletedValues('frontpageDate')}
-        }
-        }/>}
+          type="submit"
+          hoverColor={"rgba(0, 0, 0, 0.05)"}
+          style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
+          label={document.frontpageDate ? "Move to personal blog" : "Submit to frontpage" }
+          labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
+          onClick={() => {
+            updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
+            if (document.frontpageDate) {addToDeletedValues('frontpageDate')}
+          }
+          }/>}
 
       <FlatButton
         type="submit"
@@ -59,19 +61,15 @@ const FormSubmit = ({
       }
     </span>}
 
-    {
-        cancelCallback
-          ?
-            <FlatButton
-              className="form-cancel"
-              hoverColor={"rgba(0, 0, 0, 0.05)"}
-              style={{paddingBottom: "2px", fontFamily: commentFonts}}
-              onClick={(e) => {e.preventDefault(); cancelCallback(document)}}
-              label={"Cancel"}
-              labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
-            />
-          : null
-    }
+    {!!cancelCallback &&
+      <FlatButton
+        className="form-cancel"
+        hoverColor={"rgba(0, 0, 0, 0.05)"}
+        style={{paddingBottom: "2px", fontFamily: commentFonts}}
+        onClick={(e) => {e.preventDefault(); cancelCallback(document)}}
+        label={"Cancel"}
+        labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
+      />}
 
     <FlatButton
       type="submit"
@@ -80,22 +78,12 @@ const FormSubmit = ({
       style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
       onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
       label={"Submit" }
-      labelStyle={{fontSize: "16px", color: "rgba(100, 169, 105, 0.9)"}}
+      labelStyle={{fontSize: "16px", color: theme.palette.secondary.main}}
     />
-
-    {/* <Button type="submit" bsStyle="primary">
-      {submitLabel ? submitLabel : <FormattedMessage id="forms.submit"/>}
-    </Button> */}
 
     {collectionName === "comments" && document && document.postId && <span className="comment-submit-buttons">
       <Components.ModerationGuidelinesLink showModeratorAssistance documentId={document.postId}/>
-      {/* <div className="comment-editor-moderation-guidelines">
-
-      </div> */}
     </span>}
-
-
-
   </div>
 );
 
@@ -108,6 +96,7 @@ FormSubmit.propTypes = {
   deleteDocument: PropTypes.func,
   collectionName: PropTypes.string,
   classes: PropTypes.object,
+  theme: PropTypes.object,
 };
 
 FormSubmit.contextTypes = {
@@ -118,4 +107,4 @@ FormSubmit.contextTypes = {
 }
 
 
-replaceComponent('FormSubmit', FormSubmit, withCurrentUser);
+replaceComponent('FormSubmit', FormSubmit, withCurrentUser, withTheme());

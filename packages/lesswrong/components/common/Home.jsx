@@ -1,10 +1,23 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
 
+const styles = theme => ({
+    root: {
+      [theme.breakpoints.up('md')]: {
+        marginRight: 90,
+      },
+      [theme.breakpoints.down('sm')]: {
+        marginRight: 0
+      }
+    }
+})
+
 const Home = (props, context) => {
-  const currentUser = props.currentUser
-  const currentView = _.clone(props.router.location.query).view || (props.currentUser && props.currentUser.currentFrontpageFilter) || (props.currentUser ? "frontpage" : "curated");
-  let recentPostsTerms = _.isEmpty(props.location.query) ? {view: currentView, limit: 10} : _.clone(props.location.query)
+  const { currentUser, router, classes } = props;
+  const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
+  let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
+
+  recentPostsTerms.forum = true
   if (recentPostsTerms.view === "curated" && currentUser) {
     recentPostsTerms.offset = 3
   }
@@ -20,11 +33,11 @@ const Home = (props, context) => {
   }
 
 
-  {/* TODO: IBETA ONLY Only logged-in users should see page content */}
+  // TODO: IBETA ONLY Only logged-in users should see page content
   if (!currentUser) return <p>Please log in to see content during internal beta</p>
 
   return (
-    <div className="home">
+    <div className={classes.root}>
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
@@ -38,4 +51,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser);
+registerComponent('Home', Home, withCurrentUser, withStyles(styles));

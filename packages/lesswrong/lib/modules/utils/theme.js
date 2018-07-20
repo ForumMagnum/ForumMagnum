@@ -2,6 +2,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Users from 'meteor/vulcan:users';
 import { Posts } from 'meteor/example-forum';
 import Sequences from '../../collections/sequences/collection'
+import { getSetting } from 'meteor/vulcan:core';
 
 const getHeaderColorPost = (postId, store) => {
   const post = Posts.findOneInStore(store, postId)
@@ -31,35 +32,68 @@ const getHeaderColorSequence = (sequenceId, store) => {
   }
 }
 
+
 export const customizeTheme = (router, userAgent, params, store) => {
   let routeName = router.name;
-  let muiTheme = getMuiTheme({
-    "fontFamily": "warnock-pro",
-    "palette": {
-      "primary1Color": "#f5f5f5",
-      "primary2Color": "#eeeeee",
-      "accent1Color": "rgba(100, 169, 105, 0.5)",
-      "accent2Color": "rgba(100, 169, 105, 1)",
-      "accent3Color": "#c8e6c9",
-      "pickerHeaderColor": "#4caf50",
-    },
-    "appBar": {
-      "textColor": "rgba(0, 0, 0, 0.54)"
-    },
-    "datePicker": {
-      "color": "rgba(0,0,0,0.54)",
-      "selectTextColor": "rgba(0,0,0,0.54)",
-    },
-    "flatButton": {
-      "primaryTextColor": "rgba(0,0,0,0.54)"
-    },
-    "checkbox": {
-      "checkedColor": "rgba(100, 169, 105, 0.7)",
-      "labelColor": "rgba(0,0,0,0.6)",
-      "boxColor": "rgba(0,0,0,0.6)"
-    },
-    userAgent: userAgent,
-  });
+  let muiThemeDefault = {}
+  if (getSetting('AlignmentForum', false)) {
+    muiThemeDefault = {
+      "fontFamily": "warnock-pro",
+      "palette": {
+        "primary1Color": "#f5f5f5",
+        "primary2Color": "#eeeeee",
+        "accent1Color": "rgba(100, 169, 105, 0.5)",
+        "accent2Color": "rgba(100, 169, 105, 1)",
+        "accent3Color": "#c8e6c9",
+        "pickerHeaderColor": "#4caf50",
+      },
+      "appBar": {
+        "textColor": "rgba(0, 0, 0, 0.54)"
+      },
+      "datePicker": {
+        "color": "rgba(0,0,0,0.54)",
+        "selectTextColor": "rgba(0,0,0,0.54)",
+      },
+      "flatButton": {
+        "primaryTextColor": "rgba(0,0,0,0.54)"
+      },
+      "checkbox": {
+        "checkedColor": "rgba(100, 169, 105, 0.7)",
+        "labelColor": "rgba(0,0,0,0.6)",
+        "boxColor": "rgba(0,0,0,0.6)"
+      },
+      userAgent: userAgent,
+    }
+  } else {
+    muiThemeDefault = {
+      "fontFamily": "warnock-pro",
+      "palette": {
+        "primary1Color": "#f5f5f5",
+        "primary2Color": "#eeeeee",
+        "accent1Color": "rgba(100, 169, 105, 0.5)",
+        "accent2Color": "rgba(100, 169, 105, 1)",
+        "accent3Color": "#c8e6c9",
+        "pickerHeaderColor": "#4caf50",
+      },
+      "appBar": {
+        "textColor": "rgba(0, 0, 0, 0.54)"
+      },
+      "datePicker": {
+        "color": "rgba(0,0,0,0.54)",
+        "selectTextColor": "rgba(0,0,0,0.54)",
+      },
+      "flatButton": {
+        "primaryTextColor": "rgba(0,0,0,0.54)"
+      },
+      "checkbox": {
+        "checkedColor": "rgba(100, 169, 105, 0.7)",
+        "labelColor": "rgba(0,0,0,0.6)",
+        "boxColor": "rgba(0,0,0,0.6)"
+      },
+      userAgent: userAgent,
+    }
+  }
+  let muiTheme = getMuiTheme(muiThemeDefault);
   muiTheme.palette.header = "#FCFCFC"
 
   if (routeName == "users.single") {

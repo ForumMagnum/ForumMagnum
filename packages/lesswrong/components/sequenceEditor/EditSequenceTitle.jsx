@@ -9,8 +9,7 @@ const EditSequenceTitle = (props) => {
     <div className="sequences-editor-title-wrapper">
       <Textarea
         className="sequences-editor-title"
-        name={ props.name }
-        value={ props.value }
+        {...props.inputProperties}
         placeholder={ props.placeholder }
         layout="elementOnly"
       />

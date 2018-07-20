@@ -1,0 +1,34 @@
+@import "underlines";
+.alignment-forum {
+  .posts-page-comments-load-all-comment {
+    a {
+      @include af-link-styling();
+    }
+  }
+
+  .posts-page-content-body-html.content-body a {
+    @include af-posts-link-styling();
+  }
+
+  .public-DraftStyleDefault-block a {
+    @include af-link-styling()
+  }
+
+  .posts-edit-form .public-DraftStyleDefault-block a,
+  .posts-new-form .public-DraftStyleDefault-block a,
+   {
+    @include af-posts-link-styling()
+  }
+
+  div p a, div ul a, div ol a {
+    @include af-link-styling()
+  }
+
+  .posts-load-more, .comments-load-more{
+    color: rgba(63, 81, 181, 0.7);
+  }
+
+  .form-component-AlignmentCheckbox {
+    display: none,
+  }
+}
