@@ -121,6 +121,10 @@ class CommentsItem extends PureComponent {
   }
 
   render() {
+    if (this.state.error) {
+      return <div className="errorText">Error rendering comment: {this.state.error}</div>
+    }
+    
     const { comment, currentUser, frontPage } = this.props
     const level = comment.level || 1;
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
@@ -397,6 +401,10 @@ class CommentsItem extends PureComponent {
         successCallback={this.editSuccessCallback}
         cancelCallback={this.editCancelCallback}
       />
+  
+  componentDidCatch(error, info) {
+    this.setState({error:error.toString()});
+  }
 }
 
 registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);

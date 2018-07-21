@@ -75,6 +75,10 @@ class Header extends Component {
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   render() {
+    if (this.state.error) {
+      return <div className="errorText">Error rendering header: {this.state.error}</div>
+    }
+    
     const { currentUser, classes, routes, location, params, client, theme } = this.props
     const { notificationOpen, navigationOpen } = this.state
     const routeName = routes[1].name
@@ -119,6 +123,10 @@ class Header extends Component {
         <Components.NotificationsMenu open={notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
       </div>
     )
+  }
+  
+  componentDidCatch(error, info) {
+    this.setState({error:error.toString()});
   }
 }
 

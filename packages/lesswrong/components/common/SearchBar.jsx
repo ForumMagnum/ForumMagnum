@@ -68,6 +68,10 @@ class SearchBar extends Component {
   }
 
   render() {
+    if (this.state.error) {
+      return <div className="errorText">Error rendering search bar: {this.state.error}</div>
+    }
+    
     const inputOpenClass = this.state.inputOpen ? "open" : null;
     const resultsOpenClass = this.state.searchOpen ? "open" : null;
 
@@ -130,6 +134,10 @@ class SearchBar extends Component {
         </div>
       </InstantSearch>
     </div>
+  }
+  
+  componentDidCatch(error, info) {
+    this.setState({error:error.toString()});
   }
 }
 
