@@ -1,22 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import Switch from '@material-ui/core/Switch';
-import { withStyles, withTheme } from '@material-ui/core/styles';
-import Divider from 'material-ui/Divider';
+import Checkbox from '@material-ui/core/Checkbox';
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  icon: {
-    position:"relative",
-    left:14,
-    top:-1,
-    width:32,
-    height:18,
+  root: {
+    marginLeft:theme.spacing.unit*2
   },
-  formWrapper: {
-    display:"flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+  size: {
+    width:36,
+    height:0
   }
 })
 
@@ -24,40 +18,34 @@ class MuiCheckbox extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: props.document && props.document[props.name] || false
+      checked: props.document && props.document[props.name] || false
     }
   }
 
   componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({content: false}))
+    this.context.addToSuccessForm(() => this.setState({checked: false}))
     this.context.updateCurrentValues({
       [this.props.name]: this.props.document && this.props.document[this.props.name] || false
     })
   }
 
   onChange = (event) => {
-    this.setState({content: !this.state.content})
+    this.setState({checked: !this.state.checked})
     this.context.updateCurrentValues({
-      [this.props.name]: !this.state.content
+      [this.props.name]: !this.state.checked
     })
   }
 
   render() {
-    const { classes, label, theme } = this.props
-    return <div className="">
-      {/* <Divider /> */}
-      {/* <div className={classes.formWrapper}> */}
-        <Switch
-          checked={this.state.content}
+    const { classes, label } = this.props
+    return <div className={classes.root}>
+        <Checkbox
+          className={classes.size}
+          checked={this.state.checked}
           onClick={this.onChange}
-          classes={{
-            icon: classes.icon
-          }}
+          disableRipple
         />
         <label>{label}</label>
-
-      {/* </div> */}
-      {/* <Divider /> */}
     </div>
   }
 }
@@ -67,4 +55,4 @@ MuiCheckbox.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles),  withTheme());
+registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles));
