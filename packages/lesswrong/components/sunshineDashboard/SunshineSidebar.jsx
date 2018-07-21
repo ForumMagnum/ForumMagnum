@@ -32,7 +32,7 @@ class SunshineSidebar extends Component {
   componentDidCatch(error, info) {
     this.setState({error:error.toString()});
   }
-};
+}
 
 SunshineSidebar.displayName = "SunshineSidebar";
 
