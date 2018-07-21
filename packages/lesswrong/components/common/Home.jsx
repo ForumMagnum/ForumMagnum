@@ -1,7 +1,6 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from 'react-router';
-import { withStyles } from '@material-ui/core/styles';
 
 const testCollections = [
   {
@@ -33,19 +32,8 @@ const testCollections = [
   }
 ]
 
-const styles = theme => ({
-    root: {
-      [theme.breakpoints.up('md')]: {
-        marginRight: 90,
-      },
-      [theme.breakpoints.down('sm')]: {
-        marginRight: 0
-      }
-    }
-})
-
 const Home = (props, context) => {
-  const { currentUser, router, classes } = props;
+  const { currentUser, router } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -87,7 +75,7 @@ const Home = (props, context) => {
   }
 
   return (
-    <div className={classes.root}>
+    <div>
       { !currentUser ?
         <Components.Section
           contentStyle={{marginTop: '-20px'}}
@@ -142,4 +130,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser, withStyles(styles));
+registerComponent('Home', Home, withCurrentUser);
