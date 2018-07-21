@@ -24,7 +24,7 @@ class CategoryDisplay extends PureComponent {
   render() {
     const { post, read, theme } = this.props;
 
-    const categoryIcon = ((post.af && getSetting('AlignmentForum', false)) && "brightness_1") || (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
+    const categoryIcon = (getSetting('AlignmentForum', false) && "brightness_1") || (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
     const iconColor = read ? "rgba(0,0,0,.2)" : theme.palette.secondary.light;
 
     if (categoryIcon) {
