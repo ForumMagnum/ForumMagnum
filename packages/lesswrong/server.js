@@ -2,6 +2,8 @@ import './server/database-import/database_import.js';
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
+
+// Scripts
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
@@ -19,6 +21,8 @@ import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 // EA Forum Invites
 import './lib/scripts/eafIBetaInvites.js';
+import './server/scripts/configuration.js';
+
 import './server/legacy-redirects/routes.js';
 import './server/logging.js';
 import './server/material-ui/themeProvider';

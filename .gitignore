@@ -60,3 +60,5 @@ yarn.lock
 
 *.swp
 *.un~
+
+yarn-error.log

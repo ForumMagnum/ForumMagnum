@@ -17,26 +17,6 @@ const NavigationMenu = ({open, handleClose, handleToggle}) => {
          >
     <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
     <Divider />
-    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>}
-    {!af && <MenuItem
-      onClick={handleClose}
-      innerDivStyle={{paddingLeft:"35px" }}
-      containerElement={<Link to={"/rationality"}/>}>
-      RATIONALITY: A-Z
-    </MenuItem>}
-    {!af && <MenuItem
-      onClick={handleClose}
-      innerDivStyle={{paddingLeft:"35px" }}
-      containerElement={<Link to={"/codex"}/>}>
-      THE CODEX
-    </MenuItem>}
-    {!af && <MenuItem
-      onClick={handleClose}
-      innerDivStyle={{paddingLeft:"35px" }}
-      containerElement={<Link to={"/hpmor"}/>}>
-      HPMOR
-    </MenuItem>}
-    <Divider />
     {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>}
     <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
     <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
