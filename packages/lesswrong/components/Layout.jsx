@@ -34,12 +34,20 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
-        return <div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"
-          user_id={currentUser._id}
-          email={currentUser.email}
-          name={currentUser.displayName}/></div>
+        return <div id="intercome-outer-frame">
+            <Components.ErrorBoundary>
+              <Intercom appID="wtb8z7sj"
+                user_id={currentUser._id}
+                email={currentUser.email}
+                name={currentUser.displayName}/>
+            </Components.ErrorBoundary>
+          </div>
       } else if (!currentUser) {
-        return<div id="intercome-outer-frame"><Intercom appID="wtb8z7sj"/></div>
+        return <div id="intercome-outer-frame">
+            <Components.ErrorBoundary>
+              <Intercom appID="wtb8z7sj"/>
+            </Components.ErrorBoundary>
+          </div>
       } else {
         return null
       }
@@ -66,9 +74,13 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
           <Components.Header {...this.props}/>
 
           <div className={classes.main}>
-            <Components.FlashMessages />
+            <Components.ErrorBoundary>
+              <Components.FlashMessages />
+            </Components.ErrorBoundary>
             {children}
-            <Components.SunshineSidebar />
+            <Components.ErrorBoundary>
+              <Components.SunshineSidebar />
+            </Components.ErrorBoundary>
           </div>
           {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
         </div>

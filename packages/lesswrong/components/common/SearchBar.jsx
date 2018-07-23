@@ -75,60 +75,62 @@ class SearchBar extends Component {
     closeIconStyle.color = this.props.color;
 
     return <div className="search">
-      <InstantSearch
-        indexName="test_posts"
-        algoliaClient={algoliaClient("Z0GR6EXQHD", "0b1d20b957917dbb5e1c2f3ad1d04ee2")}
-        onSearchStateChange={this.queryStateControl}
-      >
-        <div className={"search-bar " + inputOpenClass} onKeyDown={this.handleKeyDown}>
-          <div className="search-bar-box" onClick={this.handleSearchTap}>
-            <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
-            <SearchBox resetComponent={<div className="search-box-reset"></div>} focusShortcuts={[]}/>
-          </div>
-          <div className="search-bar-close" onClick={this.closeSearch}>
-            <FontIcon className="material-icons" style={closeIconStyle}>close</FontIcon>
-          </div>
-        </div>
-        <div className={"search-results " + resultsOpenClass}>
-          <div className="search-results-container">
-            <div className="search-results-container-left">
-              <div className="search-results-posts">
-                <Index indexName="test_posts">
-                  <Configure hitsPerPage={3} />
-                  <Components.Section title="Posts" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
-                    <div className="search-results-posts-content">
-                      <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={this.closeSearch} {...props} />} />
-                    </div>
-                  </Components.Section>
-                </Index>
-              </div>
-              <div className="search-results-comments">
-                <Index indexName="test_comments">
-                  <Configure hitsPerPage={3} />
-                  <Components.Section title="Comments" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
-                    <div className="search-results-comments-content">
-                      <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={this.closeSearch} {...props} />} />
-                    </div>
-                  </Components.Section>
-                </Index>
-              </div>
+      <Components.ErrorBoundary>
+        <InstantSearch
+          indexName="test_posts"
+          algoliaClient={algoliaClient("Z0GR6EXQHD", "0b1d20b957917dbb5e1c2f3ad1d04ee2")}
+          onSearchStateChange={this.queryStateControl}
+        >
+          <div className={"search-bar " + inputOpenClass} onKeyDown={this.handleKeyDown}>
+            <div className="search-bar-box" onClick={this.handleSearchTap}>
+              <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
+              <SearchBox resetComponent={<div className="search-box-reset"></div>} focusShortcuts={[]}/>
             </div>
-            <div className="search-results-container-right">
-              <div className="search-results-users">
-                <Index indexName= "test_users">
-                  <Configure hitsPerPage={10} />
-                  <div className="search-results-users-heading">
-                    <h2>Users</h2>
-                  </div>
-                  <div className="search-results-users-content" >
-                    <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={this.closeSearch} {...props} />} />
-                  </div>
-                </Index>
-              </div>
+            <div className="search-bar-close" onClick={this.closeSearch}>
+              <FontIcon className="material-icons" style={closeIconStyle}>close</FontIcon>
             </div>
           </div>
-        </div>
-      </InstantSearch>
+          <div className={"search-results " + resultsOpenClass}>
+            <div className="search-results-container">
+              <div className="search-results-container-left">
+                <div className="search-results-posts">
+                  <Index indexName="test_posts">
+                    <Configure hitsPerPage={3} />
+                    <Components.Section title="Posts" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
+                      <div className="search-results-posts-content">
+                        <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={this.closeSearch} {...props} />} />
+                      </div>
+                    </Components.Section>
+                  </Index>
+                </div>
+                <div className="search-results-comments">
+                  <Index indexName="test_comments">
+                    <Configure hitsPerPage={3} />
+                    <Components.Section title="Comments" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
+                      <div className="search-results-comments-content">
+                        <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={this.closeSearch} {...props} />} />
+                      </div>
+                    </Components.Section>
+                  </Index>
+                </div>
+              </div>
+              <div className="search-results-container-right">
+                <div className="search-results-users">
+                  <Index indexName= "test_users">
+                    <Configure hitsPerPage={10} />
+                    <div className="search-results-users-heading">
+                      <h2>Users</h2>
+                    </div>
+                    <div className="search-results-users-content" >
+                      <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={this.closeSearch} {...props} />} />
+                    </div>
+                  </Index>
+                </div>
+              </div>
+            </div>
+          </div>
+        </InstantSearch>
+      </Components.ErrorBoundary>
     </div>
   }
 }
