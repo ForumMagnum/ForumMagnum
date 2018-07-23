@@ -49,6 +49,10 @@ class NotificationsMenu extends Component {
   }
 
   render() {
+      if (this.state.error) {
+        return <div className="errorText">Error rendering notifications menu: {this.state.error}</div>
+      }
+      
       const newMessages = this.props.results && _.filter(this.props.results, (x) => x.createdAt > this.state.lastNotificationsCheck);
       const currentUser = this.props.currentUser;
       if (!currentUser) {
@@ -103,6 +107,10 @@ class NotificationsMenu extends Component {
           </div>
         )
       }
+  }
+  
+  componentDidCatch(error, info) {
+    this.setState({error:error.toString()});
   }
 }
 
