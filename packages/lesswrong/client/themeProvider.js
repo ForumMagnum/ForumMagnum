@@ -1,5 +1,5 @@
 import React from 'react';
-import { addCallback, getSetting } from 'meteor/vulcan:core';
+import { addCallback } from 'meteor/vulcan:core';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import forumTheme from '../themes/forumTheme';
 import JssCleanup from '../components/themes/JssCleanup';
