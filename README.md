@@ -37,7 +37,7 @@ I recommend starting by creating a folder to store all of them:
 
 Clone the three repos:
 
-    git clone https://github.com/LessWrong/Lesswrong2
+    git clone https://github.com/LessWrong2/Lesswrong2
     git clone https://github.com/LessWrong2/Vulcan-Starter.git
     git clone https://github.com/LessWrong2/Vulcan.git
 
