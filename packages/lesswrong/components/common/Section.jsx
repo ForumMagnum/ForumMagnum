@@ -2,24 +2,75 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
 
-const Section = ({contentStyle, title, titleWidth = 220, contentWidth = 715, titleLink, titleComponent, children}) => {
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+
+
+const BORDER_TOP_WIDTH = 3
+
+const styles = (theme) => ({
+  section: {
+    marginBottom: theme.spacing.unit * 4,
+  },
+  sectionTitleContainer: {
+    [theme.breakpoints.up('md')]: {
+      textAlign: 'right',
+      display: 'inline',
+    }
+  },
+  sectionTitle: {
+    [theme.breakpoints.down('sm')]: {
+      borderTopWidth: BORDER_TOP_WIDTH,
+      borderTopStyle: 'solid',
+      paddingTop: theme.spacing.unit
+    },
+    [theme.breakpoints.up('md')]: {
+      display: 'inline',
+      position: 'relative',
+      top: theme.spacing.unit + BORDER_TOP_WIDTH,
+      '&:before': {
+        top: (theme.spacing.unit - BORDER_TOP_WIDTH) * -1,
+        position: 'absolute',
+        width: '100%',
+        borderTopStyle: 'solid',
+        borderTopWidth: BORDER_TOP_WIDTH,
+        content: '""'
+      }
+    }
+  },
+  sectionTitleTop: {
+    [theme.breakpoints.up('md')]: {
+      paddingBottom: theme.spacing.unit,
+      marginBottom: theme.spacing.unit
+    }
+  },
+  // left to provide overrides
+  sectionTitleBottom: {},
+  sectionContent: {}
+})
+
+const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, children, classes}) => {
 
   return (
-    <div className="section" style={{width: `${titleWidth+contentWidth+5}px`, display: 'flex'}}>
-      <div className="section-title" style={{width: `${titleWidth}px`}}>
-        <div className="section-title-top">
-          {title && !titleLink && <h2>{title}</h2> }
-          {title && titleLink && <Link to={titleLink}><h2>{title}</h2></Link> }
+    <Grid container className={classes.section}>
+      <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
+        {title && <div className={classes.sectionTitleTop}>
+          <Typography variant="display1" className={classes.sectionTitle}>
+            {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
+          </Typography>
+        </div>}
+        {titleComponent && <div className={classes.sectionTitleBottom}>
+          {titleComponent}
+        </div>}
+      </Grid>
+      <Grid item xs={12} md={9}>
+        <div className={classes.sectionContent}>
+          {children}
         </div>
-        <div className="section-title-bottom">
-          {titleComponent ? titleComponent : null}
-        </div>
-      </div>
-      <div className="section-content" style={{width: `${contentWidth}px`, ...contentStyle}}>
-        {children}
-      </div>
-    </div>
+      </Grid>
+    </Grid>
   )
 };
 
-registerComponent('Section', Section);
+registerComponent('Section', Section, withStyles(styles, { name: 'Section'}));
