@@ -5,7 +5,7 @@ import Intercom from 'intercom-client';
 const intercomToken = getSetting("intercomToken", null);
 let intercomClient = null;
 if (intercomToken) {
-  intercomClient = new Intercom.Client({ token: getSetting("intercomToken") });
+  intercomClient = new Intercom.Client({ token: intercomToken });
 }
 
 import './callbacks_async.js';
