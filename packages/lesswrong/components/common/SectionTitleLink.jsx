@@ -10,7 +10,7 @@ const styles = (theme) => ({
       fontStyle: 'italic',
       fontSize: 16,
       color: theme.palette.grey[500],
-      '&:hover': {
+      '&:hover, &:active, &:focus': {
         color: theme.palette.grey[400],
       }
     }
@@ -27,8 +27,4 @@ const SectionTitleLink = (props) => {
   </Typography>
 }
 
-registerComponent(
-  'SectionTitleLink',
-  SectionTitleLink,
-  withStyles(styles, {name: 'SectionTitleLink'})
-)
+registerComponent( 'SectionTitleLink', SectionTitleLink, withStyles(styles, {name: 'SectionTitleLink'}))

@@ -1,6 +1,5 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
 
 const testCollections = [
   {
@@ -117,7 +116,7 @@ const Home = (props, context) => {
         title="Community"
         titleLink="/community"
         titleComponent={<div>
-          <Components.SectionTitleLink className="events-near-you" to="/community">
+          <Components.SectionTitleLink to="/community">
             Find Events Nearby
           </Components.SectionTitleLink>
         </div>}
