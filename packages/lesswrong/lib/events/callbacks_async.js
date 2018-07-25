@@ -3,6 +3,12 @@ import intercomClient from './server.js';
 
 
 function sendIntercomEvent (event, user) {
+  if (intercomClient == null) {
+    // If no intercomToken is configured, then intercomClient will be null,
+    // and this is a dev install with Intercom disabled. Don't try to send
+    // Intercom events in that case (it just causes spurious error messages.)
+    return;
+  }
   if (user && event && event.intercom) {
     // Append documentId to metadata passed to intercom
     event.properties = {
