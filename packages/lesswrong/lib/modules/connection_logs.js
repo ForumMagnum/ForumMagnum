@@ -2,6 +2,7 @@ import LWEvents from '../collections/lwevents/collection.js';
 import { newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { ForwardedWhitelist } from './forwarded_whitelist.js';
+import { Accounts } from 'meteor/accounts-base';
 
 const dummyUser = Users.findOne();
 
