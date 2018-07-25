@@ -23,6 +23,7 @@ class CommentEditor extends Component {
       <div className="comment-editor">
         { Users.useMarkdownCommentEditor(currentUser) ?
           <Components.MuiTextField
+            disableUnderline
             {...this.props}
           />
         :

@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import TextField from 'material-ui/TextField';
+import Input from '@material-ui/core/Input';
 import classnames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  input: {
+    // This needs to be here because of Bootstrap. I am sorry :(
+    padding: "6px 0 7px !important",
+    fontSize: "13px !important"
+  }
+})
 
 class MuiTextField extends Component {
   constructor(props, context) {
@@ -19,10 +28,10 @@ class MuiTextField extends Component {
     })
   }
 
-  onChange = (event, value) => {
-    this.setState({content: value})
+  onChange = (event) => {
+    this.setState({content: event.target.value})
     this.context.updateCurrentValues({
-      [this.props.name]: value
+      [this.props.name]: event.target.value
     })
   }
 
@@ -31,16 +40,17 @@ class MuiTextField extends Component {
     const hintStyle = this.props.hintStyle || this.props.multiLine ? {top:"0px"} : {}
 
     return <div className="mui-text-field">
-      <TextField
+      <Input
         value={this.state.content}
         label={this.props.label}
         onChange={this.onChange}
-        multiLine={this.props.multiLine}
+        multiline={this.props.multiLine}
         rows={this.props.rows}
-        hintText={this.props.hintText || this.props.label}
+        placeholder={this.props.hintText || this.props.placeholder || this.props.label}
         hintStyle={hintStyle}
         fullWidth={this.props.fullWidth}
-        underlineShow={this.props.underlineShow}
+        disableUnderline={this.props.disableUnderline}
+        classes={{input: this.props.classes.input}}
         className={classnames(
           "mui-text-field-form-component",
           {"full-width":this.props.fullWidth}
@@ -55,4 +65,4 @@ MuiTextField.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiTextField", MuiTextField);
+registerComponent("MuiTextField", MuiTextField, withStyles(styles));

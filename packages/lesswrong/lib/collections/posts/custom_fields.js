@@ -21,10 +21,15 @@ export const formGroups = {
     startCollapsed: true,
   },
   options: {
-    order:50,
-    label: "Options",
+    order:10,
     name: "options",
-    startCollapsed: true,
+    defaultStyle: true,
+    flexStyle: true
+  },
+  content: {
+    order:20,
+    name: "Content",
+    defaultStyle: true,
   }
 };
 
@@ -35,9 +40,10 @@ Posts.addField([
   {
     fieldName: "url",
     fieldSchema: {
-      order: 20,
-      placeholder: "URL",
+      order: 12,
       control: 'EditUrl',
+      placeholder: 'Add a linkpost URL',
+      group: formGroups.options
     }
   },
   /**
@@ -77,12 +83,13 @@ Posts.addField([
       control: 'EditorFormComponent',
       blackbox: true,
       order: 25,
+      group: formGroups.content,
       form: {
         hintText:"Plain Markdown Editor",
         rows:4,
         multiLine:true,
         fullWidth:true,
-        underlineShow:false,
+        disableUnderline:true,
         enableMarkDownEditor: true
       },
     }
@@ -925,20 +932,22 @@ Posts.addField([
   },
 
   {
-    fieldName: 'sharedWithUsers',
+    fieldName: 'shareWithUsers',
     fieldSchema: {
       type: Array,
-      group: formGroups.options,
+      order: 15,
       viewableBy: ['members'],
       insertableBy: ['members'],
       editableBy: ['members'],
       optional: true,
       control: "UsersListEditor",
+      label: "Share draft with users",
+      group: formGroups.options
     }
   },
 
   {
-    fieldName: 'sharedWithUsers.$',
+    fieldName: 'shareWithUsers.$',
     fieldSchema: {
       type: String,
       optional: true
