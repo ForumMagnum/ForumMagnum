@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 
 
-const borderTopWidth = 3
+const BORDER_TOP_WIDTH = 3
 
 const styles = (theme) => ({
   section: {
@@ -20,13 +20,13 @@ const styles = (theme) => ({
   sectionTitle: {
     display: 'inline',
     position: 'relative',
-    top: (theme.spacing.unit) + borderTopWidth,
+    top: (theme.spacing.unit) + BORDER_TOP_WIDTH,
     '&:before': {
-      top: ((theme.spacing.unit) - borderTopWidth) * -1,
+      top: ((theme.spacing.unit) - BORDER_TOP_WIDTH) * -1,
       position: 'absolute',
       width: '100%',
       borderTopStyle: 'solid',
-      borderTopWidth: borderTopWidth,
+      borderTopWidth: BORDER_TOP_WIDTH,
       content: '""'
     }
   },
