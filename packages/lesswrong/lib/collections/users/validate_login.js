@@ -16,3 +16,21 @@ Accounts.validateLoginAttempt((attempt) => {
     return true;
   }
 })
+
+const whiteList = [
+  // 'jpaddison'
+]
+
+// EA Forum Power User Beta
+// Reject legacy users unless they're on the whitelist
+Accounts.validateLoginAttempt((attempt) => {
+  const userStub = attempt.user || attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user;
+  const user = userStub && Users.findOne({username: userStub.username});
+  if (whiteList.includes(user.username)) {
+    return true
+  }
+  if (user && user.legacy) {
+    throw new Meteor.Error('legacy-not-yet-ready', 'Legacy user detected, not yet allowed')
+  }
+  return true
+})
