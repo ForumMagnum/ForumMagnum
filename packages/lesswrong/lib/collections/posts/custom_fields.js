@@ -936,7 +936,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       order: 15,
-      viewableBy: ['members'],
+      viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
       optional: true,
