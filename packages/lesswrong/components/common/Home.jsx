@@ -1,20 +1,8 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-
-const styles = theme => ({
-    root: {
-      [theme.breakpoints.up('md')]: {
-        marginRight: 90,
-      },
-      [theme.breakpoints.down('sm')]: {
-        marginRight: 0
-      }
-    }
-})
 
 const Home = (props, context) => {
-  const { currentUser, router, classes } = props;
+  const { currentUser, router } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -37,7 +25,7 @@ const Home = (props, context) => {
   if (!currentUser) return <p>Please log in to see content during internal beta</p>
 
   return (
-    <div className={classes.root}>
+    <div>
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
@@ -51,4 +39,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser, withStyles(styles));
+registerComponent('Home', Home, withCurrentUser);

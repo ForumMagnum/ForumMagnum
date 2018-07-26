@@ -95,13 +95,13 @@ Comments.addView("recentDiscussionThread", function (terms) {
 })
 
 Comments.addView("afRecentDiscussionThread", function (terms) {
-  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  const sevenDaysAgo = moment().subtract(7, 'days').toDate();
   return {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
       deletedPublic: {$ne: true},
-      postedAt: {$gt: eighteenHoursAgo},
+      postedAt: {$gt: sevenDaysAgo},
       af: true,
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}

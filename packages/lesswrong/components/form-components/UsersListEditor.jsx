@@ -2,26 +2,51 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
+import { withStyles } from '@material-ui/core/styles';
+
+
+const sortableItemStyles = theme => ({
+  sortableItem: {
+    listStyle: "none",
+    fontFamily: theme.typography.fontFamily
+  }
+})
 
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableItem = SortableElement(({userId, currentUser, removeItem}) =>
-  <li className="users-list-editor-item">
+const SortableItem = withStyles(sortableItemStyles)(SortableElement(({userId, currentUser, removeItem, classes}) =>
+  <li className={classes.sortableItem}>
     <Components.SingleUsersItemWrapper documentId={userId} currentUser={currentUser} removeItem={removeItem} />
   </li>
-);
+))
 
+
+const sortableListStyles = theme => ({
+  sortableList: {
+    display: "flex",
+    flexWrap: "wrap"
+  }
+})
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableList = SortableContainer(({items, currentUser, removeItem}) => {
+const SortableList = withStyles(sortableListStyles)(SortableContainer(({items, currentUser, removeItem, classes}) => {
   return (
-    <div>
+    <div className={classes.sortableList}>
       {items.map((userId, index) => (
         <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} userId={userId} currentUser={currentUser}/>
       ))}
     </div>
   );
-});
+}));
+
+const usersListEditorStyles = theme => ({
+  root: {
+    margin: theme.spacing.unit*2
+  },
+  search: {
+    display: "flex"
+  }
+})
 
 class UsersListEditor extends Component {
   constructor(props, context) {
@@ -81,20 +106,25 @@ class UsersListEditor extends Component {
   }
 
   render() {
+    const { classes, label, currentUser } = this.props
+
     return (
-      <div className="users-list-editor">
-        {this.props.label && <h5>{this.props.label}</h5>}
-        <SortableList
-          axis="xy"
-          items={this.state.userIds}
-          onSortEnd={this.onSortEnd}
-          currentUser={this.props.currentUser}
-          removeItem={this.removeUserId}
-          shouldCancelStart={this.shouldCancelStart}
-        />
-        <Components.UsersSearchAutoComplete
-          clickAction={this.addUserId}
-        />
+      <div className={classes.root}>
+        {this.props.label && <label>{label}</label>}
+
+        <div className={classes.search}>
+          <Components.UsersSearchAutoComplete
+            clickAction={this.addUserId}
+          />
+          <SortableList
+            axis="xy"
+            items={this.state.userIds}
+            onSortEnd={this.onSortEnd}
+            currentUser={currentUser}
+            removeItem={this.removeUserId}
+            shouldCancelStart={this.shouldCancelStart}
+          />
+        </div>
       </div>
     )
   }
@@ -107,4 +137,4 @@ UsersListEditor.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("UsersListEditor", UsersListEditor, withCurrentUser);
+registerComponent("UsersListEditor", UsersListEditor, withCurrentUser, withStyles(usersListEditorStyles));

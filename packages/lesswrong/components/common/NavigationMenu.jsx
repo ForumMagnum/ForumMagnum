@@ -20,7 +20,7 @@ const NavigationMenu = ({open, handleClose, handleToggle}) => {
     {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>}
     <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
     <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT </MenuItem>
+    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT  </MenuItem>}
     {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
   </Drawer>;
 }
