@@ -37,19 +37,27 @@ I recommend starting by creating a folder to store all of them:
 
 Clone the three repos:
 
-    git clone https://github.com/LessWrong/Lesswrong2
+    git clone https://github.com/LessWrong2/Lesswrong2
     git clone https://github.com/LessWrong2/Vulcan-Starter.git
     git clone https://github.com/LessWrong2/Vulcan.git
 
-You'll mostly be working in Lesswrong2. To ensure that it has access to the code in the other repos,
+You'll mostly be working in Lesswrong2.
 
-Install node dependencies:
+Install node dependencies in each of the repo folders:
 
     cd Lesswrong2
     npm install
+    
+    cd ../Vulcan
+    npm install
+
+    cd ../Vulcan-Starter
+    npm install
+
 
 Start the development server:
 
+    cd ../Lesswrong2
     npm start
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).

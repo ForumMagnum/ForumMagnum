@@ -1,8 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import FlatButton from 'material-ui/FlatButton';
-import { Input } from 'formsy-react-components';
+import Icon from '@material-ui/core/Icon';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames'
+
+const styles = theme => ({
+  input: {
+    marginLeft: 5,
+    display: 'inline-block',
+    overflow: 'hidden',
+    transition: 'width 0.25s',
+    width: 110,
+  },
+  hideInput: {
+    width: 0,
+  },
+  button: {
+    '&:hover': {
+      cursor:'pointer'
+    }
+  }
+})
 
 class EditUrl extends Component {
   constructor(props, context) {
@@ -17,26 +36,21 @@ class EditUrl extends Component {
   toggleEditor = () => {this.setState({active: !this.state.active})}
 
   render() {
+    const active = this.state.active
+    const { classes } = this.props
     return (
-      <div className="posts-edit-url">
-        <div className="row">
-          <div className="col-md-4">
-            <FlatButton
-              backgroundColor={"#bbb"}
-              hoverColor={"#ccc"}
-              style={{color: "#fff"}}
-              label={this.state.active ? "Create Text Post" : "Create Link Post" }
-              onClick={this.toggleEditor}/>
-          </div>
-          <div className="col-md-8">
-            <Input
-              {...this.props.inputProperties}
-              placeholder={ this.props.placeholder }
-              hidden={ !this.state.active}
-              type={this.state.active ? "url" : "hidden"}
+      <div className={classes.root}>
+        <div>
+          <span onClick={this.toggleEditor} className={classes.button}>
+            { !active ? <Icon>link</Icon> : <Icon>link_off</Icon> }
+          </span>
+          <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
+            <Components.MuiTextField
+              {...this.props}
+              type={"url"}
               layout="elementOnly"
             />
-          </div>
+          </span>
         </div>
       </div>
     )
@@ -49,4 +63,4 @@ EditUrl.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent("EditUrl", EditUrl);
+registerComponent("EditUrl", EditUrl, withStyles(styles));

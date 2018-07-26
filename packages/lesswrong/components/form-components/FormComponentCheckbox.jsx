@@ -3,14 +3,20 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
-    marginLeft:theme.spacing.unit*2
+    marginLeft:theme.spacing.unit*2,
+    marginRight:theme.spacing.unit*3,
+    marginTop: 5
   },
   size: {
     width:36,
     height:0
+  },
+  inline: {
+    display:"inline",
   }
 })
 
@@ -45,7 +51,7 @@ class MuiCheckbox extends Component {
           onClick={this.onChange}
           disableRipple
         />
-        <label>{label}</label>
+        <Typography className={classes.inline} variant="body2" component="label">{label}</Typography>
     </div>
   }
 }

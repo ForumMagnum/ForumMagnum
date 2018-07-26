@@ -211,7 +211,7 @@ const upsertProcessedUsers = async (users, userMap) => {
 const bulkUpdateUsers = async (users, userMap) => {
   const userUpdates = users.map((newUser) => {
     const oldUser = userMap.get(newUser.legacyId);
-    let set = {legacyData: newUser.legacyData, deleted: newUser.deleted, username: newUser.username};
+    let set = {legacyData: newUser.legacyData, deleted: newUser.deleted};
     if (newUser.legacyData.email !== oldUser.legacyData.email && oldUser.email === oldUser.legacyData.email) {
       //eslint-disable-next-line no-console
       console.log("Found email change", newUser.username, newUser.legacyData.email, oldUser.email);

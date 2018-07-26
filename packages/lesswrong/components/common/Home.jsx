@@ -1,7 +1,12 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  recommendedReading: {
+    marginTop: -20
+  }
+})
 
 const testCollections = [
   {
@@ -32,17 +37,6 @@ const testCollections = [
     big: false,
   }
 ]
-
-const styles = theme => ({
-    root: {
-      [theme.breakpoints.up('md')]: {
-        marginRight: 90,
-      },
-      [theme.breakpoints.down('sm')]: {
-        marginRight: 0
-      }
-    }
-})
 
 const Home = (props, context) => {
   const { currentUser, router, classes } = props;
@@ -87,23 +81,29 @@ const Home = (props, context) => {
   }
 
   return (
-    <div className={classes.root}>
+    <div>
       { !currentUser ?
         <Components.Section
           contentStyle={{marginTop: '-20px'}}
           title="Recommended Reading"
           titleLink="/library"
-          titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
+          titleComponent= {<Components.SectionTitleLink to="/library">
+            Sequence Library
+          </Components.SectionTitleLink>}
         >
-          <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-          <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-          <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+          <div className={classes.recommendedReading}>
+            <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
+            <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
+            <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+          </div>
         </Components.Section> :
         <div>
           <Components.Section
             title="Recommended Sequences"
             titleLink="/library"
-            titleComponent= {<Link className="recommended-reading-library" to="/library">Sequence Library</Link>}
+            titleComponent= {<Components.SectionTitleLink to="/library">
+              Sequence Library
+            </Components.SectionTitleLink>}
           >
             <Components.SequencesGridWrapper
               terms={{view:"curatedSequences", limit:3}}
@@ -125,9 +125,9 @@ const Home = (props, context) => {
         title="Community"
         titleLink="/community"
         titleComponent={<div>
-          <Link className="events-near-you" to="/community">
+          <Components.SectionTitleLink to="/community">
             Find Events Nearby
-          </Link>
+          </Components.SectionTitleLink>
         </div>}
       >
         <Components.PostsList

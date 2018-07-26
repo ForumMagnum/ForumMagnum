@@ -16,7 +16,7 @@ import { customizeTheme } from '../lib/modules/utils/theme';
 import Typekit from 'react-typekit';
 import { withStyles } from '@material-ui/core/styles';
 
-
+const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
 const styles = theme => ({
   main: {
@@ -35,17 +35,18 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
-            <Components.ErrorBoundary>
-              <Intercom appID="wtb8z7sj"
-                user_id={currentUser._id}
-                email={currentUser.email}
-                name={currentUser.displayName}/>
-            </Components.ErrorBoundary>
-          </div>
+          <Components.ErrorBoundary>
+            <Intercom
+              appID={intercomAppId}
+              user_id={currentUser._id}
+              email={currentUser.email}
+              name={currentUser.displayName}/>
+          </Components.ErrorBoundary>
+        </div>
       } else if (!currentUser) {
-        return <div id="intercome-outer-frame">
+        return<div id="intercome-outer-frame">
             <Components.ErrorBoundary>
-              <Intercom appID="wtb8z7sj"/>
+              <Intercom appID={intercomAppId}/>
             </Components.ErrorBoundary>
           </div>
       } else {

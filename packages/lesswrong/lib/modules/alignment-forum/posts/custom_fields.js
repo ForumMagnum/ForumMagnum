@@ -14,7 +14,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['alignmentForum'],
       insertableBy: ['alignmentForum'],
-      control: 'AlignmentCheckbox'
+      control: 'checkbox',
+      group: formGroups.options,
     }
   },
 

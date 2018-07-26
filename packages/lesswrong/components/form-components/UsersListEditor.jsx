@@ -41,7 +41,7 @@ const SortableList = withStyles(sortableListStyles)(SortableContainer(({items, c
 
 const usersListEditorStyles = theme => ({
   root: {
-    margin: theme.spacing.unit*2
+    marginLeft: theme.spacing.unit*2
   },
   search: {
     display: "flex"
@@ -110,11 +110,10 @@ class UsersListEditor extends Component {
 
     return (
       <div className={classes.root}>
-        {this.props.label && <label>{label}</label>}
-
         <div className={classes.search}>
           <Components.UsersSearchAutoComplete
             clickAction={this.addUserId}
+            label={label}
           />
           <SortableList
             axis="xy"

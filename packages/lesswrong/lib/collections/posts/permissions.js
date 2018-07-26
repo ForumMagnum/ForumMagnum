@@ -2,7 +2,9 @@ import { Posts } from 'meteor/example-forum'
 import Users from 'meteor/vulcan:users'
 
 Posts.checkAccess = (currentUser, post) => {
-  if (Users.isAdmin(currentUser) || Users.owns(currentUser, post)) { // admins can always see everything, users can always see their own posts
+  if (Users.isAdmin(currentUser)) {
+    return true
+  } else if (Users.owns(currentUser, post) || Users.isSharedOn(currentUser, post)) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

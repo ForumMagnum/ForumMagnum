@@ -82,6 +82,9 @@ const styles = theme => ({
     },
     postFooter: {
       marginBottom: 30,
+    },
+    draft: {
+      color: theme.palette.secondary.light
     }
 })
 
@@ -264,26 +267,21 @@ class PostsPage extends Component {
       return (
         <Components.ErrorBoundary>
           <div>
-            <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
-            <div>
-              <div className={classes.header}>
-                <Typography variant="display3" className={classes.title}>
-                  {post.draft && '[Draft]'}{post.title}
-                </Typography>
-                {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
+            <div className={classes.header}>
+              <Typography variant="display3" className={classes.title}>
+                {post.draft && <span className={classes.draft}>[Draft] </span>}
+                {post.title}
+              </Typography>
+              {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
+              <Components.ErrorBoundary>
+                { this.renderSequenceNavigation() }
+              </Components.ErrorBoundary>
+              <div className={classes.voteTop}>
+                <hr className={classes.voteDivider}/>
                 <Components.ErrorBoundary>
-                  { this.renderSequenceNavigation() }
+                  <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
                 </Components.ErrorBoundary>
-                <div className={classes.voteTop}>
-                  <hr className={classes.voteDivider}/>
-                  <Components.ErrorBoundary>
-                    <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                  </Components.ErrorBoundary>
-                  <hr className={classes.voteDivider}/>
-                </div>
-                <Typography variant="title" color="textSecondary" className={classes.author}>
-                  <Components.UsersName user={post.user} />
-                </Typography>
+                <hr className={classes.voteDivider}/>
               </div>
               <div className={classes.mainContent}>
                 <Components.ErrorBoundary>

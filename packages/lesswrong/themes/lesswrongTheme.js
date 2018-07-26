@@ -56,6 +56,7 @@ const theme = createMuiTheme({
     },
     display1: {
       fontFamily: serifStack,
+      color: grey[800]
     },
     display3: {
       fontFamily: serifStack,

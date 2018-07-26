@@ -38,6 +38,7 @@ import '../components/common/Meta.jsx';
 import '../components/common/AllPosts.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
+import '../components/common/SectionTitleLink.jsx';
 import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
@@ -129,6 +130,7 @@ import '../components/search/SequencesSearchHit.jsx';
 import '../components/search/SequencesSearchAutoComplete.jsx';
 import '../components/search/UsersSearchAutoComplete.jsx';
 import '../components/search/UsersAutoCompleteHit.jsx';
+import '../components/search/UsersSearchInput.jsx';
 
 import '../components/admin/AdminDashboard.jsx';
 
