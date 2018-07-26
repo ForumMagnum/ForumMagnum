@@ -1,5 +1,12 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  recommendedReading: {
+    marginTop: -20
+  }
+})
 
 const testCollections = [
   {
@@ -32,7 +39,7 @@ const testCollections = [
 ]
 
 const Home = (props, context) => {
-  const { currentUser, router } = props;
+  const { currentUser, router, classes } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -84,9 +91,11 @@ const Home = (props, context) => {
             Sequence Library
           </Components.SectionTitleLink>}
         >
-          <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-          <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-          <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+          <div className={classes.recommendedReading}>
+            <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
+            <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
+            <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+          </div>
         </Components.Section> :
         <div>
           <Components.Section
@@ -133,4 +142,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser);
+registerComponent('Home', Home, withCurrentUser, withStyles(styles));
