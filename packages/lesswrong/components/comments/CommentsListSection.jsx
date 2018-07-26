@@ -77,7 +77,7 @@ class CommentsListSection extends Component {
               {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments()}> (show more) </a>}
             </span> :
             <span>
-              { totalComments } comments, sorted by <Components.CommentsViews postId={this.props.postId} />
+              { totalComments } comments, sorted by <Components.CommentsViews post={this.props.post} />
             </span>
         }
       </Typography>
