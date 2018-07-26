@@ -42,7 +42,7 @@ class SunshineCommentsItem extends Component {
             <Link
               className="sunshine-sidebar-posts-action new-comment clear"
               target="_blank"
-              title="Spam/Eugin (delete immediately)"
+              title="Spam (delete immediately)"
               to={Users.getProfileUrl(comment.user)}
               onClick={this.handleDelete}>
                 <FontIcon
