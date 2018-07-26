@@ -1,5 +1,13 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+
+const styles = theme => ({
+  errorText: {
+    color: theme.palette.error.main,
+  }
+})
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,9 +20,16 @@ class ErrorBoundary extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     if (this.state.error) {
       // You can render any custom fallback UI
-      return <div className="errorText">Error: {this.state.error}</div>;
+      return <Typography
+          align="center"
+          variant="body2">
+        <span className={classes.errorText}>
+          Error: {this.state.error}
+        </span>;
+      </Typography>
     }
     if (this.props.children)
       return this.props.children;
@@ -23,4 +38,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-registerComponent("ErrorBoundary", ErrorBoundary);
+registerComponent("ErrorBoundary", ErrorBoundary, withStyles(styles));

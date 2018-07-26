@@ -70,15 +70,6 @@ then moved to more specific files as it becomes necessary.
 
 */
 
-// Fail-to-render error messagse. This bit of styling is used when a component
-// throws and React's componentDidCatch is used.
-
-.errorText {
-  color: red !important;
-  font-size: 12px !important;
-  text-align: center;
-}
-
 // CSS modifications for comment threads
 
 .header-taglines {
