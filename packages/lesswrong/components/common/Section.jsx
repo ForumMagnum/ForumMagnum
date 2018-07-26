@@ -12,12 +12,19 @@ const BORDER_TOP_WIDTH = 3
 const styles = (theme) => ({
   section: {
     marginBottom: theme.spacing.unit * 4,
+    [theme.breakpoints.only('md')]: {
+      marginLeft: 15
+    },
+    [theme.breakpoints.up('lg')]: {
+      marginLeft: 50
+    },
   },
   sectionTitleContainer: {
     [theme.breakpoints.up('md')]: {
       textAlign: 'right',
       display: 'inline',
-    }
+      maxWidth: 240,
+    },
   },
   sectionTitle: {
     [theme.breakpoints.down('sm')]: {
@@ -47,13 +54,15 @@ const styles = (theme) => ({
   },
   // left to provide overrides
   sectionTitleBottom: {},
-  sectionContent: {}
+  sectionContent: {
+    maxWidth: 715
+  }
 })
 
 const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, children, classes}) => {
 
   return (
-    <Grid container className={classes.section}>
+    <Grid container className={classes.section} spacing={24}>
       <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
         {title && <div className={classes.sectionTitleTop}>
           <Typography variant="display1" className={classes.sectionTitle}>
