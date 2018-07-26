@@ -16,11 +16,6 @@ const styles = {
   },
 };
 
-const deleteIconStyle = {
-  fill: "rgba(0,0,0,0.1)",
-  color: "rgba(0,0,0,0.1)"
-}
-
 const SingleUsersItem = ({document, removeItem, classes }) => {
   if (document) {
     return <Chip
