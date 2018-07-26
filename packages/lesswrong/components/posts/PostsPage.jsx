@@ -82,6 +82,9 @@ const styles = theme => ({
     },
     postFooter: {
       marginBottom: 30,
+    },
+    draft: {
+      color: theme.palette.secondary.light
     }
 })
 
@@ -267,7 +270,8 @@ class PostsPage extends Component {
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
-                {post.draft && '[Draft]'}{post.title}
+                {post.draft && <span className={classes.draft}>[Draft] </span>}
+                {post.title}
               </Typography>
               {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
               { this.renderSequenceNavigation() }

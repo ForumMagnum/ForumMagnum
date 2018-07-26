@@ -13,14 +13,25 @@ export const formGroups = {
     name: "event details",
     order: 1,
     label: "Event Details"
+  },
+  moderationGroup: {
+    order: 60,
+    name: "moderation",
+    label: "Moderation",
+    startCollapsed: true,
+  },
+  options: {
+    order:10,
+    name: "options",
+    defaultStyle: true,
+    flexStyle: true
+  },
+  content: {
+    order:20,
+    name: "Content",
+    defaultStyle: true,
   }
 };
-
-const moderationGroup = {
-  order:60,
-  name: "moderation",
-  label: "Moderation",
-}
 
 Posts.addField([
   /**
@@ -29,9 +40,10 @@ Posts.addField([
   {
     fieldName: "url",
     fieldSchema: {
-      order: 20,
-      placeholder: "URL",
+      order: 12,
       control: 'EditUrl',
+      placeholder: 'Add a linkpost URL',
+      group: formGroups.options
     }
   },
   /**
@@ -71,12 +83,13 @@ Posts.addField([
       control: 'EditorFormComponent',
       blackbox: true,
       order: 25,
+      group: formGroups.content,
       form: {
         hintText:"Plain Markdown Editor",
         rows:4,
         multiLine:true,
         fullWidth:true,
-        underlineShow:false,
+        disableUnderline:true,
         enableMarkDownEditor: true
       },
     }
@@ -580,7 +593,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['members'],
-      group: moderationGroup,
+      group: formGroups.moderation,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       optional: true,
@@ -600,7 +613,7 @@ Posts.addField([
     fieldSchema: {
       type: Boolean,
       viewableBy: ['guests'],
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
       editableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
       optional: true,
@@ -892,7 +905,6 @@ Posts.addField([
     }
   },
 
-
   {
     fieldName: 'metaSticky',
     fieldSchema: {
@@ -916,6 +928,29 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  {
+    fieldName: 'shareWithUsers',
+    fieldSchema: {
+      type: Array,
+      order: 15,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      control: "UsersListEditor",
+      label: "Share draft with users",
+      group: formGroups.options
+    }
+  },
+
+  {
+    fieldName: 'shareWithUsers.$',
+    fieldSchema: {
+      type: String,
+      optional: true
     }
   },
 ]);

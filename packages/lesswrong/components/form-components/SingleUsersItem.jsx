@@ -1,10 +1,13 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import Chip from 'material-ui/Chip';
+import Chip from '@material-ui/core/Chip';
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   chip: {
-    margin: 4,
+    marginLeft: 4,
+    marginRight: 4,
+    marginBottom: 4,
     backgroundColor: "rgba(0,0,0,0.05)"
   },
   wrapper: {
@@ -13,24 +16,15 @@ const styles = {
   },
 };
 
-const deleteIconStyle = {
-  fill: "rgba(0,0,0,0.1)",
-  color: "rgba(0,0,0,0.1)"
-}
-
-const SingleUsersItem = ({document, removeItem, clickAction }) => {
+const SingleUsersItem = ({document, removeItem, classes }) => {
   if (document) {
-    return <span className="users-item-body">
-      <Chip
-        onRequestDelete={() => removeItem(document._id)}
-        deleteIconStyle={deleteIconStyle}
-        style={styles.chip}
-      >
-        <span className="single-users-item-name">{document.displayName}</span>
-      </Chip>
-    </span>
+    return <Chip
+        onDelete={() => removeItem(document._id)}
+        className={classes.chip}
+        label={document.displayName}
+      />
   } else {
     return <Components.Loading />
   }
 };
-registerComponent('SingleUsersItem', SingleUsersItem);
+registerComponent('SingleUsersItem', SingleUsersItem, withStyles(styles));
