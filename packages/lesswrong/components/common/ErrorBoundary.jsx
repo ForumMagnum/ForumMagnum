@@ -25,11 +25,10 @@ class ErrorBoundary extends React.Component {
     if (this.state.error) {
       // You can render any custom fallback UI
       return <Typography
+          className={classes.errorText}
           align="center"
-          variant="body2">
-        <span className={classes.errorText}>
-          Error: {this.state.error}
-        </span>;
+          variant="body1">
+        Error: {this.state.error}
       </Typography>
     }
     if (this.props.children)
