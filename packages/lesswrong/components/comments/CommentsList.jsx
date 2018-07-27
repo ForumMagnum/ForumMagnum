@@ -13,19 +13,21 @@ const CommentsList = ({
 }) => {
   if (comments) {
     return (
-      <div className="comments-list">
-        {comments.map(comment =>
-          <Components.CommentsNode
-            currentUser={currentUser}
-            comment={comment}
-            key={comment._id}
-            highlightDate={highlightDate}
-            editMutation={editMutation}
-            post={post}
-            frontPage={frontPage}
-          />)
-        }
-      </div>
+      <Components.ErrorBoundary>
+        <div className="comments-list">
+          {comments.map(comment =>
+            <Components.CommentsNode
+              currentUser={currentUser}
+              comment={comment}
+              key={comment._id}
+              highlightDate={highlightDate}
+              editMutation={editMutation}
+              post={post}
+              frontPage={frontPage}
+            />)
+          }
+        </div>
+      </Components.ErrorBoundary>
     )
   } else {
     return (

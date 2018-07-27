@@ -62,23 +62,25 @@ const styles = (theme) => ({
 const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, children, classes}) => {
 
   return (
-    <Grid container className={classes.section} spacing={24}>
-      <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
-        {title && <div className={classes.sectionTitleTop}>
-          <Typography variant="display1" className={classes.sectionTitle}>
-            {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
-          </Typography>
-        </div>}
-        {titleComponent && <div className={classes.sectionTitleBottom}>
-          {titleComponent}
-        </div>}
+    <Components.ErrorBoundary>
+      <Grid container className={classes.section} spacing={24}>
+        <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
+          {title && <div className={classes.sectionTitleTop}>
+            <Typography variant="display1" className={classes.sectionTitle}>
+              {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
+            </Typography>
+          </div>}
+          {titleComponent && <div className={classes.sectionTitleBottom}>
+            {titleComponent}
+          </div>}
+        </Grid>
+        <Grid item xs={12} md={9}>
+          <div className={classes.sectionContent}>
+            {children}
+          </div>
+        </Grid>
       </Grid>
-      <Grid item xs={12} md={9}>
-        <div className={classes.sectionContent}>
-          {children}
-        </div>
-      </Grid>
-    </Grid>
+    </Components.ErrorBoundary>
   )
 };
 
