@@ -85,8 +85,9 @@ class CommentsViews extends Component {
 
 CommentsViews.propTypes = {
   currentUser: PropTypes.object,
-  post: PropTypes.object,
-  defaultView: PropTypes.string
+  post: PropTypes.object.isRequired,
+  defaultView: PropTypes.string,
+  router: PropTypes.object.isRequired
 };
 
 CommentsViews.defaultProps = {
