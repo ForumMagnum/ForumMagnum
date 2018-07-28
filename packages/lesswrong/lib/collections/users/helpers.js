@@ -4,7 +4,7 @@ import { getSetting } from 'meteor/vulcan:core';
 
 
 Users.isSharedOn = (currentUser, document) => {
-  return (document.sharedWithUsers && document.sharedWithUsers.includes(currentUser._id))
+  return (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
 }
 
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {

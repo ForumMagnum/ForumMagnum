@@ -1009,7 +1009,7 @@ Posts.addField([
       insertableBy: ['admins'],
       editableBy: ['admins'],
       optional: true,
-      group: formGroups.admin,
+      group: formGroups.adminOptions,
     }
   }
 ]);
