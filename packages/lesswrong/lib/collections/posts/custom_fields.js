@@ -5,9 +5,11 @@ import React from 'react';
 import Users from "meteor/vulcan:users";
 
 export const formGroups = {
-  admin: {
-    name: "admin",
-    order: 2
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: "Admin Options",
+    startCollapsed: true,
   },
   event: {
     name: "event details",
@@ -23,6 +25,7 @@ export const formGroups = {
   options: {
     order:10,
     name: "options",
+    label: "Options",
     defaultStyle: true,
     flexStyle: true
   },
@@ -30,6 +33,12 @@ export const formGroups = {
     order:20,
     name: "Content",
     defaultStyle: true,
+  },
+  canonicalSequence: {
+    order:30,
+    name: "canonicalSequence",
+    label: "Canonical Sequence",
+    startCollapsed: true,
   }
 };
 
@@ -106,6 +115,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       control: "textarea",
+      group: formGroups.adminOptions
     }
   },
 
@@ -133,6 +143,8 @@ Posts.addField([
       editableBy: ['admin'],
       insertableBy: ['admin'],
       control: "checkbox",
+      order: 12,
+      group: formGroups.adminOptions,
     }
   },
 
@@ -186,7 +198,7 @@ Posts.addField([
         resolver: (post, args, context) => context.RSSFeeds.findOne({_id: post.feedId}, {fields: context.getViewableFields(context.currentUser, context.RSSFeeds)}),
         addOriginalField: true,
       },
-      group: formGroups.admin,
+      group: formGroups.adminOptions,
     }
   },
 
@@ -202,7 +214,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
-      group: formGroups.admin
+      group: formGroups.adminOptions
     }
   },
 
@@ -294,7 +306,7 @@ Posts.addField([
       viewableBy: ['guests'],
       insertableBy: ['sunshineRegiment', 'admins'],
       editableBy: ['sunshineRegiment', 'admins'],
-      group: formGroups.admin,
+      group: formGroups.adminOptions,
     }
   },
   {
@@ -307,6 +319,7 @@ Posts.addField([
       optional: true,
       label: "Suggested for Curated by",
       control: "UsersListEditor",
+      group: formGroups.adminOptions,
       resolveAs: {
         fieldName: 'suggestForCuratedUsernames',
         type: 'String',
@@ -375,7 +388,8 @@ Posts.addField([
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins'],
-      insertableBy: ['admins']
+      insertableBy: ['admins'],
+      group: formGroups.canonicalSequence,
     }
   },
 
@@ -388,7 +402,8 @@ Posts.addField([
       editableBy: ['admins'],
       insertableBy: ['admins'],
       hidden: false,
-      control: "text"
+      control: "text",
+      group: formGroups.adminOptions,
     }
   },
 
@@ -400,6 +415,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+      group: formGroups.canonicalSequence,
       resolveAs: {
         fieldName: 'canonicalSequence',
         addOriginalField: true,
@@ -425,6 +441,7 @@ Posts.addField([
       insertableBy: ['admins'],
       hidden: false,
       control: "text",
+      group: formGroups.canonicalSequence,
       resolveAs: {
         fieldName: 'canonicalCollection',
         addOriginalField: true,
@@ -446,6 +463,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+      group: formGroups.canonicalSequence,
       hidden: false,
       control: "text",
       resolveAs: {
@@ -469,6 +487,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+      group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
     }
@@ -482,6 +501,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+      group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
     }
@@ -501,6 +521,8 @@ Posts.addField([
       insertableBy: ['admins', 'sunshineRegiment'],
       label: "Make only accessible via link",
       control: "checkbox",
+      order: 11,
+      group: formGroups.adminOptions,
       onInsert: (document, currentUser) => {
         if (!document.unlisted) {
           return false;
@@ -570,7 +592,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
-      control: 'checkbox'
+      control: 'checkbox',
+      group: formGroups.moderationGroup,
     }
   },
 
@@ -593,7 +616,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['members'],
-      group: formGroups.moderation,
+      group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       optional: true,
@@ -750,7 +773,9 @@ Posts.addField([
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins']
+      insertableBy: ['sunshineRegiment', 'admins'],
+      group: formGroups.adminOptions,
+      label: "Curated Review UserId"
     }
   },
 
@@ -911,9 +936,9 @@ Posts.addField([
       order:10,
       type: Boolean,
       optional: true,
-      label: "Meta Sticky",
+      label: "Sticky (Meta)",
       defaultValue: false,
-      group: formGroups.admin,
+      group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
@@ -928,6 +953,29 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  {
+    fieldName: 'sticky',
+    fieldSchema: {
+      order:10,
+      group: formGroups.adminOptions
+    }
+  },
+
+  {
+    fieldName: 'postedAt',
+    fieldSchema: {
+      group: formGroups.adminOptions
+    }
+  },
+
+  {
+    fieldName: 'status',
+    fieldSchema: {
+      group: formGroups.adminOptions,
+      hidden: true
     }
   },
 
