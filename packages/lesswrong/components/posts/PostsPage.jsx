@@ -283,36 +283,39 @@ class PostsPage extends Component {
                 </Components.ErrorBoundary>
                 <hr className={classes.voteDivider}/>
               </div>
-              <div className={classes.mainContent}>
-                <Components.ErrorBoundary>
-                  {this.renderPostMetadata()}
-                </Components.ErrorBoundary>
-                <Components.ErrorBoundary>
-                  { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
-                </Components.ErrorBoundary>
-                { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
-                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </Typography>}
-                {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
-                { post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> }
-              </div>
-              <div className={classes.postFooter}>
-                <div className={classes.voteBottom}>
-                  <Components.ErrorBoundary>
-                    <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                  </Components.ErrorBoundary>
-                </div>
-                <Typography variant="headline" color="textSecondary" className={classes.author}>
-                  <Components.UsersName user={post.user} />
-                </Typography>
-              </div>
+              <Typography variant="title" color="textSecondary" className={classes.author}>
+                <Components.UsersName user={post.user} />
+              </Typography>
             </div>
-            {this.renderRecommendedReading()}
-            <div id="comments">
+            <div className={classes.mainContent}>
               <Components.ErrorBoundary>
-                <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+                {this.renderPostMetadata()}
               </Components.ErrorBoundary>
+              <Components.ErrorBoundary>
+                { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
+              </Components.ErrorBoundary>
+              { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
+                This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+              </Typography>}
+              {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
+              { post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
+            <div className={classes.postFooter}>
+              <div className={classes.voteBottom}>
+                <Components.ErrorBoundary>
+                  <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                </Components.ErrorBoundary>
+              </div>
+              <Typography variant="headline" color="textSecondary" className={classes.author}>
+                <Components.UsersName user={post.user} />
+              </Typography>
+            </div>
+          </div>
+          {this.renderRecommendedReading()}
+          <div id="comments">
+            <Components.ErrorBoundary>
+              <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+            </Components.ErrorBoundary>
           </div>
         </Components.ErrorBoundary>
       );
