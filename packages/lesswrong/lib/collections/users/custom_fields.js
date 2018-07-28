@@ -1,9 +1,20 @@
 import Users from "meteor/vulcan:users";
 
-const moderationGroup = {
-  order:60,
-  name: "moderation",
-  label: "Moderation",
+const formGroups = {
+  moderationGroup: {
+    order:60,
+    name: "moderation",
+    label: "Moderation",
+  },
+  banUser: {
+    order:50,
+    name: "banUser",
+    label: "Ban & Purge User",
+  },
+  notifications: {
+    order: 10,
+    label: "Notifications"
+  }
 }
 
 Users.addField([
@@ -190,7 +201,7 @@ Users.addField([
       type: String,
       optional: true,
       control: "select",
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       label: "Style",
       viewableBy: ['guests'],
       editableBy: ['trustLevel1', 'admins'],
@@ -215,7 +226,7 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       label: "Special Guidelines",
       placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
       viewableBy: ['guests'],
@@ -232,7 +243,7 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
       viewableBy: ['guests'],
       editableBy: ['trustLevel1'],
@@ -258,7 +269,7 @@ Users.addField([
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       viewableBy: ['members'],
       editableBy: ['trustLevel1'],
       insertableBy: ['trustLevel1'],
@@ -355,6 +366,7 @@ Users.addField([
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
+      group: formGroups.banUser,
       label: 'Set all future votes of this user to have zero weight'
     }
   },
@@ -372,6 +384,7 @@ Users.addField([
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
+      group: formGroups.banUser,
       label: 'Nullify all past votes'
     }
   },
@@ -389,6 +402,7 @@ Users.addField([
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
+      group: formGroups.banUser,
       label: 'Delete all user content'
     }
   },
@@ -406,7 +420,8 @@ Users.addField([
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'datetime',
-      label: 'Ban this user until'
+      label: 'Ban this user until',
+      group: formGroups.banUser,
     }
   },
 
@@ -419,6 +434,7 @@ Users.addField([
     fieldSchema: {
       type: Array,
       optional: true,
+      group: formGroups.banUser,
       viewableBy: ['sunshineRegiment', 'admins'],
       resolveAs: {
         fieldName: 'IPs',
@@ -474,21 +490,18 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
-      group: null,
       label: "Notifications for Comments on My Posts"
     }
   },
   {
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
-      group: null,
       label: "Notifications For Replies to My Comments"
     }
   },
   {
     fieldName: 'notifications_posts',
     fieldSchema: {
-      group: null
     }
   },
   /**
