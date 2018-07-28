@@ -953,4 +953,16 @@ Posts.addField([
       optional: true
     }
   },
+
+  {
+    fieldName: 'commentSortOrder',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['admins'],
+      editableBy: ['admins'],
+      optional: true,
+      group: formGroups.admin,
+    }
+  }
 ]);

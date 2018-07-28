@@ -10,6 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
   'postCommentsNew': 'most recent',
+  'postCommentsOld': 'oldest',
   'postCommentsBest': 'highest karma',
   'postCommentsDeleted': 'deleted',
   'postCommentsSpam': 'spam',
@@ -38,10 +39,10 @@ class CommentsViews extends Component {
   };
 
   handleViewClick = (view) => {
-    const { router, postId } = this.props
+    const { router, post } = this.props
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
     this.setState({ anchorEl: null })
-    router.replace({...router.location, query: {...currentQuery, view: view, postId: postId}})
+    router.replace({...router.location, query: {...currentQuery, view: view, postId: post._id}})
   };
 
   handleClose = () => {
@@ -49,11 +50,11 @@ class CommentsViews extends Component {
   }
 
   render() {
-    const { currentUser, router, classes } = this.props
+    const { currentUser, classes, router, post } = this.props
     const { anchorEl } = this.state
-    let views = ["postCommentsTop", "postCommentsNew", "postCommentsBest"]
+    let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld", "postCommentsBest"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
-    const currentView = _.clone(router.location.query).view || "postCommentsTop"
+    const currentView = _.clone(router.location.query).view || post.commentSortOrder || "postCommentsTop"
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
@@ -84,7 +85,9 @@ class CommentsViews extends Component {
 
 CommentsViews.propTypes = {
   currentUser: PropTypes.object,
-  defaultView: PropTypes.string
+  post: PropTypes.object.isRequired,
+  defaultView: PropTypes.string,
+  router: PropTypes.object.isRequired
 };
 
 CommentsViews.defaultProps = {
