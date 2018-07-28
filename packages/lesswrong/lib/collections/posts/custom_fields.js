@@ -975,7 +975,6 @@ Posts.addField([
     fieldName: 'status',
     fieldSchema: {
       group: formGroups.adminOptions,
-      hidden: true
     }
   },
 

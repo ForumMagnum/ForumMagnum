@@ -490,21 +490,18 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
-      // group: null,
       label: "Notifications for Comments on My Posts"
     }
   },
   {
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
-      // group: null,
       label: "Notifications For Replies to My Comments"
     }
   },
   {
     fieldName: 'notifications_posts',
     fieldSchema: {
-      // group: null
     }
   },
   /**
