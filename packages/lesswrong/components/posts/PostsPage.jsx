@@ -220,6 +220,15 @@ class PostsPage extends Component {
     }
   }
 
+  renderContactInfo = () => {
+    const post = this.props.document;
+    if (post.isEvent && post.contactInfo) {
+      return <div className="posts-page-event-contact">
+        Contact: {post.contactInfo}
+      </div>
+    }
+  }
+
   renderPostMetadata = () => {
     const post = this.props.document;
     return <div className="posts-page-content-body-metadata">
@@ -227,6 +236,7 @@ class PostsPage extends Component {
         {this.renderPostDate()}
         {this.renderEventLocation()}
         {this.renderEventLinks()}
+        {this.renderContactInfo()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
         <a href="#comments">{ this.getCommentCountStr(post) }</a>
