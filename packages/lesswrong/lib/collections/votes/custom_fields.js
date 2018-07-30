@@ -102,6 +102,28 @@ VoteableCollections.forEach(collection => {
           },
         }
       }
+    },
+    {
+      fieldName: 'voteCount',
+      fieldSchema: {
+        type: Number,
+        optional: true,
+        viewableBy: ['guests'],
+        resolveAs: {
+          type: 'Int',
+          resolver: async (document, args, { Users, Votes, currentUser }) => {
+            /*if(!Votes.votesByDocument) {
+              Votes.votesByDocument = new DataLoader(async docIDs => {
+                const queryResults = await Connectors.find(Votes, { documentId: { $in: docIDs } });
+                return docIDs.map(id => _.where(queryResults, {documentId: id}));
+              }, { cache: true })
+            }
+            const votes = await Votes.votesByDocument.load(document._id);*/
+            const votes = await getWithLoader(Votes, "votesByDocument", {}, "documentId", document._id)
+            return votes.length;
+          }
+        }
+      }
     }
   ]);
 });
