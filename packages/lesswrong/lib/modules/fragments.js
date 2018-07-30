@@ -187,6 +187,7 @@ registerFragment(`
     htmlBody
     content
     draft
+    commentSortOrder
     canonicalPrevPostSlug
     canonicalNextPostSlug
     canonicalCollectionSlug

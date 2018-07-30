@@ -53,6 +53,13 @@ Comments.addView("postCommentsTop", function (terms) {
   };
 });
 
+Comments.addView("postCommentsOld", function (terms) {
+  return {
+    selector: { postId: terms.postId },
+    options: {sort: {deleted: 1, postedAt: 1}}
+  };
+});
+
 Comments.addView("postCommentsNew", function (terms) {
   return {
     selector: { postId: terms.postId },

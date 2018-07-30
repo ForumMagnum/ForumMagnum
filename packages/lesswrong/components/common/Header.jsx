@@ -83,41 +83,47 @@ class Header extends Component {
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     return (
-      <div className={classes.root}>
-        <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
-          <AppBar className={classes.appBar} position="static">
-            <Toolbar>
-              <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
-                <MenuIcon />
-              </IconButton>
-              <Typography className={classes.title} variant="title" color="textSecondary">
-                <Hidden smDown implementation="css">
-                  <Link to="/" className={classes.titleLink}>
-                    {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
-                  </Link>
-                  {subtitleLink && <span className={classes.subtitle}>
-                    <Link to={subtitleLink} className={classes.titleLink}>
-                      {subtitleText}
+      <Components.ErrorBoundary>
+        <div className={classes.root}>
+          <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
+            <AppBar className={classes.appBar} position="static">
+              <Toolbar>
+                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
+                  <MenuIcon />
+                </IconButton>
+                <Typography className={classes.title} variant="title" color="textSecondary">
+                  <Hidden smDown implementation="css">
+                    <Link to="/" className={classes.titleLink}>
+                      {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                     </Link>
-                  </span>}
-                </Hidden>
-                <Hidden mdUp implementation="css">
-                  <Link to="/" className={classes.titleLink}>
-                    {getSetting('forumSettings.shortForumTitle', 'LW')}
-                  </Link>
-                </Hidden>
-              </Typography>
-              <div className={classes.negativeRightMargin}>
-                <NoSSR><Components.SearchBar color={theme.palette.primary.contrastText} /></NoSSR>
-                {currentUser ? <Components.UsersMenu color={theme.palette.primary.contrastText} /> : <Components.UsersAccountMenu color={theme.palette.primary.contrastText} />}
-                {currentUser && <Components.NotificationsMenuButton color={theme.palette.primary.contrastText} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
-              </div>
-            </Toolbar>
-          </AppBar>
-          <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
-        </Headroom>
-        <Components.NotificationsMenu open={notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
-      </div>
+                    {subtitleLink && <span className={classes.subtitle}>
+                      <Link to={subtitleLink} className={classes.titleLink}>
+                        {subtitleText}
+                      </Link>
+                    </span>}
+                  </Hidden>
+                  <Hidden mdUp implementation="css">
+                    <Link to="/" className={classes.titleLink}>
+                      {getSetting('forumSettings.shortForumTitle', 'LW')}
+                    </Link>
+                  </Hidden>
+                </Typography>
+                <div className={classes.negativeRightMargin}>
+                  <NoSSR><Components.ErrorBoundary>
+                    <Components.SearchBar color={theme.palette.primary.contrastText} />
+                  </Components.ErrorBoundary></NoSSR>
+                  {currentUser ? <Components.UsersMenu color={theme.palette.primary.contrastText} /> : <Components.UsersAccountMenu color={theme.palette.primary.contrastText} />}
+                  {currentUser && <Components.NotificationsMenuButton color={theme.palette.primary.contrastText} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                </div>
+              </Toolbar>
+            </AppBar>
+            <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
+          </Headroom>
+          <Components.ErrorBoundary>
+            <Components.NotificationsMenu open={notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
+          </Components.ErrorBoundary>
+        </div>
+      </Components.ErrorBoundary>
     )
   }
 }
