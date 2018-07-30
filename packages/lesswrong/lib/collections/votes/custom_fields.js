@@ -1,5 +1,4 @@
 import { Votes } from "meteor/vulcan:voting";
-import { addCallback } from 'meteor/vulcan:core';
 import { VoteableCollections } from 'meteor/vulcan:voting';
 import { Connectors } from 'meteor/vulcan:core'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import DataLoader from 'dataloader';
