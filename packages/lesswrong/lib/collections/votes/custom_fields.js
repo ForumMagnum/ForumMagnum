@@ -16,19 +16,21 @@ Votes.addField([
   }
 ]);
 
-function invalidateVoteCaches(collection) {
-  collection.votesByUser = null;
-  collection.votesByDocument = null;
-}
-
-/*addCallback(`votes.new.sync`, (document, collection, user) => {
-  invalidateVoteCaches(collection);
-});
-
-addCallback("votes.cancel.sync", (document, collection, user) => {
-  invalidateVoteCaches(collection);
-});*/
-
+//
+// Do a query, with a custom loader for query batching. This effectively does a
+// find query, where all of the fields of the query are kept constant within a
+// query batch except for one field, which is converted from looking for a
+// specific value to being a {$in: [...]} query. The loader caches within one
+// http request, and is reset between http requests.
+//
+//   collection: The collection which contains the objects you're querying for
+//   loaderName: A key which identifies this loader. Calls to getWithLoader
+//     that share a loaderName will be batched together, and must have an
+//     identical baseQuery
+//   groupByField: The name of the field whose value varies between queries in
+//     the batch.
+//   id: The value of the field whose values vary between queries in the batch.
+//
 async function getWithLoader(collection, loaderName, baseQuery, groupByField, id)
 {
   if (!collection.extraLoaders) {
@@ -64,11 +66,6 @@ VoteableCollections.forEach(collection => {
         resolveAs: {
           type: '[Vote]',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
-            /*if (!currentUser) return [];
-            const votes = await Connectors.find(Votes, {userId: currentUser._id, documentId: document._id});
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);*/
-
             if (!currentUser) return [];
             const votes = await getWithLoader(Votes, `votesByUser${currentUser._id}`, {userId: currentUser._id}, "documentId", document._id);
             if (!votes.length) return [];
@@ -86,16 +83,6 @@ VoteableCollections.forEach(collection => {
         resolveAs: {
           type: '[Vote]',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
-            /*if(!Votes.votesByDocument) {
-              Votes.votesByDocument = new DataLoader(async docIDs => {
-                const queryResults = await Connectors.find(Votes, { documentId: { $in: docIDs } });
-                //const groupedQueryResults = _.groupBy(queryResults, doc=>doc.documentId);
-                //return docIDs.map(id => groupedQueryResults[id] || []);
-                return docIDs.map(id => _.where(queryResults, {documentId: id}));
-              }, { cache: true })
-            }
-            const votes = await Votes.votesByDocument.load(document._id);*/
-
             const votes = await getWithLoader(Votes, "votesByDocument", {}, "documentId", document._id)
             if (!votes.length) return [];
             return Users.restrictViewableFields(currentUser, Votes, votes);
@@ -112,13 +99,6 @@ VoteableCollections.forEach(collection => {
         resolveAs: {
           type: 'Int',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
-            /*if(!Votes.votesByDocument) {
-              Votes.votesByDocument = new DataLoader(async docIDs => {
-                const queryResults = await Connectors.find(Votes, { documentId: { $in: docIDs } });
-                return docIDs.map(id => _.where(queryResults, {documentId: id}));
-              }, { cache: true })
-            }
-            const votes = await Votes.votesByDocument.load(document._id);*/
             const votes = await getWithLoader(Votes, "votesByDocument", {}, "documentId", document._id)
             return votes.length;
           }
