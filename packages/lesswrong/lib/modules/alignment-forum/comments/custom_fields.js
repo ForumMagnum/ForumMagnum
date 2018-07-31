@@ -10,8 +10,8 @@ Comments.addField([
       label: "Alignment Forum",
       defaultValue: false,
       viewableBy: ['guests'],
-      editableBy: ['alignmentForum'],
-      insertableBy: ['alignmentForum'],
+      editableBy: ['alignmentVoters'],
+      insertableBy: ['alignmentVoters'],
       control: 'AlignmentCheckbox'
     }
   },
