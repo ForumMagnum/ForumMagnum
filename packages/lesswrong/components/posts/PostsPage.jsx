@@ -276,6 +276,7 @@ class PostsPage extends Component {
 
       return (
         <Components.ErrorBoundary>
+          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
