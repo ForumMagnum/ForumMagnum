@@ -73,9 +73,9 @@ jobs:
       - run:
           name: install yarn
           command: meteor npm i -g yarn
-      # - run:
-      #     name: install npm packages
-      #     command: meteor yarn
+      - run:
+          name: install npm packages
+          command: meteor yarn
       # - run:
       #     name: code linting
       #     command: meteor yarn lint
