@@ -112,7 +112,7 @@ class CommentsItem extends PureComponent {
       return <div className="recent-comments-item-text comments-item-text content-body">
         {commentExcerpt}
         <p>{lastElement + "..."}
-          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> 
+          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
         </p>
       </div>
     } else {
@@ -340,7 +340,7 @@ class CommentsItem extends PureComponent {
 
   renderMoveToAlignmentMenuItem = () =>  {
     const { currentUser, comment, post } = this.props
-    if (Users.canMakeAlignmentPost(currentUser, post)) {
+    if (Users.canDo(currentUser, 'comments.alignment.move.all')) {
       return (
         <Components.MoveToAlignmentMenuItem
           currentUser={currentUser}
