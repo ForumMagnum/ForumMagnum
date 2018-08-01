@@ -18,7 +18,7 @@ import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Posts } from 'meteor/example-forum';
+import { Posts, Comments } from 'meteor/example-forum';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -112,18 +112,6 @@ class PostsPage extends Component {
       </DropdownButton>
     )
 
-  }
-
-  getView() {
-    switch(this.props.router.location.query.view) {
-        case 'top':
-          return 'postCommentsTop';
-        case 'new':
-          return 'postCommentsNew';
-    }
-
-    // default to top
-    return 'postCommentsTop';
   }
 
   getCommentCountStr = (post) => {
@@ -262,7 +250,7 @@ class PostsPage extends Component {
   }
 
   render() {
-    const { loading, document, currentUser, location, classes } = this.props
+    const { loading, document, currentUser, location, router, classes } = this.props
     if (loading) {
       return <div><Components.Loading/></div>
     } else if (!document) {
@@ -272,7 +260,7 @@ class PostsPage extends Component {
       const post = document
       const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
-      const commentTerms = _.isEmpty(query) ? {view: 'postCommentsTop', limit: 500} : {...query, limit:500}
+      const commentTerms = _.isEmpty(query) ? {view: Comments.getView(router, post, currentUser), limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>
