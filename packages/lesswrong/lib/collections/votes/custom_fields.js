@@ -37,11 +37,15 @@ async function getWithLoader(collection, loaderName, baseQuery, groupByField, id
   }
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
-      let query = baseQuery ? _.clone(baseQuery) : {};
-      query[groupByField] = { $in: docIDs };
+      let query = {
+        ...baseQuery,
+        [groupByField]: {$in: docIDs}
+      };
       const queryResults = await Connectors.find(collection, query);
-      const result = docIDs.map(id => _.where(queryResults, {[groupByField]: id}));
-      return result;
+      const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
+      return docIDs.map(id => sortedResults[id] || []);
+    }, {
+      cache: true
     })
   }
 
