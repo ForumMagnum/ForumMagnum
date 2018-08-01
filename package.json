@@ -7,8 +7,10 @@
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
     "start": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings.json",
+    "debug": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings.json debug",
     "start-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings-af.json",
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings-af.json --port 3030",
+    "debug-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor --settings settings-af.json debug",
     "lint": "eslint --max-warnings 0 --cache --ext .jsx,js packages",
     "test-watch": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app",
     "test": "METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages TOOL_NODE_FLAGS=--max-old-space-size=4096 METEOR_PACKAGE_DIRS=../Vulcan/packages:../Vulcan-Starter/packages meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
