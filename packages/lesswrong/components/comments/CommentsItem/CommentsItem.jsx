@@ -339,7 +339,7 @@ class CommentsItem extends PureComponent {
   }
 
   renderMoveToAlignmentMenuItem = () =>  {
-    const { currentUser, comment, post } = this.props
+    const { currentUser, comment } = this.props
     if (Users.canDo(currentUser, 'comments.alignment.move.all')) {
       return (
         <Components.MoveToAlignmentMenuItem

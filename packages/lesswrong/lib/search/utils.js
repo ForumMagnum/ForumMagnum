@@ -163,8 +163,8 @@ Posts.toAlgolia = (post) => {
 }
 
 export function algoliaCollectionExport(Collection, indexName, exportFunction, selector = {}, updateFunction) {
-  const algoliaAppId = getSetting('algoliaAppId');
-  const algoliaAdminKey = getSetting('algoliaAdminKey');
+  const algoliaAppId = getSetting('algolia.appId');
+  const algoliaAdminKey = getSetting('algolia.adminKey');
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
   //eslint-disable-next-line no-console
   console.log(`Exporting ${indexName}...`);
@@ -212,11 +212,11 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
 }
 
 export function algoliaDocumentExport(documents, Collection, indexName, exportFunction, updateFunction) {
-  if (Meteor.isDevelopment) {  // Only run document export in production environment
-    return null
-  }
-  const algoliaAppId = getSetting('algoliaAppId');
-  const algoliaAdminKey = getSetting('algoliaAdminKey');
+  // if (Meteor.isDevelopment) {  // Only run document export in production environment
+  //   return null
+  // }
+  const algoliaAppId = getSetting('algolia.appId');
+  const algoliaAdminKey = getSetting('algolia.adminKey');
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
   let algoliaIndex = client.initIndex(indexName);
 
