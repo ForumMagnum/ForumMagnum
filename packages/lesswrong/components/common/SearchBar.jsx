@@ -72,8 +72,6 @@ class SearchBar extends Component {
     const algoliaAppId = getSetting('algolia.appId')
     const algoliaSearchKey = getSetting('algolia.searchKey')
 
-    console.log("Algolia: ", algoliaAppId, algoliaSearchKey)
-
     searchIconStyle.color = this.props.color;
     closeIconStyle.color = this.props.color;
 
