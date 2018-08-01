@@ -32,9 +32,6 @@ Votes.addField([
 //
 async function getWithLoader(collection, loaderName, baseQuery, groupByField, id)
 {
-  if (!collection.extraLoaders) {
-    collection.extraLoaders = {};
-  }
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
       let query = {
@@ -49,8 +46,7 @@ async function getWithLoader(collection, loaderName, baseQuery, groupByField, id
     })
   }
 
-  let result = await collection.extraLoaders[loaderName].load(id);
-  return result;
+  return await collection.extraLoaders[loaderName].load(id);
 }
 
 VoteableCollections.forEach(collection => {
