@@ -16,7 +16,7 @@ import DataLoader from 'dataloader';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader(collection, loaderName, baseQuery, groupByField, id)
+export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id)
 {
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
