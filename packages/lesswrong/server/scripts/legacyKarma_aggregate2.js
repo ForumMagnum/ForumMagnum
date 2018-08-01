@@ -101,5 +101,6 @@ Vulcan.fixLegacyKarma = async () => {
         }
     ]
   )
-  console.log("Updated legacyKarma: ", response)
+  //eslint-disable-next-line no-console
+  console.log("Updated legacyKarma: ", response) 
 }
