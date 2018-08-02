@@ -9,17 +9,23 @@ export const recalculateAFBaseScore = async (document) => {
   return votes ? votes.reduce((sum, vote) => { return vote.afPower + sum}, 0) : 0
 }
 
-async function updateAlignmentKarmaServer (newDocument, vote, userMultiplier) {
+async function updateAlignmentKarmaServer (newDocument, vote) {
   // Update a
   const voter = Users.findOne(vote.userId)
+
   if (
     Users.canDo(voter, "votes.alignment") &&
     newDocument.af
   ) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
-    Votes.update({_id:vote._id}, {$set:{afPower: votePower}})
+    let newAFBaseScore = 0
 
-    const newAFBaseScore = await recalculateAFBaseScore(newDocument)
+    if (vote._id) {
+      Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
+      newAFBaseScore = await recalculateAFBaseScore(newDocument)
+    } else {
+      newAFBaseScore = await recalculateAFBaseScore(newDocument) + votePower
+    }
 
     const collection = getCollection(vote.collectionName)
 
