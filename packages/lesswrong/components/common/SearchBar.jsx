@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import algoliaClient from 'algoliasearch/src/browser/builds/algoliasearch'
 import PropTypes from 'prop-types';
 import {
   InstantSearch,
@@ -72,8 +71,6 @@ class SearchBar extends Component {
     const resultsOpenClass = this.state.searchOpen ? "open" : null;
     const algoliaAppId = getSetting('algolia.appId')
     const algoliaSearchKey = getSetting('algolia.searchKey')
-
-    console.log("Algolia: ", algoliaAppId, algoliaSearchKey)
 
     searchIconStyle.color = this.props.color;
     closeIconStyle.color = this.props.color;
