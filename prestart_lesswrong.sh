@@ -35,6 +35,8 @@ fi
 
 test -f settings.json || (echo "🛠  ${blue}Creating your own settings.json file...\n"; cp sample_settings.json settings.json;)
 
+test -f settings-dev.json || (echo "🛠  ${blue}Creating your own settings-dev.json file...\n"; cp sample_settings.json settings-dev.json;)
+
 echo "🌋  ${bold}${purple}Welcome to the LessWrong development server!${reset}";
 
 echo "📖  ${blue}We are using Vulcan, whose docs are available at: ${purple}http://docs.vulcanjs.org";
