@@ -39,7 +39,7 @@ class CommentsVote extends PureComponent {
       <div className={classNames("comments-item-vote"), classes.vote}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
-            <Tooltip title="Click-and-hold for strong vote" placement="bottom">
+            <Tooltip title={<div>Downvote<br /><em>(Click-and-hold for strong downvote)</em></div>} placement="bottom">
               <span>
                 <Components.VoteButton
                   orientation="left"
@@ -56,7 +56,7 @@ class CommentsVote extends PureComponent {
                 {baseScore || 0}
               </span>
             </Tooltip>
-            <Tooltip title="Click-and-hold for strong vote" placement="bottom">
+            <Tooltip title={<div>Upvote<br /><em>(Click-and-hold for strong upvote)</em></div>} placement="bottom">
               <span>
                 <Components.VoteButton
                   orientation="right"
