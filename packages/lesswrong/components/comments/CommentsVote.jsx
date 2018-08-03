@@ -46,7 +46,7 @@ class CommentsVote extends PureComponent {
             <Tooltip
               title="Click-and-hold for strong vote"
               placement="bottom"
-              classes={{tooltip: classes.tooltip, open: classes.open}}
+              classes={{tooltip: classes.tooltip}}
             >
               <span>
                 <Components.VoteButton
@@ -62,18 +62,18 @@ class CommentsVote extends PureComponent {
             <Tooltip
               title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
               placement="bottom"
-              classes={{tooltip: classes.tooltip, open: classes.open}}
+              classes={{tooltip: classes.tooltip}}
             >
-              <span className={classes.voteScore} title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}>
+              <span className={classes.voteScore}>
                 {baseScore || 0}
               </span>
             </Tooltip>
             <Tooltip
               title="Click-and-hold for strong vote"
               placement="bottom"
-              classes={{tooltip: classes.tooltip, open: classes.open}}
+              classes={{tooltip: classes.tooltip}}
             >
-              <span title="Click-and-hold for Strong Upvote">
+              <span>
                 <Components.VoteButton
                   orientation="right"
                   color="secondary"
@@ -90,7 +90,7 @@ class CommentsVote extends PureComponent {
           <Tooltip
             title="Alignment Forum Karma"
             placement="bottom"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <span className={classes.afScore}>
               <span className={classes.afSymbol}>Ω</span>
@@ -102,7 +102,7 @@ class CommentsVote extends PureComponent {
           <Tooltip
             title="LessWrong Karma"
             placement="bottom"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <span className={classes.afScore}>
               <span className={classes.afSymbol}>LW</span>
