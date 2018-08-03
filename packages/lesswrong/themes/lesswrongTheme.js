@@ -84,7 +84,13 @@ const theme = createMuiTheme({
   voting: {
     strongVoteDelay: 1000,
   },
-
+  overrides: {
+    MuiTooltip: {
+      tooltip: {
+        fontSize: ".95rem"
+      }
+    }
+  }
 });
 
 export default theme
