@@ -260,7 +260,9 @@ class PostsPage extends Component {
       const post = document
       const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
-      const commentTerms = _.isEmpty(query) ? {view: Comments.getView(router, post, currentUser), limit: 500} : {...query, limit:500}
+      const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
+
+      const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>

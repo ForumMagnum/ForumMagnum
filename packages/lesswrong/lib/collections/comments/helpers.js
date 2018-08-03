@@ -27,6 +27,7 @@ Comments.defaultToAlignment = (currentUser, post, comment) => {
   }
 }
 
-Comments.getView = (router, post, currentUser) => {
-  return _.clone(router.location.query).view || post.commentSortOrder || currentUser.commentSorting || "postCommentsTop"
+Comments.getDefaultView = (post, currentUser) => {
+
+  return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
 }

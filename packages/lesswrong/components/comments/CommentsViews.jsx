@@ -57,7 +57,7 @@ class CommentsViews extends Component {
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
-    const currentView = Comments.getView(router, post, currentUser)
+    const currentView = _.clone(router.location.query).view ||  Comments.getDefaultView(post, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
