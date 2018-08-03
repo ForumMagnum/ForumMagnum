@@ -1,10 +1,11 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router'
 import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import { Comments } from 'meteor/example-forum'
 import { withStyles } from '@material-ui/core/styles';
 
 const viewNames = {
@@ -15,6 +16,7 @@ const viewNames = {
   'postCommentsDeleted': 'deleted',
   'postCommentsSpam': 'spam',
   'postCommentsReported': 'reported',
+  'postLWComments': 'magical algorithm (include LW)',
 }
 
 const styles = theme => ({
@@ -52,12 +54,17 @@ class CommentsViews extends Component {
   render() {
     const { currentUser, classes, router, post } = this.props
     const { anchorEl } = this.state
-    let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld", "postCommentsBest"]
+    let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
-    const currentView = _.clone(router.location.query).view || post.commentSortOrder || "postCommentsTop"
+    const afViews = ["postLWComments"]
+    const currentView = _.clone(router.location.query).view ||  Comments.getDefaultView(post, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
+    }
+
+    if (getSetting("AlignmentForum", false)) {
+      views = views.concat(afViews);
     }
 
     return (

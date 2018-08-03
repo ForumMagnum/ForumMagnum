@@ -33,13 +33,8 @@ const styles = theme => ({
     fontSize: '1rem',
     backgroundColor: 'white',
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
-    marginLeft: 0,
-    '&$open': {
-      opacity: 1,
-      transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms'
-    }
+    marginLeft: 0
   },
-  open: {}
 })
 
 class PostsVote extends PureComponent {
@@ -53,7 +48,7 @@ class PostsVote extends PureComponent {
           <Tooltip
             title="Click-and-hold for strong vote"
             placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <div className={classes.upvote}>
               <Components.VoteButton
@@ -69,7 +64,7 @@ class PostsVote extends PureComponent {
           <Tooltip
             title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
             placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
           </Tooltip>
@@ -78,7 +73,7 @@ class PostsVote extends PureComponent {
             <Tooltip
               title="Alignment Forum karma"
               placement="right"
-              classes={{tooltip: classes.tooltip, open: classes.open}}
+              classes={{tooltip: classes.tooltip}}
             >
               <Typography
                 variant="headline"
@@ -90,7 +85,7 @@ class PostsVote extends PureComponent {
           <Tooltip
             title="Click-and-hold for strong vote"
             placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <div className={classes.downvote}>
               <Components.VoteButton
