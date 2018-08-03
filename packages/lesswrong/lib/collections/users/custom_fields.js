@@ -65,6 +65,7 @@ Users.addField([
       order: 65,
       control: "select",
       form: {
+        // TODO – maybe factor out??
         options: function () { // options for the select form control
           let commentViews = [
             {value:'postCommentsTop', label: 'magical algorithm'},
