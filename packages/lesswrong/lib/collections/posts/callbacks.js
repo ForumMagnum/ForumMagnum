@@ -239,7 +239,23 @@ async function PostsEditHTMLSerializeCallbackAsync (newPost, oldPost) {
       Meteor.bindEnvironment(function(output) {
         const newPostFields = {htmlBody: output}
         Posts.update({_id: newPost._id}, {$set: newPostFields})
-    }));
+    })).on('beforeSerialization', function(parsedFormula) {
+      // Remove empty paragraphs
+      var paragraphs = parsedFormula.getElementsByClassName("MJXc-display");
+      // We trim all display equations that don't have any textContent. This seems
+      // Likely fine, but there is some chance this means we are also trimming some
+      // Equations that only have images or something like that. If this happen, we
+      // want to adjust this part. 
+      for (var i = 0, len = paragraphs.length; i < len; i++) {
+          var elem = paragraphs[i];
+          if (elem.textContent.trim() == '') {
+              elem.parentNode.removeChild(elem);
+              i--;
+              len--;
+          }
+      }
+      return parsedFormula
+    });
   } else if (newPost.htmlBody !== oldPost.htmlBody) {
     const newPostFields = Posts.convertFromHTML(newPost.htmlBody, newPost._id, newPost.slug);
     Posts.update({_id: newPost._id}, {$set: newPostFields})
