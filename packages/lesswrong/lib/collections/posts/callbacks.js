@@ -12,6 +12,12 @@ import marked from 'marked';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 
+import markdownIt from 'markdown-it'
+import markdownItMathjax from './markdown-mathjax'
+var mdi = markdownIt()
+mdi.use(markdownItMathjax())
+
+import { mjpage }  from 'mathjax-node-page'
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -158,6 +164,18 @@ Posts.convertFromContent = (content, id, slug) => {
   }
 }
 
+Posts.convertFromMarkdown = (body, id, slug) => {
+  const wordCount = body.split(" ").length
+  const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
+  return {
+    htmlBody: mdi.render(body),
+    body: body,
+    excerpt: Posts.createExcerpt(body),
+    htmlHighlight: htmlHighlight,
+    wordCount: wordCount
+  }
+}
+
 /*
  * @summary Input is html, returns object with {body, excerpt}
 */
@@ -179,6 +197,9 @@ function PostsNewHTMLSerializeCallback (post) {
   if (post.content) {
     const newPostFields = Posts.convertFromContent(post.content, post._id, post.slug);
     post = {...post, ...newPostFields}
+  } else if (post.body) {
+    const newPostFields = Posts.convertFromMarkdown(post.body, post._id, post.slug)
+    post = {...post, ...newPostFields}
   } else if (post.htmlBody) {
     const newPostFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug);
     post = {...post, ...newPostFields}
@@ -192,7 +213,11 @@ function PostsEditHTMLSerializeCallback (modifier, post) {
   if (modifier.$set && modifier.$set.content) {
     const newPostFields = Posts.convertFromContent(modifier.$set.content, post._id, post.slug)
     modifier.$set = {...modifier.$set, ...newPostFields}
-    delete modifier.$unset.htmlBody;
+    delete modifier.$unset.htmlBody
+  } else if (modifier.$set && modifier.$set.body) {
+    const newPostFields = Posts.convertFromMarkdown(modifier.$set.body, post._id, post.slug)
+    modifier.$set = {...modifier.$set, ...newPostFields}
+    delete modifier.$unset.htmlBody
   } else if (modifier.$set && modifier.$set.htmlBody) {
     const newPostFields = Posts.convertFromHTML(modifier.$set.htmlBody, post._id, post.slug);
     modifier.$set = {...modifier.$set, ...newPostFields}
@@ -202,13 +227,22 @@ function PostsEditHTMLSerializeCallback (modifier, post) {
 
 addCallback("posts.edit.sync", PostsEditHTMLSerializeCallback);
 
-async function PostsEditHTMLSerializeCallbackAsync (post) {
-  if (post.content) {
-    const newPostFields = await Posts.convertFromContentAsync(post.content);
-    Posts.update({_id: post._id}, {$set: newPostFields})
-  } else if (post.htmlBody) {
-    const newPostFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug);
-    Posts.update({_id: post._id}, {$set: newPostFields})
+async function PostsEditHTMLSerializeCallbackAsync (newPost, oldPost) {
+  if (newPost.content !== oldPost.content) {
+    const newPostFields = await Posts.convertFromContentAsync(newPost.content);
+    Posts.update({_id: newPost._id}, {$set: newPostFields})
+  } else if (newPost.body !== oldPost.body) {
+    const { htmlBody } = Posts.convertFromMarkdown(newPost.body, newPost._id, newPost.slug)
+    mjpage(htmlBody,
+      {},
+      {html: true, css: true},
+      Meteor.bindEnvironment(function(output) {
+        const newPostFields = {htmlBody: output}
+        Posts.update({_id: newPost._id}, {$set: newPostFields})
+    }));
+  } else if (newPost.htmlBody !== oldPost.htmlBody) {
+    const newPostFields = Posts.convertFromHTML(newPost.htmlBody, newPost._id, newPost.slug);
+    Posts.update({_id: newPost._id}, {$set: newPostFields})
   }
 }
 
