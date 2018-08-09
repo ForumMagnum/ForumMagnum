@@ -32,31 +32,31 @@ describe('performSubscriptionAction', async () => {
     addTestToCallbackOnce('users.subscribe.async', unsubscribeTestCallback, done);
     performSubscriptionAction('subscribe', Posts, post._id, otherUser)
   });
-  it("correctly modifies the subscribers of Posts when subscribing", async () => {
-    const user = await createDummyUser()
-    const otherUser = await createDummyUser()
-    const post = await createDummyPost(user)
-
-    performSubscriptionAction('subscribe', Posts, post._id, otherUser)
-    const updatedPost = await Posts.findOne({_id: post._id});
-
-    updatedPost.subscribers.should.be.deep.equal([otherUser._id, user._id]);
-    updatedPost.subscriberCount.should.equal(2);
-  });
-  it("correctly modifies the subscribers of Posts when unsubscribing", async (done) => {
-    const user = await createDummyUser()
-    const otherUser = await createDummyUser()
-    const post = await createDummyPost(user)
-
-    const unsubscribeTestCallback = async function(action, collection, itemId, updatedUser, result) {
-      const updatedPost = await Posts.findOne({_id: post._id});
-      updatedPost.subscribers.should.have.lengthOf(1);
-      updatedPost.subscriberCount.should.equal(1);
-    }
-    performSubscriptionAction('subscribe', Posts, post._id, otherUser)
-    addTestToCallbackOnce('users.unsubscribe.async', unsubscribeTestCallback, done);
-    performSubscriptionAction('unsubscribe', Posts, post._id, otherUser)
-  });
+  // it("correctly modifies the subscribers of Posts when subscribing", async () => {
+  //   const user = await createDummyUser()
+  //   const otherUser = await createDummyUser()
+  //   const post = await createDummyPost(user)
+  //
+  //   performSubscriptionAction('subscribe', Posts, post._id, otherUser)
+  //   const updatedPost = await Posts.findOne({_id: post._id});
+  //
+  //   updatedPost.subscribers.should.be.deep.equal([otherUser._id, user._id]);
+  //   updatedPost.subscriberCount.should.equal(2);
+  // });
+  // it("correctly modifies the subscribers of Posts when unsubscribing", async (done) => {
+  //   const user = await createDummyUser()
+  //   const otherUser = await createDummyUser()
+  //   const post = await createDummyPost(user)
+  //
+  //   const unsubscribeTestCallback = async function(action, collection, itemId, updatedUser, result) {
+  //     const updatedPost = await Posts.findOne({_id: post._id});
+  //     updatedPost.subscribers.should.have.lengthOf(1);
+  //     updatedPost.subscriberCount.should.equal(1);
+  //   }
+  //   performSubscriptionAction('subscribe', Posts, post._id, otherUser)
+  //   addTestToCallbackOnce('users.unsubscribe.async', unsubscribeTestCallback, done);
+  //   performSubscriptionAction('unsubscribe', Posts, post._id, otherUser)
+  // });
 });
 
 describe('notification generation', async () => {
