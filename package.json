@@ -17,7 +17,7 @@
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0-beta.54",
+    "@babel/runtime": "7.0.0-beta.54",
     "@material-ui/core": "^1.4.2",
     "@material-ui/icons": "^1.1.0",
     "algoliasearch": "^3.29.0",
