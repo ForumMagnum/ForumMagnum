@@ -92,7 +92,7 @@ Users.isAllowedToComment = (user, post) => {
 
   if (getSetting('AlignmentForum', false)) {
     if (!Users.canDo(user, 'comments.alignment.new')) {
-      return Users.owns(user, post)
+      return Users.owns(user, post) && Users.canDo(user, 'votes.alignment')
     }
   }
 
