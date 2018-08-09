@@ -3,6 +3,9 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  root: {
+    marginTop: 500,
+  },
   recommendedReading: {
     marginTop: -20
   }
@@ -65,8 +68,8 @@ const Home = (props, context) => {
       return "Recent Posts";
   }
 
-  const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
+  const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1] || 43.681642
+  const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0] || -42.958120
   let eventsListTerms = {
     view: 'events',
     limit: 3,
@@ -80,41 +83,54 @@ const Home = (props, context) => {
     }
   }
 
+
+  const mapEventTerms = {
+    view: 'nearbyEvents',
+    lat: lat,
+    lng: lng,
+    filters: router.location.query && router.location.query.filters || [],
+  }
+
   return (
-    <div>
-      { !currentUser ?
+    <div className={classes.root}>
+      <Components.ErrorBoundary>
+        <Components.CommunityMapWrapper
+          terms={mapEventTerms}
+          currentUserLocation={{lat: lat, lng: lng}}
+        />
+      </Components.ErrorBoundary>
+      {/* <Components.Section
+        contentStyle={{marginTop: '-20px'}}
+        title="Recommended Reading"
+        titleLink="/library"
+        titleComponent= {<Components.SectionTitleLink to="/library">
+          Sequence Library
+        </Components.SectionTitleLink>}
+        >
+        <div className={classes.recommendedReading}>
+          <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
+          <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
+          <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+        </div>
+      </Components.Section> */}
+      <div>
         <Components.Section
-          contentStyle={{marginTop: '-20px'}}
-          title="Recommended Reading"
+          title="Recommended Sequences"
           titleLink="/library"
           titleComponent= {<Components.SectionTitleLink to="/library">
             Sequence Library
           </Components.SectionTitleLink>}
         >
-          <div className={classes.recommendedReading}>
-            <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-            <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-            <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
-          </div>
-        </Components.Section> :
-        <div>
-          <Components.Section
-            title="Recommended Sequences"
-            titleLink="/library"
-            titleComponent= {<Components.SectionTitleLink to="/library">
-              Sequence Library
-            </Components.SectionTitleLink>}
-          >
-            <Components.SequencesGridWrapper
-              terms={{view:"curatedSequences", limit:3}}
-              showAuthor={true}
-              showLoadMore={false}
-            className="frontpage-sequences-grid-list" />
-          </Components.Section>
-          <Components.Section title="Curated Content">
-            <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
-          </Components.Section>
-        </div>}
+          <Components.SequencesGridWrapper
+            terms={{view:"curatedSequences", limit:3}}
+            showAuthor={true}
+            showLoadMore={false}
+          className="frontpage-sequences-grid-list" />
+        </Components.Section>
+        <Components.Section title="Curated Content">
+          <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
+        </Components.Section>
+      </div>
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
