@@ -5,7 +5,6 @@ let mjAPI = require('mathjax-node')
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
 
-import marked from 'marked';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 
@@ -33,12 +32,12 @@ Posts.createHtmlHighlight = (body, id, slug, wordCount) => {
     const highlight2400Shortened = highlight.slice(0,2400).split("\n").slice(0,-1).join("\n")
     const highlightnewlineShortened = highlight.split("\n\n").slice(0,5).join("\n\n")
     if (highlightnewlineShortened.length > highlight2400Shortened.length) {
-      return marked(highlight2400Shortened)
+      return mdi.render(highlight2400Shortened)
     } else {
-      return marked(highlightnewlineShortened)
+      return mdi.render(highlightnewlineShortened)
     }
   } else {
-    return marked(highlight)
+    return mdi.render(highlight)
   }
 }
 
@@ -47,10 +46,10 @@ Posts.createExcerpt = (body) => {
   if (excerpt.includes("[")) {
     const excerptTrimLink = excerpt.split("[").slice(0, -1).join('[')
     const excerptWithReadMore = excerptTrimLink + `... <span class="post-excerpt-read-more">(Read More)</span>`
-    return marked(excerptWithReadMore)
+    return mdi.render(excerptWithReadMore)
   } else {
     const excerptWithReadMore = excerpt + `... <span class="post-excerpt-read-more">(Read More)</span>`
-    return marked(excerptWithReadMore)
+    return mdi.render(excerptWithReadMore)
   }
 }
 
