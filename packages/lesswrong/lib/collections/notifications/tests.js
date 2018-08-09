@@ -5,33 +5,33 @@ import { createDummyUser, createDummyPost, addTestToCallbackOnce, createDummyCom
 import { performSubscriptionAction } from '../../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
-import { Posts, Comments } from 'meteor/example-forum'
+import { Comments } from 'meteor/example-forum'
 import Notifications from './collection.js';
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('performSubscriptionAction', async () => {
-  it("correctly modifies the users subscribedItems when subscribing", async () => {
-    const user = await createDummyUser()
-    const otherUser = await createDummyUser()
-    const post = await createDummyPost(user)
-
-    const response = performSubscriptionAction('subscribe', Posts, post._id, otherUser)
-    response.subscribedItems.Posts[0].itemId.should.be.equal(post._id);
-    response.subscribedItems.Posts.should.have.lengthOf(1);
-  });
-  it("correctly modifies the users subscribedItems when unsubscribing", async (done) => {
-    const user = await createDummyUser()
-    const otherUser = await createDummyUser()
-    const post = await createDummyPost(user)
-    const unsubscribeTestCallback = async function(action, collection, itemId, updatedUser) {
-      const response = performSubscriptionAction('unsubscribe', Posts, post._id, user)
-      response.subscribedItems.Posts.should.be.empty;
-    }
-    addTestToCallbackOnce('users.subscribe.async', unsubscribeTestCallback, done);
-    performSubscriptionAction('subscribe', Posts, post._id, otherUser)
-  });
+  // it("correctly modifies the users subscribedItems when subscribing", async () => {
+  //   const user = await createDummyUser()
+  //   const otherUser = await createDummyUser()
+  //   const post = await createDummyPost(user)
+  //
+  //   const response = performSubscriptionAction('subscribe', Posts, post._id, otherUser)
+  //   response.subscribedItems.Posts[0].itemId.should.be.equal(post._id);
+  //   response.subscribedItems.Posts.should.have.lengthOf(1);
+  // });
+  // it("correctly modifies the users subscribedItems when unsubscribing", async (done) => {
+  //   const user = await createDummyUser()
+  //   const otherUser = await createDummyUser()
+  //   const post = await createDummyPost(user)
+  //   const unsubscribeTestCallback = async function(action, collection, itemId, updatedUser) {
+  //     const response = performSubscriptionAction('unsubscribe', Posts, post._id, user)
+  //     response.subscribedItems.Posts.should.be.empty;
+  //   }
+  //   addTestToCallbackOnce('users.subscribe.async', unsubscribeTestCallback, done);
+  //   performSubscriptionAction('subscribe', Posts, post._id, otherUser)
+  // });
   // it("correctly modifies the subscribers of Posts when subscribing", async () => {
   //   const user = await createDummyUser()
   //   const otherUser = await createDummyUser()
