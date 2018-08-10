@@ -129,6 +129,7 @@ $medium-text: $dark-grey;
       margin-right: 5px;
       display: inline;
       color:rgba(0,0,0,.5);
+      @media print { display: none; }
     }
   }
   blockquote {
