@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent, Utils} from 'meteor/vulcan:core';
+import { withList, Components, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 import { unflattenComments } from "../../lib/modules/utils/unflatten";
 

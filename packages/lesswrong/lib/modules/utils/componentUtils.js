@@ -1,9 +1,9 @@
 
-export function debugShouldComponentUpdate(description, oldProps, oldState, nextProps, nextState)
+export function debugShouldComponentUpdate(description, log, oldProps, oldState, nextProps, nextState)
 {
   for(let key in nextState) {
     if(oldState[key] != nextState[key]) {
-      console.log(`Updating ${description} because state.${key} changed`);
+      log(`Updating ${description} because state.${key} changed`);
       return true;
     }
   }
@@ -14,7 +14,7 @@ export function debugShouldComponentUpdate(description, oldProps, oldState, next
       changedProps.push(key);
   }
   if(changedProps.length > 0) {
-    console.log(`Updating ${description} because props.[${changedProps.join(", ")}] changed`);
+    log(`Updating ${description} because props.[${changedProps.join(", ")}] changed`);
     return true;
   } else {
     return false;

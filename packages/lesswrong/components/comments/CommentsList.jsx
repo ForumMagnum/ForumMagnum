@@ -2,7 +2,7 @@ import { Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
-import { debugShouldComponentUpdate, shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 class CommentsList extends PureComponent {
   constructor(props, context) {
