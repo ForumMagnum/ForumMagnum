@@ -95,11 +95,11 @@ Posts.addField([
       group: formGroups.content,
       form: {
         hintText:"Plain Markdown Editor",
-        rows:4,
         multiLine:true,
         fullWidth:true,
         disableUnderline:true,
-        enableMarkDownEditor: true
+        enableMarkDownEditor: true,
+        minHeight: 400,
       },
     }
   },
@@ -115,7 +115,7 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       control: "textarea",
-      group: formGroups.adminOptions
+      group: formGroups.adminOptions,
     }
   },
 
