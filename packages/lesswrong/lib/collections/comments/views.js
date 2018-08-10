@@ -74,6 +74,13 @@ Comments.addView("postCommentsBest", function (terms) {
   };
 });
 
+Comments.addView("postLWComments", function (terms) {
+  return {
+    selector: { postId: terms.postId, af: null },
+    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
+  };
+});
+
 Comments.addView("allRecentComments", function (terms) {
   return {
     selector: {deletedPublic: {$ne:true}},
