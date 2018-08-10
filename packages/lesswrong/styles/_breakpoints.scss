@@ -38,7 +38,7 @@ $very-small-break-width: $lw-tiny;
   }
 }
 @mixin posts-page-section-header-break(){
-  @media screen and (max-width: $posts-page-section-header-break-width) {
+  @media screen and (max-width: $posts-page-section-header-break-width), print {
     @content;
   }
 }

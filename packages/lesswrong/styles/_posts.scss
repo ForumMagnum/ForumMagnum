@@ -553,6 +553,7 @@
   }
   .posts-page-content-body-metadata-actions {
     font-size: 14px;
+    @media print { display: none; }
   }
 }
 
@@ -1058,7 +1059,7 @@ svg.drag-handle {
   font-size: 14px;
   font-weight: 400;
   line-height: 1.25;
-  margin-bottom: 5px; 
+  margin-bottom: 5px;
 }
 
 .posts-page-event-links {
@@ -1217,6 +1218,7 @@ svg.drag-handle {
     }
     .posts-page-admin-more-options {
       color:rgba(0,0,0,.2);
+      @media print { display: none; }
     }
   }
 }
