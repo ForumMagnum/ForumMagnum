@@ -23,6 +23,9 @@ const styles = theme => ({
   },
   root: {
     flexGrow: 1,
+    "@media print": {
+      display: "none"
+    }
   },
   title: {
     flex: 1,
