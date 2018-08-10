@@ -12,7 +12,7 @@ class CommentsList extends PureComponent {
   shouldComponentUpdate(nextProps, nextState) {
     if(!shallowEqual(this.state, nextState))
       return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post","comments"]))
+    if(!shallowEqualExcept(this.props, nextProps, ["post","comments","editMutation"]))
       return true;
     if(this.commentTreesDiffer(this.props.comments, nextProps.comments))
       return true;
