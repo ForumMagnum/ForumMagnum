@@ -166,13 +166,13 @@ class CommentsItem extends PureComponent {
                   subdirectory_arrow_left
                 </FontIcon>}
               { !frontPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
-                  [<span>{this.props.collapsed ? "+" : "-"}</span>]
-                </a>
+                [<span>{this.props.collapsed ? "+" : "-"}</span>]
+              </a>
               }
-              {!comment.deleted && <span>
-                <Components.UsersName user={comment.user}/>
-              </span>}
-              {comment.deleted && <span>[comment deleted] </span>}
+              { comment.deleted || comment.hideAuthor ?
+                (comment.hideAuthor ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
+                <span> <Components.UsersName user={comment.user}/> </span>
+              }
               <div className="comments-item-date">
                 { this.props.frontPage ?
                   <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>

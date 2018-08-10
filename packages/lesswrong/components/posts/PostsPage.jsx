@@ -285,7 +285,7 @@ class PostsPage extends Component {
                 <hr className={classes.voteDivider}/>
               </div>
               <Typography variant="title" color="textSecondary" className={classes.author}>
-                <Components.UsersName user={post.user} />
+                {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
             <div className={classes.mainContent}>
@@ -308,7 +308,7 @@ class PostsPage extends Component {
                 </Components.ErrorBoundary>
               </div>
               <Typography variant="headline" color="textSecondary" className={classes.author}>
-                <Components.UsersName user={post.user} />
+                {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
           </div>

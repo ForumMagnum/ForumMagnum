@@ -404,6 +404,17 @@ Posts.addField([
       hidden: false,
       control: "text",
       group: formGroups.adminOptions,
+      resolveAs: {
+        fieldName: 'user',
+        type: 'User',
+        resolver: async (post, args, context) => {
+          if (!post.userId || post.hideAuthor) return null;
+          const user = await context.Users.loader.load(post.userId);
+          if (user.deleted) return null;
+          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+        },
+        addOriginalField: true
+      },
     }
   },
 
@@ -1005,6 +1016,23 @@ Posts.addField([
     fieldName: 'commentSortOrder',
     fieldSchema: {
       type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['admins'],
+      editableBy: ['admins'],
+      optional: true,
+      group: formGroups.adminOptions,
+    }
+  },
+
+  /*
+    hideAuthor: Post stays online, but doesn't show on your user profile anymore, and doesn't
+    link back to your account
+  */
+
+  {
+    fieldName: 'hideAuthor',
+    fieldSchema: {
+      type: Boolean,
       viewableBy: ['guests'],
       insertableBy: ['admins'],
       editableBy: ['admins'],

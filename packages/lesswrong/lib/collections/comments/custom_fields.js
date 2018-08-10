@@ -5,6 +5,29 @@ import Users from "meteor/vulcan:users";
 
 Comments.addField([
 
+  /**
+    The comment author's `_id`
+  */
+  {
+    fieldName: 'userId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      hidden: true,
+      resolveAs: {
+        fieldName: 'user',
+        type: 'User',
+        resolver: async (comment, args, {currentUser, Users}) => {
+          if (!comment.userId || comment.hideAuthor) return null;
+          const user = await Users.loader.load(comment.userId);
+          return Users.restrictViewableFields(currentUser, Users, user);
+        },
+        addOriginalField: true
+      },
+    }
+  },
   {
     fieldName: 'body',
     fieldSchema: {
@@ -301,5 +324,21 @@ Comments.addField([
       },
     }
   },
+
+  /*
+    hideAuthor: Displays the author as '[deleted]'. We use this to copy over old deleted comments
+    from LW 1.0
+  */
+
+  {
+    fieldName: 'hideAuthor',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['admins'],
+      insertableBy: ['admins'],
+    }
+  }
 
 ]);
