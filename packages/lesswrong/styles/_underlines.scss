@@ -35,6 +35,7 @@
 }
 
 @mixin link-underline($background, $selection, $underline){
+  @media screen {
     @include text-underline-crop($background);
     @include text-background($background, $underline);
     @include text-selection($selection);
@@ -49,21 +50,26 @@
     -moz-webkit-text-decoration-skip: ink;
     -moz-webkit-text-decoration-color: $underline;
     -moz-webkit-text-decoration-style: dashed;
+  }
 
-    *,
-    *:after,
-    &:after,
-    *:before,
-    &:before {
-        text-shadow: none;
-    }
-    &:visited {
-        color: $underline;
-    }
+  @media print {
+    text-decoration: underline !important;
+  }
+
+  *,
+  *:after,
+  &:after,
+  *:before,
+  &:before {
+      text-shadow: none;
+  }
+  &:visited {
+      color: $underline;
+  }
 }
 
 @mixin link-styling() {
-
+  @media screen {
     color: $post-link-green !important;
 
     &:hover {
@@ -72,11 +78,13 @@
     &:visited {
         color: $post-link-green !important;
     }
+  }
 }
 
 @mixin posts-link-styling() {
-    @include link-underline(#fff, #b4d5f3, $post-link-hover)
+  @include link-underline(#fff, #b4d5f3, $post-link-hover)
 
+  @media screen {
     color: $post-link-green !important;
 
     &:hover {
@@ -85,28 +93,33 @@
     &:visited {
         color: $post-link-green !important;
     }
+  }
 }
 
 @mixin af-link-styling() {
-  color: rgba(63, 81, 181, 1) !important;
+  @media screen {
+    color: rgba(63, 81, 181, 1) !important;
 
-  &:hover {
-    color: rgba(63, 81, 181, 0.7) !important;
-  }
-  &:visited {
-      color: rgba(63, 81, 181, 0.9) !important;
+    &:hover {
+      color: rgba(63, 81, 181, 0.7) !important;
+    }
+    &:visited {
+        color: rgba(63, 81, 181, 0.9) !important;
+    }
   }
 }
 
 @mixin af-posts-link-styling() {
   @include link-underline(#fff, #b4d5f3, rgba(63, 81, 181, 0.7))
+  
+  @media screen {
+    color: rgba(63, 81, 181, 1) !important;
 
-  color: rgba(63, 81, 181, 1) !important;
-
-  &:hover {
-    color: rgba(63, 81, 181, 0.7) !important;
-  }
-  &:visited {
-      color: rgba(63, 81, 181, 0.9) !important;
+    &:hover {
+      color: rgba(63, 81, 181, 0.7) !important;
+    }
+    &:visited {
+        color: rgba(63, 81, 181, 0.9) !important;
+    }
   }
 }
