@@ -18,8 +18,10 @@ const CommentsList = ({
           {comments.map(comment =>
             <Components.CommentsNode
               currentUser={currentUser}
-              comment={comment}
-              key={comment._id}
+              comment={comment.item}
+              nestingLevel={1}
+              children={comment.children}
+              key={comment.item._id}
               highlightDate={highlightDate}
               editMutation={editMutation}
               post={post}
