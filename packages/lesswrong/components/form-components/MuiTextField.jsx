@@ -9,7 +9,7 @@ const styles = theme => ({
   input: {
     // This needs to be here because of Bootstrap. I am sorry :(
     padding: "6px 0 7px !important",
-    fontSize: "13px !important"
+    fontSize: "13px !important",
   }
 })
 
@@ -36,24 +36,23 @@ class MuiTextField extends Component {
   }
 
   render() {
-
-    const hintStyle = this.props.hintStyle || this.props.multiLine ? {top:"0px"} : {}
+    const { classes, label, multiLine, rows, hintText, placeholder, fullWidth, disableUnderline, minHeight } = this.props
 
     return <div className="mui-text-field">
       <Input
         value={this.state.content}
-        label={this.props.label}
+        label={label}
         onChange={this.onChange}
-        multiline={this.props.multiLine}
-        rows={this.props.rows}
-        placeholder={this.props.hintText || this.props.placeholder || this.props.label}
-        hintStyle={hintStyle}
-        fullWidth={this.props.fullWidth}
-        disableUnderline={this.props.disableUnderline}
-        classes={{input: this.props.classes.input}}
+        multiline={multiLine}
+        rows={rows}
+        placeholder={hintText || placeholder || label}
+        fullWidth={fullWidth}
+        style={{minHeight: minHeight}}
+        disableUnderline={disableUnderline}
+        classes={{input: classes.input}}
         className={classnames(
           "mui-text-field-form-component",
-          {"full-width":this.props.fullWidth}
+          {"full-width":fullWidth},
         )}
       /><br />
     </div>

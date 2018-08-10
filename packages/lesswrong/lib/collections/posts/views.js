@@ -36,6 +36,7 @@ Posts.addDefaultView(terms => {
 Posts.addView("userPosts", terms => ({
   selector: {
     userId: terms.userId,
+    hideAuthor: {$ne: true},
   },
   options: {
     limit: 5,

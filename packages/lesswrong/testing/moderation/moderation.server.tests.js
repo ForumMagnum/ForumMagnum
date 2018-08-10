@@ -102,14 +102,14 @@ describe('Posts Moderation --', async () => {
 
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", content:{}}){
+        CommentsNew(document:{postId:"${post._id}", body: "test"}){
           postId
           body
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: null } } }
+    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: "test" } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it('new comment on a post should fail if user in Post.bannedUserIds list', async () => {
@@ -117,7 +117,7 @@ describe('Posts Moderation --', async () => {
     const post = await createDummyPost(user, {bannedUserIds:[user._id]})
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", content:{}}){
+        CommentsNew(document:{postId:"${post._id}", body: "test"}){
           body
         }
       }
@@ -131,7 +131,7 @@ describe('Posts Moderation --', async () => {
     const post = await createDummyPost(user)
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", content:{}}){
+        CommentsNew(document:{postId:"${post._id}", body: "test"}){
           body
           userId
         }
@@ -146,14 +146,14 @@ describe('Posts Moderation --', async () => {
     const post = await createDummyPost(user)
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", content:{}}){
+        CommentsNew(document:{postId:"${post._id}", body: "test"}){
           body
           postId
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
-    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: null } } }
+    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: "test" } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
@@ -576,7 +576,7 @@ describe('CommentLock permissions --', async ()=> {
     const post = await createDummyPost(undefined, {commentsLocked:true})
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", content:{}}){
+        CommentsNew(document:{postId:"${post._id}", body: "test"}){
           postId
         }
       }
