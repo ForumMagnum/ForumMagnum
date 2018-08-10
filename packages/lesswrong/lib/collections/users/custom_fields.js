@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import { getSetting } from "meteor/vulcan:core"
 
 const formGroups = {
   moderationGroup: {
@@ -50,6 +51,35 @@ Users.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
+    }
+  },
+
+  {
+    fieldName: 'commentSorting',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      order: 65,
+      control: "select",
+      form: {
+        // TODO – maybe factor out??
+        options: function () { // options for the select form control
+          let commentViews = [
+            {value:'postCommentsTop', label: 'magical algorithm'},
+            {value:'postCommentsNew', label: 'most recent'},
+            {value:'postCommentsOld', label: 'oldest'},
+          ];
+          if (getSetting('AlignmentForum', false)) {
+            return commentViews.concat([
+              {value:'postLWComments', label: 'magical algorithm (include LW)'}
+            ])
+          }
+          return commentViews
+        }
+      },
     }
   },
 

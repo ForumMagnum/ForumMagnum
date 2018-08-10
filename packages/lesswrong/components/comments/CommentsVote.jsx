@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Comments } from "meteor/example-forum";
-// import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   vote: {
@@ -17,91 +17,74 @@ const styles = theme => ({
     marginRight: 4,
     lineHeight: 1,
   },
-  afSymbol: {
+  secondarySymbol: {
     fontFamily: theme.typography.body1.fontFamily,
   },
-  afScore: {
+  secondaryScore: {
     fontSize: '1.1rem',
     marginLeft: 7,
   },
-  afScoreNumber: {
+  secondaryScoreNumber: {
     marginLeft: 3,
-  },
-  tooltip: {
-    color: theme.palette.grey[500],
-    fontSize: '1rem',
-    backgroundColor: 'white',
-    transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
-    marginLeft: 5,
-    '&$open': {
-      opacity: 1,
-      transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms'
-    }
-  },
-  open: {}
+  }
 })
 
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser } = this.props
-    // const voteCount = comment ? comment.voteCount : 0;
+    const voteCount = comment ? comment.voteCount : 0;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     return (
       <div className={classNames("comments-item-vote"), classes.vote}>
-        {/* <Tooltip
-          title="Click-and-hold for strong vote"
-          placement="right"
-          classes={{tooltip: classes.tooltip, open: classes.open}}
-        > */}
-        <span>
-          <Components.VoteButton
-            orientation="left"
-            color="error"
-            voteType="Downvote"
-            document={comment}
-            currentUser={currentUser}
-            collection={Comments}
-          />
-        </span>
-        {/* </Tooltip> */}
-        {/* <Tooltip
-          title={`${voteCount} ${voteCount==1 ? "Vote" : "Votes"}`}
-          placement="right"
-          classes={{tooltip: classes.tooltip, open: classes.open}}
-        > */}
-        <span className={classes.voteScore}>
-          {baseScore || 0}
-        </span>
-        {/* </Tooltip> */}
-        {/* <Tooltip
-          title="Click-and-hold for strong vote"
-          placement="right"
-          classes={{tooltip: classes.tooltip, open: classes.open}}
-        > */}
-        <span>
-          <Components.VoteButton
-            orientation="right"
-            color="secondary"
-            voteType="Upvote"
-            document={comment}
-            currentUser={currentUser}
-            collection={Comments}
-          />
-        </span>
-        {/* </Tooltip> */}
-        {!!comment.af && !getSetting('AlignmentForum', false) &&
-          <span className={classes.afScore}>
-            <span className={classes.afSymbol}>Ω</span>
-            <span className={classes.afScoreNumber}>{comment.afBaseScore || 0}</span>
+        {(!getSetting('AlignmentForum', false) || !!comment.af) &&
+          <span>
+            <Tooltip title={<div>Downvote<br /><em>(Click-and-hold for strong downvote)</em></div>} placement="bottom">
+              <span>
+                <Components.VoteButton
+                  orientation="left"
+                  color="error"
+                  voteType="Downvote"
+                  document={comment}
+                  currentUser={currentUser}
+                  collection={Comments}
+                />
+              </span>
+            </Tooltip>
+            <Tooltip title={`voteCount ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
+              <span className={classes.voteScore}>
+                {baseScore || 0}
+              </span>
+            </Tooltip>
+            <Tooltip title={<div>Upvote<br /><em>(Click-and-hold for strong upvote)</em></div>} placement="bottom">
+              <span>
+                <Components.VoteButton
+                  orientation="right"
+                  color="secondary"
+                  voteType="Upvote"
+                  document={comment}
+                  currentUser={currentUser}
+                  collection={Comments}
+                />
+              </span>
+            </Tooltip>
           </span>
-          // {/* <Tooltip
-          //   title="Alignment Forum karma"
-          //   placement="right"
-          //   classes={{tooltip: classes.tooltip, open: classes.open}}
-          // >*/}
-
-          // {/* </Tooltip>*/}
+        }
+        {!!comment.af && !getSetting('AlignmentForum', false) &&
+          <Tooltip title="Alignment Forum Karma" placement="bottom">
+            <span className={classes.secondaryScore}>
+              <span className={classes.secondarySymbol}>Ω</span>
+              <span className={classes.secondaryScoreNumber}>{comment.afBaseScore || 0}</span>
+            </span>
+          </Tooltip>
+        }
+        {!comment.af && getSetting('AlignmentForum', false) &&
+          <Tooltip title="LessWrong Karma" placement="bottom">
+            <span className={classes.secondaryScore}>
+              <span className={classes.secondarySymbol}>LW</span>
+              <span className={classes.secondaryScoreNumber}>{comment.baseScore || 0}</span>
+            </span>
+          </Tooltip>
         }
       </div>)
     }

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import algoliaClient from 'algoliasearch/src/browser/builds/algoliasearch'
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import {
   InstantSearch,
@@ -70,6 +69,8 @@ class SearchBar extends Component {
   render() {
     const inputOpenClass = this.state.inputOpen ? "open" : null;
     const resultsOpenClass = this.state.searchOpen ? "open" : null;
+    const algoliaAppId = getSetting('algolia.appId')
+    const algoliaSearchKey = getSetting('algolia.searchKey')
 
     searchIconStyle.color = this.props.color;
     closeIconStyle.color = this.props.color;
@@ -78,13 +79,14 @@ class SearchBar extends Component {
       <Components.ErrorBoundary>
         <InstantSearch
           indexName="test_posts"
-          algoliaClient={algoliaClient("Z0GR6EXQHD", "0b1d20b957917dbb5e1c2f3ad1d04ee2")}
+          appId={algoliaAppId}
+          apiKey={algoliaSearchKey}
           onSearchStateChange={this.queryStateControl}
         >
           <div className={"search-bar " + inputOpenClass} onKeyDown={this.handleKeyDown}>
-            <div className="search-bar-box" onClick={this.handleSearchTap}>
+            <div onClick={this.handleSearchTap}>
               <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
-              <SearchBox resetComponent={<div className="search-box-reset"></div>} focusShortcuts={[]}/>
+              <SearchBox resetComponent={<div className="search-box-reset"></div>} focusShortcuts={[]} />
             </div>
             <div className="search-bar-close" onClick={this.closeSearch}>
               <FontIcon className="material-icons" style={closeIconStyle}>close</FontIcon>

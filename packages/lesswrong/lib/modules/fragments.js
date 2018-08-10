@@ -70,6 +70,7 @@ extendFragment('UsersCurrent', `
   moderationStyle
   markDownCommentEditor
   markDownPostEditor
+  commentSorting
   location
   googleLocation
   mongoLocation

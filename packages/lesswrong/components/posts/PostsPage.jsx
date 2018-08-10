@@ -18,7 +18,7 @@ import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Posts } from 'meteor/example-forum';
+import { Posts, Comments } from 'meteor/example-forum';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -112,18 +112,6 @@ class PostsPage extends Component {
       </DropdownButton>
     )
 
-  }
-
-  getView() {
-    switch(this.props.router.location.query.view) {
-        case 'top':
-          return 'postCommentsTop';
-        case 'new':
-          return 'postCommentsNew';
-    }
-
-    // default to top
-    return 'postCommentsTop';
   }
 
   getCommentCountStr = (post) => {
@@ -220,6 +208,15 @@ class PostsPage extends Component {
     }
   }
 
+  renderContactInfo = () => {
+    const post = this.props.document;
+    if (post.isEvent && post.contactInfo) {
+      return <div className="posts-page-event-contact">
+        Contact: {post.contactInfo}
+      </div>
+    }
+  }
+
   renderPostMetadata = () => {
     const post = this.props.document;
     return <div className="posts-page-content-body-metadata">
@@ -227,6 +224,7 @@ class PostsPage extends Component {
         {this.renderPostDate()}
         {this.renderEventLocation()}
         {this.renderEventLinks()}
+        {this.renderContactInfo()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
         <a href="#comments">{ this.getCommentCountStr(post) }</a>
@@ -252,7 +250,7 @@ class PostsPage extends Component {
   }
 
   render() {
-    const { loading, document, currentUser, location, classes } = this.props
+    const { loading, document, currentUser, location, router, classes } = this.props
     if (loading) {
       return <div><Components.Loading/></div>
     } else if (!document) {
@@ -262,10 +260,13 @@ class PostsPage extends Component {
       const post = document
       const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
-      const commentTerms = _.isEmpty(query) ? {view: 'postCommentsTop', limit: 500} : {...query, limit:500}
+      const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
+
+      const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>
+          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
