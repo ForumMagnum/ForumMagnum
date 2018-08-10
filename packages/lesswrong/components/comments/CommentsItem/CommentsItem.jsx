@@ -1,5 +1,5 @@
 import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -15,6 +15,7 @@ import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
+import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 
 const moreActionsMenuStyle = {
   position: 'inherit',
@@ -33,7 +34,7 @@ const moreActionsMenuIconStyle = {
   color: 'rgba(0,0,0,0.5)',
 }
 
-class CommentsItem extends PureComponent {
+class CommentsItem extends Component {
 
   constructor(props) {
     super(props);
@@ -44,6 +45,14 @@ class CommentsItem extends PureComponent {
       showStats: false,
       showParent: false
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if(!shallowEqual(this.state, nextState))
+      return true;
+    if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
+      return true;
+    return false;
   }
 
   showReport = (event) => {
