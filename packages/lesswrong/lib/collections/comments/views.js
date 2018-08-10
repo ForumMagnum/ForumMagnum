@@ -14,6 +14,13 @@ Comments.addDefaultView(terms => {
   });
 })
 
+Comments.addView('userComments', function (terms) {
+  return {
+    selector: {userId: terms.userId, hideAuthor: {$ne: true}},
+    options: {sort: {postedAt: -1}}
+  };
+});
+
 Comments.addView("commentReplies", function (terms) {
   return {
     selector: {
