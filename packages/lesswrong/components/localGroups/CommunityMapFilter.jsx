@@ -31,7 +31,7 @@ class CommunityMapFilter extends Component {
       newFilters = [...this.state.filters, filter];
     }
     this.setState({filters: newFilters});
-    router.replace({...router.location, query: {filters: newFilters}})
+    router.replace({...router.location, pathname: "/community", query: {filters: newFilters}})
   }
 
   render() {
