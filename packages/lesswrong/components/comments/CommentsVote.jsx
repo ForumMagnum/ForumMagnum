@@ -32,7 +32,7 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser } = this.props
-    const allVotes = comment && comment.allVotes;
+    const voteCount = comment ? comment.voteCount : 0;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     return (
@@ -51,7 +51,7 @@ class CommentsVote extends PureComponent {
                 />
               </span>
             </Tooltip>
-            <Tooltip title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`} placement="bottom">
+            <Tooltip title={`voteCount ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
               <span className={classes.voteScore}>
                 {baseScore || 0}
               </span>
