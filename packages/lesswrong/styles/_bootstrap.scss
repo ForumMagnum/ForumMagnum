@@ -39,7 +39,6 @@ a,a:visited{text-decoration:underline}
 a[href]:after{content:" (" attr(href) ")"}
 abbr[title]:after{content:" (" attr(title) ")"}
 a[href^="javascript:"]:after,a[href^="#"]:after{content:""}
-blockquote,pre{border:1px solid #999}
 thead{display:table-header-group}
 img{max-width:100%!important}
 h2,h3,p{orphans:3;widows:3}
