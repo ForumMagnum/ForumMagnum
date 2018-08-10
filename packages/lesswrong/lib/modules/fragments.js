@@ -197,6 +197,7 @@ registerFragment(`
     canonicalSequenceId
     canonicalBookId
     bannedUserIds
+    hideAuthor
     user {
       groups
       moderationStyle
@@ -327,6 +328,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    hideAuthor
     user {
       ...UsersMinimumInfo
     }
