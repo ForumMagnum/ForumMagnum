@@ -111,10 +111,12 @@ class UsersListEditor extends Component {
     return (
       <div className={classes.root}>
         <div className={classes.search}>
-          <Components.UsersSearchAutoComplete
-            clickAction={this.addUserId}
-            label={label}
-          />
+          <Components.ErrorBoundary>
+            <Components.UsersSearchAutoComplete
+              clickAction={this.addUserId}
+              label={label}
+            />
+          </Components.ErrorBoundary>
           <SortableList
             axis="xy"
             items={this.state.userIds}
