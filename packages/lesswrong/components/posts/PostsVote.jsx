@@ -62,7 +62,7 @@ class PostsVote extends PureComponent {
             </div>
           </Tooltip>
           <Tooltip
-            title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
+            title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
