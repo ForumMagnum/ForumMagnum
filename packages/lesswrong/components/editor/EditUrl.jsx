@@ -38,6 +38,10 @@ class EditUrl extends Component {
   render() {
     const active = this.state.active
     const { classes } = this.props
+
+    let propsCopy = {...this.props};
+    propsCopy.classes = null;
+
     return (
       <div className={classes.root}>
         <div>
@@ -46,7 +50,7 @@ class EditUrl extends Component {
           </span>
           <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
             <Components.MuiTextField
-              {...this.props}
+              {...propsCopy}
               type={"url"}
               layout="elementOnly"
             />
