@@ -53,7 +53,7 @@ class UsersMenu extends PureComponent {
           targetOrigin={{horizontal: 'right', vertical: 'top'}}
           onRequestClose={this.handleRequestClose}
         >
-          <Menu>
+          <Menu className="users-menu-contents">
             { !getSetting('AlignmentForum')
                 ? <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
                 : Users.canDo(currentUser, 'posts.alignment.new')
