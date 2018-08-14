@@ -22,6 +22,8 @@ import { Posts, Comments } from 'meteor/example-forum';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import { postBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 // import Users from "meteor/vulcan:users";
 
 const styles = theme => ({
@@ -34,6 +36,8 @@ const styles = theme => ({
     title: {
       textAlign: 'center',
       margin: '45px 0',
+      ...theme.typography.display3,
+      ...theme.typography.postStyle,
       color: theme.palette.text.primary,
     },
     voteTop: {
@@ -65,6 +69,7 @@ const styles = theme => ({
       marginRight: 'auto',
       marginBottom: 40,
     },
+    postContent: postBodyStyles(theme),
     linkPost: {
       marginBottom: 10,
       paddingTop: 1,
@@ -299,7 +304,7 @@ class PostsPage extends Component {
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </Typography>}
               {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
-              { post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> }
+              { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
             <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
