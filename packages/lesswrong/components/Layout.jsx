@@ -27,6 +27,9 @@ const styles = theme => ({
       paddingLeft: theme.spacing.unit,
       paddingRight: theme.spacing.unit,
     },
+  },
+  'textarea, input, select': {
+    ...theme.typography.body2
   }
 })
 
@@ -54,7 +57,7 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
       }
     }
 
-    return <div className={classNames("wrapper", "tk-warnock-pro", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
+    return <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
       <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <CssBaseline />

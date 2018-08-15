@@ -77,6 +77,12 @@ const styles = theme => ({
         color: theme.palette.secondary.light
       }
     },
+    metadata: {
+      ...theme.typography.postStyle,
+    },
+    subtitle: {
+      ...theme.typography.subtitle,
+    },
     voteBottom: {
       position: 'relative',
       fontSize: 45,
@@ -180,6 +186,7 @@ class PostsPage extends Component {
 
   renderPostDate = () => {
     const post = this.props.document;
+    const { classes } = this.props
     const calendarFormat = {sameElse : 'MMMM Do YY, HH:mm'}
     if (post.isEvent) {
       return <div>
@@ -189,7 +196,7 @@ class PostsPage extends Component {
         </div>
       </div>
     } else {
-      return <div>
+      return <div className={classes.subtitle}>
         {moment(post.postedAt).format('MMM D, YYYY')}
       </div>
     }
@@ -224,7 +231,8 @@ class PostsPage extends Component {
 
   renderPostMetadata = () => {
     const post = this.props.document;
-    return <div className="posts-page-content-body-metadata">
+    const { classes } = this.props
+    return <div className={classNames("posts-page-content-body-metadata", classes.metadata)}>
       <div className="posts-page-content-body-metadata-date">
         {this.renderPostDate()}
         {this.renderEventLocation()}
