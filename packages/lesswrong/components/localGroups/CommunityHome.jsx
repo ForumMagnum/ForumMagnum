@@ -125,6 +125,7 @@ class CommunityHome extends Component {
         <Components.Section title="Local Groups" titleComponent={<div>
           {this.props.currentUser && <div className="local-groups-menu"><Components.GroupFormLink /></div>}
           {this.props.currentUser && <div><Link className="local-groups-menu" to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Link></div>}
+          <div><Link className="local-groups-menu" to="/allEvents">See past events</Link></div>
         </div>}>
           {this.state.currentUserLocation &&
             <div>
