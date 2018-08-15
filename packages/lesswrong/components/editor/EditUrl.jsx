@@ -45,7 +45,7 @@ class EditUrl extends Component {
             { !active ? <Icon>link</Icon> : <Icon>link_off</Icon> }
           </span>
           <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
-            <Components.MuiTextField
+            <Components.MuiInput
               {...this.props}
               type={"url"}
               layout="elementOnly"

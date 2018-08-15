@@ -1,16 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import Input from '@material-ui/core/Input';
+import TextField from '@material-ui/core/TextField';
 import classnames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  input: {
-    // This needs to be here because of Bootstrap. I am sorry :(
-    padding: "6px 0 7px !important",
-    fontSize: "13px !important",
-  }
+  labelColor: {
+    color: theme.secondary
+  },
+  textField: {
+    fontSize: "15px",
+    width: 350,
+  },
+  fullWidth: {
+    width:"100%",
+  },
+  cssLabel: {
+    '&$cssFocused': {
+      color: "rgba(100,170,110)",
+    }
+  },
 })
 
 class MuiTextField extends Component {
@@ -36,26 +46,38 @@ class MuiTextField extends Component {
   }
 
   render() {
-    const { classes, label, multiLine, rows, hintText, placeholder, fullWidth, disableUnderline, minHeight } = this.props
+    const { classes, select, children, label, multiLine, rows, fullWidth, disableUnderline, type, defaultValue, InputLabelProps } = this.props
 
-    return <div className="mui-text-field">
-      <Input
+    const nestedTheme = createMuiTheme({
+      palette: {
+        primary: classes.labelColor.color,
+      },
+    });
+
+    return <MuiThemeProvider theme={nestedTheme}>
+      <TextField
+        select={select}
+        children={children}
         value={this.state.content}
+        defaultValue={defaultValue}
         label={label}
         onChange={this.onChange}
         multiline={multiLine}
         rows={rows}
-        placeholder={hintText || placeholder || label}
+        type={type}
         fullWidth={fullWidth}
-        style={{minHeight: minHeight}}
+        InputLabelProps={{
+          className: classes.cssLabel,
+          ...InputLabelProps
+        }}
         disableUnderline={disableUnderline}
         classes={{input: classes.input}}
         className={classnames(
-          "mui-text-field-form-component",
-          {"full-width":fullWidth},
+          classes.textField,
+          {fullWidth:fullWidth}
         )}
-      /><br />
-    </div>
+      />
+    </MuiThemeProvider>
   }
 }
 

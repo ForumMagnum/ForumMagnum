@@ -61,7 +61,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: "MuiTextField",
+    control: "MuiInput",
     label: "Local Group Name"
   },
 
@@ -138,7 +138,7 @@ const schema = {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiTextField",
+    control: "MuiInput",
     optional: true,
   },
 
@@ -148,7 +148,7 @@ const schema = {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Facebook group",
-    control: "MuiTextField",
+    control: "MuiInput",
     optional: true,
   },
 
@@ -157,7 +157,7 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    control: "MuiTextField",
+    control: "MuiInput",
     optional: true,
   },
 

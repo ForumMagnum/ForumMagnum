@@ -871,7 +871,7 @@ Posts.addField([
       insertableBy: ['members'],
       editableBy: ['members'],
       label: "Contact Info",
-      control: "MuiTextField",
+      control: "MuiInput",
       optional: true,
       group: formGroups.event,
     }
@@ -886,7 +886,7 @@ Posts.addField([
       insertableBy: ['members'],
       editableBy: ['members'],
       label: "Facebook Event",
-      control: "MuiTextField",
+      control: "MuiInput",
       optional: true,
       group: formGroups.event,
     }
@@ -900,7 +900,7 @@ Posts.addField([
       viewableBy: ['guests'],
       insertableBy: ['members'],
       editableBy: ['members'],
-      control: "MuiTextField",
+      control: "MuiInput",
       optional: true,
       group: formGroups.event,
     }
