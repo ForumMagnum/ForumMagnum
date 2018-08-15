@@ -39,7 +39,8 @@ $header-mobile: 43px !important;
 
 .accounts-ui{
   padding: $vmargin;
-  min-width: 240px;
+  width: 240px;
+  margin:auto;
   .buttons{
     .btn{
       display: block;
