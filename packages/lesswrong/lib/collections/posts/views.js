@@ -307,6 +307,22 @@ Posts.addView("events", function (terms) {
   }
 })
 
+Posts.addView("pastEvents", function (terms) {
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
+    },
+    options: {
+      sort: {
+        baseScore: -1,
+        startTime: -1,
+      }
+    }
+  }
+})
+
 Posts.addView("groupPosts", function (terms) {
   return {
     selector: {

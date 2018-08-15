@@ -31,7 +31,7 @@ addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'Pos
 
 
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta'})
-addRoute({ name: 'AllPosts', path: '/allPosts', componentName: 'AllPosts'})
+addRoute({ name: 'EventsDaily', path: '/pastEvents', componentName: 'EventsDaily'})
 addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments'})
 addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome'})
