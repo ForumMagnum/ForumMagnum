@@ -311,7 +311,6 @@ class PostsPage extends Component {
               { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </Typography>}
-              {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
               { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
             <div className={classes.postFooter}>
