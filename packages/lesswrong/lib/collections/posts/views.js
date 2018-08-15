@@ -129,6 +129,7 @@ Posts.addView("community", terms => ({
 Posts.addView("community-rss", terms => ({
   selector: {
     frontpageDate: null,
+    maxBaseScore: {$gt: 2}
   },
   options: {
     sort: {postedAt: -1}
@@ -145,6 +146,8 @@ Posts.addView("meta-rss", terms => ({
     }
   }
 }))
+
+Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
 /**
