@@ -9,7 +9,7 @@ import {
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
-import { Link, withRouter } from 'react-router';
+import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 
 class CommunityHome extends Component {
