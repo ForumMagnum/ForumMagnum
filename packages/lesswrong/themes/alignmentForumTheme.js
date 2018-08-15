@@ -4,7 +4,8 @@ import indigo from '@material-ui/core/colors/indigo';
 
 const sansSerifStack = [
   '"freight-sans-pro"',
-  'Frutiger', '"Frutiger Linotype"',
+  'Frutiger',
+  '"Frutiger Linotype"',
   'Univers',
   'Calibri',
   '"Gill Sans"',
