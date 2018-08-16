@@ -612,14 +612,6 @@ New CSS File
   }
 }
 
-.comment-editor .mui-text-field {
-  input, textarea {
-    margin-top:0 !important;
-    // @include comment-style()
-    border-bottom:none !important;
-  }
-}
-
 .comment-editor-information {
   font-size:11px;
   float:right;
