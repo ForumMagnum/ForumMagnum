@@ -161,9 +161,7 @@ registerFragment(`
     afCommentCount
     afLastCommentedAt
     afSticky
-    allVotes {
-      ...VoteMinimumInfo
-    }
+    voteCount
   }
 `);
 
@@ -338,9 +336,7 @@ registerFragment(`
     }
     baseScore
     score
-    allVotes {
-      ...VoteMinimumInfo
-    }
+    voteCount
     af
     afBaseScore
     needsReview

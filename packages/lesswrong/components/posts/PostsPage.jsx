@@ -22,6 +22,8 @@ import { Posts, Comments } from 'meteor/example-forum';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import { postBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 // import Users from "meteor/vulcan:users";
 
 const styles = theme => ({
@@ -34,6 +36,8 @@ const styles = theme => ({
     title: {
       textAlign: 'center',
       margin: '45px 0',
+      ...theme.typography.display3,
+      ...theme.typography.postStyle,
       color: theme.palette.text.primary,
     },
     voteTop: {
@@ -65,12 +69,19 @@ const styles = theme => ({
       marginRight: 'auto',
       marginBottom: 40,
     },
+    postContent: postBodyStyles(theme),
     linkPost: {
       marginBottom: 10,
       paddingTop: 1,
       '& > a': {
         color: theme.palette.secondary.light
       }
+    },
+    metadata: {
+      ...theme.typography.postStyle,
+    },
+    subtitle: {
+      ...theme.typography.subtitle,
     },
     voteBottom: {
       position: 'relative',
@@ -175,6 +186,7 @@ class PostsPage extends Component {
 
   renderPostDate = () => {
     const post = this.props.document;
+    const { classes } = this.props
     const calendarFormat = {sameElse : 'MMMM Do YY, HH:mm'}
     if (post.isEvent) {
       return <div>
@@ -184,7 +196,7 @@ class PostsPage extends Component {
         </div>
       </div>
     } else {
-      return <div>
+      return <div className={classes.subtitle}>
         {moment(post.postedAt).format('MMM D, YYYY')}
       </div>
     }
@@ -219,7 +231,8 @@ class PostsPage extends Component {
 
   renderPostMetadata = () => {
     const post = this.props.document;
-    return <div className="posts-page-content-body-metadata">
+    const { classes } = this.props
+    return <div className={classNames("posts-page-content-body-metadata", classes.metadata)}>
       <div className="posts-page-content-body-metadata-date">
         {this.renderPostDate()}
         {this.renderEventLocation()}
@@ -298,8 +311,7 @@ class PostsPage extends Component {
               { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </Typography>}
-              {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
-              { post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> }
+              { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
             <div className={classes.postFooter}>
               <div className={classes.voteBottom}>

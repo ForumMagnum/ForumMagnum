@@ -2,6 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { withStyles } from '@material-ui/core/styles';
+import { editorStyles, commentBodyStyles } from '../../themes/stylePiping'
+
+const styles = theme => ({
+  commentStyle: editorStyles(theme, commentBodyStyles),
+})
 
 class CommentEditor extends Component {
   constructor (props,context) {
@@ -17,12 +23,12 @@ class CommentEditor extends Component {
   }
 
   render() {
+    const { classes, currentUser } = this.props
     const AsyncCommentEditor = this.state.editor;
-    const currentUser = this.props.currentUser;
     return (
-      <div className="comment-editor">
+      <div className={classes.commentStyle}>
         { Users.useMarkdownCommentEditor(currentUser) ?
-          <Components.MuiTextField
+          <Components.MuiInput
             disableUnderline
             {...this.props}
           />
@@ -34,4 +40,4 @@ class CommentEditor extends Component {
   }
 }
 
-registerComponent('CommentEditor', CommentEditor, withCurrentUser);
+registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles));

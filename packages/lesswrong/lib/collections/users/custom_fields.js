@@ -175,12 +175,19 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      control: "textarea",
+      control: "MuiTextField",
       insertableBy: ['members'],
       editableBy: ['members'],
       viewableBy: ['guests'],
       order: 40,
-      searchable: true
+      searchable: true,
+      form: {
+        hintText:"Bio",
+        rows:4,
+        multiLine:true,
+        fullWidth:true,
+        disableUnderline:true
+      },
     }
   },
 
@@ -450,7 +457,7 @@ Users.addField([
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'datetime',
-      label: 'Ban this user until',
+      label: 'Ban user until',
       group: formGroups.banUser,
     }
   },
@@ -556,8 +563,6 @@ Users.addField([
       type: Number,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -572,8 +577,6 @@ Users.addField([
       type: Number,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -588,8 +591,6 @@ Users.addField([
       type: Number,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
   },
