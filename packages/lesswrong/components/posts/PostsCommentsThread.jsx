@@ -5,10 +5,6 @@ import { Comments } from 'meteor/example-forum';
 import { unflattenComments } from "../../lib/modules/utils/unflatten";
 
 class PostsCommentsThread extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {loading, results, loadMore, networkStatus, totalCount, post} = this.props;
     const loadingMore = networkStatus === 2;
