@@ -1,6 +1,4 @@
 import { linkStyle } from './createThemeDefaults'
-import deepmerge from 'deepmerge';
-import isPlainObject from 'is-plain-object';
 
 export const postBodyStyles = (theme, fontSize) => {
   return {
