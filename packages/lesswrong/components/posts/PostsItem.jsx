@@ -21,11 +21,21 @@ import Paper from 'material-ui/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
-import { withTheme } from '@material-ui/core/styles';
+import { withTheme, withStyles } from '@material-ui/core/styles';
+import { postHighlightStyles, postBodyStyles } from '../../themes/stylePiping'
 
 const paperStyle = {
   backgroundColor: 'inherit',
 }
+
+const styles = theme => ({
+  root: {
+    ...theme.typography.postStyle
+  },
+  postBody: {
+    ...postHighlightStyles(theme, postBodyStyles),
+  },
+})
 
 const isSticky = (post, terms) => {
   if (post && terms && terms.forum) {
@@ -147,7 +157,7 @@ class PostsItem extends PureComponent {
 
   render() {
 
-    const {post, inlineCommentCount, currentUser, terms} = this.props;
+    const { post, inlineCommentCount, currentUser, terms, classes } = this.props;
 
     let commentCount = Posts.getCommentCount(post)
 
@@ -190,7 +200,7 @@ class PostsItem extends PureComponent {
           zDepth={0}
         >
           <div
-            className={classNames("posts-item-content", {"selected":this.state.showHighlight})}
+            className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
           >
 
             <div className="posts-item-body">
@@ -258,7 +268,7 @@ class PostsItem extends PureComponent {
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </p>}
               <div className="post-highlight" >
-                <div className="post-body" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+                <div className={classes.postBody} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
                 <div className="post-highlight-continue">
                   {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
                     (Continue Reading{` – ${post.wordCount - 280} more words`})
@@ -332,5 +342,6 @@ replaceComponent(
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withTheme()
+  withTheme(),
+  withStyles(styles)
 );

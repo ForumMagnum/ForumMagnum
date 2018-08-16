@@ -16,9 +16,19 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflatten } from '../../lib/modules/utils/unflatten';
+import { withStyles } from '@material-ui/core/styles';
 
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
+import { postHighlightStyles } from '../../themes/stylePiping'
+
+
+const styles = theme => ({
+  postStyle: theme.typography.postStyle,
+  postBody: {
+    ...postHighlightStyles(theme),
+  }
+})
 
 class RecentDiscussionThread extends PureComponent {
 
@@ -81,22 +91,24 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, results, loading, editMutation, currentUser } = this.props
+    const { post, results, loading, editMutation, currentUser, classes } = this.props
     const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
     const nestedComments = unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
 
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount == null})
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount == null}, classes.postBody)
     return (
       <div className="recent-discussion-thread-wrapper">
-        <div className="recent-discussion-thread-post">
-          <Link to={Posts.getPageUrl(post)}>
-            <span className={classNames("recent-discussion-thread-title", {unread: !post.lastVisitedAt})}>
-              {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
-            </span>
-          </Link>
+        <div className={classNames(classes.postStyle, "recent-discussion-thread-post")}>
+
+          <div className={classNames("recent-discussion-thread-title", {unread: !post.lastVisitedAt})}>
+            <Link to={Posts.getPageUrl(post)}>
+            {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
+            </Link>
+          </div>
+
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
               <span title="Unread" className="posts-item-unread-dot">•</span>
@@ -210,4 +222,5 @@ registerComponent(
   withCurrentUser,
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
+  withStyles(styles),
 );

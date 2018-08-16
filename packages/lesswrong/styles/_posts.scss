@@ -254,7 +254,6 @@
     font-size: 1.4rem;
     line-height: 1.4rem;
     margin-bottom:5px;
-    font-weight: 400;
     padding-left:10px;
     padding-top:10px;
     width:570px;
@@ -289,7 +288,6 @@
   .posts-item-meta {
     display: block;
     color: rgba(0,0,0,0.5);
-    font-weight: 400;
     width:100%;
     max-width: 570px;
     padding-left: 10px;
@@ -1066,7 +1064,8 @@ svg.drag-handle {
   }
 
   .recent-discussion-thread-title {
-    padding:10px;
+    padding-left:10px;
+    margin-bottom:5px;
     font-weight:500;
     font-size:20px;
     line-height:20px;

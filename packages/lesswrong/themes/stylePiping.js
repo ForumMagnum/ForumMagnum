@@ -1,6 +1,8 @@
 import { linkStyle } from './createThemeDefaults'
+import deepmerge from 'deepmerge';
+import isPlainObject from 'is-plain-object';
 
-export const postBodyStyles = theme => {
+export const postBodyStyles = (theme, fontSize) => {
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
@@ -86,6 +88,59 @@ export const commentBodyStyles = theme => {
         theme: theme,
         underlinePosition: (
           (theme.typography.commentStyle && theme.typography.commentStyle.linkUnderlinePosition) ||
+          "97%"
+        ),
+        background: (
+          (theme.typography.body2 && theme.typography.body2.backgroundColor) ||
+          (theme.typography.body2 && theme.typography.body2.background) ||
+          "#fff"
+        )
+      })
+    },
+  }
+}
+
+export const postHighlightStyles = theme => {
+  return {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    '& pre': {
+      ...theme.typography.codeblock
+    },
+    '& code': {
+      ...theme.typography.code,
+      fontSize: ".9rem",
+    },
+    '& blockquote': {
+      ...theme.typography.blockquote,
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+      '& > p': {
+        margin:0
+      },
+    },
+    '& li': {
+      ...theme.typography.body2,
+      ...theme.typography.li,
+      ...theme.typography.postStyle
+    },
+    '& h1': {
+      ...theme.typography.commentHeader,
+      ...theme.typography.postStyle
+    },
+    '& h2': {
+      ...theme.typography.commentHeader,
+      ...theme.typography.postStyle
+    },
+    '& h3': {
+      ...theme.typography.commentHeader,
+      ...theme.typography.postStyle
+    },
+    '& a, & a:hover, & a:focus, & a:active, & a:visited': {
+      ...linkStyle({
+        theme: theme,
+        underlinePosition: (
+          (theme.typography.postStyle && theme.typography.postStyle.linkUnderlinePosition) ||
           "97%"
         ),
         background: (
