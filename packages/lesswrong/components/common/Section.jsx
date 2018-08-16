@@ -27,6 +27,7 @@ const styles = (theme) => ({
     },
   },
   sectionTitle: {
+    ...theme.typography.postStyle,
     [theme.breakpoints.down('sm')]: {
       borderTopWidth: BORDER_TOP_WIDTH,
       borderTopStyle: 'solid',
@@ -66,7 +67,7 @@ const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/
       <Grid container className={classes.section} spacing={24}>
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>
-            <Typography variant="display1" className={classes.sectionTitle}>
+            <Typography variant="display2" className={classes.sectionTitle}>
               {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
             </Typography>
           </div>}

@@ -16,6 +16,19 @@ import Hidden from '@material-ui/core/Hidden';
 import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
+import grey from '@material-ui/core/colors/grey';
+
+const getTextColor = theme => {
+  if (theme.palette.headerType === 'primary') {
+    return theme.palette.primary.contrastText
+  } else if (theme.palette.headerType === 'secondary') {
+    return theme.palette.secondary.contrastText
+  } else if (theme.palette.type === "dark") {
+    return theme.palette.getContrastText(grey[900])
+  } else {
+    return theme.palette.getContrastText(grey[100])
+  }
+}
 
 const styles = theme => ({
   appBar: {
@@ -31,10 +44,10 @@ const styles = theme => ({
     flex: 1,
   },
   titleLink: {
-    verticalAlign: 'text-bottom',
+    color: getTextColor(theme),
+    verticalAlign: 'middle',
     fontSize: 19,
     marginTop: 1,
-    color: theme.palette.primary.contrastText,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
@@ -44,7 +57,7 @@ const styles = theme => ({
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
-    borderLeft: `1px solid ${theme.palette.primary.contrastText}`,
+    borderLeft: `1px solid ${grey[400]}`,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -52,6 +65,8 @@ const styles = theme => ({
   },
   negativeRightMargin: {
     marginRight: -theme.spacing.unit,
+    display: "flex",
+    alignItems: "center"
   }
 });
 
@@ -89,7 +104,7 @@ class Header extends Component {
       <Components.ErrorBoundary>
         <div className={classes.root}>
           <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
-            <AppBar className={classes.appBar} position="static">
+            <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
                 <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
                   <MenuIcon />
@@ -113,10 +128,10 @@ class Header extends Component {
                 </Typography>
                 <div className={classes.negativeRightMargin}>
                   <NoSSR><Components.ErrorBoundary>
-                    <Components.SearchBar color={theme.palette.primary.contrastText} />
+                    <Components.SearchBar color={getTextColor(theme)} />
                   </Components.ErrorBoundary></NoSSR>
-                  {currentUser ? <Components.UsersMenu color={theme.palette.primary.contrastText} /> : <Components.UsersAccountMenu color={theme.palette.primary.contrastText} />}
-                  {currentUser && <Components.NotificationsMenuButton color={theme.palette.primary.contrastText} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                  {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
+                  {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>
             </AppBar>
@@ -147,4 +162,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles), withTheme());
+registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());

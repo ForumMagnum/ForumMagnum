@@ -15,6 +15,8 @@ import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
+import { withStyles } from '@material-ui/core/styles';
+import { commentBodyStyles } from '../../../themes/stylePiping'
 
 const moreActionsMenuStyle = {
   position: 'inherit',
@@ -32,6 +34,10 @@ const moreActionsMenuIconStyle = {
   height: '16px',
   color: 'rgba(0,0,0,0.5)',
 }
+
+const styles = theme => ({
+  commentStyling: commentBodyStyles(theme)
+})
 
 class CommentsItem extends PureComponent {
 
@@ -362,10 +368,10 @@ class CommentsItem extends PureComponent {
   }
 
   renderComment = () =>  {
-    const comment = this.props.comment;
+    const { comment, classes } = this.props;
     const htmlBody = {__html: comment.htmlBody};
     return (
-      <div className="comments-item-text content-body">
+      <div className={classes.commentStyling}>
         {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
       </div>
@@ -399,5 +405,5 @@ class CommentsItem extends PureComponent {
       />
 }
 
-registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
+registerComponent('CommentsItem', CommentsItem, withRouter, withMessages, withStyles(styles));
 export default CommentsItem;

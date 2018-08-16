@@ -12,7 +12,8 @@ const styles = (theme) => ({
       color: theme.palette.grey[500],
       '&:hover, &:active, &:focus': {
         color: theme.palette.grey[400],
-      }
+      },
+      ...theme.typography.postStyle
     }
   }
 })

@@ -41,7 +41,7 @@ const SortableList = withStyles(sortableListStyles)(SortableContainer(({items, c
 
 const usersListEditorStyles = theme => ({
   root: {
-    marginLeft: theme.spacing.unit*2
+    marginLeft: theme.spacing.unit
   },
   search: {
     display: "flex"
