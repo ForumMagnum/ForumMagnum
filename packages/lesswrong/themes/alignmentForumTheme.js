@@ -31,7 +31,8 @@ const palette = {
   },
   background: {
     default: '#fff'
-  }
+  },
+  headerType: "primary"
 }
 
 const theme = createLWTheme({

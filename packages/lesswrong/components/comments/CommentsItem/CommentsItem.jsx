@@ -371,8 +371,7 @@ class CommentsItem extends PureComponent {
     const { comment, classes } = this.props;
     const htmlBody = {__html: comment.htmlBody};
     return (
-      // "comments-item-text content-body"
-      <div className={classNames(classes.commentStyling)}>
+      <div className={classes.commentStyling}>
         {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
       </div>

@@ -31,8 +31,7 @@ const serifStack = [
 
 const palette = {
   primary: {
-    main: grey[50],
-    contrastText: grey[800]
+    main: '#5f9b65',
   },
   secondary: {
     main: '#5f9b65',
@@ -63,6 +62,13 @@ const theme = createLWTheme({
       fontFamily: serifStack,
       fontWeight: 500,
     }
+  },
+  overrides: {
+    MuiAppBar: {
+      colorDefault: {
+        backgroundColor: grey[50],
+      }
+    },
   }
 });
 

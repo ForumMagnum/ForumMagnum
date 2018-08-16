@@ -13,7 +13,7 @@ export const formGroups = {
   },
   event: {
     name: "event details",
-    order: 1,
+    order: 21,
     label: "Event Details"
   },
   moderationGroup: {

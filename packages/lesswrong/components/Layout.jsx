@@ -28,9 +28,6 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit,
     },
   },
-  'textarea, input, select': {
-    ...theme.typography.body2
-  }
 })
 
 const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {

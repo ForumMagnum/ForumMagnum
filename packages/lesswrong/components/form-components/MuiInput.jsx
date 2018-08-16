@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
-import classnames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -36,9 +35,6 @@ class MuiInput extends Component {
   }
 
   render() {
-
-    const hintStyle = this.props.hintStyle || this.props.multiLine ? {top:"0px"} : {}
-
     return <div className="mui-text-field">
       <Input
         value={this.state.content}
@@ -47,14 +43,9 @@ class MuiInput extends Component {
         multiline={this.props.multiLine}
         rows={this.props.rows}
         placeholder={this.props.hintText || this.props.placeholder || this.props.label}
-        hintStyle={hintStyle}
         fullWidth={this.props.fullWidth}
         disableUnderline={this.props.disableUnderline}
         classes={{input: this.props.classes.input}}
-        className={classnames(
-          "mui-text-field-form-component",
-          {"full-width":this.props.fullWidth}
-        )}
       /><br />
     </div>
   }

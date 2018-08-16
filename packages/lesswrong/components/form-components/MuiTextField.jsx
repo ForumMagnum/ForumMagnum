@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import TextField from '@material-ui/core/TextField';
 import classnames from 'classnames';
-import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   labelColor: {
@@ -15,12 +15,7 @@ const styles = theme => ({
   },
   fullWidth: {
     width:"100%",
-  },
-  cssLabel: {
-    '&$cssFocused': {
-      color: "rgba(100,170,110)",
-    }
-  },
+  }
 })
 
 class MuiTextField extends Component {
@@ -48,14 +43,7 @@ class MuiTextField extends Component {
   render() {
     const { classes, select, children, label, multiLine, rows, fullWidth, disableUnderline, type, defaultValue, InputLabelProps } = this.props
 
-    const nestedTheme = createMuiTheme({
-      palette: {
-        primary: classes.labelColor.color,
-      },
-    });
-
-    return <MuiThemeProvider theme={nestedTheme}>
-      <TextField
+    return <TextField
         select={select}
         children={children}
         value={this.state.content}
@@ -77,7 +65,6 @@ class MuiTextField extends Component {
           {fullWidth:fullWidth}
         )}
       />
-    </MuiThemeProvider>
   }
 }
 

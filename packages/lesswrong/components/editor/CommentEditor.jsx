@@ -23,9 +23,8 @@ class CommentEditor extends Component {
   }
 
   render() {
-    const { classes } = this.props
+    const { classes, currentUser } = this.props
     const AsyncCommentEditor = this.state.editor;
-    const currentUser = this.props.currentUser;
     return (
       <div className={classes.commentStyle}>
         { Users.useMarkdownCommentEditor(currentUser) ?
