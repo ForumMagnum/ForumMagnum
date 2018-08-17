@@ -1,31 +1,32 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent, Utils} from 'meteor/vulcan:core';
+import { withList, Components, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
+import { unflattenComments } from "../../lib/modules/utils/unflatten";
 
-
-const PostsCommentsThread = (props) => {
-  const {loading, results, loadMore, networkStatus, totalCount, post} = props;
-  const loadingMore = networkStatus === 2;
-  if (loading || !results) {
-    return <div className="posts-comments-thread"><Components.Loading/></div>
-  } else {
-    const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
-    const nestedComments = Utils.unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
-    return (
-        <Components.CommentsListSection
-          comments={nestedComments}
-          postId={post._id}
-          lastEvent={post.lastVisitedAt}
-          loadMoreComments={loadMore}
-          totalComments={totalCount}
-          commentCount={resultsClone.length}
-          loadingMoreComments={loadingMore}
-          post={post}
-        />
-    );
+class PostsCommentsThread extends PureComponent {
+  render() {
+    const {loading, results, loadMore, networkStatus, totalCount, post} = this.props;
+    const loadingMore = networkStatus === 2;
+    if (loading || !results) {
+      return <div className="posts-comments-thread"><Components.Loading/></div>
+    } else {
+      const nestedComments = unflattenComments(results);
+      return (
+          <Components.CommentsListSection
+            comments={nestedComments}
+            postId={post._id}
+            lastEvent={post.lastVisitedAt}
+            loadMoreComments={loadMore}
+            totalComments={totalCount}
+            commentCount={results.length}
+            loadingMoreComments={loadingMore}
+            post={post}
+          />
+      );
+    }
   }
-};
+}
 
 const options = {
   collection: Comments,

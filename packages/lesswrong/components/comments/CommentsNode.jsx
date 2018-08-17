@@ -69,6 +69,8 @@ class CommentsNode extends PureComponent {
   render() {
     const {
       comment,
+      children,
+      nestingLevel=1,
       currentUser,
       highlightDate,
       editMutation,
@@ -86,19 +88,19 @@ class CommentsNode extends PureComponent {
       classes.node,
       {
         "af":comment.af,
-        "comments-node-root" : comment.level === 1,
-        "comments-node-even" : comment.level % 2 === 0,
-        "comments-node-odd"  : comment.level % 2 != 0,
+        "comments-node-root" : nestingLevel === 1,
+        "comments-node-even" : nestingLevel % 2 === 0,
+        "comments-node-odd"  : nestingLevel % 2 != 0,
         "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
-        "comments-node-its-getting-nested-here": comment.level > 8,
-        "comments-node-so-take-off-all-your-margins": comment.level > 12,
-        "comments-node-im-getting-so-nested": comment.level > 16,
-        "comments-node-im-gonna-drop-my-margins": comment.level > 20,
-        "comments-node-what-are-you-even-arguing-about": comment.level > 24,
-        "comments-node-are-you-sure-this-is-a-good-idea": comment.level > 28,
-        "comments-node-seriously-what-the-fuck": comment.level > 32,
-        "comments-node-are-you-curi-and-lumifer-specifically": comment.level > 36,
-        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": comment.level > 40,
+        "comments-node-its-getting-nested-here": nestingLevel > 8,
+        "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
+        "comments-node-im-getting-so-nested": nestingLevel > 16,
+        "comments-node-im-gonna-drop-my-margins": nestingLevel > 20,
+        "comments-node-what-are-you-even-arguing-about": nestingLevel > 24,
+        "comments-node-are-you-sure-this-is-a-good-idea": nestingLevel > 28,
+        "comments-node-seriously-what-the-fuck": nestingLevel > 32,
+        "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
+        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
         [classes.child]: child,
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
@@ -125,14 +127,16 @@ class CommentsNode extends PureComponent {
               frontPage={frontPage}
             />
           </div>
-          {!collapsed && comment.childrenResults ?
+          {!collapsed && children && children.length>0 ?
             <div className="comments-children">
               <div className="comments-parent-scroll" onClick={this.scrollIntoView}></div>
-              {comment.childrenResults.map(comment =>
+              {children.map(child =>
                 <Components.CommentsNode child
                   currentUser={currentUser}
-                  comment={comment}
-                  key={comment._id}
+                  comment={child.item}
+                  nestingLevel={nestingLevel+1}
+                  children={child.children}
+                  key={child._id}
                   muiTheme={muiTheme}
                   highlightDate={highlightDate}
                   editMutation={editMutation}

@@ -102,7 +102,6 @@ div.ReactTags__suggestions mark{
     font-weight: normal;
   }
 }
-
 .search-form{
   position: relative;
   .search-form-reset{
@@ -113,8 +112,18 @@ div.ReactTags__suggestions mark{
   }
 }
 
-.form-input{
-  position: relative;
+.form-input {
+  margin:16px 0;
+}
+
+.form-component-EditTitle {
+  margin:0;
+}
+
+.form-group.row {
+  display:flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 .form-control-limit{
   position: absolute;
@@ -140,7 +149,8 @@ div.ReactTags__suggestions mark{
 }
 
 .form-section-heading-title{
-  margin: 0;
+  // margin: 0;
+  margin-bottom:5px;
 }
 
 .form-section-collapsed{
@@ -162,17 +172,10 @@ div.ReactTags__suggestions mark{
   }
 }
 
-.form-component-MuiTextField {
+.form-component-MuiInput {
   margin-bottom: 0px;
 }
 
-.mui-text-field-form-component {
-  width: 350px !important;
-
-  &.full-width {
-      width:100% !important;
-  }
-}
 .multi-select-buttons-button {
   border-radius: 0px !important;
   text-transform: none !important;

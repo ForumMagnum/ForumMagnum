@@ -129,6 +129,7 @@ Posts.addView("community", terms => ({
 Posts.addView("community-rss", terms => ({
   selector: {
     frontpageDate: null,
+    maxBaseScore: {$gt: 2}
   },
   options: {
     sort: {postedAt: -1}
@@ -145,6 +146,8 @@ Posts.addView("meta-rss", terms => ({
     }
   }
 }))
+
+Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
 /**
@@ -297,6 +300,22 @@ Posts.addView("events", function (terms) {
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
       $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
+    },
+    options: {
+      sort: {
+        baseScore: -1,
+        startTime: -1,
+      }
+    }
+  }
+})
+
+Posts.addView("pastEvents", function (terms) {
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
     },
     options: {
       sort: {
