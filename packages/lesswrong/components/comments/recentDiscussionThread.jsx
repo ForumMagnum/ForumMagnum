@@ -15,7 +15,7 @@ import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
-import { unflatten } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/modules/utils/unflatten';
 
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
@@ -82,8 +82,7 @@ class RecentDiscussionThread extends PureComponent {
 
   render() {
     const { post, results, loading, editMutation, currentUser } = this.props
-    const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
-    const nestedComments = unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
+    const nestedComments = unflattenComments(results);
 
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
@@ -169,8 +168,9 @@ class RecentDiscussionThread extends PureComponent {
               <div key={comment._id}>
                 <Components.CommentsNode
                   currentUser={currentUser}
-                  comment={comment}
-                  key={comment._id}
+                  comment={comment.item}
+                  children={comment.children}
+                  key={comment.item._id}
                   editMutation={editMutation}
                   post={post}
                   frontPage
