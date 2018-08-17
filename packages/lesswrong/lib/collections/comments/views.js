@@ -14,6 +14,13 @@ Comments.addDefaultView(terms => {
   });
 })
 
+Comments.addView('userComments', function (terms) {
+  return {
+    selector: {userId: terms.userId, hideAuthor: {$ne: true}},
+    options: {sort: {postedAt: -1}}
+  };
+});
+
 Comments.addView("commentReplies", function (terms) {
   return {
     selector: {
@@ -53,6 +60,13 @@ Comments.addView("postCommentsTop", function (terms) {
   };
 });
 
+Comments.addView("postCommentsOld", function (terms) {
+  return {
+    selector: { postId: terms.postId },
+    options: {sort: {deleted: 1, postedAt: 1}}
+  };
+});
+
 Comments.addView("postCommentsNew", function (terms) {
   return {
     selector: { postId: terms.postId },
@@ -64,6 +78,13 @@ Comments.addView("postCommentsBest", function (terms) {
   return {
     selector: { postId: terms.postId },
     options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
+  };
+});
+
+Comments.addView("postLWComments", function (terms) {
+  return {
+    selector: { postId: terms.postId, af: null },
+    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
   };
 });
 

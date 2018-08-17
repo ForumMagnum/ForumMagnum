@@ -1,5 +1,5 @@
 import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -15,6 +15,9 @@ import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
+import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
+import { withStyles } from '@material-ui/core/styles';
+import { commentBodyStyles } from '../../../themes/stylePiping'
 
 const moreActionsMenuStyle = {
   position: 'inherit',
@@ -33,8 +36,11 @@ const moreActionsMenuIconStyle = {
   color: 'rgba(0,0,0,0.5)',
 }
 
-class CommentsItem extends PureComponent {
+const styles = theme => ({
+  commentStyling: commentBodyStyles(theme)
+})
 
+class CommentsItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -44,6 +50,14 @@ class CommentsItem extends PureComponent {
       showStats: false,
       showParent: false
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if(!shallowEqual(this.state, nextState))
+      return true;
+    if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
+      return true;
+    return false;
   }
 
   showReport = (event) => {
@@ -112,7 +126,7 @@ class CommentsItem extends PureComponent {
       return <div className="recent-comments-item-text comments-item-text content-body">
         {commentExcerpt}
         <p>{lastElement + "..."}
-          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> 
+          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
         </p>
       </div>
     } else {
@@ -166,13 +180,13 @@ class CommentsItem extends PureComponent {
                   subdirectory_arrow_left
                 </FontIcon>}
               { !frontPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
-                  [<span>{this.props.collapsed ? "+" : "-"}</span>]
-                </a>
+                [<span>{this.props.collapsed ? "+" : "-"}</span>]
+              </a>
               }
-              {!comment.deleted && <span>
-                <Components.UsersName user={comment.user}/>
-              </span>}
-              {comment.deleted && <span>[comment deleted] </span>}
+              { comment.deleted || comment.hideAuthor ?
+                (comment.hideAuthor ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
+                <span> <Components.UsersName user={comment.user}/> </span>
+              }
               <div className="comments-item-date">
                 { this.props.frontPage ?
                   <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
@@ -339,8 +353,8 @@ class CommentsItem extends PureComponent {
   }
 
   renderMoveToAlignmentMenuItem = () =>  {
-    const { currentUser, comment, post } = this.props
-    if (Users.canMakeAlignmentPost(currentUser, post)) {
+    const { currentUser, comment } = this.props
+    if (Users.canDo(currentUser, 'comments.alignment.move.all')) {
       return (
         <Components.MoveToAlignmentMenuItem
           currentUser={currentUser}
@@ -362,10 +376,10 @@ class CommentsItem extends PureComponent {
   }
 
   renderComment = () =>  {
-    const comment = this.props.comment;
+    const { comment, classes } = this.props;
     const htmlBody = {__html: comment.htmlBody};
     return (
-      <div className="comments-item-text content-body">
+      <div className={classes.commentStyling}>
         {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
       </div>
@@ -399,5 +413,5 @@ class CommentsItem extends PureComponent {
       />
 }
 
-registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
+registerComponent('CommentsItem', CommentsItem, withRouter, withMessages, withStyles(styles));
 export default CommentsItem;

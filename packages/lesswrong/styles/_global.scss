@@ -20,11 +20,6 @@ a{
   color: inherit;
 }
 
-div p a, div ul a, div ol a {
-  @include link-styling()
-}
-
-
 .page-title{
   margin-bottom: $vmargin*2;
 }

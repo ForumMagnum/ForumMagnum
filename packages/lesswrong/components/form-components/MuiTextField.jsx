@@ -1,8 +1,22 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import TextField from 'material-ui/TextField';
+import TextField from '@material-ui/core/TextField';
 import classnames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  labelColor: {
+    color: theme.secondary
+  },
+  textField: {
+    fontSize: "15px",
+    width: 350,
+  },
+  fullWidth: {
+    width:"100%",
+  }
+})
 
 class MuiTextField extends Component {
   constructor(props, context) {
@@ -19,34 +33,38 @@ class MuiTextField extends Component {
     })
   }
 
-  onChange = (event, value) => {
-    this.setState({content: value})
+  onChange = (event) => {
+    this.setState({content: event.target.value})
     this.context.updateCurrentValues({
-      [this.props.name]: value
+      [this.props.name]: event.target.value
     })
   }
 
   render() {
+    const { classes, select, children, label, multiLine, rows, fullWidth, disableUnderline, type, defaultValue, InputLabelProps } = this.props
 
-    const hintStyle = this.props.hintStyle || this.props.multiLine ? {top:"0px"} : {}
-
-    return <div className="mui-text-field">
-      <TextField
+    return <TextField
+        select={select}
+        children={children}
         value={this.state.content}
-        label={this.props.label}
+        defaultValue={defaultValue}
+        label={label}
         onChange={this.onChange}
-        multiLine={this.props.multiLine}
-        rows={this.props.rows}
-        hintText={this.props.hintText || this.props.label}
-        hintStyle={hintStyle}
-        fullWidth={this.props.fullWidth}
-        underlineShow={this.props.underlineShow}
+        multiline={multiLine}
+        rows={rows}
+        type={type}
+        fullWidth={fullWidth}
+        InputLabelProps={{
+          className: classes.cssLabel,
+          ...InputLabelProps
+        }}
+        disableUnderline={disableUnderline}
+        classes={{input: classes.input}}
         className={classnames(
-          "mui-text-field-form-component",
-          {"full-width":this.props.fullWidth}
+          classes.textField,
+          {fullWidth:fullWidth}
         )}
-      /><br />
-    </div>
+      />
   }
 }
 
@@ -55,4 +73,4 @@ MuiTextField.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiTextField", MuiTextField);
+registerComponent("MuiTextField", MuiTextField, withStyles(styles));

@@ -13,13 +13,15 @@ const styles = theme => ({
   downvote: {
     marginTop: -25
   },
+  voteScores: {
+    margin:"15%",
+  },
   voteScore: {
     color: theme.palette.grey[500],
     paddingLeft: 1, // For some weird reason having this padding here makes it look more centered
     position: 'relative',
     zIndex: 1,
     fontSize: '55%',
-    lineHeight: 1
   },
   secondaryVoteScore: {
     fontSize: '35%',
@@ -33,13 +35,8 @@ const styles = theme => ({
     fontSize: '1rem',
     backgroundColor: 'white',
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
-    marginLeft: 0,
-    '&$open': {
-      opacity: 1,
-      transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms'
-    }
+    marginLeft: 0
   },
-  open: {}
 })
 
 class PostsVote extends PureComponent {
@@ -53,7 +50,7 @@ class PostsVote extends PureComponent {
           <Tooltip
             title="Click-and-hold for strong vote"
             placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <div className={classes.upvote}>
               <Components.VoteButton
@@ -66,31 +63,33 @@ class PostsVote extends PureComponent {
               />
             </div>
           </Tooltip>
-          <Tooltip
-            title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
-            placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
-          >
-            <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
-          </Tooltip>
-
-          {!!post.afBaseScore && !getSetting('AlignmentForum', false) &&
+          <div className={classes.voteScores}>
             <Tooltip
-              title="Alignment Forum karma"
+              title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
               placement="right"
-              classes={{tooltip: classes.tooltip, open: classes.open}}
+              classes={{tooltip: classes.tooltip}}
             >
-              <Typography
-                variant="headline"
-                className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
-                Ω	{post.afBaseScore}
-              </Typography>
+              <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
             </Tooltip>
-          }
+
+            {!!post.afBaseScore && !getSetting('AlignmentForum', false) &&
+              <Tooltip
+                title="Alignment Forum karma"
+                placement="right"
+                classes={{tooltip: classes.tooltip}}
+              >
+                <Typography
+                  variant="headline"
+                  className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
+                  Ω	{post.afBaseScore}
+                </Typography>
+              </Tooltip>
+            }
+          </div>
           <Tooltip
             title="Click-and-hold for strong vote"
             placement="right"
-            classes={{tooltip: classes.tooltip, open: classes.open}}
+            classes={{tooltip: classes.tooltip}}
           >
             <div className={classes.downvote}>
               <Components.VoteButton
