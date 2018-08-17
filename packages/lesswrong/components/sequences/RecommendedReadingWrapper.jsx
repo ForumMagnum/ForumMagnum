@@ -21,13 +21,13 @@ const RecommendedReadingWrapper = ({document, loading, post, router, nextTitle, 
       let nextPost = false;
       let previousPost = false;
       if (currentPostIndex || currentPostIndex === 0) {
-        
+
         if (currentPostIndex + 1 < currentChapter.posts.length) {
           nextPost = currentChapter.posts[currentPostIndex + 1]
         } else if (currentChapterIndex + 1 < currentSequenceLength) {
           nextPost = chapters[currentChapterIndex+1].posts[0]
         } else {
-          nextLink = nextLink || "/sequences/" + document._id;
+          nextLink = nextLink || "/s/" + document._id;
           nextTitle = nextTitle || document.title;
         }
 

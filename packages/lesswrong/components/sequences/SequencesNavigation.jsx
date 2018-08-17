@@ -16,7 +16,7 @@ const SequencesNavigation = ({
     let nextPostId = ""
 
     let title = document ? document.title : ""
-    let titleUrl = documentId ? "/sequences/" + documentId : ""
+    let titleUrl = documentId ? "/s/" + documentId : ""
 
     if (document && post && !loading) {
       if (document.chapters) {
@@ -39,7 +39,7 @@ const SequencesNavigation = ({
             nextPostId = document.chapters[currentChapterIndex + 1].posts[0]._id
             nextPostUrl = "/s/" + document._id + "/p/" + nextPostId;
           } else {
-            nextPostUrl = "/sequences/" + document._id;
+            nextPostUrl = "/s/" + document._id;
           }
 
           if (currentPostIndex > 0) {

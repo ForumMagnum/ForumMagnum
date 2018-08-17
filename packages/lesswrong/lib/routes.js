@@ -11,6 +11,7 @@ addRoute({ name: 'SunshineDashboard', path: '/sunshine', componentName: 'Sunshin
 // Sequences
 addRoute({ name: 'sequencesHome', path: '/library', componentName: 'SequencesHome' });
 addRoute({ name: 'sequences.single', path: '/sequences/:_id', componentName: 'SequencesSingle' });
+addRoute({ name: 'sequences.single', path: '/s/:_id', componentName: 'SequencesSingle' });
 addRoute({ name: 'sequencesEdit', path: '/sequencesEdit/:_id', componentName: 'SequencesEditForm'});
 addRoute({ name: 'sequencesNew', path: '/sequencesNew', componentName: 'SequencesNewForm'});
 addRoute({ name: 'sequencesPost', path: '/s/:sequenceId/p/:postId', componentName: 'SequencesPost'});
