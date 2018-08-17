@@ -35,7 +35,7 @@ const SequencesNavigation = ({
           if (currentPostIndex + 1 < currentChapter.posts.length) {
             nextPostId = currentChapter.posts[currentPostIndex + 1]._id
             nextPostUrl = "/s/" + document._id + "/p/" + nextPostId;
-          } else if (currentChapterIndex + 1 < currentSequenceLength) {
+          } else if (currentChapterIndex + 1 < currentSequenceLength && document.chapters[currentChapterIndex + 1].posts.length !== 0) {
             nextPostId = document.chapters[currentChapterIndex + 1].posts[0]._id
             nextPostUrl = "/s/" + document._id + "/p/" + nextPostId;
           } else {
