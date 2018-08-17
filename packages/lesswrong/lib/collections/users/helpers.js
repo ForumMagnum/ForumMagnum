@@ -2,6 +2,11 @@ import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
 import { getSetting } from 'meteor/vulcan:core';
 
+
+Users.isSharedOn = (currentUser, document) => {
+  return (currentUser && document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
+}
+
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
     return true
@@ -87,7 +92,7 @@ Users.isAllowedToComment = (user, post) => {
 
   if (getSetting('AlignmentForum', false)) {
     if (!Users.canDo(user, 'comments.alignment.new')) {
-      return Users.owns(user, post)
+      return Users.owns(user, post) && Users.canDo(user, 'votes.alignment')
     }
   }
 
@@ -145,10 +150,10 @@ Users.useMarkdownPostEditor = (user) => {
 
 
 Users.canMakeAlignmentPost = (user, post) => {
-  if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.edit")) {
+  if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.move")) {
     return true
   }
-  if (Users.canDo(user,"posts.alignment.edit.all")) {
+  if (Users.canDo(user,"posts.alignment.move.all")) {
     return true
   }
   if (!user || !post) {
@@ -156,7 +161,7 @@ Users.canMakeAlignmentPost = (user, post) => {
   }
   return !!(
     user._id === post.userId &&
-    Users.canDo(user,"posts.alignment.edit") &&
+    Users.canDo(user,"posts.alignment.move") &&
     Users.owns(user, post)
   )
 }

@@ -109,7 +109,7 @@
     font-style: italic;
   }
 }
-
+//
 .users-edit-form {
   width:60%;
   margin:auto;
@@ -117,83 +117,86 @@
   @include small {
     width:100%;
   }
-
-  .change-password-link {
-    border:solid 1px $light-grey;
-    border-radius:3px;
-    padding:7px;
-    text-align:center;
-    width:40%;
-    margin-bottom:35px;
-    text-transform: uppercase;
-    @include small {
-      width:100%;
-    }
-    a {
-      &:hover {
-        text-decoration: none;
-      }
-    }
-    &:hover {
-      background-color: $lighter-grey;
-      cursor: pointer;
-    }
-  }
-  .form-input.input-hideIntercom {
-    margin-left:5px;
-    .control-label.col-sm-3 {
-      display:none;
-    }
-  }
-  .form-group.email {
-    &:before {
-      content: ' ';
-      clear: right;
-      display: block;
-    }
-    width:100%;
-    float:right;
-  }
-  input.form-control {
-    padding-left:2px;
-  }
-
-  .form-input.input-bio .control-label.col-sm-3 {
-    position:relative;
-    top:3px;
-    text-transform: uppercase;
-  }
-
-  .control-label.col-sm-3 {
-    // TODO instead fix the col-sm-3 at a root level that isn't janky
-    width:110px;
-    position:relative;
-    top:8px;
-    text-transform: uppercase;
-  }
-  .form-input.form-component-textarea {
-    line-height:1.5em;
-    margin-top:2em;
-
-    textarea {
-      line-height:1.35em;
-      min-height:90px;
-    }
-  }
-  .form-component-checkbox {
-    margin-left:5px;
-    .control-label.col-sm-3 {
-      display:none;
-    }
-  }
-  .form-section-heading {
-    padding:1em 0;
-  }
 }
+
+
+//
+//   .change-password-link {
+//     border:solid 1px $light-grey;
+//     border-radius:3px;
+//     padding:7px;
+//     text-align:center;
+//     width:40%;
+//     margin-bottom:35px;
+//     text-transform: uppercase;
+//     @include small {
+//       width:100%;
+//     }
+//     a {
+//       &:hover {
+//         text-decoration: none;
+//       }
+//     }
+//     &:hover {
+//       background-color: $lighter-grey;
+//       cursor: pointer;
+//     }
+//   }
+
+//   .form-input.input-hideIntercom {
+//     margin-left:5px;
+//     .control-label.col-sm-3 {
+//       display:none;
+//     }
+//   }
+//   .form-group.email {
+//     &:before {
+//       content: ' ';
+//       clear: right;
+//       display: block;
+//     }
+//     width:100%;
+//   }
+//
+//   .form-input.input-bio .control-label.col-sm-3 {
+//     position:relative;
+//     top:3px;
+//     text-transform: uppercase;
+//     width:110px;
+//   }
+//
+//   .control-label.col-sm-3 {
+//     // TODO instead fix the col-sm-3 at a root level that isn't janky
+//     text-transform: uppercase;
+//   }
+//   .form-input.form-component-textarea {
+//     line-height:1.5em;
+//     margin-top:2em;
+//
+//     textarea {
+//       line-height:1.35em;
+//       min-height:90px;
+//     }
+//   }
+//   .form-component-checkbox {
+//     margin-left:5px;
+//     .control-label.col-sm-3 {
+//       display:none;
+//     }
+//   }
+//   .form-section-heading {
+//     padding:1em 0;
+//   }
+// }
 
 .users-profile .posts-no-results {
   font-size:18px;
   font-style:italic;
+}
+.form-component-checkboxgroup {
+  .form-group.row {
+    display:block;
+  }
 }
 
 .user-profile-posts-title {

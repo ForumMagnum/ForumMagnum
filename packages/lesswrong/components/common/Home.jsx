@@ -27,9 +27,9 @@ const Home = (props, context) => {
   return (
     <div>
       <Components.Section title={recentPostsTitle}
-        titleComponent= {<div className="recent-posts-title-component">
-          <Components.PostsViews />
-        </div>} >
+                          titleComponent= {<div className="recent-posts-title-component">
+                            <Components.PostsViews />
+                          </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments">

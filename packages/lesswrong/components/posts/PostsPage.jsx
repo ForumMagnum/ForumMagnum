@@ -18,10 +18,12 @@ import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Posts } from 'meteor/example-forum';
+import { Posts, Comments } from 'meteor/example-forum';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import { postBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 // import Users from "meteor/vulcan:users";
 
 const styles = theme => ({
@@ -34,6 +36,8 @@ const styles = theme => ({
     title: {
       textAlign: 'center',
       margin: '45px 0',
+      ...theme.typography.display3,
+      ...theme.typography.postStyle,
       color: theme.palette.text.primary,
     },
     voteTop: {
@@ -65,12 +69,19 @@ const styles = theme => ({
       marginRight: 'auto',
       marginBottom: 40,
     },
+    postContent: postBodyStyles(theme),
     linkPost: {
       marginBottom: 10,
       paddingTop: 1,
       '& > a': {
         color: theme.palette.secondary.light
       }
+    },
+    metadata: {
+      ...theme.typography.postStyle,
+    },
+    subtitle: {
+      ...theme.typography.subtitle,
     },
     voteBottom: {
       position: 'relative',
@@ -82,6 +93,9 @@ const styles = theme => ({
     },
     postFooter: {
       marginBottom: 30,
+    },
+    draft: {
+      color: theme.palette.secondary.light
     }
 })
 
@@ -109,18 +123,6 @@ class PostsPage extends Component {
       </DropdownButton>
     )
 
-  }
-
-  getView() {
-    switch(this.props.router.location.query.view) {
-        case 'top':
-          return 'postCommentsTop';
-        case 'new':
-          return 'postCommentsNew';
-    }
-
-    // default to top
-    return 'postCommentsTop';
   }
 
   getCommentCountStr = (post) => {
@@ -184,6 +186,7 @@ class PostsPage extends Component {
 
   renderPostDate = () => {
     const post = this.props.document;
+    const { classes } = this.props
     const calendarFormat = {sameElse : 'MMMM Do YY, HH:mm'}
     if (post.isEvent) {
       return <div>
@@ -193,7 +196,7 @@ class PostsPage extends Component {
         </div>
       </div>
     } else {
-      return <div>
+      return <div className={classes.subtitle}>
         {moment(post.postedAt).format('MMM D, YYYY')}
       </div>
     }
@@ -217,13 +220,24 @@ class PostsPage extends Component {
     }
   }
 
+  renderContactInfo = () => {
+    const post = this.props.document;
+    if (post.isEvent && post.contactInfo) {
+      return <div className="posts-page-event-contact">
+        Contact: {post.contactInfo}
+      </div>
+    }
+  }
+
   renderPostMetadata = () => {
     const post = this.props.document;
-    return <div className="posts-page-content-body-metadata">
+    const { classes } = this.props
+    return <div className={classNames("posts-page-content-body-metadata", classes.metadata)}>
       <div className="posts-page-content-body-metadata-date">
         {this.renderPostDate()}
         {this.renderEventLocation()}
         {this.renderEventLinks()}
+        {this.renderContactInfo()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
         <a href="#comments">{ this.getCommentCountStr(post) }</a>
@@ -249,7 +263,7 @@ class PostsPage extends Component {
   }
 
   render() {
-    const { loading, document, currentUser, location, classes } = this.props
+    const { loading, document, currentUser, location, router, classes } = this.props
     if (loading) {
       return <div><Components.Loading/></div>
     } else if (!document) {
@@ -262,50 +276,64 @@ class PostsPage extends Component {
       const post = document
       const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
-      const commentTerms = _.isEmpty(query) ? {view: 'postCommentsTop', limit: 500} : {...query, limit:500}
+      const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
+
+      const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
-        <div>
-          <Components.HeadTags url={Posts.getPageUrl(post)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
+        <Components.ErrorBoundary>
+          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
-                {post.draft && '[Draft]'}{post.title}
+                {post.draft && <span className={classes.draft}>[Draft] </span>}
+                {post.title}
               </Typography>
               {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
-              { this.renderSequenceNavigation() }
+              <Components.ErrorBoundary>
+                { this.renderSequenceNavigation() }
+              </Components.ErrorBoundary>
               <div className={classes.voteTop}>
                 <hr className={classes.voteDivider}/>
-                <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                <Components.ErrorBoundary>
+                  <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                </Components.ErrorBoundary>
                 <hr className={classes.voteDivider}/>
               </div>
               <Typography variant="title" color="textSecondary" className={classes.author}>
-                <Components.UsersName user={post.user} />
+                {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
             <div className={classes.mainContent}>
-              {this.renderPostMetadata()}
-              { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
+              <Components.ErrorBoundary>
+                {this.renderPostMetadata()}
+              </Components.ErrorBoundary>
+              <Components.ErrorBoundary>
+                { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
+              </Components.ErrorBoundary>
               { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
                 This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
               </Typography>}
-              {/* Have to leave this CSS class in until we can render Posts as React instead of HTML */}
-              { post.htmlBody && <div className="posts-page-content-body-html content-body" dangerouslySetInnerHTML={htmlBody}></div> }
+              { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
             <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
-                <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                <Components.ErrorBoundary>
+                  <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                </Components.ErrorBoundary>
               </div>
               <Typography variant="headline" color="textSecondary" className={classes.author}>
-                <Components.UsersName user={post.user} />
+                {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
           </div>
           {this.renderRecommendedReading()}
           <div id="comments">
-            <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+            <Components.ErrorBoundary>
+              <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+            </Components.ErrorBoundary>
           </div>
-        </div>
+        </Components.ErrorBoundary>
       );
     }
   }
@@ -315,7 +343,9 @@ class PostsPage extends Component {
     const sequenceId = this.props.params.sequenceId || post.canonicalSequenceId;
     if (sequenceId) {
       return <div className="posts-page-recommended-reading">
-        <Components.RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+        <Components.ErrorBoundary>
+          <Components.RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+        </Components.ErrorBoundary>
       </div>
     }
   }

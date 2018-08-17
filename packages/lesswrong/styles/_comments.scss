@@ -129,6 +129,7 @@ $medium-text: $dark-grey;
       margin-right: 5px;
       display: inline;
       color:rgba(0,0,0,.5);
+      @media print { display: none; }
     }
   }
   blockquote {
@@ -608,14 +609,6 @@ New CSS File
 
   @include max-tiny() {
     margin:-2px 0;
-  }
-}
-
-.comment-editor .mui-text-field {
-  input, textarea {
-    margin-top:0 !important;
-    @include comment-style()
-    border-bottom:none !important;
   }
 }
 

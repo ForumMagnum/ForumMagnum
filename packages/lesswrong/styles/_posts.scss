@@ -453,7 +453,6 @@
       @include vertical-center;
       margin-top:-3px;
       color:white;
-      font-family: $comments-font;
       z-index: 2;
       font-variant-numeric: lining-nums;
     }
@@ -553,6 +552,7 @@
   }
   .posts-page-content-body-metadata-actions {
     font-size: 14px;
+    @media print { display: none; }
   }
 }
 
@@ -647,16 +647,6 @@
     margin-bottom: 10px;
   }
 }
-
-.posts-page-content-header-title h1, .posts-edit-header-title {
-  font-size: 50px;
-  text-align: center;
-  font-weight: bold;
-  line-height: 52px;
-  @include small {
-      font-size: 32px;
-  }
-}
 .posts-page-content-body-metadata-action {
   display: inline;
   padding:0 5px;
@@ -669,12 +659,6 @@
 .posts-page-content-header-title {
   margin: 25px 0;
 }
-textarea.posts-edit-header-title {
-  width:100%;
-  height:114px;
-  resize:none;
-}
-
 
 .posts-page-body{
   font-size: $large-font;
@@ -784,12 +768,6 @@ svg.drag-handle {
   margin:20px 0;
 }
 
-.posts-page-comments-load-all-comment {
-  a {
-    @include link-styling();
-  }
-}
-
 .sequences-navigation-title {
     display: inline-block;
     font-size: 22px;
@@ -885,7 +863,6 @@ svg.drag-handle {
 
 .posts-item-recent-comments-title, .posts-item-top-comments-title {
   padding:10px 0;
-  font-family:$comments-font;
   font-size:14px;
   font-weight:600;
 }
@@ -1053,6 +1030,13 @@ svg.drag-handle {
   line-height: 1.25;
 }
 
+.posts-page-event-contact {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 5px;
+}
+
 .posts-page-event-links {
   font-weight: 400;
 }
@@ -1179,7 +1163,6 @@ svg.drag-handle {
   top:5.5px;
   margin-left:2px;
   margin-right:5px;
-  font-family: $comments-font;
 }
 
 .posts-item-unread {
@@ -1209,6 +1192,7 @@ svg.drag-handle {
     }
     .posts-page-admin-more-options {
       color:rgba(0,0,0,.2);
+      @media print { display: none; }
     }
   }
 }
@@ -1217,9 +1201,6 @@ svg.drag-handle {
   &:hover {
     color:rgba(0,0,0,.35);
   }
-}
-.posts-page-content-body-html.content-body a {
-  @include posts-link-styling();
 }
 
 .posts-page-content-body-html {

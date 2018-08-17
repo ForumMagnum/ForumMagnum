@@ -1,19 +1,22 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router'
 import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import { Comments } from 'meteor/example-forum'
 import { withStyles } from '@material-ui/core/styles';
 
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
   'postCommentsNew': 'most recent',
+  'postCommentsOld': 'oldest',
   'postCommentsBest': 'highest karma',
   'postCommentsDeleted': 'deleted',
   'postCommentsSpam': 'spam',
   'postCommentsReported': 'reported',
+  'postLWComments': 'magical algorithm (include LW)',
 }
 
 const styles = theme => ({
@@ -38,10 +41,10 @@ class CommentsViews extends Component {
   };
 
   handleViewClick = (view) => {
-    const { router, postId } = this.props
+    const { router, post } = this.props
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
     this.setState({ anchorEl: null })
-    router.replace({...router.location, query: {...currentQuery, view: view, postId: postId}})
+    router.replace({...router.location, query: {...currentQuery, view: view, postId: post._id}})
   };
 
   handleClose = () => {
@@ -49,14 +52,19 @@ class CommentsViews extends Component {
   }
 
   render() {
-    const { currentUser, router, classes } = this.props
+    const { currentUser, classes, router, post } = this.props
     const { anchorEl } = this.state
-    let views = ["postCommentsTop", "postCommentsNew", "postCommentsBest"]
+    let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
-    const currentView = _.clone(router.location.query).view || "postCommentsTop"
+    const afViews = ["postLWComments"]
+    const currentView = _.clone(router.location.query).view ||  Comments.getDefaultView(post, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
+    }
+
+    if (getSetting("AlignmentForum", false)) {
+      views = views.concat(afViews);
     }
 
     return (
@@ -84,7 +92,9 @@ class CommentsViews extends Component {
 
 CommentsViews.propTypes = {
   currentUser: PropTypes.object,
-  defaultView: PropTypes.string
+  post: PropTypes.object.isRequired,
+  defaultView: PropTypes.string,
+  router: PropTypes.object.isRequired
 };
 
 CommentsViews.defaultProps = {

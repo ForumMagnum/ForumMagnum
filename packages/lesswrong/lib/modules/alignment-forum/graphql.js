@@ -12,7 +12,7 @@ const alignmentCommentResolvers = {
     alignmentComment(root, { commentId, af }, context) {
       const comment = context.Comments.findOne(commentId)
 
-      if (Users.canDo(context.currentUser, "comments.alignment.edit.all")) {
+      if (Users.canDo(context.currentUser, "comments.alignment.move.all")) {
         let modifier = { $set: {af: af} };
         modifier = runCallbacks('comments.alignment.sync', modifier);
         context.Comments.update({_id: commentId}, modifier);
@@ -35,7 +35,7 @@ const alignmentPostResolvers = {
     alignmentPost(root, { postId, af }, context) {
       const post = context.Posts.findOne(postId)
 
-      if (Users.canDo(context.currentUser, "posts.alignment.edit.all")) {
+      if (Users.canDo(context.currentUser, "posts.alignment.move.all")) {
         let modifier = { $set: {af: af} };
         modifier = runCallbacks('posts.alignment.sync', modifier);
         context.Posts.update({_id: postId}, modifier);

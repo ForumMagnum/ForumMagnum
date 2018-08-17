@@ -2,13 +2,13 @@ import { Posts } from 'meteor/example-forum'
 import Users from 'meteor/vulcan:users'
 
 Posts.checkAccess = (currentUser, post) => {
-  Users.groups.members.activeConnection
   // TODO: IBETA ONLY Only logged-in users can see forum posts
   if (!currentUser) {
     return false;
   }
-  // admins can always see everything, users can always see their own posts
-  if (Users.isAdmin(currentUser) || Users.owns(currentUser, post)) {
+  if (Users.isAdmin(currentUser)) {
+    return true
+  } else if (Users.owns(currentUser, post) || Users.isSharedOn(currentUser, post)) {
     return true;
   }
   if (post.isFuture || post.draft) {

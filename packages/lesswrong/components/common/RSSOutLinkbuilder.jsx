@@ -106,7 +106,7 @@ class RSSOutLinkbuilder extends Component {
             <h5>Karma Threshold: {this.state.rssTerms.karmaThreshold}</h5>
             Generate a RSS link to posts in {viewNames[this.state.rssTerms.view]} of this karma and above.
             <Slider
-              min={0}
+              min={2}
               max={100}
               step={1}
               value={this.state.rssTerms.karmaThreshold}

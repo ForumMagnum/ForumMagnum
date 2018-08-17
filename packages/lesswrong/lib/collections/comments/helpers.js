@@ -26,3 +26,8 @@ Comments.defaultToAlignment = (currentUser, post, comment) => {
     return (Users.canDo(currentUser, "comments.alignment.new") && post.af)
   }
 }
+
+Comments.getDefaultView = (post, currentUser) => {
+
+  return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
+}

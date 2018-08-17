@@ -14,7 +14,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['alignmentForum'],
       insertableBy: ['alignmentForum'],
-      control: 'AlignmentCheckbox'
+      control: 'checkbox',
+      group: formGroups.options,
     }
   },
 
@@ -61,9 +62,9 @@ Posts.addField([
       order: 10,
       type: Boolean,
       optional: true,
-      label: "Alignment Sticky",
+      label: "Sticky (Alignment)",
       defaultValue: false,
-      group: formGroups.admin,
+      group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['alignmentForumAdmins', 'admins'],
       insertableBy: ['alignmentForumAdmins', 'admins'],

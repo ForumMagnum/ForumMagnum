@@ -60,46 +60,48 @@ class NotificationsMenu extends Component {
         const MessagesNotificationTerms = {view: 'userNotifications', type: "newMessage"};
         return (
           <div className="notifications-menu">
-            <Drawer
-              open={this.props.open}
-              width={270}
-              containerStyle={{height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"}}
-              containerClassName="notifications-menu-container"
-              openSecondary={true}
-              onRequestChange={this.props.handleToggle}
-            >
-              <div className="notifications-menu-content">
-                <Tabs>
-                  <Tab
-                    icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>}
-                    style={tabLabelStyle}
-                    onActive={() => this.setState({notificationTerms: AllNotificationTerms})}
-                  />
-                  <Tab
-                    icon={<span title="New Posts"><PostsIcon style={iconStyle}/></span>}
-                    style={tabLabelStyle}
-                    onActive={() => this.setState({notificationTerms: PostsNotificationTerms})}
-                  />
-                  <Tab
-                    icon={<span title="New Comments"><CommentsIcon style={iconStyle} /></span>}
-                    style={tabLabelStyle}
-                    onActive={() => this.setState({notificationTerms: CommentsNotificationTerms})}
-                  />
-                  <Tab
-                    icon={<span title="New Messages">
-                      <Badge style={badgeContainerStyle} badgeContent={(newMessages && newMessages.length) || ""} primary={true} badgeStyle={badgeStyle}>
-                        <MessagesIcon style={iconStyle} />
-                      </Badge>
-                    </span>}
-                    style={tabLabelStyle}
-                    onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
-                  />
-                  <Tab className="notifications-menu-hidden-tab"/>
-                </Tabs>
-                <ClearIcon className="notifications-hide-button" onClick={this.props.handleToggle} style={cancelStyle} />
-                <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
-              </div>
-            </Drawer>
+            <Components.ErrorBoundary>
+              <Drawer
+                open={this.props.open}
+                width={270}
+                containerStyle={{height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"}}
+                containerClassName="notifications-menu-container"
+                openSecondary={true}
+                onRequestChange={this.props.handleToggle}
+              >
+                <div className="notifications-menu-content">
+                  <Tabs>
+                    <Tab
+                      icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>}
+                      style={tabLabelStyle}
+                      onActive={() => this.setState({notificationTerms: AllNotificationTerms})}
+                    />
+                    <Tab
+                      icon={<span title="New Posts"><PostsIcon style={iconStyle}/></span>}
+                      style={tabLabelStyle}
+                      onActive={() => this.setState({notificationTerms: PostsNotificationTerms})}
+                    />
+                    <Tab
+                      icon={<span title="New Comments"><CommentsIcon style={iconStyle} /></span>}
+                      style={tabLabelStyle}
+                      onActive={() => this.setState({notificationTerms: CommentsNotificationTerms})}
+                    />
+                    <Tab
+                      icon={<span title="New Messages">
+                        <Badge style={badgeContainerStyle} badgeContent={(newMessages && newMessages.length) || ""} primary={true} badgeStyle={badgeStyle}>
+                          <MessagesIcon style={iconStyle} />
+                        </Badge>
+                      </span>}
+                      style={tabLabelStyle}
+                      onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
+                    />
+                    <Tab className="notifications-menu-hidden-tab"/>
+                  </Tabs>
+                  <ClearIcon className="notifications-hide-button" onClick={this.props.handleToggle} style={cancelStyle} />
+                  <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
+                </div>
+              </Drawer>
+            </Components.ErrorBoundary>
           </div>
         )
       }

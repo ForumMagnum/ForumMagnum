@@ -39,7 +39,8 @@ $header-mobile: 43px !important;
 
 .accounts-ui{
   padding: $vmargin;
-  min-width: 240px;
+  width: 240px;
+  margin:auto;
   .buttons{
     .btn{
       display: block;
@@ -74,7 +75,6 @@ $header-mobile: 43px !important;
     display: none;
   }
   .ais-SearchBox__input {
-    padding-top: 3px;
     padding-right: 0px;
     padding-left: 48px;
     vertical-align: bottom;

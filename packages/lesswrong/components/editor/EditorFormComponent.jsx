@@ -2,6 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { withStyles } from '@material-ui/core/styles';
+import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+
+const styles = theme => ({
+  postEditor: {
+    minHeight:100,
+    ...editorStyles(theme, postBodyStyles)
+  },
+})
 
 class EditorFormComponent extends Component {
   constructor (props,context) {
@@ -18,11 +27,11 @@ class EditorFormComponent extends Component {
 
   render() {
     const AsyncEditor = this.state.editor;
-    const { currentUser, enableMarkDownEditor } = this.props
+    const { currentUser, enableMarkDownEditor, classes } = this.props
     return (
-      <div className="post-editor">
+      <div className={classes.postEditor}>
         { enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser) ?
-          <Components.MuiTextField
+          <Components.MuiInput
             {...this.props}
             name="body"
           />
@@ -35,4 +44,4 @@ class EditorFormComponent extends Component {
   }
 }
 
-registerComponent('EditorFormComponent', EditorFormComponent, withCurrentUser);
+registerComponent('EditorFormComponent', EditorFormComponent, withCurrentUser, withStyles(styles));

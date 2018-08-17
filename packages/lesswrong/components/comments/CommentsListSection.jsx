@@ -37,6 +37,9 @@ const styles = theme => ({
     padding: '0 10px',
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
+    "@media print": {
+      display: "none"
+    }
   }
 })
 
@@ -73,11 +76,11 @@ class CommentsListSection extends Component {
         {
           (commentCount < totalComments) ?
             <span>
-              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews postId={this.props.postId} />
+              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={this.props.post} />
               {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments()}> (show more) </a>}
             </span> :
             <span>
-              { totalComments } comments, sorted by <Components.CommentsViews postId={this.props.postId} />
+              { totalComments } comments, sorted by <Components.CommentsViews post={this.props.post} />
             </span>
         }
       </Typography>
