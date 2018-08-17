@@ -22,15 +22,18 @@ export const postBodyStyles = (theme, fontSize) => {
     },
     '& h1': {
       ...theme.typography.display3,
-      ...theme.typography.postStyle
+      ...theme.typography.postStyle,
+      ...theme.typography.headerStyle
     },
     '& h2': {
       ...theme.typography.display2,
-      ...theme.typography.postStyle
+      ...theme.typography.postStyle,
+      ...theme.typography.headerStyle
     },
     '& h3': {
       ...theme.typography.display2,
-      ...theme.typography.postStyle
+      ...theme.typography.postStyle,
+      ...theme.typography.headerStyle
     },
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       ...linkStyle({

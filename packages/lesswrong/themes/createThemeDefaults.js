@@ -52,9 +52,8 @@ const createLWTheme = (theme) => {
 
   const defaultLWTheme = {
     typography: {
-      postStyle: {
-        fontFamily: typography.fontFamily,
-      },
+      postStyle: {},
+      headerStyle: {},
       body1: body1FontSize,
       body2: {
         fontSize: '1.1rem',
