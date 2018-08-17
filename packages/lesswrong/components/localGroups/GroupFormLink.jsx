@@ -36,7 +36,7 @@ class GroupFormLink extends Component {
     )
     const labelText = this.props.label || (this.props.documentId ? "Edit group" : "Create new local group");
     return (<div>
-      <a className={this.props.className} onClick={this.handleOpenGroupForm}>{labelText}</a>
+      <Components.SectionTitleLink onClick={this.handleOpenGroupForm}>{labelText}</Components.SectionTitleLink>
       <Dialog
         contentStyle={{maxWidth:"400px"}}
         title={"Local Group Form"}

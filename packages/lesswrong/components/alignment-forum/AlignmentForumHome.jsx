@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import Users from "meteor/vulcan:users";
 
 const AlignmentForumHome = ({currentUser}) => {
-  let recentPostsTerms = {view: 'alignmentForumPosts', limit: 10}
+  let recentPostsTerms = {view: 'new', limit: 10, af: true, forum: true}
 
   const renderRecentPostsTitle = () => <div className="recent-posts-title-component">
     { currentUser && Users.canDo(currentUser, "posts.alignment.new") &&

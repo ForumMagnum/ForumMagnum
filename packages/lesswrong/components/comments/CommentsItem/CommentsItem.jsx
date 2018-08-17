@@ -1,5 +1,5 @@
 import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -15,6 +15,9 @@ import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
+import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
+import { withStyles } from '@material-ui/core/styles';
+import { commentBodyStyles } from '../../../themes/stylePiping'
 
 const moreActionsMenuStyle = {
   position: 'inherit',
@@ -33,8 +36,11 @@ const moreActionsMenuIconStyle = {
   color: 'rgba(0,0,0,0.5)',
 }
 
-class CommentsItem extends PureComponent {
+const styles = theme => ({
+  commentStyling: commentBodyStyles(theme)
+})
 
+class CommentsItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -42,7 +48,16 @@ class CommentsItem extends PureComponent {
       showEdit: false,
       showReport: false,
       showStats: false,
+      showParent: false
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if(!shallowEqual(this.state, nextState))
+      return true;
+    if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
+      return true;
+    return false;
   }
 
   showReport = (event) => {
@@ -88,6 +103,10 @@ class CommentsItem extends PureComponent {
     this.props.flash("Successfully deleted comment", "success");
   }
 
+  toggleShowParent = () => {
+    this.setState({showParent:!this.state.showParent})
+  }
+
   handleLinkClick = (event) => {
     const { comment, router } = this.props;
     event.preventDefault()
@@ -96,30 +115,78 @@ class CommentsItem extends PureComponent {
     return false;
   }
 
-  render() {
+  renderExcerpt() {
     const { comment } = this.props
+
+    if (comment.body) {
+      let commentExcerpt = comment.body.substring(0,300).split("\n\n");
+      const lastElement = commentExcerpt.slice(-1)[0];
+      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
+        (text, i) => <p key={ comment._id + i}>{text}</p>);
+      return <div className="recent-comments-item-text comments-item-text content-body">
+        {commentExcerpt}
+        <p>{lastElement + "..."}
+          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
+        </p>
+      </div>
+    } else {
+      return null
+    }
+  }
+
+  render() {
+    const { comment, currentUser, frontPage } = this.props
+    const level = comment.level || 1;
+    const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
+
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
         {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
+
     if (comment) {
       return (
         <div className={
           classNames(
             "comments-item",
+            "recent-comments-node",
             {deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic}
+            "public-deleted": comment.deletedPublic,
+            "showParent": this.state.showParent},
           )}
         >
+
+          { comment.parentCommentId && this.state.showParent && (
+            <div className="recent-comment-parent root">
+              <Components.RecentCommentsSingle
+                currentUser={currentUser}
+                documentId={comment.parentCommentId}
+                level={level + 1}
+                expanded={true}
+                key={comment.parentCommentId}
+              />
+            </div>
+          )}
+
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              <a className="comments-collapse" onClick={this.props.toggleCollapse}>[<span>{this.props.collapsed ? "+" : "-"}</span>]</a>
-              {!comment.deleted && <span>
-                <Components.UsersName user={comment.user}/>
-              </span>}
-              {comment.deleted && <span>[comment deleted] </span>}
+              {(comment.parentCommentId && (level === 1)) &&
+                <FontIcon
+                  onClick={this.toggleShowParent}
+                  className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+                >
+                  subdirectory_arrow_left
+                </FontIcon>}
+              { !frontPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+                [<span>{this.props.collapsed ? "+" : "-"}</span>]
+              </a>
+              }
+              { comment.deleted || comment.hideAuthor ?
+                (comment.hideAuthor ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
+                <span> <Components.UsersName user={comment.user}/> </span>
+              }
               <div className="comments-item-date">
                 { this.props.frontPage ?
                   <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
@@ -135,10 +202,10 @@ class CommentsItem extends PureComponent {
                 </a>
                 }
               </div>
-              <Components.CommentsVote comment={comment} />
+              <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { commentBody }
+            { (frontPage && !expanded) ? this.renderExcerpt() : commentBody}
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
@@ -149,13 +216,12 @@ class CommentsItem extends PureComponent {
   }
 
   renderCommentBottom = () => {
-    const comment = this.props.comment;
-    const currentUser = this.props.currentUser;
+    const { comment, currentUser } = this.props;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
     const showReplyButton = (
       !comment.isDeleted &&
-      !!this.props.currentUser &&
+      !!currentUser &&
       (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
       Users.isAllowedToComment(currentUser, this.props.post)
     )
@@ -179,7 +245,7 @@ class CommentsItem extends PureComponent {
   }
 
   renderMenu = () => {
-    const comment = this.props.comment;
+    const { comment, currentUser } = this.props;
     const post = this.props.post || comment.post;
     if (comment && post) {
       return (
@@ -199,7 +265,7 @@ class CommentsItem extends PureComponent {
               { this.renderStatsMenuItem() }
               { this.renderDeleteMenuItem() }
               { this.renderMoveToAlignmentMenuItem() }
-              { Users.canModeratePost(this.props.currentUser, post) &&
+              { Users.canModeratePost(currentUser, post) &&
                 post.user && Users.canModeratePost(post.user, post) &&
                 <MenuItem
                   className="comment-menu-item-ban-user-submenu"
@@ -209,12 +275,12 @@ class CommentsItem extends PureComponent {
                     <Components.BanUserFromPostMenuItem
                       comment={comment}
                       post={post}
-                      currentUser={this.props.currentUser}
+                      currentUser={currentUser}
                     />,
                     <Components.BanUserFromAllPostsMenuItem
                       comment={comment}
                       post={post}
-                      currentUser={this.props.currentUser}
+                      currentUser={currentUser}
                     />
                   ]}
                 />}
@@ -224,7 +290,7 @@ class CommentsItem extends PureComponent {
                 commentId={comment._id}
                 postId={comment.postId}
                 link={"/posts/" + comment.postId + "/a/" + comment._id}
-                userId={this.props.currentUser._id}
+                userId={currentUser._id}
                 open={true}
               />
             }
@@ -287,8 +353,8 @@ class CommentsItem extends PureComponent {
   }
 
   renderMoveToAlignmentMenuItem = () =>  {
-    const { currentUser, comment, post } = this.props
-    if (Users.canMakeAlignmentPost(currentUser, post)) {
+    const { currentUser, comment } = this.props
+    if (Users.canDo(currentUser, 'comments.alignment.move.all')) {
       return (
         <Components.MoveToAlignmentMenuItem
           currentUser={currentUser}
@@ -310,10 +376,10 @@ class CommentsItem extends PureComponent {
   }
 
   renderComment = () =>  {
-    const comment = this.props.comment;
+    const { comment, classes } = this.props;
     const htmlBody = {__html: comment.htmlBody};
     return (
-      <div className="comments-item-text content-body">
+      <div className={classes.commentStyling}>
         {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
         {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
       </div>
@@ -347,5 +413,5 @@ class CommentsItem extends PureComponent {
       />
 }
 
-registerComponent('CommentsItem', CommentsItem, withRouter, withMessages);
+registerComponent('CommentsItem', CommentsItem, withRouter, withMessages, withStyles(styles));
 export default CommentsItem;

@@ -13,16 +13,15 @@ Users.groups.alignmentVoters.can(alignmentVotersActions);
 const alignmentForumActions = [
   'votes.alignment',
   'posts.alignment.new',
-  'posts.alignment.edit',
-  'comments.alignment.new'
+  'posts.alignment.move',
+  'comments.alignment.new',
+  'comments.alignment.move.all'
 ]
 
 Users.groups.alignmentForum.can(alignmentForumActions);
 
 const alignmentForumAdminsActions = [
-  'votes.alignment',
-  'posts.alignment.edit.all',
-  'comments.alignment.edit.all'
+  'posts.alignment.move.all',
 ]
 
 Users.groups.alignmentForumAdmins.can(alignmentForumAdminsActions);

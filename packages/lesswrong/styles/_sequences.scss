@@ -102,6 +102,9 @@
       @include very-small-break() {
         width: 100%;
       }
+      @include section-header-break() {
+        height: auto,
+      }
       img {
         width: 203px;
         height: 80px;
@@ -479,6 +482,9 @@ svg.drag-handle {
     font-weight: bold;
     color: rgba(0,0,0,0.5);
   }
+}
+.sequences-navigation-bottom-clear {
+  clear:both;
 }
 
 .sequences-navigation-bottom-divider {
@@ -884,4 +890,8 @@ svg.drag-handle {
   @include max-small() {
     margin-top:40px;
   }
+}
+
+.sequences-core-reading {
+  margin-top:-20px;
 }

@@ -6,8 +6,8 @@ import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 
 function algoliaExport(Collection, indexName, selector = {}, updateFunction) {
-  const algoliaAppId = getSetting('algoliaAppId');
-  const algoliaAdminKey = getSetting('algoliaAdminKey');
+  const algoliaAppId = getSetting('algolia.appId');
+  const algoliaAdminKey = getSetting('algolia.adminKey');
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
   //eslint-disable-next-line no-console
   console.log(`Exporting ${indexName}...`);

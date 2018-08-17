@@ -1,4 +1,4 @@
-import { Accounts, Components, registerComponent, getSetting, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FontIcon from 'material-ui/FontIcon';
@@ -127,7 +127,6 @@ class SubscribeLinks extends Component {
   }
   
   sendVerificationEmail = () => {
-    console.log("Sending confirmation email");
     this.props.editMutation({
       documentId: this.props.currentUser._id,
       set: {whenConfirmationEmailSent:new Date()},

@@ -1,10 +1,7 @@
-.home {
-  margin-right: 90px; //eyeballed adjustment for properly balancing the page
-}
 
 .wrapper {
   @include section-header-break {
-    .home, .collections-page {
+    .collections-page {
       margin-right: 0px;
     }
     .section {
@@ -125,7 +122,6 @@
     padding-left: 0px;
     h2 {
       padding-top: 5px;
-      font-family: "warnock-pro";
       font-size: 28px;
       position: relative;
       display: inline;

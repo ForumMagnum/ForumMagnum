@@ -129,6 +129,7 @@ $medium-text: $dark-grey;
       margin-right: 5px;
       display: inline;
       color:rgba(0,0,0,.5);
+      @media print { display: none; }
     }
   }
   blockquote {
@@ -611,17 +612,14 @@ New CSS File
   }
 }
 
-.comment-editor .mui-text-field {
-  input, textarea {
-    margin-top:0 !important;
-    @include comment-style()
-    border-bottom:none !important;
-  }
-}
-
 .comment-editor-information {
   font-size:11px;
   float:right;
   margin-top:-25px;
   color:rgba(0,0,0,.5);
+}
+
+.recent-comment-parent.root {
+  // Sorry Oli
+  margin:-2px -13px -2px -12px;
 }

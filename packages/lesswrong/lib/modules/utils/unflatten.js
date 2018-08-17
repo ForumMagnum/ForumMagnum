@@ -1,15 +1,19 @@
-export const unflatten = function(array, options, parent, level=0, tree){
+// Given a set of comments with `parentCommentId`s in them, restructure as a
+// tree. Do this in a functional way: rather than edit a children property into
+// the existing comments (which requires cloning), like Vulcan-Starter does,
+// wrap the comments in an object with `item` and `children` fields. This
+// avoids cloning the comment object, which is good because the clone messes
+// with React's ability to detect whether updates are needed.
+export function unflattenComments(comments)
+{
+  const resultsRestructured = _.map(comments, comment => { return { item:comment, children:[] }});
+  return unflattenCommentsRec(resultsRestructured);
+}
 
-  const {
-    idProperty = '_id',
-    parentIdProperty = 'parentId',
-    childrenProperty = 'childrenResults'
-  } = options;
-
-  level++;
-
-  let ids = array.map((comment)=>comment._id)
-
+// Recursive portion of unflattenComments. Produced by incremental modification
+// of Vulcan's Utils.unflatten.
+function unflattenCommentsRec(array, parent, tree)
+{
   tree = typeof tree !== "undefined" ? tree : [];
 
   let children = [];
@@ -17,11 +21,11 @@ export const unflatten = function(array, options, parent, level=0, tree){
   if (typeof parent === "undefined") {
     // if there is no parent, we're at the root level
     // so we return all root nodes (i.e. nodes with no parent)
-    children = _.filter(array, node => !node[parentIdProperty] || !ids.includes(node[parentIdProperty]));
+    children = _.filter(array, node => !node.item.parentCommentId);
   } else {
     // if there *is* a parent, we return all its child nodes
     // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = _.filter(array, node => node[parentIdProperty] === parent[idProperty]);
+    children = _.filter(array, node => node.item.parentCommentId === parent.item._id);
   }
 
   // if we found children, we keep on iterating
@@ -32,15 +36,14 @@ export const unflatten = function(array, options, parent, level=0, tree){
       tree = children;
     } else {
       // else, we add the children to the parent as the "childrenResults" property
-      parent[childrenProperty] = children;
+      parent.children = children;
     }
 
     // we call the function on each child
     children.forEach(child => {
-      child.level = level;
-      unflatten(array, options, child, level);
+      unflattenCommentsRec(array, child);
     });
   }
 
   return tree;
-};
+}

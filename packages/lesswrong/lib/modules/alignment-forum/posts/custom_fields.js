@@ -1,4 +1,5 @@
 import { Posts } from "meteor/example-forum";
+import { formGroups } from "../../../collections/posts/custom_fields.js"
 
 Posts.addField([
   // This post will appear in alignment forum view
@@ -13,7 +14,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['alignmentForum'],
       insertableBy: ['alignmentForum'],
-      control: 'AlignmentCheckbox'
+      control: 'checkbox',
+      group: formGroups.options,
     }
   },
 
@@ -50,6 +52,32 @@ Posts.addField([
       viewableBy: ['guests'],
       onInsert: () => {
         return new Date();
+      }
+    }
+  },
+
+  {
+    fieldName: 'afSticky',
+    fieldSchema: {
+      order: 10,
+      type: Boolean,
+      optional: true,
+      label: "Sticky (Alignment)",
+      defaultValue: false,
+      group: formGroups.adminOptions,
+      viewableBy: ['guests'],
+      editableBy: ['alignmentForumAdmins', 'admins'],
+      insertableBy: ['alignmentForumAdmins', 'admins'],
+      control: 'checkbox',
+      onInsert: (post) => {
+        if(!post.afSticky) {
+          return false;
+        }
+      },
+      onEdit: (modifier, post) => {
+        if (!(modifier.$set && modifier.$set.afSticky)) {
+          return false;
+        }
       }
     }
   },

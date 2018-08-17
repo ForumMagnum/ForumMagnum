@@ -37,16 +37,6 @@ class SunshineNewUsersItem extends Component {
 
   render () {
     const { user } = this.props
-
-    const {
-      bigUpvote = [],
-      smallUpvote = [],
-      bigDownvote = [],
-      smallDownvote = []
-    } = _.groupBy( user.allVotes, (vote) => { return vote.voteType})
-
-    const bigUpvotesOther = (bigUpvote.length) - (user.postCount || 0) - (user.commentCount || 0)
-
     return (
       <div className="sunshine-sidebar-item new-user">
         <Link to={Users.getProfileUrl(user)}
@@ -60,10 +50,10 @@ class SunshineNewUsersItem extends Component {
           <div>Posts: { user.postCount || 0 }</div>
           <div>Comments: { user.commentCount || 0 }</div>
           <hr />
-          <div>Big Upvotes: { bigUpvotesOther } { bigUpvote.length ? <span>({ bigUpvote.length } total)</span>  : null}</div>
-          <div>Upvotes: { smallUpvote.length }</div>
-          <div>Big Downvotes: { bigDownvote.length }</div>
-          <div>Downvotes: { smallDownvote.length }</div>
+          <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+          <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
+          <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+          <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
 
         </div>
         <div className="sunshine-sidebar-item-meta">
@@ -75,9 +65,6 @@ class SunshineNewUsersItem extends Component {
           </span>
           <span className="created-at">
             { moment(new Date(user.createdAt)).fromNow() }
-          </span>
-          <span className="votes">
-            { user.allVotes.length } votes
           </span>
         </div>
         <div className="sunshine-sidebar-posts-actions new-user">

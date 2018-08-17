@@ -70,6 +70,7 @@ extendFragment('UsersCurrent', `
   moderationStyle
   markDownCommentEditor
   markDownPostEditor
+  commentSorting
   location
   googleLocation
   mongoLocation
@@ -103,6 +104,7 @@ registerFragment(`
     postedAt
     createdAt
     sticky
+    metaSticky
     status
     frontpageDate
     meta
@@ -161,9 +163,8 @@ registerFragment(`
     afBaseScore
     afCommentCount
     afLastCommentedAt
-    allVotes {
-      ...VoteMinimumInfo
-    }
+    afSticky
+    voteCount
   }
 `);
 
@@ -190,12 +191,14 @@ registerFragment(`
     htmlBody
     content
     draft
+    commentSortOrder
     canonicalPrevPostSlug
     canonicalNextPostSlug
     canonicalCollectionSlug
     canonicalSequenceId
     canonicalBookId
     bannedUserIds
+    hideAuthor
     user {
       groups
       moderationStyle
@@ -326,6 +329,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    hideAuthor
     user {
       ...UsersMinimumInfo
     }
@@ -335,9 +339,7 @@ registerFragment(`
     }
     baseScore
     score
-    allVotes {
-      ...VoteMinimumInfo
-    }
+    voteCount
     af
     afBaseScore
     needsReview
@@ -370,11 +372,11 @@ registerFragment(`
     email
     commentCount
     postCount
-    allVotes {
-      _id
-      voteType
-      documentId
-    }
+    voteCount
+    smallUpvoteCount
+    bigUpvoteCount
+    smallDownvoteCount
+    bigDownvoteCount
   }
 `);
 

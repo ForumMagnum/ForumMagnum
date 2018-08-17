@@ -1,21 +1,27 @@
 import Users from "meteor/vulcan:users";
+import { getSetting } from "meteor/vulcan:core"
 
-const moderationGroup = {
-  order:60,
-  name: "moderation",
-  label: "Moderation",
+const formGroups = {
+  moderationGroup: {
+    order:60,
+    name: "moderation",
+    label: "Moderation",
+  },
+  banUser: {
+    order:50,
+    name: "banUser",
+    label: "Ban & Purge User",
+  },
+  notifications: {
+    order: 10,
+    label: "Notifications"
+  }
 }
 
 const postCounts = {
   order: 65,
   name: "postCounts",
   label: "Post Counts",
-}
-
-const modHammersGroup = {
-  oder: 75,
-  name: "modHammers",
-  label: "Modhammers",
 }
 
 const notificationsGroup = {
@@ -83,6 +89,35 @@ Users.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
+    }
+  },
+
+  {
+    fieldName: 'commentSorting',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      order: 65,
+      control: "select",
+      form: {
+        // TODO – maybe factor out??
+        options: function () { // options for the select form control
+          let commentViews = [
+            {value:'postCommentsTop', label: 'magical algorithm'},
+            {value:'postCommentsNew', label: 'most recent'},
+            {value:'postCommentsOld', label: 'oldest'},
+          ];
+          if (getSetting('AlignmentForum', false)) {
+            return commentViews.concat([
+              {value:'postLWComments', label: 'magical algorithm (include LW)'}
+            ])
+          }
+          return commentViews
+        }
+      },
     }
   },
 
@@ -178,12 +213,19 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      control: "textarea",
+      control: "MuiTextField",
       insertableBy: ['members'],
       editableBy: ['members'],
       viewableBy: ['guests'],
       order: 40,
-      searchable: true
+      searchable: true,
+      form: {
+        hintText:"Bio",
+        rows:4,
+        multiLine:true,
+        fullWidth:true,
+        disableUnderline:true
+      },
     }
   },
 
@@ -234,7 +276,7 @@ Users.addField([
       type: String,
       optional: true,
       control: "select",
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       label: "Style",
       viewableBy: ['guests'],
       editableBy: ['trustLevel1', 'admins'],
@@ -259,7 +301,7 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       label: "Special Guidelines",
       placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
       viewableBy: ['guests'],
@@ -276,7 +318,7 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
       viewableBy: ['guests'],
       editableBy: ['trustLevel1'],
@@ -302,7 +344,7 @@ Users.addField([
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
-      group: moderationGroup,
+      group: formGroups.moderationGroup,
       viewableBy: ['members'],
       editableBy: ['trustLevel1'],
       insertableBy: ['trustLevel1'],
@@ -395,11 +437,11 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
+      group: formGroups.banUser,
       label: 'Set all future votes of this user to have zero weight'
     }
   },
@@ -413,11 +455,11 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
+      group: formGroups.banUser,
       label: 'Nullify all past votes'
     }
   },
@@ -431,11 +473,11 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'checkbox',
+      group: formGroups.banUser,
       label: 'Delete all user content'
     }
   },
@@ -449,12 +491,12 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      group: modHammersGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['admins'],
       control: 'datetime',
-      label: 'Ban this user until'
+      label: 'Ban user until',
+      group: formGroups.banUser,
     }
   },
 
@@ -467,6 +509,7 @@ Users.addField([
     fieldSchema: {
       type: Array,
       optional: true,
+      group: formGroups.banUser,
       viewableBy: ['sunshineRegiment', 'admins'],
       resolveAs: {
         fieldName: 'IPs',
@@ -588,8 +631,6 @@ Users.addField([
       optional: true,
       group: postCounts,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -605,8 +646,6 @@ Users.addField([
       optional: true,
       group: postCounts,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -622,8 +661,6 @@ Users.addField([
       optional: true,
       group: postCounts,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -723,6 +760,52 @@ Users.addField([
       optional: true,
       label: "Alignment Base Score",
       defaultValue: false,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'voteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      label: "Small Upvote Count",
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'smallUpvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'smallDownvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'bigUpvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+
+  {
+    fieldName: 'bigDownvoteCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
       viewableBy: ['guests'],
     }
   },

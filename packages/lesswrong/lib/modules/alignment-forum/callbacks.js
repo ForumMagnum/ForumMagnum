@@ -9,17 +9,23 @@ export const recalculateAFBaseScore = async (document) => {
   return votes ? votes.reduce((sum, vote) => { return vote.afPower + sum}, 0) : 0
 }
 
-async function updateAlignmentKarmaServer (newDocument, vote, userMultiplier) {
+async function updateAlignmentKarmaServer (newDocument, vote) {
   // Update a
   const voter = Users.findOne(vote.userId)
+
   if (
     Users.canDo(voter, "votes.alignment") &&
     newDocument.af
   ) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
-    Votes.update({_id:vote._id}, {$set:{afPower: votePower}})
+    let newAFBaseScore = 0
 
-    const newAFBaseScore = await recalculateAFBaseScore(newDocument)
+    if (vote._id) {
+      Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
+      newAFBaseScore = await recalculateAFBaseScore(newDocument)
+    } else {
+      newAFBaseScore = await recalculateAFBaseScore(newDocument) + votePower
+    }
 
     const collection = getCollection(vote.collectionName)
 
@@ -59,7 +65,7 @@ async function updateAlignmentUserServer (newDocument, vote, multiplier) {
     if (newAfKarma > 0) {
       Users.update({_id:newDocument.userId}, {
         $set: {afKarma: newAfKarma },
-        $push: {groups: 'alignmentVoters'}
+        $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
       Users.update({_id:newDocument.userId}, {
@@ -92,7 +98,7 @@ function updateAlignmentKarmaClientCallback (document, collection, voter, voteTy
   if (document.af && Users.canDo(voter, "votes.alignment")) {
     return {
       ...document,
-      afBaseScore: (document.afBaseScore || 0) + votePower,
+      afBaseScore: (document.afBaseScore || 0) + (votePower || 0),
     };
   } else {
     return document
@@ -112,10 +118,16 @@ addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);
 
 function cancelAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
-  return {
-    ...document,
-    afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
-  };
+
+  if (document.af && Users.canDo(voter, "votes.alignment")) {
+    return {
+      ...document,
+      afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
+    };
+  } else {
+    return document
+  }
+
 }
 
 addCallback("votes.cancel.client", cancelAlignmentKarmaClientCallback);
