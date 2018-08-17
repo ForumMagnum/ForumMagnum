@@ -7,7 +7,7 @@ import moment from 'moment';
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'frontpage', 'userId', 'meta', 'groupId');
+  const validFields = _.pick(terms, 'frontpage', 'userId', 'meta', 'groupId', 'af');
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
@@ -25,6 +25,7 @@ Posts.addDefaultView(terms => {
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
+
   return params;
 })
 
@@ -35,6 +36,7 @@ Posts.addDefaultView(terms => {
 Posts.addView("userPosts", terms => ({
   selector: {
     userId: terms.userId,
+    hideAuthor: {$ne: true},
   },
   options: {
     limit: 5,
@@ -44,21 +46,37 @@ Posts.addView("userPosts", terms => ({
   }
 }));
 
-/**
- * @summary Top view
- */
-Posts.addView("top", terms => ({
-  options: {
-    sort: {sticky: -1, score: -1}
+const setStickies = (sortOptions, terms) => {
+  if (terms.af && terms.forum) {
+    return { afSticky: -1, ...sortOptions}
+  } else if (terms.meta && terms.forum) {
+    return { metaSticky: -1, ...sortOptions}
   }
-}));
+  return sortOptions
+}
+
+Posts.addView("magicalSorting", terms => ({
+  options: {sort: setStickies({score: -1}, terms)}
+}))
+
+Posts.addView("top", terms => ({
+  options: {sort: setStickies({baseScore: -1}, terms)}
+}))
+
+Posts.addView("new", terms => ({
+  options: {sort: setStickies({postedAt: -1}, terms)}
+}))
+
+Posts.addView("old", terms => ({
+  options: {sort: setStickies({postedAt: 1}, terms)}
+}))
 
 Posts.addView("daily", terms => ({
   selector: {
     baseScore: {$gt: terms.karmaThreshold || -100}
   },
   options: {
-    sort: {sticky: -1, score: -1}
+    sort: {score: -1}
   }
 }));
 
@@ -102,7 +120,6 @@ Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
     meta: null,
-    $or: [{meta: false}, {sticky:false}],
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -112,23 +129,12 @@ Posts.addView("community", terms => ({
 Posts.addView("community-rss", terms => ({
   selector: {
     frontpageDate: null,
+    maxBaseScore: {$gt: 2}
   },
   options: {
     sort: {postedAt: -1}
   }
 }));
-
-Posts.addView("meta", terms => ({
-  selector: {
-    meta: true,
-  },
-  options: {
-    sort: {
-      sticky: -1,
-      score: -1,
-    }
-  }
-}))
 
 Posts.addView("meta-rss", terms => ({
   selector: {
@@ -141,47 +147,8 @@ Posts.addView("meta-rss", terms => ({
   }
 }))
 
-/**
- * @summary New view
- */
-Posts.addView("new", terms => ({
-  options: {
-    sort: {sticky: -1, postedAt: -1}
-  }
-}));
+Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
-/**
- * @summary Best view
- */
-Posts.addView("best", terms => ({
-  options: {
-    sort: {sticky: -1, baseScore: -1},
-  }
-}));
-
-/**
- * @summary Pending view
- */
-Posts.addView("pending", terms => ({
-  selector: {
-    status: Posts.config.STATUS_PENDING
-  },
-  options: {
-    sort: {createdAt: -1}
-  }
-}));
-
-/**
- * @summary Rejected view
- */
-Posts.addView("rejected", terms => ({
-  selector: {
-    status: Posts.config.STATUS_REJECTED
-  },
-  options: {
-    sort: {createdAt: -1}
-  }
-}));
 
 /**
  * @summary Scheduled view
@@ -343,6 +310,22 @@ Posts.addView("events", function (terms) {
   }
 })
 
+Posts.addView("pastEvents", function (terms) {
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
+    },
+    options: {
+      sort: {
+        baseScore: -1,
+        startTime: -1,
+      }
+    }
+  }
+})
+
 Posts.addView("groupPosts", function (terms) {
   return {
     selector: {
@@ -413,15 +396,6 @@ Posts.addView("sunshineCuratedSuggestions", function () {
     }
   }
 })
-
-Posts.addView("alignmentForumPosts", terms => ({
-  selector: {
-    af: true,
-  },
-  options: {
-    sort: {sticky: -1, score: -1}
-  }
-}));
 
 Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {

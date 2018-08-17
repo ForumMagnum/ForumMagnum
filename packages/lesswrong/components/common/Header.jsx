@@ -16,6 +16,19 @@ import Hidden from '@material-ui/core/Hidden';
 import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
+import grey from '@material-ui/core/colors/grey';
+
+const getTextColor = theme => {
+  if (theme.palette.headerType === 'primary') {
+    return theme.palette.primary.contrastText
+  } else if (theme.palette.headerType === 'secondary') {
+    return theme.palette.secondary.contrastText
+  } else if (theme.palette.type === "dark") {
+    return theme.palette.getContrastText(grey[900])
+  } else {
+    return theme.palette.getContrastText(grey[100])
+  }
+}
 
 const styles = theme => ({
   appBar: {
@@ -23,15 +36,18 @@ const styles = theme => ({
   },
   root: {
     flexGrow: 1,
+    "@media print": {
+      display: "none"
+    }
   },
   title: {
     flex: 1,
   },
   titleLink: {
-    verticalAlign: 'text-bottom',
+    color: getTextColor(theme),
+    verticalAlign: 'middle',
     fontSize: 19,
     marginTop: 1,
-    color: theme.palette.primary.contrastText,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
@@ -41,7 +57,7 @@ const styles = theme => ({
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
-    borderLeft: `1px solid ${theme.palette.primary.contrastText}`,
+    borderLeft: `1px solid ${grey[400]}`,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -49,6 +65,8 @@ const styles = theme => ({
   },
   negativeRightMargin: {
     marginRight: -theme.spacing.unit,
+    display: "flex",
+    alignItems: "center"
   }
 });
 
@@ -83,41 +101,47 @@ class Header extends Component {
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     return (
-      <div className={classes.root}>
-        <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
-          <AppBar className={classes.appBar} position="static">
-            <Toolbar>
-              <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
-                <MenuIcon />
-              </IconButton>
-              <Typography className={classes.title} variant="title" color="textSecondary">
-                <Hidden smDown implementation="css">
-                  <Link to="/" className={classes.titleLink}>
-                    {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
-                  </Link>
-                  {subtitleLink && <span className={classes.subtitle}>
-                    <Link to={subtitleLink} className={classes.titleLink}>
-                      {subtitleText}
+      <Components.ErrorBoundary>
+        <div className={classes.root}>
+          <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
+            <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
+              <Toolbar>
+                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
+                  <MenuIcon />
+                </IconButton>
+                <Typography className={classes.title} variant="title" color="textSecondary">
+                  <Hidden smDown implementation="css">
+                    <Link to="/" className={classes.titleLink}>
+                      {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                     </Link>
-                  </span>}
-                </Hidden>
-                <Hidden mdUp implementation="css">
-                  <Link to="/" className={classes.titleLink}>
-                    {getSetting('forumSettings.shortForumTitle', 'LW')}
-                  </Link>
-                </Hidden>
-              </Typography>
-              <div className={classes.negativeRightMargin}>
-                <NoSSR><Components.SearchBar color={theme.palette.primary.contrastText} /></NoSSR>
-                {currentUser ? <Components.UsersMenu color={theme.palette.primary.contrastText} /> : <Components.UsersAccountMenu color={theme.palette.primary.contrastText} />}
-                {currentUser && <Components.NotificationsMenuButton color={theme.palette.primary.contrastText} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
-              </div>
-            </Toolbar>
-          </AppBar>
-          <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
-        </Headroom>
-        <Components.NotificationsMenu open={notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
-      </div>
+                    {subtitleLink && <span className={classes.subtitle}>
+                      <Link to={subtitleLink} className={classes.titleLink}>
+                        {subtitleText}
+                      </Link>
+                    </span>}
+                  </Hidden>
+                  <Hidden mdUp implementation="css">
+                    <Link to="/" className={classes.titleLink}>
+                      {getSetting('forumSettings.shortForumTitle', 'LW')}
+                    </Link>
+                  </Hidden>
+                </Typography>
+                <div className={classes.negativeRightMargin}>
+                  <NoSSR><Components.ErrorBoundary>
+                    <Components.SearchBar color={getTextColor(theme)} />
+                  </Components.ErrorBoundary></NoSSR>
+                  {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
+                  {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                </div>
+              </Toolbar>
+            </AppBar>
+            <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
+          </Headroom>
+          <Components.ErrorBoundary>
+            <Components.NotificationsMenu open={notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
+          </Components.ErrorBoundary>
+        </div>
+      </Components.ErrorBoundary>
     )
   }
 }
@@ -138,4 +162,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles), withTheme());
+registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());

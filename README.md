@@ -37,19 +37,27 @@ I recommend starting by creating a folder to store all of them:
 
 Clone the three repos:
 
-    git clone https://github.com/LessWrong/Lesswrong2
+    git clone https://github.com/LessWrong2/Lesswrong2
     git clone https://github.com/LessWrong2/Vulcan-Starter.git
     git clone https://github.com/LessWrong2/Vulcan.git
 
-You'll mostly be working in Lesswrong2. To ensure that it has access to the code in the other repos,
+You'll mostly be working in Lesswrong2.
 
-Install node dependencies:
+Install node dependencies in each of the repo folders:
 
     cd Lesswrong2
     npm install
+    
+    cd ../Vulcan
+    npm install
+
+    cd ../Vulcan-Starter
+    npm install
+
 
 Start the development server:
 
+    cd ../Lesswrong2
     npm start
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
@@ -162,3 +170,5 @@ This includes new collections, components, and additional functions/attributes/e
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
 * If you fix a bug, **write a test for it**.
+* For debugging server-side code, start the server with `npm run debug` instead of `npm run start`. Then open Chrome to chrome://inspect, and click "Open dedicated DevTools for Node". The server will have stopped at an instance of the `debugger` keyword during startup.
+* When server-side debugging, everything works except for setting breakpoints in the GUI, which is broken by a Chrome bug: https://bugs.chromium.org/p/chromium/issues/detail?id=844070 . Until they fix it, you can work around this by installing NiM, https://chrome.google.com/webstore/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj, in which breakpoints work but profiling doesn't.

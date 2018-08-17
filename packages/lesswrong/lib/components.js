@@ -35,15 +35,16 @@ import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/Home.jsx';
 import '../components/common/Meta.jsx';
-import '../components/common/AllPosts.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
+import '../components/common/SectionTitleLink.jsx';
 import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/Tooltip.jsx';
+import '../components/common/ErrorBoundary.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/RSSOutLinkbuilder.jsx';
@@ -69,6 +70,7 @@ import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsDaily.jsx';
+import '../components/posts/EventsDaily.jsx';
 import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
@@ -128,6 +130,7 @@ import '../components/search/SequencesSearchHit.jsx';
 import '../components/search/SequencesSearchAutoComplete.jsx';
 import '../components/search/UsersSearchAutoComplete.jsx';
 import '../components/search/UsersAutoCompleteHit.jsx';
+import '../components/search/UsersSearchInput.jsx';
 
 import '../components/admin/AdminDashboard.jsx';
 
@@ -192,10 +195,17 @@ import '../components/form-components/FormSubmit.jsx';
 import '../components/form-components/SingleUsersItem.jsx';
 import '../components/form-components/SingleUsersItemWrapper.jsx';
 import '../components/form-components/UsersListEditor.jsx';
-import '../components/form-components/MuiTextField.jsx';
+import '../components/form-components/MuiInput.jsx';
 import '../components/form-components/LocationFormComponent.jsx';
+import '../components/form-components/MuiInput.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
+import '../components/form-components/FormComponentCheckbox.jsx';
+import '../components/form-components/FormComponentDefault.jsx';
+import '../components/form-components/FormComponentSelect.jsx';
+import '../components/form-components/FormComponentDate.jsx';
+import '../components/form-components/FormComponentDateTime.jsx';
+
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';

@@ -19,9 +19,8 @@ import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
-
+import { withTheme } from '@material-ui/core/styles';
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
-import { codeStyle } from './codeStyle.js'
 
 import {
   createBlockStyleButton,
@@ -49,9 +48,9 @@ const HeadlineTwoButton = createBlockStyleButton({
     </svg>),
 });
 
-const styleMap = {
-  ...codeStyle
-}
+const styleMap = theme => ({
+  'CODE': theme.typography.code
+})
 
 import { htmlToDraft } from '../../lib/editor/utils.js'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
@@ -233,10 +232,12 @@ class AsyncEditorFormComponent extends Component {
   }
 
   render() {
+    const { theme } = this.props
+
     const InlineToolbar = this.plugins[0].InlineToolbar;
     const AlignmentTool = this.plugins[1].AlignmentTool;
     const contentState = this.state.editorState.getCurrentContent();
-    const className = classNames("editor", "content-body", {"content-editor-is-empty": !contentState.hasText()})
+    const className = classNames({"content-editor-is-empty": !contentState.hasText()})
 
     return (
       <div>
@@ -247,7 +248,7 @@ class AsyncEditorFormComponent extends Component {
             spellCheck={true}
             plugins={this.plugins}
             keyBindingFn={myKeyBindingFn}
-            customStyleMap={styleMap}
+            customStyleMap={styleMap(theme)}
             ref={(element) => { this.editor = element; }}
           />
         </div>
@@ -264,4 +265,4 @@ AsyncEditorFormComponent.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-export default AsyncEditorFormComponent;
+export default withTheme()(AsyncEditorFormComponent);
