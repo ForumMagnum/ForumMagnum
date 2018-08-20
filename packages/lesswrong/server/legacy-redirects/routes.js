@@ -2,6 +2,25 @@ import { Picker } from 'meteor/meteorhacks:picker';
 import { Posts, Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
+// All legacy URLs either do not contain /lw/, start with /lw/, or start with
+//   /r/[section]/lw/, where section is one of {all,discussion,lesswrong}
+
+function findPostByLegacyId(legacyId) {
+  const parsedId = parseInt(legacyId, 36);
+  return Posts.findOne({"legacyId": parsedId.toString()});
+}
+
+function findCommentByLegacyId(legacyId) {
+  const parsedId = parseInt(legacyId, 36);
+  return Comments.findOne({"legacyId": parsedId.toString()});
+}
+
+function makeRedirect(res, destination) {
+  res.writeHead(301, {"Location": destination});
+  res.end();
+}
+
+
 //Route for redirecting LessWrong legacy posts
 // addRoute({ name: 'lessWrongLegacy', path: 'lw/:id/:slug/:commentId', componentName: 'LegacyPostRedirect'});
 
@@ -11,10 +30,9 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug?', (params, req, res, next) =>
   if(params.id){
 
     try {
-      const post = Posts.findOne({"legacyId": parseInt(params.id, 36).toString()});
+      const post = findPostByLegacyId(params.id);
       if (post) {
-        res.writeHead(301, {'Location': Posts.getPageUrl(post)});
-        res.end();
+        return makeRedirect(res, Posts.getPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -39,14 +57,12 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res
   if(params.id){
 
     try {
-      const post = Posts.findOne({"legacyId": parseInt(params.id, 36).toString()});
-      const comment = Comments.findOne({"legacyId": parseInt(params.commentId, 36).toString()});
+      const post = findPostByLegacyId(params.id);
+      const comment = findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        res.writeHead(301, {'Location': Comments.getPageUrl(comment)});
-        res.end();
+        return makeRedirect(res, Comments.getPageUrl(comment));
       } else if (post) {
-        res.writeHead(301, {'Location': Posts.getPageUrl(post)});
-        res.end();
+        return makeRedirect(res, Posts.getPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         res.statusCode = 404
@@ -71,8 +87,7 @@ Picker.route('/user/:slug/:category?/:filter?', (params, req, res, next) => {
     try {
       const user = Users.findOne({$or: [{slug: params.slug}, {username: params.slug}]});
       if (user) {
-        res.writeHead(301, {'Location': Users.getProfileUrl(user)});
-        res.end();
+        return makeRedirect(res, Users.getProfileUrl(user));
       } else {
         //eslint-disable-next-line no-console
         console.log('// Missing legacy user', params);
@@ -98,8 +113,7 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
     try {
       const comment = Comments.findOne({_id: params.commentId});
       if (comment) {
-        res.writeHead(301, {'Location': Comments.getPageUrl(comment)});
-        res.end();
+        return makeRedirect(res, Comments.getPageUrl(comment));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -124,13 +138,8 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
 Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res, next) => {
   if(params.imageName){
     try {
-      res.writeHead(
-        301,
-        {'Location':
-          `https://raw.githubusercontent.com/tricycle/lesswrong/master/r2/r2/public/static/imported/${params.year}/${params.month}/${params.day}/${params.imageName}`
-        }
-      )
-      res.end()
+      return makeRedirect(res, 
+        `https://raw.githubusercontent.com/tricycle/lesswrong/master/r2/r2/public/static/imported/${params.year}/${params.month}/${params.day}/${params.imageName}`);
     } catch (error) {
       //eslint-disable-next-line no-console
       console.error('// Legacy Comment error', error, params)
@@ -150,14 +159,12 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
 Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
   if(params.id){
     try {
-      const post = Posts.findOne({"legacyId": parseInt(params.id, 36).toString()});
-      const comment = Comments.findOne({"legacyId": parseInt(params.commentId, 36).toString()});
+      const post = findPostByLegacyId(params.id);
+      const comment = findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        res.writeHead(301, {'Location': Comments.getRSSUrl(comment)});
-        res.end();
+        return makeRedirect(res, Comments.getRSSUrl(comment));
       } else if (post) {
-        res.writeHead(301, {'Location': Posts.getPageUrl(post)});
-        res.end();
+        return makeRedirect(res, Posts.getPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         res.statusCode = 404
@@ -177,29 +184,24 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req
 
 // Route for old general RSS (all posts)
 Picker.route('/.rss', (params, req, res, next) => {
-  res.writeHead(301, {'Location': '/feed.xml'})
-  res.end();
+  return makeRedirect(res, "/feed.xml");
 });
 
 // Route for old general RSS (all comments)
 Picker.route('comments/.rss', (params, req, res, next) => {
-  res.writeHead(301, {'Location': '/feed.xml?type=comments'})
-  res.end();
+  return makeRedirect(res, '/feed.xml?type=comments');
 });
 
 Picker.route('/rss/comments.xml', (params, req, res, next) => {
-  res.writeHead(301, {'Location': '/feed.xml?type=comments'})
-  res.end();
+  return makeRedirect(res, '/feed.xml?type=comments');
 });
 
 // Route for old general RSS (all posts)
 Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
-  res.writeHead(301, {'Location': '/feed.xml'})
-  res.end();
+  return makeRedirect(res, '/feed.xml');
 });
 
 // Route for old promoted RSS (promoted posts)
 Picker.route('/promoted/.rss', (params, req, res, next) => {
-  res.writeHead(301, {'Location': '/feed.xml?view=curated-rss'})
-  res.end();
+  return makeRedirect(res, '/feed.xml?view=curated-rss');
 });
