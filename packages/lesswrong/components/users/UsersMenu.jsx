@@ -12,6 +12,15 @@ import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Button from '@material-ui/core/Button';
 
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  userButton: {
+    textTransform: 'none',
+    fontSize: '16px',
+  }
+})
+
 class UsersMenu extends PureComponent {
   constructor(props) {
     super(props);
@@ -35,18 +44,12 @@ class UsersMenu extends PureComponent {
   }
 
   render() {
-    let { currentUser, client } = this.props;
-
-    const labelStyle = {
-      textTransform: 'none',
-      fontSize: '16px',
-      color: this.props.color
-    }
+    let { currentUser, client, classes, color } = this.props;
 
     return (
       <div className="users-menu">
         <Button onClick={this.handleClick}>
-          <span style={ labelStyle }>
+          <span className={classes.userButton} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
           </span>
         </Button>
@@ -82,4 +85,4 @@ UsersMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersMenu', UsersMenu, withCurrentUser, withApollo);
+registerComponent('UsersMenu', UsersMenu, withCurrentUser, withApollo, withStyles(styles));
