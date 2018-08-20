@@ -187,6 +187,11 @@ Picker.route('comments/.rss', (params, req, res, next) => {
   res.end();
 });
 
+Picker.route('/rss/comments.xml', (params, req, res, next) => {
+  res.writeHead(301, {'Location': '/feed.xml?type=comments'})
+  res.end();
+});
+
 // Route for old general RSS (all posts)
 Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
   res.writeHead(301, {'Location': '/feed.xml'})
