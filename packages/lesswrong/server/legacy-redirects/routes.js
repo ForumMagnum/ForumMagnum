@@ -4,6 +4,7 @@ import Users from 'meteor/vulcan:users';
 
 // All legacy URLs either do not contain /lw/, start with /lw/, or start with
 //   /r/[section]/lw/, where section is one of {all,discussion,lesswrong}
+const subredditPrefixRoute = "/:section?/:subreddit?";
 
 function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
@@ -26,7 +27,7 @@ function makeRedirect(res, destination) {
 
 
 // Route for old post links
-Picker.route('/:section?/:subreddit?/lw/:id/:slug?', (params, req, res, next) => {
+Picker.route(subredditPrefixRoute+'/lw/:id/:slug?', (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -53,7 +54,7 @@ Picker.route('/:section?/:subreddit?/lw/:id/:slug?', (params, req, res, next) =>
 });
 
 // Route for old comment links
-Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId', (params, req, res, next) => {
+Picker.route(subredditPrefixRoute+'/lw/:id/:slug/:commentId', (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -156,7 +157,7 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
 // Legacy RSS Routes
 
 // Route for old comment rss feeds
-Picker.route('/:section?/:subreddit?/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
+Picker.route(subredditPrefixRoute+'/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
   if(params.id){
     try {
       const post = findPostByLegacyId(params.id);
