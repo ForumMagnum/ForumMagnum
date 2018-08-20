@@ -232,9 +232,6 @@
     &:hover {
       background-color: rgba(0, 0, 0, 0.03) !important;
     }
-    @include max-tiny() {
-      padding:11px 10px 4px 2px;
-    }
   }
   &.show-highlight:hover {
     background-color:white !important;
