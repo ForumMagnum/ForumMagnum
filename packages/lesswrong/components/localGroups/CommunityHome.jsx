@@ -31,18 +31,17 @@ class CommunityHome extends Component {
         currentUserLocation: {lat: currentUserLat, lng: currentUserLng}
       })
     } else {
-      if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator) {
-        if(navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((position) => {
-            if(position && position.coords) {
-              const navigatorLat = position.coords.latitude
-              const navigatorLng = position.coords.longitude
-              this.setState({
-                currentUserLocation: {lat: navigatorLat, lng: navigatorLng}
-              })
-            }
-          });
-        }
+      if (typeof window !== 'undefined' && typeof navigator !== 'undefined'
+          && navigator && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          if(position && position.coords) {
+            const navigatorLat = position.coords.latitude
+            const navigatorLng = position.coords.longitude
+            this.setState({
+              currentUserLocation: {lat: navigatorLat, lng: navigatorLng}
+            })
+          }
+        });
       }
     }
   }
