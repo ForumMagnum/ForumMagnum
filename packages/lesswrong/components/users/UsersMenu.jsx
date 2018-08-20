@@ -10,7 +10,7 @@ import { withApollo } from 'react-apollo';
 import Popover from 'material-ui/Popover';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 
 class UsersMenu extends PureComponent {
   constructor(props) {
@@ -35,7 +35,7 @@ class UsersMenu extends PureComponent {
   }
 
   render() {
-    let { currentUser, client } = this.props;
+    let { currentUser, client, classes } = this.props;
 
     const labelStyle = {
       textTransform: 'none',
@@ -45,7 +45,11 @@ class UsersMenu extends PureComponent {
 
     return (
       <div className="users-menu">
-        <FlatButton labelStyle={ labelStyle } label={Users.getDisplayName(currentUser)} onClick={this.handleClick} />
+        <Button onClick={this.handleClick}>
+          <span style={ labelStyle }>
+            {Users.getDisplayName(currentUser)}
+          </span>
+        </Button>
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}

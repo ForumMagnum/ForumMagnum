@@ -97,9 +97,6 @@ export const postHighlightStyles = theme => {
   const postHighlightStyles = {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    '& code': {
-      fontSize: ".9rem",
-    },
     '& blockquote': {
       ...theme.typography.body2,
       '& > p': {

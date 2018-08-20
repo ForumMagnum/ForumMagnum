@@ -97,7 +97,7 @@ class RecentDiscussionThread extends PureComponent {
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount == null}, classes.postBody)
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null}, classes.postBody)
     return (
       <div className="recent-discussion-thread-wrapper">
         <div className={classNames(classes.postStyle, "recent-discussion-thread-post")}>
