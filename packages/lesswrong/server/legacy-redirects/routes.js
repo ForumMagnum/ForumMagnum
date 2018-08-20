@@ -4,7 +4,7 @@ import Users from 'meteor/vulcan:users';
 
 // All legacy URLs either do not contain /lw/, start with /lw/, or start with
 //   /r/[section]/lw/, where section is one of {all,discussion,lesswrong}
-const subredditPrefixRoute = "/:section?/:subreddit?";
+const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
 
 function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
