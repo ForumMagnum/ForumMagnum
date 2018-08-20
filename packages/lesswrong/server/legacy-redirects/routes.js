@@ -2,8 +2,21 @@ import { Picker } from 'meteor/meteorhacks:picker';
 import { Posts, Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 
-// All legacy URLs either do not contain /lw/, start with /lw/, or start with
-//   /r/[section]/lw/, where section is one of {all,discussion,lesswrong}
+// Some legacy routes have an optional subreddit prefix, which is either
+// omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
+// /lw/postid possibly followed by a slug, comment ID, filter settings, or other
+// things, some of which is supported and some of which isn't.
+// 
+// If a route has this optional prefix, use `subredditPrefixRoute` to represent
+// that part. It contains two optional parameters, constrained to be `r` and
+// a subreddit name, respectively (the subreddits being lesswrong, discussion,
+// and all). Since old-LW made all post IDs non-overlapping, we just ignore
+// which subreddit was specified.
+// 
+// (In old LW, the set of possible subreddits may also have included user
+// account names, for things in users' draft folders. We don't support getting
+// old drafts via legacy routes; I'm not sure whether we support getting them
+// through other UI).
 const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
 
 function findPostByLegacyId(legacyId) {
