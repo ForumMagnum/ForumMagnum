@@ -35,7 +35,7 @@ class UsersMenu extends PureComponent {
   }
 
   render() {
-    let { currentUser, client, classes } = this.props;
+    let { currentUser, client } = this.props;
 
     const labelStyle = {
       textTransform: 'none',
