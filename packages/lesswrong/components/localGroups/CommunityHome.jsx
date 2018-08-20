@@ -32,13 +32,17 @@ class CommunityHome extends Component {
       })
     } else {
       if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const navigatorLat = position.coords.latitude
-          const navigatorLng = position.coords.longitude
-          this.setState({
-            currentUserLocation: {lat: navigatorLat, lng: navigatorLng}
-          })
-        });
+        if(navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            if(position && position.coords) {
+              const navigatorLat = position.coords.latitude
+              const navigatorLng = position.coords.longitude
+              this.setState({
+                currentUserLocation: {lat: navigatorLat, lng: navigatorLng}
+              })
+            }
+          });
+        }
       }
     }
   }
