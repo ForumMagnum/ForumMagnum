@@ -106,7 +106,7 @@ const createLWTheme = (theme) => {
       },
       code: {
         fontFamily: monoStack,
-        fontSize: "1rem",
+        fontSize: ".85em",
         fontWeight: 400,
         backgroundColor: grey[100],
         borderRadius: 2,
