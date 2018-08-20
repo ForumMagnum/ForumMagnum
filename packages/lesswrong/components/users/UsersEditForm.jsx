@@ -20,7 +20,7 @@ const styles = theme => ({
   }
 })
 
-const UsersEditForm = (props, context) => {
+const UsersEditForm = (props) => {
 
   const { classes } = props
 
