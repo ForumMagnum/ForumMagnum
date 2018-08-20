@@ -7,6 +7,11 @@ import Autosuggest from 'react-autosuggest';
 const UsersSearchAutoComplete = ({clickAction, label}) => {
   const algoliaAppId = getSetting('algolia.appId')
   const algoliaSearchKey = getSetting('algolia.searchKey')
+
+  if(!algoliaAppId) {
+    return <div className="users-search-auto-complete">User search is disabled (Algolia App ID not configured on server)</div>
+  }
+
   return <InstantSearch
     indexName="test_users"
     appId={algoliaAppId}
