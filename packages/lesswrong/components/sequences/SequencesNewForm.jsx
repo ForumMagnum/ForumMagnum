@@ -11,7 +11,7 @@ const SequencesNewForm = (props, context) => {
         <Components.SmartForm
           collection={Sequences}
           successCallback={(sequence) => {
-            props.router.push({pathname: props.redirect || '/sequences/' + sequence._id });
+            props.router.push({pathname: props.redirect || '/s/' + sequence._id });
             props.flash("successfully creates Sequence", "success");
           }}
           cancelCallback={props.cancelCallback}
