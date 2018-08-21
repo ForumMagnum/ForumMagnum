@@ -18,7 +18,8 @@ const SequencesNavigation = ({
           <Components.SequencesNavigationLink
             documentId={ prevPost && prevPost._id }
             documentUrl={ "/s/" + document._id + (prevPost ? ("/p/" + prevPost._id) : "")}
-          direction="left" />
+            direction="left"
+          />
 
           <div className="sequences-navigation-title">
             {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
@@ -27,7 +28,8 @@ const SequencesNavigation = ({
           <Components.SequencesNavigationLink
             documentId={ nextPost && nextPost._id }
             documentUrl={ "/s/" + document._id + (nextPost ? ("/p/" + nextPost._id) : "")}
-          direction="right" />
+            direction="right"
+          />
         </div>
       )
     } else {
