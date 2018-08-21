@@ -38,7 +38,6 @@ export const customizeTheme = (router, userAgent, params, store) => {
   let muiThemeDefault = {}
   if (getSetting('AlignmentForum', false)) {
     muiThemeDefault = {
-      "fontFamily": "warnock-pro",
       "palette": {
         "primary1Color": "#f5f5f5",
         "primary2Color": "#eeeeee",
@@ -67,7 +66,6 @@ export const customizeTheme = (router, userAgent, params, store) => {
     }
   } else {
     muiThemeDefault = {
-      "fontFamily": "warnock-pro",
       "palette": {
         "primary1Color": "#f5f5f5",
         "primary2Color": "#eeeeee",

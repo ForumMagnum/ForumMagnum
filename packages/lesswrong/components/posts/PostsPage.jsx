@@ -151,7 +151,7 @@ class PostsPage extends Component {
   getNavTitleUrl = () => {
     const post = this.props.document
     if (post && post.canonicalSequence && post.canonicalSequence.title) {
-      return "/sequences/" + post.canonicalSequenceId
+      return "/s/" + post.canonicalSequenceId
     } else if (post && post.canonicalCollectionSlug) {
       return "/" + post.canonicalCollectionSlug
     }

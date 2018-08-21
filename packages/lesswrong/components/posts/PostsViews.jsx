@@ -133,10 +133,10 @@ class PostsViews extends Component {
           <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
-              <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
+              <Components.SectionTitleLink className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                 {viewDataDict[view].label}
                 { this.renderMenu(viewDataDict[view], view)}
-              </span>
+              </Components.SectionTitleLink>
             </span>
           </div>
         ))}
@@ -151,22 +151,22 @@ class PostsViews extends Component {
                 )}
               >
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
-                  <span className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
+                  <Components.SectionTitleLink className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                     {viewDataDict[view].label}
                     { this.renderMenu(viewDataDict[view])}
-                  </span>
+                  </Components.SectionTitleLink>
                 </span>
               </div>
             ))}
             {!props.hideDaily && <div className="posts-view-button"><Link style={ChipStyle} className="view-chip" to="/meta">
-              <span className={"posts-views-chip-inactive"}>
+              <Components.SectionTitleLink className={"posts-views-chip-inactive"}>
                 Meta { this.renderMenu(viewDataDict["meta"])}
-              </span>
+              </Components.SectionTitleLink>
             </Link></div>}
             {!props.hideDaily && <span><Link style={ChipStyle} className="view-chip" to="/daily">
-              <span className={"posts-views-chip-inactive"}>
+              <Components.SectionTitleLink className={"posts-views-chip-inactive"}>
                 Daily { this.renderMenu(viewDataDict["daily"])}
-              </span>
+              </Components.SectionTitleLink>
             </Link></span>}
           </span> : <span>
             <a style={ChipStyle} className="view-chip more"

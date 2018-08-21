@@ -37,7 +37,16 @@ class EditUrl extends Component {
 
   render() {
     const active = this.state.active
-    const { classes } = this.props
+    
+    // Pass properties other than `classes` (which is created by `withStyles`)
+    // through to `Components.MuiTextField`. (If we passed through `classes`,
+    // it would clash with the one that `MuiTextField`'s own `withStyles` would
+    // add, producing a spurious error).
+    // (NOTE: If you add properties here, or add something to this component
+    // which creates a property, give some though to whether it should be passed
+    // through.)
+    const { classes, ...otherProps } = this.props;
+
     return (
       <div className={classes.root}>
         <div>
@@ -46,7 +55,7 @@ class EditUrl extends Component {
           </span>
           <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
             <Components.MuiInput
-              {...this.props}
+              {...otherProps}
               type={"url"}
               layout="elementOnly"
             />

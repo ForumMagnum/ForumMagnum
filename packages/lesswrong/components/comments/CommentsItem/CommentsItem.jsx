@@ -37,7 +37,10 @@ const moreActionsMenuIconStyle = {
 }
 
 const styles = theme => ({
-  commentStyling: commentBodyStyles(theme)
+  commentStyling: {
+    marginTop: ".5em",
+    ...commentBodyStyles(theme)
+  }
 })
 
 class CommentsItem extends Component {
