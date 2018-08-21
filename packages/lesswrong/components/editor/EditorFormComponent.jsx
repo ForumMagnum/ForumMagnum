@@ -27,7 +27,7 @@ class EditorFormComponent extends Component {
 
     const removeUnusedFields = (data) => {
       let { content, body, ...newData } = data
-      if (Users.useMarkdownCommentEditor(currentUser)) {
+      if (Users.useMarkdownPostEditor(currentUser)) {
         return {...newData, body}
       } else {
         return {...newData, content}
