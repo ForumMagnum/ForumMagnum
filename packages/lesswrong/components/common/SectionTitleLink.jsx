@@ -9,9 +9,9 @@ const styles = (theme) => ({
     '& a': {
       fontStyle: 'italic',
       fontSize: 16,
-      color: theme.palette.grey[500],
+      color: theme.palette.grey[600],
       '&:hover, &:active, &:focus': {
-        color: theme.palette.grey[400],
+        color: theme.palette.grey[500],
       },
       ...theme.typography.postStyle
     }

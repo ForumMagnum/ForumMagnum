@@ -23,7 +23,6 @@ import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
-import Typography from '@material-ui/core/Typography';
 
 const paperStyle = {
   backgroundColor: 'inherit',
@@ -31,22 +30,12 @@ const paperStyle = {
 
 const styles = theme => ({
   root: {
+    paddingLeft:10,
+    paddingTop:10,
     ...theme.typography.postStyle
   },
   postBody: {
     ...postHighlightStyles(theme),
-  },
-  postTitle: {
-    paddingLeft:10,
-    paddingTop:10,
-    whiteSpace:"nowrap",
-    overflow:"hidden",
-    textOverflow:"ellipsis",
-    width:"calc(100% - 80px)",
-    marginBottom:3,
-    [theme.breakpoints.down('xs')]: {
-      paddingLeft: 2,
-    },
   }
 })
 
@@ -217,10 +206,8 @@ class PostsItem extends PureComponent {
           >
 
             <div className="posts-item-body">
-              <Link to={this.getPostLink()} className="posts-item-title-link">
-                <Typography variant="title" className={classes.postTitle}>
-                  {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
-                </Typography>
+              <Link to={this.getPostLink()}>
+                <Components.PostsItemTitle post={post} />
               </Link>
               <object>
                 <div className="posts-item-meta" onClick={this.toggleHighlight}>
