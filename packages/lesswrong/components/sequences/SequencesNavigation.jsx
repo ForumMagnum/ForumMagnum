@@ -13,7 +13,6 @@ const SequencesNavigation = ({
       let title = document ? document.title : ""
       let titleUrl = documentId ? "/s/" + documentId : ""
       const { nextPost, prevPost } = Utils.getSequencePostLinks(document, post)
-      console.log("nextPost, prevPost: ", nextPost, prevPost, Utils.getSequencePostLinks(document, post))
       return (
         <div className="sequences-navigation-top">
           <Components.SequencesNavigationLink

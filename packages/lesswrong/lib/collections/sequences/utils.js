@@ -1,6 +1,5 @@
 import { Utils } from 'meteor/vulcan:core'
 
-console.log("Adding sequence function to Utils")
 Utils.getSequencePostLinks = (sequence, post) => {
   if (sequence && post) {
     if (sequence.chapters) {
