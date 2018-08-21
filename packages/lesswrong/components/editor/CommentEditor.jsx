@@ -18,8 +18,18 @@ class CommentEditor extends Component {
   }
 
   async componentWillMount() {
+    const { currentUser } = this.props
     const {default: Editor} = await import('../async/AsyncCommentEditor.jsx');
     this.setState({editor: Editor});
+    const removeUnusedFields = (data) => {
+      let { content, body, ...newData } = data
+      if (Users.useMarkdownCommentEditor(currentUser)) {
+        return {...newData, body}
+      } else {
+        return {...newData, content}
+      }
+    }
+    this.context.addToSubmitForm(removeUnusedFields);
   }
 
   render() {
@@ -39,5 +49,11 @@ class CommentEditor extends Component {
     )
   }
 }
+
+CommentEditor.contextTypes = {
+  updateCurrentValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
+  addToSubmitForm: PropTypes.func,
+};
 
 registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles));

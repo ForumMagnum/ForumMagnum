@@ -59,11 +59,12 @@ Comments.addField([
       order: 25,
       form: {
         hintText:"Plain Markdown Editor",
-        name:"body",
-        rows:4,
         multiLine:true,
         fullWidth:true,
-        underlineShow:false
+        disableUnderline:true,
+        enableMarkDownEditor: true,
+        minHeight: 400,
+        name: "body"
       },
     }
   },

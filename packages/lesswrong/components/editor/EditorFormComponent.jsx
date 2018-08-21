@@ -21,8 +21,19 @@ class EditorFormComponent extends Component {
   }
 
   async componentWillMount() {
+    const { currentUser } = this.props
     const {default: Editor} = await import('../async/AsyncEditorFormComponent.jsx');
     this.setState({editor: Editor});
+
+    const removeUnusedFields = (data) => {
+      let { content, body, ...newData } = data
+      if (Users.useMarkdownCommentEditor(currentUser)) {
+        return {...newData, body}
+      } else {
+        return {...newData, content}
+      }
+    }
+    this.context.addToSubmitForm(removeUnusedFields);
   }
 
   render() {
@@ -43,5 +54,11 @@ class EditorFormComponent extends Component {
     )
   }
 }
+
+EditorFormComponent.contextTypes = {
+  updateCurrentValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
+  addToSubmitForm: PropTypes.func,
+};
 
 registerComponent('EditorFormComponent', EditorFormComponent, withCurrentUser, withStyles(styles));
