@@ -56,8 +56,6 @@ class EditorFormComponent extends Component {
 }
 
 EditorFormComponent.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
 };
 

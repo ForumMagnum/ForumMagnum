@@ -51,8 +51,6 @@ class CommentEditor extends Component {
 }
 
 CommentEditor.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
 };
 
