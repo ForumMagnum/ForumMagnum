@@ -8,7 +8,7 @@ const SequencesGrid = ({sequences, showAuthor, listMode}) =>
     <div className="sequences-grid-content">
       {sequences.map(sequence => {
         return (
-          <Link key={sequence._id} className="sequences-grid-item-link" to={"/sequences/"+sequence._id}>
+          <Link key={sequence._id} className="sequences-grid-item-link" to={"/s/"+sequence._id}>
             <Components.SequencesGridItem
               sequence={sequence}
               key={sequence._id}

@@ -14,6 +14,7 @@ const badgeStyle = {
   backgroundColor: 'none',
   color: 'rgba(0,0,0,0.6)',
   fontFamily: 'freight-sans-pro, sans-serif',
+  pointerEvents: "none",
 }
 
 const NotificationsMenuButton = (props) => {

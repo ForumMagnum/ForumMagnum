@@ -71,6 +71,7 @@ import './collections/bans/admin.js';
 // Chapters
 import Sequences from './collections/sequences/collection.js';
 import './collections/sequences/views.js';
+import './collections/sequences/utils.js';
 
 import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';

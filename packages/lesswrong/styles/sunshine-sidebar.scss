@@ -6,7 +6,7 @@
   margin-top:64px;
   display:none;
   background: white;
-  z-index: 10000;
+  z-index: 1000;
 
   @include min-huge() {
     display:block
