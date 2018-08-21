@@ -1,26 +1,24 @@
 import { Utils } from 'meteor/vulcan:core'
 
 Utils.getSequencePostLinks = (sequence, post) => {
-  if (sequence && post) {
-    if (sequence.chapters) {
-      const { currentChapter, postIndex, chapterIndex } = Utils.getCurrentChapter(sequence, post)
-      let currentSequenceLength = sequence.chapters.length;
-      let nextPost = null, prevPost = null
-      if (postIndex || postIndex === 0) {
-        if (postIndex + 1 < currentChapter.posts.length) {
-          nextPost = currentChapter.posts[postIndex + 1]
-        } else if (chapterIndex + 1 < currentSequenceLength
-            && document.chapters[chapterIndex + 1].posts.length !== 0) {
-          nextPost = document.chapters[chapterIndex + 1].posts[0]
-        }
-        if (postIndex > 0) {
-          prevPost = currentChapter.posts[postIndex - 1]
-        } else if (chapterIndex > 1) {
-          prevPost = document.chapters[chapterIndex - 1].posts[document.chapters[chapterIndex-1].length - 1]
-        }
+  if (sequence && sequence.chapters &&  post ) {
+    const { currentChapter, postIndex, chapterIndex } = Utils.getCurrentChapter(sequence, post)
+    let currentSequenceLength = sequence.chapters.length;
+    let nextPost = null, prevPost = null
+    if (postIndex || postIndex === 0) {
+      if (postIndex + 1 < currentChapter.posts.length) {
+        nextPost = currentChapter.posts[postIndex + 1]
+      } else if (chapterIndex + 1 < currentSequenceLength
+          && document.chapters[chapterIndex + 1].posts.length !== 0) {
+        nextPost = document.chapters[chapterIndex + 1].posts[0]
       }
-      return {nextPost: nextPost, prevPost: prevPost, currentChapter: currentChapter, postIndex: postIndex, chapterIndex: chapterIndex}
+      if (postIndex > 0) {
+        prevPost = currentChapter.posts[postIndex - 1]
+      } else if (chapterIndex > 1) {
+        prevPost = document.chapters[chapterIndex - 1].posts[document.chapters[chapterIndex-1].length - 1]
+      }
     }
+    return {nextPost: nextPost, prevPost: prevPost, currentChapter: currentChapter, postIndex: postIndex, chapterIndex: chapterIndex}
   }
 }
 
