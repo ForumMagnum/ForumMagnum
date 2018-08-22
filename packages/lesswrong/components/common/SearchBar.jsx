@@ -72,6 +72,10 @@ class SearchBar extends Component {
     const algoliaAppId = getSetting('algolia.appId')
     const algoliaSearchKey = getSetting('algolia.searchKey')
 
+    if(!algoliaAppId) {
+      return <div className="search-bar">Search is disabled (Algolia App ID not configured on server)</div>
+    }
+
     searchIconStyle.color = this.props.color;
     closeIconStyle.color = this.props.color;
 

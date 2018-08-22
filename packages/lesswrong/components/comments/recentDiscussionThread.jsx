@@ -16,9 +16,24 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import { withStyles } from '@material-ui/core/styles';
 
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
+import { postHighlightStyles } from '../../themes/stylePiping'
+
+
+const styles = theme => ({
+  postStyle: theme.typography.postStyle,
+  postBody: {
+    ...postHighlightStyles(theme),
+  },
+  postItem: {
+    paddingLeft:10,
+    paddingBottom:10,
+    ...theme.typography.postStyle,
+  }
+})
 
 class RecentDiscussionThread extends PureComponent {
 
@@ -81,21 +96,21 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, results, loading, editMutation, currentUser } = this.props
+    const { post, results, loading, editMutation, currentUser, classes } = this.props
     const nestedComments = unflattenComments(results);
 
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount == null})
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null}, classes.postBody)
     return (
       <div className="recent-discussion-thread-wrapper">
-        <div className="recent-discussion-thread-post">
+        <div className={classNames(classes.postItem)}>
+
           <Link to={Posts.getPageUrl(post)}>
-            <span className={classNames("recent-discussion-thread-title", {unread: !post.lastVisitedAt})}>
-              {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
-            </span>
+            <Components.PostsItemTitle post={post} />
           </Link>
+
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
               <span title="Unread" className="posts-item-unread-dot">•</span>
@@ -210,4 +225,5 @@ registerComponent(
   withCurrentUser,
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
+  withStyles(styles),
 );

@@ -61,6 +61,7 @@ import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersNameWrapper.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/PostsItem.jsx';
+import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsPage.jsx';
