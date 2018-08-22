@@ -3,7 +3,16 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import Popover from 'material-ui/Popover';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  userButton: {
+    fontSize: '14px',
+    fontWeight: 400,
+    opacity: .8
+  }
+})
 
 class UsersAccountMenu extends PureComponent {
   constructor(props) {
@@ -28,13 +37,15 @@ class UsersAccountMenu extends PureComponent {
   }
 
   render() {
-    const labelStyle = {
-      color: this.props.color
-    }
+    const { color, classes } = this.props
 
     return (
       <div className="users-menu">
-        <FlatButton labelStyle={ labelStyle } label="Login" onClick={this.handleClick} />
+        <Button onClick={this.handleClick}>
+          <span className={classes.userButton} style={{ color: color }}>
+            Login
+          </span>
+        </Button>
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
@@ -57,4 +68,4 @@ UsersAccountMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersAccountMenu', UsersAccountMenu);
+registerComponent('UsersAccountMenu', UsersAccountMenu, withStyles(styles));

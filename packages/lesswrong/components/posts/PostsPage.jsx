@@ -58,6 +58,7 @@ const styles = theme => ({
       WebkitMarginEnd: 0
     },
     author: {
+      marginTop: 18,
       textAlign: 'center',
     },
     mainContent: {
