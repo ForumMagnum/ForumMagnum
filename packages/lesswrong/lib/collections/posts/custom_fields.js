@@ -641,7 +641,7 @@ Posts.addField([
     The timestamp when the post's maxBaseScore first exceeded 2
   */
   {
-    fieldName: 'scoreExceeded2',
+    fieldName: 'scoreExceeded2Date',
     fieldSchema: {
       type: Date,
       optional: true,
@@ -653,7 +653,7 @@ Posts.addField([
     The timestamp when the post's maxBaseScore first exceeded 30
   */
   {
-    fieldName: 'scoreExceeded30',
+    fieldName: 'scoreExceeded30Date',
     fieldSchema: {
       type: Date,
       optional: true,
@@ -665,7 +665,7 @@ Posts.addField([
     The timestamp when the post's maxBaseScore first exceeded 45
   */
   {
-    fieldName: 'scoreExceeded45',
+    fieldName: 'scoreExceeded45Date',
     fieldSchema: {
       type: Date,
       optional: true,
@@ -677,7 +677,7 @@ Posts.addField([
     The timestamp when the post's maxBaseScore first exceeded 75
   */
   {
-    fieldName: 'scoreExceeded75',
+    fieldName: 'scoreExceeded75Date',
     fieldSchema: {
       type: Date,
       optional: true,

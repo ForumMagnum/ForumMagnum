@@ -5,11 +5,14 @@ import TextField from 'material-ui/TextField';
 import { rssTermsToUrl } from "meteor/example-forum";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FlatButton from 'material-ui/FlatButton';
-import Dialog from 'material-ui/Dialog';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -19,11 +22,14 @@ const styles = theme => ({
     flexDirection: "row",
     justifyContent: "space-evenly"
   },
-  thresholdButton: {
-
+  estimate: {
+    width: "500px"
   },
   tooltip: {
     fontSize: ".8rem"
+  },
+  content: {
+    padding: "0 24px"
   }
 });
 
@@ -40,10 +46,6 @@ const postsPerWeek = {
   45: 7,
   75: 3
 };
-
-const dialogStyle = {
-  maxWidth: "530px"
-}
 
 const RSSIconStyle = {
   fontSize: "14px",
@@ -75,7 +77,7 @@ class RSSOutLinkbuilder extends Component {
       }
     } else if(props.view) {
       this.state = {
-        rssTerms: { view: props.view, karmaThreshold: 2}
+        rssTerms: { view: props.view, karmaThreshold: 2 }
       }
     } else {
       //eslint-disable-next-line no-console
@@ -124,19 +126,21 @@ class RSSOutLinkbuilder extends Component {
       />
     ];
     return (
-      <span className="rss-out-linkbuilder"><span className="rss-out-linkbuilder-button"><div onClick={(e) => {this.handleClick(e)}}><FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> Create an RSS Feed</div></span>
+      <span className="rss-out-linkbuilder">
+        <span className="rss-out-linkbuilder-button">
+          <div onClick={ e => this.handleClick(e) }>
+            <FontIcon className="material-icons" style={RSSIconStyle}>rss_feed</FontIcon> Create an RSS Feed
+          </div>
+        </span>
         <Dialog
-          title="RSS Link Builder"
-          actions={actions}
-          modal={false}
           open={this.state.open}
-          onRequestClose={this.handleClose}
-          contentStyle={dialogStyle}
+          onClose={this.handleClose}
+          className="rss-out-linkbuilder-dialog"
         >
-          <div>
+          <DialogTitle>RSS Link Builder</DialogTitle>
+          <DialogContent className={this.props.classes.content}>
             { (this.props.view === "community-rss" || this.props.view === "frontpage-rss") ? <div>
-              <h5>Karma Threshold: {this.state.rssTerms.karmaThreshold} <span style={{fontWeight:"normal"}}>(Roughly {hoursPerWeek[this.state.rssTerms.karmaThreshold]} or {postsPerWeek[this.state.rssTerms.karmaThreshold]} posts per week)</span></h5>
-              Generate a RSS link to posts in {viewNames[this.state.rssTerms.view]} of this karma and above.
+              <DialogContentText>Generate a RSS link to posts in {viewNames[this.state.rssTerms.view]} of this karma and above.</DialogContentText>
               <RadioGroup value={""+this.state.rssTerms.karmaThreshold} onChange={this.handleSlider} className={this.props.classes.thresholdSelector}>
                 {[2, 30, 45, 75].map(t => `${t}`).map(threshold =>
                   <FormControlLabel
@@ -146,10 +150,13 @@ class RSSOutLinkbuilder extends Component {
                       className={this.props.classes.thresholdButton} />
                 )}
               </RadioGroup>
+              <DialogContentText className={this.props.classes.estimate}>
+                That's roughly {postsPerWeek[this.state.rssTerms.karmaThreshold]} posts per week ({hoursPerWeek[this.state.rssTerms.karmaThreshold]} of reading)
+              </DialogContentText>
             </div> : null }
-
             <TextField id={this.props.view + 2} className="rss-out-url-box" type="text" onFocus={this.handleFocus} value={rssTermsToUrl(this.state.rssTerms)} style={{width: "100%"}} readOnly />
-          </div>
+          </DialogContent>
+          <DialogActions>{actions}</DialogActions>
         </Dialog>
       </span>
     );

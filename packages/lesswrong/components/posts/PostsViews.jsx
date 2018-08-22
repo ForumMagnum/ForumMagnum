@@ -6,6 +6,7 @@ import { withRouter, Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
+import _ from 'lodash';
 
 const viewDataDict = {
   'curated': {
@@ -81,7 +82,14 @@ class PostsViews extends Component {
     }
   }
 
-  handleChange = (view) => {
+  handleChange = (view, ev) => {
+    // ignore if the user clicked on the menu
+    let elem = ev.target;
+    do {
+      if (_.intersection(elem.classList, ["view-chip-menu-wrapper", "rss-out-linkbuilder-dialog"]).length > 0) return;
+      if (elem.classList.contains("posts-view")) break;
+    } while ((elem = elem.parentElement));
+
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };

@@ -102,14 +102,17 @@ addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
     let thresholdTimestamp = {};
-    if (!newDocument.scoreExceeded2 && newDocument.baseScore >= 2) {
-      thresholdTimestamp.scoreExceeded2 = new Date();
+    if (!newDocument.scoreExceeded2Date && newDocument.baseScore >= 2) {
+      thresholdTimestamp.scoreExceeded2Date = new Date();
     }
-    if (!newDocument.scoreExceeded10 && newDocument.baseScore >= 10) {
-      thresholdTimestamp.scoreExceeded10 = new Date();
+    if (!newDocument.scoreExceeded30Date && newDocument.baseScore >= 30) {
+      thresholdTimestamp.scoreExceeded30 = new Date();
     }
-    if (!newDocument.scoreExceeded16 && newDocument.baseScore >= 16) {
-      thresholdTimestamp.scoreExceeded16 = new Date();
+    if (!newDocument.scoreExceeded45Date && newDocument.baseScore >= 45) {
+      thresholdTimestamp.scoreExceeded45Date = new Date();
+    }
+    if (!newDocument.scoreExceeded75Date && newDocument.baseScore >= 75) {
+      thresholdTimestamp.scoreExceeded75Date = new Date();
     }
     Posts.update({_id: newDocument._id}, {$set: {maxBaseScore: newDocument.baseScore, ...thresholdTimestamp}})
   }
