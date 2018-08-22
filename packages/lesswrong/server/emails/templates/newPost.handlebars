@@ -1,12 +1,19 @@
-<span class="heading">
-<a href="{{PostsSingle.user.pageUrl}}">{{PostsSingle.user.displayName}}</a>
-has created a new post:
-{{#if PostsSingle.url}}
-  <a href="{{PostsSingle.linkUrl}}" class="action-link">{{PostsSingle.title}}</a>
-{{else}}
-  {{PostsSingle.title}}
-{{/if}}
-</span><br><br>
+<div class="heading">
+  <h1>
+    <a href="{{PostsSingle.linkUrl}}" class="action-link">{{PostsSingle.title}}</a>
+  </h1>
+  
+  <hr></hr>
+  
+  <div class="postAuthor">
+    <a href="{{PostsSingle.user.pageUrl}}">{{PostsSingle.user.displayName}}</a>
+  </div>
+  <div class="postDate">
+    {{formatPostDate PostsSingle.postedAt}}
+  </div>
+</div>
+
+<br><br>
 
 {{#if PostsSingle.htmlBody}}
   <div class="post-body">

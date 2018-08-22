@@ -1,4 +1,6 @@
 import VulcanEmail from 'meteor/vulcan:email';
+import Handlebars from 'handlebars';
+import moment from 'moment';
 
 const postsQuery = `
   query PostsSingleQuery($documentId: String){
@@ -7,6 +9,7 @@ const postsQuery = `
       url
       pageUrl
       linkUrl
+      postedAt
       htmlBody
       thumbnailUrl
       user{
@@ -22,12 +25,18 @@ VulcanEmail.addEmails({
     template: "newPost",
     path: "/email/new-post/:documentId",
     subject(data) {
-      const post = _.isEmpty(data) ? dummyPost : data.PostsSingle;
-      return post.user.displayName+' has created a new post: '+post.title;
+      if(!data || !data.PostsSingle)
+        throw "Missing post when rendering newPost email";
+      const post = data.PostsSingle;
+      return post.title;
     },
     query: postsQuery
   }
 })
+
+Handlebars.registerHelper('formatPostDate', function(date) {
+  return moment(new Date(date)).format("MMM D, YYYY");
+});
 
 
 VulcanEmail.addTemplates({

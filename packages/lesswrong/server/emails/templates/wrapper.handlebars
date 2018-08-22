@@ -35,56 +35,34 @@
                 padding-right: 12px !important;
             }
         }
-        a{
-          color: {{accentColor}};
-          font-weight: bold;
+        
+        .heading {
+          text-align: center;
+        }
+        .heading hr {
+          width: 210px;
+          height: 0px;
+          border-top: none;
+          border-bottom: 1px solid #aaa;
+          margin-top: 50px;
+          margin-bottom: 35px;
+        }
+        .heading .postAuthor {
+        }
+        .heading .postDate {
+        }
+        .heading a{
+          color: black;
           text-decoration: none;
         }
-        .wrapper{
-          padding: 20px 0;
+        a {
+          color: #5f9b65;
         }
-        .container{
-          border-radius: 3px;
-        }
-        .heading-container{
-          background: {{secondaryColor}};
-          padding: 15px;
-          text-align: center;
-          border-radius: 3px 3px 0px 0px;
-        }
-        .heading-container, .logo{
-          text-align: center;
-          color: white;
-          font-family: Helvetica, sans-serif;
-          font-weight: bold;
-          font-size: 20px;
-        }
-        .main-container{
-          line-height: 1.7;
-          background: white;
-          padding: 0 30px;
-          font-size: 15px;
-          font-family: Helvetica, sans-serif;
-          color: #555;
-        }
-        .heading{
-          font-weight: bold;
-          font-size: 18px;
-          line-height: 1.5;
+        blockquote {
+          border-left: solid 3px #e0e0e0;
+          padding: .75em 2em;
           margin: 0;
-        }
-        .footer-container{
-          background: #ddd;
-          font-family: Helvetica, sans-serif;
-          padding: 30px;
-          color: #777;
-          border-radius: 0px 0px 3px 3px;
-          font-size: 13px;
-        }
-        .post-body, .comment-body{
-          border-top: 1px solid #ddd;
-          border-bottom: 1px solid #ddd;
-          padding: 10px 0;
+          color: rgba(0,0,0, 0.87);
         }
     </style>
 </head>
@@ -92,24 +70,13 @@
 
 <br>
 
-<!-- 100% wrapper (grey background) -->
-<table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0" bgcolor="#ebebeb">
+<!-- 100% wrapper -->
+<table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
   <tr>
-    <td class="wrapper" align="center" valign="top" bgcolor="#ebebeb" style="background-color: #ebebeb;">
+    <td class="wrapper" align="center" valign="top" bgcolor="#ffffff" style="background-color: #ffffff;">
 
       <!-- 600px container (white background) -->
       <table border="0" width="600" cellpadding="0" cellspacing="0" class="container" bgcolor="#ffffff">
-        <tr>
-          <td class="heading-container">
-            <a href="{{siteUrl}}">
-              {{#if logoUrl}}
-                <img class="logo" src="{{logoUrl}}" height="{{logoHeight}}" width="{{logoWidth}}" alt="{{siteName}}"/>
-              {{else}}
-                {{siteName}}
-              {{/if}}
-            </a>
-          </td>
-        </tr>
         <tr>
           <td class="main-container container-padding" bgcolor="#ffffff">
             <br>
