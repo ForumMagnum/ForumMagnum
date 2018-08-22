@@ -9,7 +9,6 @@ const styles = theme => ({
     whiteSpace:"nowrap",
     overflow:"hidden",
     textOverflow:"ellipsis",
-    width:"calc(100% - 80px)",
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
