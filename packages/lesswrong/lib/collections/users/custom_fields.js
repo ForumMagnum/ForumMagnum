@@ -18,12 +18,6 @@ const formGroups = {
   }
 }
 
-const postCounts = {
-  order: 65,
-  name: "postCounts",
-  label: "Post Counts",
-}
-
 const notificationsGroup = {
   name: "notifications",
   label: "Notifications"
@@ -629,7 +623,6 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      group: postCounts,
       viewableBy: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
@@ -644,7 +637,6 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      group: postCounts,
       viewableBy: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
@@ -659,7 +651,6 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      group: postCounts,
       viewableBy: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
@@ -688,8 +679,7 @@ Users.addField([
       label: "Group Location",
       control: 'LocationFormComponent',
       blackbox: true,
-      optional: true,
-      order: 35
+      optional: true
     }
   },
 
