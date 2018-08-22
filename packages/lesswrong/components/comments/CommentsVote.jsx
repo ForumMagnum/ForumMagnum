@@ -51,7 +51,7 @@ class CommentsVote extends PureComponent {
                 />
               </span>
             </Tooltip>
-            <Tooltip title={`voteCount ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
+            <Tooltip title={`${voteCount} ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
               <span className={classes.voteScore}>
                 {baseScore || 0}
               </span>
