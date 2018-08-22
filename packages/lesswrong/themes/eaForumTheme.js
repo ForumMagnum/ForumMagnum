@@ -1,4 +1,4 @@
-import { createMuiTheme } from '@material-ui/core/styles';
+import createLWTheme from './createThemeDefaults.js';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
@@ -12,58 +12,47 @@ const serifStack = [
   'serif'
 ].join(',')
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: grey[50],
-      contrastText: grey[800]
-    },
-    secondary: {
-      main: '#0c869b',
-    },
-    error: {
-      main: deepOrange[900]
-    },
-    background: {
-      default: '#fff'
-    }
+const palette = {
+  primary: {
+    main: '#0c869b',
   },
+  secondary: {
+    main: '#0c869b',
+  },
+  error: {
+    main: deepOrange[900]
+  },
+  background: {
+    default: '#fff'
+  }
+}
+
+const theme = createLWTheme({
+  palette,
   typography: {
     fontFamily: sansSerifStack,
-    title: {
-      fontWeight: 400,
-      fontFamily: serifStack
-    },
-    display1: {
+    postStyle: {
       fontFamily: serifStack,
+      linkUnderlinePosition: "72%",
     },
-    display3: {
-      fontFamily: serifStack,
-    },
-    display4: {
-      fontFamily: serifStack,
+    commentStyle: {
+      fontFamily: sansSerifStack
     },
     headline: {
       fontFamily: serifStack,
     },
-    subheading: {
+    title: {
       fontFamily: serifStack,
-    },
-    body1: {
-      fontFamily: serifStack,
-      fontSize: '1.4rem',
-      lineHeight: '2rem',
-    },
-    body2: {
-      fontSize: '1.1rem',
-      lineHeight: '1.5rem',
+      fontWeight: 500,
     }
   },
-  // LessWrong specific variables
-  voting: {
-    strongVoteDelay: 1000,
-  },
-
+  overrides: {
+    MuiAppBar: {
+      colorDefault: {
+        backgroundColor: grey[50],
+      }
+    },
+  }
 });
 
 export default theme
