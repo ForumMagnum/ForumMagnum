@@ -6,9 +6,40 @@ import { rssTermsToUrl } from "meteor/example-forum";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
-import Slider from 'material-ui/Slider';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Tooltip from '@material-ui/core/Tooltip';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  thresholdSelector: {
+    display: "flex",
+    flexWrap: "nowrap",
+    flexDirection: "row",
+    justifyContent: "space-evenly"
+  },
+  thresholdButton: {
 
+  },
+  tooltip: {
+    fontSize: ".8rem"
+  }
+});
+
+const hoursPerWeek = {
+  2: "3 hours",
+  30: "2 hours",
+  45: "1 hour",
+  75: "half an hour"
+};
+
+const postsPerWeek = {
+  2: 20,
+  30: 11,
+  45: 7,
+  75: 3
+};
 
 const dialogStyle = {
   maxWidth: "530px"
@@ -103,16 +134,20 @@ class RSSOutLinkbuilder extends Component {
           contentStyle={dialogStyle}
         >
           <div>
-            <h5>Karma Threshold: {this.state.rssTerms.karmaThreshold}</h5>
-            Generate a RSS link to posts in {viewNames[this.state.rssTerms.view]} of this karma and above.
-            <Slider
-              min={2}
-              max={100}
-              step={1}
-              value={this.state.rssTerms.karmaThreshold}
-              onChange={this.handleSlider}
-              style={{width: "100%"}}
-            />
+            { (this.props.view === "community-rss" || this.props.view === "frontpage-rss") ? <div>
+              <h5>Karma Threshold: {this.state.rssTerms.karmaThreshold} <span style={{fontWeight:"normal"}}>(Roughly {hoursPerWeek[this.state.rssTerms.karmaThreshold]} or {postsPerWeek[this.state.rssTerms.karmaThreshold]} posts per week)</span></h5>
+              Generate a RSS link to posts in {viewNames[this.state.rssTerms.view]} of this karma and above.
+              <RadioGroup value={""+this.state.rssTerms.karmaThreshold} onChange={this.handleSlider} className={this.props.classes.thresholdSelector}>
+                {[2, 30, 45, 75].map(t => `${t}`).map(threshold =>
+                  <FormControlLabel
+                      control={<Radio />}
+                      label={threshold}
+                      value={threshold}
+                      className={this.props.classes.thresholdButton} />
+                )}
+              </RadioGroup>
+            </div> : null }
+
             <TextField id={this.props.view + 2} className="rss-out-url-box" type="text" onFocus={this.handleFocus} value={rssTermsToUrl(this.state.rssTerms)} style={{width: "100%"}} readOnly />
           </div>
         </Dialog>
@@ -121,4 +156,4 @@ class RSSOutLinkbuilder extends Component {
   }
 }
 
-registerComponent('RSSOutLinkbuilder', RSSOutLinkbuilder);
+registerComponent('RSSOutLinkbuilder', RSSOutLinkbuilder, withStyles(styles));

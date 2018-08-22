@@ -309,6 +309,21 @@ Posts.addField([
       group: formGroups.adminOptions,
     }
   },
+  /**
+    metaDate: Date at which the post was marked as meta (null or false if it never has been marked as meta)
+  */
+
+  {
+    fieldName: 'metaDate',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      group: formGroups.adminOptions,
+    }
+  },
   {
     fieldName: 'suggestForCuratedUserIds',
     fieldSchema: {
@@ -620,6 +635,54 @@ Posts.addField([
       viewableBy: ['guests'],
       hidden: true,
       onInsert: (document) => document.baseScore || 0,
+    }
+  },
+  /**
+    The timestamp when the post's maxBaseScore first exceeded 2
+  */
+  {
+    fieldName: 'scoreExceeded2',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: document => document.baseScore >= 2 && new Date()
+    }
+  },
+  /**
+    The timestamp when the post's maxBaseScore first exceeded 30
+  */
+  {
+    fieldName: 'scoreExceeded30',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: document => document.baseScore >= 30 && new Date()
+    }
+  },
+  /**
+    The timestamp when the post's maxBaseScore first exceeded 45
+  */
+  {
+    fieldName: 'scoreExceeded45',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: document => document.baseScore >= 45 && new Date()
+    }
+  },
+  /**
+    The timestamp when the post's maxBaseScore first exceeded 75
+  */
+  {
+    fieldName: 'scoreExceeded75',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: document => document.baseScore >= 75 && new Date()
     }
   },
   {
