@@ -80,7 +80,9 @@ const createLWTheme = (theme) => {
         color: grey[800],
       },
       title: {
+        fontSize: 18,
         fontWeight: 400,
+        marginBottom: 3,
       },
       blockquote: {
         fontWeight: 400,
@@ -121,10 +123,20 @@ const createLWTheme = (theme) => {
         marginTop: '.5em',
         fontWeight:500,
       },
+      subheading: {
+        fontSize:15,
+        color: grey[600]
+      },
       subtitle: {
         fontSize: 16,
         fontWeight: 600,
         marginBottom: ".5rem"
+      },
+      uiLink: {
+        color: grey[500],
+        '&:hover': {
+          color:grey[300]
+        }
       }
     },
     voting: {
