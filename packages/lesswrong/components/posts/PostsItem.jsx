@@ -23,6 +23,7 @@ import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
+import Typography from '@material-ui/core/Typography';
 
 const paperStyle = {
   backgroundColor: 'inherit',
@@ -46,7 +47,11 @@ const styles = theme => ({
     width:"calc(100% - 100px)"
   },
   linkPost: {
-    marginBottom: theme.spacing.unit*2
+    marginBottom: theme.spacing.unit*2,
+    ...theme.typography.postStyle,
+    '& > a': {
+      color: theme.palette.secondary.light
+    }
   },
   commentCountIcon: {
     position:"absolute",
@@ -207,9 +212,13 @@ class PostsItem extends PureComponent {
 
       return (
         <div onClick={this.toggleNewComments}
-          className={classNames("posts-item-comments", {"selected":this.state.showNewComments, "highlight-selected":this.state.showHighlight
-          })}
-        >
+          className={classNames(
+            "posts-item-comments",
+            {
+              "selected":this.state.showNewComments,
+              "highlight-selected":this.state.showHighlight
+            }
+        )}>
           <CommentIcon className={classes.commentCountIcon} style={commentCountIconStyle}/>
           <div className={classes.commentCount}>
             { commentCount }
@@ -285,9 +294,9 @@ class PostsItem extends PureComponent {
           { this.state.showHighlight &&
             <div className="posts-item-highlight">
               <div className={classes.highlight}>
-                { post.url && <p className={classes.linkPost}>
+                { post.url && <Typography variant="body2" className={classes.linkPost}>
                   This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </p>}
+                </Typography>}
                 <div dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
                 <div className={classes.highlightContinue}>
                   {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
