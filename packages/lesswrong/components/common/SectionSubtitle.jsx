@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import classNames from 'classnames'
 
 const styles = (theme) => ({
   root: {
@@ -17,8 +18,8 @@ const styles = (theme) => ({
 })
 
 const SectionSubtitle = ({children, classes, className}) => {
-  return <Typography component='span' variant='body1' className={classes.root}>
-    <span className={className}>{children}</span>
+  return <Typography component='span' variant='body1' className={classNames(classes.root, className)}>
+    {children}
   </Typography>
 }
 
