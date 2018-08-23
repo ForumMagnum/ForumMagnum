@@ -196,7 +196,6 @@ class PostsItem extends PureComponent {
     let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
-    if (isSticky(post, terms)) postClass += " posts-sticky";
     if (this.state.showHighlight) postClass += " show-highlight";
     const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
