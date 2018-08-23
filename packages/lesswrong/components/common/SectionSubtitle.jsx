@@ -7,6 +7,7 @@ const styles = (theme) => ({
   root: {
     fontStyle: 'italic',
     fontSize: 16,
+    cursor: "pointer",
     color: theme.palette.grey[600],
     '&:hover, &:active, &:focus': {
       color: theme.palette.grey[500],
