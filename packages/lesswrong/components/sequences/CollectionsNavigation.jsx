@@ -14,18 +14,18 @@ const CollectionsNavigation = ({
     return (
       <div className="sequences-navigation-top">
         <Components.SequencesNavigationLink
-                          slug={prevPostSlug}
-                          documentUrl={prevPostUrl}
-                          direction="left" />
+          slug={prevPostSlug}
+          documentUrl={prevPostUrl}
+        direction="left" />
 
-                        <div className="sequences-navigation-title">
-                          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
-                        </div>
+        <div className="sequences-navigation-title">
+          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
+        </div>
 
         <Components.SequencesNavigationLink
-                          slug={nextPostSlug}
-                          documentUrl={nextPostUrl}
-                          direction="right" />
+          slug={nextPostSlug}
+          documentUrl={nextPostUrl}
+        direction="right" />
       </div>
     )
   }

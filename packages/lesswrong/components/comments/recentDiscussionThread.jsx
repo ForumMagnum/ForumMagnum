@@ -15,7 +15,7 @@ import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
-import { unflatten } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import { withStyles } from '@material-ui/core/styles';
 
 import Users from "meteor/vulcan:users";
@@ -27,6 +27,11 @@ const styles = theme => ({
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
+  },
+  postItem: {
+    paddingLeft:10,
+    paddingBottom:10,
+    ...theme.typography.postStyle,
   }
 })
 
@@ -92,22 +97,19 @@ class RecentDiscussionThread extends PureComponent {
 
   render() {
     const { post, results, loading, editMutation, currentUser, classes } = this.props
-    const resultsClone = _.map(results, _.clone); // we don't want to modify the objects we got from props
-    const nestedComments = unflatten(resultsClone, {idProperty: '_id', parentIdProperty: 'parentCommentId'});
+    const nestedComments = unflattenComments(results);
 
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount == null}, classes.postBody)
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null}, classes.postBody)
     return (
       <div className="recent-discussion-thread-wrapper">
-        <div className={classNames(classes.postStyle, "recent-discussion-thread-post")}>
+        <div className={classNames(classes.postItem)}>
 
-          <div className={classNames("recent-discussion-thread-title", {unread: !post.lastVisitedAt})}>
-            <Link to={Posts.getPageUrl(post)}>
-            {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
-            </Link>
-          </div>
+          <Link to={Posts.getPageUrl(post)}>
+            <Components.PostsItemTitle post={post} />
+          </Link>
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
@@ -178,11 +180,12 @@ class RecentDiscussionThread extends PureComponent {
           {loading || !results ? <Loading /> :
           <div className={"comments-items"}>
             {nestedComments.map(comment =>
-              <div key={comment._id}>
+              <div key={comment.item._id}>
                 <Components.CommentsNode
                   currentUser={currentUser}
-                  comment={comment}
-                  key={comment._id}
+                  comment={comment.item}
+                  children={comment.children}
+                  key={comment.item._id}
                   editMutation={editMutation}
                   post={post}
                   frontPage

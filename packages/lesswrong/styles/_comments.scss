@@ -104,7 +104,7 @@ $medium-text: $dark-grey;
   }
 
   .comments-item-bottom {
-    padding: 5px 0 5px 0;
+    padding: 12px 0 5px 0;
     font-size: 12px;
     .vote {
       font-weight: 300;
@@ -131,10 +131,6 @@ $medium-text: $dark-grey;
       color:rgba(0,0,0,.5);
       @media print { display: none; }
     }
-  }
-  blockquote {
-    color: rgba(0,0,0,0.7);
-    margin-left: 20px !important;
   }
 }
 
@@ -327,7 +323,6 @@ New CSS File
     .material-icons {
       vertical-align:middle;
       line-height:16px;
-      // font-weight:900;
     }
   }
 }

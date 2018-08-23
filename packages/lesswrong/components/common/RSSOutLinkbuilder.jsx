@@ -36,21 +36,21 @@ class RSSOutLinkbuilder extends Component {
     super(props);
     if (props.user) {
       this.state = {
-        rssTerms: { view: "userPosts", userId: props.user._id, karmaThreshold: 0 }
+        rssTerms: { view: "userPosts", userId: props.user._id, karmaThreshold: 2 }
       }
     } else if (props.commentsOn) {
       this.state = {
-        rssTerms: { type: "comments", view: "postCommentsNew", postId: props.commentsOn._id, karmaThreshold: 0 }
+        rssTerms: { type: "comments", view: "postCommentsNew", postId: props.commentsOn._id, karmaThreshold: 2 }
       }
     } else if(props.view) {
       this.state = {
-        rssTerms: { view: props.view, karmaThreshold: 0}
+        rssTerms: { view: props.view, karmaThreshold: 2}
       }
     } else {
       //eslint-disable-next-line no-console
       console.error("Unclear how to build RSS links for: ", props);
       this.state = {
-        rssTerms: { view: "rss", karmaThreshold: 0 }
+        rssTerms: { view: "rss", karmaThreshold: 2 }
       }
     }
     this.state = {...this.state, open:false, copied:false}

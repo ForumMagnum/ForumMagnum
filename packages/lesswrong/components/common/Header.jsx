@@ -47,7 +47,8 @@ const styles = theme => ({
     color: getTextColor(theme),
     verticalAlign: 'middle',
     fontSize: 19,
-    marginTop: 1,
+    position: "relative",
+    top: 3,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
@@ -63,10 +64,9 @@ const styles = theme => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
-  negativeRightMargin: {
+  rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
-    alignItems: "center"
   }
 });
 
@@ -126,7 +126,7 @@ class Header extends Component {
                     </Link>
                   </Hidden>
                 </Typography>
-                <div className={classes.negativeRightMargin}>
+                <div className={classes.rightHeaderItems}>
                   <NoSSR><Components.ErrorBoundary>
                     <Components.SearchBar color={getTextColor(theme)} />
                   </Components.ErrorBoundary></NoSSR>

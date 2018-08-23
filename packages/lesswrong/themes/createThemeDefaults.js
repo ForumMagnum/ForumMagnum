@@ -48,18 +48,27 @@ const createLWTheme = (theme) => {
     lineHeight: '2rem'
   }
 
+  const body2FontSize = {
+    fontSize: '1.1rem',
+    lineHeight: '1.5rem',
+  }
+
+  const spacingUnit = 8
+
   const typography = theme.typography || {}
 
   const defaultLWTheme = {
+    spacing: {
+      unit: spacingUnit
+    },
     typography: {
       postStyle: {},
       headerStyle: {},
       body1: body1FontSize,
       body2: {
-        fontSize: '1.1rem',
-        lineHeight: '1.5rem',
         fontWeight: 400,
         linkUnderlinePosition: "72%",
+        ...body2FontSize
       },
       display1: {
         color: grey[800],
@@ -79,14 +88,30 @@ const createLWTheme = (theme) => {
         color: grey[800],
       },
       title: {
+        fontSize: 18,
         fontWeight: 400,
+        marginBottom: 3,
       },
       blockquote: {
         fontWeight: 400,
-        padding: ".75em 2em",
+        paddingTop: spacingUnit*2,
+        paddingRight: spacingUnit*2,
+        paddingBottom: spacingUnit*2,
+        paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
         ...body1FontSize
+      },
+      commentBlockquote: {
+        fontWeight: 400,
+        paddingTop: spacingUnit,
+        paddingRight: spacingUnit*3,
+        paddingBottom: spacingUnit,
+        paddingLeft: spacingUnit*2,
+        borderLeft: `solid 3px ${grey[300]}`,
+        margin: 0,
+        marginLeft: spacingUnit*1.5,
+        ...body2FontSize
       },
       codeblock: {
         backgroundColor: grey[100],
@@ -105,7 +130,7 @@ const createLWTheme = (theme) => {
       },
       code: {
         fontFamily: monoStack,
-        fontSize: "1rem",
+        fontSize: ".85em",
         fontWeight: 400,
         backgroundColor: grey[100],
         borderRadius: 2,
@@ -120,10 +145,20 @@ const createLWTheme = (theme) => {
         marginTop: '.5em',
         fontWeight:500,
       },
+      subheading: {
+        fontSize:15,
+        color: grey[600]
+      },
       subtitle: {
         fontSize: 16,
         fontWeight: 600,
         marginBottom: ".5rem"
+      },
+      uiLink: {
+        color: grey[500],
+        '&:hover': {
+          color:grey[300]
+        }
       }
     },
     voting: {

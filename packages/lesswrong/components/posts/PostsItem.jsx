@@ -22,7 +22,8 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { withTheme, withStyles } from '@material-ui/core/styles';
-import { postHighlightStyles, postBodyStyles } from '../../themes/stylePiping'
+import { postHighlightStyles } from '../../themes/stylePiping'
+import Typography from '@material-ui/core/Typography';
 
 const paperStyle = {
   backgroundColor: 'inherit',
@@ -32,9 +33,42 @@ const styles = theme => ({
   root: {
     ...theme.typography.postStyle
   },
-  postBody: {
-    ...postHighlightStyles(theme, postBodyStyles),
+  highlight: {
+    maxWidth:570,
+    padding:theme.spacing.unit*2,
+    ...postHighlightStyles(theme),
   },
+  highlightContinue: {
+    marginTop:theme.spacing.unit*2
+  },
+  content: {
+    paddingLeft:10,
+    paddingTop:10,
+    width:"calc(100% - 100px)"
+  },
+  linkPost: {
+    marginBottom: theme.spacing.unit*2,
+    ...theme.typography.postStyle,
+    '& > a': {
+      color: theme.palette.secondary.light
+    }
+  },
+  commentCountIcon: {
+    position:"absolute",
+    right:"50%",
+    top:"50%",
+    transform:"translate(50%, -50%)",
+  },
+  commentCount: {
+    position:"absolute",
+    right:"50%",
+    top:"50%",
+    marginTop:-3,
+    transform:"translate(50%, -50%)",
+    color:"white",
+    fontVariantNumeric:"lining-nums",
+    ...theme.typography.commentStyle
+  }
 })
 
 const isSticky = (post, terms) => {
@@ -162,13 +196,19 @@ class PostsItem extends PureComponent {
     let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
-    if (isSticky(post, terms)) postClass += " posts-sticky";
     if (this.state.showHighlight) postClass += " show-highlight";
     const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     const renderCommentsButton = () => {
       const read = this.state.lastVisitedAt;
       const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
+      const commentsButtonClassnames = classNames(
+        "posts-item-comments",
+        {
+          "selected":this.state.showNewComments,
+          "highlight-selected":this.state.showHighlight
+        }
+      )
 
       const commentCountIconStyle = {
         width:"30px",
@@ -177,9 +217,9 @@ class PostsItem extends PureComponent {
       }
 
       return (
-        <div>
-          <CommentIcon className="posts-item-comment-icon" style={commentCountIconStyle}/>
-          <div className="posts-item-comment-count">
+        <div onClick={this.toggleNewComments} className={commentsButtonClassnames}>
+          <CommentIcon className={classes.commentCountIcon} style={commentCountIconStyle}/>
+          <div className={classes.commentCount}>
             { commentCount }
           </div>
         </div>
@@ -203,11 +243,9 @@ class PostsItem extends PureComponent {
             className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
           >
 
-            <div className="posts-item-body">
-              <Link to={this.getPostLink()} className="posts-item-title-link">
-                <h3 className="posts-item-title">
-                  {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
-                </h3>
+            <div className={classes.content}>
+              <Link to={this.getPostLink()}>
+                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
               </Link>
               <object>
                 <div className="posts-item-meta" onClick={this.toggleHighlight}>
@@ -244,32 +282,22 @@ class PostsItem extends PureComponent {
                   </div>
                 </div>
               </object>
-              <div className="post-category-display-container" onClick={this.toggleHighlight}>
-                <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
-              </div>
             </div>
-          </div>
+            <div className="post-category-display-container" onClick={this.toggleHighlight}>
+              <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
+            </div>
 
-          <div
-            onClick={this.toggleNewComments}
-            className={classNames(
-              "posts-item-comments",
-              {
-                "selected":this.state.showNewComments,
-                "highlight-selected":this.state.showHighlight
-              }
-            )}
-          >
             { renderCommentsButton() }
+
           </div>
           { this.state.showHighlight &&
             <div className="posts-item-highlight">
-              { post.url && <p className="posts-page-content-body-link-post">
-                This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-              </p>}
-              <div className="post-highlight" >
-                <div className={classes.postBody} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
-                <div className="post-highlight-continue">
+              <div className={classes.highlight}>
+                { post.url && <Typography variant="body2" className={classes.linkPost}>
+                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+                </Typography>}
+                <div dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+                <div className={classes.highlightContinue}>
                   {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
                     (Continue Reading{` – ${post.wordCount - 280} more words`})
                   </Link>}

@@ -1,9 +1,19 @@
 import { linkStyle } from './createThemeDefaults'
+import deepmerge from 'deepmerge';
+import isPlainObject from 'is-plain-object';
 
 export const postBodyStyles = (theme, fontSize) => {
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
+    '& p': {
+      '&:first-of-type': {
+        marginTop: 0,
+      },
+      '&:last-of-type': {
+        marginBottom: 0,
+      }
+    },
     '& pre': {
       ...theme.typography.codeblock
     },
@@ -53,34 +63,19 @@ export const postBodyStyles = (theme, fontSize) => {
 }
 
 export const commentBodyStyles = theme => {
-  return {
+  const commentBodyStyles = {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    '& pre': {
-      ...theme.typography.codeblock
-    },
-    '& code': {
-      ...theme.typography.code
-    },
     '& blockquote': {
-      ...theme.typography.blockquote,
+      ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
       ...theme.typography.commentStyle
     },
     '& li': {
       ...theme.typography.body2,
-      ...theme.typography.li,
       ...theme.typography.commentStyle
     },
-    '& h1': {
-      ...theme.typography.commentHeader,
-      ...theme.typography.commentStyle
-    },
-    '& h2': {
-      ...theme.typography.commentHeader,
-      ...theme.typography.commentStyle
-    },
-    '& h3': {
+    '& h1, & h2, & h3': {
       ...theme.typography.commentHeader,
       ...theme.typography.commentStyle
     },
@@ -99,6 +94,29 @@ export const commentBodyStyles = theme => {
       })
     },
   }
+  return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
+}
+
+export const postHighlightStyles = theme => {
+  const postHighlightStyles = {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    '& blockquote': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+      '& > p': {
+        margin:0
+      },
+    },
+    '& li': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+    },
+    '& h1, & h2, & h3': {
+      ...theme.typography.commentHeader,
+    },
+  }
+  return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
 export const postHighlightStyles = theme => {

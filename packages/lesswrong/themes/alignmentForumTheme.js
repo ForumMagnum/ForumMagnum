@@ -59,6 +59,13 @@ const theme = createLWTheme({
     },
     body1: {
       linkUnderlinePosition: "90%",
+    },
+  },
+  overrides: {
+    Header: {
+      titleLink: {
+        top: 0
+      }
     }
   }
 });

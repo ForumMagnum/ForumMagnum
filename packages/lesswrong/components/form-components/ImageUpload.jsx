@@ -1,7 +1,7 @@
 /* global cloudinary */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {registerComponent} from 'meteor/vulcan:core';
+import {registerComponent, getSetting} from 'meteor/vulcan:core';
 import Helmet from 'react-helmet';
 import FlatButton from 'material-ui/FlatButton';
 import { Image } from 'cloudinary-react';
@@ -42,17 +42,17 @@ class ImageUpload extends Component {
       min_image_height = 80;
       min_image_width = 203;
       cropping_aspect_ratio = 2.5375;
-      upload_preset = 'tz0mgw2s';
+      upload_preset = getSetting('cloudinary.uploadPresetGridImage', 'tz0mgw2s');
     } else if (this.props.name == "bannerImageId") {
       min_image_height = 380;
       min_image_width = 1600;
       cropping_aspect_ratio = 2.5375;
       cropping_default_selection_ratio = 3;
-      upload_preset = 'navcjwf7';
+      upload_preset = getSetting('cloudinary.uploadPresetBanner', 'navcjwf7');
     }
     cloudinary.openUploadWidget(
       {cropping: "server",
-      cloud_name: 'lesswrong-2-0',
+      cloud_name: getSetting('cloudinary.cloudName', 'lesswrong-2-0'),
       upload_preset,
       theme: 'minimal',
       min_image_height,
@@ -64,6 +64,7 @@ class ImageUpload extends Component {
     }, this.setImageInfo);
   }
   render(){
+    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
     return (
       <div className="upload">
         <Helmet>
@@ -74,7 +75,7 @@ class ImageUpload extends Component {
         {this.state.imageId &&
           <Image
             publicId={this.state.imageId}
-            cloudName="lesswrong-2-0"
+            cloudName={cloudinaryCloudName}
             quality="auto"
             sizes="100vw"
             responsive={true}

@@ -42,7 +42,6 @@ const styles = theme => ({
 class PostsVote extends PureComponent {
   render() {
     const { post, classes, currentUser, collection } = this.props
-    const allVotes = post && post.allVotes;
     const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     return (
@@ -65,7 +64,7 @@ class PostsVote extends PureComponent {
           </Tooltip>
           <div className={classes.voteScores}>
             <Tooltip
-              title={allVotes &&`${allVotes.length} ${allVotes.length == 1 ? "Vote" : "Votes"}`}
+              title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
               placement="right"
               classes={{tooltip: classes.tooltip}}
             >
@@ -113,4 +112,4 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote, withStyles(styles));
+registerComponent('PostsVote', PostsVote, withStyles(styles, { name: 'PostsVote'}));

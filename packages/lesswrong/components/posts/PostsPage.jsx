@@ -59,6 +59,7 @@ const styles = theme => ({
       WebkitMarginEnd: 0
     },
     author: {
+      marginTop: 18,
       textAlign: 'center',
     },
     mainContent: {
@@ -72,8 +73,9 @@ const styles = theme => ({
     },
     postContent: postBodyStyles(theme),
     linkPost: {
-      marginBottom: 10,
+      marginBottom: theme.spacing.unit*2,
       paddingTop: 1,
+      ...theme.typography.postStyle,
       '& > a': {
         color: theme.palette.secondary.light
       }
@@ -152,7 +154,7 @@ class PostsPage extends Component {
   getNavTitleUrl = () => {
     const post = this.props.document
     if (post && post.canonicalSequence && post.canonicalSequence.title) {
-      return "/sequences/" + post.canonicalSequenceId
+      return "/s/" + post.canonicalSequenceId
     } else if (post && post.canonicalCollectionSlug) {
       return "/" + post.canonicalCollectionSlug
     }

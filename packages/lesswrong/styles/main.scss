@@ -48,10 +48,6 @@
   opacity: 0.3;
 }
 
-.posts-day h2{
-  font-weight: bold;
-}
-
 
 /*
 
@@ -134,6 +130,14 @@ then moved to more specific files as it becomes necessary.
   }
 }
 
+.users-menu-contents a {
+  // When the user menu is first opened, it incorrectly detects the first menu
+  // item as hovered, but doesn't activate it like it would with a real hover.
+  // With Bootstrap's default hover effect for <a> links, this would look like
+  // it's grayed out.
+  opacity: 1 !important;
+}
+
 // CSS modifications for notifications navbar
 .navbar-nav{
   .notification-nav{
@@ -190,23 +194,6 @@ then moved to more specific files as it becomes necessary.
   .downvote-button{
     color: $lw-green !important;
   }
-}
-
-// CSS modifications for the three different editor types: commentEditor, postEditor
-// and messageEditor. For now they are all equal, but we probably want to change
-// that in the future
-
-
-.commentEditor{
-  font-size: 18px !important;
-  line-height: 1.25 !important;
-  color: rgba(0,0,0,0.87);
-}
-
-.postEditor{
-  font-size: 18px !important;
-  margin-bottom: 10px;
-  color: rgba(0,0,0,0.87);
 }
 
 .messageEditor{

@@ -13,18 +13,18 @@ const SequencesNavigationLink = ({
     direction,
     router}
   ) => {
-    const post = slug && document
+    const post = (slug || documentId) && document
     const className = "sequences-navigation-top-" + direction
     const iconStyle = !slug && !documentId ? {color: "rgba(0,0,0,.2)"} : {}
     return (
       <IconButton
-          iconStyle={ iconStyle }
-          className={ className }
-          disabled={ !slug && !documentId }
-          iconClassName="material-icons"
-          tooltip={post && post.title}
-          onClick={() => router.push(documentUrl)}>
-          { direction === "left" ? "navigate_before" : "navigate_next" }
+        iconStyle={ iconStyle }
+        className={ className }
+        disabled={ !slug && !documentId }
+        iconClassName="material-icons"
+        tooltip={post && post.title}
+        onClick={() => router.push(documentUrl)}>
+        { direction === "left" ? "navigate_before" : "navigate_next" }
        </IconButton>
      )
 };
