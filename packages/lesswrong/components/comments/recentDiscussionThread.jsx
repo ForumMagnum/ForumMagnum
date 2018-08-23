@@ -33,7 +33,6 @@ const styles = theme => ({
     ...theme.typography.postStyle,
   },
   continueReading: {
-    display:"block",
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
   }
