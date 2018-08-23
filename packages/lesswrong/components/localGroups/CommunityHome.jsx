@@ -11,6 +11,7 @@ import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
 import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
+import { Link } from 'react-router';
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -127,8 +128,14 @@ class CommunityHome extends Component {
         />
         <Components.Section title="Local Groups" titleComponent={<div>
           {this.props.currentUser && <Components.GroupFormLink />}
-          {this.props.currentUser && <Components.SectionTitleLink to={{pathname:"/newPost", query: {eventForm: true}}}> Create new event </Components.SectionTitleLink>}
-          <Components.SectionTitleLink to="/pastEvents">See past events</Components.SectionTitleLink>
+          {this.props.currentUser && <Components.SectionSubtitle>
+            <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+              Create new event
+            </Link>
+          </Components.SectionSubtitle>}
+          <Components.SectionSubtitle>
+            <Link to="/pastEvents">See past events</Link>
+          </Components.SectionSubtitle>
         </div>}>
           {this.state.currentUserLocation &&
             <div>

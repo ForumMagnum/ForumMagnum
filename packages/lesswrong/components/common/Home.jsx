@@ -1,6 +1,7 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router';
 
 const styles = theme => ({
   recommendedReading: {
@@ -87,9 +88,9 @@ const Home = (props, context) => {
           contentStyle={{marginTop: '-20px'}}
           title="Recommended Reading"
           titleLink="/library"
-          titleComponent= {<Components.SectionTitleLink to="/library">
-            Sequence Library
-          </Components.SectionTitleLink>}
+          titleComponent= {<Components.SectionSubtitle>
+            <Link to="/library">Sequence Library</Link>
+          </Components.SectionSubtitle>}
         >
           <div className={classes.recommendedReading}>
             <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
@@ -101,9 +102,9 @@ const Home = (props, context) => {
           <Components.Section
             title="Recommended Sequences"
             titleLink="/library"
-            titleComponent= {<Components.SectionTitleLink to="/library">
-              Sequence Library
-            </Components.SectionTitleLink>}
+            titleComponent= {<Components.SectionSubtitle to="/library">
+              <Link to="/library">Sequence Library</Link>
+            </Components.SectionSubtitle>}
           >
             <Components.SequencesGridWrapper
               terms={{view:"curatedSequences", limit:3}}
@@ -125,9 +126,9 @@ const Home = (props, context) => {
         title="Community"
         titleLink="/community"
         titleComponent={<div>
-          <Components.SectionTitleLink to="/community">
-            Find Events Nearby
-          </Components.SectionTitleLink>
+          <Components.SectionSubtitle>
+          <Link to="/community">Find Events Nearby</Link>
+          </Components.SectionSubtitle>
         </div>}
       >
         <Components.PostsList
