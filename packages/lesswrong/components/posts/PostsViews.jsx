@@ -6,7 +6,6 @@ import { withRouter, Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
-import _ from 'lodash';
 
 const viewDataDict = {
   'curated': {
@@ -82,7 +81,7 @@ class PostsViews extends Component {
     }
   }
 
-  handleChange = (view, ev) => {
+  handleChange = (view, event) => {
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };

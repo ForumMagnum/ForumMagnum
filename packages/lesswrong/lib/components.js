@@ -48,6 +48,7 @@ import '../components/common/ErrorBoundary.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
+import '../components/common/SubscribeDialog.jsx';
 
 import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/CategoryDisplay.jsx';
