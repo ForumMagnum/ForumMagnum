@@ -58,6 +58,7 @@ const styles = theme => ({
       WebkitMarginEnd: 0
     },
     author: {
+      marginTop: 18,
       textAlign: 'center',
     },
     mainContent: {
@@ -71,8 +72,9 @@ const styles = theme => ({
     },
     postContent: postBodyStyles(theme),
     linkPost: {
-      marginBottom: 10,
+      marginBottom: theme.spacing.unit*2,
       paddingTop: 1,
+      ...theme.typography.postStyle,
       '& > a': {
         color: theme.palette.secondary.light
       }

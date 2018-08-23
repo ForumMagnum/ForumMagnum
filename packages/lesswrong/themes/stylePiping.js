@@ -9,6 +9,9 @@ export const postBodyStyles = (theme, fontSize) => {
     '& p': {
       '&:first-of-type': {
         marginTop: 0,
+      },
+      '&:last-of-type': {
+        marginBottom: 0,
       }
     },
     '& pre': {
@@ -64,6 +67,7 @@ export const commentBodyStyles = theme => {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     '& blockquote': {
+      ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
       ...theme.typography.commentStyle
     },
@@ -99,12 +103,14 @@ export const postHighlightStyles = theme => {
     ...theme.typography.postStyle,
     '& blockquote': {
       ...theme.typography.body2,
+      ...theme.typography.postStyle,
       '& > p': {
         margin:0
       },
     },
     '& li': {
       ...theme.typography.body2,
+      ...theme.typography.postStyle,
     },
     '& h1, & h2, & h3': {
       ...theme.typography.commentHeader,
