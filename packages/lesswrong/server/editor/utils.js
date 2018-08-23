@@ -45,9 +45,9 @@ Posts.createExcerpt = (body) => {
   const excerpt = body.slice(0,400)
   if (excerpt.includes("[")) {
     const excerptTrimLink = excerpt.split("[").slice(0, -1).join('[')
-    return mdi.render(excerptTrimLink) + `... <span class="post-excerpt-read-more">(Read More)</span>`
+    return mdi.render(excerptTrimLink + "... (Read More)")
   } else {
-    return mdi.render(excerpt) + `... <span class="post-excerpt-read-more">(Read More)</span>`
+    return mdi.render(excerpt + "... (Read More)")
   }
 }
 
