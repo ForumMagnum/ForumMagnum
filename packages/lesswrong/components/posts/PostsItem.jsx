@@ -203,6 +203,13 @@ class PostsItem extends PureComponent {
     const renderCommentsButton = () => {
       const read = this.state.lastVisitedAt;
       const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
+      const commentsButtonClassnames = classNames(
+        "posts-item-comments",
+        {
+          "selected":this.state.showNewComments,
+          "highlight-selected":this.state.showHighlight
+        }
+      )
 
       const commentCountIconStyle = {
         width:"30px",
@@ -211,14 +218,7 @@ class PostsItem extends PureComponent {
       }
 
       return (
-        <div onClick={this.toggleNewComments}
-          className={classNames(
-            "posts-item-comments",
-            {
-              "selected":this.state.showNewComments,
-              "highlight-selected":this.state.showHighlight
-            }
-        )}>
+        <div onClick={this.toggleNewComments} className={commentsButtonClassnames}>
           <CommentIcon className={classes.commentCountIcon} style={commentCountIconStyle}/>
           <div className={classes.commentCount}>
             { commentCount }
@@ -246,7 +246,7 @@ class PostsItem extends PureComponent {
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
-                <Components.PostsItemTitle post={post} />
+                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
               </Link>
               <object>
                 <div className="posts-item-meta" onClick={this.toggleHighlight}>
