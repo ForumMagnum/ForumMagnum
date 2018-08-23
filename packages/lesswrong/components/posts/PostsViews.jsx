@@ -83,13 +83,6 @@ class PostsViews extends Component {
   }
 
   handleChange = (view, ev) => {
-    // ignore if the user clicked on the menu
-    let elem = ev.target;
-    do {
-      if (_.intersection(elem.classList, ["view-chip-menu-wrapper", "rss-out-linkbuilder-dialog"]).length > 0) return;
-      if (elem.classList.contains("posts-view")) break;
-    } while ((elem = elem.parentElement));
-
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };
@@ -125,7 +118,6 @@ class PostsViews extends Component {
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { viewData.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewData.rssView} /></div> }
         </div>
       </div>
     )

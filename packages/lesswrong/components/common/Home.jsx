@@ -118,6 +118,7 @@ const Home = (props, context) => {
         </div>}
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
+          <Components.SubscribeWidget view={recentPostsTerms.view} />
           <Components.PostsViews />
         </div>} >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
