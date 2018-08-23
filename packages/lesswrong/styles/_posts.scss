@@ -393,14 +393,6 @@
       }
     }
   }
-
-  &.posts-sticky{
-    .posts-item-title::before {
-      font-size: $large-font;
-      content: url('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1501979389/Vector_jzpt6u.svg');
-      margin-right: 3px;
-    }
-  }
 }
 
 .hide-highlight-button, .show-highlight-button {
