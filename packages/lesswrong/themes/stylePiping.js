@@ -67,6 +67,7 @@ export const commentBodyStyles = theme => {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     '& blockquote': {
+      ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
       ...theme.typography.commentStyle
     },
