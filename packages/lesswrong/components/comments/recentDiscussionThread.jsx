@@ -180,7 +180,7 @@ class RecentDiscussionThread extends PureComponent {
           {loading || !results ? <Loading /> :
           <div className={"comments-items"}>
             {nestedComments.map(comment =>
-              <div key={comment._id}>
+              <div key={comment.item._id}>
                 <Components.CommentsNode
                   currentUser={currentUser}
                   comment={comment.item}

@@ -32,7 +32,8 @@ const CollectionsCard = ({collection, big = false, url, classes}) => {
             {collection.title}
           </Typography>
           <Typography variant="subheading" className={classes.author}>
-            by <Components.UsersName user={collection.user}/>
+            {/* Necessary to avoid A-within-A console error */}
+            by <object><Components.UsersName user={collection.user}/></object>
           </Typography>
           <Typography variant="body2" className={classes.text}>
             {collection.summary}

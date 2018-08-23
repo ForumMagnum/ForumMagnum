@@ -79,7 +79,9 @@ const SequencesHome = ({document, currentUser, loading}) => {
     <div>
       <div className="sequences-list-community-sequences">
         <Components.Section title="Community Sequences" titleComponent={<div className="recent-posts-title-component users-profile-drafts">
-          <div className="new-sequence-link"><Link to={"/sequencesnew"}> new sequence </Link></div>
+          <Components.SectionSubtitle>
+            <Link to={"/sequencesnew"}> new sequence </Link>
+          </Components.SectionSubtitle>
         </div>}>
           <Components.SequencesGridWrapper
             terms={{'view':'communitySequences', limit:12}}
