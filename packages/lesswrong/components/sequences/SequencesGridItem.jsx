@@ -10,12 +10,20 @@ import React from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import classNames from 'classnames';
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  root: {
+    ...theme.typography.postStyle
+  }
+})
 
 const SequencesGridItem = ({
   sequence,
   currentUser,
-  showAuthor=false
+  showAuthor=false,
+  classes
 }) => {
   // const allPostsList = sequence.chapters && _.reduce(sequence.chapters, (memo, c) => [...memo, ...c.posts], []);
   // const totalPostsNumber = _.reduce(sequence.chapters, (memo, c) => [...memo, ...c.postIds], []).length;
@@ -24,12 +32,13 @@ const SequencesGridItem = ({
   // const readPostsNumber = allPostsList && _.filter(allPostsList, (p) => p && p.lastVisitedAt).length;
   const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
-  return <div className="sequences-grid-item" >
+  return <div className={classNames("sequences-grid-item", classes.root)} >
     <div className={classNames("sequences-grid-item-top", {author: showAuthor})} style={{borderTopColor: sequence.color}}>
-      <div className="sequences-grid-item-title">
+      <Typography variant='title' className="sequences-grid-item-title">
         {sequence.draft && <span className="sequences-grid-item-title-draft">[Draft] </span>}
         {sequence.title}
-      </div>
+      </Typography>
+
       { showAuthor && <object>
         <Link to={Users.getProfileUrl(sequence.user)}>
           <div className="sequences-grid-item-author">
@@ -61,4 +70,4 @@ const SequencesGridItem = ({
 
 SequencesGridItem.displayName = "SequencesGridItem";
 
-registerComponent('SequencesGridItem', SequencesGridItem, withCurrentUser);
+registerComponent('SequencesGridItem', SequencesGridItem, withCurrentUser, withStyles(styles));

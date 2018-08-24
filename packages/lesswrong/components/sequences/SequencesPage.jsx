@@ -12,6 +12,17 @@ import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import classNames from 'classnames';
+
+const styles = theme => ({
+  title: {
+    fontVariant: "small-caps",
+    color: "white",
+    ...theme.typography.postStyle
+  }
+})
 
 class SequencesPage extends Component {
   constructor(props) {
@@ -30,7 +41,7 @@ class SequencesPage extends Component {
   }
 
   render() {
-    const {document, currentUser, loading} = this.props;
+    const { document, currentUser, loading, classes } = this.props;
     if (document && document.isDeleted) {
       return <h3>This sequence has been deleted</h3>
     } if (loading || !document) {
@@ -67,9 +78,9 @@ class SequencesPage extends Component {
               </div>
             </NoSSR>
             <div className="sequences-title-wrapper">
-              <div className="sequences-title">
+              <Typography variant='display2' className={classNames("sequences-title", classes.title)}>
                 {document.draft && <span className="sequences-page-content-header-title-draft">[Draft] </span>}{document.title}
-              </div>
+              </Typography>
             </div>
           </div>
         </div>
@@ -116,4 +127,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser);
+registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles));
