@@ -68,7 +68,7 @@ const postsPerWeek = {
 const viewNames = {
   'frontpage': 'Frontpage',
   'curated': 'Curated Content',
-  'community': 'Community',
+  'community': 'All Posts',
   'meta': 'Meta',
   'pending': 'pending posts',
   'rejected': 'rejected posts',
@@ -151,6 +151,31 @@ class SubscribeDialog extends Component {
     return false;
   }
 
+  selectMethod(method) {
+    this.setState({
+      copiedRSSLink: false,
+      subscribedByEmail: false,
+      method
+    })
+  }
+
+  selectThreshold(threshold) {
+    this.setState({
+      copiedRSSLink: false,
+      subscribedByEmail: false,
+      threshold
+    })
+  }
+
+
+  selectView(view) {
+    this.setState({
+      copiedRSSLink: false,
+      subscribedByEmail: false,
+      view
+    })
+  }
+
   render() {
     const { classes, fullScreen, onClose, open } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
@@ -159,12 +184,13 @@ class SubscribeDialog extends Component {
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
       <Select
         value={view}
-        onChange={ event => this.setState({ view: event.target.value }) }
+        onChange={ event => this.selectView(event.target.value) }
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         <MenuItem value="curated">Curated</MenuItem>
         <MenuItem value="frontpage">Frontpage</MenuItem>
         <MenuItem value="community">All Posts</MenuItem>
+        <MenuItem value="meta">Meta</MenuItem>
       </Select>
     </FormControl>
 
@@ -178,7 +204,7 @@ class SubscribeDialog extends Component {
           value={method}
           indicatorColor="primary"
           textColor="primary"
-          onChange={ (event, value) => this.setState({ method: value }) }
+          onChange={ (event, value) => this.selectMethod(value) }
           className={classes.tabbar}
           fullWidth
         >
@@ -194,7 +220,7 @@ class SubscribeDialog extends Component {
               <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
               <RadioGroup
                 value={threshold}
-                onChange={ (event, value) => this.setState({ threshold: value }) }
+                onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
                 { [2, 30, 45, 75].map(t => t.toString()).map(threshold =>

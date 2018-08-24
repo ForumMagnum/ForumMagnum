@@ -24,6 +24,17 @@ const styles = theme => ({
   },
   highlightedLabel: {
     opacity: "1.0"
+  },
+  buttons: {
+    marginBottom: -theme.spacing.unit
+  },
+  [`@media (max-width: ${theme.breakpoints.values.md}px)`]: {
+    buttons: {
+      marginTop: -3 * theme.spacing.unit,
+      height: 2 * theme.spacing.unit,
+      marginBottom: theme.spacing.unit,
+      textAlign: "right"
+    }
   }
 });
 
