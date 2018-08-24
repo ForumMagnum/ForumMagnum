@@ -26,6 +26,9 @@ const styles = theme => ({
   },
   secondaryScoreNumber: {
     marginLeft: 3,
+  },
+  tooltip: {
+    fontSize: '1rem',
   }
 })
 
@@ -39,7 +42,7 @@ class CommentsVote extends PureComponent {
       <div className={classNames("comments-item-vote"), classes.vote}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
-            <Tooltip title={<div>Downvote<br /><em>(Click-and-hold for strong downvote)</em></div>} placement="bottom">
+            <Tooltip title={<div>Downvote<br /><em>(Click-and-hold for strong downvote)</em></div>} placement="bottom" classes={{tooltip: classes.tooltip}}>
               <span>
                 <Components.VoteButton
                   orientation="left"
@@ -51,12 +54,12 @@ class CommentsVote extends PureComponent {
                 />
               </span>
             </Tooltip>
-            <Tooltip title={`${voteCount} ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
+            <Tooltip title={`${voteCount} ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom" classes={{tooltip: classes.tooltip}}>
               <span className={classes.voteScore}>
                 {baseScore || 0}
               </span>
             </Tooltip>
-            <Tooltip title={<div>Upvote<br /><em>(Click-and-hold for strong upvote)</em></div>} placement="bottom">
+            <Tooltip title={<div>Upvote<br /><em>(Click-and-hold for strong upvote)</em></div>} placement="bottom" classes={{tooltip: classes.tooltip}}>
               <span>
                 <Components.VoteButton
                   orientation="right"
@@ -71,7 +74,7 @@ class CommentsVote extends PureComponent {
           </span>
         }
         {!!comment.af && !getSetting('AlignmentForum', false) &&
-          <Tooltip title="Alignment Forum Karma" placement="bottom">
+          <Tooltip title="Alignment Forum Karma" placement="bottom" className={{tooltip: classes.tooltip}}>
             <span className={classes.secondaryScore}>
               <span className={classes.secondarySymbol}>Ω</span>
               <span className={classes.secondaryScoreNumber}>{comment.afBaseScore || 0}</span>
@@ -79,7 +82,7 @@ class CommentsVote extends PureComponent {
           </Tooltip>
         }
         {!comment.af && getSetting('AlignmentForum', false) &&
-          <Tooltip title="LessWrong Karma" placement="bottom">
+          <Tooltip title="LessWrong Karma" placement="bottom" classes={{tooltip: classes.tooltip}}>
             <span className={classes.secondaryScore}>
               <span className={classes.secondarySymbol}>LW</span>
               <span className={classes.secondaryScoreNumber}>{comment.baseScore || 0}</span>

@@ -21,11 +21,10 @@ import createMathjaxPlugin from 'draft-js-mathjax-plugin';
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 
 import {
+  createBlockStyleButton,
   ItalicButton,
   BoldButton,
   UnderlineButton,
-  HeadlineOneButton,
-  HeadlineTwoButton,
   BlockquoteButton
 } from 'draft-js-buttons';
 
@@ -36,6 +35,15 @@ import { htmlToDraft } from '../../lib/editor/utils.js'
 const styleMap = {
   ...codeStyle
 }
+
+const HeadlineTwoButton = createBlockStyleButton({
+  blockType: 'header-two',
+  children: (
+    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 4v3h5.5v12h3V7H19V4z"/>
+      <path d="M0 0h24v24H0V0z" fill="none"/>
+    </svg>),
+});
 
 class AsyncCommentEditor extends Component {
   constructor(props, context) {
@@ -98,7 +106,6 @@ class AsyncCommentEditor extends Component {
         UnderlineButton,
         linkPlugin.LinkButton,
         Separator,
-        HeadlineOneButton,
         HeadlineTwoButton,
         BlockquoteButton,
       ]
