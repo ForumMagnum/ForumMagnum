@@ -93,20 +93,22 @@ Comments.convertFromContentAsync = async function(content) {
 }
 
 /*
- * @summary Input is html, returns object with {body, excerpt}
+ * @summary Input is html, returns object with new post fields
 */
 
-Posts.convertFromHTML = (html, id, slug) => {
+Posts.convertFromHTML = (html, id, slug, sanitize) => {
   const body = turndownService.turndown(html)
   const excerpt = Posts.createExcerpt(body)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
+  const htmlBody = sanitize ? Utils.sanitize(html) : html
   return {
     body,
+    htmlBody,
     excerpt,
     wordCount,
     htmlHighlight,
-    lastEditedAs: "html"
+    lastEditedAs: "html",
   }
 }
 

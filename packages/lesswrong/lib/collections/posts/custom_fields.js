@@ -1054,7 +1054,8 @@ Posts.addField([
       insertableBy: ['members'],
       editableBy: ['members'],
       optional: true,
-      hidden: true,
+      hidden: (props) => !(props.currentUser && props.currentUser.isAdmin),
+      group: formGroups.adminOptions,
     }
   }
 ]);
