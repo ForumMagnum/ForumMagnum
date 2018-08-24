@@ -103,4 +103,7 @@ CommentsViews.defaultProps = {
 
 CommentsViews.displayName = "PostsViews";
 
-registerComponent('CommentsViews', CommentsViews, withRouter, withCurrentUser, withStyles(styles));
+registerComponent('CommentsViews', CommentsViews,
+  withRouter, withCurrentUser,
+  withStyles(styles, { name: "CommentsViews" })
+);

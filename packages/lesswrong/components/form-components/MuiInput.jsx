@@ -56,4 +56,4 @@ MuiInput.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiInput", MuiInput, withStyles(styles));
+registerComponent("MuiInput", MuiInput, withStyles(styles, { name: "MuiInput" }));

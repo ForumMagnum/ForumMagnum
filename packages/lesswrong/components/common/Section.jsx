@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
-
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -60,7 +59,7 @@ const styles = (theme) => ({
   }
 })
 
-const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, children, classes}) => {
+const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, subscribeLinks = null, children, classes}) => {
 
   return (
     <Components.ErrorBoundary>
@@ -71,6 +70,7 @@ const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/
               {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
             </Typography>
           </div>}
+          { subscribeLinks }
           {titleComponent && <div className={classes.sectionTitleBottom}>
             {titleComponent}
           </div>}

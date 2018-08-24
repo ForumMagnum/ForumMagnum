@@ -6,54 +6,8 @@ import { withRouter, Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
+import postViewSections from '../../lib/sections.js'
 
-const viewDataDict = {
-  'curated': {
-    label: "Curated Posts",
-    description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    categoryIcon:"star",
-    rssView: "curated-rss",
-    rss:true
-  },
-  'frontpage': {
-    label:'Frontpage Posts',
-    description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    includes: "(includes curated content and frontpage posts)",
-    rssView: "frontpage-rss",
-    rss:true
-  },
-  'community': {
-    label: 'All Posts',
-    description: "Includes personal and meta blogposts\n (as well as curated and frontpage).",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    categoryIcon:"person",
-    rssView: "community-rss",
-    rss:true
-  },
-  'meta': {
-    label: 'Meta',
-    description: "Meta - Discussion about the LessWrong site.",
-    categoryIcon:"details",
-    rssView: "meta-rss",
-    rss:true
-  },
-  'daily': {
-    label: 'Daily',
-    description: "Daily - All posts on LessWrong, sorted by date",
-    rss:false
-  },
-  'more': {
-    label: '...',
-    description: "See more options",
-    rss:false
-  },
-  'pending': 'pending posts',
-  'rejected': 'rejected posts',
-  'scheduled': 'scheduled posts',
-  'all_drafts': 'all drafts',
-}
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
 
@@ -140,8 +94,8 @@ class PostsViews extends Component {
 
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
               <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {viewDataDict[view].label}
-                { this.renderMenu(viewDataDict[view], view)}
+                {postViewSections[view].label}
+                { this.renderMenu(postViewSections[view], view)}
               </Components.SectionSubtitle>
             </span>
           </div>
@@ -158,27 +112,27 @@ class PostsViews extends Component {
               >
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
                   <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {viewDataDict[view].label}
-                    { this.renderMenu(viewDataDict[view])}
+                    {postViewSections[view].label}
+                    { this.renderMenu(postViewSections[view])}
                   </Components.SectionSubtitle>
                 </span>
               </div>
             ))}
             {!props.hideDaily && <div className="posts-view-button"><span style={ChipStyle} className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/meta">Meta { this.renderMenu(viewDataDict["meta"])}</Link>
+                <Link to="/meta">Meta { this.renderMenu(postViewSections["meta"])}</Link>
               </Components.SectionSubtitle></span>
             </div>}
             {!props.hideDaily && <span style={ChipStyle} className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/daily">Daily { this.renderMenu(viewDataDict["daily"])}</Link>
+                <Link to="/daily">Daily { this.renderMenu(postViewSections["daily"])}</Link>
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
-              { this.renderMenu(viewDataDict["more"])}
+              { this.renderMenu(postViewSections["more"])}
             </a>
           </span>
         }

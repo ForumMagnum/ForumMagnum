@@ -33,7 +33,7 @@ if (!Meteor.isPackageTest) {
         return "Activate your LessWrong 2.0 account";
      },
      text(user, url) {
-        return `Hey ${user}! Verify your e-mail by following this link: ${url}`;
+        return `Hey ${user.displayName}! Verify your e-mail by following this link: ${url}`;
      }
   };
 

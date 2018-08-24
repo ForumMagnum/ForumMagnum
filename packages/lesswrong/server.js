@@ -23,6 +23,7 @@ import './server/logging.js';
 import './server/material-ui/themeProvider';
 import './server/editor/callbacks.js';
 import './server/editor/utils.js';
+import './server/emails/index.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';

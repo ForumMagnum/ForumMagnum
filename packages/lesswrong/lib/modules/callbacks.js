@@ -7,6 +7,7 @@ import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
+import VulcanEmail from 'meteor/vulcan:email'
 import {
   addCallback,
   removeCallback,
@@ -60,6 +61,24 @@ const createNotifications = (userIds, notificationType, documentType, documentId
       currentUser: user,
       validate: false
     });
+  });
+}
+
+const sendEmailPostNotifications = async (users, notificationType, postId) => {
+  let post = Posts.findOne(postId);
+  
+  let email = await VulcanEmail.build({
+    emailName: "newPost",
+    variables: {
+      documentId: post._id
+    },
+    locale: "en"
+  });
+  
+  users.forEach(user => {
+    if(user.email) {
+      VulcanEmail.send(user.email, email.subject, email.html, email.text, false);
+    }
   });
 }
 
@@ -227,6 +246,14 @@ function postsNewNotifications (post) {
   }
 }
 addCallback("posts.new.async", postsNewNotifications);
+
+function PostsCurateNotification (post, oldPost) {
+  if(post.curatedDate && !oldPost.curatedDate) {
+    let usersToNotify = Users.find({'emailSubscribedToCurated': true}, {fields: {_id:1, email:1}}).fetch();
+    sendEmailPostNotifications(usersToNotify, "curated", post._id);
+  }
+}
+addCallback("posts.edit.async", PostsCurateNotification);
 
 
 // add new comment notification callback on comment submit
@@ -464,3 +491,4 @@ function fixUsernameOnGithubLogin(user) {
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
 
 removeCallback('router.onUpdate', 'RouterClearMessages');
+
