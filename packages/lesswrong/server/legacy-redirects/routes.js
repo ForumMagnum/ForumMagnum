@@ -6,13 +6,13 @@ import Users from 'meteor/vulcan:users';
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
 // /lw/postid possibly followed by a slug, comment ID, filter settings, or other
 // things, some of which is supported and some of which isn't.
-// 
+//
 // If a route has this optional prefix, use `subredditPrefixRoute` to represent
 // that part. It contains two optional parameters, constrained to be `r` and
 // a subreddit name, respectively (the subreddits being lesswrong, discussion,
 // and all). Since old-LW made all post IDs non-overlapping, we just ignore
 // which subreddit was specified.
-// 
+//
 // (In old LW, the set of possible subreddits may also have included user
 // account names, for things in users' draft folders. We don't support getting
 // old drafts via legacy routes; I'm not sure whether we support getting them
@@ -32,6 +32,14 @@ function findCommentByLegacyId(legacyId) {
 function makeRedirect(res, destination) {
   res.writeHead(301, {"Location": destination});
   res.end();
+}
+
+function findPostByLegacyAFId(legacyId) {
+  return Posts.findOne({"agentFoundationsId": legacyId})
+}
+
+function findCommentByLegacyAFId(legacyId) {
+  return Comments.findOne({"agentFoundationsId": legacyId})
 }
 
 
@@ -152,7 +160,7 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
 Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res, next) => {
   if(params.imageName){
     try {
-      return makeRedirect(res, 
+      return makeRedirect(res,
         `https://raw.githubusercontent.com/tricycle/lesswrong/master/r2/r2/public/static/imported/${params.year}/${params.month}/${params.day}/${params.imageName}`);
     } catch (error) {
       //eslint-disable-next-line no-console
@@ -218,4 +226,39 @@ Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
 // Route for old promoted RSS (promoted posts)
 Picker.route('/promoted/.rss', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?view=curated-rss');
+});
+
+
+// Route for old agent-foundations post and commentlinks
+Picker.route('/item', (params, req, res, next) => {
+  if(params.query.id){
+    const id = parseInt(params.query.id)
+    try {
+      const post = findPostByLegacyAFId(id);
+
+      if (post) {
+        return makeRedirect(res, Posts.getPageUrl(post));
+      } else {
+        const comment = findCommentByLegacyAFId(id);
+        if (comment) {
+          return makeRedirect(res, Comments.getPageUrl(comment))
+        } else {
+          // don't redirect if we can't find a post for that link
+          //eslint-disable-next-line no-console
+          console.log('// Missing legacy af item', params);
+          res.statusCode = 404
+          res.end(`No af legacy item found with: id=${params.query.id}`);
+        }
+
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('// Legacy item error', error, params)
+      res.statusCode = 404
+      res.end(`No legacy item found with: params=${params}`);
+    }
+  } else {
+    res.statusCode = 404
+    res.end("Please provide a URL");
+  }
 });
