@@ -52,6 +52,7 @@ class UsersMenu extends PureComponent {
         <Button onClick={this.handleClick}>
           <span className={classes.userButton} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
+            {currentUser && currentUser.karma>0 && ` (${currentUser.karma})`}
           </span>
         </Button>
         <Popover
