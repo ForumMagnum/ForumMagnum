@@ -5,6 +5,6 @@ import afTheme from '../themes/alignmentForumTheme'
 import eaTheme from '../themes/eaTheme'
 
 
-const forumTheme = eaTheme //getSetting('AlignmentForum', false) ? afTheme : lwTheme
+const forumTheme = getSetting('AlignmentForum', false) ? afTheme : lwTheme
 
 export default forumTheme

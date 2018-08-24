@@ -50,22 +50,40 @@ const theme = createLWTheme({
       fontFamily: headerStack,
     },
     commentStyle: {
-      fontFamily: sansSerifStack
+      fontFamily: serifStack
     },
     link: {
       underlinePosition: "72%",
     },
     title: {
-      fontWeight: 500,
+      fontFamily: headerStack,
+      fontWeight: 600,
     },
     display2: {
-      fontWeight: 500
+      fontFamily: headerStack,
+      fontWeight: 600
     },
     display3: {
-      fontWeight: 500
+      fontFamily: headerStack,
+      fontWeight: 600
     },
     body1: {
       linkUnderlinePosition: "90%",
+      fontSize: "1.2rem",
+      lineHeight: "1.8rem",
+      fontWeight:300,
+    },
+    body2: {
+      fontSize: ".9rem",
+      lineHeight: "1.5rem",
+      fontWeight:300,
+    }
+  },
+  overrides: {
+    Header: {
+      titleLink: {
+        top: 0
+      }
     }
   }
 });

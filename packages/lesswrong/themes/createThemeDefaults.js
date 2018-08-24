@@ -13,7 +13,7 @@ const monoStack = [
 export const linkStyle = ({theme, underlinePosition="97%", background}) => {
   return ({
     color: theme.palette.secondary.main,
-    backgroundImage: `linear-gradient(to right, ${theme.palette.secondary.main} 72%, transparent 72%)`,
+    backgroundImage: `linear-gradient(to right, ${theme.palette.secondary.main} 72%, transpapostHighlightStylesrent 72%)`,
     backgroundSize: "4px 1px",
     backgroundRepeat: "repeat-x",
     backgroundPosition:  `0% ${underlinePosition}`,
@@ -43,19 +43,20 @@ const createLWTheme = (theme) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 
-  const body1FontSize = {
+  const typography = theme.typography || {}
+
+  const body1 = typography.body1 || {
     fontSize: '1.4rem',
     lineHeight: '2rem'
   }
 
-  const body2FontSize = {
-    fontSize: '1.1rem',
+  const body2 = typography.body2 || {
+    fontSize: typography.body2 && typography.body2.fontSize || '1.1rem',
     lineHeight: '1.5rem',
   }
 
   const spacingUnit = 8
 
-  const typography = theme.typography || {}
 
   const defaultLWTheme = {
     spacing: {
@@ -64,11 +65,11 @@ const createLWTheme = (theme) => {
     typography: {
       postStyle: {},
       headerStyle: {},
-      body1: body1FontSize,
+      body1: body1,
       body2: {
         fontWeight: 400,
         linkUnderlinePosition: "72%",
-        ...body2FontSize
+        ...body2
       },
       display1: {
         color: grey[800],
@@ -100,7 +101,7 @@ const createLWTheme = (theme) => {
         paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
-        ...body1FontSize
+        ...body1
       },
       commentBlockquote: {
         fontWeight: 400,
@@ -111,7 +112,7 @@ const createLWTheme = (theme) => {
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
         marginLeft: spacingUnit*1.5,
-        ...body2FontSize
+        ...body2
       },
       codeblock: {
         backgroundColor: grey[100],
@@ -168,9 +169,7 @@ const createLWTheme = (theme) => {
 
   const mergedTheme = deepmerge(defaultLWTheme, theme, {isMergeableObject:isPlainObject})
 
-  const newTheme = createMuiTheme(mergedTheme)
-
-  return newTheme
+  return createMuiTheme(mergedTheme)
 }
 
 export default createLWTheme

@@ -119,59 +119,6 @@ export const postHighlightStyles = theme => {
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
-export const postHighlightStyles = theme => {
-  return {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    '& pre': {
-      ...theme.typography.codeblock
-    },
-    '& code': {
-      ...theme.typography.code,
-      fontSize: ".9rem",
-    },
-    '& blockquote': {
-      ...theme.typography.blockquote,
-      ...theme.typography.body2,
-      ...theme.typography.postStyle,
-      '& > p': {
-        margin:0
-      },
-    },
-    '& li': {
-      ...theme.typography.body2,
-      ...theme.typography.li,
-      ...theme.typography.postStyle
-    },
-    '& h1': {
-      ...theme.typography.commentHeader,
-      ...theme.typography.postStyle
-    },
-    '& h2': {
-      ...theme.typography.commentHeader,
-      ...theme.typography.postStyle
-    },
-    '& h3': {
-      ...theme.typography.commentHeader,
-      ...theme.typography.postStyle
-    },
-    '& a, & a:hover, & a:focus, & a:active, & a:visited': {
-      ...linkStyle({
-        theme: theme,
-        underlinePosition: (
-          (theme.typography.postStyle && theme.typography.postStyle.linkUnderlinePosition) ||
-          "97%"
-        ),
-        background: (
-          (theme.typography.body2 && theme.typography.body2.backgroundColor) ||
-          (theme.typography.body2 && theme.typography.body2.background) ||
-          "#fff"
-        )
-      })
-    },
-  }
-}
-
 export const editorStyles = (theme, styleFunction) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
