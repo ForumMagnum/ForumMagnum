@@ -69,6 +69,11 @@ const theme = createLWTheme({
         backgroundColor: grey[50],
       }
     },
+    PostsVote: {
+      voteScores: {
+        margin: "25% 15% 15% 15%"
+      }
+    }
   }
 });
 

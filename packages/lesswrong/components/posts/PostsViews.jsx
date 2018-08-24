@@ -20,7 +20,7 @@ const ChipStyle = {
   paddingLeft: "3px",
   paddingRight: "0px",
   lineHeight: "25px",
-  cursor: "ponter",
+  cursor: "pointer",
   textDecoration: "none"
 }
 
@@ -94,10 +94,10 @@ class PostsViews extends Component {
           <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
             <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
-              <Components.SectionTitleLink className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
+              <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                 {postViewSections[view].label}
                 { this.renderMenu(postViewSections[view], view)}
-              </Components.SectionTitleLink>
+              </Components.SectionSubtitle>
             </span>
           </div>
         ))}
@@ -112,23 +112,23 @@ class PostsViews extends Component {
                 )}
               >
                 <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
-                  <Components.SectionTitleLink className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
+                  <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                     {postViewSections[view].label}
                     { this.renderMenu(postViewSections[view])}
-                  </Components.SectionTitleLink>
+                  </Components.SectionSubtitle>
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div className="posts-view-button"><Link style={ChipStyle} className="view-chip" to="/meta">
-              <Components.SectionTitleLink className={"posts-views-chip-inactive"}>
-                Meta { this.renderMenu(postViewSections["meta"])}
-              </Components.SectionTitleLink>
-            </Link></div>}
-            {!props.hideDaily && <span><Link style={ChipStyle} className="view-chip" to="/daily">
-              <Components.SectionTitleLink className={"posts-views-chip-inactive"}>
-                Daily { this.renderMenu(postViewSections["daily"])}
-              </Components.SectionTitleLink>
-            </Link></span>}
+            {!props.hideDaily && <div className="posts-view-button"><span style={ChipStyle} className="view-chip">
+              <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+                <Link to="/meta">Meta { this.renderMenu(postViewSections["meta"])}</Link>
+              </Components.SectionSubtitle></span>
+            </div>}
+            {!props.hideDaily && <span style={ChipStyle} className="view-chip">
+              <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+                <Link to="/daily">Daily { this.renderMenu(postViewSections["daily"])}</Link>
+              </Components.SectionSubtitle>
+            </span>}
           </span> : <span>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>

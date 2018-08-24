@@ -225,9 +225,7 @@
 
   .posts-item-content {
     display: flex;
-    position: relative;
-    height:100%;
-    width:calc(100% - 50px);
+    align-items: stretch;
     cursor:pointer;
     &:hover {
       background-color: rgba(0, 0, 0, 0.03) !important;
@@ -293,35 +291,6 @@
   }
   .posts-item-title-link:hover {
     color:rgba(0,0,0,.4) !important;
-  }
-  .posts-item-highlight {
-    max-width: 700px;
-    font-size: 1.2rem;
-    line-height: 1.6rem;
-    color: rgba(0,0,0,0.87);
-    padding:8px 20px 20px 20px;
-    margin-bottom: 10px;
-    // background-color:rgba(0,0,0,.03);
-    border-top: solid 1px rgba(0,0,0,.1);
-
-    h1 {
-      margin-top:2rem;
-      font-size:2rem;
-    }
-
-    h2 {
-      margin-top:1.7rem;
-      font-size:1.7rem;
-    }
-    blockquote {
-      border-left:solid 3px #ccc;
-      margin-bottom:0;
-    }
-
-    .posts-page-content-body-link-post  {
-      font-size:1.05rem;
-      margin:8px 0 2px 0;
-    }
   }
   .posts-item-highlight-content {
     overflow: hidden;
@@ -398,13 +367,10 @@
     border-right:solid 1px rgba(0,0,0,.05);
   }
   .posts-item-comments {
-    margin-left: auto;
     width: 50px;
-    height: 100%;
-    position: absolute;
-    top:0;
-    right:0;
     cursor:pointer;
+    position:relative;
+    flex-shrink: 0;
 
     &.selected {
       background-color: rgba(0,0,0,.05);
@@ -415,16 +381,6 @@
     }
     &:hover {
       background-color: rgba(0, 0, 0, 0.03) !important;
-    }
-    .posts-item-comment-icon {
-      @include vertical-center;
-    }
-    .posts-item-comment-count {
-      @include vertical-center;
-      margin-top:-3px;
-      color:white;
-      z-index: 2;
-      font-variant-numeric: lining-nums;
     }
   }
   .vote {
@@ -437,20 +393,6 @@
       }
     }
   }
-
-  &.posts-sticky{
-    .posts-item-title::before {
-      font-size: $large-font;
-      content: url('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1501979389/Vector_jzpt6u.svg');
-      margin-right: 3px;
-    }
-  }
-}
-
-
-
-.posts-item-content{
-  flex-grow: 1;
 }
 
 .hide-highlight-button, .show-highlight-button {
@@ -770,31 +712,8 @@ svg.drag-handle {
   }
 }
 
-.posts-item-body {
-  // width: 600px;
-  // @include max-tiny() {
-    width:100%;
-  // }
-}
-
 .posts-page-content-body-link-post {
   font-size: 16px;
-}
-
-.posts-item-tooltip-text {
-  line-height: 12px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  // &.read {
-  //   .visit-indicator {
-  //     color: rgba(100, 169, 105, 0.9);
-  //   }
-  // }
-  // &.newComments {
-  //   .comment-indicator {
-  //     color: rgba(100, 169, 105, 0.9);
-  //   }
-  // }
 }
 
 .posts-page-content-header-title-draft {
@@ -802,10 +721,6 @@ svg.drag-handle {
   color: rgba(100, 169, 105, 0.9)
 }
 .post-category-display-container {
-  position:absolute;
-  top:0px;
-  right:0px;
-  height:100%;
   width:50px;
   padding:17px 15px 15px 15px;
   cursor:pointer;
@@ -1011,17 +926,6 @@ svg.drag-handle {
   font-weight: 400;
 }
 
-.post-highlight > h3,
-.post-highlight > h2,
-.post-highlight > h1 {
-  font-size: 1.2em;
-  margin-top:1em;
-}
-
-.post-highlight blockquote {
-  font-size:1em;
-  border-left: 3px solid #eee
-}
 .post-highlight img {
   max-width:100%;
 }
@@ -1052,20 +956,6 @@ svg.drag-handle {
 
   &.no-comments {
     border-bottom:solid 1px rgba(0,0,0,.2);
-  }
-}
-.post-highlight-continue-reading {
-  // This is temporary until we've re-run all the highlight callbacks
-  display:none;
-}
-.post-highlight-continue {
-  a {
-    color:rgba(0,0,0,.45);
-    white-space: nowrap;
-    text-decoration: none;
-    &:hover {
-      color:rgba(0,0,0,.3) !important;
-    }
   }
 }
 .post-excerpt-read-more {

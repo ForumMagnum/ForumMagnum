@@ -48,19 +48,28 @@ const createLWTheme = (theme) => {
     lineHeight: '2rem'
   }
 
+  const body2FontSize = {
+    fontSize: '1.1rem',
+    lineHeight: '1.5rem',
+  }
+
+  const spacingUnit = 8
+
   const typography = theme.typography || {}
 
   const defaultLWTheme = {
+    spacing: {
+      unit: spacingUnit
+    },
     typography: {
       postStyle: {
         fontFamily: typography.fontFamily,
       },
       body1: body1FontSize,
       body2: {
-        fontSize: '1.1rem',
-        lineHeight: '1.5rem',
         fontWeight: 400,
         linkUnderlinePosition: "72%",
+        ...body2FontSize
       },
       display1: {
         color: grey[800],
@@ -86,10 +95,24 @@ const createLWTheme = (theme) => {
       },
       blockquote: {
         fontWeight: 400,
-        padding: ".75em 2em",
+        paddingTop: spacingUnit*2,
+        paddingRight: spacingUnit*2,
+        paddingBottom: spacingUnit*2,
+        paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
         ...body1FontSize
+      },
+      commentBlockquote: {
+        fontWeight: 400,
+        paddingTop: spacingUnit,
+        paddingRight: spacingUnit*3,
+        paddingBottom: spacingUnit,
+        paddingLeft: spacingUnit*2,
+        borderLeft: `solid 3px ${grey[300]}`,
+        margin: 0,
+        marginLeft: spacingUnit*1.5,
+        ...body2FontSize
       },
       codeblock: {
         backgroundColor: grey[100],
