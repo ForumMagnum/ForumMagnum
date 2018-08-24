@@ -67,7 +67,8 @@ Posts.convertFromContent = (content, id, slug) => {
     body: body,
     excerpt: excerpt,
     htmlHighlight: htmlHighlight,
-    wordCount: wordCount
+    wordCount: wordCount,
+    lastEditedAs: 'draft-js'
   }
 }
 
@@ -76,7 +77,8 @@ Comments.convertFromContent = (content) => {
   const htmlBody = draftToHTML(contentState)
   return {
     htmlBody: htmlBody,
-    body: turndownService.turndown(htmlBody)
+    body: turndownService.turndown(htmlBody),
+    lastEditedAs: 'draft-js'
   }
 }
 
@@ -103,14 +105,17 @@ Posts.convertFromHTML = (html, id, slug) => {
     body,
     excerpt,
     wordCount,
-    htmlHighlight
+    htmlHighlight,
+    lastEditedAs: "html"
   }
 }
 
 Comments.convertFromHTML = (html) => {
   const body = turndownService.turndown(html);
   return {
-    body
+    body,
+    htmlBody: html,
+    lastEditedAs: "html"
   }
 }
 
@@ -123,7 +128,8 @@ Posts.convertFromMarkdown = (body, id, slug) => {
     body: body,
     excerpt: Posts.createExcerpt(body),
     htmlHighlight: htmlHighlight,
-    wordCount: wordCount
+    wordCount: wordCount,
+    lastEditedAs: "markdown"
   }
 }
 
@@ -131,6 +137,7 @@ Comments.convertFromMarkdown = (body) => {
   return {
     htmlBody: mdi.render(body),
     body: body,
+    lastEditedAs: "markdown"
   }
 }
 

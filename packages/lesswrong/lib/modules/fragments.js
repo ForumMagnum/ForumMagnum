@@ -184,6 +184,7 @@ registerFragment(`
 registerFragment(`
   fragment LWPostsPage on Post {
     ...PostsList
+    lastEditedAs
     body
     htmlBody
     content
