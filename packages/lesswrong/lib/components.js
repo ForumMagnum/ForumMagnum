@@ -44,7 +44,6 @@ import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/Tooltip.jsx';
-import '../components/common/SubscribeLinks.jsx';
 import '../components/common/ErrorBoundary.jsx';
 
 // Outgoing RSS Feed builder

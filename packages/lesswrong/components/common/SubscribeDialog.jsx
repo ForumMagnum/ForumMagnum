@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import TextField from '@material-ui/core/TextField';
+import { registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "meteor/example-forum";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -82,7 +83,8 @@ class SubscribeDialog extends Component {
       view: this.props.view,
       threshold: "30",
       method: this.props.method,
-      copiedRSSLink: false
+      copiedRSSLink: false,
+      subscribedByEmail: false
     };
   }
 
@@ -97,9 +99,61 @@ class SubscribeDialog extends Component {
     event.target.select();
   }
 
+  // Return true if the current user's account has at least one verified
+  // email address.
+  emailAddressIsVerified() {
+    var emails = this.props.currentUser.emails;
+    for (let email of emails) {
+      if (email.verified) return true;
+    }
+    return false;
+  }
+
+  sendVerificationEmail() {
+    this.props.editMutation({
+      documentId: this.props.currentUser._id,
+      set: { whenConfirmationEmailSent: new Date() },
+      unset: {}
+    });
+  }
+
+  subscribeByEmail() {
+    let mutation = { emailSubscribedToCurated: true }
+
+    if (!this.emailAddressIsVerified()) {
+      // Updating whenConfirmationEmailSent sets off a trigger
+      // which causes the email to actually be sent.
+      //
+      // We combine these into one editMutation call to work
+      // around a bug in Vulcan's callbacks, where a pair
+      // of edits a->b->c will trigger two callbacks that
+      // say the edit was a->c, resulting in two confirmation
+      // emails sent at once.
+      mutation.whenConfirmationEmailSent = new Date();
+    }
+
+    this.props.editMutation({
+      documentId: this.props.currentUser._id,
+      set: mutation,
+      unset: {}
+    })
+
+    this.setState({ subscribedByEmail: true });
+
+  }
+
+  emailSubscriptionEnabled() {
+    return this.props.currentUser && this.props.currentUser.email
+  }
+
+  emailFeedExists() {
+    if (this.state.view === "curated") return true;
+    return false;
+  }
+
   render() {
     const { classes, fullScreen, onClose, open } = this.props;
-    const { view, threshold, method, copiedRSSLink } = this.state;
+    const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
 
     const viewSelector = <FormControl className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
@@ -167,7 +221,10 @@ class SubscribeDialog extends Component {
           ] }
 
           { method === "email" && [
-            viewSelector
+            viewSelector,
+            !this.emailFeedExists() && <DialogContentText>
+              Sorry, there's currently no email feed for {viewNames[view]}.
+            </DialogContentText>
           ] }
         </DialogContent>
         <DialogActions>
@@ -178,6 +235,12 @@ class SubscribeDialog extends Component {
             >
               <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
             </CopyToClipboard> }
+          { method === "email" &&
+            <Button
+              color="primary"
+              onClick={ () => this.subscribeByEmail() }
+              disabled={!this.emailFeedExists() || subscribedByEmail}
+            >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button> }
           <Button onClick={onClose}>Close</Button>
         </DialogActions>
       </Dialog>
@@ -185,4 +248,13 @@ class SubscribeDialog extends Component {
   }
 }
 
-registerComponent("SubscribeDialog", SubscribeDialog, withMobileDialog(), withStyles(styles));
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+};
+
+registerComponent("SubscribeDialog", SubscribeDialog,
+  withMobileDialog(),
+  withCurrentUser,
+  [withEdit, withEditOptions],
+  withStyles(styles));

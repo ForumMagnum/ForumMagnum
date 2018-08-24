@@ -1,24 +1,29 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
+// TODO these styles are awful
 const styles = theme => ({
-  icon: {
-    color: "black",
-  },
   subscribeButton: {
+    position: "relative",
+    top: "1px",
     display: "inline-block",
-    marginLeft: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit,
     opacity: "0.4",
     "&:hover": {
-      opacity: "0.15"
+      opacity: "1.0"
     }
   },
-  buttons: {
-    marginTop: -(theme.spacing.unit * 2),
-    marginBottom: theme.spacing.unit
+  subscribeLabel: {
+    color: "black",
+    display: "inline-block",
+    opacity: "0.4",
+    fontStyle: "normal"
+  },
+  highlightedLabel: {
+    opacity: "1.0"
   }
 });
 
@@ -27,25 +32,59 @@ class SubscribeWidget extends Component {
     super(props);
     this.state = {
       dialogOpen: false,
-      method: ""
+      method: "",
+      subscribeLabel: this.getDefaultSubscribeLabel()
     };
   }
+
+  getDefaultSubscribeLabel = () => "Subscribe"
 
   openDialog(method) {
     this.setState({ dialogOpen: true, method });
   }
 
+  setSubscribeLabel(label) {
+    this.setState({
+      subscribeLabel: label,
+      subscribeLabelHighlighted: true
+    });
+  }
+
+  resetSubscribeLabel() {
+    this.setState({
+      subscribeLabel: this.getDefaultSubscribeLabel(),
+      subscribeLabelHighlighted: false
+    });
+  }
+
   render() {
     const { classes, view } = this.props;
-    const { dialogOpen, method } = this.state;
+    const { dialogOpen, method, subscribeLabel, subscribeLabelHighlighted } = this.state;
 
     return (
       <div className={classes.buttons}>
-        <div className={classes.subscribeButton} onClick={ () => this.openDialog("rss") }>
-          <FontIcon className={classNames("material-icons", classes.icon)}>rss_feed</FontIcon>
+        <div
+          className={classNames(
+            { [classes.highlightedLabel]: subscribeLabelHighlighted },
+            classes.subscribeLabel)}
+        >
+          {subscribeLabel}
         </div>
-        <div className={classes.subscribeButton} onClick={ () => this.openDialog("email") }>
-          <FontIcon className={classNames("material-icons", classes.icon)}>email</FontIcon>
+        <div
+          className={classes.subscribeButton}
+          onClick={ () => this.openDialog("rss") }
+          onMouseEnter={ () => this.setSubscribeLabel("Via RSS") }
+          onMouseLeave={ () => this.resetSubscribeLabel() }
+        >
+          <Icon fontSize="inherit" className={classes.icon}>rss_feed</Icon>
+        </div>
+        <div
+          className={classes.subscribeButton}
+          onClick={ () => this.openDialog("email") }
+          onMouseEnter={ () => this.setSubscribeLabel("Via Email") }
+          onMouseLeave={ () => this.resetSubscribeLabel() }
+        >
+          <Icon fontSize="inherit" className={classes.icon}>email</Icon>
         </div>
         { dialogOpen && <Components.SubscribeDialog
           open={true}
