@@ -7,7 +7,8 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   dayTitle: {
     marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing.unit,
+    ...theme.typography.postStyle
   }
 })
 
@@ -19,7 +20,7 @@ class PostsDay extends PureComponent {
 
     return (
       <div className="posts-day">
-        <Typography variant="title" className={classes.dayTitle} >{date.format('dddd, MMMM Do YYYY')}</Typography>
+        <Typography variant="display2" className={classes.dayTitle} >{date.format('dddd, MMMM Do YYYY')}</Typography>
         { noPosts ? <Components.PostsNoMore /> :
           <div className="posts-list">
             <div className="posts-list-content">
