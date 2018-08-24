@@ -91,7 +91,7 @@ class EditorFormComponent extends Component {
     const { classes, ...passedDownProps } = this.props
     return (
       <div>
-        {!editorOverride && formType !== "new" && document && document.lastEditedAs !== this.getUserDefaultEditor(currentUser) && this.renderEditorWarning()}
+        {!editorOverride && formType !== "new" && document && document.lastEditedAs && document.lastEditedAs !== this.getUserDefaultEditor(currentUser) && this.renderEditorWarning()}
         { this.getCurrentEditorType() === "markdown" &&
           <Components.MuiInput {...passedDownProps} className={classes.markdownEditor} name="body" />
         }
