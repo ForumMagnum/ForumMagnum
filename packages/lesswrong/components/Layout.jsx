@@ -28,6 +28,12 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit,
     },
   },
+  '@global': {
+    p: {
+      marginTop:0,
+      marginBottom: "1em"
+    }
+  }
 })
 
 const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {

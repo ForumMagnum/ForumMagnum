@@ -7,6 +7,8 @@ export const postBodyStyles = (theme, fontSize) => {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     '& p': {
+      marginTop: "1em",
+      marginBottom: "1em",
       '&:first-of-type': {
         marginTop: 0,
       },
