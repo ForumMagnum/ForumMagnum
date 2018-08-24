@@ -35,11 +35,11 @@ function makeRedirect(res, destination) {
 }
 
 function findPostByLegacyAFId(legacyId) {
-  return Posts.findOne({"alignmentForumId": legacyId})
+  return Posts.findOne({"agentFoundationsId": legacyId})
 }
 
 function findCommentByLegacyAFId(legacyId) {
-  return Comments.findOne({"alignmentForumId": legacyId})
+  return Comments.findOne({"agentFoundationsId": legacyId})
 }
 
 
