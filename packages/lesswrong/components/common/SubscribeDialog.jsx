@@ -78,11 +78,19 @@ const viewNames = {
 class SubscribeDialog extends Component {
   constructor(props) {
     super(props);
-    this.state = { copiedRSSLink: false };
+    this.state = {
+      view: this.props.view,
+      threshold: "30",
+      method: this.props.method,
+      copiedRSSLink: false
+    };
   }
 
   rssTerms() {
-    return { view: `${this.props.view}-rss`, karmaThreshold: this.props.threshold };
+    const view = this.state.view;
+    let terms = { view: `${view}-rss` };
+    if (view === "community" || view === "frontpage") terms.karmaThreshold = this.state.threshold;
+    return terms;
   }
 
   autoselectRSSLink(event) {
@@ -90,11 +98,14 @@ class SubscribeDialog extends Component {
   }
 
   render() {
-    const viewSelector = <FormControl className={this.props.classes.viewSelector}>
+    const { classes, fullScreen, onClose, open } = this.props;
+    const { view, threshold, method, copiedRSSLink } = this.state;
+
+    const viewSelector = <FormControl className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
       <Select
-        value={this.props.view}
-        onChange={ event => this.props.onViewChange(event, event.target.value) }
+        value={view}
+        onChange={ event => this.setState({ view: event.target.value }) }
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         <MenuItem value="curated">Curated</MenuItem>
@@ -105,49 +116,48 @@ class SubscribeDialog extends Component {
 
     return (
       <Dialog
-        fullScreen={this.props.fullScreen}
-        open={this.props.open}
-        onClose={this.props.onClose}
-        className={this.props.className}
+        fullScreen={fullScreen}
+        open={open}
+        onClose={onClose}
       >
         <Tabs
-          value={this.props.method}
+          value={method}
           indicatorColor="primary"
           textColor="primary"
-          onChange={this.props.onMethodChange}
-          className={this.props.classes.tabbar}
+          onChange={ (event, value) => this.setState({ method: value }) }
+          className={classes.tabbar}
           fullWidth
         >
           <Tab label="RSS" value="rss" />
           <Tab label="Email" value="email" />
         </Tabs>
 
-        <DialogContent className={this.props.classes.content}>
-          { this.props.method === "rss" && [
+        <DialogContent className={classes.content}>
+          { method === "rss" && [
             viewSelector,
 
-            _.contains(["community", "frontpage"], this.props.view) && <div>
-              <DialogContentText>Generate a RSS link to posts in {viewNames[this.props.view]} of this karma and above.</DialogContentText>
+            (view === "community" || view === "frontpage") && <div>
+              <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
               <RadioGroup
-                value={this.props.threshold}
-                onChange={this.props.onThresholdChange}
-                className={this.props.classes.thresholdSelector}
+                value={threshold}
+                onChange={ (event, value) => this.setState({ threshold: value }) }
+                className={classes.thresholdSelector}
               >
                 { [2, 30, 45, 75].map(t => t.toString()).map(threshold =>
                   <FormControlLabel
                       control={<Radio />}
                       label={threshold}
                       value={threshold}
-                      className={this.props.classes.thresholdButton} />
+                      className={classes.thresholdButton} />
                 ) }
               </RadioGroup>
-              <DialogContentText className={this.props.classes.estimate}>
-                That's roughly { postsPerWeek[this.props.threshold] } posts per week ({ hoursPerWeek[this.props.threshold] } of reading)
+              <DialogContentText className={classes.estimate}>
+                That's roughly { postsPerWeek[threshold] } posts per week ({ hoursPerWeek[threshold] } of reading)
               </DialogContentText>
             </div>,
 
             <TextField
-              className={this.props.classes.RSSLink}
+              className={classes.RSSLink}
               label="RSS Link"
               onFocus={this.autoselectRSSLink}
               onClick={this.autoselectRSSLink}
@@ -156,19 +166,19 @@ class SubscribeDialog extends Component {
               fullWidth />
           ] }
 
-          { this.props.method === "email" && [
+          { method === "email" && [
             viewSelector
           ] }
         </DialogContent>
         <DialogActions>
-          { this.props.method === "rss" &&
+          { method === "rss" &&
             <CopyToClipboard
               text={rssTermsToUrl(this.rssTerms())}
               onCopy={ (text, result) => this.setState({ copiedRSSLink: result }) }
             >
-              <Button color="primary">{this.state.copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
+              <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
             </CopyToClipboard> }
-          <Button onClick={this.props.onClose}>Close</Button>
+          <Button onClick={onClose}>Close</Button>
         </DialogActions>
       </Dialog>
     );

@@ -6,7 +6,6 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   icon: {
-    fontSize: "14px",
     color: "black",
   },
   subscribeButton: {
@@ -27,43 +26,32 @@ class SubscribeWidget extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      view: props.view,
-      karmaThreshold: "2",
-      subscriptionMethod: "email",
-      dialogOpen: false
+      dialogOpen: false,
+      method: ""
     };
   }
 
-  componentWillReceiveProps({ view }) {
-    this.setState({ view });
-  }
-
   openDialog(method) {
-    this.setState({
-      subscriptionMethod: method,
-      dialogOpen: true
-    });
+    this.setState({ dialogOpen: true, method });
   }
 
   render() {
+    const { classes, view } = this.props;
+    const { dialogOpen, method } = this.state;
+
     return (
-      <div className={this.props.classes.buttons}>
-        <div className={this.props.classes.subscribeButton} onClick={ () => this.openDialog("rss") }>
-          <FontIcon className={classNames("material-icons", this.props.classes.icon)}>rss_feed</FontIcon>
+      <div className={classes.buttons}>
+        <div className={classes.subscribeButton} onClick={ () => this.openDialog("rss") }>
+          <FontIcon className={classNames("material-icons", classes.icon)}>rss_feed</FontIcon>
         </div>
-        <div className={this.props.classes.subscribeButton} onClick={ () => this.openDialog("email") }>
-          <FontIcon className={classNames("material-icons", this.props.classes.icon)}>email</FontIcon>
+        <div className={classes.subscribeButton} onClick={ () => this.openDialog("email") }>
+          <FontIcon className={classNames("material-icons", classes.icon)}>email</FontIcon>
         </div>
-        <Components.SubscribeDialog
-          open={this.state.dialogOpen}
+        { dialogOpen && <Components.SubscribeDialog
+          open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
-          view={this.state.view}
-          onViewChange={ (event, view) => this.setState({ view }) }
-          threshold={this.state.karmaThreshold}
-          onThresholdChange={ (event, karmaThreshold) => this.setState({ karmaThreshold }) }
-          method={this.state.subscriptionMethod}
-          onMethodChange={ (event, subscriptionMethod) => this.setState({ subscriptionMethod }) }
-          className="subscribe-dialog" />
+          view={view}
+          method={method} /> }
       </div>
     );
   }
