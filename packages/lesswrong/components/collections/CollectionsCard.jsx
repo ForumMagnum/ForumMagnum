@@ -43,4 +43,4 @@ const CollectionsCard = ({collection, big = false, url, classes}) => {
   </div>
 }
 
-registerComponent("CollectionsCard", CollectionsCard, withStyles(styles));
+registerComponent("CollectionsCard", CollectionsCard, withStyles(styles, { name: "CollectionsCard" }));

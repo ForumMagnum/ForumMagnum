@@ -30,4 +30,6 @@ const PostsItemTitle = ({post, classes}) => {
 
 PostsItemTitle.displayName = "PostsItemTitle";
 
-registerComponent('PostsItemTitle', PostsItemTitle, withStyles(styles));
+registerComponent('PostsItemTitle', PostsItemTitle,
+  withStyles(styles, { name: "PostsItemTitle" })
+);

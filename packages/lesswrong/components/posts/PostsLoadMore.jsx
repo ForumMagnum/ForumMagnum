@@ -27,4 +27,7 @@ const PostsLoadMore = ({loading, loadMore, count, totalCount, muiTheme, classes}
 
 PostsLoadMore.displayName = "PostsLoadMore";
 
-replaceComponent('PostsLoadMore', PostsLoadMore, muiThemeable(), withStyles(styles));
+replaceComponent('PostsLoadMore', PostsLoadMore,
+  muiThemeable(),
+  withStyles(styles, { name: "PostsLoadMore" })
+);

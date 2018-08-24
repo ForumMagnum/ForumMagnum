@@ -27,4 +27,6 @@ const SingleUsersItem = ({document, removeItem, classes }) => {
     return <Components.Loading />
   }
 };
-registerComponent('SingleUsersItem', SingleUsersItem, withStyles(styles));
+registerComponent('SingleUsersItem', SingleUsersItem,
+  withStyles(styles, { name: "SingleUsersItem" })
+);

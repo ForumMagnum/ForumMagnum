@@ -157,4 +157,7 @@ CommentsNode.propTypes = {
   router: PropTypes.object.isRequired
 };
 
-replaceComponent('CommentsNode', CommentsNode, withRouter, muiThemeable(), withStyles((styles)));
+replaceComponent('CommentsNode', CommentsNode,
+  withRouter, muiThemeable(),
+  withStyles(styles, { name: "CommentsNode" })
+);

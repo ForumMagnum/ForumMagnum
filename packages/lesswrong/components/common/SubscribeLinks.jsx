@@ -34,7 +34,13 @@ const styles = theme => ({
   },
   subscriptionDialog: {
     "line-height": 1.1
-  }
+  },
+  
+  subscribeIcons: {
+    position: "relative",
+    top: "4px",
+    marginLeft: "4px"
+  },
 })
 
 
@@ -262,6 +268,7 @@ class SubscribeLinks extends Component {
   }
   
   render() {
+    let {classes} = this.props;
     return (
       <div className="subscribeLinks">
         { this.state.hoverText &&
@@ -273,7 +280,7 @@ class SubscribeLinks extends Component {
             <a className="subscribeText" onClick={(e) => {this.clickSubscribeGeneral(e)}}>
               Subscribe
             </a> }
-        <span className="subscribeIcons">
+        <span className={classes.subscribeIcons}>
           {
             this.emailSubscriptionEnabled() &&
               <this.subscribeIcon
@@ -305,4 +312,8 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('SubscribeLinks', SubscribeLinks, withCurrentUser, [withEdit, withEditOptions], withStyles(styles));
+registerComponent('SubscribeLinks', SubscribeLinks,
+  withCurrentUser,
+  [withEdit, withEditOptions],
+  withStyles(styles, { name: "SubscribeLinks" })
+);
