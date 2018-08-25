@@ -48,7 +48,7 @@ export const postBodyStyles = (theme, fontSize) => {
       ...theme.typography.headerStyle
     },
     '& img': {
-      width: "100%"
+      maxWidth: "100%"
     },
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       ...linkStyle({
