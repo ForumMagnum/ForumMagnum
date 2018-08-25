@@ -42,6 +42,9 @@ const styles = theme => ({
   },
   RSSLink: {
     marginTop: theme.spacing.unit * 2
+  },
+  errorMsg: {
+    color: "#9b5e5e"
   }
 });
 
@@ -177,7 +180,7 @@ class SubscribeDialog extends Component {
   }
 
   render() {
-    const { classes, fullScreen, onClose, open } = this.props;
+    const { classes, fullScreen, onClose, open, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
 
     const viewSelector = <FormControl className={classes.viewSelector}>
@@ -185,6 +188,7 @@ class SubscribeDialog extends Component {
       <Select
         value={view}
         onChange={ event => this.selectView(event.target.value) }
+        disabled={method === "email" && !currentUser}
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         <MenuItem value="curated">Curated</MenuItem>
@@ -248,9 +252,20 @@ class SubscribeDialog extends Component {
 
           { method === "email" && [
             viewSelector,
-            !this.emailFeedExists() && <DialogContentText>
-              Sorry, there's currently no email feed for {viewNames[view]}.
-            </DialogContentText>
+            !!currentUser ? (
+              [
+                !this.emailFeedExists() && <DialogContentText className={classes.errorMsg}>
+                  Sorry, there's currently no email feed for {viewNames[view]}.
+                </DialogContentText>,
+                subscribedByEmail && !this.emailAddressIsVerified() && <DialogContentText className={classes.infoMsg}>
+                  Check your inbox for a verification link.
+                </DialogContentText>
+              ]
+            ) : (
+              <DialogContentText className={classes.errorMsg}>
+                You must be logged in to subscribe via Email
+              </DialogContentText>
+            )
           ] }
         </DialogContent>
         <DialogActions>
@@ -265,7 +280,7 @@ class SubscribeDialog extends Component {
             <Button
               color="primary"
               onClick={ () => this.subscribeByEmail() }
-              disabled={!this.emailFeedExists() || subscribedByEmail}
+              disabled={!this.emailFeedExists() || subscribedByEmail || !currentUser}
             >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button> }
           <Button onClick={onClose}>Close</Button>
         </DialogActions>

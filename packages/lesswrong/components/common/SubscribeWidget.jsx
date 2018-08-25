@@ -4,37 +4,26 @@ import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-// TODO these styles are awful
 const styles = theme => ({
+  buttons: {
+    display: "inline"
+  },
   subscribeButton: {
     position: "relative",
-    top: "1px",
-    display: "inline-block",
+    top: "2px",
+    display: "inline",
     paddingLeft: theme.spacing.unit,
-    opacity: "0.4",
+    color: theme.palette.text.secondary,
     "&:hover": {
-      opacity: "1.0"
+      color: theme.palette.text.primary
     }
   },
   subscribeLabel: {
-    color: "black",
-    display: "inline-block",
-    opacity: "0.4",
-    fontStyle: "normal"
+    display: "inline",
+    color: theme.palette.text.secondary
   },
   highlightedLabel: {
-    opacity: "1.0"
-  },
-  buttons: {
-    marginBottom: -theme.spacing.unit
-  },
-  [`@media (max-width: ${theme.breakpoints.values.md}px)`]: {
-    buttons: {
-      marginTop: -3 * theme.spacing.unit,
-      height: 2 * theme.spacing.unit,
-      marginBottom: theme.spacing.unit,
-      textAlign: "right"
-    }
+    color: theme.palette.text.primary
   }
 });
 
@@ -69,11 +58,11 @@ class SubscribeWidget extends Component {
   }
 
   render() {
-    const { classes, view } = this.props;
+    const { classes, className, view } = this.props;
     const { dialogOpen, method, subscribeLabel, subscribeLabelHighlighted } = this.state;
 
     return (
-      <div className={classes.buttons}>
+      <div className={classNames(className, classes.buttons)}>
         <div
           className={classNames(
             { [classes.highlightedLabel]: subscribeLabelHighlighted },
