@@ -40,7 +40,7 @@ test -f settings-dev.json || (echo "🛠  ${blue}Creating your own settings-dev.
 echo "🌋  ${bold}${purple}Welcome to the LessWrong development server!${reset}";
 
 echo "📖  ${blue}We are using Vulcan, whose docs are available at: ${purple}http://docs.vulcanjs.org";
-echo "📖  ${blue}You can find our Github repo here: ${purple}https://github.com/Discordius/Telescope/tree/devel";
+echo "📖  ${blue}You can find our Github repo here: ${purple}https://github.com/Lesswrong2/LessWrong2/tree/devel";
 
 if tput setaf 1 &> /dev/null; then
   tput sgr0;

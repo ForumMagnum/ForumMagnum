@@ -6,3 +6,4 @@
 --ignore-dir=node_modules
 --ignore-dir=.vscode
 --ignore-dir=.vulcan
+--ignore-file=is:.eslintcache
