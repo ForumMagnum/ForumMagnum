@@ -54,7 +54,7 @@ class EditorFormComponent extends Component {
   renderEditorWarning = () => {
     const { classes, currentUser, document } = this.props
     return <Typography variant="body2" color="primary">
-      This document was last edited in {document.lastEditedAs} format. Showing {document.lastEditedAs} editor.
+      This document was last edited in {document.lastEditedAs} format. Showing {this.getCurrentEditorType()} editor.
       <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
       to switch to {this.getUserDefaultEditor(currentUser)} editor (your default editor).
     </Typography>
@@ -66,11 +66,11 @@ class EditorFormComponent extends Component {
     // If there is an override, return that
     if (editorOverride) {return editorOverride}
     // Otherwise, default to rich-text, but maybe show others
-    if (enableMarkDownEditor && (Users.useMarkdownPostEditor(currentUser)) ||
-        document && (document.lastEditedAs === "markdown")) {
-      return "markdown"
-    } else if (document && (document.lastEditedAs === "html")) {
+    if (document && (document.lastEditedAs === "html")) {
       return "html"
+    } else if (enableMarkDownEditor && (Users.useMarkdownPostEditor(currentUser)) ||
+          document && (document.lastEditedAs === "markdown")) {
+      return "markdown"
     } else {
       return "draft-js"
     }
