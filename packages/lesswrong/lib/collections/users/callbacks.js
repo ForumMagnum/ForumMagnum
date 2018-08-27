@@ -20,8 +20,10 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 
 function maybeSendVerificationEmail (user, oldUser)
 {
-  if((""+oldUser.whenConfirmationEmailSent) != (""+user.whenConfirmationEmailSent)) {
+  if(oldUser.whenConfirmationEmailSent !== user.whenConfirmationEmailSent) {
     Accounts.sendVerificationEmail(user._id);
+  } else {
+    console.log(`Not sending confirmation email (whenConfirmationEmailSent unchanged from ${oldUser.whenConfirmationEmailSent}`)
   }
 }
 

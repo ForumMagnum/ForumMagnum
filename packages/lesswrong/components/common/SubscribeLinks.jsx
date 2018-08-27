@@ -56,7 +56,8 @@ class SubscribeLinks extends Component {
       hoverText: null,
       emailDialogVisible: false,
       rssDialogVisible: false,
-      copiedToClipboard: false
+      copiedToClipboard: false,
+      confirmationEmailSent: false,
     }
   }
   
@@ -111,6 +112,9 @@ class SubscribeLinks extends Component {
       // say the edit was a->c, resulting in two confirmation
       // emails sent at once.
       mutation.whenConfirmationEmailSent = new Date();
+      this.setState({
+        confirmationEmailSent: true
+      });
     }
     
     this.props.editMutation({
@@ -155,7 +159,8 @@ class SubscribeLinks extends Component {
     
     let actions = [];
     let formBody = null;
-    if (alreadySubscribed) {
+    
+    if (alreadySubscribed && (this.emailAddressIsVerified() || this.state.confirmationEmailSent)) {
       actions = [
         <FlatButton
           key="okButton"
