@@ -13,7 +13,6 @@ injectTapEventPlugin();
 
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
-import Typekit from 'react-typekit';
 import { withStyles } from '@material-ui/core/styles';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
@@ -70,8 +69,8 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
+            <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
           </Helmet>
-          <Typekit kitId="jvr1gjm" />
           {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
           {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 
