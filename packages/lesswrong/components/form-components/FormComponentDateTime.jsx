@@ -1,18 +1,68 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
+import DateTimePicker from 'react-datetime';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  input: {
+    borderBottom: `solid 1px #999`,
+    padding: '6px 0 7px 0'
+  },
+  label: {
+    position:"relative",
+    transform:"none",
+    fontSize: 10,
+  },
+})
+
 
 class FormComponentDateTime extends Component {
+
+  constructor(props) {
+    super(props);
+    this.updateDate = this.updateDate.bind(this);
+  }
+
+  updateDate(date) {
+    this.context.updateCurrentValues({[this.props.path]: date});
+  }
+
   render() {
-    return <Components.MuiTextField
-      {...this.props}
-      placeholder={this.props.label}
-      InputLabelProps={{
-        shrink: true,
-      }}
-      type="datetime-local"
-    />
+    const { value, name, label, classes } = this.props
+
+    const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+
+    return <FormControl>
+        <InputLabel className={classes.label}>{ label }</InputLabel>
+        <DateTimePicker
+          placeholder={label}
+          value={date}
+          inputProps={{
+            name:name,
+            className:classes.input
+          }}
+          // newDate argument is a Moment object given by react-datetime
+          onChange={newDate => this.updateDate(newDate._d)}
+          format={"x"}
+        />
+    </FormControl>
   }
 }
 
-registerComponent("FormComponentDateTime", FormComponentDateTime);
+FormComponentDateTime.propTypes = {
+  control: PropTypes.any,
+  datatype: PropTypes.any,
+  group: PropTypes.any,
+  label: PropTypes.string,
+  name: PropTypes.string,
+  value: PropTypes.any,
+};
+
+FormComponentDateTime.contextTypes = {
+  updateCurrentValues: PropTypes.func,
+};
+
+registerComponent("FormComponentDateTime", FormComponentDateTime, withStyles(styles));
