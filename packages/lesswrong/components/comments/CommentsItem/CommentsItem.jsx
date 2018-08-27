@@ -138,8 +138,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, frontPage } = this.props
-    const level = this.props.nestingLevel || 1;
+    const { comment, currentUser, frontPage, nestingLevel=1 } = this.props
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -166,7 +165,7 @@ class CommentsItem extends Component {
               <Components.RecentCommentsSingle
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
-                level={level + 1}
+                level={nestingLevel + 1}
                 expanded={true}
                 key={comment.parentCommentId}
               />
@@ -175,7 +174,7 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              {(comment.parentCommentId && (level === 1)) &&
+              {(comment.parentCommentId && (nestingLevel === 1)) &&
                 <FontIcon
                   onClick={this.toggleShowParent}
                   className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
