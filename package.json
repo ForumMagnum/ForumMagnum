@@ -130,7 +130,6 @@
     "react-stripe-checkout": "^2.4.0",
     "react-tap-event-plugin": "^3.0.3",
     "react-test-renderer": "^16.4.1",
-    "react-typekit": "^1.1.3",
     "recompose": "^0.26.0",
     "redux": "^3.6.0",
     "redux-idle-monitor": "^0.7.0",
