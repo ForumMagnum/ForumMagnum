@@ -67,7 +67,8 @@ Posts.convertFromContent = (content, id, slug) => {
     body: body,
     excerpt: excerpt,
     htmlHighlight: htmlHighlight,
-    wordCount: wordCount
+    wordCount: wordCount,
+    lastEditedAs: 'draft-js'
   }
 }
 
@@ -76,7 +77,8 @@ Comments.convertFromContent = (content) => {
   const htmlBody = draftToHTML(contentState)
   return {
     htmlBody: htmlBody,
-    body: turndownService.turndown(htmlBody)
+    body: turndownService.turndown(htmlBody),
+    lastEditedAs: 'draft-js'
   }
 }
 
@@ -91,26 +93,31 @@ Comments.convertFromContentAsync = async function(content) {
 }
 
 /*
- * @summary Input is html, returns object with {body, excerpt}
+ * @summary Input is html, returns object with new post fields
 */
 
-Posts.convertFromHTML = (html, id, slug) => {
+Posts.convertFromHTML = (html, id, slug, sanitize) => {
   const body = turndownService.turndown(html)
   const excerpt = Posts.createExcerpt(body)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
+  const htmlBody = sanitize ? Utils.sanitize(html) : html
   return {
     body,
+    htmlBody,
     excerpt,
     wordCount,
-    htmlHighlight
+    htmlHighlight,
+    lastEditedAs: "html",
   }
 }
 
 Comments.convertFromHTML = (html) => {
   const body = turndownService.turndown(html);
   return {
-    body
+    body,
+    htmlBody: html,
+    lastEditedAs: "html"
   }
 }
 
@@ -123,7 +130,8 @@ Posts.convertFromMarkdown = (body, id, slug) => {
     body: body,
     excerpt: Posts.createExcerpt(body),
     htmlHighlight: htmlHighlight,
-    wordCount: wordCount
+    wordCount: wordCount,
+    lastEditedAs: "markdown"
   }
 }
 
@@ -131,6 +139,7 @@ Comments.convertFromMarkdown = (body) => {
   return {
     htmlBody: mdi.render(body),
     body: body,
+    lastEditedAs: "markdown"
   }
 }
 

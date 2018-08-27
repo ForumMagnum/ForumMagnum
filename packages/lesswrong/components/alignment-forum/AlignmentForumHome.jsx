@@ -18,7 +18,7 @@ const AlignmentForumHome = ({currentUser}) => {
 
   return (
     <div className="alignment-forum-home">
-      <Components.Section title="Alignment Posts"
+      <Components.Section title="AI Alignment Posts"
         titleComponent={renderRecentPostsTitle()}>
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>

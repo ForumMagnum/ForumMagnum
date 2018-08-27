@@ -1039,5 +1039,23 @@ Posts.addField([
       optional: true,
       group: formGroups.adminOptions,
     }
+  },
+
+  /*
+    lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
+    appropriate editor when being edited, overwriting user-preferences
+  */
+
+  {
+    fieldName: 'lastEditedAs',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      hidden: true,
+      group: formGroups.adminOptions,
+    }
   }
 ]);

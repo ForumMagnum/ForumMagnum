@@ -186,8 +186,8 @@ class CommentsItem extends Component {
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
-              { comment.deleted || comment.hideAuthor ?
-                (comment.hideAuthor ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
+              { comment.deleted || comment.hideAuthor || !comment.user ?
+                ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
                 <span> <Components.UsersName user={comment.user}/> </span>
               }
               <div className="comments-item-date">

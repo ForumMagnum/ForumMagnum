@@ -26,6 +26,7 @@ const styles = theme => ({
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
+    marginBottom:theme.spacing.unit*2
   },
   postItem: {
     paddingLeft:10,
