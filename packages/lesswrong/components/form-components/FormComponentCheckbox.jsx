@@ -60,4 +60,4 @@ MuiCheckbox.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles));
+registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles, { name: "FormComponentCheckbox" }));

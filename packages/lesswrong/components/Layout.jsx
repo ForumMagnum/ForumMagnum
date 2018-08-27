@@ -101,4 +101,7 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withApollo, withStyles(styles));
+replaceComponent('Layout', Layout,
+  withApollo,
+  withStyles(styles, { name: "Layout" }
+));

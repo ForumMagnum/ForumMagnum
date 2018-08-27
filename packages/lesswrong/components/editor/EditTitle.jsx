@@ -29,4 +29,4 @@ const EditTitle = (props) => {
          />
 }
 
-registerComponent("EditTitle", EditTitle, withStyles(styles));
+registerComponent("EditTitle", EditTitle, withStyles(styles, { name: "EditTitle" }));

@@ -371,5 +371,5 @@ replaceComponent(
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
   withTheme(),
-  withStyles(styles)
+  withStyles(styles, { name: "PostsItem" })
 );

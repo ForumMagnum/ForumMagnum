@@ -74,6 +74,9 @@ extendFragment('UsersCurrent', `
   location
   googleLocation
   mongoLocation
+  emailSubscribedToCurated
+  emails
+  whenConfirmationEmailSent
 `);
 
 registerFragment(`

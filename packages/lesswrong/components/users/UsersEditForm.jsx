@@ -69,4 +69,7 @@ UsersEditForm.contextTypes = {
 
 UsersEditForm.displayName = 'UsersEditForm';
 
-registerComponent('UsersEditForm', UsersEditForm, withMessages, withCurrentUser, withRouter, withStyles(styles));
+registerComponent('UsersEditForm', UsersEditForm,
+  withMessages, withCurrentUser, withRouter,
+  withStyles(styles, { name: "UsersEditForm" })
+);

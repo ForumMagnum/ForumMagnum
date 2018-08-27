@@ -27,4 +27,7 @@ const CommentsLoadMore = ({loading, loadMore, count, totalCount, muiTheme, class
 
 CommentsLoadMore.displayName = "CommentsLoadMore";
 
-registerComponent('CommentsLoadMore', CommentsLoadMore, muiThemeable(), withStyles(styles));
+registerComponent('CommentsLoadMore', CommentsLoadMore,
+  muiThemeable(),
+  withStyles(styles, { name: "CommentsLoadMore" })
+);

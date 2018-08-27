@@ -441,5 +441,5 @@ registerComponent(
   // HOC to give access to the redux store & related actions
   connect(mapStateToProps, mapDispatchToProps),
   // HOC to add JSS styles to component
-  withStyles(styles)
+  withStyles(styles, { name: "PostsPage" })
 );
