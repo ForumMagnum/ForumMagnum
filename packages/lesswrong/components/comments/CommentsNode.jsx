@@ -125,6 +125,7 @@ class CommentsNode extends PureComponent {
               scrollIntoView={this.scrollIntoView}
               post={post}
               frontPage={frontPage}
+              nestingLevel={nestingLevel}
             />
           </div>
           {!collapsed && children && children.length>0 ?

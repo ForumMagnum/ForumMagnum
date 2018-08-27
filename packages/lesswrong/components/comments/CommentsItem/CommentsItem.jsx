@@ -139,7 +139,7 @@ class CommentsItem extends Component {
 
   render() {
     const { comment, currentUser, frontPage } = this.props
-    const level = comment.level || 1;
+    const level = this.props.nestingLevel || 1;
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -390,7 +390,7 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const levelClass = (this.props.comment.level + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
+    const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     const { currentUser, post, comment } = this.props
 
