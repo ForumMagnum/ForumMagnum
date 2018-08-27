@@ -20,13 +20,8 @@ const styles = theme => ({
 
 
 class FormComponentDateTime extends Component {
-
-  constructor(props) {
-    super(props);
-    this.updateDate = this.updateDate.bind(this);
-  }
-
-  updateDate(date) {
+  
+  updateDate = (date) => {
     this.context.updateCurrentValues({[this.props.path]: date});
   }
 
