@@ -18,13 +18,11 @@ addCallback("votes.smallUpvote.async", updateTrustedStatus);
 addCallback("votes.bigUpvote.async", updateTrustedStatus);
 
 
-function maybeSendVerificationEmail (user, oldUser)
+function maybeSendVerificationEmail (modifier, user)
 {
-  if(oldUser.whenConfirmationEmailSent !== user.whenConfirmationEmailSent) {
+  if(modifier.whenConfirmationEmailSent) {
     Accounts.sendVerificationEmail(user._id);
-  } else {
-    console.log(`Not sending confirmation email (whenConfirmationEmailSent unchanged from ${oldUser.whenConfirmationEmailSent}`)
   }
 }
 
-addCallback("users.edit.async", maybeSendVerificationEmail);
+addCallback("users.edit.sync", maybeSendVerificationEmail);
