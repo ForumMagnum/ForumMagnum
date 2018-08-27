@@ -172,6 +172,7 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
+      hideAuthor: {$ne: true},
       unlisted: null,
       meta: null,
     },
