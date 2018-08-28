@@ -5,8 +5,8 @@ Comments schema
 */
 
 import Users from 'meteor/vulcan:users';
-import marked from 'marked';
-import { Utils } from 'meteor/vulcan:core';
+//import marked from 'marked';
+//import { Utils } from 'meteor/vulcan:core';
 
 /**
  * @summary Comments schema

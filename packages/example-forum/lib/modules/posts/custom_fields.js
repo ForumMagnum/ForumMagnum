@@ -5,7 +5,6 @@ Custom fields on Users collection
 */
 
 import Users from 'meteor/vulcan:users';
-import SimpleSchema from 'simpl-schema';
 
 Users.addField([
   /**

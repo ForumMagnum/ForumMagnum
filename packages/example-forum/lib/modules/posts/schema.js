@@ -5,9 +5,9 @@ Posts schema
 */
 
 import Users from 'meteor/vulcan:users';
-import { Utils, getSetting, registerSetting, getCollection } from 'meteor/vulcan:core';
+import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import marked from 'marked';
+//import marked from 'marked';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
