@@ -39,6 +39,7 @@ import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
 import '../components/common/SectionSubtitle.jsx';
+import '../components/common/SmallItemStyle.jsx';
 import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
