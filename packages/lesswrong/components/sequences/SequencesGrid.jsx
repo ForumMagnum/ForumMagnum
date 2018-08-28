@@ -1,6 +1,5 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
 import Sequences from '../../lib/collections/sequences/collection.js';
 
 const SequencesGrid = ({sequences, showAuthor, listMode}) =>
