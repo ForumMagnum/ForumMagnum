@@ -20,7 +20,7 @@ const styles = theme => ({
 class CollectionsCard extends PureComponent {
   handleClick = (event) => {
     const { url, router } = this.props
-    if (event.target.tagName !== 'A') {
+    if (!event.target.closest('a')) { // Checks that no parent of the clicked element is a tag
       router.push(url)
     }
   }

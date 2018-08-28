@@ -27,7 +27,7 @@ class SequencesGridItem extends PureComponent {
 
   handleClick = (event) => {
     const { router } = this.props
-    if (event.target.tagName !== 'A') {
+    if (!event.target.closest('a')) { // Checks whether any parent is a tag
       router.push(this.getSequenceUrl())
     }
   }
