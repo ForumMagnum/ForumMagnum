@@ -17,34 +17,39 @@ const styles = theme => ({
   }
 })
 
-const CollectionsCard = ({collection, big = false, url, classes, router}) => {
-  const cardContentStyle = {borderTopColor: collection.color}
+class CollectionsCard extends PureComponent {
+  handleClick = (event) => {
+    const { url, router } = this.props
+    if (event.target.tagName !== 'A') {
+      router.push(url)
+    }
+  }
 
+  render() {
+    const { collection, big = false, url, classes } = this.props
+    const cardContentStyle = {borderTopColor: collection.color}
 
-  return <div className={classNames("collection-card-item", {big:big, small: !big})}>
-    <div onClick={() => router.push(url)} className="collection-card-link">
-      <Card className="collection-card">
-        <CardMedia className="collection-card-media">
-          <Image publicId={collection.imageId} cloudName="lesswrong-2-0" quality="auto" />
-        </CardMedia>
-        <div className="collection-card-content" style={cardContentStyle}>
-          <Link to={url}>
+    return <div className={classNames("collection-card-item", {big:big, small: !big})}>
+      <div onClick={this.handleClick} className="collection-card-link">
+        <Card className="collection-card">
+          <CardMedia className="collection-card-media">
+            <Image publicId={collection.imageId} cloudName="lesswrong-2-0" quality="auto" />
+          </CardMedia>
+          <div className="collection-card-content" style={cardContentStyle}>
             <Typography variant="title" className={classes.title}>
-              {collection.title}
+              <Link to={url}>{collection.title}</Link>
             </Typography>
-          </Link>
-          <Typography variant="subheading" className={classes.author}>
-            by <span onClick={(e)=> e.stopPropagation()}> {/* To avoid routing onClick of parent triggering */}
-              <Components.UsersName user={collection.user}/>
-            </span>
-          </Typography>
-          <Typography variant="body2" className={classes.text}>
-            {collection.summary}
-          </Typography>
-        </div>
-      </Card>
+            <Typography variant="subheading" className={classes.author}>
+              by <Components.UsersName user={collection.user}/>
+            </Typography>
+            <Typography variant="body2" className={classes.text}>
+              {collection.summary}
+            </Typography>
+          </div>
+        </Card>
+      </div>
     </div>
-  </div>
+  }
 }
 
 registerComponent("CollectionsCard", CollectionsCard, withStyles(styles), withRouter);
