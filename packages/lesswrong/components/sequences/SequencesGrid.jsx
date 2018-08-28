@@ -8,12 +8,10 @@ const SequencesGrid = ({sequences, showAuthor, listMode}) =>
     <div className="sequences-grid-content">
       {sequences.map(sequence => {
         return (
-          <Link key={sequence._id} className="sequences-grid-item-link" to={"/s/"+sequence._id}>
-            <Components.SequencesGridItem
-              sequence={sequence}
-              key={sequence._id}
-              showAuthor={showAuthor}/>
-          </Link>
+          <Components.SequencesGridItem
+            sequence={sequence}
+            key={sequence._id}
+            showAuthor={showAuthor}/>
         );
       })}
     </div>

@@ -252,7 +252,6 @@ class CommentsItem extends Component {
     if (comment && post) {
       return (
         <div className="comments-more-actions-menu">
-          <object>
             <IconMenu
               iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
               anchorOrigin={{horizontal: 'right', vertical: 'top'}}
@@ -306,7 +305,6 @@ class CommentsItem extends Component {
                 <Components.CommentVotesInfo documentId={comment._id} />
               </Dialog>
             }
-          </object>
         </div>
       )
     }

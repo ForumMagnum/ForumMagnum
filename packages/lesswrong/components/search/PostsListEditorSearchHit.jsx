@@ -14,21 +14,19 @@ const PostsListEditorSearchHit = ({hit, clickAction, router}) => {
       <h3 className="posts-item-title">
         <Highlight attributeName="title" hit={hit} tagName="mark" />
       </h3>
-      <object>
-        <div className="posts-item-meta">
-          {hit.postedAt ? <div className="posts-item-date"> {moment(new Date(hit.postedAt)).fromNow()} </div> : null}
-          <div className="posts-item-score">{hit.baseScore} points</div>
-          {hit.authorDisplayName ? <div className="posts-item-user">{hit.authorDisplayName}</div> : null}
-          <div>{hit.commentCount || 0 } Comments</div>
-          <Link
-            to={Posts.getLink(hit)}
-            target={Posts.getLinkTarget(hit)}
-            className="posts-list-editor-item-title-link"
-          >
-            (Link)
-          </Link>
-        </div>
-      </object>
+      <div className="posts-item-meta">
+        {hit.postedAt ? <div className="posts-item-date"> {moment(new Date(hit.postedAt)).fromNow()} </div> : null}
+        <div className="posts-item-score">{hit.baseScore} points</div>
+        {hit.authorDisplayName ? <div className="posts-item-user">{hit.authorDisplayName}</div> : null}
+        <div>{hit.commentCount || 0 } Comments</div>
+        <Link
+          to={Posts.getLink(hit)}
+          target={Posts.getLinkTarget(hit)}
+          className="posts-list-editor-item-title-link"
+        >
+          (Link)
+        </Link>
+      </div>
     </div>
   )
 }
