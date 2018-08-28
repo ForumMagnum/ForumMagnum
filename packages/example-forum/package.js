@@ -46,11 +46,6 @@ Package.onUse(function (api) {
     
   ], ['server']);
 
-  api.addFiles([
-    // 'lib/stylesheets/bootstrap.css',
-    'lib/stylesheets/main.scss'
-  ], ['client']);
-
   api.mainModule("lib/server/main.js", "server");
   api.mainModule("lib/client/main.js", "client");
 
