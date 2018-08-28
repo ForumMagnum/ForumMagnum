@@ -24,7 +24,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
-// import Users from "meteor/vulcan:users";
 
 const styles = theme => ({
     header: {
@@ -281,7 +280,7 @@ class PostsPage extends Component {
 
       return (
         <Components.ErrorBoundary>
-          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} image={post.thumbnailUrl} description={post.excerpt} />
+          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={post.excerpt} />
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
