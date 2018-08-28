@@ -31,17 +31,6 @@ Package.onUse(function (api) {
   ]);
 
   api.addAssets([
-    'lib/assets/images/stackoverflow.png',
-    'lib/assets/images/telescope.png',
-  ], ['client']);
-
-  api.addAssets([
-    'lib/assets/content/read_this_first.md',
-    'lib/assets/content/deploying.md',
-    'lib/assets/content/customizing.md',
-    'lib/assets/content/getting_help.md',
-    'lib/assets/content/removing_getting_started_posts.md',
-
     'lib/server/email/templates/common/test.handlebars',
     'lib/server/email/templates/common/wrapper.handlebars',
     'lib/server/email/templates/comments/newComment.handlebars',
