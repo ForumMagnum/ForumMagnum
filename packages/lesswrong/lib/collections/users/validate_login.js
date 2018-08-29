@@ -1,4 +1,5 @@
 import { Accounts } from 'meteor/accounts-base';
+import { getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 
 Accounts.validateLoginAttempt((attempt) => {
@@ -17,21 +18,20 @@ Accounts.validateLoginAttempt((attempt) => {
   }
 })
 
-const whiteList = [
-  'jpaddison',
-  // TODO get from settings
-  'Maxdalton',
-  'Julia_Wise',
-  'MarekDuda',
-  'SamDeere'
-]
+function getWhitelist () {
+  const rawSetting = getSetting('privateBetaLegacyWhitelist')
+  if (!rawSetting) return []
+  return Object.values(rawSetting)
+}
+
+const whitelist = getWhitelist()
 
 // EA Forum Power User Beta
 // Reject legacy users unless they're on the whitelist
 Accounts.validateLoginAttempt((attempt) => {
   const userStub = attempt.user || attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user;
   const user = userStub && Users.findOne({username: userStub.username});
-  if (whiteList.includes(user.username)) {
+  if (whitelist.includes(user.username)) {
     return true
   }
   if (user && user.legacy) {
