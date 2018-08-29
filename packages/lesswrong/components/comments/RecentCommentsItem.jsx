@@ -48,7 +48,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
   render() {
     const { comment, showTitle, level=1 } = this.props;
-    
+
     if (comment) {
       return (
         <div
@@ -76,7 +76,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
           <div className="comments-item recent-comments-item">
             <div className="comments-item-body recent-comments-item-body ">
-              <object><div className="comments-item-meta recent-comments-item-meta">
+              <div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId ? (
                   <FontIcon
                     onClick={this.toggleShowParent}
@@ -99,7 +99,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 )}
                 <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
-              </div></object>
+              </div>
               {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
             </div>
           </div>
