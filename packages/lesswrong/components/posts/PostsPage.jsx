@@ -277,10 +277,11 @@ class PostsPage extends Component {
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
 
       const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
+      debugger
 
       return (
         <Components.ErrorBoundary>
-          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={post.excerpt} />
+          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={post.body} />
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
