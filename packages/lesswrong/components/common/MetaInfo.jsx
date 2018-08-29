@@ -16,26 +16,22 @@ const styles = (theme) => ({
       color: theme.palette.grey[400],
     },
   },
-  block: {
-    display: "block"
-  },
-  wideSpacing: {
+  largeMargin: {
     marginRight: "1em"
   }
 })
 
-const SmallItemStyle = ({children, classes, button, block, wideSpacing, className}) => {
+const MetaInfo = ({children, classes, button, block, largeMargin, className}) => {
   return <Typography
     component='span'
     variant='body2'
     className={classNames(
       classes.root, {
         [classes.button]: button,
-        [classes.block]: block,
-        [classes.wideSpacing]: wideSpacing},
+        [classes.largeMargin]: largeMargin},
       className)}>
     {children}
   </Typography>
 }
 
-registerComponent( 'SmallItemStyle', SmallItemStyle, withStyles(styles, {name: 'SmallItemStyle'}))
+registerComponent( 'MetaInfo', MetaInfo, withStyles(styles, {name: 'MetaInfo'}))

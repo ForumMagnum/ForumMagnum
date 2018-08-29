@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core';
 
-import '../components/messaging/TitleEditForm.jsx';
+import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
 import '../components/messaging/MessageItem.jsx';
 import '../components/messaging/ConversationWrapper.jsx';
@@ -39,7 +39,7 @@ import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
 import '../components/common/SectionSubtitle.jsx';
-import '../components/common/SmallItemStyle.jsx';
+import '../components/common/MetaInfo.jsx';
 import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';

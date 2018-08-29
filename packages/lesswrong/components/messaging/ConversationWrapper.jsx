@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  headline: {
+  conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: theme.spacing.unit,
     marginLeft: 2,
@@ -21,6 +21,7 @@ const styles = theme => ({
   editor: {
     marginTop: theme.spacing.unit*4,
     ...theme.typography.commentStyle,
+    position:"relative",
   }
 })
 
@@ -46,8 +47,8 @@ class ConversationWrapper extends Component {
     } else if (conversation) {
       //TODO: Clean up the CSS for this component id:17
       return (
-        <div className={classes.root}>
-          <Typography variant="display2" className={classes.headline}>
+        <div>
+          <Typography variant="display2" className={classes.conversationTitle}>
             {!!conversation.title ? conversation.title : _.pluck(conversation.participants, 'username').join(', ')}
           </Typography>
           <Components.ConversationDetails conversation={conversation}/>
