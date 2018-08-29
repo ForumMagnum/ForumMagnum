@@ -1069,7 +1069,8 @@ Posts.addField([
     fieldSchema: {
       type: String,
       viewableBy: ['guests'],
-      hidden: true
+      hidden: true,
+      optional: true
     }
   }
 ]);
