@@ -1060,7 +1060,7 @@ Posts.addField([
   },
 
   /*
-    plaintextExcerpt: Version of the excerpt that is plaintext, used for the og:description tag which is
+    plaintextExcerpt: Version of the excerpt that is plaintext, used for the description head tags which are
     used by Facebook and Google to extract previews of content.
   */
 
