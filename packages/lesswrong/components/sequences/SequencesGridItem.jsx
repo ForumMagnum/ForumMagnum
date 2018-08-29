@@ -2,7 +2,8 @@ import {
   Components,
   registerComponent,
   withCurrentUser,
-  getSetting
+  getSetting,
+  Utils
 } from 'meteor/vulcan:core';
 import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
@@ -26,10 +27,9 @@ class SequencesGridItem extends PureComponent {
   }
 
   handleClick = (event) => {
-    const { router } = this.props
-    if (!event.target.closest('a')) { // Checks whether any parent is a tag
-      router.push(this.getSequenceUrl())
-    }
+    const url = this.getSequenceUrl()
+    const navigate = this.props.router.push
+    Utils.manualClickNavigation(event, url, navigate)
   }
 
   render() {

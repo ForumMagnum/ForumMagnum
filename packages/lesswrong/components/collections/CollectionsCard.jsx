@@ -1,4 +1,4 @@
-import { Components, registerComponent} from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import {Card, CardMedia } from 'material-ui/Card';
 import { withRouter, Link } from 'react-router';
@@ -20,9 +20,7 @@ const styles = theme => ({
 class CollectionsCard extends PureComponent {
   handleClick = (event) => {
     const { url, router } = this.props
-    if (!event.target.closest('a')) { // Checks that no parent of the clicked element is a tag
-      router.push(url)
-    }
+    Utils.manualClickNavigation(event, url, router.push)
   }
 
   render() {
