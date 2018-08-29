@@ -101,7 +101,7 @@ Posts.convertFromHTML = (html, id, slug, sanitize) => {
   const excerpt = Posts.createExcerpt(body)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
-  const htmlBody = sanitize ? Utils.sanitize(html) : html
+  const htmlBody = sanitize ? html : Utils.sanitize(html)
   return {
     body,
     htmlBody,
