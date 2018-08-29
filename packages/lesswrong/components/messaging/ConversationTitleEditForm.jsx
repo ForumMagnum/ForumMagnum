@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from "meteor/vulcan:core";
 import Conversations from '../../lib/collections/conversations/collection.js';
 
-const TitleEditForm = props =>{
+const ConversationTitleEditForm = props =>{
   return <Components.SmartForm
     collection={Conversations}
     documentId={props.documentId}
@@ -22,4 +22,4 @@ const TitleEditForm = props =>{
   />
 }
 
-registerComponent('TitleEditForm', TitleEditForm);
+registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);

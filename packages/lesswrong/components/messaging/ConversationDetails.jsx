@@ -35,7 +35,8 @@ class ConversationDetails extends Component {
               { i < conversation.participants.length-1 && ","}
             </Components.MetaInfo>)}
           </span>
-          <Components.DialogGroup title="Edit Conversation Title" trigger={<Components.MetaInfo button smallMargin>Edit Title</Components.MetaInfo>}>
+          <Components.DialogGroup title="Edit Conversation Title"
+            actions={[]} trigger={<Components.MetaInfo button smallMargin>Edit Title</Components.MetaInfo>}>
             <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>
