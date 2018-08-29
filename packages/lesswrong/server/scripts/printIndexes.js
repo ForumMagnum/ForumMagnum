@@ -14,6 +14,8 @@
 //    collection object for.
 //
 
+db = db.getSiblingDB('lesswrong2');
+
 // Return true if the given index is a vanilla primary-key index with no extra
 // options.
 function isPrimaryKeyIndex(index) {
@@ -37,23 +39,63 @@ function getIndexOptions(index) {
   return options;
 }
 
+function describeIndex(collectionName, index) {
+  // For the _ensureIndex call, the first argument is `key` and the second
+  // argument is everything that was on the index description except for
+  // key, v, ns, and name.
+  let options = getIndexOptions(index);
+  let hasOptions = (Object.keys(options).length > 0);
+
+  if(hasOptions)
+    return `${collectionName}._ensureIndex(${JSON.stringify(index.key)}, ${JSON.stringify(options)});`;
+  else
+    return `${collectionName}._ensureIndex(${JSON.stringify(index.key)});`;
+}
+
+function getIndexStats(index, indexStats)
+{
+  if(!indexStats) return null;
+  let indexName = index.name;
+  for(let i=0; i<indexStats.length; i++) {
+    if(indexStats[i].name === indexName)
+      return indexStats[i];
+  }
+  print("// Failed to find index statistics for "+indexName);
+  return null;
+}
+
+function indexIsUnused(indexStats)
+{
+  if(!indexStats)
+    return false;
+  if(!indexStats.accesses || !indexStats.accesses.ops)
+    return false;
+  return indexStats.accesses.ops.valueOf() === 0;
+}
+
 db.getCollectionNames().forEach(collection => {
   let indexes = db[collection].getIndexes()
     .filter(index => !isPrimaryKeyIndex(index));
 
   if(indexes.length > 0) {
+    let indexStats = null;
+    try {
+      indexStats = db[collection].aggregate([{$indexStats: {}}]).toArray();
+    } catch(e) {
+      print("Unable to get index statistics: "+e);
+    }
+    if(!(indexStats.length > 0))
+      print("No index statistics retrieved");
+    
     print(`// ${collection}`);
     indexes.forEach(index => {
-      // For the _ensureIndex call, the first argument is `key` and the second
-      // argument is everything that was on the index description except for
-      // key, v, ns, and name.
-      let options = getIndexOptions(index);
-      let hasOptions = (Object.keys(options).length > 0);
-  
-      if(hasOptions)
-        print(`${collection}._ensureIndex(${JSON.stringify(index.key)}, ${JSON.stringify(options)});`);
-      else
-        print(`${collection}._ensureIndex(${JSON.stringify(index.key)});`);
+      let stats = getIndexStats(index, indexStats);
+      
+      if(indexIsUnused(stats)) {
+        print(`// UNUSED: ${describeIndex(collection, index)}`);
+      } else {
+        print(describeIndex(collection, index));
+      }
     });
     print("");
   }
