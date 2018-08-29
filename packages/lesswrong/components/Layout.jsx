@@ -1,4 +1,4 @@
-import { Components, replaceComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, withCurrentUser } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch/dom';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -100,4 +100,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withApollo, withStyles(styles));
+registerComponent('Layout', Layout, withCurrentUser, withApollo, withStyles(styles));

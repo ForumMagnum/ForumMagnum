@@ -1,4 +1,4 @@
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -158,4 +158,4 @@ CommentsNode.propTypes = {
   router: PropTypes.object.isRequired
 };
 
-replaceComponent('CommentsNode', CommentsNode, withRouter, muiThemeable(), withStyles((styles)));
+registerComponent('CommentsNode', CommentsNode, withRouter, muiThemeable(), withStyles((styles)));

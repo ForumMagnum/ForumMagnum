@@ -1,7 +1,6 @@
 import {
   Components,
   getRawComponent,
-  replaceComponent,
   withDocument,
   registerComponent,
   getActions,

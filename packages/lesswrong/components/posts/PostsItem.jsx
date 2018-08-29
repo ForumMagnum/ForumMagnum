@@ -1,6 +1,6 @@
 import {
   Components,
-  replaceComponent,
+  registerComponent,
   withCurrentUser,
   withMutation,
   getActions,
@@ -362,7 +362,7 @@ const mutationOptions = {
 const mapStateToProps = state => ({ postsViewed: state.postsViewed });
 const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
-replaceComponent(
+registerComponent(
   'PostsItem',
   PostsItem,
   withCurrentUser,
