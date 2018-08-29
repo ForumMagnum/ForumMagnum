@@ -29,13 +29,13 @@ class ConversationDetails extends Component {
       return (
         <div className={classes.root}>
           <span>
-            {conversation.participants.map((user, i) => <Components.MetaInfo key={user._id}>
+            {conversation.participants.map((user, i) => <Components.MetaInfo smallMargin key={user._id}>
               <Components.UsersName key={user._id} user={user}/>
               {/* inserts a comma for all but the last username */}
               { i < conversation.participants.length-1 && ","}
             </Components.MetaInfo>)}
           </span>
-          <Components.DialogGroup title="Edit Conversation Title" trigger={<Components.MetaInfo button>Edit Title</Components.MetaInfo>}>
+          <Components.DialogGroup title="Edit Conversation Title" trigger={<Components.MetaInfo button smallMargin>Edit Title</Components.MetaInfo>}>
             <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>
