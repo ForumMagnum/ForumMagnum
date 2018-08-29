@@ -14,7 +14,8 @@
 //    collection object for.
 //
 
-db = db.getSiblingDB('lesswrong2');
+// "db" is defined because this runs in a mongo shell.
+let lw2db = db.getSiblingDB('lesswrong2'); // eslint-disable-line no-undef
 
 // Return true if the given index is a vanilla primary-key index with no extra
 // options.
@@ -73,14 +74,14 @@ function indexIsUnused(indexStats)
   return indexStats.accesses.ops.valueOf() === 0;
 }
 
-db.getCollectionNames().forEach(collection => {
-  let indexes = db[collection].getIndexes()
+lw2db.getCollectionNames().forEach(collection => {
+  let indexes = lw2db[collection].getIndexes()
     .filter(index => !isPrimaryKeyIndex(index));
 
   if(indexes.length > 0) {
     let indexStats = null;
     try {
-      indexStats = db[collection].aggregate([{$indexStats: {}}]).toArray();
+      indexStats = lw2db[collection].aggregate([{$indexStats: {}}]).toArray();
     } catch(e) {
       print("Unable to get index statistics: "+e);
     }
