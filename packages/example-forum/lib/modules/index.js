@@ -1,5 +1,4 @@
 import './voting.js';
-import './fragments.js';
 import './components.js';
 import './config.js';
 import './headtags.js';
