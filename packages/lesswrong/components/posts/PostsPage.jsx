@@ -275,12 +275,12 @@ class PostsPage extends Component {
       const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
-
+      const description = post.plaintextExcerpt ? post.plaintextExcerpt : post.body.substring(300)
       const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>
-          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={post.excerpt} />
+          <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
