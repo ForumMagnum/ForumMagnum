@@ -29,9 +29,15 @@ const styles = theme => ({
   },
   '@global': {
     p: {
-      marginTop:0,
-      marginBottom: "1em"
-    }
+      marginTop: "1em",
+      marginBottom: "1em",
+      '&:first-of-type': {
+        marginTop: 0,
+      },
+      '&:last-of-type': {
+        marginBottom: 0,
+      }
+    },
   }
 })
 
