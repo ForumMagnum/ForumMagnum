@@ -18,7 +18,12 @@ Accounts.validateLoginAttempt((attempt) => {
 })
 
 const whiteList = [
-  // 'jpaddison'
+  'jpaddison',
+  // TODO get from settings
+  'Maxdalton',
+  'Julia_Wise',
+  'MarekDuda',
+  'SamDeere'
 ]
 
 // EA Forum Power User Beta
