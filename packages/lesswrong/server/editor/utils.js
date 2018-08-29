@@ -15,7 +15,7 @@ mdi.use(markdownItMathjax())
 
 import { mjpage }  from 'mathjax-node-page'
 
-import htmlToText from 'html-to-text';
+import htmlToText from 'html-to-text'
 
 // Promisified version of mjpage
 function mjPagePromise(html, beforeSerializationCallback) {
@@ -62,7 +62,7 @@ Posts.convertFromContent = (content, id, slug) => {
   const htmlBody = draftToHTML(contentState)
   const body = turndownService.turndown(htmlBody)
   const excerpt = Posts.createExcerpt(body)
-  const plaintextExcerpt = htmlToText(excerpt)
+  const plaintextExcerpt = htmlToText.fromString(excerpt)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   return {
@@ -103,7 +103,7 @@ Comments.convertFromContentAsync = async function(content) {
 Posts.convertFromHTML = (html, id, slug, sanitize) => {
   const body = turndownService.turndown(html)
   const excerpt = Posts.createExcerpt(body)
-  const plaintextExcerpt = htmlToText(excerpt)
+  const plaintextExcerpt = htmlToText.fromString(excerpt)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   const htmlBody = sanitize ? Utils.sanitize(html) : html
@@ -132,7 +132,7 @@ Posts.convertFromMarkdown = (body, id, slug) => {
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   const excerpt = Posts.createExcerpt(body)
-  const plaintextExcerpt = htmlToText(excerpt)
+  const plaintextExcerpt = htmlToText.fromString(excerpt)
   return {
     htmlBody: mdi.render(body),
     body,
