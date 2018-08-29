@@ -1,27 +1,19 @@
 var disconnectTimer = null;
 
 // 60 seconds by default
-var disconnectTime = (Meteor.settings && Meteor.settings.public && Meteor.settings.public.disconnectTimeSec || 60) * 1000;
-var disconnectVoids = (Meteor.settings && Meteor.settings.public && Meteor.settings.public.disconnectVoids || []);
+var disconnectTime = 60 * 1000;
 
 Meteor.startup(disconnectIfHidden);
 
 document.addEventListener('visibilitychange', disconnectIfHidden);
 
-if (Meteor.isCordova) {
-    document.addEventListener('resume', function () { Meteor.reconnect(); });
-    document.addEventListener('pause', function () { createDisconnectTimeout(); });
-}
-
 function disconnectIfHidden() {
     removeDisconnectTimeout();
 
     if (document.hidden) {
-        if(!Package["iron:router"] || disconnectVoids.indexOf(Router.current().route.getName()) < 0){
-            createDisconnectTimeout();
-        }
+      createDisconnectTimeout();
     } else {
-        Meteor.reconnect();
+      Meteor.reconnect();
     }
 }
 

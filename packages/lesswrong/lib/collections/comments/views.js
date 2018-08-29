@@ -140,7 +140,8 @@ Comments.addView("postCommentsUnread", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      deleted: {$ne: true }
+      deleted: {$ne: true },
+      score: {$gt: 0}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };

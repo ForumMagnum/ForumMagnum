@@ -1,11 +1,28 @@
 import React, { PropTypes, Component } from 'react';
-import { Components, withDocument, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import {
+  Components,
+  withDocument,
+  registerComponent,
+  withCurrentUser,
+  getSetting
+} from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import classNames from 'classnames';
+
+const styles = theme => ({
+  title: {
+    fontVariant: "small-caps",
+    color: "white",
+    ...theme.typography.postStyle
+  }
+})
 
 class SequencesPage extends Component {
   constructor(props) {
@@ -24,7 +41,7 @@ class SequencesPage extends Component {
   }
 
   render() {
-    const {document, currentUser, loading} = this.props;
+    const { document, currentUser, loading, classes } = this.props;
     if (document && document.isDeleted) {
       return <h3>This sequence has been deleted</h3>
     } if (loading || !document) {
@@ -38,21 +55,32 @@ class SequencesPage extends Component {
       const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
-
+      const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
       return (<div className="sequences-page">
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
             <NoSSR>
               <div className="sequences-image">
-                <Image publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"} cloudName="lesswrong-2-0" quality="auto" sizes="100vw" responsive={true} width="auto" height="380" dpr="auto" crop="fill" gravity="custom" />
+                <Image
+                  publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+                  cloudName={cloudinaryCloudName}
+                  quality="auto"
+                  sizes="100vw"
+                  responsive={true}
+                  width="auto"
+                  height="380"
+                  dpr="auto"
+                  crop="fill"
+                  gravity="custom"
+                />
                 <div className="sequences-image-scrim-overlay"></div>
               </div>
             </NoSSR>
             <div className="sequences-title-wrapper">
-              <div className="sequences-title">
+              <Typography variant='display2' className={classNames("sequences-title", classes.title)}>
                 {document.draft && <span className="sequences-page-content-header-title-draft">[Draft] </span>}{document.title}
-              </div>
+              </Typography>
             </div>
           </div>
         </div>
@@ -99,4 +127,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser);
+registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles));

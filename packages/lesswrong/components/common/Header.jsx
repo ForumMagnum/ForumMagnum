@@ -47,7 +47,8 @@ const styles = theme => ({
     color: getTextColor(theme),
     verticalAlign: 'middle',
     fontSize: 19,
-    marginTop: 1,
+    position: "relative",
+    top: 3,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
