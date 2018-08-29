@@ -18,6 +18,7 @@ const styles = theme => ({
   userButton: {
     textTransform: 'none',
     fontSize: '16px',
+    fontWeight: 400,
   }
 })
 

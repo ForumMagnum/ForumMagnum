@@ -59,11 +59,12 @@ Comments.addField([
       order: 25,
       form: {
         hintText:"Plain Markdown Editor",
-        name:"body",
-        rows:4,
         multiLine:true,
         fullWidth:true,
-        underlineShow:false
+        disableUnderline:true,
+        enableMarkDownEditor: true,
+        minHeight: 400,
+        name: "body"
       },
     }
   },
@@ -338,6 +339,23 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+    }
+  },
+
+  /*
+    lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
+    appropriate editor when being edited, overwriting user-preferences
+  */
+
+  {
+    fieldName: 'lastEditedAs',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      hidden: true,
     }
   }
 

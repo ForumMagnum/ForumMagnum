@@ -39,7 +39,7 @@ const schema = {
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: Users.owns,
-    control: 'EditorFormComponent',
+    control: 'CommentEditor',
     order: 2,
     blackbox: true,
     optional: true,

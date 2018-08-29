@@ -1,5 +1,6 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
+import { getSetting } from 'meteor/vulcan:lib';
 
 const Home = (props, context) => {
   const { currentUser, router } = props;
@@ -26,6 +27,7 @@ const Home = (props, context) => {
 
   return (
     <div>
+      <Components.HeadTags image={getSetting('siteImage')} />
       <Components.Section title={recentPostsTitle}
                           titleComponent= {<div className="recent-posts-title-component">
                             <Components.PostsViews />

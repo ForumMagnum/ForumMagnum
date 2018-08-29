@@ -22,11 +22,20 @@ import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
-
 const styles = theme => ({
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
+    marginBottom:theme.spacing.unit*2
+  },
+  postItem: {
+    paddingLeft:10,
+    paddingBottom:10,
+    ...theme.typography.postStyle,
+  },
+  continueReading: {
+    marginTop:theme.spacing.unit*2,
+    marginBottom:theme.spacing.unit*2,
   }
 })
 
@@ -97,16 +106,14 @@ class RecentDiscussionThread extends PureComponent {
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null}, classes.postBody)
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null})
     return (
       <div className="recent-discussion-thread-wrapper">
-        <div className={classNames(classes.postStyle, "recent-discussion-thread-post")}>
+        <div className={classNames(classes.postItem)}>
 
-          <div className={classNames("recent-discussion-thread-title", {unread: !post.lastVisitedAt})}>
-            <Link to={Posts.getPageUrl(post)}>
-            {post.url && "[Link]"}{post.unlisted && "[Unlisted]"}{post.isEvent && "[Event]"} {post.title}
-            </Link>
-          </div>
+          <Link to={Posts.getPageUrl(post)}>
+            <Components.PostsItemTitle post={post} />
+          </Link>
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
@@ -159,10 +166,12 @@ class RecentDiscussionThread extends PureComponent {
             { this.renderLinkPost() }
             { post.htmlHighlight ?
               <div>
-                <div className="post-highlight" dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
-                { post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
-                  (Continue Reading {` – ${post.wordCount - 280} more words`})
-                </Link>}
+                <div className={classNames("post-highlight", classes.postBody)} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+                { post.wordCount > 280 && <div className={classes.continueReading}>
+                  <Link to={Posts.getPageUrl(post)}>
+                    (Continue Reading {` – ${post.wordCount - 280} more words`})
+                  </Link>
+                </div>}
               </div>
               :
               <div className="post-highlight excerpt" dangerouslySetInnerHTML={{__html: post.excerpt}}/>
@@ -177,7 +186,7 @@ class RecentDiscussionThread extends PureComponent {
           {loading || !results ? <Loading /> :
           <div className={"comments-items"}>
             {nestedComments.map(comment =>
-              <div key={comment._id}>
+              <div key={comment.item._id}>
                 <Components.CommentsNode
                   currentUser={currentUser}
                   comment={comment.item}
