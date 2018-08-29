@@ -277,7 +277,6 @@ class PostsPage extends Component {
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
 
       const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
-      debugger
 
       return (
         <Components.ErrorBoundary>
