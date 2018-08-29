@@ -1,6 +1,5 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
-import postViewSections from '../../lib/sections.js'
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
 
@@ -81,11 +80,6 @@ const Home = (props, context) => {
       limit: 3,
     }
   }
-  
-  let subscribeCurated =
-    <Components.SubscribeLinks
-      section={postViewSections["curated"]}
-    ></Components.SubscribeLinks>
 
   return (
     <div>
@@ -123,10 +117,11 @@ const Home = (props, context) => {
           </Components.Section>
         </div>}
       <Components.Section title={recentPostsTitle}
-        titleComponent={<div className="recent-posts-title-component">
+        titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
         </div>}
-        subscribeLinks={subscribeCurated}>
+        subscribeLinks={<Components.SubscribeWidget view={recentPostsTerms.view} />}
+      >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
       <Components.Section

@@ -56,10 +56,31 @@ const styles = (theme) => ({
   sectionTitleBottom: {},
   sectionContent: {
     maxWidth: 715
+  },
+  subscribeWidget: {
+    marginBottom: -3 * theme.spacing.unit
+  },
+  [theme.breakpoints.down('md')]: {
+    heading: {
+      display: "inline"
+    },
+    subscribeWidget: {
+      marginBottom: 0,
+      display: "inline-block",
+      marginLeft: 2 * theme.spacing.unit
+    }
   }
 })
 
-const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, subscribeLinks = null, children, classes}) => {
+const Section = ({
+  contentStyle,
+  title,
+  titleLink,
+  titleComponent,
+  subscribeLinks = null,
+  children,
+  classes
+}) => {
 
   return (
     <Components.ErrorBoundary>
@@ -67,10 +88,12 @@ const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>
             <Typography variant="display2" className={classes.sectionTitle}>
-              {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
+              {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
+              { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
+                {subscribeLinks}
+              </Typography> }
             </Typography>
           </div>}
-          { subscribeLinks }
           {titleComponent && <div className={classes.sectionTitleBottom}>
             {titleComponent}
           </div>}

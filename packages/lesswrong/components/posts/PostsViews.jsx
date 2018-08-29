@@ -35,7 +35,7 @@ class PostsViews extends Component {
     }
   }
 
-  handleChange = (view) => {
+  handleChange = (view, event) => {
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };
@@ -71,7 +71,6 @@ class PostsViews extends Component {
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { viewData.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewData.rssView} /></div> }
         </div>
       </div>
     )
