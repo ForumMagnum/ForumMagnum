@@ -102,7 +102,7 @@ class SearchBar extends Component {
                 <div className="search-results-container-left">
                   <div className="search-results-posts">
                     <Index indexName="test_posts">
-                      <Configure hitsPerPage={3} />
+                      <Configure hitsPerPage={5} />
                       <Components.Section title="Posts" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
                         <div className="search-results-posts-content">
                           <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={this.closeSearch} {...props} />} />
@@ -112,7 +112,7 @@ class SearchBar extends Component {
                   </div>
                   <div className="search-results-comments">
                     <Index indexName="test_comments">
-                      <Configure hitsPerPage={3} />
+                      <Configure hitsPerPage={5} />
                       <Components.Section title="Comments" titleWidth={150} titleComponent={<Pagination pagesPadding={0} showFirst={false}/>}>
                         <div className="search-results-comments-content">
                           <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={this.closeSearch} {...props} />} />

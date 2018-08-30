@@ -116,6 +116,7 @@ $header-mobile: 43px !important;
   width: 100%;
   top: 64px;
   background-color: white;
+
   .search-results-container {
     display: flex;
     flex-direction: row;
@@ -266,22 +267,6 @@ $header-mobile: 43px !important;
         font-size: 16px;
         font-weight: bold;
         margin-bottom: 0px;
-      }
-    }
-    .users-item-name {
-      font-size: 16px;
-      display: inline-block;
-      margin-right: 5px;
-    }
-    .users-item-meta{
-      display: inline-block;
-      .users-item-karma {
-        font-size: 14px;
-        display: inline-block;
-        margin-right: 5px;
-      }
-      .users-item-created-date {
-        display: inline-block;
       }
     }
   }
