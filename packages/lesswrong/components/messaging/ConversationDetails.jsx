@@ -14,7 +14,8 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    flexWrap: "wrap",
   }
 })
 
@@ -36,7 +37,7 @@ class ConversationDetails extends Component {
             </Components.MetaInfo>)}
           </span>
           <Components.DialogGroup title="Edit Conversation Title"
-            actions={[]} trigger={<Components.MetaInfo button>Edit Title</Components.MetaInfo>}>
+            actions={[]} trigger={<Components.MetaInfo button>Edit Conversation Title</Components.MetaInfo>}>
             <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>

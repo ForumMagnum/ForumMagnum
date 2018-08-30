@@ -31,13 +31,20 @@ const styles = theme => ({
     justifyContent: "flex-end",
     '&:hover': {
       color: grey[400]
-    }
+    },
+    [theme.breakpoints.down('md')]: {
+      justifyContent: "flex-start",
+    },
   },
   conversationItemLatestActivity: {
     marginLeft: theme.spacing.unit
   },
   navigation: {
-    marginTop: theme.spacing.unit*2
+    marginTop: theme.spacing.unit*2,
+    [theme.breakpoints.down('md')]: {
+      maxHeight: 100,
+      overflow: "scroll",
+    },
   }
 })
 

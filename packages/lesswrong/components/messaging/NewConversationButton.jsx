@@ -26,7 +26,7 @@ class NewConversationButton extends Component {
   }
 
   render() {
-    const { currentUser, buttonComponent, children } = this.props;
+    const { currentUser, children } = this.props;
 
     if (currentUser) {
       return (
@@ -42,7 +42,6 @@ class NewConversationButton extends Component {
 
 NewConversationButton.propTypes = {
   user: PropTypes.object.isRequired,
-  buttonComponent: PropTypes.element.isRequired,
   currentUser: PropTypes.object,
 };
 
