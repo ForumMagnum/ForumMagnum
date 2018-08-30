@@ -147,4 +147,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser, withStyles(styles));
+registerComponent('Home', Home, withCurrentUser, withStyles(styles, { name: "Home" }));

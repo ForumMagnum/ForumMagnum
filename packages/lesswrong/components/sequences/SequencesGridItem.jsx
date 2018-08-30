@@ -73,4 +73,4 @@ class SequencesGridItem extends PureComponent {
 
 SequencesGridItem.displayName = "SequencesGridItem";
 
-registerComponent('SequencesGridItem', SequencesGridItem, withCurrentUser, withStyles(styles), withRouter);
+registerComponent('SequencesGridItem', SequencesGridItem, withCurrentUser, withStyles(styles, { name: "SequencesGridItem" }), withRouter);

@@ -74,4 +74,4 @@ class MessageItem extends Component {
 }
 
 
-registerComponent('MessageItem', MessageItem, withStyles(styles));
+registerComponent('MessageItem', MessageItem, withStyles(styles, { name: "MessageItem" }));

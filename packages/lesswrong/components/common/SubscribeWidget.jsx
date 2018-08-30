@@ -96,4 +96,4 @@ class SubscribeWidget extends Component {
   }
 }
 
-registerComponent('SubscribeWidget', SubscribeWidget, withStyles(styles));
+registerComponent('SubscribeWidget', SubscribeWidget, withStyles(styles, { name: "SubscribeWidget" }));

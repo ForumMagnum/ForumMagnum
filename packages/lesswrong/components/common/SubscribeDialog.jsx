@@ -288,4 +288,4 @@ registerComponent("SubscribeDialog", SubscribeDialog,
   withMobileDialog(),
   withCurrentUser,
   [withEdit, withEditOptions],
-  withStyles(styles));
+  withStyles(styles, { name: "SubscribeDialog" }));

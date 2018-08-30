@@ -80,4 +80,4 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('ConversationWrapper', ConversationWrapper, [withList, options], withCurrentUser, withStyles(styles));
+registerComponent('ConversationWrapper', ConversationWrapper, [withList, options], withCurrentUser, withStyles(styles, { name: "ConversationWrapper" }));
