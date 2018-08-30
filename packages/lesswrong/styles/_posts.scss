@@ -294,6 +294,9 @@
     //   margin-right:10px;
     // }
   }
+  .posts-item-title-link:hover {
+    color:rgba(0,0,0,.4) !important;
+  }
   .posts-item-highlight-content {
     overflow: hidden;
     max-width:550px;
@@ -894,10 +897,6 @@ svg.drag-handle {
   .moderation-guidelines-link {
     float: none;
   }
-}
-.posts-list-editor-item-title-link {
-  float:right;
-  margin-right:10px;
 }
 
 .posts-page-event-times {

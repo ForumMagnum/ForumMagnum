@@ -15,6 +15,10 @@ const styles = theme => ({
       '&:hover': {
         backgroundColor: grey[100],
       }
+    },
+    postLink: {
+      float:"right",
+      marginRight: theme.spacing.unit
     }
   })
 
@@ -30,11 +34,7 @@ const PostsListEditorSearchHit = ({hit, clickAction, router, classes}) => {
         {hit.baseScore} points
       </Components.MetaInfo>
       {hit.postedAt && <Components.MetaInfo> {moment(new Date(hit.postedAt)).fromNow()} </Components.MetaInfo>}
-      <Link
-        to={Posts.getLink(hit)}
-        target={Posts.getLinkTarget(hit)}
-        className="posts-list-editor-item-title-link"
-      >
+      <Link to={Posts.getLink(hit)} target={Posts.getLinkTarget(hit)} className={classes.postLink}>
         (Link)
       </Link>
     </div>
