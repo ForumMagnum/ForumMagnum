@@ -6,54 +6,32 @@ Button used to start a new conversation for a given user
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Dialog from 'material-ui/Dialog';
-import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, withNew } from 'meteor/vulcan:core';
 import {  withRouter } from 'react-router';
 import Conversations from '../../lib/collections/conversations/collection.js';
 
 class NewConversationButton extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-    }
-  }
-  handleOpen = () => {
-    this.setState({open: true});
-  }
-  handleClose = () => {
-    this.setState({open: false});
+
+  newConversation = () => {
+    const { user, currentUser, newMutation, router } = this.props
+
+    newMutation({
+      collection: Conversations,
+      document: {participantIds:[user._id, currentUser._id]},
+      currentUser: currentUser,
+      validate: false,
+    }).then(response=>{
+      router.push({pathname: '/inbox', query: {select: response.data.ConversationsNew._id}})
+    })
   }
 
   render() {
-    const { user, currentUser, buttonComponent, children } = this.props;
+    const { currentUser, buttonComponent, children } = this.props;
 
     if (currentUser) {
       return (
-        <div>
-          <div className="new-conversation-button" onClick={this.handleOpen}>
-            {children}
-          </div>
-          <div className="new-conversation-dialog">
-            <Dialog
-              title="Start a new conversation"
-              modal={true}
-              open={this.state.open}
-              onRequestClose={this.handleClose}
-            >
-              <Components.SmartForm
-                collection={Conversations}
-                mutationFragment={getFragment('newConversationFragment')}
-                prefilledProps={{participantIds: [currentUser._id, user._id]}}
-                successCallback={conversation => {
-                  this.handleClose();
-                  this.props.router.push({pathname: '/inbox', query: {select: conversation._id}});
-                }}
-              />
-              <br />
-              You can send your actual message on the next screen, after entering a Title (better interface is in the works)
-            </Dialog>
-          </div>
+        <div className="new-conversation-button" onClick={this.newConversation}>
+          {children}
         </div>
       )
     } else {
@@ -68,4 +46,9 @@ NewConversationButton.propTypes = {
   currentUser: PropTypes.object,
 };
 
-registerComponent('NewConversationButton', NewConversationButton, withCurrentUser, withRouter);
+const withNewOptions = {
+  collection: Conversations,
+  fragmentName: 'newConversationFragment',
+}
+
+registerComponent('NewConversationButton', NewConversationButton, [withNew, withNewOptions], withCurrentUser, withRouter);
