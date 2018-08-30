@@ -70,6 +70,7 @@ class UsersMenu extends PureComponent {
             }
             <MenuItem primaryText="Profile" containerElement={<Link to={`/users/${currentUser.slug}`}/>} />
             <MenuItem primaryText="Edit Account" containerElement={<Link to={`/account`}/>} />
+            <MenuItem primaryText="Private Messages" containerElement={<Link to={`/inbox`}/>} />
             <MenuItem primaryText="Log Out" onClick={() => Meteor.logout(() => client.resetStore())} />
           </Menu>
         </Popover>
