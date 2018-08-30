@@ -191,6 +191,7 @@ registerFragment(`
     body
     htmlBody
     content
+    plaintextExcerpt
     draft
     commentSortOrder
     canonicalPrevPostSlug

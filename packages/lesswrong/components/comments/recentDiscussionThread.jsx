@@ -93,9 +93,9 @@ class RecentDiscussionThread extends PureComponent {
   renderLinkPost = () => {
     const { post } = this.props
     if (post.url) {
-      return <p className="recent-discussion-highlight-link-post">
+      return <div className="recent-discussion-highlight-link-post">
         Linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-      </p>
+      </div>
     }
   }
 

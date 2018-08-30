@@ -24,10 +24,6 @@ Package.onUse( function(api) {
   ], ['client']);
 
   api.addAssets([
-    'assets/Logo.png',
-  ], ['client']);
-  
-  api.addAssets([
     'server/emails/templates/newPost.handlebars',
     'server/emails/templates/wrapper.handlebars',
   ], ['server']);

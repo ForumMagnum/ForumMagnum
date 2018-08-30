@@ -9,7 +9,7 @@ async function PostsNewHTMLSerializeCallback (post, author) {
     const newFields = await Posts.convertFromMarkdownAsync(post.body, post._id, post.slug)
     post = {...post, ...newFields}
   } else if (post.htmlBody) {
-    const newFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug, author.isAdmin);
+    const newFields = Posts.convertFromHTML(post.htmlBody, post._id, post.slug, !author.isAdmin);
     post = {...post, ...newFields}
   }
   return post
@@ -43,7 +43,7 @@ async function PostsEditHTMLSerializeCallback (modifier, post, author) {
     modifier.$set = {...modifier.$set, ...newFields}
     delete modifier.$unset.htmlBody
   } else if (modifier.$set && modifier.$set.htmlBody) {
-    const newFields = Posts.convertFromHTML(modifier.$set.htmlBody, post._id, post.slug, author.isAdmin);
+    const newFields = Posts.convertFromHTML(modifier.$set.htmlBody, post._id, post.slug, !author.isAdmin);
     modifier.$set = {...modifier.$set, ...newFields}
   }
   return modifier

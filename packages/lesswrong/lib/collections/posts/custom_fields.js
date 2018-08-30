@@ -1120,5 +1120,20 @@ Posts.addField([
       hidden: true,
       group: formGroups.adminOptions,
     }
+  },
+
+  /*
+    plaintextExcerpt: Version of the excerpt that is plaintext, used for the description head tags which are
+    used by Facebook and Google to extract previews of content.
+  */
+
+  {
+    fieldName: 'plaintextExcerpt',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      hidden: true,
+      optional: true
+    }
   }
 ]);

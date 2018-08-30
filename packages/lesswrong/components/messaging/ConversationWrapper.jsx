@@ -6,9 +6,24 @@ The Navigation for the Inbox components
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import PageHeader from 'react-bootstrap/lib/PageHeader';
 import { Components, registerComponent, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  conversationTitle: {
+    ...theme.typography.commentStyle,
+    marginTop: theme.spacing.unit,
+    marginLeft: 2,
+    marginBottom: theme.spacing.unit*1.5
+  },
+  editor: {
+    marginTop: theme.spacing.unit*4,
+    ...theme.typography.commentStyle,
+    position:"relative",
+  }
+})
 
 class ConversationWrapper extends Component {
 
@@ -25,23 +40,19 @@ class ConversationWrapper extends Component {
 
   render() {
 
-    const results = this.props.results;
-    const currentUser = this.props.currentUser;
-    const loading = this.props.loading;
-    const conversation = this.props.conversation;
+    const { results, currentUser, loading, conversation, classes } = this.props
 
     if (loading) {
       return (<Components.Loading/>)
     } else if (conversation) {
-      //TODO: Clean up the CSS for this component id:17
       return (
         <div>
-          <PageHeader>
+          <Typography variant="display2" className={classes.conversationTitle}>
             {!!conversation.title ? conversation.title : _.pluck(conversation.participants, 'username').join(', ')}
-            <br /> <small>{conversation.createdAt}</small>
-          </PageHeader>
+          </Typography>
+          <Components.ConversationDetails conversation={conversation}/>
           {this.renderMessages(results, currentUser)}
-          <div className="messages-smart-form">
+          <div className={classes.editor}>
             <Components.SmartForm
               key={conversation._id}
               collection={Messages}
@@ -69,4 +80,4 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('ConversationWrapper', ConversationWrapper, [withList, options], withCurrentUser);
+registerComponent('ConversationWrapper', ConversationWrapper, [withList, options], withCurrentUser, withStyles(styles));
