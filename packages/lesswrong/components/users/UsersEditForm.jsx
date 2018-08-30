@@ -22,39 +22,49 @@ const styles = theme => ({
 
 const UsersEditForm = (props) => {
 
-  const { classes } = props
+  const { classes, terms, currentUser } = props
+  
+  if(!terms.slug && !terms.documentId) {
+    // No user specified and not logged in
+    return (
+      <div className="page users-edit-form">
+        Log in to edit your profile.
+      </div>
+    );
+  }
+  if(!Users.options.mutations.edit.check(currentUser,
+      terms.documentId ? {_id: terms.documentId} : {slug: terms.slug}))
+  {
+    // No permission to edit this user (ie, you tried to edit a user other than
+    // yourself but aren't an admin).
+    return <FormattedMessage id="app.noPermission"/>;
+  }
   
   return (
-    <Components.ShowIf
-      check={Users.options.mutations.edit.check}
-      document={props.terms.documentId ? {_id: props.terms.documentId} : {slug: props.terms.slug}}
-      failureComponent={<FormattedMessage id="app.noPermission"/>}
-    >
-      <div className="page users-edit-form">
-        <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
-        <Button color="secondary" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
-            (error) => props.flash(error ? error.reason : "Sent password reset email to " + props.currentUser.email))
-          }>
-          Reset Password
-        </Button>
-        {/* <div className="change-password-link">
-          <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="accounts.change_password" /></a>}>
-            <Components.AccountsLoginForm formState={STATES.PASSWORD_CHANGE} />
-          </Components.ModalTrigger>
-        </div> */}
+    <div className="page users-edit-form">
+      <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
+      <Button color="secondary" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
+          (error) => props.flash(error ? error.reason : "Sent password reset email to " + props.currentUser.email))
+        }>
+        Reset Password
+      </Button>
+      {/* <div className="change-password-link">
+        <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="accounts.change_password" /></a>}>
+          <Components.AccountsLoginForm formState={STATES.PASSWORD_CHANGE} />
+        </Components.ModalTrigger>
+      </div> */}
 
-        <Components.SmartForm
-          collection={Users}
-          {...props.terms}
-          successCallback={user => {
-            props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
-            props.router.push(Users.getProfileUrl(user));
-          }}
-          mutationFragment={getFragment('UsersProfile')}
-          showRemove={false}
-        />
-      </div>
-    </Components.ShowIf>
+      <Components.SmartForm
+        collection={Users}
+        {...terms}
+        successCallback={user => {
+          props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
+          props.router.push(Users.getProfileUrl(user));
+        }}
+        mutationFragment={getFragment('UsersProfile')}
+        showRemove={false}
+      />
+    </div>
   );
 };
 
