@@ -63,7 +63,8 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      hidden: true,
+      order: 25,
+      control: 'UsersEmailVerification',
       viewableBy: ['members'],
       editableBy: ['members'],
       insertableBy: ['members'],
@@ -594,7 +595,7 @@ Users.addField([
       type: Boolean,
       optional: true,
       group: notificationsGroup,
-      control: 'checkbox',
+      control: 'EmailConfirmationRequiredCheckbox',
       label: "Email me new posts in Curated",
       insertableBy: ['members'],
       editableBy: ['members'],

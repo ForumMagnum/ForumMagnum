@@ -59,6 +59,8 @@ import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersNameWrapper.jsx';
+import '../components/users/UsersEmailVerification.jsx';
+import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemTitle.jsx';

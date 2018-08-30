@@ -102,16 +102,6 @@ class SubscribeDialog extends Component {
     event.target.select();
   }
 
-  // Return true if the current user's account has at least one verified
-  // email address.
-  emailAddressIsVerified() {
-    var emails = this.props.currentUser.emails;
-    for (let email of emails) {
-      if (email.verified) return true;
-    }
-    return false;
-  }
-
   sendVerificationEmail() {
     this.props.editMutation({
       documentId: this.props.currentUser._id,
@@ -123,7 +113,7 @@ class SubscribeDialog extends Component {
   subscribeByEmail() {
     let mutation = { emailSubscribedToCurated: true }
 
-    if (!this.emailAddressIsVerified()) {
+    if (!Users.emailAddressIsVerified(this.props.currentUser)) {
       // Updating whenConfirmationEmailSent sets off a trigger
       // which causes the email to actually be sent.
       //
@@ -257,7 +247,7 @@ class SubscribeDialog extends Component {
                 !this.emailFeedExists() && <DialogContentText className={classes.errorMsg}>
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
-                subscribedByEmail && !this.emailAddressIsVerified() && <DialogContentText className={classes.infoMsg}>
+                subscribedByEmail && !Users.emailAddressIsVerified(currentUser) && <DialogContentText className={classes.infoMsg}>
                   Check your inbox for a verification link.
                 </DialogContentText>
               ]
