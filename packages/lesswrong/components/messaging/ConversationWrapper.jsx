@@ -27,24 +27,25 @@ const styles = theme => ({
 
 class ConversationWrapper extends Component {
 
-  renderMessages(results, currentUser) {
+  renderMessages = () => {
+    const { results, currentUser, loading } = this.props
     if (results && results.length) {
       return (
         <div>
           {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
         </div>);
+    } else if (loading) {
+      return <Components.Loading/>
     } else {
-     return <Components.NoContent>There are no messages in this conversation yet!</Components.NoContent>
+      return null
     }
   }
 
   render() {
 
-    const { results, currentUser, loading, conversation, classes } = this.props
+    const { results, currentUser, conversation, classes } = this.props
 
-    if (loading) {
-      return (<Components.Loading/>)
-    } else if (conversation) {
+    if (conversation) {
       return (
         <div>
           <Typography variant="display2" className={classes.conversationTitle}>
