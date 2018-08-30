@@ -58,7 +58,6 @@ class MuiTextField extends Component {
           className: classes.cssLabel,
           ...InputLabelProps
         }}
-        disableUnderline={disableUnderline}
         classes={{input: classes.input}}
         className={classnames(
           classes.textField,
