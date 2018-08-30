@@ -10,12 +10,12 @@ import { Components, registerComponent, withList, withCurrentUser, getFragment }
 import Messages from "../../lib/collections/messages/collection.js";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
+import Conversations from '../../lib/collections/conversations/collection.js';
 
 const styles = theme => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: theme.spacing.unit,
-    marginLeft: 2,
     marginBottom: theme.spacing.unit*1.5
   },
   editor: {
@@ -34,7 +34,7 @@ class ConversationWrapper extends Component {
           {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
         </div>);
     } else {
-     return <div>There are no messages in  this conversation yet!</div>
+     return <Components.NoContent>There are no messages in this conversation yet!</Components.NoContent>
     }
   }
 
@@ -48,7 +48,7 @@ class ConversationWrapper extends Component {
       return (
         <div>
           <Typography variant="display2" className={classes.conversationTitle}>
-            {!!conversation.title ? conversation.title : _.pluck(conversation.participants, 'username').join(', ')}
+            { Conversations.getTitle(conversation, currentUser)}
           </Typography>
           <Components.ConversationDetails conversation={conversation}/>
           {this.renderMessages(results, currentUser)}
@@ -67,7 +67,7 @@ class ConversationWrapper extends Component {
         </div>
       )
     } else {
-      return <div>No Conversation Selected</div>
+      return <Components.NoContent>No Conversation Selected</Components.NoContent>
     }
   }
 }

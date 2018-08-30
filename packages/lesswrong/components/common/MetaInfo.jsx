@@ -18,7 +18,7 @@ const styles = (theme) => ({
   }
 })
 
-const MetaInfo = ({children, classes, button, smallMargin, className}) => {
+const MetaInfo = ({children, classes, button, className}) => {
   return <Typography
     component='span'
     variant='body2'

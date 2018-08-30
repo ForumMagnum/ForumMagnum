@@ -25,15 +25,12 @@ const styles = theme => ({
   },
   conversationItem: {
     color: grey[600],
-    borderBottom: `solid 1px`,
-    borderBottomColor: grey[200],
+    cursor: "pointer",
     padding: theme.spacing.unit,
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    textAlign: "left",
+    justifyContent: "flex-end",
     '&:hover': {
-      backgroundColor: grey[100]
+      color: grey[400]
     }
   },
   conversationItemLatestActivity: {
@@ -54,10 +51,6 @@ class InboxNavigation extends Component {
 
     if(currentUser && results) {
       let conversation = results.length && results.find(c => (c._id == select));
-      let notificationsSelect = (select == "Notifications");
-
-      let thereAreNone = notificationsSelect ? <p>You have no notifications.</p> : <p>There are no messages in this conversation.</p>
-      let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : thereAreNone
 
       return (
         <Components.Section
@@ -65,7 +58,7 @@ class InboxNavigation extends Component {
           titleComponent={this.renderNavigation()}
           >
             <div className={classes.conversation}>
-                {notificationsSelect ? notificationsWrapper : <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />}
+              <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />
             </div>
         </Components.Section>
       )
@@ -74,16 +67,8 @@ class InboxNavigation extends Component {
     }
   }
 
-  getConversationTitle = (conversation) => {
-    if (!!conversation.title) {
-      return conversation.title
-    } else {
-      return _.pluck(conversation.participants, 'username').join(' - ')
-    }
-  }
-
   renderNavigation = () => {
-    const { results, classes } = this.props;
+    const { results, classes, currentUser } = this.props;
 
     //TODO: Add ability to add conversation from Inbox page, by searching for a user id:15
 
@@ -93,7 +78,7 @@ class InboxNavigation extends Component {
           {results.map(conversation =>
             <Link key={conversation._id} to={{pathname: "/inbox", query: {select: conversation._id}}}>
                 <Typography variant="body2" className={classes.conversationItem}>
-                  { this.getConversationTitle(conversation) }
+                  { Conversations.getTitle(conversation, currentUser) }
                   <span className={classes.conversationItemLatestActivity}>
                     {conversation.latestActivity && moment(new Date(conversation.latestActivity)).fromNow()}
                   </span>
