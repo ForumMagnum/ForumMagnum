@@ -26,7 +26,7 @@ VulcanEmail.addEmails({
     path: "/email/new-post/:documentId",
     subject(data) {
       if(!data || !data.PostsSingle)
-        throw "Missing post when rendering newPost email";
+        throw new Error("Missing post when rendering newPost email");
       const post = data.PostsSingle;
       return post.title;
     },
