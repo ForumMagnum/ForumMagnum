@@ -27,10 +27,20 @@ import classNames from 'classnames';
 
 const styles = theme => ({
     header: {
+      marginBottom: 40
+    },
+    row: {
       maxWidth: 650,
       marginLeft: 'auto',
       marginRight: 'auto',
-      marginBottom: 40,
+
+      // Don't center the post on large screens
+      // so that there is room for sidenotes
+      [theme.breakpoints.only('lg')]: {
+        width: '60%',
+        marginRight: '40%',
+        marginLeft: '20%'
+      }
     },
     title: {
       textAlign: 'center',
@@ -62,11 +72,8 @@ const styles = theme => ({
     },
     mainContent: {
       position: 'relative',
-      maxWidth: 650,
       minHeight: 200,
       fontSize: 20,
-      marginLeft: 'auto',
-      marginRight: 'auto',
       marginBottom: 40,
     },
     postContent: postBodyStyles(theme),
@@ -282,7 +289,7 @@ class PostsPage extends Component {
         <Components.ErrorBoundary>
           <Components.HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
           <div>
-            <div className={classes.header}>
+            <div className={classNames(classes.header, classes.row)}>
               <Typography variant="display3" className={classes.title}>
                 {post.draft && <span className={classes.draft}>[Draft] </span>}
                 {post.title}
@@ -302,7 +309,7 @@ class PostsPage extends Component {
                 {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
-            <div className={classes.mainContent}>
+            <div className={classNames(classes.mainContent, classes.row)}>
               <Components.ErrorBoundary>
                 {this.renderPostMetadata()}
               </Components.ErrorBoundary>
@@ -314,7 +321,7 @@ class PostsPage extends Component {
               </Typography>}
               { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
             </div>
-            <div className={classes.postFooter}>
+            <div className={classNames(classes.postFooter, classes.row)}>
               <div className={classes.voteBottom}>
                 <Components.ErrorBoundary>
                   <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
@@ -328,7 +335,7 @@ class PostsPage extends Component {
           {this.renderRecommendedReading()}
           <div id="comments">
             <Components.ErrorBoundary>
-              <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+              <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} rowClass={classes.row}/>
             </Components.ErrorBoundary>
           </div>
         </Components.ErrorBoundary>
