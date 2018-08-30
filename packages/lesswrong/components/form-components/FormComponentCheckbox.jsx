@@ -8,7 +8,9 @@ import Typography from '@material-ui/core/Typography';
 const styles = theme => ({
   root: {
     marginRight:theme.spacing.unit*3,
-    marginTop: 5
+    marginTop: 5,
+    display: "flex",
+    alignItems: "center"
   },
   size: {
     width:36,
