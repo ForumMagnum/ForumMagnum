@@ -275,7 +275,7 @@ class PostsPage extends Component {
       const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
-      const description = post.plaintextExcerpt ? post.plaintextExcerpt : post.body.substring(300)
+      const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(300))
       const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
