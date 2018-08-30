@@ -21,7 +21,6 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 function maybeSendVerificationEmail (modifier, user)
 {
   if(modifier.$set.whenConfirmationEmailSent) {
-    console.log("Sending verification email");
     Accounts.sendVerificationEmail(user._id);
   }
 }
