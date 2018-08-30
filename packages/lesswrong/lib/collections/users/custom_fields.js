@@ -14,13 +14,14 @@ const formGroups = {
   },
   notifications: {
     order: 10,
+    name: "notifications",
     label: "Notifications"
+  },
+  emails: {
+    order: 15,
+    name: "emails",
+    label: "Emails"
   }
-}
-
-const notificationsGroup = {
-  name: "notifications",
-  label: "Notifications"
 }
 
 Users.addField([
@@ -63,7 +64,8 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      order: 25,
+      order: 1,
+      group: formGroups.emails,
       control: 'UsersEmailVerification',
       viewableBy: ['members'],
       editableBy: ['members'],
@@ -574,14 +576,14 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
-      group: notificationsGroup,
+      group: formGroups.notifications,
       label: "Notifications for Comments on My Posts"
     }
   },
   {
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
-      group: notificationsGroup,
+      group: formGroups.notifications,
       label: "Notifications For Replies to My Comments"
     }
   },
@@ -594,7 +596,7 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      group: notificationsGroup,
+      group: formGroups.emails,
       control: 'EmailConfirmationRequiredCheckbox',
       label: "Email me new posts in Curated",
       insertableBy: ['members'],
