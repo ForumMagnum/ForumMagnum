@@ -74,7 +74,7 @@ class SearchBar extends Component {
     const algoliaAppId = getSetting('algolia.appId')
     const algoliaSearchKey = getSetting('algolia.searchKey')
 
-    const { searchOpen, currentQuery } = this.state
+    const { searchOpen } = this.state
 
     if(!algoliaAppId) {
       return <div className="search-bar">Search is disabled (Algolia App ID not configured on server)</div>
