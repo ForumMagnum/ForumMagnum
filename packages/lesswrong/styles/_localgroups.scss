@@ -38,6 +38,9 @@ $lw-green: #588f27;
   padding: .5em 1em 0.5em 0em !important;
   width:350px;
   font-size:13px;
+  @include max-medium() {
+    width:100%;
+  }
   &:focus {
     outline: none;
     border-bottom: 2px solid rgba(0,0,0,.87);
