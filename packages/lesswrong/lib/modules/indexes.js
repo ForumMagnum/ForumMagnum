@@ -62,11 +62,9 @@ Posts._ensureIndex({status:1,groupId:1,isEvent:1,draft:1,isFuture:1,unlisted:1,m
 Posts._ensureIndex({createdAt:-1});
 Posts._ensureIndex({legacyId:1}, {background:true});
 
-// Indexes on posts that were in the production DB, but which can't be auto-generated
-// because their name exceeds the maximum length.
-//Posts._ensureIndex({status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1}, {background:true});
-//Posts._ensureIndex({status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1}, {background:true});
-//Posts._ensureIndex({status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1}, {background:true});
+Posts._ensureIndex({status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1}, {background:true, name:"posts_complexSort_1"});
+Posts._ensureIndex({status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1}, {background:true, name:"posts_complexSort_2"});
+Posts._ensureIndex({status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1}, {background:true, name:"posts_complexSort_3"});
 
 Users._ensureIndex({username:1}, {unique:true,sparse:1});
 Users._ensureIndex({"emails.address":1}, {unique:true,sparse:1});
