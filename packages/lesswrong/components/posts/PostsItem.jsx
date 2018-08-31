@@ -57,6 +57,8 @@ const styles = theme => ({
     right:"50%",
     top:"50%",
     transform:"translate(50%, -50%)",
+    width:"30px",
+    height:"30px",
   },
   commentCount: {
     position:"absolute",
@@ -67,6 +69,12 @@ const styles = theme => ({
     color:"white",
     fontVariantNumeric:"lining-nums",
     ...theme.typography.commentStyle
+  },
+  noUnreadComments: {
+    color: "rgba(0,0,0,.15)",
+  },
+  unreadComments: {
+    color: theme.palette.secondary.light,
   }
 })
 
@@ -210,15 +218,11 @@ class PostsItem extends PureComponent {
         }
       )
 
-      const commentCountIconStyle = {
-        width:"30px",
-        height:"30px",
-        color: (read && newComments && !this.state.readStatus) ? this.props.theme.palette.secondary.light : "rgba(0,0,0,.15)",
-      }
+      let unreadCommentsClass = (read && newComments && !this.state.readStatus) ? classes.unreadComments : classes.noUnreadComments;
 
       return (
         <div onClick={this.toggleNewComments} className={commentsButtonClassnames}>
-          <CommentIcon className={classes.commentCountIcon} style={commentCountIconStyle}/>
+          <CommentIcon className={classNames(classes.commentCountIcon, unreadCommentsClass)}/>
           <div className={classes.commentCount}>
             { commentCount }
           </div>
@@ -367,6 +371,5 @@ replaceComponent(
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withTheme(),
   withStyles(styles)
 );
