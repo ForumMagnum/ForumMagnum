@@ -29,7 +29,7 @@ class EditorFormComponent extends Component {
   }
 
   async componentWillMount() {
-    const {default: Editor} = await import('../async/AsyncEditorFormComponent.jsx');
+    const {default: Editor} = await import('../async/EditorFormContainer.jsx');
     this.setState({editor: Editor});
 
     const removeUnusedFields = (data) => {
