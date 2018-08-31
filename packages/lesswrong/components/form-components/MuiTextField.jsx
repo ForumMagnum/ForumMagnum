@@ -44,7 +44,7 @@ class MuiTextField extends Component {
   }
 
   render() {
-    const { classes, select, children, label, multiLine, rows, fullWidth, disableUnderline, type, defaultValue, InputLabelProps } = this.props
+    const { classes, select, children, label, multiLine, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
 
     return <TextField
         select={select}
@@ -61,7 +61,6 @@ class MuiTextField extends Component {
           className: classes.cssLabel,
           ...InputLabelProps
         }}
-        disableUnderline={disableUnderline}
         classes={{input: classes.input}}
         className={classnames(
           classes.textField,
