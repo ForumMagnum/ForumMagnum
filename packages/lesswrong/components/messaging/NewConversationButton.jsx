@@ -12,17 +12,16 @@ import Conversations from '../../lib/collections/conversations/collection.js';
 
 class NewConversationButton extends Component {
 
-  newConversation = () => {
+   newConversation = async () => {
     const { user, currentUser, newMutation, router } = this.props
 
-    newMutation({
+    const response = await newMutation({
       collection: Conversations,
       document: {participantIds:[user._id, currentUser._id]},
       currentUser: currentUser,
       validate: false,
-    }).then(response=>{
-      router.push({pathname: '/inbox', query: {select: response.data.ConversationsNew._id}})
     })
+    router.push({pathname: '/inbox', query: {select: response.data.ConversationsNew._id}})
   }
 
   render() {
