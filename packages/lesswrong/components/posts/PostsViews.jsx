@@ -10,8 +10,7 @@ import Users from 'meteor/vulcan:users';
 const viewDataDict = {
   'frontpage': {
     label:'Frontpage Posts',
-    description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
+    description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the EA community.",
     includes: "(includes curated content and frontpage posts)",
     rssView: "frontpage-rss",
     rss:true
@@ -19,16 +18,15 @@ const viewDataDict = {
   'community': {
     label: 'All Posts',
     description: "Includes personal and meta blogposts\n (as well as curated and frontpage).",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
-    rssView: "community-rss",
+    rssView: "all-posts-rss",
     rss:true
   },
   'meta': {
-    label: 'Meta',
-    description: "Meta - Discussion about the EA Forum site.",
+    label: 'Community',
+    description: "Discussion about the EA Community and the EA Forum itself",
     categoryIcon:"details",
-    rssView: "meta-rss",
+    rssView: "community-rss",
     rss:true
   },
   'daily': {
