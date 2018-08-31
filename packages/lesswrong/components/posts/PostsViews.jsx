@@ -26,14 +26,14 @@ const viewDataDict = {
   },
   'meta': {
     label: 'Meta',
-    description: "Meta - Discussion about the LessWrong site.",
+    description: "Meta - Discussion about the EA Forum site.",
     categoryIcon:"details",
     rssView: "meta-rss",
     rss:true
   },
   'daily': {
     label: 'Daily',
-    description: "Daily - All posts on LessWrong, sorted by date",
+    description: "Daily - All posts on the EA Forum, sorted by date",
     rss:false
   },
   'more': {

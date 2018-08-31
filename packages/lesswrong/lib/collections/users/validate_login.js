@@ -31,6 +31,9 @@ const whitelist = getWhitelist()
 Accounts.validateLoginAttempt((attempt) => {
   const userStub = attempt.user || attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user;
   const user = userStub && Users.findOne({username: userStub.username});
+  if (!user) {
+    return true
+  }
   if (whitelist.includes(user.username)) {
     return true
   }
