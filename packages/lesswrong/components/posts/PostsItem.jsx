@@ -1,7 +1,6 @@
 import {
   Components,
   replaceComponent,
-  withCurrentUser,
   withMutation,
   getActions,
   getSetting,
@@ -153,6 +152,7 @@ class PostsItem extends PureComponent {
         eventProperties.postTitle = post.title;
         this.props.registerEvent('post-view', eventProperties)
       }
+    // }
   }
 
   renderEventDetails = () => {
@@ -363,7 +363,6 @@ const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsView
 replaceComponent(
   'PostsItem',
   PostsItem,
-  withCurrentUser,
   withMutation(mutationOptions),
   muiThemeable(),
   withNewEvents,
