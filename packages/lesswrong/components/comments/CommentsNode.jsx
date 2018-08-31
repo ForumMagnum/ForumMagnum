@@ -79,7 +79,8 @@ class CommentsNode extends PureComponent {
       router,
       frontPage,
       classes,
-      child
+      child,
+      showPostTitle
     } = this.props;
     const { hover, collapsed, finishedScroll } = this.state
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
@@ -126,6 +127,7 @@ class CommentsNode extends PureComponent {
               post={post}
               frontPage={frontPage}
               nestingLevel={nestingLevel}
+              showPostTitle={showPostTitle}
             />
           </div>
           {!collapsed && children && children.length>0 ?
