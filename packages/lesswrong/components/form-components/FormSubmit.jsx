@@ -3,10 +3,25 @@ import PropTypes from 'prop-types';
 import { Components, replaceComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import FlatButton from 'material-ui/FlatButton';
-import { withTheme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import { withTheme, withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
+const styles = theme => ({
+  submitButton: {
+    paddingBottom: "2px",
+    marginLeft: "5px",
+    fontFamily: commentFonts,
+    fontSize: "16px",
+    color: theme.palette.secondary.main,
+    
+    "&:hover": {
+      background: "rgba(0,0,0, 0.05)"
+    }
+  },
+});
 
 const FormSubmit = ({
                       submitLabel,
@@ -71,15 +86,13 @@ const FormSubmit = ({
         labelStyle={{fontSize: "16px" , color: "rgba(0,0,0,0.4)"}}
       />}
 
-    <FlatButton
+    <Button
       type="submit"
-      className="primary-form-submit-button"
-      hoverColor={"rgba(0, 0, 0, 0.05)"}
-      style={{paddingBottom: "2px", marginLeft: "5px", fontFamily: commentFonts}}
       onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
-      label={"Submit" }
-      labelStyle={{fontSize: "16px", color: theme.palette.secondary.main}}
-    />
+      className={classNames("primary-form-submit-button", classes.submitButton)}
+    >
+      Submit
+    </Button>
 
     {collectionName === "comments" && document && document.postId && <span className="comment-submit-buttons">
       <Components.ModerationGuidelinesLink showModeratorAssistance documentId={document.postId}/>
@@ -107,4 +120,4 @@ FormSubmit.contextTypes = {
 }
 
 
-replaceComponent('FormSubmit', FormSubmit, withCurrentUser, withTheme());
+replaceComponent('FormSubmit', FormSubmit, withCurrentUser, withTheme(), withStyles(styles, { name: "FormSubmit" }));
