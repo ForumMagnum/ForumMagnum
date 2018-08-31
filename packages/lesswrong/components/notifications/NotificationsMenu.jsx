@@ -69,7 +69,7 @@ class NotificationsMenu extends Component {
                 openSecondary={true}
                 onRequestChange={this.props.handleToggle}
               >
-                <div className="notifications-menu-content">
+                { this.props.hasOpened && <div className="notifications-menu-content">
                   <Tabs>
                     <Tab
                       icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>}
@@ -99,7 +99,7 @@ class NotificationsMenu extends Component {
                   </Tabs>
                   <ClearIcon className="notifications-hide-button" onClick={this.props.handleToggle} style={cancelStyle} />
                   <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
-                </div>
+                </div>}
               </Drawer>
             </Components.ErrorBoundary>
           </div>
