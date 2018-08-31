@@ -40,6 +40,7 @@ import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
 import '../components/common/SectionSubtitle.jsx';
 import '../components/common/MetaInfo.jsx';
+import '../components/common/NoContent.jsx';
 import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';

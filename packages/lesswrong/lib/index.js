@@ -46,6 +46,7 @@ import './collections/usercollectionrels/permissions.js';
 
 import Conversations from './collections/conversations/collection.js'
 import './collections/conversations/views.js';
+import './collections/conversations/helpers.js';
 import './collections/conversations/permissions.js';
 //
 // RSSFeeds

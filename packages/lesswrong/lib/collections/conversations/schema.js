@@ -48,6 +48,7 @@ const schema = {
     viewableBy: ['members'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    optional: true,
   },
   latestActivity: {
     type: Date,
