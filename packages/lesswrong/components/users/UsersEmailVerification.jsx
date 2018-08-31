@@ -6,6 +6,10 @@ import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
   root: {
+    ...theme.typography.body2
+  },
+  verifyEmailButton: {
+    marginTop: theme.spacing.unit
   }
 });
 
@@ -47,8 +51,11 @@ class UsersEmailVerification extends PureComponent
     } else {
       return (
         <div className={classes.root}>
-          <span>Your email address has not been verified.</span>
-          <Button onClick={() => this.sendConfirmationEmail()}>
+          <div>You need to verify your email address to enable email notifications.</div>
+          <Button color="secondary" variant="outlined"
+            className={classes.verifyEmailButton}
+            onClick={() => this.sendConfirmationEmail()}
+          >
             Send Confirmation Email
           </Button>
         </div>
