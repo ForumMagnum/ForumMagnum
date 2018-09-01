@@ -17,6 +17,7 @@ const RecentComments = ({results, currentUser, loading, fontSize, loadMore, netw
               <Components.CommentsNode
                 currentUser={currentUser}
                 comment={comment}
+                post={comment.post}
                 editMutation={editMutation}
                 showPostTitle
               />

@@ -141,8 +141,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, frontPage, nestingLevel=1, showPostTitle, classes } = this.props
-    const post = comment && comment.post || this.props.post
+    const { comment, currentUser, frontPage, nestingLevel=1, showPostTitle, classes, post } = this.props
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -158,9 +157,11 @@ class CommentsItem extends Component {
           classNames(
             "comments-item",
             "recent-comments-node",
-            {deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic,
-            "showParent": this.state.showParent},
+            {
+              deleted: comment.deleted && !comment.deletedPublic,
+              "public-deleted": comment.deletedPublic,
+              "showParent": this.state.showParent
+            },
           )}
         >
 
@@ -199,14 +200,14 @@ class CommentsItem extends Component {
                     {moment(new Date(comment.postedAt)).fromNow()}
                     <FontIcon className="material-icons comments-item-permalink"> link
                     </FontIcon>
-                    <span className={classes.postTitle}>{ showPostTitle && post && post.title } </span>
+                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   {moment(new Date(comment.postedAt)).fromNow()}
                   <FontIcon className="material-icons comments-item-permalink"> link
                   </FontIcon>
-                  <span className={classes.postTitle}> { showPostTitle && post && post.title }</span>
+                  {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
               </div>
