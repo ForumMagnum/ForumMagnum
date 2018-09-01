@@ -1,11 +1,19 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 import { Utils } from 'meteor/vulcan:core';
+import { isSidenote, toSidenoteHtml } from './sidenote';
 
 
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
-    // console.log("htmlToEntity: ", nodeName, node);
+
+    if (isSidenote(node)) {
+      return createEntity(
+        'SIDENOTE',
+        'MUTABLE'
+      )
+    }
+
     if (nodeName === 'img') {
       return createEntity(
         'IMAGE',
@@ -13,6 +21,7 @@ export const htmlToDraft = convertFromHTML({
         {src: node.src}
       )
     }
+
     if (nodeName === 'a') {
       return createEntity(
         'LINK',
@@ -20,25 +29,12 @@ export const htmlToDraft = convertFromHTML({
         {url: node.href}
       )
     }
-    // if (nodeName === 'img') {
-    //   console.log("image detected: ", node, node.src)
-    //   return createEntity(
-    //     'IMAGE',
-    //     'IMMUTABLE',
-    //     {src: node.src}
-    //   )
-    // }
   },
   htmlToBlock: (nodeName, node, lastList, inBlock) => {
     if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG' || (nodeName === 'img' && inBlock !== 'atomic')) {
         return 'atomic';
     }
-    // if (nodeName === 'blockquote') {
-    //   return {
-    //     type: 'blockquote',
-    //     data: {}
-    //   };
-    // }
+
     if (nodeName === 'hr') { // This currently appears to be broken, sadly. TODO: Fix this
       return {
         type: 'divider',
@@ -70,13 +66,16 @@ export const draftToHTML = convertToHTML({
       }
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
+
     if (entity.type === 'LINK') {
       return `<a href="${entity.data.url || entity.data.href}">${originalText}</a>`;
     }
+
     if (entity.type === 'IMG') {
       const className = 'draft-inline-image';
       return `<img src="${entity.data.src}" class="${className}" alt="${entity.data.alt}"/>`
     }
+
     if (entity.type === 'INLINETEX') {
       if (entity.data.html) {
         return `<span>${entity.data.css ? `<style>${entity.data.css}</style>` : ""}${entity.data.html}</span>`
@@ -84,6 +83,11 @@ export const draftToHTML = convertToHTML({
         return `<span class="draft-latex-placeholder"> &lt; refresh to render LaTeX &gt; </span>`
       }
     }
+
+    if (entity.type === 'SIDENOTE') {
+      return toSidenoteHtml(originalText)
+    }
+
     return originalText;
   },
   //eslint-disable-next-line react/display-name
