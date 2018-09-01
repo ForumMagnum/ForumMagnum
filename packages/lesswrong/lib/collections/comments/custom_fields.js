@@ -22,6 +22,7 @@ Comments.addField([
         resolver: async (comment, args, {currentUser, Users}) => {
           if (!comment.userId || comment.hideAuthor) return null;
           const user = await Users.loader.load(comment.userId);
+          if (user.deleted) return null;
           return Users.restrictViewableFields(currentUser, Users, user);
         },
         addOriginalField: true
