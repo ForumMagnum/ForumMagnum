@@ -16,17 +16,13 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
-import Paper from 'material-ui/Paper';
+import Paper from '@material-ui/core/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
-
-const paperStyle = {
-  backgroundColor: 'inherit',
-}
 
 const styles = theme => ({
   root: {
@@ -51,6 +47,16 @@ const styles = theme => ({
     '& > a': {
       color: theme.palette.secondary.light
     }
+  },
+  paperExpanded: {
+    backgroundColor: 'inherit',
+    outline: "solid 1px rgba(0,0,0,.15)",
+    borderBottom: "none"
+  },
+  paperNotExpanded: {
+    backgroundColor: 'inherit',
+    outline: "none",
+    borderBottom: "solid 1px rgba(0,0,0,.15)"
   },
   commentCountIcon: {
     position:"absolute",
@@ -230,18 +236,15 @@ class PostsItem extends PureComponent {
       )
     }
 
-    if (this.state.showNewComments || this.state.showHighlight) {
-      paperStyle.outline = "solid 1px rgba(0,0,0,.15)"
-      paperStyle.borderBottom = "none"
-    } else {
-      paperStyle.outline = "none"
-      paperStyle.borderBottom = "solid 1px rgba(0,0,0,.15)"
-    }
+    let paperStyle =
+      (this.state.showNewComments || this.state.showHighlight)
+      ? classes.paperExpanded
+      : classes.paperNotExpanded
+    
     return (
         <Paper
-          className={postClass}
-          style={paperStyle}
-          zDepth={0}
+          className={classNames(postClass, paperStyle)}
+          elevation={0}
         >
           <div
             className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
