@@ -7,7 +7,7 @@ const Meta = ({location, currentUser}, context) => {
   const recentPostsTerms = { view: 'magicalSorting', limit: 10, ...query, meta: true, forum: true }
   return (
     <div className="home">
-      <Components.Section title="Recent Meta Posts"
+      <Components.Section title="Recent Community Posts"
         titleComponent= {<div className="recent-posts-title-component">
           {currentUser && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {meta: true}}}> new post </Link></div>}
           </div>} >

@@ -17,7 +17,7 @@ const viewDataDict = {
   },
   'community': {
     label: 'All Posts',
-    description: "Includes personal and meta blogposts\n (as well as curated and frontpage).",
+    description: "Includes personal and community blogposts\n (as well as frontpage).",
     categoryIcon:"person",
     rssView: "all-posts-rss",
     rss:true
@@ -158,7 +158,7 @@ class PostsViews extends Component {
             ))}
             {!props.hideDaily && <div className="posts-view-button"><span style={ChipStyle} className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/meta">Meta { this.renderMenu(viewDataDict["meta"])}</Link>
+                <Link to="/community">Community { this.renderMenu(viewDataDict["meta"])}</Link>
               </Components.SectionSubtitle></span>
             </div>}
             {!props.hideDaily && <span style={ChipStyle} className="view-chip">
