@@ -77,7 +77,7 @@ class CommentsNode extends PureComponent {
       post,
       muiTheme,
       router,
-      frontPage,
+      postPage,
       classes,
       child,
       showPostTitle
@@ -125,7 +125,7 @@ class CommentsNode extends PureComponent {
               editMutation={editMutation}
               scrollIntoView={this.scrollIntoView}
               post={post}
-              frontPage={frontPage}
+              postPage={postPage}
               nestingLevel={nestingLevel}
               showPostTitle={showPostTitle}
             />
@@ -144,7 +144,7 @@ class CommentsNode extends PureComponent {
                   highlightDate={highlightDate}
                   editMutation={editMutation}
                   post={post}
-                  frontPage={frontPage}
+                  postPage={postPage}
                 />)}
               </div>
               : null
