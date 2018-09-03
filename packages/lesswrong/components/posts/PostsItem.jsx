@@ -20,7 +20,7 @@ import Paper from '@material-ui/core/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 
