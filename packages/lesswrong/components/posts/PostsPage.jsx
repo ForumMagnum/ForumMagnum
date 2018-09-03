@@ -272,7 +272,7 @@ class PostsPage extends Component {
     } else {
 
       // IBETA FORUM
-      if (!currentUser) return <p>Please log in to see content during internal beta</p>
+      if (!currentUser) return <Components.GuestWelcomeScreen />
 
       const post = document
       const htmlBody = {__html: post.htmlBody}

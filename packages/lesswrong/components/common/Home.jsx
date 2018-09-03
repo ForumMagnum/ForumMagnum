@@ -23,7 +23,7 @@ const Home = (props, context) => {
   }
 
   // TODO: IBETA ONLY Only logged-in users should see page content
-  if (!currentUser) return <p>Please log in to see content during internal beta</p>
+  if (!currentUser) return <Components.GuestWelcomeScreen />
 
   return (
     <div>
