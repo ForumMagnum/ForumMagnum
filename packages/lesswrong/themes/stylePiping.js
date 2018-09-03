@@ -12,9 +12,9 @@ const sidenoteStyles = theme => {
         float: 'right',
         clear: 'right',
         width: '40%',
-        height: '0',
         top: '0.5rem',
         marginRight: '-45%',
+        marginBottom: '13px',
         fontSize: '1.1rem',
         lineHeight: '1.3'
       },

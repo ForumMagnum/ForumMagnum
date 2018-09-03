@@ -13,39 +13,45 @@ class SidenoteButton extends Component {
 
   removeSidenoteAtSelection = () => {
     const editorState = this.props.getEditorState();
-    const selection = editorState.getSelection();
-    const entity = EditorUtils.getCurrentEntity(editorState);
-    const key = EditorUtils.getCurrentEntityKey(editorState);
 
-    // TODO: remove entity
-    console.log('Remove entity', key, entity, selection)
+    const nextContentState = Modifier.applyEntity(
+      editorState.getCurrentContent(),
+      editorState.getSelection(),
+      null // Using a 'null' entity key deletes all entites in the selection
+    );
+
+    this.props.setEditorState(
+      EditorState.push(
+        editorState,
+        nextContentState,
+        'apply-entity'
+      )
+    );
   }
 
   addSidenoteAtSelection = () => {
     const editorState = this.props.getEditorState();
-    const selection = editorState.getSelection();
     const contentState = editorState.getCurrentContent();
-    const entity = contentState.createEntity(
+
+    const contentStateWithEntity = contentState.createEntity(
       'SIDENOTE',
       'MUTABLE',
       {}
     );
 
     const nextContentState = Modifier.applyEntity(
-      entity,
-      selection,
+      contentStateWithEntity,
+      editorState.getSelection(),
       contentState.getLastCreatedEntityKey()
     );
 
-    const nextState = EditorState.push(
-      editorState,
-      nextContentState,
-      'apply-entity'
-    )
-
-    console.log('nextState', nextState);
-
-    this.props.setEditorState(nextState)
+    this.props.setEditorState(
+      EditorState.push(
+        editorState,
+        nextContentState,
+        'apply-entity'
+      )
+    );
   }
 
   toggleSidenote = () => {
