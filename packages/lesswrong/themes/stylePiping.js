@@ -37,6 +37,11 @@ export const postBodyStyles = (theme, fontSize) => {
       ...theme.typography.postStyle,
       ...theme.typography.headerStyle
     },
+    '& h4': {
+      ...theme.typography.body1,
+      ...theme.typography.postStyle,
+      fontWeight:600,
+    },
     '& img': {
       maxWidth: "100%"
     },
