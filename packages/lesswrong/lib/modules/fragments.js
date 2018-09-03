@@ -480,6 +480,7 @@ registerFragment(`
     emailHash
     karma
     afKarma
+    deleted
   }
 `);
 

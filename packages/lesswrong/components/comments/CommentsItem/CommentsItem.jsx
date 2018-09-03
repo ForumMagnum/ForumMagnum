@@ -40,6 +40,9 @@ const styles = theme => ({
   commentStyling: {
     marginTop: ".5em",
     ...commentBodyStyles(theme)
+  },
+  postTitle: {
+    marginRight: 5,
   }
 })
 
@@ -138,7 +141,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, frontPage, nestingLevel=1 } = this.props
+    const { comment, currentUser, frontPage, nestingLevel=1, showPostTitle, classes, post } = this.props
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -154,9 +157,11 @@ class CommentsItem extends Component {
           classNames(
             "comments-item",
             "recent-comments-node",
-            {deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic,
-            "showParent": this.state.showParent},
+            {
+              deleted: comment.deleted && !comment.deletedPublic,
+              "public-deleted": comment.deletedPublic,
+              "showParent": this.state.showParent
+            },
           )}
         >
 
@@ -191,16 +196,18 @@ class CommentsItem extends Component {
               }
               <div className="comments-item-date">
                 { this.props.frontPage ?
-                  <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
+                  <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
                     {moment(new Date(comment.postedAt)).fromNow()}
                     <FontIcon className="material-icons comments-item-permalink"> link
                     </FontIcon>
+                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
-                <a href={Posts.getPageUrl(this.props.post) + "#" + comment._id} onClick={this.handleLinkClick}>
+                <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   {moment(new Date(comment.postedAt)).fromNow()}
                   <FontIcon className="material-icons comments-item-permalink"> link
                   </FontIcon>
+                  {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
               </div>
