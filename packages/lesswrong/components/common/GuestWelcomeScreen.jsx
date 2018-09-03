@@ -6,28 +6,39 @@ import Grid from '@material-ui/core/Grid';
 
 
 const styles = theme => ({
+  root: {
+    a: {
+      textDecoration: 'underline'
+    }
+  },
   title: {
     textAlign: 'center',
-    marginBottom: theme.spacing.unit * 2
+    margin: `0 0 ${theme.spacing.unit * 2}px`
   },
   body: {
     fontSize: 18
+  },
+  logoWrapper: {
+    textAlign: 'center',
+    marginBottom: theme.spacing.unit
+  },
+  logo: {
+    display: 'inline-block'
   }
 })
 
-const GuestWelcomeScreen = ({classes}) => <div>
-  <Grid container justify={'center'} className={classes.root} spacing={24}>
-    <Grid item md={8} xs={12}>
-      <Components.Logo />
-    </Grid>
-  </Grid>
-  <Grid container justify={'center'} className={classes.root} spacing={24}>
-    <Grid item md={8} xs={12}>
-      <Typography variant='display3' className={classes.title}>
-        Thanks for checking out the new Effective Altruism Forum
+const GuestWelcomeScreen = ({classes}) => <div className={classes.root}>
+  <div className={classes.logoWrapper}>
+    <Components.Logo className={classes.logo} />
+  </div>
+  <Grid container justify={'center'}>
+    <Grid item xs={12} sm={8} md={6}>
+      <Typography variant='display3' component='h3' className={classes.title}>
+        Forum in Private Beta
       </Typography>
       <Typography variant='body' className={classes.body}>
         <p>
+          Thanks for checking out the new Effective Altruism Forum.{' '}
           We're still in private beta mode. If you've already been registered,{' '}
           please click <strong>LOGIN</strong> in the menu bar to log in and start posting.
         </p>
