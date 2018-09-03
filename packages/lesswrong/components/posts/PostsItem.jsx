@@ -1,7 +1,6 @@
 import {
   Components,
   replaceComponent,
-  withCurrentUser,
   withMutation,
   getActions,
   getSetting,
@@ -17,17 +16,13 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
-import Paper from 'material-ui/Paper';
+import Paper from '@material-ui/core/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
-
-const paperStyle = {
-  backgroundColor: 'inherit',
-}
 
 const styles = theme => ({
   root: {
@@ -53,11 +48,23 @@ const styles = theme => ({
       color: theme.palette.secondary.light
     }
   },
+  paperExpanded: {
+    backgroundColor: 'inherit',
+    outline: "solid 1px rgba(0,0,0,.15)",
+    borderBottom: "none"
+  },
+  paperNotExpanded: {
+    backgroundColor: 'inherit',
+    outline: "none",
+    borderBottom: "solid 1px rgba(0,0,0,.15)"
+  },
   commentCountIcon: {
     position:"absolute",
     right:"50%",
     top:"50%",
     transform:"translate(50%, -50%)",
+    width:"30px",
+    height:"30px",
   },
   commentCount: {
     position:"absolute",
@@ -68,6 +75,12 @@ const styles = theme => ({
     color:"white",
     fontVariantNumeric:"lining-nums",
     ...theme.typography.commentStyle
+  },
+  noUnreadComments: {
+    color: "rgba(0,0,0,.15)",
+  },
+  unreadComments: {
+    color: theme.palette.secondary.light,
   }
 })
 
@@ -153,6 +166,7 @@ class PostsItem extends PureComponent {
         eventProperties.postTitle = post.title;
         this.props.registerEvent('post-view', eventProperties)
       }
+    // }
   }
 
   renderEventDetails = () => {
@@ -210,15 +224,11 @@ class PostsItem extends PureComponent {
         }
       )
 
-      const commentCountIconStyle = {
-        width:"30px",
-        height:"30px",
-        color: (read && newComments && !this.state.readStatus) ? this.props.theme.palette.secondary.light : "rgba(0,0,0,.15)",
-      }
+      let unreadCommentsClass = (read && newComments && !this.state.readStatus) ? classes.unreadComments : classes.noUnreadComments;
 
       return (
         <div onClick={this.toggleNewComments} className={commentsButtonClassnames}>
-          <CommentIcon className={classes.commentCountIcon} style={commentCountIconStyle}/>
+          <CommentIcon className={classNames(classes.commentCountIcon, unreadCommentsClass)}/>
           <div className={classes.commentCount}>
             { commentCount }
           </div>
@@ -226,18 +236,15 @@ class PostsItem extends PureComponent {
       )
     }
 
-    if (this.state.showNewComments || this.state.showHighlight) {
-      paperStyle.outline = "solid 1px rgba(0,0,0,.15)"
-      paperStyle.borderBottom = "none"
-    } else {
-      paperStyle.outline = "none"
-      paperStyle.borderBottom = "solid 1px rgba(0,0,0,.15)"
-    }
+    let paperStyle =
+      (this.state.showNewComments || this.state.showHighlight)
+      ? classes.paperExpanded
+      : classes.paperNotExpanded
+    
     return (
         <Paper
-          className={postClass}
-          style={paperStyle}
-          zDepth={0}
+          className={classNames(postClass, paperStyle)}
+          elevation={0}
         >
           <div
             className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
@@ -363,11 +370,9 @@ const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsView
 replaceComponent(
   'PostsItem',
   PostsItem,
-  withCurrentUser,
   withMutation(mutationOptions),
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withTheme(),
   withStyles(styles)
 );
