@@ -136,6 +136,9 @@ import '../components/search/SequencesSearchAutoComplete.jsx';
 import '../components/search/UsersSearchAutoComplete.jsx';
 import '../components/search/UsersAutoCompleteHit.jsx';
 import '../components/search/UsersSearchInput.jsx';
+import '../components/search/SearchBarResults.jsx';
+import '../components/search/SearchPagination.jsx';
+
 
 import '../components/admin/AdminDashboard.jsx';
 
