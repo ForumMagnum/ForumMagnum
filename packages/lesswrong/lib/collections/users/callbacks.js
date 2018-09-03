@@ -20,7 +20,10 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 
 function maybeSendVerificationEmail (modifier, user)
 {
-  if(modifier.$set.whenConfirmationEmailSent && user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent) {
+  if(modifier.$set.whenConfirmationEmailSent
+      && (!user.whenConfirmationEmailSent
+          || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent))
+  {
     Accounts.sendVerificationEmail(user._id);
   }
 }
