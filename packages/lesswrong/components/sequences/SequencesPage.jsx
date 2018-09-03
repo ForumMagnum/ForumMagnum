@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import {
   Components,
   withDocument,
@@ -6,6 +6,7 @@ import {
   withCurrentUser,
   getSetting
 } from 'meteor/vulcan:core';
+import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import { Image } from 'cloudinary-react';

@@ -26,6 +26,7 @@ class DialogGroup extends Component {
   };
 
   render() {
+    //eslint-disable-next-line react/jsx-key
     const actions = this.props.actions.map(action => <span onClick={this.handleClose}>{action}</span>)
 
     return (
@@ -54,7 +55,7 @@ DialogGroup.propTypes = {
 }
 DialogGroup.defaultProps = {
   children: undefined,
-  actions: [ <FlatButton label="Okay" primary={true}/> ],
+  actions: [ <FlatButton key='Okay' label="Okay" primary={true}/> ],
   open: false,
 }
 

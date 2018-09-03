@@ -8,7 +8,7 @@ import { addAdminColumn } from 'meteor/vulcan:core';
 
 const UserIPsDisplay = ({column, document}) => {
   return <div>
-    {document.IPs && document.IPs.map(ip => <div>{ip}</div>)}
+    {document.IPs && document.IPs.map(ip => <div key={ip}>{ip}</div>)}
   </div>
 }
 
