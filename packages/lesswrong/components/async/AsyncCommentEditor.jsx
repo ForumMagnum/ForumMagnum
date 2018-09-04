@@ -133,7 +133,6 @@ class AsyncCommentEditor extends Component {
       const mathjaxPlugin = createMathjaxPlugin({completion: 'manual'});
       this.plugins.push(mathjaxPlugin);
     }
-    console.log('returning')
   }
 
   // Tries to retrieve a saved state from localStorage, depending on the available information
