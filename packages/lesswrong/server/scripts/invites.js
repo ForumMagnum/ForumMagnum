@@ -3,7 +3,7 @@ import { getSetting } from 'meteor/vulcan:lib';
 
 if (!Meteor.isPackageTest) {
   Accounts.emailTemplates.siteName = 'EA Forum Internal Beta';
-  Accounts.emailTemplates.from = 'The Forum Team <jp+forum-3@centreforeffectivealtruism.org>';
+  Accounts.emailTemplates.from = 'The Forum Team <forum@effectivealtruism.org>';
   Accounts.emailTemplates.enrollAccount.subject = (user) => {
     return 'Activate your Account on the EA Forum Internal Beta';
   };
@@ -20,7 +20,7 @@ if (!Meteor.isPackageTest) {
   Accounts.emailTemplates.resetPassword.from = () => {
     // Overrides the value set in `Accounts.emailTemplates.from` when resetting
     // passwords.
-    return 'The Forum Team <jp+forum-2@centreforeffectivealtruism.org>';
+    return 'The Forum Team <forum@effectivealtruism.org>';
   };
 
   // TODO change these

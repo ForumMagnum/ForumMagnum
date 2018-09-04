@@ -13,8 +13,8 @@ import htmlToText from 'html-to-text';
 const postgresImportDetails = {
   host: 'localhost',
   port: 5432,
-  database: 'reddit',
-  user: 'reddit',
+  database: 'oldforum',
+  user: 'migration_admin',
   password: '' // Ommitted for obvious reasons
 }
 
@@ -164,7 +164,7 @@ const upsertProcessedPosts = async (posts, postMap) => {
   const postUpdates = _.map(posts, (post) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
-      let set = {legacyData: post.legacyData};
+      let set = {draft: post.draft, legacyData: post.legacyData};
       if (post.deleted || post.spam) {
         set.status = 3;
       }
@@ -348,7 +348,7 @@ const legacyUserToNewUser = (user, legacyId) => {
 
 const legacyPostToNewPost = (post, legacyId, user) => {
   const body = htmlToText.fromString(post.article);
-  const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
+  const isPublished = post.sr_id === "1" || post.sr_id === "2";
   return {
     _id: Random.id(),
     legacy: true,

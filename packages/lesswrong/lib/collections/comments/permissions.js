@@ -1,7 +1,21 @@
+import { Comments } from 'meteor/example-forum'
 import Users from 'meteor/vulcan:users';
 
 // TODO: IBETA ONLY Only logged-in users can see forum posts
-Users.groups.guests.cannot('comments.view')
+Comments.checkAccess = (currentUser, comment) => {
+  if (!currentUser) {
+    return false;
+  }
+  if (Users.isAdmin(currentUser)) {
+    return true
+  } else if (Users.owns(currentUser, comment) || Users.isSharedOn(currentUser, comment)) {
+    return true;
+  }
+  if (comment.isFuture || comment.draft) {
+    return false;
+  }
+  return true
+}
 
 const sunshineRegimentActions = [
   'comments.softRemove.all',

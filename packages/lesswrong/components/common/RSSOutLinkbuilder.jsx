@@ -20,9 +20,9 @@ const RSSIconStyle = {
   top: "2px",
 }
 
+// TODO: what's the status of this
 const viewNames = {
   'frontpage': 'Frontpage',
-  'curated': 'Curated Content',
   'community': 'Community',
   'meta': 'Meta',
   'pending': 'pending posts',
