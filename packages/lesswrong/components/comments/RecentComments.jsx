@@ -14,11 +14,13 @@ const RecentComments = ({results, currentUser, loading, fontSize, loadMore, netw
         <div className={"comments-items" + (fontSize == "small" ? " smalltext" : "")}>
           {results.map(comment =>
             <div key={comment._id}>
-              <Components.RecentCommentsItem
-                showTitle={true}
+              <Components.CommentsNode
                 currentUser={currentUser}
                 comment={comment}
-                editMutation={editMutation}/>
+                post={comment.post}
+                editMutation={editMutation}
+                showPostTitle
+              />
             </div>
           )}
           {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
