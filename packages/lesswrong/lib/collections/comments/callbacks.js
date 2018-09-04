@@ -10,12 +10,12 @@ import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
 
 const getLessWrongAccount = async () => {
-  let account = Users.findOne({username: "StaffForumRoot"});
+  let account = Users.findOne({username: "AdminTeam"});
   if (!account) {
     const userData = {
       // TODO nicer solution
-      username: "StaffForumRoot",
-      email: "jp+lesswrongaccount@centreforeffectivealtruism.org",
+      username: "AdminTeam",
+      email: "forum@effectivealtruism.org",
     }
     account = await newMutation({
       collection: Users,

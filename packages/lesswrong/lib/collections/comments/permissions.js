@@ -14,11 +14,8 @@ Comments.checkAccess = (currentUser, comment) => {
   if (comment.isFuture || comment.draft) {
     return false;
   }
-  const status = _.findWhere(Posts.statuses, {value: comment.status});
-  return Users.canDo(currentUser, `comments.view.${status.label}`);
+  return true
 }
-Users.groups.guests.cannot('comments.view.approved')
-Users.groups.members.can('comments.view.approved')
 
 const sunshineRegimentActions = [
   'comments.softRemove.all',
