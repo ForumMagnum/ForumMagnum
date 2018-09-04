@@ -115,6 +115,7 @@ class AsyncCommentEditor extends Component {
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
     const imagePlugin = createImagePlugin({ decorator });
+
     this.plugins = [
       inlineToolbarPlugin,
       alignmentPlugin,
@@ -128,9 +129,11 @@ class AsyncCommentEditor extends Component {
       dividerPlugin
     ];
     if (Meteor.isClient) {
+
       const mathjaxPlugin = createMathjaxPlugin({completion: 'manual'});
       this.plugins.push(mathjaxPlugin);
     }
+    console.log('returning')
   }
 
   // Tries to retrieve a saved state from localStorage, depending on the available information
