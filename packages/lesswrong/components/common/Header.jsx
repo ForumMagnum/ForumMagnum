@@ -48,7 +48,7 @@ const styles = theme => ({
     verticalAlign: 'middle',
     fontSize: 19,
     position: "relative",
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
     top: 3,
     '&:hover, &:focus, &:active': {
