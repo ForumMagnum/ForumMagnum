@@ -74,7 +74,7 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-            <link href="https://fonts.googleapis.com/css?family=Merriweather:400,700|Raleway:500,700&amp;subset=latin-ext" rel="stylesheet" />
+            <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Merriweather:400,700|Raleway:500,700&amp;subset=latin-ext" rel="stylesheet" />
           </Helmet>
           {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
           {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
