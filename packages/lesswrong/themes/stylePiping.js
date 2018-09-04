@@ -2,10 +2,53 @@ import { linkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
+const sidenoteStyles = theme => {
+  return {
+    '& .sidenote': {
+      display: 'none',
+      [theme.breakpoints.up('lg')]: {
+        display: 'initial',
+        position: 'relative',
+        float: 'right',
+        clear: 'right',
+        width: '40%',
+        top: '0.5rem',
+        marginRight: '-45%',
+        marginBottom: '13px',
+        fontSize: '1.1rem',
+        lineHeight: '1.3'
+      },
+      '&:before': {
+        [theme.breakpoints.up('lg')]: {
+          content: 'counter(sidenote-counter) " "',
+          fontSize: '1rem',
+          verticalAlign: 'super'
+        }
+      },
+      '&Number': {
+        counterIncrement: 'sidenote-counter',
+        display: 'none',
+        [theme.breakpoints.up('lg')]: {
+          display: 'initial',
+          '&:after': {
+            content: 'counter(sidenote-counter)',
+            fontSize: '1rem',
+            verticalAlign: 'super'
+          }
+        }
+      }
+    },
+    '&': {
+      counterReset: 'sidenote-counter'
+    }
+  }
+}
+
 export const postBodyStyles = (theme, fontSize) => {
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
+    ...sidenoteStyles(theme),
     '& pre': {
       ...theme.typography.codeblock
     },
@@ -58,7 +101,7 @@ export const postBodyStyles = (theme, fontSize) => {
           "#fff"
         )
       })
-    },
+    }
   }
 }
 

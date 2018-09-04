@@ -11,6 +11,7 @@ import createLinkPlugin from 'draft-js-anchor-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
+import createSidenotePlugin from './editor-plugins/sidenote-plugin';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
@@ -57,10 +58,11 @@ class EditorForm extends Component {
     const alignmentPlugin = createAlignmentPlugin();
     const focusPlugin = createFocusPlugin();
     const resizeablePlugin = createResizeablePlugin();
+    const sidenotePlugin = createSidenotePlugin();
     const decorator = composeDecorators(
       resizeablePlugin.decorator,
       alignmentPlugin.decorator,
-      focusPlugin.decorator,
+      focusPlugin.decorator
     );
 
     const dividerPlugin = createDividerPlugin({decorator});
@@ -71,6 +73,7 @@ class EditorForm extends Component {
         ItalicButton,
         UnderlineButton,
         linkPlugin.LinkButton,
+        sidenotePlugin.SidenoteButton,
         Separator,
         HeadlineOneButton,
         HeadlineTwoButton,
@@ -95,7 +98,8 @@ class EditorForm extends Component {
       richButtonsPlugin,
       blockBreakoutPlugin,
       markdownShortcutsPlugin,
-      dividerPlugin
+      dividerPlugin,
+      sidenotePlugin
     ];
 
     if (isClient) {
@@ -106,7 +110,7 @@ class EditorForm extends Component {
     return plugins;
   }
 
-  focus() {
+  focus = () => {
     this._ref && this._ref.focus();
   }
 
