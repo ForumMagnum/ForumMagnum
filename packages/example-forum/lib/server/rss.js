@@ -25,7 +25,15 @@ const getMeta = (url) => {
   };
 };
 
+// LESSWRONG - this was added to handle karmaThresholds
+const roundKarmaThreshold = threshold => (threshold < 16) ? 2
+                                       : (threshold < 37) ? 30
+                                       : (threshold < 60) ? 45
+                                       : 75;
+
 export const servePostRSS = (terms, url) => {
+  // LESSWRONG - this was added to handle karmaThresholds
+  let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
   let parameters = Posts.getParameters(terms);
@@ -36,15 +44,34 @@ export const servePostRSS = (terms, url) => {
   const postsCursor = Posts.find(parameters.selector, parameters.options);
 
   postsCursor.forEach((post) => {
+    // LESSWRONG - this was added to handle karmaThresholds
+    let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
+                      : (karmaThreshold === 30) ? post.scoreExceeded30Date
+                      : (karmaThreshold === 45) ? post.scoreExceeded45Date
+                      : (karmaThreshold === 75) ? post.scoreExceeded75Date
+                      : null;
+    thresholdDate = thresholdDate || post.postedAt;
+    let viewDate = (terms.view === "frontpage-rss") ? post.frontpageDate
+                 : (terms.view === "curated-rss")   ? post.curatedDate
+                 : (terms.view === "meta-rss")      ? post.metaDate
+                 : null;
+    viewDate = viewDate || post.postedAt;
+    
+    let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
+
     const postLink = `<a href="${Posts.getPageUrl(post, true)}#comments">Discuss</a>`;
     const feedItem = {
       title: post.title,
-      description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
+      // LESSWRONG - this was added to handle karmaThresholds
+      // description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
+      description: `Published on ${post.postedAt}<br/><br/>${post.htmlBody || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
       author: Users.getDisplayNameById(post.userId),
-      date: post.postedAt,
+      // LESSWRONG - this was added to handle karmaThresholds
+      // date: post.postedAt
+      date: date,
       guid: post._id,
       url: Posts.getPageUrl(post, true)
     };
