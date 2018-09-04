@@ -126,7 +126,7 @@ class RecentDiscussionThread extends PureComponent {
               </Link>
             }
             <span className="recent-discussion-username">
-              <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
+              <Link to={ Users.getProfileUrl(post.user) }>{post.user && post.user.displayName}</Link>
             </span>
             {post.postedAt && !post.isEvent &&
               <span className="recent-discussion-thread-date">
