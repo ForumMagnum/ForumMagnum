@@ -45,7 +45,8 @@ class PostsDailyList extends PureComponent {
   }
 
   getDatePosts(posts, date) {
-    return _.filter(posts, post => moment(new Date(post.postedAt)).startOf('day').isSame(date, 'day'));
+    const { timeField } = this.props.terms
+    return _.filter(posts, post => moment(new Date(timeField ? post[timeField] : post.postedAt)).startOf('day').isSame(date, 'day'));
   }
 
   // variant 1: reload everything each time (works with polling)
