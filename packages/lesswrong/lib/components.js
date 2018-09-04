@@ -48,6 +48,7 @@ import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/Tooltip.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/Logo.jsx';
+import '../components/common/GuestWelcomeScreen.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/RSSOutLinkbuilder.jsx';
