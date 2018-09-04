@@ -48,6 +48,8 @@ const styles = theme => ({
     verticalAlign: 'middle',
     fontSize: 19,
     position: "relative",
+    display: 'inline-flex',
+    alignItems: 'center',
     top: 3,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
@@ -67,7 +69,8 @@ const styles = theme => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
-  }
+  },
+
 });
 
 class Header extends Component {
@@ -112,6 +115,7 @@ class Header extends Component {
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
                     <Link to="/" className={classes.titleLink}>
+                      {getSetting('logoUrl', '') && <Components.Logo/>}
                       {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                     </Link>
                     {subtitleLink && <span className={classes.subtitle}>
@@ -122,6 +126,7 @@ class Header extends Component {
                   </Hidden>
                   <Hidden mdUp implementation="css">
                     <Link to="/" className={classes.titleLink}>
+                      {getSetting('logoUrl', '') && <Components.Logo/>}
                       {getSetting('forumSettings.shortForumTitle', 'LW')}
                     </Link>
                   </Hidden>
