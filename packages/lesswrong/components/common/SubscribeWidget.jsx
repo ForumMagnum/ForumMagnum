@@ -67,6 +67,7 @@ class SubscribeWidget extends Component {
           className={classNames(
             { [classes.highlightedLabel]: subscribeLabelHighlighted },
             classes.subscribeLabel)}
+          onClick={ () => this.openDialog("email") }
         >
           {subscribeLabel}
         </div>
