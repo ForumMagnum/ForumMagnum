@@ -36,7 +36,7 @@ const styles = theme => ({
       textAlign: 'center',
       margin: '45px 0',
       ...theme.typography.display3,
-      ...theme.typography.postStyle,
+      fontWeight: 700,
       color: theme.palette.text.primary,
     },
     voteTop: {
