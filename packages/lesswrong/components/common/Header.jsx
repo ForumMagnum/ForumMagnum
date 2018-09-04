@@ -115,7 +115,7 @@ class Header extends Component {
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
                     <Link to="/" className={classes.titleLink}>
-                      {getSetting('logoUrl', '') && <Components.Logo/>}
+                      <Components.Logo/>
                       {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                     </Link>
                     {subtitleLink && <span className={classes.subtitle}>
@@ -126,7 +126,7 @@ class Header extends Component {
                   </Hidden>
                   <Hidden mdUp implementation="css">
                     <Link to="/" className={classes.titleLink}>
-                      {getSetting('logoUrl', '') && <Components.Logo/>}
+                      <Components.Logo/>
                       {getSetting('forumSettings.shortForumTitle', 'LW')}
                     </Link>
                   </Hidden>

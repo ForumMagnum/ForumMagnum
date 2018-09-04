@@ -8,7 +8,7 @@ const styles = theme => ({
   }
 })
 
-const Logo = ({classes}) => <img
+const Logo = ({classes}) => getSetting('logoUrl', null) && <img
   className={classes.root}
   src={getSetting('logoUrl')}
   title={getSetting('title')}
