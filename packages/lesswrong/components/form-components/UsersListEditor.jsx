@@ -40,9 +40,6 @@ const SortableList = withStyles(sortableListStyles)(SortableContainer(({items, c
 }));
 
 const usersListEditorStyles = theme => ({
-  root: {
-    marginLeft: theme.spacing.unit
-  },
   search: {
     display: "flex"
   }
@@ -109,23 +106,21 @@ class UsersListEditor extends Component {
     const { classes, label, currentUser } = this.props
 
     return (
-      <div className={classes.root}>
-        <div className={classes.search}>
-          <Components.ErrorBoundary>
-            <Components.UsersSearchAutoComplete
-              clickAction={this.addUserId}
-              label={label}
-            />
-          </Components.ErrorBoundary>
-          <SortableList
-            axis="xy"
-            items={this.state.userIds}
-            onSortEnd={this.onSortEnd}
-            currentUser={currentUser}
-            removeItem={this.removeUserId}
-            shouldCancelStart={this.shouldCancelStart}
+      <div className={classes.search}>
+        <Components.ErrorBoundary>
+          <Components.UsersSearchAutoComplete
+            clickAction={this.addUserId}
+            label={label}
           />
-        </div>
+        </Components.ErrorBoundary>
+        <SortableList
+          axis="xy"
+          items={this.state.userIds}
+          onSortEnd={this.onSortEnd}
+          currentUser={currentUser}
+          removeItem={this.removeUserId}
+          shouldCancelStart={this.shouldCancelStart}
+        />
       </div>
     )
   }
