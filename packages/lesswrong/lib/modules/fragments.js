@@ -188,6 +188,7 @@ registerFragment(`
     body
     htmlBody
     content
+    plaintextExcerpt
     draft
     commentSortOrder
     canonicalPrevPostSlug
@@ -479,6 +480,7 @@ registerFragment(`
     emailHash
     karma
     afKarma
+    deleted
   }
 `);
 

@@ -898,10 +898,6 @@ svg.drag-handle {
     float: none;
   }
 }
-.posts-list-editor-item-title-link {
-  float:right;
-  margin-right:10px;
-}
 
 .posts-page-event-times {
   margin-top: 5px;
@@ -949,9 +945,11 @@ svg.drag-handle {
   margin-top:5px;
   max-width:600px;
   line-height:22px;
+  margin-bottom:16px;
 }
 .recent-discussion-highlight-link-post {
   font-size:13px;
+  margin-bottom:16px;
 }
 
 .recent-discussion-thread-highlight {

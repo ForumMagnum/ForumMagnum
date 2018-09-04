@@ -79,6 +79,7 @@ class Header extends Component {
     this.state = {
       navigationOpen: false,
       notificationOpen: false,
+      notificationHasOpened: false,
     };
   }
 
@@ -86,18 +87,25 @@ class Header extends Component {
   handleNavigationClose = () => this.setState({navigationOpen: false})
 
   handleNotificationToggle = (muiState) => {
-    this.props.editMutation({
-      documentId: this.props.currentUser._id,
-      set: {lastNotificationsCheck: new Date()},
-      unset: {}
-    })
-    this.setState({notificationOpen: !this.state.notificationOpen})
+    if(!this.state.notificationOpen) {
+      this.props.editMutation({
+        documentId: this.props.currentUser._id,
+        set: {lastNotificationsCheck: new Date()},
+        unset: {}
+      })
+      this.setState({
+        notificationOpen: true,
+        notificationHasOpened: true
+      })
+    } else {
+      this.setState({notificationOpen: false})
+    }
   }
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   render() {
     const { currentUser, classes, routes, location, params, client, theme } = this.props
-    const { notificationOpen, navigationOpen } = this.state
+    const { notificationOpen, notificationHasOpened, navigationOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
     const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
@@ -143,7 +151,7 @@ class Header extends Component {
             <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
           </Headroom>
           <Components.ErrorBoundary>
-            <Components.NotificationsMenu open={notificationOpen} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
+            <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
           </Components.ErrorBoundary>
         </div>
       </Components.ErrorBoundary>

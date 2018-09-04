@@ -25,6 +25,9 @@ Posts.addDefaultView(terms => {
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
+  if (terms.userId) {
+    params.selector.hideAuthor = {$ne: true}
+  }
 
   return params;
 })
@@ -36,7 +39,6 @@ Posts.addDefaultView(terms => {
 Posts.addView("userPosts", terms => ({
   selector: {
     userId: terms.userId,
-    hideAuthor: {$ne: true},
   },
   options: {
     limit: 5,

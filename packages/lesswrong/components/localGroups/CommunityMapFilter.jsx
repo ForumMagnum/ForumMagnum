@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Paper from 'material-ui/Paper';
+import Paper from '@material-ui/core/Paper';
 import { withRouter } from 'react-router';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Checkbox from 'material-ui/Checkbox';
@@ -35,7 +35,7 @@ class CommunityMapFilter extends Component {
   }
 
   render() {
-    return <Paper className="community-map-filter-wrapper" zDepth={1}>
+    return <Paper className="community-map-filter-wrapper" elevation={1}>
       <div className="community-map-filter">
         {filters.map(value => {
           return <Checkbox

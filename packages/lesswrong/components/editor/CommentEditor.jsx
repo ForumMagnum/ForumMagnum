@@ -33,17 +33,17 @@ class CommentEditor extends Component {
   }
 
   render() {
-    const { classes, currentUser } = this.props
+    const { classes, currentUser, ...otherProps } = this.props
     const AsyncCommentEditor = this.state.editor;
     return (
       <div className={classes.commentStyle}>
         { Users.useMarkdownCommentEditor(currentUser) ?
           <Components.MuiInput
             disableUnderline
-            {...this.props}
+            {...otherProps}
           />
         :
-        <AsyncCommentEditor {...this.props}/>
+        <AsyncCommentEditor {...otherProps}/>
         }
       </div>
     )
