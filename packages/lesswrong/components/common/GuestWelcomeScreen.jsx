@@ -7,16 +7,14 @@ import Grid from '@material-ui/core/Grid';
 
 const styles = theme => ({
   root: {
-    a: {
-      textDecoration: 'underline'
-    }
+    fontFamily: theme.typography.serifStack,
+    '& a': {
+      borderBottom: `1px dashed`
+    },
   },
   title: {
     textAlign: 'center',
     margin: `0 0 ${theme.spacing.unit * 2}px`
-  },
-  body: {
-    fontSize: 18
   },
   logoWrapper: {
     textAlign: 'center',
@@ -36,7 +34,7 @@ const GuestWelcomeScreen = ({classes}) => <div className={classes.root}>
       <Typography variant='display3' component='h3' className={classes.title}>
         Forum in Private Beta
       </Typography>
-      <Typography variant='body' className={classes.body}>
+      <Typography variant='body1' component='div'>
         <p>
           Thanks for checking out the new Effective Altruism Forum.{' '}
           We're still in private beta mode. If you've already been registered,{' '}
@@ -52,7 +50,7 @@ const GuestWelcomeScreen = ({classes}) => <div className={classes.root}>
         </p>
         <p>
           You can read{' '}
-          <a href='http://effective-altruism.com/ea/1qv/ea_forum_20_initial_announcement/'>
+          <a className={classes.a} href='http://effective-altruism.com/ea/1qv/ea_forum_20_initial_announcement/'>
             this post
           </a>{' '}
           for more info about the move to the new forum.
