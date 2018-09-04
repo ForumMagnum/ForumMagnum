@@ -44,7 +44,7 @@ class CommentsList extends Component {
       highlightDate,
       editMutation,
       post,
-      frontPage,
+      postPage,
     } = this.props;
     if (comments) {
       return (
@@ -60,7 +60,7 @@ class CommentsList extends Component {
                 highlightDate={highlightDate}
                 editMutation={editMutation}
                 post={post}
-                frontPage={frontPage}
+                postPage={postPage}
               />)
             }
           </div>

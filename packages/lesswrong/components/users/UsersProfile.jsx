@@ -18,13 +18,13 @@ const UsersProfile = (props) => {
 
     return <div className="page users-profile"><Components.Loading/></div>
 
-  } else if (props.document && props.document._id) {
+  } else if (props.document && props.document._id && !props.document.deleted) {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id }
-    const terms = {view: "new", ...query, userId: user._id};
+    const terms = {view: "userPosts", ...query, userId: user._id};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
@@ -139,7 +139,6 @@ const UsersProfile = (props) => {
     return (
       <div className="page users-profile">
         <div className="users-profile-header">{ renderUserProfileHeader(props) }</div>
-
         { renderSequences(props) }
         { renderDrafts(props) }
         { renderBlogPosts(props) }

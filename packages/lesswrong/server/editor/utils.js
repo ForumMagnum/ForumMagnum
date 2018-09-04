@@ -15,6 +15,8 @@ mdi.use(markdownItMathjax())
 
 import { mjpage }  from 'mathjax-node-page'
 
+import htmlToText from 'html-to-text'
+
 // Promisified version of mjpage
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -60,14 +62,16 @@ Posts.convertFromContent = (content, id, slug) => {
   const htmlBody = draftToHTML(contentState)
   const body = turndownService.turndown(htmlBody)
   const excerpt = Posts.createExcerpt(body)
+  const plaintextExcerpt = htmlToText.fromString(excerpt)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   return {
-    htmlBody: htmlBody,
-    body: body,
-    excerpt: excerpt,
-    htmlHighlight: htmlHighlight,
-    wordCount: wordCount,
+    htmlBody,
+    body,
+    excerpt,
+    plaintextExcerpt,
+    htmlHighlight,
+    wordCount,
     lastEditedAs: 'draft-js'
   }
 }
@@ -99,6 +103,7 @@ Comments.convertFromContentAsync = async function(content) {
 Posts.convertFromHTML = (html, id, slug, sanitize) => {
   const body = turndownService.turndown(html)
   const excerpt = Posts.createExcerpt(body)
+  const plaintextExcerpt = htmlToText.fromString(excerpt)
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
   const htmlBody = sanitize ? Utils.sanitize(html) : html
@@ -106,6 +111,7 @@ Posts.convertFromHTML = (html, id, slug, sanitize) => {
     body,
     htmlBody,
     excerpt,
+    plaintextExcerpt,
     wordCount,
     htmlHighlight,
     lastEditedAs: "html",
@@ -125,12 +131,15 @@ Comments.convertFromHTML = (html) => {
 Posts.convertFromMarkdown = (body, id, slug) => {
   const wordCount = body.split(" ").length
   const htmlHighlight = Posts.createHtmlHighlight(body, id, slug, wordCount)
+  const excerpt = Posts.createExcerpt(body)
+  const plaintextExcerpt = htmlToText.fromString(excerpt)
   return {
     htmlBody: mdi.render(body),
-    body: body,
-    excerpt: Posts.createExcerpt(body),
-    htmlHighlight: htmlHighlight,
-    wordCount: wordCount,
+    body,
+    excerpt,
+    plaintextExcerpt,
+    htmlHighlight,
+    wordCount,
     lastEditedAs: "markdown"
   }
 }

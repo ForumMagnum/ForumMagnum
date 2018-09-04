@@ -3,35 +3,43 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
-import { Highlight } from 'react-instantsearch/dom';
 
-const PostsListEditorSearchHit = ({hit, clickAction, router}) => {
+import { withStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
+
+const styles = theme => ({
+    root: {
+      padding: theme.spacing.unit,
+      borderBottom: "solid 1px",
+      borderBottomColor: grey[200],
+      '&:hover': {
+        backgroundColor: grey[100],
+      }
+    },
+    postLink: {
+      float:"right",
+      marginRight: theme.spacing.unit
+    }
+  })
+
+const PostsListEditorSearchHit = ({hit, clickAction, router, classes}) => {
   // If clickAction is provided, disable link and replace with Click of the action
   return (
-    <div
-      className="search-results-posts-item posts-item"
-    >
-      <h3 className="posts-item-title">
-        <Highlight attributeName="title" hit={hit} tagName="mark" />
-      </h3>
-      <object>
-        <div className="posts-item-meta">
-          {hit.postedAt ? <div className="posts-item-date"> {moment(new Date(hit.postedAt)).fromNow()} </div> : null}
-          <div className="posts-item-score">{hit.baseScore} points</div>
-          {hit.authorDisplayName ? <div className="posts-item-user">{hit.authorDisplayName}</div> : null}
-          <div>{hit.commentCount || 0 } Comments</div>
-          <Link
-            to={Posts.getLink(hit)}
-            target={Posts.getLinkTarget(hit)}
-            className="posts-list-editor-item-title-link"
-          >
-            (Link)
-          </Link>
-        </div>
-      </object>
+    <div className={classes.root}>
+      <Components.PostsItemTitle post={hit} />
+      {hit.authorDisplayName && <Components.MetaInfo>
+        {hit.authorDisplayName}
+      </Components.MetaInfo>}
+      <Components.MetaInfo>
+        {hit.baseScore} points
+      </Components.MetaInfo>
+      {hit.postedAt && <Components.MetaInfo> {moment(new Date(hit.postedAt)).fromNow()} </Components.MetaInfo>}
+      <Link to={Posts.getLink(hit)} target={Posts.getLinkTarget(hit)} className={classes.postLink}>
+        (Link)
+      </Link>
     </div>
   )
 }
 
 
-registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, withRouter);
+registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, withRouter, withStyles(styles));

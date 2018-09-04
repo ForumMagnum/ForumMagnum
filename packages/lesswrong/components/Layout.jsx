@@ -8,9 +8,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 
-import injectTapEventPlugin from 'react-tap-event-plugin';
-injectTapEventPlugin();
-
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
 import { withStyles } from '@material-ui/core/styles';
@@ -29,9 +26,15 @@ const styles = theme => ({
   },
   '@global': {
     p: {
-      marginTop:0,
-      marginBottom: "1em"
-    }
+      marginTop: "1em",
+      marginBottom: "1em",
+      '&:first-of-type': {
+        marginTop: 0,
+      },
+      '&:last-of-type': {
+        marginBottom: 0,
+      }
+    },
   }
 })
 

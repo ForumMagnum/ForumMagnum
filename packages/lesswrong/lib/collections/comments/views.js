@@ -8,6 +8,7 @@ Comments.addDefaultView(terms => {
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$ne: true}}],
+      hideAuthor: terms.userId ? {$ne: true} : undefined,
       ...validFields,
       ...alignmentForum,
     }

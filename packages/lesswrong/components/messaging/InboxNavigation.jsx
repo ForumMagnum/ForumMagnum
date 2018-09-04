@@ -7,73 +7,95 @@ The Navigation for the Inbox components
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { LinkContainer } from 'react-router-bootstrap';
-import Grid from 'react-bootstrap/lib/Grid';
-import Row from 'react-bootstrap/lib/Row';
-import Col from 'react-bootstrap/lib/Col';
-import ListGroup from 'react-bootstrap/lib/ListGroup';
-import ListGroupItem from 'react-bootstrap/lib/ListGroupItem'; 
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Conversations from '../../lib/collections/conversations/collection.js';
+import Typography from '@material-ui/core/Typography';
+import { Link } from 'react-router';
+import grey from '@material-ui/core/colors/grey';
+
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  root: {
+    fontFamily: theme.typography.commentStyle
+  },
+  conversation: {
+    maxWidth:500
+  },
+  conversationItem: {
+    color: grey[600],
+    cursor: "pointer",
+    padding: theme.spacing.unit,
+    display: "flex",
+    justifyContent: "flex-end",
+    '&:hover': {
+      color: grey[400]
+    },
+    [theme.breakpoints.down('md')]: {
+      justifyContent: "flex-start",
+    },
+  },
+  conversationItemLatestActivity: {
+    marginLeft: theme.spacing.unit
+  },
+  navigation: {
+    marginTop: theme.spacing.unit*2,
+    [theme.breakpoints.down('md')]: {
+      maxHeight: 100,
+      overflow: "scroll",
+    },
+  }
+})
 
 class InboxNavigation extends Component {
 
   render() {
-    const results = this.props.results;
-    const currentUser = this.props.currentUser;
+    const { results, classes, currentUser } = this.props
     const select = this.props.location.query.select;
 
     const messagesTerms = {view: 'messagesConversation', conversationId: select};
 
     if(currentUser && results) {
       let conversation = results.length && results.find(c => (c._id == select));
-      let notificationsSelect = (select == "Notifications");
-
-      let conversationDetails = conversation && <Components.ConversationDetails conversation={conversation}/>
-      let thereAreNone = notificationsSelect ? <p>You have no notifications.</p> : <p>There are no messages in this conversation.</p>
-      let notificationsWrapper = results.length ? <Components.NotificationsWrapper/> : thereAreNone
 
       return (
-        <Grid>
-          <Row className="Inbox-Grid">
-            <Col xs={12} md={3}>{this.renderNavigation()}</Col>
-            <Col xs={12} style={{position: "inherit"}} md={(notificationsSelect ? 9 : 6)}>
-              {notificationsSelect ? notificationsWrapper : <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />}
-            </Col>
-            {notificationsSelect ? <div></div> : <Col xs={12} md={3}>{conversationDetails}</Col>}
-          </Row>
-        </Grid>
+        <Components.Section
+          title="Conversations"
+          titleComponent={this.renderNavigation()}
+          >
+            <div className={classes.conversation}>
+              <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />
+            </div>
+        </Components.Section>
       )
     } else {
       return <div></div>
     }
   }
 
-  renderNavigation() {
-    const results = this.props.results;
+  renderNavigation = () => {
+    const { results, classes, currentUser } = this.props;
 
     //TODO: Add ability to add conversation from Inbox page, by searching for a user id:15
 
     if(results && results.length){
       return (
-        <ListGroup>
-          <LinkContainer to={{pathname: "/inbox", query: {select: "Notifications"}}}>
-            <ListGroupItem header="All Notifications">
-            </ListGroupItem>
-          </LinkContainer>
+        <div className={classes.navigation}>
           {results.map(conversation =>
-            <LinkContainer key={conversation._id} to={{pathname: "/inbox", query: {select: conversation._id}}}>
-              <ListGroupItem>
-                {!!conversation.title ? conversation.title : _.pluck(conversation.participants, 'username').join(' - ')}
-                <br></br> {conversation.latestActivity ? moment(new Date(conversation.latestActivity)).fromNow() : null}
-              </ListGroupItem>
-            </LinkContainer>)
+            <Link key={conversation._id} to={{pathname: "/inbox", query: {select: conversation._id}}}>
+                <Typography variant="body2" className={classes.conversationItem}>
+                  { Conversations.getTitle(conversation, currentUser) }
+                  <span className={classes.conversationItemLatestActivity}>
+                    {conversation.latestActivity && moment(new Date(conversation.latestActivity)).fromNow()}
+                  </span>
+                </Typography>
+            </Link>)
           }
-        </ListGroup>
+        </div>
       );
     } else {
-      return this.props.loading && <div>Loading...</div>;
+      return this.props.loading ? <div>Loading...</div> : null;
     }
   }
 
@@ -87,4 +109,4 @@ const conversationOptions = {
   totalResolver: false,
 };
 
-registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions], withCurrentUser, withRouter);
+registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions], withCurrentUser, withRouter, withStyles(styles));
