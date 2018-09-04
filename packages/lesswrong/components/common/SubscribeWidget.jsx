@@ -14,12 +14,14 @@ const styles = theme => ({
     display: "inline",
     paddingLeft: theme.spacing.unit,
     color: theme.palette.text.secondary,
+    cursor: "pointer",
     "&:hover": {
       color: theme.palette.text.primary
     }
   },
   subscribeLabel: {
     display: "inline",
+    cursor: "pointer",
     color: theme.palette.text.secondary
   },
   highlightedLabel: {
