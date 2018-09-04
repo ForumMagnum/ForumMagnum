@@ -34,7 +34,7 @@ const palette = {
 }
 
 const basicText = {
-  color: grey[700],
+  color: grey[800],
   // use ems (not rems) to preserve relative height even if font-size is changed
   lineHeight: '1.618em',
   fontWeight: 500,
