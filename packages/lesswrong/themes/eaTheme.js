@@ -1,17 +1,10 @@
-import createLWTheme from './createThemeDefaults';
+import createLWTheme from './createThemeDefaults.js';
+import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
-import indigo from '@material-ui/core/colors/indigo';
-import lightBlue from '@material-ui/core/colors/lightBlue';
 
 const sansSerifStack = [
-  "'Lato'",
-  "Arial",
-  "sans-serif"
-].join(',')
-
-const headerStack = [
   'Raleway',
-  '"Helvetica Neue"',
+  'Helvetica Neue',
   'Helvetica',
   'Arial',
   'sans-serif'
@@ -19,72 +12,85 @@ const headerStack = [
 
 const serifStack = [
   'Merriweather',
+  'Baskerville',
+  'Libre Baskerville',
   'Georgia',
-  'Garamond',
-  '"Times New Roman"',
   'serif'
 ].join(',')
 
 const palette = {
   primary: {
-      main: '#bbdefb',
+    main: '#0c869b',
   },
-  secondary: lightBlue,
+  secondary: {
+    main: '#0c869b',
+  },
   error: {
     main: deepOrange[900]
   },
   background: {
     default: '#fff'
-  },
-  headerType: "primary"
+  }
+}
+
+const basicText = {
+  color: grey[800],
+  // use ems (not rems) to preserve relative height even if font-size is changed
+  lineHeight: '1.618em',
+  fontWeight: 500,
+  fontFamily: serifStack
 }
 
 const theme = createLWTheme({
-  palette: palette,
+  palette,
   typography: {
-    fontFamily: serifStack,
-    postStyle: {
-      fontFamily: serifStack,
-    },
-    headerStyle: {
-      fontFamily: headerStack,
-    },
-    commentStyle: {
-      fontFamily: serifStack
-    },
-    link: {
-      underlinePosition: "72%",
-    },
-    title: {
-      fontFamily: headerStack,
-      fontWeight: 600,
-    },
-    display2: {
-      fontFamily: headerStack,
-      fontWeight: 600
-    },
-    display3: {
-      fontFamily: headerStack,
-      fontWeight: 600
-    },
+    fontDownloads: [
+      "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700",
+      "https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700",
+    ],
+    fontFamily: sansSerifStack,
     body1: {
-      linkUnderlinePosition: "90%",
-      fontSize: "1.2rem",
-      lineHeight: "1.8rem",
-      fontWeight:300,
+      ...basicText
     },
     body2: {
-      fontSize: ".9rem",
-      lineHeight: "1.5rem",
-      fontWeight:300,
+      ...basicText,
+      fontSize: "1rem"
+    },
+    postStyle: {
+      ...basicText,
+      linkUnderlinePosition: "72%",
+    },
+    headerStyle: {
+      fontFamily: sansSerifStack
+    },
+    commentStyle: {
+      fontFamily: sansSerifStack
+    },
+    headline: {
+      fontFamily: serifStack,
+    },
+    title: {
+      color: grey[800],
+      fontFamily: sansSerifStack,
+      fontWeight: 700,
+    },
+    display2: {
+      color: grey[800],
+      fontFamily: sansSerifStack,
+      fontWeight: 700
+    },
+    display3: {
+      color: grey[800],
+      fontFamily: sansSerifStack,
+      fontWeight: 700
     }
   },
   overrides: {
-    Header: {
-      titleLink: {
-        top: 0
+    MuiAppBar: {
+      colorDefault: {
+        backgroundColor: grey[50],
       }
-    }
+    },
   }
 });
 
