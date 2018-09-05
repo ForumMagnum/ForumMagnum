@@ -71,7 +71,11 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes, t
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-            { theme.typography.fontDownloads && theme.typography.fontDownloads.map((url)=><link rel="stylesheet" href={url}/>) }
+            { theme.typography.fontDownloads &&
+                theme.typography.fontDownloads.map(
+                  (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                )
+            }
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
             <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
           </Helmet>
