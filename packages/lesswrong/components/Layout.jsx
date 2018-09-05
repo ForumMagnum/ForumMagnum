@@ -10,7 +10,7 @@ import Intercom from 'react-intercom';
 
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -38,7 +38,7 @@ const styles = theme => ({
   }
 })
 
-const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {
+const Layout = ({currentUser, children, currentRoute, params, client, classes, theme}, { userAgent }) => {
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -71,6 +71,7 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+            { theme.typography.fontDownloads && theme.typography.fontDownloads.map((url)=><link rel="stylesheet" href={url}/>) }
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
             <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
           </Helmet>
@@ -103,4 +104,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-replaceComponent('Layout', Layout, withApollo, withStyles(styles));
+replaceComponent('Layout', Layout, withApollo, withStyles(styles), withTheme());
