@@ -77,7 +77,7 @@ class EditorFormContainer extends Component {
     }
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const document = this.props.document;
     const fieldName = this.props.name;
     const resetEditor = (result) => {

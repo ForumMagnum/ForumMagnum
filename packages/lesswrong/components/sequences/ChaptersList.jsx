@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types'
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import Chapters from '../../lib/collections/chapters/collection.js';
 

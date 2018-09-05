@@ -281,11 +281,13 @@ class CommentsItem extends Component {
                   rightIcon={<ArrowDropRight />}
                   menuItems={[
                     <Components.BanUserFromPostMenuItem
+                      key='banUserFromPost'
                       comment={comment}
                       post={post}
                       currentUser={currentUser}
                     />,
                     <Components.BanUserFromAllPostsMenuItem
+                      key='banUserFromAllPosts'
                       comment={comment}
                       post={post}
                       currentUser={currentUser}
