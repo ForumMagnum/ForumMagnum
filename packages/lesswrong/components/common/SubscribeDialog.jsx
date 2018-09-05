@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "meteor/example-forum";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -253,7 +253,14 @@ class SubscribeDialog extends Component {
               ]
             ) : (
               <DialogContentText className={classes.errorMsg}>
-                You must be logged in to subscribe via Email
+                <Components.ModalTrigger
+                  component={
+                    <a href="#">
+                      You must be logged in to subscribe via Email
+                    </a>
+                  }>
+                  <Components.AccountsLoginForm/>
+                </Components.ModalTrigger>
               </DialogContentText>
             )
           ] }
