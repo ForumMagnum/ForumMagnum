@@ -84,48 +84,6 @@ const styles = theme => ({
   }
 })
 
-const styles = theme => ({
-  root: {
-    ...theme.typography.postStyle
-  },
-  highlight: {
-    maxWidth:570,
-    padding:theme.spacing.unit*2,
-    ...postHighlightStyles(theme),
-  },
-  highlightContinue: {
-    marginTop:theme.spacing.unit*2
-  },
-  content: {
-    paddingLeft:10,
-    paddingTop:10,
-    width:"calc(100% - 100px)"
-  },
-  linkPost: {
-    marginBottom: theme.spacing.unit*2,
-    ...theme.typography.postStyle,
-    '& > a': {
-      color: theme.palette.secondary.light
-    }
-  },
-  commentCountIcon: {
-    position:"absolute",
-    right:"50%",
-    top:"50%",
-    transform:"translate(50%, -50%)",
-  },
-  commentCount: {
-    position:"absolute",
-    right:"50%",
-    top:"50%",
-    marginTop:-3,
-    transform:"translate(50%, -50%)",
-    color:"white",
-    fontVariantNumeric:"lining-nums",
-    ...theme.typography.commentStyle
-  }
-})
-
 const isSticky = (post, terms) => {
   if (post && terms && terms.forum) {
     return (
@@ -282,7 +240,7 @@ class PostsItem extends PureComponent {
       (this.state.showNewComments || this.state.showHighlight)
       ? classes.paperExpanded
       : classes.paperNotExpanded
-
+    
     return (
         <Paper
           className={classNames(postClass, paperStyle)}

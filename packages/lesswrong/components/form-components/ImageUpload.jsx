@@ -63,7 +63,6 @@ class ImageUpload extends Component {
     }, this.setImageInfo);
   }
   render(){
-    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
     return (
       <div className="upload">
         <Helmet>
