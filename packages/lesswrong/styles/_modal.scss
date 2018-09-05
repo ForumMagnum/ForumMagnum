@@ -1,0 +1,38 @@
+// Bootstrap Modal component styles
+
+.fade{opacity:0;-webkit-transition:opacity .15s linear;-o-transition:opacity .15s linear;transition:opacity .15s linear}
+.fade.in{opacity:1}
+.embed-responsive,.modal,.modal-open,.progress{overflow:hidden}
+.modal,.modal-backdrop{right:0;bottom:0;left:0}
+.modal-title,.popover,.tooltip{line-height:1.846}
+.close{float:right;color:#000;text-shadow:none;filter:alpha(opacity=20)}
+.close:focus,.close:hover{color:#000;text-decoration:none;cursor:pointer;opacity:.5;filter:alpha(opacity=50)}
+button.close{padding:0;cursor:pointer;background:0 0;border:0;-webkit-appearance:none}
+.modal-content,.popover{background-clip:padding-box}
+.modal{display:none;position:fixed;top:0;z-index:1050;-webkit-overflow-scrolling:touch;outline:0}
+.modal.fade .modal-dialog{-webkit-transform:translate(0,-25%);-ms-transform:translate(0,-25%);-o-transform:translate(0,-25%);transform:translate(0,-25%);-webkit-transition:-webkit-transform .3s ease-out;-moz-transition:-moz-transform .3s ease-out;-o-transition:-o-transform .3s ease-out;transition:transform .3s ease-out}
+.modal.in .modal-dialog{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);-o-transform:translate(0,0);transform:translate(0,0)}
+.modal-open .modal{overflow-x:hidden;overflow-y:auto}
+.modal-dialog{position:relative;width:auto;margin:10px}
+.modal-content{position:relative;background-color:#fff;border:1px solid transparent;border-radius:3px;-webkit-box-shadow:0 3px 9px rgba(0,0,0,.5);box-shadow:0 3px 9px rgba(0,0,0,.5);outline:0}
+.modal-backdrop{position:fixed;top:0;z-index:1040;background-color:#000}
+.modal-backdrop.fade{opacity:0;filter:alpha(opacity=0)}
+.modal-backdrop.in{opacity:.5;filter:alpha(opacity=50)}
+.modal-header{padding:15px;border-bottom:1px solid transparent}
+.modal-header .close{margin-top:-2px}
+.modal-title{margin:0}
+.modal-body{position:relative;padding:15px}
+.modal-footer{padding:15px;text-align:right;border-top:1px solid transparent}
+.modal-footer .btn+.btn{margin-left:5px;margin-bottom:0}
+.modal-footer .btn-group .btn+.btn{margin-left:-1px}
+.modal-footer .btn-block+.btn-block{margin-left:0}
+.modal-scrollbar-measure{position:absolute;top:-9999px;width:50px;height:50px;overflow:scroll}
+@media (min-width:768px){
+  .modal-dialog{width:600px;margin:30px auto}
+  .modal-content{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.5);box-shadow:0 5px 15px rgba(0,0,0,.5)}
+  .modal-sm{width:300px}
+}
+@media (min-width:992px){
+  .modal-lg{width:900px}
+}
+
