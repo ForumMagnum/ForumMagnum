@@ -8,12 +8,8 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 
-import injectTapEventPlugin from 'react-tap-event-plugin';
-injectTapEventPlugin();
-
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
-import Typekit from 'react-typekit';
 import { withStyles } from '@material-ui/core/styles';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
@@ -28,6 +24,18 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit,
     },
   },
+  '@global': {
+    p: {
+      marginTop: "1em",
+      marginBottom: "1em",
+      '&:first-of-type': {
+        marginTop: 0,
+      },
+      '&:last-of-type': {
+        marginBottom: 0,
+      }
+    },
+  }
 })
 
 const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {
@@ -67,8 +75,8 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700"/>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700"/>
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
+            <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
           </Helmet>
-          <Typekit kitId="jvr1gjm" />
           {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
           {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
 

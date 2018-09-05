@@ -184,9 +184,11 @@ registerFragment(`
 registerFragment(`
   fragment LWPostsPage on Post {
     ...PostsList
+    lastEditedAs
     body
     htmlBody
     content
+    plaintextExcerpt
     draft
     commentSortOrder
     canonicalPrevPostSlug
@@ -478,6 +480,7 @@ registerFragment(`
     emailHash
     karma
     afKarma
+    deleted
   }
 `);
 

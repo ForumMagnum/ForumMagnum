@@ -7,8 +7,13 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   dayTitle: {
     marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit
-  }
+    marginBottom: theme.spacing.unit,
+    ...theme.typography.postStyle
+  },
+  noPosts: {
+    marginLeft: "23px",
+    color: "rgba(0,0,0,0.5)",
+  },
 })
 
 class PostsDay extends PureComponent {
@@ -19,8 +24,8 @@ class PostsDay extends PureComponent {
 
     return (
       <div className="posts-day">
-        <Typography variant="title" className={classes.dayTitle} >{date.format('dddd, MMMM Do YYYY')}</Typography>
-        { noPosts ? <Components.PostsNoMore /> :
+        <Typography variant="display2" className={classes.dayTitle} >{date.format('dddd, MMMM Do YYYY')}</Typography>
+        { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
           <div className="posts-list">
             <div className="posts-list-content">
               {posts.map((post, index) => <Components.PostsItem post={post} key={post._id} index={index} currentUser={this.props.currentUser} />)}

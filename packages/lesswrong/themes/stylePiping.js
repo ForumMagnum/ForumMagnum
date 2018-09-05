@@ -45,6 +45,14 @@ export const postBodyStyles = (theme, fontSize) => {
       ...theme.typography.postStyle,
       ...theme.typography.headerStyle
     },
+    '& h4': {
+      ...theme.typography.body1,
+      ...theme.typography.postStyle,
+      fontWeight:600,
+    },
+    '& img': {
+      maxWidth: "100%"
+    },
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       ...linkStyle({
         theme: theme,
@@ -80,19 +88,15 @@ export const commentBodyStyles = theme => {
       ...theme.typography.commentStyle
     },
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
-      ...linkStyle({
-        theme: theme,
-        underlinePosition: (
-          (theme.typography.commentStyle && theme.typography.commentStyle.linkUnderlinePosition) ||
-          "97%"
-        ),
-        background: (
-          (theme.typography.body2 && theme.typography.body2.backgroundColor) ||
-          (theme.typography.body2 && theme.typography.body2.background) ||
-          "#fff"
-        )
-      })
+      backgroundImage: "none",
+      textShadow: "none",
+      textDecoration: "none",
     },
+    '& pre code a, & pre code a:hover, & pre code a:focus, & pre code a:active, & pre code a:visited': {
+        backgroundImage: "none",
+        textShadow: "none",
+        textDecoration: "none",
+    }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }

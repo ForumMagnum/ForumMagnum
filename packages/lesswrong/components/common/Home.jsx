@@ -1,4 +1,5 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
@@ -83,6 +84,7 @@ const Home = (props, context) => {
 
   return (
     <div>
+      <Components.HeadTags image={getSetting('siteImage')} />
       { !currentUser ?
         <Components.Section
           contentStyle={{marginTop: '-20px'}}

@@ -22,6 +22,7 @@ Comments.addField([
         resolver: async (comment, args, {currentUser, Users}) => {
           if (!comment.userId || comment.hideAuthor) return null;
           const user = await Users.loader.load(comment.userId);
+          if (user.deleted) return null;
           return Users.restrictViewableFields(currentUser, Users, user);
         },
         addOriginalField: true
@@ -339,6 +340,23 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['admins'],
       insertableBy: ['admins'],
+    }
+  },
+
+  /*
+    lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
+    appropriate editor when being edited, overwriting user-preferences
+  */
+
+  {
+    fieldName: 'lastEditedAs',
+    fieldSchema: {
+      type: String,
+      viewableBy: ['guests'],
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      optional: true,
+      hidden: true,
     }
   }
 

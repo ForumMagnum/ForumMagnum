@@ -1,10 +1,9 @@
 /* global cloudinary */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {registerComponent, getSetting} from 'meteor/vulcan:core';
+import {Components, registerComponent, getSetting} from 'meteor/vulcan:core';
 import Helmet from 'react-helmet';
 import FlatButton from 'material-ui/FlatButton';
-import { Image } from 'cloudinary-react';
 import ImageIcon from '@material-ui/icons/Image';
 
 class ImageUpload extends Component {
@@ -73,17 +72,11 @@ class ImageUpload extends Component {
         </Helmet>
         <div className="image-upload-description">{this.props.label}</div>
         {this.state.imageId &&
-          <Image
+          <Components.CloudinaryImage
             publicId={this.state.imageId}
-            cloudName={cloudinaryCloudName}
-            quality="auto"
-            sizes="100vw"
-            responsive={true}
             width={this.props.name == "gridImageId" ? "203" : "auto"}
             height={this.props.name == "bannerImageId" ? "380" : "80"}
-            dpr="auto"
-            crop="fill"
-          gravity="custom" /> }
+          /> }
         <FlatButton
           label={this.state.imageId ? `Replace ${this.props.label}` : `Upload ${this.props.label}`}
           onClick={this.uploadWidget}

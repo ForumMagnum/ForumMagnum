@@ -83,6 +83,7 @@ $card-padding: 20px;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
     z-index: 100;
     .collection-card-link {
+      cursor: pointer; 
       text-decoration: none;
     }
   }

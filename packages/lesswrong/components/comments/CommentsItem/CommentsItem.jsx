@@ -40,6 +40,9 @@ const styles = theme => ({
   commentStyling: {
     marginTop: ".5em",
     ...commentBodyStyles(theme)
+  },
+  postTitle: {
+    marginRight: 5,
   }
 })
 
@@ -138,8 +141,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, frontPage } = this.props
-    const level = comment.level || 1;
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -155,9 +157,11 @@ class CommentsItem extends Component {
           classNames(
             "comments-item",
             "recent-comments-node",
-            {deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic,
-            "showParent": this.state.showParent},
+            {
+              deleted: comment.deleted && !comment.deletedPublic,
+              "public-deleted": comment.deletedPublic,
+              "showParent": this.state.showParent
+            },
           )}
         >
 
@@ -166,7 +170,7 @@ class CommentsItem extends Component {
               <Components.RecentCommentsSingle
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
-                level={level + 1}
+                level={nestingLevel + 1}
                 expanded={true}
                 key={comment.parentCommentId}
               />
@@ -175,40 +179,42 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              {(comment.parentCommentId && (level === 1)) &&
+              {(comment.parentCommentId && (nestingLevel === 1)) &&
                 <FontIcon
                   onClick={this.toggleShowParent}
                   className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                 >
                   subdirectory_arrow_left
                 </FontIcon>}
-              { !frontPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
-              { comment.deleted || comment.hideAuthor ?
-                (comment.hideAuthor ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
+              { comment.deleted || comment.hideAuthor || !comment.user ?
+                ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
                 <span> <Components.UsersName user={comment.user}/> </span>
               }
               <div className="comments-item-date">
-                { this.props.frontPage ?
-                  <Link to={Posts.getPageUrl(this.props.post) + "#" + comment._id}>
+                { !postPage ?
+                  <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
                     {moment(new Date(comment.postedAt)).fromNow()}
                     <FontIcon className="material-icons comments-item-permalink"> link
                     </FontIcon>
+                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
-                <a href={Posts.getPageUrl(this.props.post) + "#" + comment._id} onClick={this.handleLinkClick}>
+                <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   {moment(new Date(comment.postedAt)).fromNow()}
                   <FontIcon className="material-icons comments-item-permalink"> link
                   </FontIcon>
+                  {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { (frontPage && !expanded) ? this.renderExcerpt() : commentBody}
+            { (!postPage && !expanded) ? this.renderExcerpt() : commentBody}
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
@@ -253,7 +259,6 @@ class CommentsItem extends Component {
     if (comment && post) {
       return (
         <div className="comments-more-actions-menu">
-          <object>
             <IconMenu
               iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
               anchorOrigin={{horizontal: 'right', vertical: 'top'}}
@@ -307,7 +312,6 @@ class CommentsItem extends Component {
                 <Components.CommentVotesInfo documentId={comment._id} />
               </Dialog>
             }
-          </object>
         </div>
       )
     }
@@ -390,7 +394,7 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const levelClass = (this.props.comment.level + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
+    const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     const { currentUser, post, comment } = this.props
 
