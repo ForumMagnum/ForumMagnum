@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types'
 import { Components, withDocument, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';

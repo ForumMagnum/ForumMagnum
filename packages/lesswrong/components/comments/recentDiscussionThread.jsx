@@ -190,6 +190,7 @@ class RecentDiscussionThread extends PureComponent {
                 <Components.CommentsNode
                   currentUser={currentUser}
                   comment={comment.item}
+                  //eslint-disable-next-line react/no-children-prop
                   children={comment.children}
                   key={comment.item._id}
                   editMutation={editMutation}

@@ -82,11 +82,12 @@ class RSSOutLinkbuilder extends Component {
 
   render() {
     const actions = [
-      <CopyToClipboard text={rssTermsToUrl(this.state.rssTerms)}
+      <CopyToClipboard key='copy' text={rssTermsToUrl(this.state.rssTerms)}
         onCopy={(text, result) => this.setState({copied: result})}>
         <FlatButton labelStyle={{color: "rgba(100, 169, 105, 1)"}} label={this.state.copied ? "Copied!" : "Copy Link"}/>
       </CopyToClipboard>,
       <FlatButton
+        key='close'
         label="Close"
         primary={true}
         onClick={this.handleClose}

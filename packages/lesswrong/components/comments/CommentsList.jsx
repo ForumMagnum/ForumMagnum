@@ -55,6 +55,7 @@ class CommentsList extends Component {
                 currentUser={currentUser}
                 comment={comment.item}
                 nestingLevel={1}
+                //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}

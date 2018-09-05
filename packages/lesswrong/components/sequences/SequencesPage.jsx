@@ -1,10 +1,11 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import {
   Components,
   withDocument,
   registerComponent,
   withCurrentUser,
 } from 'meteor/vulcan:core';
+import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import NoSSR from 'react-no-ssr';
