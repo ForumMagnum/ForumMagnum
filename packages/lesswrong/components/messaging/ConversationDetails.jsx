@@ -11,11 +11,11 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    marginLeft: theme.spacing.unit/2,
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    flexWrap: "wrap",
   }
 })
 
@@ -29,6 +29,7 @@ class ConversationDetails extends Component {
       return (
         <div className={classes.root}>
           <span>
+            <Components.MetaInfo>Participants:</Components.MetaInfo>
             {conversation.participants.map((user, i) => <Components.MetaInfo key={user._id}>
               <Components.UsersName key={user._id} user={user}/>
               {/* inserts a comma for all but the last username */}
@@ -36,7 +37,7 @@ class ConversationDetails extends Component {
             </Components.MetaInfo>)}
           </span>
           <Components.DialogGroup title="Edit Conversation Title"
-            actions={[]} trigger={<Components.MetaInfo button>Edit Title</Components.MetaInfo>}>
+            actions={[]} trigger={<Components.MetaInfo button>Edit Conversation Title</Components.MetaInfo>}>
             <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>

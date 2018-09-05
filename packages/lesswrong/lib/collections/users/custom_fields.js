@@ -221,7 +221,6 @@ Users.addField([
         rows:4,
         multiLine:true,
         fullWidth:true,
-        disableUnderline:true
       },
     }
   },

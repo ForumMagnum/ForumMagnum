@@ -77,9 +77,10 @@ class CommentsNode extends PureComponent {
       post,
       muiTheme,
       router,
-      frontPage,
+      postPage,
       classes,
-      child
+      child,
+      showPostTitle
     } = this.props;
     const { hover, collapsed, finishedScroll } = this.state
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
@@ -124,8 +125,9 @@ class CommentsNode extends PureComponent {
               editMutation={editMutation}
               scrollIntoView={this.scrollIntoView}
               post={post}
-              frontPage={frontPage}
+              postPage={postPage}
               nestingLevel={nestingLevel}
+              showPostTitle={showPostTitle}
             />
           </div>
           {!collapsed && children && children.length>0 ?
@@ -142,7 +144,7 @@ class CommentsNode extends PureComponent {
                   highlightDate={highlightDate}
                   editMutation={editMutation}
                   post={post}
-                  frontPage={frontPage}
+                  postPage={postPage}
                 />)}
               </div>
               : null

@@ -21,7 +21,7 @@ const styles = theme => ({
   },
   smallArrow: {
     fontSize: '50%',
-    opacity: 0.5
+    opacity: 0.6
   },
   up: {},
   right: {
@@ -108,9 +108,11 @@ class VoteButton extends PureComponent {
   handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {
       const { voteType } = this.props
-      const bigVoted = this.hasVoted(`big${voteType}`)
-      if (bigVoted) {
-        this.vote(`small${voteType}`)
+      // This causes the following behavior (repeating after 3rd click): 
+      // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
+      const voted = this.hasVoted(`big${voteType}`) || this.hasVoted(`small${voteType}`)
+      if (voted) {
+        this.vote(`big${voteType}`)
       } else {
         this.vote(`small${voteType}`)
       }

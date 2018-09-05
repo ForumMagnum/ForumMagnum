@@ -2,10 +2,8 @@ import {
   Components,
   registerComponent,
   withCurrentUser,
-  getSetting,
   Utils
 } from 'meteor/vulcan:core';
-import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
 import React, { PureComponent } from 'react';
 import Users from 'meteor/vulcan:users';
@@ -34,7 +32,6 @@ class SequencesGridItem extends PureComponent {
 
   render() {
     const { sequence, showAuthor=false, classes } = this.props
-    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
     return <div className={classNames("sequences-grid-item", classes.root)} onClick={this.handleClick}>
       <div className={classNames("sequences-grid-item-top", {author: showAuthor})} style={{borderTopColor: sequence.color}}>
@@ -52,17 +49,10 @@ class SequencesGridItem extends PureComponent {
       <div className="sequences-grid-item-bottom">
         <div className="sequences-grid-item-image">
           <NoSSR>
-            <Image
+            <Components.CloudinaryImage
               publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-              dpr="auto"
-              responsive={true}
-              sizes="100vw"
-              cloudName={cloudinaryCloudName}
-              quality="auto"
               height={124}
               width={315}
-              crop="fill"
-              gravity="custom"
             />
           </NoSSR>
         </div>

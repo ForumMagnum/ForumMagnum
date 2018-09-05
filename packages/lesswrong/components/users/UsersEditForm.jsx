@@ -13,7 +13,10 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   header: {
     margin: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 4
+    marginBottom: theme.spacing.unit * 4,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: theme.spacing.unit/2,
+    },
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4

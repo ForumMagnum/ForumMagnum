@@ -12,6 +12,9 @@ const styles = theme => ({
   textField: {
     fontSize: "15px",
     width: 350,
+    [theme.breakpoints.down('md')]: {
+      width: "100%",
+    },
   },
   fullWidth: {
     width:"100%",
@@ -41,7 +44,7 @@ class MuiTextField extends Component {
   }
 
   render() {
-    const { classes, select, children, label, multiLine, rows, fullWidth, disableUnderline, type, defaultValue, InputLabelProps } = this.props
+    const { classes, select, children, label, multiLine, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
 
     return <TextField
         select={select}
@@ -58,7 +61,6 @@ class MuiTextField extends Component {
           className: classes.cssLabel,
           ...InputLabelProps
         }}
-        disableUnderline={disableUnderline}
         classes={{input: classes.input}}
         className={classnames(
           classes.textField,

@@ -126,6 +126,7 @@ class CommentsListSection extends Component {
           comments={comments}
           highlightDate={this.state.highlightDate}
           post={post}
+          postPage
         />
         {!currentUser &&
           <div>

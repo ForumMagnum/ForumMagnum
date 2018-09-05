@@ -10,12 +10,12 @@ import { Components, registerComponent, withList, withCurrentUser, getFragment }
 import Messages from "../../lib/collections/messages/collection.js";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
+import Conversations from '../../lib/collections/conversations/collection.js';
 
 const styles = theme => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: theme.spacing.unit,
-    marginLeft: 2,
     marginBottom: theme.spacing.unit*1.5
   },
   editor: {
@@ -27,28 +27,29 @@ const styles = theme => ({
 
 class ConversationWrapper extends Component {
 
-  renderMessages(results, currentUser) {
+  renderMessages = () => {
+    const { results, currentUser, loading } = this.props
     if (results && results.length) {
       return (
         <div>
           {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
         </div>);
+    } else if (loading) {
+      return <Components.Loading/>
     } else {
-     return <div>There are no messages in  this conversation yet!</div>
+      return null
     }
   }
 
   render() {
 
-    const { results, currentUser, loading, conversation, classes } = this.props
+    const { results, currentUser, conversation, classes } = this.props
 
-    if (loading) {
-      return (<Components.Loading/>)
-    } else if (conversation) {
+    if (conversation) {
       return (
         <div>
           <Typography variant="display2" className={classes.conversationTitle}>
-            {!!conversation.title ? conversation.title : _.pluck(conversation.participants, 'username').join(', ')}
+            { Conversations.getTitle(conversation, currentUser)}
           </Typography>
           <Components.ConversationDetails conversation={conversation}/>
           {this.renderMessages(results, currentUser)}
@@ -67,7 +68,7 @@ class ConversationWrapper extends Component {
         </div>
       )
     } else {
-      return <div>No Conversation Selected</div>
+      return <Components.NoContent>No Conversation Selected</Components.NoContent>
     }
   }
 }

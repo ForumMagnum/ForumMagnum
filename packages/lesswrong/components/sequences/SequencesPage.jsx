@@ -4,11 +4,9 @@ import {
   withDocument,
   registerComponent,
   withCurrentUser,
-  getSetting
 } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
-import { Image } from 'cloudinary-react';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
@@ -55,24 +53,16 @@ class SequencesPage extends Component {
       const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
-      const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
       return (<div className="sequences-page">
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
             <NoSSR>
               <div className="sequences-image">
-                <Image
+                <Components.CloudinaryImage
                   publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-                  cloudName={cloudinaryCloudName}
-                  quality="auto"
-                  sizes="100vw"
-                  responsive={true}
                   width="auto"
                   height="380"
-                  dpr="auto"
-                  crop="fill"
-                  gravity="custom"
                 />
                 <div className="sequences-image-scrim-overlay"></div>
               </div>

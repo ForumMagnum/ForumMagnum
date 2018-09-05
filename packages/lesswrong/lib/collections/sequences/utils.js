@@ -9,13 +9,13 @@ Utils.getSequencePostLinks = (sequence, post) => {
       if (postIndex + 1 < currentChapter.posts.length) {
         nextPost = currentChapter.posts[postIndex + 1]
       } else if (chapterIndex + 1 < currentSequenceLength
-          && document.chapters[chapterIndex + 1].posts.length !== 0) {
-        nextPost = document.chapters[chapterIndex + 1].posts[0]
+          && sequence.chapters[chapterIndex + 1].posts.length !== 0) {
+        nextPost = sequence.chapters[chapterIndex + 1].posts[0]
       }
       if (postIndex > 0) {
         prevPost = currentChapter.posts[postIndex - 1]
       } else if (chapterIndex > 1) {
-        prevPost = document.chapters[chapterIndex - 1].posts[document.chapters[chapterIndex-1].length - 1]
+        prevPost = sequence.chapters[chapterIndex - 1].posts[sequence.chapters[chapterIndex-1].length - 1]
       }
     }
     return {nextPost: nextPost, prevPost: prevPost, currentChapter: currentChapter, postIndex: postIndex, chapterIndex: chapterIndex}
