@@ -10,7 +10,7 @@ import Users from 'meteor/vulcan:users';
 const viewDataDict = {
   'curated': {
     label: "Curated Posts",
-    description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
+    description: "Curated - Recent, high quality posts selected by the LessWrong moderation team.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"star",
     rssView: "curated-rss",
@@ -18,7 +18,8 @@ const viewDataDict = {
   },
   'frontpage': {
     label:'Frontpage Posts',
-    description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
+    categoryIcon:"supervisor_account",
+    description: "Posts meeting our frontpage guidelines: aim to explain, not to persuade. Avoid meta-discussion",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     includes: "(includes curated content and frontpage posts)",
     rssView: "frontpage-rss",
@@ -26,7 +27,7 @@ const viewDataDict = {
   },
   'community': {
     label: 'All Posts',
-    description: "Includes personal and meta blogposts\n (as well as curated and frontpage).",
+    description: "Includes personal and meta blogposts (as well as curated and frontpage).",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
     rssView: "community-rss",
@@ -56,19 +57,6 @@ const viewDataDict = {
 }
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
-
-const ChipStyle = {
-  display: "inline-block",
-  backgroundColor: "transparent",
-  fontSize: "16px",
-  fontStyle: "italic",
-  color: "rgba(0, 0, 0, .45)",
-  paddingLeft: "3px",
-  paddingRight: "0px",
-  lineHeight: "25px",
-  cursor: "pointer",
-  textDecoration: "none"
-}
 
 
 class PostsViews extends Component {
@@ -139,7 +127,7 @@ class PostsViews extends Component {
         {views.map(view => (
           <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
-            <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
+            <span className="view-chip" onClick={() => this.handleChange(view)}>
               <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                 {viewDataDict[view].label}
                 { this.renderMenu(viewDataDict[view], view)}
@@ -157,7 +145,7 @@ class PostsViews extends Component {
                   {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
                 )}
               >
-                <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
+                <span className="view-chip" onClick={() => this.handleChange(view)} >
                   <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                     {viewDataDict[view].label}
                     { this.renderMenu(viewDataDict[view])}
@@ -165,18 +153,18 @@ class PostsViews extends Component {
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div className="posts-view-button"><span style={ChipStyle} className="view-chip">
+            {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/meta">Meta { this.renderMenu(viewDataDict["meta"])}</Link>
+                <Link to="/meta">Meta</Link> { this.renderMenu(viewDataDict["meta"])}
               </Components.SectionSubtitle></span>
             </div>}
-            {!props.hideDaily && <span style={ChipStyle} className="view-chip">
+            {!props.hideDaily && <span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/daily">Daily { this.renderMenu(viewDataDict["daily"])}</Link>
+                <Link to="/daily">Daily</Link> { this.renderMenu(viewDataDict["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
-            <a style={ChipStyle} className="view-chip more"
+            <a className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
               { this.renderMenu(viewDataDict["more"])}

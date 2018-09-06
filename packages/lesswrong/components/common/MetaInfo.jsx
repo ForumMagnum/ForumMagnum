@@ -8,7 +8,8 @@ const styles = (theme) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing.unit,
+    fontSize: "1rem"
   },
   button: {
     cursor: "pointer",
