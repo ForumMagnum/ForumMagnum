@@ -7,7 +7,11 @@ import React, { PureComponent } from 'react';
 
 const styles = theme => ({
   root: {
-    margin: theme.spacing.unit
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit*2
+  },
+  snippet: {
+    marginTop: theme.spacing.unit
   }
 })
 
@@ -16,18 +20,21 @@ const isLeftClick = (event) => {
 }
 
 const CommentsSearchHit = ({hit, clickAction, classes}) => {
-  return <Link to={"/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id} onClick={(event) => isLeftClick(event) && clickAction()} className={classes.root}>
-    <div>
-      <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
-      <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>
-      <Components.MetaInfo>
-        {moment(new Date(hit.postedAt)).fromNow()}
-      </Components.MetaInfo>
-    </div>
-    <div>
-      <Snippet attributeName="body" hit={hit} tagName="mark" />
-    </div>
-  </Link>
+  const url = "/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id
+  return <div className={classes.root}>
+    <Link to={url} onClick={(event) => isLeftClick(event) && clickAction()}>
+      <div>
+        <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
+        <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>
+        <Components.MetaInfo>
+          {moment(new Date(hit.postedAt)).fromNow()}
+        </Components.MetaInfo>
+      </div>
+      <div className={classes.snippet}>
+        <Snippet className={classes.snippet} attributeName="body" hit={hit} tagName="mark" />
+      </div>
+    </Link>
+  </div>
 }
 
 registerComponent("CommentsSearchHit", CommentsSearchHit, withStyles(styles));

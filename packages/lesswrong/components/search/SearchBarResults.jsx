@@ -59,7 +59,7 @@ class SearchBarResults extends Component {
                 <Components.SearchPagination />
               </div>
 
-              <Configure hitsPerPage={8} />
+              <Configure hitsPerPage={7} />
               <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={this.closeSearch} {...props} />} />
             </Index>
           </Grid>
