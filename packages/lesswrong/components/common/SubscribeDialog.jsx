@@ -266,14 +266,7 @@ class SubscribeDialog extends Component {
               ]
             ) : (
               <DialogContentText className={classes.errorMsg}>
-                <Components.ModalTrigger
-                  component={
-                    <a href="#">
-                      You must be logged in to subscribe via Email
-                    </a>
-                  }>
-                  <Components.AccountsLoginForm/>
-                </Components.ModalTrigger>
+                You need to <a href="/login">log in</a> to subscribe via Email
               </DialogContentText>
             )
           ] }
