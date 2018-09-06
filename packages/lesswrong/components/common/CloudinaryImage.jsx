@@ -21,11 +21,9 @@ const CloudinaryImage = (props, context) => {
   
   if(props.width) {
     cloudinaryProps.w = props.width;
-    imageStyle.width = props.width+"px";
   }
   if(props.height) {
     cloudinaryProps.h = props.height;
-    imageStyle.height = props.height+"px";
   }
   
   const imageUrl = `http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${props.publicId}`;
