@@ -37,6 +37,7 @@ const styles = theme => ({
       margin: '45px 0',
       ...theme.typography.display3,
       ...theme.typography.postStyle,
+      ...theme.typography.headerStyle,
       color: theme.palette.text.primary,
     },
     voteTop: {

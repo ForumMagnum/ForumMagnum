@@ -26,7 +26,7 @@ const styles = (theme) => ({
     },
   },
   sectionTitle: {
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
     [theme.breakpoints.down('sm')]: {
       borderTopWidth: BORDER_TOP_WIDTH,
       borderTopStyle: 'solid',

@@ -28,7 +28,7 @@ class EditorFormComponent extends Component {
     }
   }
 
-  async componentWillMount() {
+  async UNSAFE_componentWillMount() {
     const {default: Editor} = await import('../async/EditorFormContainer.jsx');
     this.setState({editor: Editor});
 

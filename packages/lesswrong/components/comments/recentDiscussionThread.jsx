@@ -106,7 +106,9 @@ class RecentDiscussionThread extends PureComponent {
     if (!loading && results && !results.length && post.commentCount != null) {
       return null
     }
+
     const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null})
+
     return (
       <div className="recent-discussion-thread-wrapper">
         <div className={classNames(classes.postItem)}>
@@ -126,7 +128,7 @@ class RecentDiscussionThread extends PureComponent {
               </Link>
             }
             <span className="recent-discussion-username">
-              <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
+              <Link to={ Users.getProfileUrl(post.user) }>{post.user && post.user.displayName}</Link>
             </span>
             {post.postedAt && !post.isEvent &&
               <span className="recent-discussion-thread-date">
@@ -190,6 +192,7 @@ class RecentDiscussionThread extends PureComponent {
                 <Components.CommentsNode
                   currentUser={currentUser}
                   comment={comment.item}
+                  //eslint-disable-next-line react/no-children-prop
                   children={comment.children}
                   key={comment.item._id}
                   editMutation={editMutation}
