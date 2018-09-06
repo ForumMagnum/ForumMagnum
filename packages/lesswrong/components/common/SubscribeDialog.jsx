@@ -146,6 +146,14 @@ class SubscribeDialog extends Component {
     if (view === "curated") return true;
     return false;
   }
+  
+  isAlreadySubscribed() {
+    if (this.state.view === "curated"
+        && this.props.currentUser
+        && this.props.currentUser.emailSubscribedToCurated)
+      return true;
+    return false;
+  }
 
   selectMethod(method) {
     this.setState({
@@ -277,11 +285,17 @@ class SubscribeDialog extends Component {
               <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
             </CopyToClipboard> }
           { method === "email" &&
-            <Button
-              color="primary"
-              onClick={ () => this.subscribeByEmail() }
-              disabled={!this.emailFeedExists(view) || subscribedByEmail || !currentUser}
-            >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button> }
+            (this.isAlreadySubscribed()
+              ? <Button color="primary" disabled={true}>
+                  You are already subscribed to this feed.
+                </Button>
+              : <Button
+                  color="primary"
+                  onClick={ () => this.subscribeByEmail() }
+                  disabled={!this.emailFeedExists(view) || subscribedByEmail || !currentUser}
+                >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button>
+            )
+          }
           <Button onClick={onClose}>Close</Button>
         </DialogActions>
       </Dialog>
