@@ -89,6 +89,9 @@ class SubscribeDialog extends Component {
       copiedRSSLink: false,
       subscribedByEmail: false
     };
+    
+    if(this.props.method === "email" && !this.emailFeedExists(this.props.view))
+      this.state.view = "curated";
   }
 
   rssTerms() {
@@ -139,8 +142,8 @@ class SubscribeDialog extends Component {
     return this.props.currentUser && this.props.currentUser.email
   }
 
-  emailFeedExists() {
-    if (this.state.view === "curated") return true;
+  emailFeedExists(view) {
+    if (view === "curated") return true;
     return false;
   }
 
@@ -182,9 +185,9 @@ class SubscribeDialog extends Component {
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         <MenuItem value="curated">Curated</MenuItem>
-        <MenuItem value="frontpage">Frontpage</MenuItem>
-        <MenuItem value="community">All Posts</MenuItem>
-        <MenuItem value="meta">Meta</MenuItem>
+        <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
+        <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
+        <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>
       </Select>
     </FormControl>
 
@@ -244,7 +247,7 @@ class SubscribeDialog extends Component {
             viewSelector,
             !!currentUser ? (
               [
-                !this.emailFeedExists() && <DialogContentText className={classes.errorMsg}>
+                !this.emailFeedExists(view) && <DialogContentText className={classes.errorMsg}>
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
                 subscribedByEmail && !Users.emailAddressIsVerified(currentUser) && <DialogContentText className={classes.infoMsg}>
@@ -277,7 +280,7 @@ class SubscribeDialog extends Component {
             <Button
               color="primary"
               onClick={ () => this.subscribeByEmail() }
-              disabled={!this.emailFeedExists() || subscribedByEmail || !currentUser}
+              disabled={!this.emailFeedExists(view) || subscribedByEmail || !currentUser}
             >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button> }
           <Button onClick={onClose}>Close</Button>
         </DialogActions>
