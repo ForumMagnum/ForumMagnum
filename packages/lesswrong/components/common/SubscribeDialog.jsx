@@ -233,6 +233,7 @@ class SubscribeDialog extends Component {
                       control={<Radio />}
                       label={threshold}
                       value={threshold}
+                      key={`labelKarmaThreshold${threshold}`}
                       className={classes.thresholdButton} />
                 ) }
               </RadioGroup>
@@ -247,6 +248,7 @@ class SubscribeDialog extends Component {
               onFocus={this.autoselectRSSLink}
               onClick={this.autoselectRSSLink}
               value={rssTermsToUrl(this.rssTerms())}
+              key="rssLinkTextField"
               readOnly
               fullWidth />
           ] }
