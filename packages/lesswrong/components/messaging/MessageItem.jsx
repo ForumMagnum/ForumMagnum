@@ -16,7 +16,7 @@ import moment from 'moment';
 
 const styles = theme => ({
   message: {
-    backgroundColor: grey[100],
+    backgroundColor: grey[200],
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -25,7 +25,7 @@ const styles = theme => ({
     marginBottom:theme.spacing.unit*1.5,
   },
   backgroundIsCurrent: {
-    backgroundColor: grey[600],
+    backgroundColor: grey[700],
     color: "white",
     marginLeft:theme.spacing.unit*1.5,
   },
