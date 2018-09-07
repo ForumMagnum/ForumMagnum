@@ -57,7 +57,7 @@ const theme = createLWTheme({
       linkUnderlinePosition: "72%",
     },
     body2: {
-      fontSize: "1.2rem"
+      fontSize: "1.16rem"
     },
     commentStyle: {
       fontFamily: sansSerifStack
