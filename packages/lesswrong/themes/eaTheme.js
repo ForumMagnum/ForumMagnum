@@ -50,7 +50,8 @@ const theme = createLWTheme({
     ],
     fontFamily: sansSerifStack,
     body1: {
-      ...basicText
+      ...basicText,
+      fontFamily: serifStack,
     },
     body2: {
       ...basicText,
@@ -69,20 +70,23 @@ const theme = createLWTheme({
     headline: {
       fontFamily: serifStack,
     },
+    subheading: {
+      fontFamily: sansSerifStack
+    },
     title: {
       color: grey[800],
       fontFamily: sansSerifStack,
-      fontWeight: 700,
+      fontWeight: 500,
     },
     display2: {
       color: grey[800],
       fontFamily: sansSerifStack,
-      fontWeight: 700
+      fontWeight: 500
     },
     display3: {
       color: grey[800],
       fontFamily: sansSerifStack,
-      fontWeight: 700
+      fontWeight: 500
     }
   },
   overrides: {

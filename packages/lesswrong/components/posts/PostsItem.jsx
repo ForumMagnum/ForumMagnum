@@ -240,7 +240,7 @@ class PostsItem extends PureComponent {
       (this.state.showNewComments || this.state.showHighlight)
       ? classes.paperExpanded
       : classes.paperNotExpanded
-    
+
     return (
         <Paper
           className={classNames(postClass, paperStyle)}
@@ -254,38 +254,41 @@ class PostsItem extends PureComponent {
               <Link to={this.getPostLink()}>
                 <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
               </Link>
-              <div className="posts-item-meta" onClick={this.toggleHighlight}>
-                {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
-                {post.user && <div className="posts-item-user">
-                  <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
-                </div>}
-                {this.renderPostFeeds()}
-                {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
-                <div className="posts-item-points">
-                  { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
-                </div>
-                {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
-                {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
-                {this.renderEventDetails()}
-                <div className="posts-item-show-highlight-button">
-                  {currentUser && currentUser.isAdmin &&
-                    <Components.PostsStats post={post} />
-                  }
-                  { this.state.showHighlight ?
+              <div onClick={this.toggleHighlight}>
+                <Components.MetaInfo className="posts-item-meta">
+
+                  {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
+                  {post.user && <div className="posts-item-user">
+                    <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
+                  </div>}
+                  {this.renderPostFeeds()}
+                  {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
+                  <div className="posts-item-points">
+                    { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
+                  </div>
+                  {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
+                  {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
+                  {this.renderEventDetails()}
+                  <div className="posts-item-show-highlight-button">
+                    {currentUser && currentUser.isAdmin &&
+                      <Components.PostsStats post={post} />
+                    }
+                    { this.state.showHighlight ?
+                      <span>
+                        Hide Highlight
+                        <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                          subdirectory_arrow_left
+                        </FontIcon>
+                      </span>
+                    :
                     <span>
-                      Hide Highlight
-                      <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                      Show Highlight
+                      <FontIcon className={classNames("material-icons","show-highlight-button")}>
                         subdirectory_arrow_left
                       </FontIcon>
-                    </span>
-                  :
-                  <span>
-                    Show Highlight
-                    <FontIcon className={classNames("material-icons","show-highlight-button")}>
-                      subdirectory_arrow_left
-                    </FontIcon>
-                  </span>  }
-                </div>
+                    </span>  }
+                  </div>
+                </Components.MetaInfo>
               </div>
             </div>
             <div className="post-category-display-container" onClick={this.toggleHighlight}>

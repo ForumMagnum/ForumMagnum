@@ -17,22 +17,25 @@ const CloudinaryImage = (props, context) => {
     g: "custom",
     q: "auto",
   };
-  let imageStyle = {};
   
+  let sizeProps = {};
   if(props.width) {
     cloudinaryProps.w = props.width;
-    imageStyle.width = props.width+"px";
+    if(parseInt(props.width))
+      sizeProps.width = props.width+"px";
   }
   if(props.height) {
     cloudinaryProps.h = props.height;
-    imageStyle.height = props.height+"px";
+    if(parseInt(props.height))
+      sizeProps.height = props.height+"px";
   }
   
   const imageUrl = `http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${props.publicId}`;
   
   return <img
+    sizes="100vw"
     src={imageUrl}
-    style={imageStyle}
+    {...sizeProps}
   />
 };
 
