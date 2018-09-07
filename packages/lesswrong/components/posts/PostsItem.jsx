@@ -254,7 +254,8 @@ class PostsItem extends PureComponent {
               <Link to={this.getPostLink()}>
                 <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
               </Link>
-                <Components.MetaInfo className="posts-item-meta" onClick={this.toggleHighlight}>
+              <div onClick={this.toggleHighlight}>
+                <Components.MetaInfo className="posts-item-meta">
 
                   {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
                   {post.user && <div className="posts-item-user">
@@ -287,7 +288,8 @@ class PostsItem extends PureComponent {
                       </FontIcon>
                     </span>  }
                   </div>
-              </Components.MetaInfo>
+                </Components.MetaInfo>
+              </div>
             </div>
             <div className="post-category-display-container" onClick={this.toggleHighlight}>
               <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>

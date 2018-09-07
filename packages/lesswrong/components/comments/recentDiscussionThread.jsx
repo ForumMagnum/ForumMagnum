@@ -181,7 +181,7 @@ class RecentDiscussionThread extends PureComponent {
           </div>
           : <div className={highlightClasses} onClick={() => { this.showExcerpt() }}>
               { this.renderLinkPost() }
-              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <div className="post-highlight excerpt" dangerouslySetInnerHTML={{__html: post.excerpt}}/>}
+              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <div className={classNames(classes.postBody, "post-highlight", "excerpt")}  dangerouslySetInnerHTML={{__html: post.excerpt}}/>}
             </div>
         }
         <div className="recent-discussion-thread-comment-list">

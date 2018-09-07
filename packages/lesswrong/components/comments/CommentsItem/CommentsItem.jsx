@@ -122,14 +122,15 @@ class CommentsItem extends Component {
   }
 
   renderExcerpt() {
-    const { comment } = this.props
+    const { comment, classes } = this.props
 
     if (comment.body) {
       let commentExcerpt = comment.body.substring(0,300).split("\n\n");
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className="recent-comments-item-text comments-item-text content-body">
+      return <div className={classNames(classes.commentStyling, "recent-comments-item-text",
+      "comments-item-text", "content-body")}>
         {commentExcerpt}
         <p>{lastElement + "..."}
           <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
@@ -146,7 +147,7 @@ class CommentsItem extends Component {
 
     const commentBody = this.props.collapsed ? "" : (
       <div>
-        {this.state.showEdit ? this.renderEdit() : this.renderComment()}
+        {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
         {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
@@ -382,17 +383,6 @@ class CommentsItem extends Component {
         />
       )
     }
-  }
-
-  renderComment = () =>  {
-    const { comment, classes } = this.props;
-    const htmlBody = {__html: comment.htmlBody};
-    return (
-      <div className={classes.commentStyling}>
-        {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
-        {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
-      </div>
-    )
   }
 
   renderReply = () => {
