@@ -118,11 +118,12 @@
       font-weight:300;
       line-height:18px;
       font-size:12px;
-      white-space: pre;
-      // font-family:$comments-font;
       padding:10px 0;
       z-index:1;
     }
+  }
+  .view-chip.daily {
+    display:block;
   }
   .view-chip:hover .view-chip-menu-wrapper, .view-chip-menu-wrapper:hover {
     display:block;

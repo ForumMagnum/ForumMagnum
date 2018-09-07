@@ -49,8 +49,7 @@ const styles = (theme) => ({
   },
   sectionTitleTop: {
     [theme.breakpoints.up('md')]: {
-      paddingBottom: theme.spacing.unit,
-      marginBottom: theme.spacing.unit
+      marginBottom: theme.spacing.unit*3
     }
   },
   // left to provide overrides

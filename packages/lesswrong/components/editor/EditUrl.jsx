@@ -6,6 +6,9 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 
 const styles = theme => ({
+  root: {
+    marginRight: theme.spacing.unit
+  },
   input: {
     marginLeft: 5,
     display: 'inline-block',
@@ -37,7 +40,7 @@ class EditUrl extends Component {
 
   render() {
     const active = this.state.active
-    
+
     // Pass properties other than `classes` (which is created by `withStyles`)
     // through to `Components.MuiTextField`. (If we passed through `classes`,
     // it would clash with the one that `MuiTextField`'s own `withStyles` would
