@@ -65,6 +65,7 @@ class SequencesPage extends Component {
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
 
       return (<div className="sequences-page">
+        <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
             <NoSSR>
