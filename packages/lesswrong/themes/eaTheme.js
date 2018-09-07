@@ -1,6 +1,7 @@
 import createLWTheme from './createThemeDefaults.js';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
+import { createMuiTheme } from '@material-ui/core/styles';
 
 const sansSerifStack = [
   'Raleway',
@@ -41,6 +42,8 @@ const basicText = {
   fontFamily: serifStack
 }
 
+const defaultTheme = createMuiTheme()
+
 const theme = createLWTheme({
   palette,
   typography: {
@@ -51,6 +54,7 @@ const theme = createLWTheme({
     fontFamily: sansSerifStack,
     body1: {
       ...basicText,
+      fontSize: "1.2rem",
       fontFamily: serifStack,
     },
     body2: {
@@ -59,7 +63,7 @@ const theme = createLWTheme({
     },
     postStyle: {
       ...basicText,
-      linkUnderlinePosition: "72%",
+      linkUnderlinePosition: "92%",
     },
     headerStyle: {
       fontFamily: sansSerifStack
@@ -77,6 +81,7 @@ const theme = createLWTheme({
       color: grey[800],
       fontFamily: sansSerifStack,
       fontWeight: 500,
+      marginBottom: 5,
     },
     display2: {
       color: grey[800],
@@ -92,8 +97,44 @@ const theme = createLWTheme({
   overrides: {
     MuiAppBar: {
       colorDefault: {
-        backgroundColor: grey[50],
+        backgroundColor: "white",
       }
+    },
+    Header: {
+      appBar: {
+        padding: "1em"
+      }
+    },
+    MetaInfo: {
+      root: {
+        fontSize: ".9rem"
+      }
+    },
+    PostsVote: {
+      voteScore: {
+        paddingTop:4,
+        paddingBottom:2,
+        paddingLeft:1,
+        paddingRight:0,
+        fontSize: '50%',
+      },
+    },
+    Section: {
+      sectionTitle: {
+        [defaultTheme.breakpoints.down('sm')]: {
+          border: "none",
+          paddingTop:0,
+        },
+        [defaultTheme.breakpoints.up('md')]: {
+          top: 0,
+          '&:before': "none"
+        }
+      },
+      sectionTitleTop: {
+        [defaultTheme.breakpoints.up('md')]: {
+          marginBottom: 16
+        }
+      },
     },
   }
 });
