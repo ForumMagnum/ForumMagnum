@@ -94,7 +94,7 @@ class SearchBar extends Component {
           <div className={"search-bar " + inputOpenClass}>
             <div onClick={this.handleSearchTap}>
               <FontIcon className="material-icons" style={searchIconStyle}>search</FontIcon>
-              <SearchBox resetComponent={() => <div className="search-box-reset"></div>} focusShortcuts={[]} />
+              <SearchBox focusShortcuts={[]} />
             </div>
             <div className="search-bar-close" onClick={this.closeSearch}>
               <FontIcon className="material-icons" style={closeIconStyle}>close</FontIcon>
