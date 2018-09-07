@@ -23,7 +23,6 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
   renderRecentComment() {
     const comment = this.props.comment || this.props.document
-    const htmlBody = {__html: comment.htmlBody};
     const plaintext = comment.body;
 
     const expanded = !(!this.state.expanded && plaintext && plaintext.length > 300) || this.props.expanded
@@ -40,7 +39,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     } else {
       return (
         <div className="recent-comments-item-text comments-item-text content-body" >
-          {htmlBody && <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
+          <Components.CommentBody comment={comment}/>
         </div>
       )
     }
