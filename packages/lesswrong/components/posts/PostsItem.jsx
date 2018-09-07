@@ -245,6 +245,7 @@ class PostsItem extends PureComponent {
         <Paper
           className={classNames(postClass, paperStyle)}
           elevation={0}
+          square={true}
         >
           <div
             className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
