@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 
 const styles = theme => ({
   commentStyling: {
-    marginTop: ".5em",
     ...commentBodyStyles(theme)
   }
 })
