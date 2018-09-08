@@ -1,10 +1,17 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
+import { withStyles } from '@material-ui/core/styles';
 
-const UsersAutoCompleteHit = ({document, removeItem }) => {
+const styles = theme => ({
+  root: {
+    cursor: "pointer"
+  }
+});
+
+const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
   if (document) {
-    return <div>
+    return <div className={classes.root}>
       <Components.MetaInfo>
         {document.displayName}
       </Components.MetaInfo>
@@ -19,4 +26,4 @@ const UsersAutoCompleteHit = ({document, removeItem }) => {
     return <Components.Loading />
   }
 };
-registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit);
+registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, withStyles(styles));
