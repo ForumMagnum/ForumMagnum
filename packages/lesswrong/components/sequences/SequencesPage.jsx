@@ -101,7 +101,9 @@ class SequencesPage extends Component {
             {canEdit ? <a onClick={this.showEdit}>edit</a> : null}
           </div>}>
           <div className="sequences-description content-body">
-            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
+            <Typography variant="body2">
+              {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
+            </Typography>
           </div>
         </Components.Section>
         <div className="sequences-chapters">
