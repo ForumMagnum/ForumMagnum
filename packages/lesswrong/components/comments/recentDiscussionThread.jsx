@@ -100,10 +100,17 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, results, loading, editMutation, currentUser, classes } = this.props
+    const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
     const nestedComments = unflattenComments(results);
 
-    if (!loading && results && !results.length && post.commentCount != null) {
+    // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
+    if (loading && postCount === 0) {
+      return  <Loading />
+    } else if (loading && postCount !== 0) {
+      return null
+    } else if (results && !results.length && post.commentCount != null) {
+      // New posts should render (to display their highlight).
+      // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
       return null
     }
 
@@ -185,7 +192,6 @@ class RecentDiscussionThread extends PureComponent {
             </div>
         }
         <div className="recent-discussion-thread-comment-list">
-          {loading || !results ? <Loading /> :
           <div className={"comments-items"}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
@@ -201,7 +207,7 @@ class RecentDiscussionThread extends PureComponent {
                 />
               </div>
             )}
-          </div>}
+          </div>
         </div>
       </div>
     )
