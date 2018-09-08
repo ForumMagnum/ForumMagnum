@@ -3,7 +3,7 @@ import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import { createMuiTheme } from '@material-ui/core/styles';
 
-const sansSerifStack = [
+const titleStack = [
   'Raleway',
   'Helvetica Neue',
   'Helvetica',
@@ -17,6 +17,16 @@ const serifStack = [
   'Libre Baskerville',
   'Georgia',
   'serif'
+].join(',')
+
+
+const sansSerifStack = [
+  'Merriweather Sans',
+  'Lato',
+  'Helvetica Neue',
+  'Helvetica',
+  'Arial',
+  'sans-serif'
 ].join(',')
 
 const palette = {
@@ -37,7 +47,7 @@ const palette = {
 const basicText = {
   color: grey[800],
   // use ems (not rems) to preserve relative height even if font-size is changed
-  lineHeight: '1.618em',
+  lineHeight: '1.75em',
   fontWeight: 500,
   fontFamily: serifStack
 }
@@ -48,8 +58,10 @@ const theme = createLWTheme({
   palette,
   typography: {
     fontDownloads: [
-      "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700",
+      "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
       "https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700",
+      "https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700",
+      "https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,500,600,700",
     ],
     fontFamily: sansSerifStack,
     body1: {
@@ -58,39 +70,39 @@ const theme = createLWTheme({
       fontFamily: serifStack,
     },
     body2: {
-      ...basicText,
-      fontSize: "1rem"
+      fontSize: "1.1rem",
+      lineHeight: "1.5em"
     },
     postStyle: {
       ...basicText,
       linkUnderlinePosition: "92%",
     },
     headerStyle: {
-      fontFamily: sansSerifStack
+      fontFamily: titleStack
     },
     commentStyle: {
-      fontFamily: sansSerifStack
+      fontFamily: sansSerifStack,
     },
     headline: {
       fontFamily: serifStack,
     },
     subheading: {
-      fontFamily: sansSerifStack
+      fontFamily: titleStack
     },
     title: {
       color: grey[800],
-      fontFamily: sansSerifStack,
+      fontFamily: titleStack,
       fontWeight: 500,
       marginBottom: 5,
     },
     display2: {
       color: grey[800],
-      fontFamily: sansSerifStack,
-      fontWeight: 500
+      fontFamily: titleStack,
+      fontWeight: 600
     },
     display3: {
       color: grey[800],
-      fontFamily: sansSerifStack,
+      fontFamily: titleStack,
       fontWeight: 500
     }
   },
@@ -107,7 +119,7 @@ const theme = createLWTheme({
     },
     MetaInfo: {
       root: {
-        fontSize: ".9rem"
+        fontFamily: sansSerifStack
       }
     },
     PostsVote: {
@@ -121,6 +133,7 @@ const theme = createLWTheme({
     },
     Section: {
       sectionTitle: {
+        fontWeight:600,
         [defaultTheme.breakpoints.down('sm')]: {
           border: "none",
           paddingTop:0,

@@ -78,7 +78,7 @@ const createLWTheme = (theme) => {
       },
       display2: {
         color: grey[800],
-        fontSize: '2rem',
+        fontSize: '2.8rem',
         marginTop: '1em'
       },
       display3: {

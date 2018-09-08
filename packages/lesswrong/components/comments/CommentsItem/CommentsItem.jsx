@@ -38,8 +38,12 @@ const moreActionsMenuIconStyle = {
 
 const styles = theme => ({
   commentStyling: {
-    marginTop: ".5em",
     ...commentBodyStyles(theme)
+  },
+  author: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    fontWeight: 600,
   },
   postTitle: {
     marginRight: 5,
@@ -129,8 +133,7 @@ class CommentsItem extends Component {
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className={classNames(classes.commentStyling, "recent-comments-item-text",
-      "comments-item-text", "content-body")}>
+      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)}>
         {commentExcerpt}
         <p>{lastElement + "..."}
           <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
@@ -193,7 +196,7 @@ class CommentsItem extends Component {
               }
               { comment.deleted || comment.hideAuthor || !comment.user ?
                 ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                <span> <Components.UsersName user={comment.user}/> </span>
+                <span className={classes.author}> <Components.UsersName user={comment.user}/> </span>
               }
               <div className="comments-item-date">
                 { !postPage ?

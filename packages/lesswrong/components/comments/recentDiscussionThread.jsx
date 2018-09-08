@@ -118,48 +118,50 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
-            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
-              <span title="Unread" className="posts-item-unread-dot">•</span>
-            }
-            {Posts.options.mutations.edit.check(currentUser, post) &&
-              <Link className="recent-discussion-edit"
-                to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-                Edit
-              </Link>
-            }
-            <span className="recent-discussion-username">
-              <Link to={ Users.getProfileUrl(post.user) }>{post.user && post.user.displayName}</Link>
-            </span>
-            {post.postedAt && !post.isEvent &&
-              <span className="recent-discussion-thread-date">
-                {moment(new Date(post.postedAt)).fromNow()}
+            <Components.MetaInfo>
+              {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
+                <span title="Unread" className="posts-item-unread-dot">•</span>
+              }
+              {Posts.options.mutations.edit.check(currentUser, post) &&
+                <Link className="recent-discussion-edit"
+                  to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+                  Edit
+                </Link>
+              }
+              <span className="recent-discussion-username">
+                <Link to={ Users.getProfileUrl(post.user) }>{post.user && post.user.displayName}</Link>
               </span>
-            }
-            <span className="posts-item-points">
-              { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
-            </span>
-            {post.wordCount && !post.isEvent &&
-              <span className="recent-discussion-thread-readtime">
-                {parseInt(post.wordCount/300) || 1 } min read
+              {post.postedAt && !post.isEvent &&
+                <span className="recent-discussion-thread-date">
+                  {moment(new Date(post.postedAt)).fromNow()}
+                </span>
+              }
+              <span className="posts-item-points">
+                { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
               </span>
-            }
-            <span className="recent-discussion-show-highlight">
+              {post.wordCount && !post.isEvent &&
+                <span className="recent-discussion-thread-readtime">
+                  {parseInt(post.wordCount/300) || 1 } min read
+                </span>
+              }
+              <span className="recent-discussion-show-highlight">
 
-              { this.state.showExcerpt ?
+                { this.state.showExcerpt ?
+                  <span>
+                    Hide Highlight
+                    <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                      subdirectory_arrow_left
+                    </FontIcon>
+                  </span>
+                :
                 <span>
-                  Hide Highlight
-                  <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                  Show Highlight
+                  <FontIcon className={classNames("material-icons","show-highlight-button")}>
                     subdirectory_arrow_left
                   </FontIcon>
-                </span>
-              :
-              <span>
-                Show Highlight
-                <FontIcon className={classNames("material-icons","show-highlight-button")}>
-                  subdirectory_arrow_left
-                </FontIcon>
-              </span>  }
-            </span>
+                </span>  }
+              </span>
+            </Components.MetaInfo>
           </div>
         </div>
 
