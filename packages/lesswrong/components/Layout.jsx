@@ -66,7 +66,7 @@ const Layout = ({currentUser, children, currentRoute, location, params, client, 
     
     const routeName = currentRoute.name
     const query = location && location.query
-    const { subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
+    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
 
