@@ -57,7 +57,6 @@ const styles = (theme) => ({
     maxWidth: 715
   },
   subscribeWidget: {
-    marginBottom: -3 * theme.spacing.unit
   },
   [theme.breakpoints.down('md')]: {
     heading: {
