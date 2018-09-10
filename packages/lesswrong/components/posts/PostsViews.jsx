@@ -107,20 +107,12 @@ class PostsViews extends Component {
             ))}
             {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-<<<<<<< HEAD
-                <Link to="/meta">Meta { this.renderMenu(postViewSections["meta"])}</Link>
-=======
-                <Link to="/meta">Meta</Link> { this.renderMenu(viewDataDict["meta"])}
->>>>>>> 3f643190afeeacaa12a0b3aa539eb49e1b797362
+                <Link to="/meta">Meta</Link> { this.renderMenu(postViewSections["meta"])}
               </Components.SectionSubtitle></span>
             </div>}
             {!props.hideDaily && <span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-<<<<<<< HEAD
-                <Link to="/daily">Daily { this.renderMenu(postViewSections["daily"])}</Link>
-=======
-                <Link to="/daily">Daily</Link> { this.renderMenu(viewDataDict["daily"])}
->>>>>>> 3f643190afeeacaa12a0b3aa539eb49e1b797362
+                <Link to="/daily">Daily</Link> { this.renderMenu(postViewSections["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
