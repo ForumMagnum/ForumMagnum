@@ -43,16 +43,21 @@ const CloudinaryImage = (props, context) => {
 const CloudinaryImage = (props, context) => {
   const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
   
+  let sizeProps = {};
+  if (props.width)
+    sizeProps.width = props.width;
+  if (props.height)
+    sizeProps.height = props.height;
+  
   return <Image
     publicId={props.publicId}
     cloudName={cloudinaryCloudName}
     quality="auto"
     responsive={true}
-    width={props.width || "auto"}
-    height={props.height || "auto"}
     dpr="auto"
     crop="fill"
     gravity="custom"
+    {...sizeProps}
   />
 };
 
