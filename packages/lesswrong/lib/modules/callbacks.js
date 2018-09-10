@@ -64,7 +64,7 @@ const createNotifications = (userIds, notificationType, documentType, documentId
   });
 }
 
-const sendEmailPostNotifications = async (users, notificationType, postId) => {
+const sendPostByEmail = async (users, postId) => {
   let post = Posts.findOne(postId);
   
   let email = await VulcanEmail.build({
@@ -250,7 +250,7 @@ addCallback("posts.new.async", postsNewNotifications);
 function findUsersToEmail(filter) {
   let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
   
-  let usersToNotify = usersMatchingFilter.filter(u => {
+  let usersToEmail = usersMatchingFilter.filter(u => {
     let primaryAddress = u.email;
     for(let i=0; i<u.emails.length; i++)
     {
@@ -259,13 +259,13 @@ function findUsersToEmail(filter) {
     }
     return false;
   });
-  return usersToNotify
+  return usersToEmail
 }
 
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
-    let usersToNotify = findUsersToEmail({'emailSubscribedToCurated': true});
-    sendEmailPostNotifications(usersToNotify, "curated", post._id);
+    let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
+    sendPostByEmail(usersToEmail, post._id);
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);
