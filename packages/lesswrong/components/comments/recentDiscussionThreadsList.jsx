@@ -21,10 +21,11 @@ const RecentDiscussionThreadsList = ({
       <div className="discussion-thread-list">
         {loading || !results ? <Loading /> :
         <div className="discussion-threads">
-          {results.map(post =>
+          {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
+              postCount={i}
               terms={{view:threadView, postId:post._id}}
               currentUser={currentUser}
               editMutation={editMutation}/>

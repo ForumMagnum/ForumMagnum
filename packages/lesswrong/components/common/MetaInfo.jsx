@@ -8,7 +8,8 @@ const styles = (theme) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing.unit,
+    fontSize: "1rem"
   },
   button: {
     cursor: "pointer",
@@ -21,9 +22,11 @@ const styles = (theme) => ({
 const MetaInfo = ({children, classes, button, className}) => {
   return <Typography
     component='span'
-    variant='body2'
-    className={classNames(classes.root, {[classes.button]: button}, className)}>
-    {children}
+    variant='body2'>
+    <span className={classNames(classes.root, {[classes.button]: button}, className)}>
+      {children}
+
+    </span>
   </Typography>
 }
 

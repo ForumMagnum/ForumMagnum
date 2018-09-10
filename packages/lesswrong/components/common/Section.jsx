@@ -48,8 +48,7 @@ const styles = (theme) => ({
   },
   sectionTitleTop: {
     [theme.breakpoints.up('md')]: {
-      paddingBottom: theme.spacing.unit,
-      marginBottom: theme.spacing.unit
+      marginBottom: theme.spacing.unit*3
     }
   },
   // left to provide overrides
@@ -87,7 +86,7 @@ const Section = ({
       <Grid container className={classes.section} spacing={24}>
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>
-            <Typography variant="display2" className={classes.sectionTitle}>
+            <Typography variant="display1" className={classes.sectionTitle}>
               {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
               { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
                 {subscribeLinks}

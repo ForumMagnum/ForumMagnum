@@ -11,19 +11,6 @@ import postViewSections from '../../lib/sections.js'
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
 
-const ChipStyle = {
-  display: "inline-block",
-  backgroundColor: "transparent",
-  fontSize: "16px",
-  fontStyle: "italic",
-  color: "rgba(0, 0, 0, .45)",
-  paddingLeft: "3px",
-  paddingRight: "0px",
-  lineHeight: "25px",
-  cursor: "pointer",
-  textDecoration: "none"
-}
-
 
 class PostsViews extends Component {
   constructor(props) {
@@ -92,7 +79,7 @@ class PostsViews extends Component {
         {views.map(view => (
           <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
-            <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
+            <span className="view-chip" onClick={() => this.handleChange(view)}>
               <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                 {postViewSections[view].label}
                 { this.renderMenu(postViewSections[view], view)}
@@ -110,7 +97,7 @@ class PostsViews extends Component {
                   {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
                 )}
               >
-                <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
+                <span className="view-chip" onClick={() => this.handleChange(view)} >
                   <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
                     {postViewSections[view].label}
                     { this.renderMenu(postViewSections[view])}
@@ -118,18 +105,26 @@ class PostsViews extends Component {
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div className="posts-view-button"><span style={ChipStyle} className="view-chip">
+            {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+<<<<<<< HEAD
                 <Link to="/meta">Meta { this.renderMenu(postViewSections["meta"])}</Link>
+=======
+                <Link to="/meta">Meta</Link> { this.renderMenu(viewDataDict["meta"])}
+>>>>>>> 3f643190afeeacaa12a0b3aa539eb49e1b797362
               </Components.SectionSubtitle></span>
             </div>}
-            {!props.hideDaily && <span style={ChipStyle} className="view-chip">
+            {!props.hideDaily && <span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+<<<<<<< HEAD
                 <Link to="/daily">Daily { this.renderMenu(postViewSections["daily"])}</Link>
+=======
+                <Link to="/daily">Daily</Link> { this.renderMenu(viewDataDict["daily"])}
+>>>>>>> 3f643190afeeacaa12a0b3aa539eb49e1b797362
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
-            <a style={ChipStyle} className="view-chip more"
+            <a className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
               { this.renderMenu(postViewSections["more"])}

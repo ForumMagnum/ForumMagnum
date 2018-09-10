@@ -19,13 +19,22 @@ const schema = {
       return new Date();
     }
   },
+  title: {
+    type: String,
+    viewableBy: ['members'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    optional: true,
+    label: "Conversation Title"
+  },
   participantIds: {
     type: Array,
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: ['members'],
     optional: true,
-    hidden: true,
+    control: "UsersListEditor",
+    label: "Participants",
     resolveAs: {
       fieldName: 'participants',
       type: '[User]',
@@ -40,14 +49,6 @@ const schema = {
 
   'participantIds.$': {
     type: String,
-    optional: true,
-  },
-
-  title: {
-    type: String,
-    viewableBy: ['members'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
     optional: true,
   },
   latestActivity: {

@@ -2,7 +2,7 @@
 const postViewSections = {
   'curated': {
     label: "Curated Posts",
-    description: "Curated - Recent, high quality posts selected \nby the LessWrong moderation team.",
+    description: "Curated - Recent, high quality posts selected by the LessWrong moderation team.",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"star",
     rssView: "curated-rss",
@@ -10,7 +10,8 @@ const postViewSections = {
   },
   'frontpage': {
     label:'Frontpage Posts',
-    description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the LessWrong community.",
+    categoryIcon:"supervisor_account",
+    description: "Posts meeting our frontpage guidelines: aim to explain, not to persuade. Avoid meta-discussion",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     includes: "(includes curated content and frontpage posts)",
     rssView: "frontpage-rss",
@@ -18,7 +19,7 @@ const postViewSections = {
   },
   'community': {
     label: 'All Posts',
-    description: "Includes personal and meta blogposts\n (as well as curated and frontpage).",
+    description: "Includes personal and meta blogposts (as well as curated and frontpage).",
     learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
     categoryIcon:"person",
     rssView: "community-rss",
