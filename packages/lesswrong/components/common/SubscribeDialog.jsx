@@ -117,14 +117,10 @@ class SubscribeDialog extends Component {
     let mutation = { emailSubscribedToCurated: true }
 
     if (!Users.emailAddressIsVerified(this.props.currentUser)) {
-      // Updating whenConfirmationEmailSent sets off a trigger
-      // which causes the email to actually be sent.
-      //
-      // We combine these into one editMutation call to work
-      // around a bug in Vulcan's callbacks, where a pair
-      // of edits a->b->c will trigger two callbacks that
-      // say the edit was a->c, resulting in two confirmation
-      // emails sent at once.
+      // Combine mutations into a single editMutation call.
+      // (This reduces the number of server-side callback
+      // invocations. In a past version this worked around
+      // a bug, now it's just a performance optimization.)
       mutation.whenConfirmationEmailSent = new Date();
     }
 
