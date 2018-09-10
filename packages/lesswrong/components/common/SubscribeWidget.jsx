@@ -6,7 +6,8 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   buttons: {
-    display: "inline"
+    display: "inline",
+    marginTop: "8px",
   },
   subscribeButton: {
     position: "relative",
