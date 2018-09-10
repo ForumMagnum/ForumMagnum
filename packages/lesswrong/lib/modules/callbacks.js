@@ -247,9 +247,24 @@ function postsNewNotifications (post) {
 }
 addCallback("posts.new.async", postsNewNotifications);
 
+function findUsersToEmail(filter) {
+  let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
+  
+  let usersToNotify = usersMatchingFilter.filter(u => {
+    let primaryAddress = u.email;
+    for(let i=0; i<u.emails.length; i++)
+    {
+      if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+        return true;
+    }
+    return false;
+  });
+  return usersToNotify
+}
+
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
-    let usersToNotify = Users.find({'emailSubscribedToCurated': true}, {fields: {_id:1, email:1}}).fetch();
+    let usersToNotify = findUsersToEmail({'emailSubscribedToCurated': true});
     sendEmailPostNotifications(usersToNotify, "curated", post._id);
   }
 }
