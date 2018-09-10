@@ -29,17 +29,17 @@ const styles = theme => ({
   }
 });
 
+const defaultSubscribeLabel = "Subscribe";
+
 class SubscribeWidget extends Component {
   constructor(props) {
     super(props);
     this.state = {
       dialogOpen: false,
       method: "",
-      subscribeLabel: this.getDefaultSubscribeLabel()
+      subscribeLabel: defaultSubscribeLabel
     };
   }
-
-  getDefaultSubscribeLabel = () => "Subscribe"
 
   openDialog(method) {
     this.setState({ dialogOpen: true, method });
@@ -54,7 +54,7 @@ class SubscribeWidget extends Component {
 
   resetSubscribeLabel() {
     this.setState({
-      subscribeLabel: this.getDefaultSubscribeLabel(),
+      subscribeLabel: defaultSubscribeLabel,
       subscribeLabelHighlighted: false
     });
   }
