@@ -107,7 +107,7 @@ const FormSubmit = ({
       type="submit"
       onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
       className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-      variant={collectionName=="users" ? "contained" : undefined}
+      variant={collectionName=="users" ? "outlined" : undefined}
     >
       Submit
     </Button>

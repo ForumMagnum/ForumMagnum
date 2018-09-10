@@ -6,7 +6,8 @@ import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.body2
+    ...theme.typography.body2,
+    marginLeft: theme.spacing.unit
   },
   verifyEmailButton: {
     marginTop: theme.spacing.unit
