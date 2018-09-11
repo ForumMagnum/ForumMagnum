@@ -45,7 +45,10 @@ const styles = theme => ({
   },
   errorMsg: {
     color: "#9b5e5e"
-  }
+  },
+  link: {
+    textDecoration: "underline"
+  },
 });
 
 // Estimated number of hours of reading per week in a frontpage/community feed
@@ -262,7 +265,7 @@ class SubscribeDialog extends Component {
               ]
             ) : (
               <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
-                You need to <a href="/login">log in</a> to subscribe via Email
+                You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
               </DialogContentText>
             )
           ] }
