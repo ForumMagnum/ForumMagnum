@@ -260,7 +260,7 @@ class SubscribeDialog extends Component {
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
                 subscribedByEmail && !Users.emailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
-                  Check your inbox for a verification link.
+                  We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
                 </DialogContentText>
               ]
             ) : (
