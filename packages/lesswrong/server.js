@@ -20,7 +20,7 @@ import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 // EA Forum Invites
-import './lib/scripts/eafIBetaInvites.js';
+import './server/scripts/eafIBetaInvites.js';
 import './server/scripts/configuration.js';
 
 import './server/scripts/legacyKarma_aggregate2.js';
