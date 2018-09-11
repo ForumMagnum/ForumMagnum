@@ -180,7 +180,7 @@ class SubscribeDialog extends Component {
     const { classes, fullScreen, onClose, open, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
 
-    const viewSelector = <FormControl className={classes.viewSelector}>
+    const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
       <Select
         value={view}
@@ -209,8 +209,8 @@ class SubscribeDialog extends Component {
           className={classes.tabbar}
           fullWidth
         >
-          <Tab label="RSS" value="rss" />
-          <Tab label="Email" value="email" />
+          <Tab label="RSS" key="tabRSS" value="rss" />
+          <Tab label="Email" key="tabEmail" value="email" />
         </Tabs>
 
         <DialogContent className={classes.content}>
@@ -253,15 +253,15 @@ class SubscribeDialog extends Component {
             viewSelector,
             !!currentUser ? (
               [
-                !this.emailFeedExists(view) && <DialogContentText className={classes.errorMsg}>
+                !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
-                subscribedByEmail && !Users.emailAddressIsVerified(currentUser) && <DialogContentText className={classes.infoMsg}>
+                subscribedByEmail && !Users.emailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                   Check your inbox for a verification link.
                 </DialogContentText>
               ]
             ) : (
-              <DialogContentText className={classes.errorMsg}>
+              <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
                 You need to <a href="/login">log in</a> to subscribe via Email
               </DialogContentText>
             )
