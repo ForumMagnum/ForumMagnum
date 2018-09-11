@@ -9,7 +9,7 @@ class SunshineNewPostsList extends Component {
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
         <div className="sunshine-new-posts-list">
-          <div className="sunshine-sidebar-title">Unreviewed Posts</div>
+          <Components.SunshineListTitle>Unreviewed Posts</Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
               <Components.SunshineNewPostsItem post={post}/>

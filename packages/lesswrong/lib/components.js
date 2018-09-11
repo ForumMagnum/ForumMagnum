@@ -164,6 +164,8 @@ import '../components/sunshineDashboard/SunshineReportsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';
+import '../components/sunshineDashboard/SunshineListTitle.jsx';
+import '../components/sunshineDashboard/SunshineListItem.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

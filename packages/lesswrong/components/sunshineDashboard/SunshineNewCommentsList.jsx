@@ -8,7 +8,7 @@ class SunshineNewCommentsList extends Component {
     if (results && results.length) {
       return (
         <div className="sunshine-new-comments-list">
-          <div className="sunshine-sidebar-title">Unreviewed Comments</div>
+          <Components.SunshineListTitle>Unreviewed Comments</Components.SunshineListTitle>
           {this.props.results.map(comment =>
             <div key={comment._id} >
               <Components.SunshineCommentsItem comment={comment}/>

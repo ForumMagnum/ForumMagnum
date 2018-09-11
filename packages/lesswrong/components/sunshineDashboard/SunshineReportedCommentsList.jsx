@@ -14,7 +14,7 @@ class SunshineReportedCommentsList extends Component {
     if (results && results.length) {
       return (
         <div className="sunshine-reported-comments-list">
-          <div className="sunshine-sidebar-title">Flagged Comments</div>
+          <Components.SunshineListTitle>Flagged Comments</Components.SunshineListTitle>
           {results.map(report =>
             <div key={report._id} >
               <Components.SunshineReportsItem

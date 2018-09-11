@@ -8,7 +8,7 @@ class SunshineCuratedSuggestionsList extends Component {
     if (results && results.length) {
       return (
         <div className="sunshine-curated-suggestions-list">
-          <div className="sunshine-sidebar-title">Suggestions for Curated</div>
+          <Components.SunshineListTitle>Suggestions for Curated</Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
               <Components.SunshineCuratedSuggestionsItem post={post}/>

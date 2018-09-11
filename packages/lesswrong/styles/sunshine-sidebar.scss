@@ -1,25 +1,3 @@
-.sunshine-sidebar {
-  position:absolute;
-  top:0px;
-  right:0;
-  width:250px;
-  margin-top:64px;
-  display:none;
-  background: white;
-  z-index: 1000;
-
-  @include min-huge() {
-    display:block
-  }
-}
-.sunshine-sidebar-title {
-  border-top:solid 1px rgba(0,0,0,.2);
-  font-size:15px;
-  font-weight:600;
-  line-height:40px;
-  padding-left:12px;
-  font-family: $comments-font;
-}
 
 .sunshine-sidebar-item {
   position:relative;
