@@ -51,10 +51,7 @@ class SunshineNewPostsItem extends Component {
                 <Link to={Posts.getPageUrl(post)}>
                   <strong>{ post.title }</strong>
                 </Link>
-                { post.url && <p className="sunshine-post-highlight-linkpost">
-                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </p>}
-                <div dangerouslySetInnerHTML={{__html:post.htmlHighlight}} />
+                <Components.PostsHighlight post={post}/>
               </Typography>
           }>
             <Components.SunshineListItem>

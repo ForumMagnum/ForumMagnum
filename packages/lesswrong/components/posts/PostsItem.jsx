@@ -22,7 +22,6 @@ import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
-import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -33,20 +32,10 @@ const styles = theme => ({
     padding:theme.spacing.unit*2,
     ...postHighlightStyles(theme),
   },
-  highlightContinue: {
-    marginTop:theme.spacing.unit*2
-  },
   content: {
     paddingLeft:10,
     paddingTop:10,
     width:"calc(100% - 100px)"
-  },
-  linkPost: {
-    marginBottom: theme.spacing.unit*2,
-    ...theme.typography.postStyle,
-    '& > a': {
-      color: theme.palette.secondary.light
-    }
   },
   paperExpanded: {
     backgroundColor: 'inherit',
@@ -300,18 +289,8 @@ class PostsItem extends PureComponent {
 
           </div>
           { this.state.showHighlight &&
-            <div className="posts-item-highlight">
-              <div className={classes.highlight}>
-                { post.url && <Typography variant="body2" className={classes.linkPost}>
-                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </Typography>}
-                <div dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
-                <div className={classes.highlightContinue}>
-                  {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
-                    (Continue Reading{` – ${post.wordCount - 280} more words`})
-                  </Link>}
-                </div>
-              </div>
+            <div className={classes.highlight}>
+              <Components.PostsHighlight post={post} />
               { this.renderHighlightMenu() }
             </div>
           }

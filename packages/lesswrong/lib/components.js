@@ -55,6 +55,8 @@ import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
 import '../components/posts/PostsBody/PostsBody.jsx';
+import '../components/posts/PostsHighlight.jsx';
+import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';

@@ -71,14 +71,6 @@ const styles = theme => ({
       marginBottom: 40,
     },
     postContent: postBodyStyles(theme),
-    linkPost: {
-      marginBottom: theme.spacing.unit*2,
-      paddingTop: 1,
-      ...theme.typography.postStyle,
-      '& > a': {
-        color: theme.palette.secondary.light
-      }
-    },
     metadata: {
       ...theme.typography.postStyle,
     },
@@ -310,10 +302,10 @@ class PostsPage extends Component {
               <Components.ErrorBoundary>
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>
-              { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
-                This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-              </Typography>}
-              { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
+              <div className={classes.postContent}>
+                <Components.LinkPostMessage post={post} />
+                { post.htmlBody && <div dangerouslySetInnerHTML={htmlBody}></div> }
+              </div>
             </div>
             <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
