@@ -4,6 +4,7 @@ import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
+import Typography from '@material-ui/core/Typography';
 
 class SunshineNewPostsItem extends Component {
 
@@ -45,64 +46,69 @@ class SunshineNewPostsItem extends Component {
       const post = this.props.post
       return (
         <div className="sunshine-sidebar-item new-post">
-          <Link to={Posts.getPageUrl(post)}
-            className="sunshine-sidebar-posts-title">
-              {post.title}
-          </Link>
-          <div className="sunshine-sidebar-content-hoverover">
-            <Link to={Posts.getPageUrl(post)}>
-              <h4>{ post.title }</h4>
-            </Link>
-            { post.url && <p className="sunshine-post-highlight-linkpost">
-              This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-            </p>}
-            <div dangerouslySetInnerHTML={{__html:post.htmlHighlight}} />
-          </div>
-          <div className="sunshine-sidebar-item-meta">
-            <span className="karma">
-              { post.baseScore }
-            </span>
-            <Link
-              className="sunshine-sidebar-posts-author"
-              to={Users.getProfileUrl(post.user)}>
-                {post.user.displayName}
-            </Link>
-          </div>
-          <div className="sunshine-sidebar-posts-actions new-post">
-            <Link
-              className="sunshine-sidebar-posts-action clear"
-              target="_blank"
-              title="Move to Drafts"
-              to={Users.getProfileUrl(post.user)}
-              onClick={this.handleDelete}>
-                <FontIcon
-                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                  className="material-icons">
-                    clear
-                </FontIcon>
-                <div className="sunshine-sidebar-posts-item-delete-overlay"/>
-            </Link>
-            <span
-              className="sunshine-sidebar-posts-action frontpage"
-              title="Move to Frontpage"
-              onClick={this.handleFrontpage}>
-              <FontIcon
-                style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  thumb_up
-              </FontIcon>
-            </span>
-            <span
-              className="sunshine-sidebar-posts-action review"
-              title="Leave on Personal Blog"
-              onClick={this.handleReview}>
-              <FontIcon
-                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  done
-              </FontIcon>
-            </span>
-          </div>
+          <Components.SidebarHoverOver hoverOverComponent={
+              <Typography variant="body2">
+                <Link to={Posts.getPageUrl(post)}>
+                  <strong>{ post.title }</strong>
+                </Link>
+                { post.url && <p className="sunshine-post-highlight-linkpost">
+                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+                </p>}
+                <div dangerouslySetInnerHTML={{__html:post.htmlHighlight}} />
+              </Typography>
+          }>
+            <Components.SunshineListItem>
+              <Link to={Posts.getPageUrl(post)}
+                className="sunshine-sidebar-posts-title">
+                  {post.title}
+              </Link>
+              <div className="sunshine-sidebar-item-meta">
+                <span className="karma">
+                  { post.baseScore }
+                </span>
+                <Link
+                  className="sunshine-sidebar-posts-author"
+                  to={Users.getProfileUrl(post.user)}>
+                    {post.user.displayName}
+                </Link>
+              </div>
+              <div className="sunshine-sidebar-posts-actions new-post">
+                <Link
+                  className="sunshine-sidebar-posts-action clear"
+                  target="_blank"
+                  title="Move to Drafts"
+                  to={Users.getProfileUrl(post.user)}
+                  onClick={this.handleDelete}>
+                    <FontIcon
+                      style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                      className="material-icons">
+                        clear
+                    </FontIcon>
+                    <div className="sunshine-sidebar-posts-item-delete-overlay"/>
+                </Link>
+                <span
+                  className="sunshine-sidebar-posts-action frontpage"
+                  title="Move to Frontpage"
+                  onClick={this.handleFrontpage}>
+                  <FontIcon
+                    style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
+                    className="material-icons">
+                      thumb_up
+                  </FontIcon>
+                </span>
+                <span
+                  className="sunshine-sidebar-posts-action review"
+                  title="Leave on Personal Blog"
+                  onClick={this.handleReview}>
+                  <FontIcon
+                    style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                    className="material-icons">
+                      done
+                  </FontIcon>
+                </span>
+              </div>
+            </Components.SunshineListItem>
+          </Components.SidebarHoverOver>
         </div>
       )
     } else {

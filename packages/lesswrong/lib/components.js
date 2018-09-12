@@ -46,7 +46,7 @@ import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/DraftJSRenderer.jsx';
-import '../components/common/Tooltip.jsx';
+import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 
@@ -166,6 +166,7 @@ import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';
 import '../components/sunshineDashboard/SunshineListTitle.jsx';
 import '../components/sunshineDashboard/SunshineListItem.jsx';
+import '../components/sunshineDashboard/SidebarHoverOver.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

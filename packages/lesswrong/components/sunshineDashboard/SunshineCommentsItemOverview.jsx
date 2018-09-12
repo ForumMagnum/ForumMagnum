@@ -9,7 +9,7 @@ import moment from 'moment';
 class SunshineCommentsItemOverview extends Component {
 
   render () {
-    const comment = this.props.comment
+    const { comment } = this.props
     let commentExcerpt = comment.body.substring(0,40);
     if (comment) {
       return (
@@ -20,12 +20,6 @@ class SunshineCommentsItemOverview extends Component {
                 : <div>{ commentExcerpt }</div>
               }
             </Link>
-          </div>
-          <div className="sunshine-sidebar-content-hoverover">
-            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              Commented on post: <strong>{ comment.post.title }</strong>
-            </Link>
-            <div dangerouslySetInnerHTML={{__html:comment.htmlBody}} />
           </div>
           <div className="sunshine-sidebar-item-meta">
             <span className="karma">

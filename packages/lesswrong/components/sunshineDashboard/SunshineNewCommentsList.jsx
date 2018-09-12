@@ -4,7 +4,7 @@ import { Comments } from 'meteor/example-forum';
 
 class SunshineNewCommentsList extends Component {
   render () {
-    const results = this.props.results
+    const { results } = this.props
     if (results && results.length) {
       return (
         <div className="sunshine-new-comments-list">

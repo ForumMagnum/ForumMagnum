@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import Typography from '@material-ui/core/Typography';
 
 class SunshineNewUsersItem extends Component {
 
@@ -38,58 +39,62 @@ class SunshineNewUsersItem extends Component {
   render () {
     const { user } = this.props
     return (
-      <div className="sunshine-sidebar-item new-user">
-        <Link to={Users.getProfileUrl(user)}
-          className="sunshine-sidebar-username">
-            {user.displayName}
-        </Link>
-        <div className="sunshine-sidebar-content-hoverover user">
-          <Link to={Users.getProfileUrl(user)}>
-            <h4>{ user.displayName }</h4>
-          </Link>
-          <div>Posts: { user.postCount || 0 }</div>
-          <div>Comments: { user.commentCount || 0 }</div>
-          <hr />
-          <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-          <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-          <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-          <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+      <div className="sunshine-sidebar-item new-user" >
+        <Components.SidebarHoverOver hoverOverComponent={
+            <Typography variant="body2">
+              <Link to={Users.getProfileUrl(user)}>
+                <strong>{ user.displayName }</strong>
+              </Link>
+              <div>Posts: { user.postCount || 0 }</div>
+              <div>Comments: { user.commentCount || 0 }</div>
+              <hr />
+              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+              <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
+              <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+              <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+            </Typography>
+        }>
+          <Components.SunshineListItem>
 
-        </div>
-        <div className="sunshine-sidebar-item-meta">
-          <span className="karma">
-            { user.karma || 0 }
-          </span>
-          <span className="email">
-            { user.email }
-          </span>
-          <span className="created-at">
-            { moment(new Date(user.createdAt)).fromNow() }
-          </span>
-        </div>
-        <div className="sunshine-sidebar-posts-actions new-user">
-          <div
-            className="sunshine-sidebar-posts-action purge"
-            title="Purge User (delete and ban)"
-            onClick={this.handlePurge}>
-              <FontIcon
-                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  delete_forever
-              </FontIcon>
-              <div className="sunshine-sidebar-posts-item-delete-overlay" />
-          </div>
-          <span
-            className="sunshine-sidebar-posts-action review"
-            title="Mark as Reviewed"
-            onClick={this.handleReview}>
-            <FontIcon
-              style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-              className="material-icons">
-                done
-            </FontIcon>
-          </span>
-        </div>
+            <Link to={Users.getProfileUrl(user)}>
+                {user.displayName}
+            </Link>
+            <div>
+              <Components.MetaInfo>
+                { user.karma || 0 }
+              </Components.MetaInfo>
+              <Components.MetaInfo>
+                { user.email }
+              </Components.MetaInfo>
+              <Components.MetaInfo>
+                { moment(new Date(user.createdAt)).fromNow() }
+              </Components.MetaInfo>
+            </div>
+            <div className="sunshine-sidebar-posts-actions new-user">
+              <div
+                className="sunshine-sidebar-posts-action purge"
+                title="Purge User (delete and ban)"
+                onClick={this.handlePurge}>
+                  <FontIcon
+                    style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                    className="material-icons">
+                      delete_forever
+                  </FontIcon>
+                  <div className="sunshine-sidebar-posts-item-delete-overlay" />
+              </div>
+              <span
+                className="sunshine-sidebar-posts-action review"
+                title="Mark as Reviewed"
+                onClick={this.handleReview}>
+                <FontIcon
+                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                  className="material-icons">
+                    done
+                </FontIcon>
+              </span>
+            </div>
+          </Components.SunshineListItem>
+        </Components.SidebarHoverOver>
       </div>
     )
   }
