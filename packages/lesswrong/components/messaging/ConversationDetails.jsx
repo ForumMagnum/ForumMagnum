@@ -48,4 +48,4 @@ class ConversationDetails extends Component {
   }
 }
 
-registerComponent('ConversationDetails', ConversationDetails, withCurrentUser, withStyles(styles));
+registerComponent('ConversationDetails', ConversationDetails, withCurrentUser, withStyles(styles, { name: "ConversationDetails" }));

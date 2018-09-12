@@ -1,5 +1,6 @@
 import { addRoute, getSetting} from 'meteor/vulcan:core';
 
+addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', title: "New Post" });
 addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' });

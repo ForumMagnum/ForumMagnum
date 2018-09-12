@@ -378,5 +378,5 @@ replaceComponent(
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles)
+  withStyles(styles, { name: "PostsItem" })
 );

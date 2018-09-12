@@ -156,4 +156,8 @@ class VoteButton extends PureComponent {
   )}
 }
 
-registerComponent('VoteButton', VoteButton, withMessages, withVote, withStyles(styles), withTheme());
+registerComponent('VoteButton', VoteButton,
+  withMessages, withVote,
+  withStyles(styles, { name: "VoteButton" }),
+  withTheme()
+);

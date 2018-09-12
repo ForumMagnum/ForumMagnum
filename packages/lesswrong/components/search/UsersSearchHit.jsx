@@ -30,4 +30,4 @@ const UsersSearchHit = ({hit, clickAction, classes}) => <div className={classes.
   </Link>
 </div>
 
-registerComponent("UsersSearchHit", UsersSearchHit, withStyles(styles));
+registerComponent("UsersSearchHit", UsersSearchHit, withStyles(styles, { name: "UsersSearchHit" }));

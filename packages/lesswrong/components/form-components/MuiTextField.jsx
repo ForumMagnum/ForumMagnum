@@ -76,4 +76,4 @@ MuiTextField.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiTextField", MuiTextField, withStyles(styles));
+registerComponent("MuiTextField", MuiTextField, withStyles(styles, { name: "MuiTextField" }));

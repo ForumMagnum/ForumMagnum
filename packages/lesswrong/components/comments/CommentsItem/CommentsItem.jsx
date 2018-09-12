@@ -415,5 +415,8 @@ class CommentsItem extends Component {
       />
 }
 
-registerComponent('CommentsItem', CommentsItem, withRouter, withMessages, withStyles(styles));
+registerComponent('CommentsItem', CommentsItem,
+  withRouter, withMessages,
+  withStyles(styles, { name: "CommentsItem" })
+);
 export default CommentsItem;

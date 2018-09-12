@@ -14,7 +14,13 @@ const formGroups = {
   },
   notifications: {
     order: 10,
+    name: "notifications",
     label: "Notifications"
+  },
+  emails: {
+    order: 15,
+    name: "emails",
+    label: "Emails"
   }
 }
 
@@ -35,6 +41,35 @@ Users.addField([
     fieldName: 'locale',
     fieldSchema: {
         hidden: true
+    }
+  },
+  
+  /**
+    Emails (not to be confused with email). This field belongs to Meteor's
+    accounts system; we should never write it, but we do need to read it to find
+    out whether a user's email address is verified.
+  */
+  {
+    fieldName: 'emails',
+    fieldSchema: {
+      hidden: true,
+      viewableBy: ['members'],
+    }
+  },
+  
+  /**
+  */
+  {
+    fieldName: 'whenConfirmationEmailSent',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      order: 1,
+      group: formGroups.emails,
+      control: 'UsersEmailVerification',
+      viewableBy: ['members'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
     }
   },
 
@@ -506,6 +541,7 @@ Users.addField([
 
   /**
     Overwrite email notification settings to be hidden (for now) TODO: Get email notifications to run properly
+    (These settings are all defined by Vulcan-Starter in Vulcan-Starter/packages/example-forum/lib/modules/notifications/custom_fields.js)
   */
   {
     fieldName: 'notifications_comments',
@@ -519,6 +555,19 @@ Users.addField([
       hidden: true,
     }
   },
+  {
+    fieldName: 'notifications_posts',
+    fieldSchema: {
+      group: null,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'notifications_users',
+    fieldSchema: {
+      hidden: true,
+    }
+  },
 
   /**
     New Notifications settings
@@ -526,20 +575,35 @@ Users.addField([
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
+      group: formGroups.notifications,
       label: "Notifications for Comments on My Posts"
     }
   },
   {
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
+      group: formGroups.notifications,
       label: "Notifications For Replies to My Comments"
     }
   },
+  
+  /**
+    Email settings
+  */
   {
-    fieldName: 'notifications_posts',
+    fieldName: 'emailSubscribedToCurated',
     fieldSchema: {
+      type: Boolean,
+      optional: true,
+      group: formGroups.emails,
+      control: 'EmailConfirmationRequiredCheckbox',
+      label: "Email me new posts in Curated",
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      viewableBy: ['members'],
     }
   },
+  
   /**
     Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   */

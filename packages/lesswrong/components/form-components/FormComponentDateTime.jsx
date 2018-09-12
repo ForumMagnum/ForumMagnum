@@ -60,4 +60,4 @@ FormComponentDateTime.contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("FormComponentDateTime", FormComponentDateTime, withStyles(styles));
+registerComponent("FormComponentDateTime", FormComponentDateTime, withStyles(styles, { name: "FormComponentDateTime" }));

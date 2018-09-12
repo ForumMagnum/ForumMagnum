@@ -132,4 +132,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles));
+registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles, { name: "SequencesPage" }));

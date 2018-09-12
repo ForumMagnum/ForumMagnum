@@ -133,4 +133,7 @@ UsersListEditor.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("UsersListEditor", UsersListEditor, withCurrentUser, withStyles(usersListEditorStyles));
+registerComponent("UsersListEditor", UsersListEditor,
+  withCurrentUser,
+  withStyles(usersListEditorStyles, { name: "UsersListEditor" })
+);

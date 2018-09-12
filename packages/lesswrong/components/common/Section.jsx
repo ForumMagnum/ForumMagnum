@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
-
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -56,10 +55,30 @@ const styles = (theme) => ({
   sectionTitleBottom: {},
   sectionContent: {
     maxWidth: 715
+  },
+  subscribeWidget: {
+  },
+  [theme.breakpoints.down('md')]: {
+    heading: {
+      display: "inline"
+    },
+    subscribeWidget: {
+      marginBottom: 0,
+      display: "inline-block",
+      marginLeft: 2 * theme.spacing.unit
+    }
   }
 })
 
-const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/ titleLink, titleComponent, children, classes}) => {
+const Section = ({
+  contentStyle,
+  title,
+  titleLink,
+  titleComponent,
+  subscribeLinks = null,
+  children,
+  classes
+}) => {
 
   return (
     <Components.ErrorBoundary>
@@ -67,7 +86,10 @@ const Section = ({contentStyle, title, /*titleWidth = 220, contentWidth = 715,*/
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>
             <Typography variant="display1" className={classes.sectionTitle}>
-              {!titleLink ? <span>{title}</span> : <Link to={titleLink}>{title}</Link>}
+              {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
+              { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
+                {subscribeLinks}
+              </Typography> }
             </Typography>
           </div>}
           {titleComponent && <div className={classes.sectionTitleBottom}>

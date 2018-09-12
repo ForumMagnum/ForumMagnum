@@ -6,55 +6,8 @@ import { withRouter, Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
+import postViewSections from '../../lib/sections.js'
 
-const viewDataDict = {
-  'curated': {
-    label: "Curated Posts",
-    description: "Curated - Recent, high quality posts selected by the LessWrong moderation team.",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    categoryIcon:"star",
-    rssView: "curated-rss",
-    rss:true
-  },
-  'frontpage': {
-    label:'Frontpage Posts',
-    categoryIcon:"supervisor_account",
-    description: "Posts meeting our frontpage guidelines: aim to explain, not to persuade. Avoid meta-discussion",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    includes: "(includes curated content and frontpage posts)",
-    rssView: "frontpage-rss",
-    rss:true
-  },
-  'community': {
-    label: 'All Posts',
-    description: "Includes personal and meta blogposts (as well as curated and frontpage).",
-    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
-    categoryIcon:"person",
-    rssView: "community-rss",
-    rss:true
-  },
-  'meta': {
-    label: 'Meta',
-    description: "Meta - Discussion about the LessWrong site.",
-    categoryIcon:"details",
-    rssView: "meta-rss",
-    rss:true
-  },
-  'daily': {
-    label: 'Daily',
-    description: "Daily - All posts on LessWrong, sorted by date",
-    rss:false
-  },
-  'more': {
-    label: '...',
-    description: "See more options",
-    rss:false
-  },
-  'pending': 'pending posts',
-  'rejected': 'rejected posts',
-  'scheduled': 'scheduled posts',
-  'all_drafts': 'all drafts',
-}
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
 
@@ -69,7 +22,7 @@ class PostsViews extends Component {
     }
   }
 
-  handleChange = (view) => {
+  handleChange = (view, event) => {
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };
@@ -105,7 +58,6 @@ class PostsViews extends Component {
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { viewData.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewData.rssView} /></div> }
         </div>
       </div>
     )
@@ -129,8 +81,8 @@ class PostsViews extends Component {
 
             <span className="view-chip" onClick={() => this.handleChange(view)}>
               <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {viewDataDict[view].label}
-                { this.renderMenu(viewDataDict[view], view)}
+                {postViewSections[view].label}
+                { this.renderMenu(postViewSections[view], view)}
               </Components.SectionSubtitle>
             </span>
           </div>
@@ -147,27 +99,27 @@ class PostsViews extends Component {
               >
                 <span className="view-chip" onClick={() => this.handleChange(view)} >
                   <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {viewDataDict[view].label}
-                    { this.renderMenu(viewDataDict[view])}
+                    {postViewSections[view].label}
+                    { this.renderMenu(postViewSections[view])}
                   </Components.SectionSubtitle>
                 </span>
               </div>
             ))}
             {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/meta">Meta</Link> { this.renderMenu(viewDataDict["meta"])}
+                <Link to="/meta">Meta</Link> { this.renderMenu(postViewSections["meta"])}
               </Components.SectionSubtitle></span>
             </div>}
             {!props.hideDaily && <span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/daily">Daily</Link> { this.renderMenu(viewDataDict["daily"])}
+                <Link to="/daily">Daily</Link> { this.renderMenu(postViewSections["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
             <a className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
-              { this.renderMenu(viewDataDict["more"])}
+              { this.renderMenu(postViewSections["more"])}
             </a>
           </span>
         }

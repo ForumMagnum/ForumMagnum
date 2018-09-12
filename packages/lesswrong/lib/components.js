@@ -51,7 +51,8 @@ import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 
 // Outgoing RSS Feed builder
-import '../components/common/RSSOutLinkbuilder.jsx';
+import '../components/common/SubscribeWidget.jsx';
+import '../components/common/SubscribeDialog.jsx';
 
 import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/CategoryDisplay.jsx';
@@ -62,6 +63,9 @@ import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersNameWrapper.jsx';
+import '../components/users/UsersEmailVerification.jsx';
+import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
+import '../components/users/LoginPage.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemTitle.jsx';

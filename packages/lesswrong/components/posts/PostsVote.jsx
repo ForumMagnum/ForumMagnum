@@ -112,4 +112,6 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote, withStyles(styles, { name: 'PostsVote'}));
+registerComponent('PostsVote', PostsVote,
+  withStyles(styles, { name: "PostsVote" })
+);

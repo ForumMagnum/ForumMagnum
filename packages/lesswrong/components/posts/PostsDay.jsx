@@ -43,4 +43,4 @@ PostsDay.propTypes = {
   number: PropTypes.number
 };
 
-replaceComponent('PostsDay', PostsDay, withStyles(styles));
+replaceComponent('PostsDay', PostsDay, withStyles(styles, { name: "PostsDay" }));

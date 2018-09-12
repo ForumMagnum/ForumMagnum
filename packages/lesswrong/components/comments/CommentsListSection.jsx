@@ -161,5 +161,8 @@ class CommentsListSection extends Component {
   }
 }
 
-registerComponent("CommentsListSection", CommentsListSection, withCurrentUser, withRouter, withStyles(styles));
+registerComponent("CommentsListSection", CommentsListSection,
+  withCurrentUser, withRouter,
+  withStyles(styles, { name: "CommentsListSection" })
+);
 export default CommentsListSection

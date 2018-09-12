@@ -54,4 +54,4 @@ CommentEditor.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles));
+registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles, { name: "CommentEditor" }));

@@ -242,5 +242,5 @@ registerComponent(
   withCurrentUser,
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles),
+  withStyles(styles, { name: "RecentDiscussionThread" }),
 );

@@ -109,4 +109,4 @@ const conversationOptions = {
   totalResolver: false,
 };
 
-registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions], withCurrentUser, withRouter, withStyles(styles));
+registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions], withCurrentUser, withRouter, withStyles(styles, { name: "InboxNavigation" }));

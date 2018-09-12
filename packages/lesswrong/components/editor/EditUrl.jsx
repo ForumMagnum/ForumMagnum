@@ -75,4 +75,4 @@ EditUrl.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent("EditUrl", EditUrl, withStyles(styles));
+registerComponent("EditUrl", EditUrl, withStyles(styles, { name: "EditUrl" }));
