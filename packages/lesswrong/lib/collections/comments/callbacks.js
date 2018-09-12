@@ -173,7 +173,8 @@ addCallback("comments.new.async", CommentsAlignmentNew);
 
 function NewCommentNeedsReview (comment) {
   const user = Users.findOne({_id:comment.userId})
-  if (user.karma < 100) {
+  const karma = user.karma || 0
+  if (karma < 100) {
     Comments.update({_id:comment._id}, {$set: {needsReview: true}});
   }
 }
