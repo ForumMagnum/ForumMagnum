@@ -56,7 +56,7 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['members'],
       insertableBy: ['members'],
-      control: 'CommentEditor',
+      control: 'EditorFormComponent',
       blackbox: true,
       order: 25,
       form: {
@@ -66,7 +66,9 @@ Comments.addField([
         disableUnderline:true,
         enableMarkDownEditor: true,
         minHeight: 400,
-        name: "body"
+        commentEditor: true, //Applies comment editor functionality (e.g. available toolbars)
+        commentStyles: true, //Applies comment editor styles (e.g. font and size)
+        commentLocalStorage: true, // Applies comment editor localStorage behavior (i.e. restoring intermediate states)
       },
     }
   },
