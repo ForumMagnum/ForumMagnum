@@ -33,6 +33,7 @@ const options = {
   queryName: 'notificationsFullScreenQuery',
   fragmentName: 'NotificationsList',
   limit: 30,
+  preload: 30,
   totalResolver: false,
 };
 

@@ -19,6 +19,7 @@ const options = {
   fragmentName: 'localGroupsHomeFragment',
   totalResolver: false,
   enableCache: true,
+  preload: 10,
 }
 
 registerComponent('LocalGroupsList', LocalGroupsList, [withList, options])

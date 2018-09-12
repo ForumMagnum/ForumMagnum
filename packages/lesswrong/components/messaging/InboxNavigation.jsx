@@ -106,6 +106,7 @@ const conversationOptions = {
   queryName: 'conversationsListQuery',
   fragmentName: 'conversationsListFragment',
   limit: 20,
+  preload: 20,
   totalResolver: false,
 };
 

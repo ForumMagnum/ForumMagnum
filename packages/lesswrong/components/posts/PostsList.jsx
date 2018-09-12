@@ -75,7 +75,8 @@ const options = {
   totalResolver: false,
   enableCache: true,
   fetchPolicy: 'cache-and-network',
-  ssr: true
+  ssr: true,
+  preload: 10
 };
 
 registerComponent('PostsList', PostsList, withCurrentUser, [withList, options]);

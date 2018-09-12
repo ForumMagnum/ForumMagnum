@@ -58,7 +58,9 @@ const options = {
   queryName: 'usersPostsListQuery',
   fragmentName: 'PostsList',
   totalResolver: true,
-  enableCache: true
+  enableCache: true,
+  limit: 20,
+  preload: 20
 };
 
 registerComponent('UsersPostsList', UsersPostsList, withCurrentUser, [withList, options]);

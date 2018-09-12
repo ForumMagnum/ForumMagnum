@@ -43,7 +43,8 @@ const options = {
   queryName: "SequencesGridWrapperQuery",
   fragmentName: 'SequencesPageFragment',
   totalResolver: true,
-  ssr: true
+  ssr: true,
+  preload: 10
 }
 
 

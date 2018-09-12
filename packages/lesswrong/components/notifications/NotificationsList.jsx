@@ -34,6 +34,7 @@ const options = {
   queryName: 'notificationsListQuery',
   fragmentName: 'NotificationsList',
   limit: 20,
+  preload: 20,
   totalResolver: false
 };
 

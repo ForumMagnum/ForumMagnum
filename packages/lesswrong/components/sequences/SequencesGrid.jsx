@@ -22,6 +22,7 @@ const options = {
   fragmentName: 'SequencesPageFragment',
   totalResolver: false,
   enableCache: true,
+  preload: 10,
 }
 
 
