@@ -5,7 +5,10 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     borderTop: "solid 1px rgba(0,0,0,.1)",
-    padding: "2px 0 2px 15px"
+    padding: "4px 0 3px 12px",
+    '&:hover': {
+      background: "rgb(250,250,250)",
+    }
   }
 })
 

@@ -7,13 +7,20 @@ import {
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  root: {
+    backgroundColor:"rgba(60,0,0,.04)"
+  }
+})
 
 class SunshineReportedCommentsList extends Component {
   render () {
-    const { results, editMutation } = this.props
+    const { results, editMutation, classes } = this.props
     if (results && results.length) {
       return (
-        <div className="sunshine-reported-comments-list">
+        <div className={classes.root}>
           <Components.SunshineListTitle>Flagged Comments</Components.SunshineListTitle>
           {results.map(report =>
             <div key={report._id} >
@@ -47,5 +54,6 @@ registerComponent(
   SunshineReportedCommentsList,
   [withList, withListOptions],
   [withEdit, withEditOptions],
-  withCurrentUser
+  withCurrentUser,
+  withStyles(styles, {name:"SunshineReportedCommentsList"})
 );

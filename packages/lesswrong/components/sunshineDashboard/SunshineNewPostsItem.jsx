@@ -47,27 +47,31 @@ class SunshineNewPostsItem extends Component {
       return (
         <div className="sunshine-sidebar-item new-post">
           <Components.SidebarHoverOver hoverOverComponent={
-              <Typography variant="body2">
+            <div>
+              <Typography variant="title">
                 <Link to={Posts.getPageUrl(post)}>
-                  <strong>{ post.title }</strong>
+                  { post.title }
                 </Link>
-                <Components.PostsHighlight post={post}/>
               </Typography>
+              <br/>
+              <Components.PostsHighlight post={post}/>
+            </div>
           }>
             <Components.SunshineListItem>
-              <Link to={Posts.getPageUrl(post)}
-                className="sunshine-sidebar-posts-title">
+              <Link to={Posts.getPageUrl(post)}>
                   {post.title}
               </Link>
-              <div className="sunshine-sidebar-item-meta">
-                <span className="karma">
+              <div>
+                <Components.MetaInfo>
                   { post.baseScore }
-                </span>
-                <Link
-                  className="sunshine-sidebar-posts-author"
-                  to={Users.getProfileUrl(post.user)}>
-                    {post.user.displayName}
-                </Link>
+                </Components.MetaInfo>
+                <Components.MetaInfo>
+                  <Link
+                    className="sunshine-sidebar-posts-author"
+                    to={Users.getProfileUrl(post.user)}>
+                      {post.user.displayName}
+                  </Link>
+                </Components.MetaInfo>
               </div>
               <div className="sunshine-sidebar-posts-actions new-post">
                 <Link

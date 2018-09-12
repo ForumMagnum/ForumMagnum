@@ -68,12 +68,13 @@ class SunshineReportsItem extends Component {
           }>
             <Components.SunshineListItem>
               <Components.SunshineCommentsItemOverview comment={comment}/>
-              <div className="sunshine-sidebar-reported-by">
-                Reported by {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
-              </div>
-              <div className="sunshine-sidebar-report-description">
-                { report.description }
-              </div>
+
+              <Typography variant="caption">
+                <div>
+                  Reported by {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
+                </div>
+                <div>"{ report.description }"</div>
+              </Typography>
               <div className="sunshine-sidebar-posts-actions new-comment">
                 <Link
                   className="sunshine-sidebar-posts-action new-comment clear"

@@ -64,43 +64,37 @@ class SunshineCuratedSuggestionsItem extends Component {
       return (
         <div className="sunshine-sidebar-item curated-suggestion">
           <Components.SidebarHoverOver hoverOverComponent={
-              <Typography variant="body2">
+            <div>
+              <Typography variant="title">
                 <Link to={Posts.getPageUrl(post)}>
-                  <strong>{ post.title }</strong>
+                  { post.title }
                 </Link>
-                <Components.PostsHighlight post={post}/>
               </Typography>
+              <br/>
+              <Components.PostsHighlight post={post}/>
+            </div>
           }>
             <Components.SunshineListItem>
               <Link to={Posts.getPageUrl(post)}
                 className="sunshine-sidebar-posts-title">
                   {post.title}
               </Link>
-              <div className="sunshine-sidebar-content-hoverover">
-                <Link to={Posts.getPageUrl(post)}>
-                  <h4>{ post.title }</h4>
-                </Link>
-                { post.url && <p className="sunshine-post-highlight-linkpost">
-                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </p>}
-                <div dangerouslySetInnerHTML={{__html:post.htmlHighlight}} />
-              </div>
-              <div className="sunshine-sidebar-item-meta">
-                <span className="karma">
+              <div>
+                <Components.MetaInfo>
                   { post.baseScore }
-                </span>
-                <Link
-                  className="sunshine-sidebar-posts-author"
-                  to={Users.getProfileUrl(post.user)}>
-                    {post.user.displayName}
-                </Link>
-                {post.postedAt && <span className="posts-item-date">
+                </Components.MetaInfo>
+                <Components.MetaInfo>
+                  <Link to={Users.getProfileUrl(post.user)}>
+                      {post.user.displayName}
+                  </Link>
+                </Components.MetaInfo>
+                {post.postedAt && <Components.MetaInfo>
                   {moment(new Date(post.postedAt)).fromNow()}
-                </span>}
+                </Components.MetaInfo>}
               </div>
-              <div className="curated-suggestion-suggestion-by">
+              <Typography variant="caption">
                 Endorsed by { post.suggestForCuratedUsernames }
-              </div>
+              </Typography>
               <div className="sunshine-sidebar-posts-actions curated-suggestion">
                 <span
                   className="sunshine-sidebar-posts-action clear"

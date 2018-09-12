@@ -14,28 +14,30 @@ class SunshineCommentsItemOverview extends Component {
     if (comment) {
       return (
         <div className="sunshine-sidebar-posts-item new-comment">
-          <div className="sunshine-sidebar-comment-excerpt">
+          <Components.MetaInfo>
             <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              { comment.deleted ? <div>COMMENT DELETED</div>
-                : <div>{ commentExcerpt }</div>
+              { comment.deleted ? <span>COMMENT DELETED</span>
+                : <span>{ commentExcerpt }</span>
               }
             </Link>
-          </div>
-          <div className="sunshine-sidebar-item-meta">
-            <span className="karma">
+          </Components.MetaInfo>
+          <div>
+            <Components.MetaInfo>
               { comment.baseScore }
-            </span>
-            <Link
-              className="sunshine-sidebar-posts-author"
-              to={Users.getProfileUrl(comment.user)}>
-                {comment.user.displayName}
-            </Link>
-            { comment.post && (
+            </Components.MetaInfo>
+            <Components.MetaInfo>
+              <Link
+                className="sunshine-sidebar-posts-author"
+                to={Users.getProfileUrl(comment.user)}>
+                  {comment.user.displayName}
+              </Link>
+            </Components.MetaInfo>
+            <Components.MetaInfo>
               <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                 {moment(new Date(comment.postedAt)).fromNow()}
                 <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
               </Link>
-            )}
+            </Components.MetaInfo>
           </div>
         </div>
       )

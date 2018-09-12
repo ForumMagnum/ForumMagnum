@@ -40,25 +40,29 @@ class SunshineNewUsersItem extends Component {
     const { user } = this.props
     return (
       <div className="sunshine-sidebar-item new-user" >
-        <Components.SidebarHoverOver hoverOverComponent={
+        <Components.SidebarHoverOver width={250} hoverOverComponent={
             <Typography variant="body2">
               <Link to={Users.getProfileUrl(user)}>
-                <strong>{ user.displayName }</strong>
+                { user.displayName }
               </Link>
-              <div>Posts: { user.postCount || 0 }</div>
-              <div>Comments: { user.commentCount || 0 }</div>
-              <hr />
-              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-              <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-              <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-              <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+              <br/>
+              <Components.MetaInfo>
+                <div>Posts: { user.postCount || 0 }</div>
+                <div>Comments: { user.commentCount || 0 }</div>
+                <hr />
+                <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+                <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
+                <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+                <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+              </Components.MetaInfo>
             </Typography>
         }>
           <Components.SunshineListItem>
-
-            <Link to={Users.getProfileUrl(user)}>
-                {user.displayName}
-            </Link>
+            <Components.MetaInfo>
+              <Link to={Users.getProfileUrl(user)}>
+                  {user.displayName}
+              </Link>
+            </Components.MetaInfo>
             <div>
               <Components.MetaInfo>
                 { user.karma || 0 }
