@@ -265,7 +265,6 @@ class PostsPage extends Component {
     } else {
 
       const post = document
-      const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
@@ -304,7 +303,7 @@ class PostsPage extends Component {
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
                 <Components.LinkPostMessage post={post} />
-                { post.htmlBody && <div dangerouslySetInnerHTML={htmlBody}></div> }
+                { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
               </div>
             </div>
             <div className={classes.postFooter}>

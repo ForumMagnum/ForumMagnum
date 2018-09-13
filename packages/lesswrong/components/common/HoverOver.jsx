@@ -19,11 +19,11 @@ class HoverOver extends Component {
     this.setState({showHoverOver:false})
   }
 
-  handleHoverOver = () => {
+  handleMouseEnter = () => {
     this.hoverOverWaitTimer = setTimeout(this.showHoverOver, this.props.delay || 100)
   }
 
-  handleHoverExit = () => {
+  handleMouseExit = () => {
     this.hideHoverOver()
     clearTimeout(this.hoverOverWaitTimer)
   }
@@ -32,10 +32,9 @@ class HoverOver extends Component {
     const { children, hoverOverComponent } = this.props
 
     return (
-      <span onMouseEnter={this.handleHoverOver} onMouseLeave={this.handleHoverExit}>
+      <span onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseExit}>
         { children }
-        { this.state.showHoverOver && <div>{ hoverOverComponent }</div>
-        }
+        { this.state.showHoverOver && <div>{ hoverOverComponent }</div>}
       </span>
     )
   }

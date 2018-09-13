@@ -40,7 +40,8 @@ class SunshineNewUsersItem extends Component {
     const { user } = this.props
     return (
       <div className="sunshine-sidebar-item new-user" >
-        <Components.SidebarHoverOver width={250} hoverOverComponent={
+        <Components.SidebarHoverOver width={250}
+          hoverOverComponent={
             <Typography variant="body2">
               <Link to={Users.getProfileUrl(user)}>
                 { user.displayName }
@@ -56,14 +57,15 @@ class SunshineNewUsersItem extends Component {
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
               </Components.MetaInfo>
             </Typography>
-        }>
+          }
+        >
           <Components.SunshineListItem>
-            <Components.MetaInfo>
-              <Link to={Users.getProfileUrl(user)}>
-                  {user.displayName}
-              </Link>
-            </Components.MetaInfo>
             <div>
+              <Components.MetaInfo>
+                <Link to={Users.getProfileUrl(user)}>
+                    {user.displayName}
+                </Link>
+              </Components.MetaInfo>
               <Components.MetaInfo>
                 { user.karma || 0 }
               </Components.MetaInfo>

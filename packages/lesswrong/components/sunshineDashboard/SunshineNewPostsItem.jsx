@@ -46,17 +46,19 @@ class SunshineNewPostsItem extends Component {
       const post = this.props.post
       return (
         <div className="sunshine-sidebar-item new-post">
-          <Components.SidebarHoverOver hoverOverComponent={
-            <div>
-              <Typography variant="title">
-                <Link to={Posts.getPageUrl(post)}>
-                  { post.title }
-                </Link>
-              </Typography>
-              <br/>
-              <Components.PostsHighlight post={post}/>
-            </div>
-          }>
+          <Components.SidebarHoverOver
+            hoverOverComponent={
+              <div>
+                <Typography variant="title">
+                  <Link to={Posts.getPageUrl(post)}>
+                    { post.title }
+                  </Link>
+                </Typography>
+                <br/>
+                <Components.PostsHighlight post={post}/>
+              </div>
+            }
+          >
             <Components.SunshineListItem>
               <Link to={Posts.getPageUrl(post)}>
                   {post.title}

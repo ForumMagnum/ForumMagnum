@@ -11,7 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    backgroundColor:"rgba(60,0,0,.04)"
+    backgroundColor: "rgba(60,0,0,.04)"
   }
 })
 

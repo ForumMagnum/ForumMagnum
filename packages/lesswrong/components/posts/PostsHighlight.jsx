@@ -4,6 +4,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from 'react-router';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -16,8 +17,7 @@ const styles = theme => ({
 })
 
 const PostsHighlight = ({post, classes}) => {
-  if (post) {
-    return <div className={classes.root}>
+  return <div className={classes.root}>
       <Components.LinkPostMessage post={post} />
       <div dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
       <div className={classes.highlightContinue}>
@@ -26,11 +26,13 @@ const PostsHighlight = ({post, classes}) => {
         </Link>}
       </div>
     </div>
-  } else {
-    return null
-  }
 };
 
 PostsHighlight.displayName = "PostsHighlight";
+
+PostsHighlight.propTypes = {
+  post: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired
+};
 
 registerComponent('PostsHighlight', PostsHighlight, withStyles(styles, {name:"PostsHighlight"}));

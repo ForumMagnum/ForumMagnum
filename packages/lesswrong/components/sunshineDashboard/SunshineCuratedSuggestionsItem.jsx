@@ -63,17 +63,19 @@ class SunshineCuratedSuggestionsItem extends Component {
       const { currentUser, post } = this.props
       return (
         <div className="sunshine-sidebar-item curated-suggestion">
-          <Components.SidebarHoverOver hoverOverComponent={
-            <div>
-              <Typography variant="title">
-                <Link to={Posts.getPageUrl(post)}>
-                  { post.title }
-                </Link>
-              </Typography>
-              <br/>
-              <Components.PostsHighlight post={post}/>
-            </div>
-          }>
+          <Components.SidebarHoverOver
+            hoverOverComponent={
+              <div>
+                <Typography variant="title">
+                  <Link to={Posts.getPageUrl(post)}>
+                    { post.title }
+                  </Link>
+                </Typography>
+                <br/>
+                <Components.PostsHighlight post={post}/>
+              </div>
+            }
+          >
             <Components.SunshineListItem>
               <Link to={Posts.getPageUrl(post)}
                 className="sunshine-sidebar-posts-title">

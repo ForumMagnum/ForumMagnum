@@ -30,11 +30,12 @@ const styles = theme => ({
 
 const SidebarHoverOver = ({children, classes, hoverOverComponent, width=500}) => {
   return <div className={classes.root}>
-    <Components.HoverOver hoverOverComponent={
-      <div className={classes.hoverOver} style={{width:width}}>
-        { hoverOverComponent }
-      </div>
-    }>
+    <Components.HoverOver
+      hoverOverComponent={
+        <div className={classes.hoverOver} style={{width:width}}>
+          { hoverOverComponent }
+        </div>}
+    >
       { children }
     </Components.HoverOver>
   </div>
