@@ -2,12 +2,12 @@ import {
   Components,
   registerComponent,
   withEdit,
-  withCurrentUser
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
 import withSetAlignmentPost from "../alignment-forum/withSetAlignmentPost.jsx";
+import withUser from '../common/withUser';
 
 class PostsPageAdminActions extends Component {
 
@@ -139,5 +139,5 @@ registerComponent(
   PostsPageAdminActions,
   [withEdit, withEditOptions],
   [withSetAlignmentPost, setAlignmentOptions],
-  withCurrentUser
+  withUser
 );

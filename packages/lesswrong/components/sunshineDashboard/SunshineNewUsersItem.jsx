@@ -1,5 +1,5 @@
 /* global confirm */
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
+import withUser from '../common/withUser';
 
 class SunshineNewUsersItem extends Component {
 
@@ -114,4 +115,4 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withCurrentUser);
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser);

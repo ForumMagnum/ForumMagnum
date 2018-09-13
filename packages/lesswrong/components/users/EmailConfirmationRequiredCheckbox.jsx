@@ -1,6 +1,7 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Users from 'meteor/vulcan:users';
+import withUser from '../common/withUser';
 
 const EmailConfirmationRequiredCheckbox = (props) => {
   let { currentUser, label, ...otherProps } = props;
@@ -22,4 +23,4 @@ const EmailConfirmationRequiredCheckbox = (props) => {
   }
 }
 
-registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, withCurrentUser);
+registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, withUser);

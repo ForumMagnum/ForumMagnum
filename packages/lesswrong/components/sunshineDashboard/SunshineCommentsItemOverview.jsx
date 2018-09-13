@@ -1,10 +1,11 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
+import withUser from '../common/withUser';
 
 class SunshineCommentsItemOverview extends Component {
 
@@ -47,4 +48,4 @@ class SunshineCommentsItemOverview extends Component {
   }
 }
 
-registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withCurrentUser);
+registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withUser);

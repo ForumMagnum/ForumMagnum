@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
+import withUser from '../common/withUser';
 
 class SunshineCommentsItem extends Component {
 
@@ -90,4 +91,4 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withCurrentUser);
+registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withUser);

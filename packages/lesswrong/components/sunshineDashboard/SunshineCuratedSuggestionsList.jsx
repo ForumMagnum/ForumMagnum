@@ -1,7 +1,8 @@
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -44,6 +45,6 @@ registerComponent(
   'SunshineCuratedSuggestionsList',
   SunshineCuratedSuggestionsList,
   [withList, withListOptions],
-  withCurrentUser,
+  withUser,
   withStyles(styles, {name: "SunshineCuratedSuggestionsList"})
 );

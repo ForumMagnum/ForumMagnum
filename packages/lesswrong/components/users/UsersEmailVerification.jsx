@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -71,7 +72,7 @@ const withEditOptions = {
 };
 
 registerComponent('UsersEmailVerification', UsersEmailVerification,
-  withCurrentUser,
+  withUser,
   [withEdit, withEditOptions],
   withStyles(styles, { name: "UsersEmailVerification" })
 );

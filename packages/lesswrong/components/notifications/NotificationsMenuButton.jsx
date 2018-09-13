@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import Badge from 'material-ui/Badge';
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import IconButton from 'material-ui/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import withUser from '../common/withUser';
 
 const badgeContainerStyle = {
   padding: 'none',
@@ -52,4 +53,4 @@ const options = {
   fetchPolicy: 'cache-and-network'
 };
 
-registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withList, options], withCurrentUser)
+registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withList, options], withUser)

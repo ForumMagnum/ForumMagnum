@@ -1,6 +1,7 @@
-import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from 'react-router';
+import withUser from '../common/withUser';
 
 const Meta = ({location, currentUser}, context) => {
   const query = location ? location.query : {};
@@ -17,4 +18,4 @@ const Meta = ({location, currentUser}, context) => {
   )
 };
 
-registerComponent('Meta', Meta, withCurrentUser);
+registerComponent('Meta', Meta, withUser);

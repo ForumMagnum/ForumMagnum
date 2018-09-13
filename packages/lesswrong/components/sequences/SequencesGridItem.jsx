@@ -1,7 +1,6 @@
 import {
   Components,
   registerComponent,
-  withCurrentUser,
   Utils
 } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
@@ -11,6 +10,7 @@ import { Link, withRouter } from 'react-router';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -63,4 +63,4 @@ class SequencesGridItem extends PureComponent {
 
 SequencesGridItem.displayName = "SequencesGridItem";
 
-registerComponent('SequencesGridItem', SequencesGridItem, withCurrentUser, withStyles(styles, { name: "SequencesGridItem" }), withRouter);
+registerComponent('SequencesGridItem', SequencesGridItem, withUser, withStyles(styles, { name: "SequencesGridItem" }), withRouter);

@@ -1,6 +1,7 @@
-import { Components, registerComponent, withCurrentUser, } from 'meteor/vulcan:core';
+import { Components, registerComponent, } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
+import withUser from '../common/withUser';
 
 class LoginPage extends Component {
   UNSAFE_componentWillMount() {
@@ -22,4 +23,4 @@ class LoginPage extends Component {
   }
 }
 
-registerComponent('LoginPage', LoginPage, withCurrentUser, withRouter);
+registerComponent('LoginPage', LoginPage, withUser, withRouter);

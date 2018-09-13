@@ -3,7 +3,6 @@ import {
   Components,
   registerComponent,
   withList,
-  withCurrentUser,
   Loading,
   getActions,
   withMutation
@@ -16,6 +15,7 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 
 import Users from "meteor/vulcan:users";
@@ -230,7 +230,7 @@ registerComponent(
   RecentDiscussionThread,
   [withList, commentsOptions],
   withMutation(mutationOptions),
-  withCurrentUser,
+  withUser,
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "RecentDiscussionThread" }),

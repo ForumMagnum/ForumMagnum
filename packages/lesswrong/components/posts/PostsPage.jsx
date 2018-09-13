@@ -5,7 +5,6 @@ import {
   withDocument,
   registerComponent,
   getActions,
-  withCurrentUser,
   withMutation } from 'meteor/vulcan:core';
 
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
@@ -24,6 +23,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
     header: {
@@ -420,7 +420,7 @@ registerComponent(
   // React component
   PostsPage,
   // HOC to give access to the current user
-  withCurrentUser,
+  withUser,
   // HOC to give access to LW2 event API
   withNewEvents,
   // HOC to give access to router and params

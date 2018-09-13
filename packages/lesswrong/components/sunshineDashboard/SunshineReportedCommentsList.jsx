@@ -2,12 +2,12 @@ import {
   Components,
   registerComponent,
   withList,
-  withCurrentUser,
   withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -54,6 +54,6 @@ registerComponent(
   SunshineReportedCommentsList,
   [withList, withListOptions],
   [withEdit, withEditOptions],
-  withCurrentUser,
+  withUser,
   withStyles(styles, {name:"SunshineReportedCommentsList"})
 );
