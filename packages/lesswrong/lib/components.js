@@ -149,6 +149,7 @@ import '../components/search/SearchPagination.jsx';
 
 
 import '../components/admin/AdminDashboard.jsx';
+import '../components/admin/BenchmarkComponent.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
