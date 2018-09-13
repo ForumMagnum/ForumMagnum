@@ -90,15 +90,6 @@ class RecentDiscussionThread extends PureComponent {
     this.handleMarkAsRead()
   }
 
-  renderLinkPost = () => {
-    const { post } = this.props
-    if (post.url) {
-      return <div className="recent-discussion-highlight-link-post">
-        Linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-      </div>
-    }
-  }
-
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
     const nestedComments = unflattenComments(results);
@@ -174,7 +165,7 @@ class RecentDiscussionThread extends PureComponent {
 
         { this.state.showExcerpt ?
           <div className={highlightClasses}>
-            { this.renderLinkPost() }
+            <Components.LinkPostMessage post={post} />
             { post.htmlHighlight ?
               <div>
                 <div className={classNames("post-highlight", classes.postBody)} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
@@ -189,7 +180,7 @@ class RecentDiscussionThread extends PureComponent {
             }
           </div>
           : <div className={highlightClasses} onClick={() => { this.showExcerpt() }}>
-              { this.renderLinkPost() }
+              <Components.LinkPostMessage post={post} />
               { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <div className={classNames(classes.postBody, "post-highlight", "excerpt")}  dangerouslySetInnerHTML={{__html: post.excerpt}}/>}
             </div>
         }
