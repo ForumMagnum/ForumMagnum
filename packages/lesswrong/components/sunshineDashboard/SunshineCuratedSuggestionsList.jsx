@@ -1,13 +1,24 @@
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  root: {
+    opacity:.2,
+    '&:hover': {
+      opacity: 1,
+    }
+  }
+})
+
 
 class SunshineCuratedSuggestionsList extends Component {
   render () {
-    const results = this.props.results
+    const { results, classes } = this.props
     if (results && results.length) {
       return (
-        <div className="sunshine-curated-suggestions-list">
+        <div className={classes.root}>
           <Components.SunshineListTitle>Suggestions for Curated</Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
@@ -33,5 +44,6 @@ registerComponent(
   'SunshineCuratedSuggestionsList',
   SunshineCuratedSuggestionsList,
   [withList, withListOptions],
-  withCurrentUser
+  withCurrentUser,
+  withStyles(styles, {name: "SunshineCuratedSuggestionsList"})
 );

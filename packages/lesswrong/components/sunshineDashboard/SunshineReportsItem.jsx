@@ -31,7 +31,7 @@ class SunshineReportsItem extends Component {
     } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       editMutation({
-        documentId: report.comment._id,
+        documentId: report.comment && report.comment._id,
         set: {
           deleted: true,
           deletedDate: new Date(),
@@ -116,6 +116,7 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
+
 registerComponent(
   'SunshineReportsItem',
   SunshineReportsItem,
