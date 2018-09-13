@@ -59,3 +59,5 @@ if(getSetting('AlignmentForum', false)) {
 } else {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
 }
+
+addRoute({name:'benchmark',   path:'/benchmark', componentName: 'BenchmarkComponent', title: "Benchmark" });
