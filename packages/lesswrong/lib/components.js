@@ -46,7 +46,7 @@ import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/VotesInfo.jsx';
 import '../components/common/DraftJSRenderer.jsx';
-import '../components/common/Tooltip.jsx';
+import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 
@@ -55,6 +55,8 @@ import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
 import '../components/posts/PostsBody/PostsBody.jsx';
+import '../components/posts/PostsHighlight.jsx';
+import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
@@ -165,6 +167,9 @@ import '../components/sunshineDashboard/SunshineReportsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';
+import '../components/sunshineDashboard/SunshineListTitle.jsx';
+import '../components/sunshineDashboard/SunshineListItem.jsx';
+import '../components/sunshineDashboard/SidebarHoverOver.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

@@ -4,6 +4,8 @@ import { Comments } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
+import Typography from '@material-ui/core/Typography';
+import { Posts } from 'meteor/example-forum';
 
 class SunshineCommentsItem extends Component {
 
@@ -37,32 +39,45 @@ class SunshineCommentsItem extends Component {
     if (comment) {
       return (
         <div className="sunshine-sidebar-item new-comment">
-          <Components.SunshineCommentsItemOverview comment={comment}/>
-          <div className="sunshine-sidebar-posts-actions new-comment">
-            <Link
-              className="sunshine-sidebar-posts-action new-comment clear"
-              target="_blank"
-              title="Spam/Eugin (delete immediately)"
-              to={Users.getProfileUrl(comment.user)}
-              onClick={this.handleDelete}>
-                <FontIcon
-                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                  className="material-icons">
-                    clear
-                </FontIcon>
-                <div className="sunshine-sidebar-posts-item-delete-overlay"/>
-            </Link>
-            <span
-              className="sunshine-sidebar-posts-action new-comment review"
-              title="Mark as Reviewed"
-              onClick={this.handleReview}>
-              <FontIcon
-                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  done
-              </FontIcon>
-            </span>
-          </div>
+          <Components.SidebarHoverOver
+            hoverOverComponent={
+              <Typography variant="body2">
+                <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+                  Commented on post: <strong>{ comment.post.title }</strong>
+                </Link>
+                <Components.CommentBody comment={comment}/>
+              </Typography>
+            }
+          >
+            <Components.SunshineListItem>
+              <Components.SunshineCommentsItemOverview comment={comment}/>
+              <div className="sunshine-sidebar-posts-actions new-comment">
+                <Link
+                  className="sunshine-sidebar-posts-action new-comment clear"
+                  target="_blank"
+                  title="Spam/Eugin (delete immediately)"
+                  to={Users.getProfileUrl(comment.user)}
+                  onClick={this.handleDelete}>
+                    <FontIcon
+                      style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                      className="material-icons">
+                        clear
+                    </FontIcon>
+                    <div className="sunshine-sidebar-posts-item-delete-overlay"/>
+                </Link>
+                <span
+                  className="sunshine-sidebar-posts-action new-comment review"
+                  title="Mark as Reviewed"
+                  onClick={this.handleReview}>
+                  <FontIcon
+                    style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                    className="material-icons">
+                      done
+                  </FontIcon>
+                </span>
+              </div>
+            </Components.SunshineListItem>
+          </Components.SidebarHoverOver>
         </div>
       )
     } else {
