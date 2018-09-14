@@ -26,7 +26,7 @@ const getMeta = (url) => {
 };
 
 // LESSWRONG - this was added to handle karmaThresholds
-const roundKarmaThreshold = threshold => (threshold < 16) ? 2
+const roundKarmaThreshold = threshold => (threshold < 16 || !threshold) ? 2
                                        : (threshold < 37) ? 30
                                        : (threshold < 60) ? 45
                                        : 75;
