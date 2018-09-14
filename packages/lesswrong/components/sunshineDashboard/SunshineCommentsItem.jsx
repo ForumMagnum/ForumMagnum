@@ -1,13 +1,13 @@
 import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from 'meteor/example-forum';
-import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
 import withHover from '../common/withHover'
 import Popper from '@material-ui/core/Popper';
+import Users from 'meteor/vulcan:users';
+
 
 class SunshineCommentsItem extends Component {
 
@@ -23,6 +23,7 @@ class SunshineCommentsItem extends Component {
   handleDelete = () => {
     const { currentUser, comment, editMutation } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
+      window.open(Users.getProfileUrl(comment.user), '_blank');
       editMutation({
         documentId: comment._id,
         set: {
@@ -52,8 +53,8 @@ class SunshineCommentsItem extends Component {
               </Components.SidebarHoverOver>
             </Popper>
             <Components.SunshineCommentsItemOverview comment={comment}/>
-              {hover && <Components.SidebarItemActions>
-                <Link
+              {hover && <Components.SidebarActionMenu>
+                {/* <Link
                   className="sunshine-sidebar-posts-action new-comment clear"
                   target="_blank"
                   title="Spam/Eugin (delete immediately)"
@@ -65,18 +66,14 @@ class SunshineCommentsItem extends Component {
                         clear
                     </FontIcon>
                     <div className="sunshine-sidebar-posts-item-delete-overlay"/>
-                </Link>
-                <span
-                  className="sunshine-sidebar-posts-action new-comment review"
-                  title="Mark as Reviewed"
-                  onClick={this.handleReview}>
-                  <FontIcon
-                    style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                    className="material-icons">
-                      done
-                  </FontIcon>
-                </span>
-              </Components.SidebarItemActions>}
+                </Link> */}
+                <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
+                  done
+                </Components.SidebarAction>
+                <Components.SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+                  clear
+                </Components.SidebarAction>
+              </Components.SidebarActionMenu>}
           </Components.SunshineListItem>
       )
     } else {

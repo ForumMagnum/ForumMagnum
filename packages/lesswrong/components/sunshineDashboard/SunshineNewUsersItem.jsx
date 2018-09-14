@@ -1,9 +1,8 @@
 /* global confirm */
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components as c, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
@@ -41,15 +40,15 @@ class SunshineNewUsersItem extends Component {
   render () {
     const { user, hover, anchorEl } = this.props
     return (
-        <Components.SunshineListItem>
+        <c.SunshineListItem>
           <Popper open={hover} anchorEl={anchorEl} placement="left-start">
-            <Components.SidebarHoverOver width={250}>
+            <c.SidebarHoverOver width={250}>
               <Typography variant="body2">
                 <Link to={Users.getProfileUrl(user)}>
                   { user.displayName }
                 </Link>
                 <br/>
-                <Components.SidebarInfo>
+                <c.MetaInfo>
                   <div>Posts: { user.postCount || 0 }</div>
                   <div>Comments: { user.commentCount || 0 }</div>
                   <hr />
@@ -57,51 +56,36 @@ class SunshineNewUsersItem extends Component {
                   <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
                   <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                   <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-                </Components.SidebarInfo>
+                </c.MetaInfo>
               </Typography>
-            </Components.SidebarHoverOver>
+            </c.SidebarHoverOver>
           </Popper>
           <div>
-            <Components.MetaInfo>
+            <c.MetaInfo>
               <Link to={Users.getProfileUrl(user)}>
                   {user.displayName}
               </Link>
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </c.MetaInfo>
+            <c.MetaInfo>
               { user.karma || 0 }
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </c.MetaInfo>
+            <c.MetaInfo>
               { user.email }
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </c.MetaInfo>
+            <c.MetaInfo>
               { moment(new Date(user.createdAt)).fromNow() }
-            </Components.MetaInfo>
+            </c.MetaInfo>
           </div>
-          { hover && <Components.SidebarItemActions>
-            <div
-              className="sunshine-sidebar-posts-action purge"
-              title="Purge User (delete and ban)"
-              onClick={this.handlePurge}>
-                <FontIcon
-                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                  className="material-icons">
-                    delete_forever
-                </FontIcon>
-                <div className="sunshine-sidebar-posts-item-delete-overlay" />
-            </div>
-            <span
-              className="sunshine-sidebar-posts-action review"
-              title="Mark as Reviewed"
-              onClick={this.handleReview}>
-              <FontIcon
-                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  done
-              </FontIcon>
-            </span>
-          </Components.SidebarItemActions>
-          }
-        </Components.SunshineListItem>
+
+          { hover && <c.SidebarActionMenu>
+            <c.SidebarAction title="Review" onClick={this.handleReview}>
+              done
+            </c.SidebarAction>
+            <c.SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
+              delete_forever
+            </c.SidebarAction>
+          </c.SidebarActionMenu>}
+        </c.SunshineListItem>
     )
   }
 }

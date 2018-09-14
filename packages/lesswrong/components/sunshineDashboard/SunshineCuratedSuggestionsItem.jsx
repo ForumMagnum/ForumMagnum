@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import withHover from '../common/withHover'
@@ -96,49 +95,23 @@ class SunshineCuratedSuggestionsItem extends Component {
           <Components.SidebarInfo>
             Endorsed by { post.suggestForCuratedUsernames }
           </Components.SidebarInfo>
-          { hover && <Components.SidebarItemActions>
-            <span
-              className="sunshine-sidebar-posts-action clear"
-              title="Remove from Curation Suggestions"
-              onClick={this.handleDisregardForCurated}>
-              <FontIcon
-                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  clear
-              </FontIcon>
-            </span>
-            <span
-              className="sunshine-sidebar-posts-action curate"
-              title="Curate Post"
-              onClick={this.handleCurate}>
-              <FontIcon
-                style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  star
-              </FontIcon>
-            </span>
+          { hover && <Components.SidebarActionMenu>
             { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-              <span
-                className="sunshine-sidebar-posts-action clear"
-                title="Endorse Curation"
-                onClick={this.handleSuggestCurated}>
-                <FontIcon
-                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                  className="material-icons">
-                    plus_one
-                </FontIcon>
-              </span> :
-              <span
-                className="sunshine-sidebar-posts-action clear"
-                title="Unendorse Curation"
-                onClick={this.handleUnsuggestCurated}>
-                <FontIcon
-                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                  className="material-icons">
-                    undo
-                </FontIcon>
-              </span>}
-          </Components.SidebarItemActions>}
+              <Components.SidebarAction title="Endorse Curation" onClick={this.handleSuggestCurated}>
+                plus_one
+              </Components.SidebarAction>
+              :
+              <Components.SidebarAction title="Unendorse Curation" onClick={this.handleUnsuggestCurated}>
+                undo
+              </Components.SidebarAction>
+            }
+            <Components.SidebarAction title="Curate Post" onClick={this.handleCurate}>
+              star
+            </Components.SidebarAction>
+            <Components.SidebarAction title="Remove from Curation Suggestions" onClick={this.handleDisregardForCurated}>
+              clear
+            </Components.SidebarAction>
+          </Components.SidebarActionMenu>}
         </Components.SunshineListItem>
       )
     } else {

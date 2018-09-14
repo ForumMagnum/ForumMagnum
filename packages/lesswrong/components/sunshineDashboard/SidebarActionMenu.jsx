@@ -9,19 +9,18 @@ const styles = theme => ({
     right:0,
     height:"100%",
     display:"flex",
-    flexDirection: "row-reverse",
     alignItems: "center",
     backgroundColor: theme.palette.grey[50],
     paddingLeft: theme.spacing.unit*2
   },
 })
 
-const SidebarItemActions = ({children, classes}) => {
+const SidebarActionMenu = ({children, classes}) => {
   return <div className={classes.root}>
         { children }
     </div>
 };
 
-SidebarItemActions.displayName = "SidebarItemActions";
+SidebarActionMenu.displayName = "SidebarActionMenu";
 
-registerComponent('SidebarItemActions', SidebarItemActions, withStyles(styles, { name: 'SidebarItemActions'}));
+registerComponent('SidebarActionMenu', SidebarActionMenu, withStyles(styles, { name: 'SidebarActionMenu'}));
