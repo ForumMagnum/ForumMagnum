@@ -63,16 +63,16 @@ class SunshineNewPostsItem extends Component {
               {post.title}
           </Link>
           <div>
-            <Components.MetaInfo>
+            <Components.SidebarInfo>
               { post.baseScore }
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </Components.SidebarInfo>
+            <Components.SidebarInfo>
               <Link
                 className="sunshine-sidebar-posts-author"
                 to={Users.getProfileUrl(post.user)}>
                   {post.user.displayName}
               </Link>
-            </Components.MetaInfo>
+            </Components.SidebarInfo>
           </div>
           { hover && <Components.SidebarItemActions>
             <Link

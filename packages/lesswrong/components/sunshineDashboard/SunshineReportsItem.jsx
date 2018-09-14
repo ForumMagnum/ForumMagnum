@@ -71,9 +71,9 @@ class SunshineReportsItem extends Component {
                 </Components.SidebarHoverOver>
               </Popper>
               <Components.SunshineCommentsItemOverview comment={comment}/>
-              <Typography variant="caption">
-                "{ report.description }" – {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
-              </Typography>
+              <Components.SidebarInfo>
+                <em>"{ report.description }"</em> – {report.user.displayName}, { moment(new Date(report.createdAt)).fromNow() }
+              </Components.SidebarInfo>
               {hover && <Components.SidebarItemActions>
                 <Link
                   className="sunshine-sidebar-posts-action new-comment clear"

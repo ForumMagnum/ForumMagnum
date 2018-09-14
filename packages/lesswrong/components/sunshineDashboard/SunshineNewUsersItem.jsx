@@ -49,7 +49,7 @@ class SunshineNewUsersItem extends Component {
                   { user.displayName }
                 </Link>
                 <br/>
-                <Components.MetaInfo>
+                <Components.SidebarInfo>
                   <div>Posts: { user.postCount || 0 }</div>
                   <div>Comments: { user.commentCount || 0 }</div>
                   <hr />
@@ -57,7 +57,7 @@ class SunshineNewUsersItem extends Component {
                   <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
                   <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                   <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-                </Components.MetaInfo>
+                </Components.SidebarInfo>
               </Typography>
             </Components.SidebarHoverOver>
           </Popper>

@@ -11,7 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    backgroundColor: "rgba(60,0,0,.04)"
+    backgroundColor: "rgba(60,0,0,.08)"
   }
 })
 
@@ -21,7 +21,9 @@ class SunshineReportedCommentsList extends Component {
     if (results && results.length) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>Flagged Comments</Components.SunshineListTitle>
+          <Components.SunshineListTitle>
+            Flagged Comments
+          </Components.SunshineListTitle>
           {results.map(report =>
             <div key={report._id} >
               <Components.SunshineReportsItem

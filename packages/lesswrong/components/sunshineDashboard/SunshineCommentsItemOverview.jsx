@@ -9,7 +9,9 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   comment: {
-    color: theme.palette.grey[800]
+    color: theme.palette.grey[800],
+    fontSize: "1rem",
+    fontFamily: theme.typography.fontFamily
   }
 })
 
@@ -20,29 +22,27 @@ class SunshineCommentsItemOverview extends Component {
     let commentExcerpt = comment.body.substring(0,38);
     if (comment) {
       return (
-        <div className="sunshine-sidebar-posts-item new-comment">
-          <Components.MetaInfo>
-            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
-              { comment.deleted ? <span>COMMENT DELETED</span>
-                : <span>{ commentExcerpt }</span>
-              }
-            </Link>
-          </Components.MetaInfo>
+        <div>
+          <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
+            { comment.deleted ? <span>COMMENT DELETED</span>
+              : <span>{ commentExcerpt }</span>
+            }
+          </Link>
           <div>
-            <Components.MetaInfo>
+            <Components.SidebarInfo>
               { comment.baseScore }
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </Components.SidebarInfo>
+            <Components.SidebarInfo>
               <Link to={Users.getProfileUrl(comment.user)}>
                   {comment.user.displayName}
               </Link>
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </Components.SidebarInfo>
+            <Components.SidebarInfo>
               <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                 {moment(new Date(comment.postedAt)).fromNow()}
                 <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
               </Link>
-            </Components.MetaInfo>
+            </Components.SidebarInfo>
           </div>
         </div>
       )

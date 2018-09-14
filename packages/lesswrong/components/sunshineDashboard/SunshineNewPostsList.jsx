@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    backgroundColor:"rgba(0,80,0,.04)"
+    backgroundColor:"rgba(0,80,0,.08)"
   }
 })
 
@@ -16,7 +16,9 @@ class SunshineNewPostsList extends Component {
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>Unreviewed Posts</Components.SunshineListTitle>
+          <Components.SunshineListTitle>
+            Unreviewed Posts
+          </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
               <Components.SunshineNewPostsItem post={post}/>

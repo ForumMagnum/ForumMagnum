@@ -8,7 +8,9 @@ class SunshineNewUsersList extends Component {
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
         <div>
-          <Components.SunshineListTitle>New Users</Components.SunshineListTitle>
+          <Components.SunshineListTitle>
+            New Users
+          </Components.SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
               <Components.SunshineNewUsersItem user={user}/>

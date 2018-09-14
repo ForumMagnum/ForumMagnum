@@ -170,6 +170,7 @@ import '../components/sunshineDashboard/SunshineListTitle.jsx';
 import '../components/sunshineDashboard/SunshineListItem.jsx';
 import '../components/sunshineDashboard/SidebarHoverOver.jsx';
 import '../components/sunshineDashboard/SidebarItemActions.jsx';
+import '../components/sunshineDashboard/SidebarInfo.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

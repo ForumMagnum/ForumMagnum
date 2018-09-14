@@ -71,9 +71,6 @@ const theme = createLWTheme({
     title: {
       fontFamily: serifStack,
       fontWeight: 500,
-    },
-    caption: {
-      fontSize: ".85rem",
     }
   },
   overrides: {

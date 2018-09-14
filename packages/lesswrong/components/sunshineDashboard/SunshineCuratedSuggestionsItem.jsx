@@ -81,21 +81,21 @@ class SunshineCuratedSuggestionsItem extends Component {
               {post.title}
           </Link>
           <div>
-            <Components.MetaInfo>
+            <Components.SidebarInfo>
               { post.baseScore }
-            </Components.MetaInfo>
-            <Components.MetaInfo>
+            </Components.SidebarInfo>
+            <Components.SidebarInfo>
               <Link to={Users.getProfileUrl(post.user)}>
                   {post.user.displayName}
               </Link>
-            </Components.MetaInfo>
-            {post.postedAt && <Components.MetaInfo>
+            </Components.SidebarInfo>
+            {post.postedAt && <Components.SidebarInfo>
               {moment(new Date(post.postedAt)).fromNow()}
-            </Components.MetaInfo>}
+            </Components.SidebarInfo>}
           </div>
-          <Typography variant="caption">
+          <Components.SidebarInfo>
             Endorsed by { post.suggestForCuratedUsernames }
-          </Typography>
+          </Components.SidebarInfo>
           { hover && <Components.SidebarItemActions>
             <span
               className="sunshine-sidebar-posts-action clear"
