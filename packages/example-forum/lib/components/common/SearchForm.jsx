@@ -29,7 +29,7 @@ class SearchForm extends Component{
   }
 
   // note: why do we need this?
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       search: this.props.router.location.query.query || ''
     });

@@ -28,7 +28,7 @@ class Newsletter extends PureComponent {
     });
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     if (nextProps.currentUser) {
       this.setState({showBanner: showBanner(nextProps.currentUser)});
     }

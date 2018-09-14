@@ -21,7 +21,7 @@ class PostsDailyList extends PureComponent {
   }
 
   // intercept prop change and only show more days once data is done loading
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.networkStatus === 2) {
       this.setState({loading: true});
     } else {
