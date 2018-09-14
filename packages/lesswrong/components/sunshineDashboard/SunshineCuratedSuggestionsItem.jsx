@@ -6,6 +6,8 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
+import withHover from '../common/withHover'
+import Popper from '@material-ui/core/Popper';
 
 class SunshineCuratedSuggestionsItem extends Component {
 
@@ -59,91 +61,85 @@ class SunshineCuratedSuggestionsItem extends Component {
   }
 
   render () {
-    if (this.props.post) {
-      const { currentUser, post } = this.props
+    const { post, currentUser, hover, anchorEl } = this.props
+    if (post) {
       return (
-        <div className="sunshine-sidebar-item curated-suggestion">
-          <Components.SidebarHoverOver
-            hoverOverComponent={
-              <div>
-                <Typography variant="title">
-                  <Link to={Posts.getPageUrl(post)}>
-                    { post.title }
-                  </Link>
-                </Typography>
-                <br/>
-                <Components.PostsHighlight post={post}/>
-              </div>
-            }
-          >
-            <Components.SunshineListItem>
-              <Link to={Posts.getPageUrl(post)}
-                className="sunshine-sidebar-posts-title">
-                  {post.title}
-              </Link>
-              <div>
-                <Components.MetaInfo>
-                  { post.baseScore }
-                </Components.MetaInfo>
-                <Components.MetaInfo>
-                  <Link to={Users.getProfileUrl(post.user)}>
-                      {post.user.displayName}
-                  </Link>
-                </Components.MetaInfo>
-                {post.postedAt && <Components.MetaInfo>
-                  {moment(new Date(post.postedAt)).fromNow()}
-                </Components.MetaInfo>}
-              </div>
-              <Typography variant="caption">
-                Endorsed by { post.suggestForCuratedUsernames }
+        <Components.SunshineListItem>
+          <Popper open={hover} anchorEl={anchorEl} placement="left-start">
+            <Components.SidebarHoverOver>
+              <Typography variant="title">
+                <Link to={Posts.getPageUrl(post)}>
+                  { post.title }
+                </Link>
               </Typography>
-              <div className="sunshine-sidebar-posts-actions curated-suggestion">
-                <span
-                  className="sunshine-sidebar-posts-action clear"
-                  title="Remove from Curation Suggestions"
-                  onClick={this.handleDisregardForCurated}>
-                  <FontIcon
-                    style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                    className="material-icons">
-                      clear
-                  </FontIcon>
-                </span>
-                <span
-                  className="sunshine-sidebar-posts-action curate"
-                  title="Curate Post"
-                  onClick={this.handleCurate}>
-                  <FontIcon
-                    style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
-                    className="material-icons">
-                      star
-                  </FontIcon>
-                </span>
-                { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-                  <span
-                    className="sunshine-sidebar-posts-action clear"
-                    title="Endorse Curation"
-                    onClick={this.handleSuggestCurated}>
-                    <FontIcon
-                      style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                      className="material-icons">
-                        plus_one
-                    </FontIcon>
-                  </span> :
-                  <span
-                    className="sunshine-sidebar-posts-action clear"
-                    title="Unendorse Curation"
-                    onClick={this.handleUnsuggestCurated}>
-                    <FontIcon
-                      style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                      className="material-icons">
-                        undo
-                    </FontIcon>
-                  </span>
-                }
-              </div>
-            </Components.SunshineListItem>
-          </Components.SidebarHoverOver>
-        </div>
+              <br/>
+              <Components.PostsHighlight post={post}/>
+            </Components.SidebarHoverOver>
+          </Popper>
+          <Link to={Posts.getPageUrl(post)}
+            className="sunshine-sidebar-posts-title">
+              {post.title}
+          </Link>
+          <div>
+            <Components.MetaInfo>
+              { post.baseScore }
+            </Components.MetaInfo>
+            <Components.MetaInfo>
+              <Link to={Users.getProfileUrl(post.user)}>
+                  {post.user.displayName}
+              </Link>
+            </Components.MetaInfo>
+            {post.postedAt && <Components.MetaInfo>
+              {moment(new Date(post.postedAt)).fromNow()}
+            </Components.MetaInfo>}
+          </div>
+          <Typography variant="caption">
+            Endorsed by { post.suggestForCuratedUsernames }
+          </Typography>
+          { hover && <Components.SidebarItemActions>
+            <span
+              className="sunshine-sidebar-posts-action clear"
+              title="Remove from Curation Suggestions"
+              onClick={this.handleDisregardForCurated}>
+              <FontIcon
+                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                className="material-icons">
+                  clear
+              </FontIcon>
+            </span>
+            <span
+              className="sunshine-sidebar-posts-action curate"
+              title="Curate Post"
+              onClick={this.handleCurate}>
+              <FontIcon
+                style={{fontSize: "24px", color:"rgba(0,0,0,.25)"}}
+                className="material-icons">
+                  star
+              </FontIcon>
+            </span>
+            { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
+              <span
+                className="sunshine-sidebar-posts-action clear"
+                title="Endorse Curation"
+                onClick={this.handleSuggestCurated}>
+                <FontIcon
+                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                  className="material-icons">
+                    plus_one
+                </FontIcon>
+              </span> :
+              <span
+                className="sunshine-sidebar-posts-action clear"
+                title="Unendorse Curation"
+                onClick={this.handleUnsuggestCurated}>
+                <FontIcon
+                  style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
+                  className="material-icons">
+                    undo
+                </FontIcon>
+              </span>}
+          </Components.SidebarItemActions>}
+        </Components.SunshineListItem>
       )
     } else {
       return null
@@ -159,5 +155,6 @@ registerComponent(
   'SunshineCuratedSuggestionsItem',
   SunshineCuratedSuggestionsItem,
   [withEdit, withEditOptions],
-  withCurrentUser
+  withCurrentUser,
+  withHover
 );

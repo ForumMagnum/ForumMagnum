@@ -7,6 +7,8 @@ import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
+import withHover from '../common/withHover'
+import Popper from '@material-ui/core/Popper';
 
 class SunshineReportsItem extends Component {
 
@@ -52,32 +54,27 @@ class SunshineReportsItem extends Component {
   }
 
   render () {
-    const { report } = this.props
+    const { report, hover, anchorEl } = this.props
     const comment = report.comment
 
     if (report) {
       return (
-        <div className="sunshine-sidebar-item new-report" >
-          <Components.SidebarHoverOver
-            hoverOverComponent={
-              <Typography variant="body2">
-                <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-                  Commented on post: <strong>{ comment.post.title }</strong>
-                </Link>
-                <Components.CommentBody comment={comment}/>
-              </Typography>
-            }
-          >
             <Components.SunshineListItem>
+              <Popper open={hover} anchorEl={anchorEl} placement="left-start">
+                <Components.SidebarHoverOver open={hover} anchorEl={anchorEl}>
+                  <Typography variant="body2">
+                    <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+                      Commented on post: <strong>{ comment.post.title }</strong>
+                    </Link>
+                    <Components.CommentBody comment={comment}/>
+                  </Typography>
+                </Components.SidebarHoverOver>
+              </Popper>
               <Components.SunshineCommentsItemOverview comment={comment}/>
-
               <Typography variant="caption">
-                <div>
-                  Reported by {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
-                </div>
-                <div>"{ report.description }"</div>
+                "{ report.description }" – {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
               </Typography>
-              <div className="sunshine-sidebar-posts-actions new-comment">
+              {hover && <Components.SidebarItemActions>
                 <Link
                   className="sunshine-sidebar-posts-action new-comment clear"
                   target="_blank"
@@ -101,10 +98,9 @@ class SunshineReportsItem extends Component {
                       done
                   </FontIcon>
                 </span>
-              </div>
+              </Components.SidebarItemActions>
+              }
             </Components.SunshineListItem>
-          </Components.SidebarHoverOver>
-        </div>
       )
     } else {
       return null
@@ -121,5 +117,6 @@ registerComponent(
   'SunshineReportsItem',
   SunshineReportsItem,
   [withEdit, withEditOptions],
-  withCurrentUser
+  withCurrentUser,
+  withHover
 );

@@ -5,17 +5,24 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  comment: {
+    color: theme.palette.grey[800]
+  }
+})
 
 class SunshineCommentsItemOverview extends Component {
 
   render () {
-    const { comment } = this.props
-    let commentExcerpt = comment.body.substring(0,40);
+    const { comment, classes } = this.props
+    let commentExcerpt = comment.body.substring(0,38);
     if (comment) {
       return (
         <div className="sunshine-sidebar-posts-item new-comment">
           <Components.MetaInfo>
-            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
               { comment.deleted ? <span>COMMENT DELETED</span>
                 : <span>{ commentExcerpt }</span>
               }
@@ -26,9 +33,7 @@ class SunshineCommentsItemOverview extends Component {
               { comment.baseScore }
             </Components.MetaInfo>
             <Components.MetaInfo>
-              <Link
-                className="sunshine-sidebar-posts-author"
-                to={Users.getProfileUrl(comment.user)}>
+              <Link to={Users.getProfileUrl(comment.user)}>
                   {comment.user.displayName}
               </Link>
             </Components.MetaInfo>
@@ -47,4 +52,4 @@ class SunshineCommentsItemOverview extends Component {
   }
 }
 
-registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withCurrentUser);
+registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withCurrentUser, withStyles(styles));

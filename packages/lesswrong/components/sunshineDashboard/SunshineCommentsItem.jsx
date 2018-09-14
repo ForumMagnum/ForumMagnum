@@ -6,6 +6,8 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
+import withHover from '../common/withHover'
+import Popper from '@material-ui/core/Popper';
 
 class SunshineCommentsItem extends Component {
 
@@ -35,23 +37,22 @@ class SunshineCommentsItem extends Component {
   }
 
   render () {
-    const comment = this.props.comment
+    const { comment, hover, anchorEl } = this.props
     if (comment) {
       return (
-        <div className="sunshine-sidebar-item new-comment">
-          <Components.SidebarHoverOver
-            hoverOverComponent={
-              <Typography variant="body2">
-                <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-                  Commented on post: <strong>{ comment.post.title }</strong>
-                </Link>
-                <Components.CommentBody comment={comment}/>
-              </Typography>
-            }
-          >
-            <Components.SunshineListItem>
-              <Components.SunshineCommentsItemOverview comment={comment}/>
-              <div className="sunshine-sidebar-posts-actions new-comment">
+          <Components.SunshineListItem>
+            <Popper open={hover} anchorEl={anchorEl} placement="left-start">
+              <Components.SidebarHoverOver>
+                <Typography variant="body2">
+                  <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+                    Commented on post: <strong>{ comment.post.title }</strong>
+                  </Link>
+                  <Components.CommentBody comment={comment}/>
+                </Typography>
+              </Components.SidebarHoverOver>
+            </Popper>
+            <Components.SunshineCommentsItemOverview comment={comment}/>
+              {hover && <Components.SidebarItemActions>
                 <Link
                   className="sunshine-sidebar-posts-action new-comment clear"
                   target="_blank"
@@ -75,10 +76,8 @@ class SunshineCommentsItem extends Component {
                       done
                   </FontIcon>
                 </span>
-              </div>
-            </Components.SunshineListItem>
-          </Components.SidebarHoverOver>
-        </div>
+              </Components.SidebarItemActions>}
+          </Components.SunshineListItem>
       )
     } else {
       return null
@@ -90,4 +89,4 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withCurrentUser);
+registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withCurrentUser, withHover);
