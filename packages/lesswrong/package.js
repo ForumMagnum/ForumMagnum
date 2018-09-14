@@ -23,6 +23,10 @@ Package.onUse( function(api) {
     'styles/main.scss',
   ], ['client']);
 
+  api.addAssets([
+    'server/emails/templates/newPost.handlebars',
+    'server/emails/templates/wrapper.handlebars',
+  ], ['server']);
 });
 
 Package.onTest(function(api) {

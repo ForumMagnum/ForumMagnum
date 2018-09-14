@@ -23,7 +23,6 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
   renderRecentComment() {
     const comment = this.props.comment || this.props.document
-    const htmlBody = {__html: comment.htmlBody};
     const plaintext = comment.body;
 
     const expanded = !(!this.state.expanded && plaintext && plaintext.length > 300) || this.props.expanded
@@ -33,14 +32,14 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
       const lastElement = commentExcerpt.slice(-1)[0];
       let paragraphCounter = 0;
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p key={ comment._id + paragraphCounter++}>{text}</p>);
-      return <div className="recent-comments-item-text comments-item-text content-body">
+      return <div className="comments-item-text content-body">
         {commentExcerpt}
         <p>{lastElement + "..."}<a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> </p>
       </div>
     } else {
       return (
-        <div className="recent-comments-item-text comments-item-text content-body" >
-          {htmlBody && <div className="recent-comment-body comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
+        <div className="comments-item-text content-body" >
+          <Components.CommentBody comment={comment}/>
         </div>
       )
     }

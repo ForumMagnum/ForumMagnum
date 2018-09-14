@@ -28,7 +28,7 @@ class EditorFormComponent extends Component {
     }
   }
 
-  async componentWillMount() {
+  async UNSAFE_componentWillMount() {
     const {default: Editor} = await import('../async/EditorFormContainer.jsx');
     this.setState({editor: Editor});
 
@@ -111,4 +111,4 @@ EditorFormComponent.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent('EditorFormComponent', EditorFormComponent, withCurrentUser, withStyles(styles));
+registerComponent('EditorFormComponent', EditorFormComponent, withCurrentUser, withStyles(styles, { name: "EditorFormComponent" }));

@@ -17,7 +17,7 @@ class CommentEditor extends Component {
     }
   }
 
-  async componentWillMount() {
+  async UNSAFE_componentWillMount() {
     const { currentUser } = this.props
     const {default: Editor} = await import('../async/AsyncCommentEditor.jsx');
     this.setState({editor: Editor});
@@ -54,4 +54,4 @@ CommentEditor.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles));
+registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles, { name: "CommentEditor" }));

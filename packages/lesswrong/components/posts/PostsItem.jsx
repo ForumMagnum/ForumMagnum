@@ -22,7 +22,6 @@ import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
-import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -33,20 +32,10 @@ const styles = theme => ({
     padding:theme.spacing.unit*2,
     ...postHighlightStyles(theme),
   },
-  highlightContinue: {
-    marginTop:theme.spacing.unit*2
-  },
   content: {
     paddingLeft:10,
     paddingTop:10,
     width:"calc(100% - 100px)"
-  },
-  linkPost: {
-    marginBottom: theme.spacing.unit*2,
-    ...theme.typography.postStyle,
-    '& > a': {
-      color: theme.palette.secondary.light
-    }
   },
   paperExpanded: {
     backgroundColor: 'inherit',
@@ -240,11 +229,12 @@ class PostsItem extends PureComponent {
       (this.state.showNewComments || this.state.showHighlight)
       ? classes.paperExpanded
       : classes.paperNotExpanded
-    
+
     return (
         <Paper
           className={classNames(postClass, paperStyle)}
           elevation={0}
+          square={true}
         >
           <div
             className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
@@ -254,38 +244,41 @@ class PostsItem extends PureComponent {
               <Link to={this.getPostLink()}>
                 <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
               </Link>
-              <div className="posts-item-meta" onClick={this.toggleHighlight}>
-                {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
-                {post.user && <div className="posts-item-user">
-                  <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
-                </div>}
-                {this.renderPostFeeds()}
-                {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
-                <div className="posts-item-points">
-                  { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
-                </div>
-                {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
-                {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
-                {this.renderEventDetails()}
-                <div className="posts-item-show-highlight-button">
-                  {currentUser && currentUser.isAdmin &&
-                    <Components.PostsStats post={post} />
-                  }
-                  { this.state.showHighlight ?
+              <div onClick={this.toggleHighlight}>
+                <Components.MetaInfo className="posts-item-meta">
+
+                  {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
+                  {post.user && <div className="posts-item-user">
+                    <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
+                  </div>}
+                  {this.renderPostFeeds()}
+                  {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
+                  <div className="posts-item-points">
+                    { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
+                  </div>
+                  {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
+                  {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
+                  {this.renderEventDetails()}
+                  <div className="posts-item-show-highlight-button">
+                    {currentUser && currentUser.isAdmin &&
+                      <Components.PostsStats post={post} />
+                    }
+                    { this.state.showHighlight ?
+                      <span>
+                        Hide Highlight
+                        <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                          subdirectory_arrow_left
+                        </FontIcon>
+                      </span>
+                    :
                     <span>
-                      Hide Highlight
-                      <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                      Show Highlight
+                      <FontIcon className={classNames("material-icons","show-highlight-button")}>
                         subdirectory_arrow_left
                       </FontIcon>
-                    </span>
-                  :
-                  <span>
-                    Show Highlight
-                    <FontIcon className={classNames("material-icons","show-highlight-button")}>
-                      subdirectory_arrow_left
-                    </FontIcon>
-                  </span>  }
-                </div>
+                    </span>  }
+                  </div>
+                </Components.MetaInfo>
               </div>
             </div>
             <div className="post-category-display-container" onClick={this.toggleHighlight}>
@@ -296,18 +289,8 @@ class PostsItem extends PureComponent {
 
           </div>
           { this.state.showHighlight &&
-            <div className="posts-item-highlight">
-              <div className={classes.highlight}>
-                { post.url && <Typography variant="body2" className={classes.linkPost}>
-                  This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-                </Typography>}
-                <div dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
-                <div className={classes.highlightContinue}>
-                  {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
-                    (Continue Reading{` – ${post.wordCount - 280} more words`})
-                  </Link>}
-                </div>
-              </div>
+            <div className={classes.highlight}>
+              <Components.PostsHighlight post={post} />
               { this.renderHighlightMenu() }
             </div>
           }
@@ -374,5 +357,5 @@ registerComponent(
   muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles)
+  withStyles(styles, { name: "PostsItem" })
 );

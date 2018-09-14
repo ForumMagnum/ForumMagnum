@@ -40,8 +40,7 @@ class GroupFormLink extends Component {
         <span onClick={this.handleOpenGroupForm}>{labelText}</span>
       </Components.SectionSubtitle>
       <Dialog
-        contentStyle={{maxWidth:"400px"}}
-        title={"Local Group Form"}
+        contentStyle={{maxWidth:"500px"}}
         open={this.state.groupFormOpen}
         onRequestClose={this.handleCloseGroupForm}
         className={dialogClasses}

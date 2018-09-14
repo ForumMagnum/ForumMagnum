@@ -30,10 +30,10 @@ if (!Meteor.isPackageTest) {
   };
   Accounts.emailTemplates.verifyEmail = {
      subject() {
-        return "Activate your LessWrong 2.0 account";
+        return "Verify your email address";
      },
      text(user, url) {
-        return `Hey ${user}! Verify your e-mail by following this link: ${url}`;
+        return `Hey ${user.displayName}! Verify your e-mail by following this link: ${url}`;
      }
   };
 

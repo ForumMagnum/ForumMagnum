@@ -1,6 +1,7 @@
-import { Components, registerComponent, getSetting, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch/dom';
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
@@ -10,7 +11,8 @@ import Intercom from 'react-intercom';
 
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
+import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -38,7 +40,7 @@ const styles = theme => ({
   }
 })
 
-const Layout = ({currentUser, children, currentRoute, params, client, classes}, { userAgent }) => {
+const Layout = ({currentUser, children, currentRoute, location, params, client, classes, theme}, { userAgent }) => {
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -61,16 +63,27 @@ const Layout = ({currentUser, children, currentRoute, params, client, classes}, 
         return null
       }
     }
+    
+    const routeName = currentRoute.name
+    const query = location && location.query
+    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
+    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
 
     return <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
       <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <CssBaseline />
           <Helmet>
-            <title>{getSetting('forumSettings.tabTitle', 'LessWrong 2.0')}</title>
+            <title>{title}</title>
             <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
             <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+            { theme.typography.fontDownloads &&
+                theme.typography.fontDownloads.map(
+                  (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                )
+            }
             <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
             <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
           </Helmet>
@@ -103,4 +116,4 @@ Layout.contextTypes = {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withCurrentUser, withApollo, withStyles(styles));
+registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme());

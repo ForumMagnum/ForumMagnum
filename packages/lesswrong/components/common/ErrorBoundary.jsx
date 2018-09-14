@@ -38,4 +38,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-registerComponent("ErrorBoundary", ErrorBoundary, withStyles(styles));
+registerComponent("ErrorBoundary", ErrorBoundary, withStyles(styles, { name: "ErrorBoundary" }));

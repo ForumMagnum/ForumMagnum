@@ -49,4 +49,4 @@ class CollectionsCard extends PureComponent {
   }
 }
 
-registerComponent("CollectionsCard", CollectionsCard, withStyles(styles), withRouter);
+registerComponent("CollectionsCard", CollectionsCard, withStyles(styles, { name: "CollectionsCard" }), withRouter);

@@ -36,6 +36,7 @@ const styles = theme => ({
       margin: '45px 0',
       ...theme.typography.display3,
       ...theme.typography.postStyle,
+      ...theme.typography.headerStyle,
       color: theme.palette.text.primary,
     },
     voteTop: {
@@ -69,14 +70,6 @@ const styles = theme => ({
       marginBottom: 40,
     },
     postContent: postBodyStyles(theme),
-    linkPost: {
-      marginBottom: theme.spacing.unit*2,
-      paddingTop: 1,
-      ...theme.typography.postStyle,
-      '& > a': {
-        color: theme.palette.secondary.light
-      }
-    },
     metadata: {
       ...theme.typography.postStyle,
     },
@@ -271,7 +264,6 @@ class PostsPage extends Component {
     } else {
 
       const post = document
-      const htmlBody = {__html: post.htmlBody}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
@@ -297,7 +289,7 @@ class PostsPage extends Component {
                 </Components.ErrorBoundary>
                 <hr className={classes.voteDivider}/>
               </div>
-              <Typography variant="title" color="textSecondary" className={classes.author}>
+              <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
                 {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
@@ -308,10 +300,10 @@ class PostsPage extends Component {
               <Components.ErrorBoundary>
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>
-              { post.url && <Typography variant="body2" color="textSecondary" className={classes.linkPost}>
-                This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-              </Typography>}
-              { post.htmlBody && <div className={classes.postContent} dangerouslySetInnerHTML={htmlBody}></div> }
+              <div className={classes.postContent}>
+                <Components.LinkPostMessage post={post} />
+                { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+              </div>
             </div>
             <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
@@ -319,7 +311,7 @@ class PostsPage extends Component {
                   <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
                 </Components.ErrorBoundary>
               </div>
-              <Typography variant="headline" color="textSecondary" className={classes.author}>
+              <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
                 {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
             </div>
@@ -439,5 +431,5 @@ registerComponent(
   // HOC to give access to the redux store & related actions
   connect(mapStateToProps, mapDispatchToProps),
   // HOC to add JSS styles to component
-  withStyles(styles)
+  withStyles(styles, { name: "PostsPage" })
 );

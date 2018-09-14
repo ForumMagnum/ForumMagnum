@@ -1,10 +1,11 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import {
   Components,
   withDocument,
   registerComponent,
   withCurrentUser,
 } from 'meteor/vulcan:core';
+import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import moment from 'moment';
 import NoSSR from 'react-no-ssr';
@@ -37,6 +38,15 @@ class SequencesPage extends Component {
   showSequence = () => {
     this.setState({edit: false})
   }
+  
+  // Are sequences (as opposed to sequence-posts) a type
+  // of entity that people should be able to comment on?
+  // Maybe, at some point in the future? The current answer
+  // however is "no" (reflected in this function, and the
+  // comments widget being commented out below).
+  commentsEnabled = () => {
+    return false;
+  }
 
   render() {
     const { document, currentUser, loading, classes } = this.props;
@@ -55,6 +65,7 @@ class SequencesPage extends Component {
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
 
       return (<div className="sequences-page">
+        <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">
             <NoSSR>
@@ -79,16 +90,20 @@ class SequencesPage extends Component {
             <div className="sequences-date">
               {date}
             </div>
-            <div className="sequences-comment-count">
-              {document.commentCount || 0} comments
-            </div>
+            { this.commentsEnabled() && (
+              <div className="sequences-comment-count">
+                {document.commentCount || 0} comments
+              </div>)
+            }
             {document.userId ? <div className="sequences-author-top">
               by <Link className="sequences-author-top-name" to={Users.getProfileUrl(document.user)}>{document.user.displayName}</Link>
             </div> : null}
             {canEdit ? <a onClick={this.showEdit}>edit</a> : null}
           </div>}>
           <div className="sequences-description content-body">
-            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
+            <Typography variant="body2">
+              {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
+            </Typography>
           </div>
         </Components.Section>
         <div className="sequences-chapters">
@@ -117,4 +132,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles));
+registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles, { name: "SequencesPage" }));

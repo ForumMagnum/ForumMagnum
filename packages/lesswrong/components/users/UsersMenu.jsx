@@ -87,4 +87,7 @@ UsersMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersMenu', UsersMenu, withCurrentUser, withApollo, withStyles(styles));
+registerComponent('UsersMenu', UsersMenu,
+  withCurrentUser, withApollo,
+  withStyles(styles, { name: "UsersMenu" })
+);

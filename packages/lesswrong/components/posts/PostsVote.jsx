@@ -71,7 +71,7 @@ class PostsVote extends PureComponent {
               <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
             </Tooltip>
 
-            {!!post.afBaseScore && !getSetting('AlignmentForum', false) &&
+            {!!post.af && !!post.afBaseScore && !getSetting('AlignmentForum', false) &&
               <Tooltip
                 title="Alignment Forum karma"
                 placement="right"
@@ -112,4 +112,6 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote, withStyles(styles, { name: 'PostsVote'}));
+registerComponent('PostsVote', PostsVote,
+  withStyles(styles, { name: "PostsVote" })
+);

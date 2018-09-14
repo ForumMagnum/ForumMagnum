@@ -10,7 +10,7 @@ class LastVisitList extends Component {
     const { results, loading, clickCallback } = this.props
     if (!loading && results) {
       return (results.map((event) =>
-          <MenuItem dense onClick={() => clickCallback(event.createdAt)}>Visit at: {moment(event.createdAt).calendar().toString()} </MenuItem>
+          <MenuItem key={event._id} dense onClick={() => clickCallback(event.createdAt)}>Visit at: {moment(event.createdAt).calendar().toString()} </MenuItem>
         ))
     } else {
       return <Components.Loading />

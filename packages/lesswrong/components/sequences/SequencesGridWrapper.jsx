@@ -16,8 +16,7 @@ const SequencesGridWrapper = ({
   loadingMore,
   showLoadMore = false,
   showAuthor = false,
-  listMode = false,
-  error}) => {
+  listMode = false}) => {
   if (results && results.length) {
     // render grid of sequences
     return (<div className={classNames(className, 'sequences-grid-wrapper')}>
@@ -32,7 +31,6 @@ const SequencesGridWrapper = ({
   } else {
     // TODO: Replace with SequencesNoResults
     return (<div className={classNames(className, 'sequences-grid')}>
-      {error ? <Error error={error} /> : null }
       <div className="sequences-grid-content">
         <Components.PostsNoResults/>
       </div>

@@ -36,8 +36,8 @@ class ConversationDetails extends Component {
               { i < conversation.participants.length-1 && ","}
             </Components.MetaInfo>)}
           </span>
-          <Components.DialogGroup title="Edit Conversation Title"
-            actions={[]} trigger={<Components.MetaInfo button>Edit Conversation Title</Components.MetaInfo>}>
+          <Components.DialogGroup title="Conversation Options"
+            actions={[]} trigger={<Components.MetaInfo button>Conversation Options</Components.MetaInfo>}>
             <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>
@@ -48,4 +48,4 @@ class ConversationDetails extends Component {
   }
 }
 
-registerComponent('ConversationDetails', ConversationDetails, withCurrentUser, withStyles(styles));
+registerComponent('ConversationDetails', ConversationDetails, withCurrentUser, withStyles(styles, { name: "ConversationDetails" }));

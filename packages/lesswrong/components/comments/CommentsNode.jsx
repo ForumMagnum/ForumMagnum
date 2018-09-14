@@ -54,6 +54,7 @@ class CommentsNode extends PureComponent {
   }
 
   scrollIntoView = (event) => {
+    //eslint-disable-next-line react/no-string-refs
     this.refs.comment.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
     this.setState({finishedScroll: true});
   }
@@ -115,6 +116,7 @@ class CommentsNode extends PureComponent {
           onMouseEnter={this.toggleHover}
           onMouseLeave={this.toggleHover}
           id={comment._id}>
+          {/*eslint-disable-next-line react/no-string-refs*/}
           <div ref="comment">
             <Components.CommentsItem
               collapsed={collapsed}
@@ -138,6 +140,7 @@ class CommentsNode extends PureComponent {
                   currentUser={currentUser}
                   comment={child.item}
                   nestingLevel={nestingLevel+1}
+                  //eslint-disable-next-line react/no-children-prop
                   children={child.children}
                   key={child.item._id}
                   muiTheme={muiTheme}
@@ -160,4 +163,7 @@ CommentsNode.propTypes = {
   router: PropTypes.object.isRequired
 };
 
-registerComponent('CommentsNode', CommentsNode, withRouter, muiThemeable(), withStyles((styles)));
+registerComponent('CommentsNode', CommentsNode,
+  withRouter, muiThemeable(),
+  withStyles(styles, { name: "CommentsNode" })
+);

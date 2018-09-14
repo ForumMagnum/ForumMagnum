@@ -44,12 +44,13 @@ class MuiCheckbox extends Component {
   }
 
   render() {
-    const { classes, label } = this.props
+    const { classes, label, disabled=false } = this.props
     return <div className={classes.root}>
         <Checkbox
           className={classes.size}
           checked={this.state.checked}
           onClick={this.onChange}
+          disabled={disabled}
           disableRipple
         />
         <Typography className={classes.inline} variant="body2" component="label">{label}</Typography>
@@ -62,4 +63,4 @@ MuiCheckbox.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles));
+registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles, { name: "FormComponentCheckbox" }));

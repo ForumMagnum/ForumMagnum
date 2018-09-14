@@ -15,7 +15,7 @@ class PostsPageAdminActions extends Component {
     const { post, editMutation } = this.props
     editMutation({
       documentId: post._id,
-      set: {meta: true},
+      set: {meta: true, metaDate: new Date()},
       unset: {
         frontpageDate: true,
         curatedDate: true,

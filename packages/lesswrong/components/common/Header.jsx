@@ -136,7 +136,7 @@ class Header extends Component {
                 </Typography>
                 <div className={classes.rightHeaderItems}>
                   <NoSSR><Components.ErrorBoundary>
-                    <Components.SearchBar color={getTextColor(theme)} />
+                    <Components.SearchBar />
                   </Components.ErrorBoundary></NoSSR>
                   {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
                   {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
