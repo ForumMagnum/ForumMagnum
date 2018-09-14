@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -19,6 +20,10 @@ const SidebarActionMenu = ({children, classes}) => {
   return <div className={classes.root}>
         { children }
     </div>
+};
+
+SidebarActionMenu.propTypes = {
+  classes: PropTypes.object.isRequired
 };
 
 SidebarActionMenu.displayName = "SidebarActionMenu";

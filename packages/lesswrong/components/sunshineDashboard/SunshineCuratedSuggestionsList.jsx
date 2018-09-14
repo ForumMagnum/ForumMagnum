@@ -2,6 +2,7 @@ import { Components, registerComponent, withList, withCurrentUser } from 'meteor
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -35,11 +36,15 @@ class SunshineCuratedSuggestionsList extends Component {
   }
 }
 
+SunshineCuratedSuggestionsList.propTypes = {
+  results: PropTypes.array,
+  classes: PropTypes.object.isRequired
+};
+
 const withListOptions = {
   collection: Posts,
   queryName: 'sunshineCuratedsuggestionsListQuery',
-  fragmentName: 'PostsList',
-
+  fragmentName: 'PostsList'
 };
 
 registerComponent(

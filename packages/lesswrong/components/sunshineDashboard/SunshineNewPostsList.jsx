@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -31,6 +32,11 @@ class SunshineNewPostsList extends Component {
     }
   }
 }
+
+SunshineNewPostsList.propTypes = {
+  results: PropTypes.array,
+  classes: PropTypes.object.isRequired
+};
 
 const withListOptions = {
   collection: Posts,

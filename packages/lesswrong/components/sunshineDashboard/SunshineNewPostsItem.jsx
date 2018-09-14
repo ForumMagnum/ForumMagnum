@@ -5,7 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import withHover from '../common/withHover'
-import Popper from '@material-ui/core/Popper';
+import PropTypes from 'prop-types';
 
 class SunshineNewPostsItem extends Component {
 
@@ -46,56 +46,59 @@ class SunshineNewPostsItem extends Component {
 
   render () {
     const { post, hover, anchorEl } = this.props
-    if (post) {
-      return (
-        <Components.SunshineListItem hover={hover}>
-          <Popper open={hover} anchorEl={anchorEl} placement="left-start">
-            <Components.SidebarHoverOver>
-              <Typography variant="title">
-                <Link to={Posts.getPageUrl(post)}>
-                  { post.title }
-                </Link>
-              </Typography>
-              <br/>
-              <Components.PostsHighlight post={post}/>
-            </Components.SidebarHoverOver>
-          </Popper>
-          <Link to={Posts.getPageUrl(post)}>
-              {post.title}
-          </Link>
-          <div>
-            <Components.SidebarInfo>
-              { post.baseScore }
-            </Components.SidebarInfo>
-            <Components.SidebarInfo>
-              <Link
-                className="sunshine-sidebar-posts-author"
-                to={Users.getProfileUrl(post.user)}>
-                  {post.user.displayName}
-              </Link>
-            </Components.SidebarInfo>
-          </div>
-          { hover && <Components.SidebarActionMenu>
-            <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
-              done
-            </Components.SidebarAction>
-            <Components.SidebarAction title="Move to Frontpage" onClick={this.handleFrontpage}>
-              thumb_up
-            </Components.SidebarAction>
-            <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
-              clear
-            </Components.SidebarAction>
-          </Components.SidebarActionMenu>}
-        </Components.SunshineListItem>
-      )
-    } else {
-      return null
-    }
+    return (
+      <Components.SunshineListItem hover={hover}>
+        <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl}>
+          <Typography variant="title">
+            <Link to={Posts.getPageUrl(post)}>
+              { post.title }
+            </Link>
+          </Typography>
+          <br/>
+          <Components.PostsHighlight post={post}/>
+        </Components.SidebarHoverOver>
+        <Link to={Posts.getPageUrl(post)}>
+            {post.title}
+        </Link>
+        <div>
+          <Components.SidebarInfo>
+            { post.baseScore }
+          </Components.SidebarInfo>
+          <Components.SidebarInfo>
+            <Link
+              className="sunshine-sidebar-posts-author"
+              to={Users.getProfileUrl(post.user)}>
+                {post.user.displayName}
+            </Link>
+          </Components.SidebarInfo>
+        </div>
+        { hover && <Components.SidebarActionMenu>
+          <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
+            done
+          </Components.SidebarAction>
+          <Components.SidebarAction title="Move to Frontpage" onClick={this.handleFrontpage}>
+            thumb_up
+          </Components.SidebarAction>
+          <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
+            clear
+          </Components.SidebarAction>
+        </Components.SidebarActionMenu>}
+      </Components.SunshineListItem>
+    )
   }
+}
+
+SunshineNewPostsItem.propTypes = {
+  post: PropTypes.object.isRequired,
+  hover: PropTypes.bool.isRequired,
+  anchorEl: PropTypes.object,
+  currentUser: PropTypes.object.isRequired,
+  editMutation: PropTypes.func.isRequired,
 }
 
 const withEditOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
+
 registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withEdit, withEditOptions], withCurrentUser, withHover);

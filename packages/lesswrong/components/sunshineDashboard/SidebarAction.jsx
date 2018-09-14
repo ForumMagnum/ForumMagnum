@@ -3,6 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
+import PropTypes from 'prop-types';
 
 const styles = (theme) => ({
   root: {
@@ -40,5 +41,12 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}) =>
           </Icon>
         </Tooltip>
 }
+
+SidebarAction.propTypes = {
+  warningHighlight: PropTypes.bool,
+  title: PropTypes.string.isRequired,
+  classes: PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 registerComponent( 'SidebarAction', SidebarAction, withStyles(styles, {name: 'SidebarAction'}))

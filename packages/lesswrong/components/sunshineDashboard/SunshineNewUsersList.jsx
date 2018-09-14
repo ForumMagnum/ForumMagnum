@@ -1,6 +1,7 @@
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
+import PropTypes from 'prop-types';
 
 class SunshineNewUsersList extends Component {
   render () {
@@ -23,6 +24,10 @@ class SunshineNewUsersList extends Component {
     }
   }
 }
+
+SunshineNewUsersList.propTypes = {
+  results: PropTypes.array,
+};
 
 const withListOptions = {
   collection: Users,

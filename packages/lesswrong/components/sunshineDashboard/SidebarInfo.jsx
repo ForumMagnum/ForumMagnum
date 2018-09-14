@@ -3,6 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
+import PropTypes from 'prop-types';
 
 const styles = (theme) => ({
   root: {
@@ -22,5 +23,10 @@ const SidebarInfo = ({children, classes, className}) => {
       {children}
   </Typography>
 }
+
+SidebarInfo.propTypes = {
+  classes: PropTypes.object.isRequired,
+  className: PropTypes.string,
+};
 
 registerComponent( 'SidebarInfo', SidebarInfo, withStyles(styles, {name: 'SidebarInfo'}))

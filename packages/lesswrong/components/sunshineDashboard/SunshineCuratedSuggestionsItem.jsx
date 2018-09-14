@@ -6,7 +6,7 @@ import { Link } from 'react-router'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import withHover from '../common/withHover'
-import Popper from '@material-ui/core/Popper';
+import PropTypes from 'prop-types';
 
 class SunshineCuratedSuggestionsItem extends Component {
 
@@ -61,69 +61,72 @@ class SunshineCuratedSuggestionsItem extends Component {
 
   render () {
     const { post, currentUser, hover, anchorEl } = this.props
-    if (post) {
-      return (
-        <Components.SunshineListItem hover={hover}>
-          <Popper open={hover} anchorEl={anchorEl} placement="left-start">
-            <Components.SidebarHoverOver>
-              <Typography variant="title">
-                <Link to={Posts.getPageUrl(post)}>
-                  { post.title }
-                </Link>
-              </Typography>
-              <br/>
-              <Components.PostsHighlight post={post}/>
-            </Components.SidebarHoverOver>
-          </Popper>
-          <Link to={Posts.getPageUrl(post)}
-            className="sunshine-sidebar-posts-title">
-              {post.title}
-          </Link>
-          <div>
-            <Components.SidebarInfo>
-              { post.baseScore }
-            </Components.SidebarInfo>
-            <Components.SidebarInfo>
-              <Link to={Users.getProfileUrl(post.user)}>
-                  {post.user.displayName}
-              </Link>
-            </Components.SidebarInfo>
-            {post.postedAt && <Components.SidebarInfo>
-              {moment(new Date(post.postedAt)).fromNow()}
-            </Components.SidebarInfo>}
-          </div>
+    return (
+      <Components.SunshineListItem hover={hover}>
+        <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+          <Typography variant="title">
+            <Link to={Posts.getPageUrl(post)}>
+              { post.title }
+            </Link>
+          </Typography>
+          <br/>
+          <Components.PostsHighlight post={post}/>
+        </Components.SidebarHoverOver>
+        <Link to={Posts.getPageUrl(post)}
+          className="sunshine-sidebar-posts-title">
+            {post.title}
+        </Link>
+        <div>
           <Components.SidebarInfo>
-            Endorsed by { post.suggestForCuratedUsernames }
+            { post.baseScore }
           </Components.SidebarInfo>
-          { hover && <Components.SidebarActionMenu>
-            { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-              <Components.SidebarAction title="Endorse Curation" onClick={this.handleSuggestCurated}>
-                plus_one
-              </Components.SidebarAction>
-              :
-              <Components.SidebarAction title="Unendorse Curation" onClick={this.handleUnsuggestCurated}>
-                undo
-              </Components.SidebarAction>
-            }
-            <Components.SidebarAction title="Curate Post" onClick={this.handleCurate}>
-              star
+          <Components.SidebarInfo>
+            <Link to={Users.getProfileUrl(post.user)}>
+                {post.user.displayName}
+            </Link>
+          </Components.SidebarInfo>
+          {post.postedAt && <Components.SidebarInfo>
+            {moment(new Date(post.postedAt)).fromNow()}
+          </Components.SidebarInfo>}
+        </div>
+        <Components.SidebarInfo>
+          Endorsed by { post.suggestForCuratedUsernames }
+        </Components.SidebarInfo>
+        { hover && <Components.SidebarActionMenu>
+          { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
+            <Components.SidebarAction title="Endorse Curation" onClick={this.handleSuggestCurated}>
+              plus_one
             </Components.SidebarAction>
-            <Components.SidebarAction title="Remove from Curation Suggestions" onClick={this.handleDisregardForCurated}>
-              clear
+            :
+            <Components.SidebarAction title="Unendorse Curation" onClick={this.handleUnsuggestCurated}>
+              undo
             </Components.SidebarAction>
-          </Components.SidebarActionMenu>}
-        </Components.SunshineListItem>
-      )
-    } else {
-      return null
-    }
+          }
+          <Components.SidebarAction title="Curate Post" onClick={this.handleCurate}>
+            star
+          </Components.SidebarAction>
+          <Components.SidebarAction title="Remove from Curation Suggestions" onClick={this.handleDisregardForCurated}>
+            clear
+          </Components.SidebarAction>
+        </Components.SidebarActionMenu>}
+      </Components.SunshineListItem>
+    )
   }
+}
+
+SunshineCuratedSuggestionsItem.propTypes = {
+  currentUser: PropTypes.object.isRequired,
+  editMutation: PropTypes.func.isRequired,
+  post: PropTypes.object.isRequired,
+  hover: PropTypes.bool.isRequired,
+  anchorEl: PropTypes.object,
 }
 
 const withEditOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
+
 registerComponent(
   'SunshineCuratedSuggestionsItem',
   SunshineCuratedSuggestionsItem,

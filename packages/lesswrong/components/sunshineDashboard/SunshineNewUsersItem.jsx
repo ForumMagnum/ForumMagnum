@@ -7,7 +7,6 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import withHover from '../common/withHover'
-import Popper from '@material-ui/core/Popper';
 
 class SunshineNewUsersItem extends Component {
 
@@ -41,25 +40,23 @@ class SunshineNewUsersItem extends Component {
     const { user, hover, anchorEl } = this.props
     return (
         <C.SunshineListItem hover={hover}>
-          <Popper open={hover} anchorEl={anchorEl} placement="left-start">
-            <C.SidebarHoverOver width={250}>
-              <Typography variant="body2">
-                <Link to={Users.getProfileUrl(user)}>
-                  { user.displayName }
-                </Link>
-                <br/>
-                <C.MetaInfo>
-                  <div>Posts: { user.postCount || 0 }</div>
-                  <div>Comments: { user.commentCount || 0 }</div>
-                  <hr />
-                  <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-                  <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-                  <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-                  <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-                </C.MetaInfo>
-              </Typography>
-            </C.SidebarHoverOver>
-          </Popper>
+          <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+            <Typography variant="body2">
+              <Link to={Users.getProfileUrl(user)}>
+                { user.displayName }
+              </Link>
+              <br/>
+              <C.MetaInfo>
+                <div>Posts: { user.postCount || 0 }</div>
+                <div>Comments: { user.commentCount || 0 }</div>
+                <hr />
+                <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+                <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
+                <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+                <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+              </C.MetaInfo>
+            </Typography>
+          </C.SidebarHoverOver>
           <div>
             <C.MetaInfo>
               <Link to={Users.getProfileUrl(user)}>
@@ -92,6 +89,10 @@ class SunshineNewUsersItem extends Component {
 
 SunshineNewUsersItem.propTypes = {
   user: PropTypes.object.isRequired,
+  hover: PropTypes.bool.isRequired,
+  anchorEl: PropTypes.object,
+  currentUser: PropTypes.object.isRequired,
+  editMutation: PropTypes.func.isRequired,
 }
 
 const withEditOptions = {

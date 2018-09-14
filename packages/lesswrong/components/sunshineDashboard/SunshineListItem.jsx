@@ -2,6 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -21,6 +22,11 @@ const SunshineListItem = ({children, classes, hover}) => {
   return <div className={classNames(classes.root, {[classes.hover]:hover})}>
         { children }
       </div>
+};
+
+SunshineListItem.propTypes = {
+  classes: PropTypes.object.isRequired,
+  hover: PropTypes.bool.isRequired,
 };
 
 SunshineListItem.displayName = "SunshineListItem";
