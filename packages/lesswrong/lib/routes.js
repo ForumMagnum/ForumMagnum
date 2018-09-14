@@ -6,9 +6,6 @@ addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', tit
 addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' });
 addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
 
-// Sunshine Dashboard
-addRoute({ name: 'SunshineDashboard', path: '/sunshine', componentName: 'SunshineDashboard', title: "Sunshine Dashboard" });
-
 // Sequences
 addRoute({ name: 'sequencesHome', path: '/library', componentName: 'SequencesHome', title: "The Library" });
 addRoute({ name: 'sequences.single.old', path: '/sequences/:_id', componentName: 'SequencesSingle' });
