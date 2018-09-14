@@ -41,7 +41,7 @@ class SunshineCommentsItem extends Component {
     const { comment, hover, anchorEl } = this.props
     if (comment) {
       return (
-          <Components.SunshineListItem>
+          <Components.SunshineListItem hover={hover}>
             <Popper open={hover} anchorEl={anchorEl} placement="left-start">
               <Components.SidebarHoverOver>
                 <Typography variant="body2">
@@ -54,19 +54,6 @@ class SunshineCommentsItem extends Component {
             </Popper>
             <Components.SunshineCommentsItemOverview comment={comment}/>
               {hover && <Components.SidebarActionMenu>
-                {/* <Link
-                  className="sunshine-sidebar-posts-action new-comment clear"
-                  target="_blank"
-                  title="Spam/Eugin (delete immediately)"
-                  to={Users.getProfileUrl(comment.user)}
-                  onClick={this.handleDelete}>
-                    <FontIcon
-                      style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                      className="material-icons">
-                        clear
-                    </FontIcon>
-                    <div className="sunshine-sidebar-posts-item-delete-overlay"/>
-                </Link> */}
                 <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
                   done
                 </Components.SidebarAction>

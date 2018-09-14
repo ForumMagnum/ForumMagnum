@@ -57,9 +57,9 @@ class SunshineReportsItem extends Component {
 
     if (report) {
       return (
-            <Components.SunshineListItem>
+            <Components.SunshineListItem hover={hover}>
               <Popper open={hover} anchorEl={anchorEl} placement="left-start">
-                <Components.SidebarHoverOver open={hover} anchorEl={anchorEl}>
+                <Components.SidebarHoverOver>
                   <Typography variant="body2">
                     <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                       Commented on post: <strong>{ comment.post.title }</strong>

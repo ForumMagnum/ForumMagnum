@@ -6,12 +6,12 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   comment: {
-    color: theme.palette.grey[800],
     fontSize: "1rem",
-    fontFamily: theme.typography.fontFamily
+    lineHeight: "1.5em"
   }
 })
 
@@ -23,11 +23,13 @@ class SunshineCommentsItemOverview extends Component {
     if (comment) {
       return (
         <div>
-          <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
-            { comment.deleted ? <span>COMMENT DELETED</span>
-              : <span>{ commentExcerpt }</span>
-            }
-          </Link>
+          <Typography variant="body2">
+            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
+              { comment.deleted ? <span>COMMENT DELETED</span>
+                : <span>{ commentExcerpt }</span>
+              }
+            </Link>
+          </Typography>
           <div>
             <Components.SidebarInfo>
               { comment.baseScore }

@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles'
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -10,14 +11,14 @@ const styles = theme => ({
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[50]
-    }
+  },
+  hover: {
+    backgroundColor: theme.palette.grey[50]
   }
 })
 
-const SunshineListItem = ({children, classes}) => {
-  return <div className={classes.root}>
+const SunshineListItem = ({children, classes, hover}) => {
+  return <div className={classNames(classes.root, {[classes.hover]:hover})}>
         { children }
       </div>
 };

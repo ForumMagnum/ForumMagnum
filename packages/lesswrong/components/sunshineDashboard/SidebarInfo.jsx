@@ -11,19 +11,13 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit,
     fontSize: ".85rem",
     lineHeight: "1.5em"
-  },
-  button: {
-    cursor: "pointer",
-    '&:hover, &:active, &:focus': {
-      color: theme.palette.grey[400],
-    },
   }
 })
 
-const SidebarInfo = ({children, classes, button, className}) => {
+const SidebarInfo = ({children, classes, className}) => {
   return <Typography
     component='span'
-    className={classNames(classes.root, {[classes.button]: button}, className)}
+    className={classNames(classes.root, className)}
     variant='body2'>
       {children}
   </Typography>

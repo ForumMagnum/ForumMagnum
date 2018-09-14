@@ -63,7 +63,7 @@ class SunshineCuratedSuggestionsItem extends Component {
     const { post, currentUser, hover, anchorEl } = this.props
     if (post) {
       return (
-        <Components.SunshineListItem>
+        <Components.SunshineListItem hover={hover}>
           <Popper open={hover} anchorEl={anchorEl} placement="left-start">
             <Components.SidebarHoverOver>
               <Typography variant="title">
