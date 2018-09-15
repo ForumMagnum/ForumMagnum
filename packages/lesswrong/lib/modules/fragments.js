@@ -119,6 +119,9 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
+    coauthors {
+      ...UsersMinimumInfo
+    }
     # vulcan:embedly
     # example-forum
     categories {
