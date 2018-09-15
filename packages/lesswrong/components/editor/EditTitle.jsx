@@ -1,8 +1,7 @@
-import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Textarea } from 'formsy-react-components';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -30,4 +29,8 @@ const EditTitle = (props) => {
          />
 }
 
-registerComponent("EditTitle", EditTitle, withStyles(styles, { name: "EditTitle" }));
+export default defineComponent({
+  name: "EditTitle",
+  component: EditTitle,
+  styles: styles,
+});

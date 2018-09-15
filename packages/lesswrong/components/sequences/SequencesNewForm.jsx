@@ -3,6 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const SequencesNewForm = (props, context) => {
   if (props.currentUser) {
@@ -28,4 +29,8 @@ const SequencesNewForm = (props, context) => {
   }
 }
 
-registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withRouter, withCurrentUser);
+export default defineComponent({
+  name: 'SequencesNewForm',
+  component: SequencesNewForm,
+  hocs: [ withMessages, withRouter, withCurrentUser ]
+});

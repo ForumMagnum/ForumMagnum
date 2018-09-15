@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components, withList } from 'meteor/vulcan:core';
+import { Components, withList } from 'meteor/vulcan:core';
 import Localgroups from '../../lib/collections/localgroups/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const LocalGroupsList = ({results, loading, canEdit}) => {
   if (results && !loading) {
@@ -21,4 +22,8 @@ const options = {
   enableCache: true,
 }
 
-registerComponent('LocalGroupsList', LocalGroupsList, [withList, options])
+export default defineComponent({
+  name: 'LocalGroupsList',
+  component: LocalGroupsList,
+  hocs: [ [withList, options] ]
+});

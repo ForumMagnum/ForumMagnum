@@ -2,8 +2,8 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import moment from 'moment';
 import { Link } from 'react-router';
 import { Snippet } from 'react-instantsearch/dom';
-import { withStyles } from '@material-ui/core/styles';
 import React, { PureComponent } from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -37,4 +37,8 @@ const CommentsSearchHit = ({hit, clickAction, classes}) => {
   </div>
 }
 
-registerComponent("CommentsSearchHit", CommentsSearchHit, withStyles(styles));
+export default defineComponent({
+  name: "CommentsSearchHit",
+  component: CommentsSearchHit,
+  styles: styles,
+});

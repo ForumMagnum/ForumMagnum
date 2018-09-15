@@ -6,6 +6,7 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
+import defineComponent from '../../lib/defineComponent';
 
 // import '../modules/columns.js';
 
@@ -194,4 +195,8 @@ class AdminHome extends PureComponent {
   }
 }
 
-registerComponent('AdminHome', AdminHome, withCurrentUser);
+export default defineComponent({
+  name: 'AdminHome',
+  component: AdminHome,
+  hocs: [ withCurrentUser ]
+});

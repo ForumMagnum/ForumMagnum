@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 const LocalGroupsItem = ({group}) => {
   if (group) {
@@ -17,4 +18,7 @@ const LocalGroupsItem = ({group}) => {
   }
 }
 
-registerComponent('LocalGroupsItem', LocalGroupsItem)
+export default defineComponent({
+  name: 'LocalGroupsItem',
+  component: LocalGroupsItem
+})

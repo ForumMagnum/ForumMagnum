@@ -1,6 +1,7 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { Image } from 'cloudinary-react';
+import defineComponent from '../../lib/defineComponent';
 
 /*function cloudinaryPropsToStr(props) {
   let sb = [];
@@ -61,4 +62,7 @@ const CloudinaryImage = (props, context) => {
   />
 };
 
-registerComponent('CloudinaryImage', CloudinaryImage);
+export default defineComponent({
+  name: 'CloudinaryImage',
+  component: CloudinaryImage
+});

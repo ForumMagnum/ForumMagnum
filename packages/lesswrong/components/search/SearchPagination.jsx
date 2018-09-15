@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import { Pagination } from 'react-instantsearch/dom';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -44,4 +44,8 @@ const SearchPagination = ({classes, pagesPadding=0, showFirst=false}) => {
     </div>
 }
 
-registerComponent("SearchPagination", SearchPagination, withStyles(styles));
+export default defineComponent({
+  name: "SearchPagination",
+  component: SearchPagination,
+  styles: styles,
+});

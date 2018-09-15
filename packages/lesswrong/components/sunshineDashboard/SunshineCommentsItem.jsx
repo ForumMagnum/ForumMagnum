@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineCommentsItem extends Component {
 
@@ -90,4 +91,8 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withCurrentUser);
+export default defineComponent({
+  name: 'SunshineCommentsItem',
+  component: SunshineCommentsItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+});

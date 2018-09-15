@@ -1,6 +1,7 @@
-import { Components, registerComponent} from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { Link } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 import React, { PureComponent } from 'react';
 
@@ -22,4 +23,7 @@ const SequencesSearchHit = ({hit, clickAction}) => {
   </div>
 }
 
-registerComponent("SequencesSearchHit", SequencesSearchHit);
+export default defineComponent({
+  name: "SequencesSearchHit",
+  component: SequencesSearchHit
+});

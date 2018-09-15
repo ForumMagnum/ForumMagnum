@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   // input: {
@@ -57,4 +57,8 @@ MuiInput.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiInput", MuiInput, withStyles(styles, { name: "MuiInput" }));
+export default defineComponent({
+  name: "MuiInput",
+  component: MuiInput,
+  styles: styles,
+});

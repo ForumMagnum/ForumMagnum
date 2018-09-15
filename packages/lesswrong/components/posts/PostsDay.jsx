@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   dayTitle: {
@@ -43,4 +43,8 @@ PostsDay.propTypes = {
   number: PropTypes.number
 };
 
-replaceComponent('PostsDay', PostsDay, withStyles(styles, { name: "PostsDay" }));
+export default defineComponent({
+  name: 'PostsDay',
+  component: PostsDay,
+  styles: styles,
+});

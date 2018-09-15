@@ -4,6 +4,7 @@ import { withCurrentUser, Components, registerComponent, withList } from 'meteor
 import MenuItem from '@material-ui/core/MenuItem'
 import LWEvents from '../../lib/collections/lwevents/collection.js'
 import moment from 'moment';
+import defineComponent from '../../lib/defineComponent';
 
 class LastVisitList extends Component {
   render() {
@@ -26,4 +27,8 @@ const options = {
   enableCache: true,
 };
 
-registerComponent("LastVisitList", LastVisitList, withCurrentUser, [withList, options]);
+export default defineComponent({
+  name: "LastVisitList",
+  component: LastVisitList,
+  hocs: [ withCurrentUser, [withList, options] ]
+});

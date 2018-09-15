@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineCommentsItemOverview extends Component {
 
@@ -47,4 +48,8 @@ class SunshineCommentsItemOverview extends Component {
   }
 }
 
-registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withCurrentUser);
+export default defineComponent({
+  name: 'SunshineCommentsItemOverview',
+  component: SunshineCommentsItemOverview,
+  hocs: [ withCurrentUser ]
+});

@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 
 const FeaturedPostsPage = (props, context) => {
@@ -13,4 +14,7 @@ const FeaturedPostsPage = (props, context) => {
   )
 };
 
-registerComponent('FeaturedPostsPage', FeaturedPostsPage);
+export default defineComponent({
+  name: 'FeaturedPostsPage',
+  component: FeaturedPostsPage
+});

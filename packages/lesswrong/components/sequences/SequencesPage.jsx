@@ -11,9 +11,9 @@ import moment from 'moment';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   title: {
@@ -132,4 +132,9 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles, { name: "SequencesPage" }));
+export default defineComponent({
+  name: 'SequencesPage',
+  component: SequencesPage,
+  styles: styles,
+  hocs: [ [withDocument, options], withCurrentUser ]
+});

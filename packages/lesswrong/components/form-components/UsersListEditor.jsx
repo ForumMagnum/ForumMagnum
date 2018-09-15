@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
-import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withCurrentUser } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 
 const sortableItemStyles = theme => ({
@@ -133,7 +134,9 @@ UsersListEditor.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("UsersListEditor", UsersListEditor,
-  withCurrentUser,
-  withStyles(usersListEditorStyles, { name: "UsersListEditor" })
-);
+export default defineComponent({
+  name: "UsersListEditor",
+  component: UsersListEditor,
+  styles: usersListEditorStyles,
+  hocs: [ withCurrentUser ]
+});

@@ -3,6 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const SequencesEditForm = (props, context) => {
   return (
@@ -22,4 +23,8 @@ const SequencesEditForm = (props, context) => {
   )
 }
 
-registerComponent('SequencesEditForm', SequencesEditForm, withMessages, withRouter);
+export default defineComponent({
+  name: 'SequencesEditForm',
+  component: SequencesEditForm,
+  hocs: [ withMessages, withRouter ]
+});

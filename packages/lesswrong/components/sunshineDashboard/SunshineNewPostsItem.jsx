@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineNewPostsItem extends Component {
 
@@ -124,4 +125,8 @@ const withEditOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
-registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withEdit, withEditOptions], withCurrentUser);
+export default defineComponent({
+  name: 'SunshineNewPostsItem',
+  component: SunshineNewPostsItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+});

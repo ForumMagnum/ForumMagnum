@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -63,4 +63,8 @@ MuiCheckbox.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles, { name: "FormComponentCheckbox" }));
+export default defineComponent({
+  name: "FormComponentCheckbox",
+  component: MuiCheckbox,
+  styles: styles,
+});

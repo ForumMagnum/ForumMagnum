@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 class FormComponentDefault extends Component {
   render() {
@@ -8,4 +9,7 @@ class FormComponentDefault extends Component {
   }
 }
 
-registerComponent("FormComponentDefault", FormComponentDefault);
+export default defineComponent({
+  name: "FormComponentDefault",
+  component: FormComponentDefault
+});

@@ -1,8 +1,9 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Tooltip from 'material-ui/internal/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
 import { withTheme } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const categoryTooltips = {
   "brightness_1": <div className="post-category-tooltip"><div>Read Status</div></div>,
@@ -47,4 +48,8 @@ class CategoryDisplay extends PureComponent {
   }
 }
 
-registerComponent('CategoryDisplay', CategoryDisplay, withTheme());
+export default defineComponent({
+  name: 'CategoryDisplay',
+  component: CategoryDisplay,
+  hocs: [ withTheme() ]
+});

@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineReportsItem extends Component {
 
@@ -117,9 +118,8 @@ const withEditOptions = {
   fragmentName: 'SelectCommentsList',
 }
 
-registerComponent(
-  'SunshineReportsItem',
-  SunshineReportsItem,
-  [withEdit, withEditOptions],
-  withCurrentUser
-);
+export default defineComponent({
+  name: 'SunshineReportsItem',
+  component: SunshineReportsItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+});

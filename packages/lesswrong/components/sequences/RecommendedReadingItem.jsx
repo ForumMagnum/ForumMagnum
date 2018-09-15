@@ -2,6 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import classnames from 'classnames';
 import { Link } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 const RecommendedReadingItem = ({direction, post, sequence}) => {
   const commentCount = post.commentCount || "No"
@@ -21,4 +22,7 @@ const RecommendedReadingItem = ({direction, post, sequence}) => {
 };
 
 
-registerComponent('RecommendedReadingItem', RecommendedReadingItem);
+export default defineComponent({
+  name: 'RecommendedReadingItem',
+  component: RecommendedReadingItem
+});

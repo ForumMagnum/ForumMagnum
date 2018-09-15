@@ -1,6 +1,7 @@
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineNewUsersList extends Component {
   render () {
@@ -28,4 +29,8 @@ const withListOptions = {
   fragmentName: 'SunshineUsersList',
 };
 
-registerComponent('SunshineNewUsersList', SunshineNewUsersList, [withList, withListOptions], withCurrentUser);
+export default defineComponent({
+  name: 'SunshineNewUsersList',
+  component: SunshineNewUsersList,
+  hocs: [ [withList, withListOptions], withCurrentUser ]
+});

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
+import { withMessages, Components } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import PropTypes from 'prop-types';
 import withModerateComment from './withModerateComment.js'
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
+import defineComponent from '../../../lib/defineComponent';
 
 class DeleteCommentMenuItem extends PureComponent {
 
@@ -114,5 +115,8 @@ const mutationOptions = {
   fragmentName: "CommentsList"
 };
 
-registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem, [withModerateComment, mutationOptions], withMessages);
-export default DeleteCommentMenuItem;
+export default defineComponent({
+  name: 'DeleteCommentMenuItem',
+  component: DeleteCommentMenuItem,
+  hocs: [ [withModerateComment, mutationOptions], withMessages ]
+});

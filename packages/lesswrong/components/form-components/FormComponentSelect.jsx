@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
+import defineComponent from '../../lib/defineComponent';
 
 class FormComponentSelect extends Component {
   render() {
@@ -19,4 +20,7 @@ class FormComponentSelect extends Component {
   }
 }
 
-registerComponent("FormComponentSelect", FormComponentSelect);
+export default defineComponent({
+  name: "FormComponentSelect",
+  component: FormComponentSelect
+});

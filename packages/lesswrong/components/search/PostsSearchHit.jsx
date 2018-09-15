@@ -4,8 +4,8 @@ import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
 import { Snippet} from 'react-instantsearch/dom';
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
     root: {
@@ -44,4 +44,9 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
 }
 
 
-registerComponent("PostsSearchHit", PostsSearchHit, withRouter, withStyles(styles, { name: "PostsSearchHit" }));
+export default defineComponent({
+  name: "PostsSearchHit",
+  component: PostsSearchHit,
+  styles: styles,
+  hocs: [ withRouter ]
+});

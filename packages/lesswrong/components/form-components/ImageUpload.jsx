@@ -1,10 +1,11 @@
 /* global cloudinary */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Components, registerComponent, getSetting} from 'meteor/vulcan:core';
+import {Components, getSetting} from 'meteor/vulcan:core';
 import Helmet from 'react-helmet';
 import FlatButton from 'material-ui/FlatButton';
 import ImageIcon from '@material-ui/icons/Image';
+import defineComponent from '../../lib/defineComponent';
 
 class ImageUpload extends Component {
   constructor(props, context) {
@@ -89,11 +90,12 @@ class ImageUpload extends Component {
   }
 }
 
-ImageUpload.displayName = "ImageUpload"
-
 ImageUpload.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("ImageUpload", ImageUpload);
+export default defineComponent({
+  name: "ImageUpload",
+  component: ImageUpload
+});

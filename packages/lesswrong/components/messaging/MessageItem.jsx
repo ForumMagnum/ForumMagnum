@@ -7,12 +7,12 @@ Display of a single message in the Conversation Wrapper
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { convertFromRaw } from 'draft-js';
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, Utils } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
 import moment from 'moment';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   message: {
@@ -74,4 +74,8 @@ class MessageItem extends Component {
 }
 
 
-registerComponent('MessageItem', MessageItem, withStyles(styles, { name: "MessageItem" }));
+export default defineComponent({
+  name: 'MessageItem',
+  component: MessageItem,
+  styles: styles,
+});

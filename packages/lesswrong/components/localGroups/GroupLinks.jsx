@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from 'material-ui/SvgIcon';
 import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
+import defineComponent from '../../lib/defineComponent';
 
 
 const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -59,4 +60,7 @@ class GroupLinks extends PureComponent {
   }
 }
 
-registerComponent("GroupLinks", GroupLinks);
+export default defineComponent({
+  name: "GroupLinks",
+  component: GroupLinks
+});

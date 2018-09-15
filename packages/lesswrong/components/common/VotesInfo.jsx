@@ -5,6 +5,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router'
 import { Posts, Comments } from 'meteor/example-forum';
 import { getVotePower } from 'meteor/vulcan:voting';
+import defineComponent from '../../lib/defineComponent';
 
 class VotesInfo extends Component {
 

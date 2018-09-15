@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import Icon from '@material-ui/core/Icon';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -75,4 +75,8 @@ EditUrl.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent("EditUrl", EditUrl, withStyles(styles, { name: "EditUrl" }));
+export default defineComponent({
+  name: "EditUrl",
+  component: EditUrl,
+  styles: styles,
+});

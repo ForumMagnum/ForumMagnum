@@ -1,7 +1,7 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import React from 'react';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -35,6 +35,9 @@ const SunshineSidebar = (props) => {
   }
 };
 
-SunshineSidebar.displayName = "SunshineSidebar";
-
-registerComponent('SunshineSidebar', SunshineSidebar, withCurrentUser, withStyles(styles, { name: 'SunshineSidebar'}));
+export default defineComponent({
+  name: 'SunshineSidebar',
+  component: SunshineSidebar,
+  styles: styles,
+  hocs: [ withCurrentUser ]
+});

@@ -5,6 +5,7 @@ import { Posts } from 'meteor/example-forum';
 import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 const Error = ({error}) => <Alert className="flash-message" bsStyle="danger">
 <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -40,8 +41,6 @@ const UsersPostsList = ({className, results, loading, count, totalCount, loadMor
   )
 };
 
-UsersPostsList.displayName = "PostsList";
-
 UsersPostsList.propTypes = {
   results: PropTypes.array,
   terms: PropTypes.object,
@@ -61,4 +60,8 @@ const options = {
   enableCache: true
 };
 
-registerComponent('UsersPostsList', UsersPostsList, withCurrentUser, [withList, options]);
+export default defineComponent({
+  name: 'UsersPostsList',
+  component: UsersPostsList,
+  hocs: [ withCurrentUser, [withList, options] ]
+});

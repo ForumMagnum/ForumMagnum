@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = (theme) => ({
   root: {
@@ -16,4 +16,8 @@ const NoContent = ({children, classes}) => {
   </Typography>
 }
 
-registerComponent( 'NoContent', NoContent, withStyles(styles, {name: 'MetaInfo'}))
+export default defineComponent({
+  name: 'NoContent',
+  component: NoContent,
+  styles: styles,
+});

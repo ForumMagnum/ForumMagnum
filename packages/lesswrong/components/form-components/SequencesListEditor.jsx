@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
-import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withCurrentUser } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
@@ -101,4 +102,8 @@ SequencesListEditor.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("SequencesListEditor", SequencesListEditor, withCurrentUser);
+export default defineComponent({
+  name: "SequencesListEditor",
+  component: SequencesListEditor,
+  hocs: [ withCurrentUser ]
+});

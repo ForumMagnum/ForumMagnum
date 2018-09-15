@@ -1,10 +1,11 @@
-import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { Components, getRawComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
 import { Posts } from "meteor/example-forum";
 import { Link } from 'react-router';
 import FontIcon from 'material-ui/FontIcon';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
   constructor(props) {
@@ -113,4 +114,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-registerComponent('RecentCommentsItem', RecentCommentsItem);
+export default defineComponent({
+  name: 'RecentCommentsItem',
+  component: RecentCommentsItem
+});

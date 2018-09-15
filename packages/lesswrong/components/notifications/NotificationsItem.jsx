@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import React, { Component } from 'react';
 import {ListItem} from 'material-ui/List';
@@ -7,6 +7,7 @@ import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
+import defineComponent from '../../lib/defineComponent';
 
 const iconStyles = {
   marginTop: '24px',
@@ -55,4 +56,7 @@ class NotificationsItem extends Component {
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem);
+export default defineComponent({
+  name: 'NotificationsItem',
+  component: NotificationsItem
+});

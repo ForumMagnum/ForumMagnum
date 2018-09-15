@@ -1,6 +1,7 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React from 'react';
 import Sequences from '../../lib/collections/sequences/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const SequencesGrid = ({sequences, showAuthor, listMode}) =>
   <div className='sequences-grid'>
@@ -25,4 +26,8 @@ const options = {
 }
 
 
-registerComponent('SequencesGrid', SequencesGrid, [withList, options]);
+export default defineComponent({
+  name: 'SequencesGrid',
+  component: SequencesGrid,
+  hocs: [ [withList, options] ]
+});

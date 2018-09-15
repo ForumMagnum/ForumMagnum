@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const RecentCommentsPage = (props, context) => {
   const terms = _.isEmpty(props.location && props.location.query) ? {view: 'recentComments', limit: 100}: props.location.query;
@@ -11,4 +12,7 @@ const RecentCommentsPage = (props, context) => {
   )
 };
 
-registerComponent('RecentCommentsPage', RecentCommentsPage);
+export default defineComponent({
+  name: 'RecentCommentsPage',
+  component: RecentCommentsPage
+});

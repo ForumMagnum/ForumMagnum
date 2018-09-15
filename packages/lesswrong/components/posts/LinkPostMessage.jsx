@@ -1,10 +1,10 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
 import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -21,11 +21,13 @@ const LinkPostMessage = ({post, classes}) => {
         </div>
 }
 
-LinkPostMessage.displayName = "LinkPostMessage";
-
 LinkPostMessage.propTypes = {
   post: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('LinkPostMessage', LinkPostMessage, withStyles(styles, {name:"LinkPostMessage"}));
+export default defineComponent({
+  name: 'LinkPostMessage',
+  component: LinkPostMessage,
+  styles: styles,
+});

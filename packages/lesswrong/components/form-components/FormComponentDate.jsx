@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 class FormComponentDate extends Component {
   render() {
@@ -14,4 +15,7 @@ class FormComponentDate extends Component {
   }
 }
 
-registerComponent("FormComponentDate", FormComponentDate);
+export default defineComponent({
+  name: "FormComponentDate",
+  component: FormComponentDate
+});

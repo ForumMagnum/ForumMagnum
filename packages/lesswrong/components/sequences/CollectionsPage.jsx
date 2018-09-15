@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
 import FlatButton from 'material-ui/FlatButton';
 import { Link } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 class CollectionsPage extends Component {
   constructor(props) {
@@ -62,4 +63,8 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withCurrentUser);
+export default defineComponent({
+  name: 'CollectionsPage',
+  component: CollectionsPage,
+  hocs: [ [withDocument, options], withCurrentUser ]
+});

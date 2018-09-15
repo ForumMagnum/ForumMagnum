@@ -1,10 +1,10 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -28,11 +28,13 @@ const PostsHighlight = ({post, classes}) => {
     </div>
 };
 
-PostsHighlight.displayName = "PostsHighlight";
-
 PostsHighlight.propTypes = {
   post: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsHighlight', PostsHighlight, withStyles(styles, {name:"PostsHighlight"}));
+export default defineComponent({
+  name: 'PostsHighlight',
+  component: PostsHighlight,
+  styles: styles,
+});

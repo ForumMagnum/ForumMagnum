@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, withCurrentUser, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 import postViewSections from '../../lib/sections.js'
+import defineComponent from '../../lib/defineComponent';
 
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
@@ -138,11 +139,13 @@ PostsViews.contextTypes = {
   intl: intlShape
 };
 
-PostsViews.displayName = "PostsViews";
-
 const withEditOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('PostsViews', PostsViews, withRouter, withCurrentUser, [withEdit, withEditOptions]);
+export default defineComponent({
+  name: 'PostsViews',
+  component: PostsViews,
+  hocs: [ withRouter, withCurrentUser, [withEdit, withEditOptions] ]
+});

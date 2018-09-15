@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = (theme) => ({
   root: {
@@ -21,4 +21,8 @@ const SectionSubtitle = ({children, classes, className}) => {
   </Typography>
 }
 
-registerComponent( 'SectionSubtitle', SectionSubtitle, withStyles(styles, {name: 'SectionSubtitle'}))
+export default defineComponent({
+  name: 'SectionSubtitle',
+  component: SectionSubtitle,
+  styles: styles,
+});

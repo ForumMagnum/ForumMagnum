@@ -1,6 +1,7 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const UsersNameWrapper = (props) => {
   if (props.document) {
@@ -10,8 +11,6 @@ const UsersNameWrapper = (props) => {
   }
 };
 
-UsersNameWrapper.displayName = "UsersNameWrapper";
-
 const options = {
   collection: Users,
   queryName: 'UsersNameWrapperQuery',
@@ -20,4 +19,8 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('UsersNameWrapper', UsersNameWrapper, [withDocument, options]);
+export default defineComponent({
+  name: 'UsersNameWrapper',
+  component: UsersNameWrapper,
+  hocs: [ [withDocument, options] ]
+});

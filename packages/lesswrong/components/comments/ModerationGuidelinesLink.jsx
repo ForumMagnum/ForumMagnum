@@ -1,10 +1,11 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, withDocument} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import FontIcon from 'material-ui/FontIcon';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from 'meteor/example-forum';
 import classNames from 'classnames'
 import Users from 'meteor/vulcan:users';
+import defineComponent from '../../lib/defineComponent';
 
 class ModerationGuidelinesLink extends PureComponent {
   constructor(props, context) {
@@ -55,4 +56,8 @@ const queryOptions = {
   enableCache: true,
 };
 
-registerComponent('ModerationGuidelinesLink', ModerationGuidelinesLink, [withDocument, queryOptions]);
+export default defineComponent({
+  name: 'ModerationGuidelinesLink',
+  component: ModerationGuidelinesLink,
+  hocs: [ [withDocument, queryOptions] ]
+});

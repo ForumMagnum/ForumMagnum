@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withEdit, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, withEdit, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,6 +17,7 @@ import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
+import defineComponent from '../../lib/defineComponent';
 
 const getTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -154,8 +155,6 @@ class Header extends Component {
   }
 }
 
-Header.displayName = "Header";
-
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,
@@ -170,4 +169,9 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());
+export default defineComponent({
+  name: 'Header',
+  component: Header,
+  styles: styles,
+  hocs: [ withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withTheme() ]
+});

@@ -1,8 +1,8 @@
-import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { Components, getRawComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import PropTypes from 'prop-types';
+import defineComponent from '../../../lib/defineComponent';
 
 const styles = theme => ({
   commentStyling: {
@@ -25,4 +25,8 @@ CommentBody.propTypes = {
 };
 
 
-registerComponent('CommentBody', CommentBody, withStyles(styles));
+export default defineComponent({
+  name: 'CommentBody',
+  component: CommentBody,
+  styles: styles,
+});

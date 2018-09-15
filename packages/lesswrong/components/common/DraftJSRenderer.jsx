@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components, Utils } from 'meteor/vulcan:core';
+import { Components, Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
+import defineComponent from '../../lib/defineComponent';
 
 class DraftJSRenderer extends PureComponent {
   render() {
@@ -21,4 +22,7 @@ DraftJSRenderer.propTypes = {
   content: PropTypes.object.isRequired,
 }
 
-registerComponent("DraftJSRenderer", DraftJSRenderer);
+export default defineComponent({
+  name: "DraftJSRenderer",
+  component: DraftJSRenderer
+});

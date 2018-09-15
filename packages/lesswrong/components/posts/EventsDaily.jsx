@@ -1,7 +1,8 @@
-import { Components, registerComponent, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Components, getSetting, registerSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import defineComponent from '../../lib/defineComponent';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 
@@ -25,5 +26,7 @@ class EventsDaily extends Component {
   }
 }
 
-EventsDaily.displayName = 'EventsDaily';
-registerComponent('EventsDaily', EventsDaily);
+export default defineComponent({
+  name: 'EventsDaily',
+  component: EventsDaily
+});

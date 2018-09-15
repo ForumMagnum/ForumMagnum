@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types'
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import Chapters from '../../lib/collections/chapters/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const ChaptersList = ({results, loading, canEdit}) => {
   if (results && !loading) {
@@ -21,4 +22,8 @@ const options = {
   enableCache: true,
 }
 
-registerComponent('ChaptersList', ChaptersList, [withList, options])
+export default defineComponent({
+  name: 'ChaptersList',
+  component: ChaptersList,
+  hocs: [ [withList, options ] ]
+})

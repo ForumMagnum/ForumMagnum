@@ -7,7 +7,7 @@ import {
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -49,11 +49,9 @@ const withEditOptions = {
   fragmentName: 'unclaimedReportsList',
 }
 
-registerComponent(
-  'SunshineReportedCommentsList',
-  SunshineReportedCommentsList,
-  [withList, withListOptions],
-  [withEdit, withEditOptions],
-  withCurrentUser,
-  withStyles(styles, {name:"SunshineReportedCommentsList"})
-);
+export default defineComponent({
+  name: 'SunshineReportedCommentsList',
+  component: SunshineReportedCommentsList,
+  styles: styles,
+  hocs: [ [withList, withListOptions], [withEdit, withEditOptions], withCurrentUser ]
+});

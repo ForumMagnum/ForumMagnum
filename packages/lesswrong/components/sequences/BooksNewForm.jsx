@@ -2,6 +2,7 @@ import { Components, registerComponent, getFragment, withMessages } from 'meteor
 import React from 'react';
 import PropTypes from 'prop-types';
 import Books from '../../lib/collections/books/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const BooksNewForm = (props) => {
   return (
@@ -19,4 +20,8 @@ const BooksNewForm = (props) => {
   )
 }
 
-registerComponent('BooksNewForm', BooksNewForm, withMessages);
+export default defineComponent({
+  name: 'BooksNewForm',
+  component: BooksNewForm,
+  hocs: [ withMessages ]
+});

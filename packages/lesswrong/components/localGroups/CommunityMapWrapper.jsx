@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, getSetting, withList} from 'meteor/vulcan:core';
+import { Components, getSetting, withList } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import { withRouter } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 const CommunityMapWrapper = (props) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
@@ -25,4 +26,8 @@ const listOptions = {
   limit: 500,
 }
 
-registerComponent("CommunityMapWrapper", CommunityMapWrapper, [withList, listOptions], withRouter)
+export default defineComponent({
+  name: "CommunityMapWrapper",
+  component: CommunityMapWrapper,
+  hocs: [ [withList, listOptions], withRouter ]
+})

@@ -6,9 +6,10 @@ Button used to add a new feed to a user profile
 
 import React, { Component } from 'react';
 import FlatButton from 'material-ui/FlatButton';
-import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
+import { Components, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 class newFeedButton extends Component {
 
@@ -38,4 +39,8 @@ class newFeedButton extends Component {
   }
 }
 
-registerComponent('newFeedButton', newFeedButton, withCurrentUser, withRouter);
+export default defineComponent({
+  name: 'newFeedButton',
+  component: newFeedButton,
+  hocs: [ withCurrentUser, withRouter ]
+});

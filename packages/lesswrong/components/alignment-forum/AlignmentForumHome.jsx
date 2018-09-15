@@ -1,7 +1,8 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withCurrentUser } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from 'react-router';
 import Users from "meteor/vulcan:users";
+import defineComponent from '../../lib/defineComponent';
 
 const AlignmentForumHome = ({currentUser}) => {
   let recentPostsTerms = {view: 'new', limit: 10, af: true, forum: true}
@@ -32,4 +33,8 @@ const AlignmentForumHome = ({currentUser}) => {
   )
 };
 
-registerComponent('AlignmentForumHome', AlignmentForumHome, withCurrentUser);
+export default defineComponent({
+  name: 'AlignmentForumHome',
+  component: AlignmentForumHome,
+  hocs: [ withCurrentUser ]
+});

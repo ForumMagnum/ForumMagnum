@@ -1,6 +1,7 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from 'meteor/vulcan:users';
+import defineComponent from '../../lib/defineComponent';
 
 
 const SingleUsersItemWrapper = ({clickAction, document, loading, removeItem, ...props}) => {
@@ -20,4 +21,8 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('SingleUsersItemWrapper', SingleUsersItemWrapper, [withDocument, options]);
+export default defineComponent({
+  name: 'SingleUsersItemWrapper',
+  component: SingleUsersItemWrapper,
+  hocs: [ [withDocument, options] ]
+});

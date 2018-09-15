@@ -1,10 +1,10 @@
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import {Card, CardMedia } from 'material-ui/Card';
 import { withRouter, Link } from 'react-router';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   text: {
@@ -49,4 +49,10 @@ class CollectionsCard extends PureComponent {
   }
 }
 
-registerComponent("CollectionsCard", CollectionsCard, withStyles(styles, { name: "CollectionsCard" }), withRouter);
+export default defineComponent({
+  name: "CollectionsCard",
+  component: CollectionsCard,
+  styles: styles,
+  register: true,
+  hocs: [ withRouter ]
+});

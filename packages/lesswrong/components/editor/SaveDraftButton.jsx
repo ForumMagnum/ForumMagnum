@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Checkbox } from 'formsy-react-components';
+import defineComponent from '../../lib/defineComponent';
 
 // Ray 20017-09-09: This component is currently mostly unnecessary but is planned to turn into a real "submit" button
 // i.e click to submit and safe-to-draft
@@ -29,4 +30,7 @@ SaveDraftButton.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent("SaveDraftButton", SaveDraftButton);
+export default defineComponent({
+  name: "SaveDraftButton",
+  component: SaveDraftButton
+});

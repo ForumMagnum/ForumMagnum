@@ -8,11 +8,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withCurrentUser } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 class NotificationsWrapper extends Component {
-
-
 
   constructor(props) {
     super(props);
@@ -20,13 +19,11 @@ class NotificationsWrapper extends Component {
   }
 
   render() {
-
     const views = ["newPost", "newPendingPost", "postApproved", "newComment", "newReply", "newUser"];
 
     const terms = {view: 'userNotifications', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0"), type: this.state.notificationsFilter};
 
     return (
-
       <div className="notification-filters">
         <DropdownButton
           bsStyle="default"
@@ -41,9 +38,12 @@ class NotificationsWrapper extends Component {
         </DropdownButton>
         <Components.NotificationsFullscreenList terms={terms} />
       </div>
-
     )
   }
 }
 
-registerComponent('NotificationsWrapper', NotificationsWrapper, withCurrentUser);
+export default defineComponent({
+  name: 'NotificationsWrapper',
+  component: NotificationsWrapper,
+  hocs: [ withCurrentUser ]
+});

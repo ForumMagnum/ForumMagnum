@@ -1,7 +1,8 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from "meteor/example-forum";
+import defineComponent from '../../lib/defineComponent';
 
 const CommentsEditForm = (props, context) => {
   return (
@@ -26,4 +27,8 @@ CommentsEditForm.propTypes = {
   cancelCallback: PropTypes.func
 };
 
-registerComponent('CommentsEditForm', CommentsEditForm, withMessages);
+export default defineComponent({
+  name: 'CommentsEditForm',
+  component: CommentsEditForm,
+  hocs: [ withMessages ]
+});

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -17,6 +17,8 @@ const SunshineListTitle = ({children, classes}) => {
       </Typography>
 };
 
-SunshineListTitle.displayName = "SunshineSidebarTitle";
-
-registerComponent('SunshineListTitle', SunshineListTitle, withStyles(styles, { name: 'SunshineListTitle'}));
+export default defineComponent({
+  name: 'SunshineListTitle',
+  component: SunshineListTitle,
+  styles: styles,
+});

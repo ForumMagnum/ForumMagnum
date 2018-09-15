@@ -1,9 +1,10 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 import { Link } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 const NavigationMenu = ({open, handleClose, handleToggle}) => {
   const af = getSetting('AlignmentForum', false);
@@ -45,5 +46,7 @@ const NavigationMenu = ({open, handleClose, handleToggle}) => {
   </Drawer>;
 }
 
-
-registerComponent('NavigationMenu', NavigationMenu);
+export default defineComponent({
+  name: 'NavigationMenu',
+  component: NavigationMenu
+});

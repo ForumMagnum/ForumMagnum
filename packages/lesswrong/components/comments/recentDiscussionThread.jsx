@@ -1,7 +1,6 @@
 import React, { Component, PureComponent } from 'react';
 import {
   Components,
-  registerComponent,
   withList,
   withCurrentUser,
   Loading,
@@ -16,7 +15,7 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
@@ -225,13 +224,15 @@ const mutationOptions = {
 const mapStateToProps = state => ({ postsViewed: state.postsViewed });
 const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
-registerComponent(
-  'RecentDiscussionThread',
-  RecentDiscussionThread,
-  [withList, commentsOptions],
-  withMutation(mutationOptions),
-  withCurrentUser,
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles, { name: "RecentDiscussionThread" }),
-);
+export default defineComponent({
+  name: 'RecentDiscussionThread',
+  component: RecentDiscussionThread,
+  styles: styles,
+  hocs: [
+    [withList, commentsOptions],
+    withMutation(mutationOptions),
+    withCurrentUser,
+    withNewEvents,
+    connect(mapStateToProps, mapDispatchToProps),
+  ]
+});

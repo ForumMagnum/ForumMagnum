@@ -1,7 +1,8 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
 import { Comments } from 'meteor/example-forum';
+import defineComponent from '../../../lib/defineComponent';
 
 const CommentDeletedMetadata = ({document}) => {
   if (document && document.deleted) {
@@ -24,12 +25,14 @@ const CommentDeletedMetadata = ({document}) => {
   }
 };
 
-CommentDeletedMetadata.displayName = "CommentDeletedMetadata";
-
 const options = {
   collection: Comments,
   queryName: 'CommentsDeletedMetadataQuery',
   fragmentName: 'DeletedCommentsMetaData',
 };
 
-registerComponent('CommentDeletedMetadata', CommentDeletedMetadata, [withDocument, options]);
+export default defineComponent({
+  name: 'CommentDeletedMetadata',
+  component: CommentDeletedMetadata,
+  hocs: [ [withDocument, options] ]
+});

@@ -1,6 +1,7 @@
 import { Components, registerComponent, withDocument, Utils} from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const RecommendedReadingWrapper = ({document, loading, post, router, nextTitle, nextLink}) => {
   if (document && !loading){
@@ -18,4 +19,8 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('RecommendedReadingWrapper', RecommendedReadingWrapper, [withDocument, options]);
+export default defineComponent({
+  name: 'RecommendedReadingWrapper',
+  component: RecommendedReadingWrapper,
+  hocs: [ [withDocument, options] ]
+});

@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineCuratedSuggestionsItem extends Component {
 
@@ -155,9 +156,8 @@ const withEditOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
-registerComponent(
-  'SunshineCuratedSuggestionsItem',
-  SunshineCuratedSuggestionsItem,
-  [withEdit, withEditOptions],
-  withCurrentUser
-);
+export default defineComponent({
+  name: 'SunshineCuratedSuggestionsItem',
+  component: SunshineCuratedSuggestionsItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+});

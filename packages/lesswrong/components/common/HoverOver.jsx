@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 class HoverOver extends Component {
 
@@ -40,4 +41,7 @@ class HoverOver extends Component {
   }
 }
 
-registerComponent('HoverOver', HoverOver);
+export default defineComponent({
+  name: 'HoverOver',
+  component: HoverOver
+});

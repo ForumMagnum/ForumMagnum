@@ -1,9 +1,8 @@
 import { Components, withCurrentUser } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
-import defineComponent from '../../lib/defineComponent'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   recommendedReading: {
@@ -152,6 +151,5 @@ export default defineComponent({
   component: Home,
   name: 'Home',
   styles: styles,
-  register: true,
   hocs: [ withCurrentUser ]
 });

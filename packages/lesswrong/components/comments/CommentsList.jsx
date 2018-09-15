@@ -1,8 +1,9 @@
-import { Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import defineComponent from '../../lib/defineComponent';
 
 class CommentsList extends Component {
   constructor(props, context) {
@@ -80,12 +81,13 @@ class CommentsList extends Component {
 }
 
 
-CommentsList.displayName = "CommentsList";
-
 const withEditOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
 };
 
-
-replaceComponent('CommentsList', CommentsList, [withEdit, withEditOptions]);
+export default defineComponent({
+  name: 'CommentsList',
+  component: CommentsList,
+  hocs: [ [withEdit, withEditOptions] ]
+});

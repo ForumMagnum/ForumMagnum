@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -21,6 +21,8 @@ const SunshineListItem = ({children, classes}) => {
       </div>
 };
 
-SunshineListItem.displayName = "SunshineListItem";
-
-registerComponent('SunshineListItem', SunshineListItem, withStyles(styles, { name: 'SunshineListItem'}));
+export default defineComponent({
+  name: 'SunshineListItem',
+  component: SunshineListItem,
+  styles: styles,
+});

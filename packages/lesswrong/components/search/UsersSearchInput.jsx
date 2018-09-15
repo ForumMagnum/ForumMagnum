@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Icon from '@material-ui/core/Icon'
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   input: {
@@ -23,6 +23,8 @@ const UsersSearchInput = ({ inputProps, classes }) => <Input
         </InputAdornment>}
       />
 
-registerComponent("UsersSearchInput", UsersSearchInput,
-  withStyles(styles, { name: "UsersSearchInput" })
-);
+export default defineComponent({
+  name: "UsersSearchInput",
+  component: UsersSearchInput,
+  styles: styles,
+});

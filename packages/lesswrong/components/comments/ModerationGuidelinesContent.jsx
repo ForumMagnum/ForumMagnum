@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const ModerationGuidelinesContent = ({ user, showFrontpageGuidelines = true, showModeratorAssistance = true }) => <div className="moderation-guidelines-box-content comments-item-text">
   {user && user.moderationGuidelines &&
@@ -27,4 +28,7 @@ const ModerationGuidelinesContent = ({ user, showFrontpageGuidelines = true, sho
     </p> }
 </div>
 
-registerComponent('ModerationGuidelinesContent', ModerationGuidelinesContent);
+export default defineComponent({
+  name: 'ModerationGuidelinesContent',
+  component: ModerationGuidelinesContent
+});

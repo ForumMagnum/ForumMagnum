@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 class SunshineNewUsersItem extends Component {
 
@@ -114,4 +115,8 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withCurrentUser);
+export default defineComponent({
+  name: 'SunshineNewUsersItem',
+  component: SunshineNewUsersItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+});

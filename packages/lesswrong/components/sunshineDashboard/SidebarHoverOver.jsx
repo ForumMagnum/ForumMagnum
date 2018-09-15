@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -41,6 +41,8 @@ const SidebarHoverOver = ({children, classes, hoverOverComponent, width=500}) =>
   </div>
 };
 
-SidebarHoverOver.displayName = "SidebarHoverOver";
-
-registerComponent('SidebarHoverOver', SidebarHoverOver, withStyles(styles, { name: 'SidebarHoverOver'}));
+export default defineComponent({
+  name: 'SidebarHoverOver',
+  component: SidebarHoverOver,
+  styles: styles,
+});

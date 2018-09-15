@@ -1,5 +1,6 @@
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsListHeader = () => {
 
@@ -13,6 +14,7 @@ const PostsListHeader = () => {
   )
 }
 
-PostsListHeader.displayName = "PostsListHeader";
-
-replaceComponent('PostsListHeader', PostsListHeader);
+export default defineComponent({
+  name: 'PostsListHeader',
+  component: PostsListHeader
+});

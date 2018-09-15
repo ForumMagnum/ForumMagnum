@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   postEditor: {
@@ -111,4 +111,9 @@ EditorFormComponent.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent('EditorFormComponent', EditorFormComponent, withCurrentUser, withStyles(styles, { name: "EditorFormComponent" }));
+export default defineComponent({
+  name: 'EditorFormComponent',
+  component: EditorFormComponent,
+  styles: styles,
+  hocs: [ withCurrentUser ]
+});

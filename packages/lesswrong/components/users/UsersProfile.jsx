@@ -4,6 +4,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
+import defineComponent from '../../lib/defineComponent';
 
 
 const iconStyle = {
@@ -158,6 +159,8 @@ UsersProfile.propTypes = {
   // document: PropTypes.object.isRequired,
 }
 
-UsersProfile.displayName = "UsersProfile";
-
-replaceComponent('UsersProfile', UsersProfile, withRouter);
+export default defineComponent({
+  name: 'UsersProfile',
+  component: UsersProfile,
+  hocs: [ withRouter ]
+});

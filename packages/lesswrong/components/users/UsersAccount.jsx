@@ -2,6 +2,7 @@ import { Components, registerComponent, withCurrentUser, getSetting } from 'mete
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import defineComponent from '../../lib/defineComponent';
 
 const UsersAccount = (props, /* context*/) => {
 
@@ -19,6 +20,8 @@ UsersAccount.propTypes = {
   currentUser: PropTypes.object
 };
 
-UsersAccount.displayName = 'UsersAccount';
-
-registerComponent('UsersAccount', UsersAccount, withCurrentUser);
+export default defineComponent({
+  name: 'UsersAccount',
+  component: UsersAccount,
+  hocs: [ withCurrentUser ]
+});

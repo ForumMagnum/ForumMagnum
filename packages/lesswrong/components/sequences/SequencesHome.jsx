@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 const testCollections = [
   {
@@ -102,8 +103,10 @@ const SequencesHome = ({document, currentUser, loading}) => {
 //   fragmentName: 'SequenceListFragment'
 // };
 
-registerComponent(
-  'SequencesHome',
-  SequencesHome,
-  //withList(options)
-);
+export default defineComponent({
+  name: 'SequencesHome',
+  component: SequencesHome,
+  hocs: [
+    //withList(options)
+  ]
+});

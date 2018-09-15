@@ -1,10 +1,11 @@
 /* global google */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 import CloseIcon from '@material-ui/icons/Close';
+import defineComponent from '../../lib/defineComponent';
 
 class LocalGroupMarker extends PureComponent {
   // March 13th 2018: If this is still around in six months, probably time to say goodbye
@@ -64,4 +65,7 @@ LocalGroupMarker.propTypes = {
   location: PropTypes.object.isRequired,
 }
 
-registerComponent("LocalGroupMarker", LocalGroupMarker);
+export default defineComponent({
+  name: "LocalGroupMarker",
+  component: LocalGroupMarker
+});

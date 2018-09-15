@@ -1,9 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import defineComponent from '../../lib/defineComponent';
 
 
 const BORDER_TOP_WIDTH = 3
@@ -106,4 +106,8 @@ const Section = ({
   )
 };
 
-registerComponent('Section', Section, withStyles(styles, { name: 'Section'}));
+export default defineComponent({
+  name: 'Section',
+  component: Section,
+  styles: styles,
+});

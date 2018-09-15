@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router'
@@ -6,7 +6,7 @@ import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from 'meteor/example-forum'
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
@@ -101,9 +101,9 @@ CommentsViews.defaultProps = {
   defaultView: "postCommentsTop"
 };
 
-CommentsViews.displayName = "CommentsViews";
-
-registerComponent('CommentsViews', CommentsViews,
-  withRouter, withCurrentUser,
-  withStyles(styles, { name: "CommentsViews" })
-);
+export default defineComponent({
+  name: 'CommentsViews',
+  component: CommentsViews,
+  styles: styles,
+  hocs: [ withRouter, withCurrentUser ]
+});

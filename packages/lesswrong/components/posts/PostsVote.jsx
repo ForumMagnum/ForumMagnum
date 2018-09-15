@@ -1,10 +1,10 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   upvote: {
@@ -112,6 +112,8 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote,
-  withStyles(styles, { name: "PostsVote" })
-);
+export default defineComponent({
+  name: 'PostsVote',
+  component: PostsVote,
+  styles: styles,
+});

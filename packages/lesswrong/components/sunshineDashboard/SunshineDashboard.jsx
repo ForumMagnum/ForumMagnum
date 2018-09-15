@@ -4,6 +4,7 @@ import Reports from '../../lib/collections/reports/collection.js'
 import FlatButton from 'material-ui/FlatButton';
 import Users from 'meteor/vulcan:users';
 import { Error404 } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 const UserRenderer = (props) => <Components.UsersName user={props.document.user} />
 
@@ -76,4 +77,8 @@ const withEditOptions = {
   fragmentName: 'unclaimedReportsList',
 }
 
-registerComponent('SunshineDashboard', SunshineDashboard, [withEdit, withEditOptions], withCurrentUser);
+export default defineComponent({
+  name: 'SunshineDashboard',
+  component: SunshineDashboard,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+});
