@@ -1,10 +1,9 @@
-import { Components, registerComponent, withDocument, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, replaceComponent, registerComponent, withDocument, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
-
 
 const iconStyle = {
   color: 'rgba(0,0,0,0.5)',
@@ -45,37 +44,37 @@ const UsersProfile = (props) => {
     }
 
     const renderMeta = (props) => {
-      const {karma, postCount, commentCount, afKarma} = props.document;
+      const {karma, postCount, commentCount, afPostCount, afCommentCount, afKarma} = props.document;
 
       return <div className="users-profile-header-meta">
-        <div title="Karma" className="users-profile-header-meta-karma">
+        { !getSetting('AlignmentForum', false) && <div title="Karma" className="users-profile-header-meta-karma">
           <FontIcon className="material-icons" style={iconStyle}>star</FontIcon>
           {karma || 0}
-        </div>
-        <div title="Posts" className="users-profile-header-meta-post-count">
-          <FontIcon className="material-icons" style={iconStyle}>description</FontIcon>
-          {postCount || 0}
-        </div>
-        <div title="Comments" className="users-profile-header-meta-comment-count">
-          <FontIcon className="material-icons" style={iconStyle}>message</FontIcon>
-          {commentCount || 0}
-        </div>
+        </div>}
         { afKarma ?
-          <div title="Comments" className="users-profile-header-meta-comment-count">
-            AF {afKarma || 0}
+          <div title="Alignment Karma" className="users-profile-header-meta-comment-count">
+            Ω {afKarma || 0}
           </div>
           : null
         }
+        <div title="Posts" className="users-profile-header-meta-post-count">
+          <FontIcon className="material-icons" style={iconStyle}>description</FontIcon>
+          { !getSetting('AlignmentForum', false) ? postCount || 0 : afPostCount || 0}
+        </div>
+        <div title="Comments" className="users-profile-header-meta-comment-count">
+          <FontIcon className="material-icons" style={iconStyle}>message</FontIcon>
+          { !getSetting('AlignmentForum', false) ? commentCount || 0 : afCommentCount || 0}
+        </div>
       </div>
     }
 
     const renderUserProfileHeader = (props) => {
       return (
-        <Components.Section title="User Profile" titleComponent={ renderMeta(props) }>
-          { props.document.bio &&
+        <Components.Section title={user.displayName} titleComponent={ renderMeta(props) }>
+          { user.bio &&
             <div className="content-body">
               <div className="users-profile-bio">
-                <p>{ props.document.bio }</p>
+                <p>{ user.bio }</p>
               </div>
             </div>}
           { renderActions(props) }
@@ -115,7 +114,11 @@ const UsersProfile = (props) => {
     }
 
     const displaySequenceSection = (canEdit, user)  => {
-      return (canEdit && user.sequenceDraftCount || user.sequenceCount) || (!canEdit && user.sequenceCount)
+      if (getSetting('AlignmentForum', false)) {
+          return (canEdit && user.sequenceDraftCount || user.afSequenceCount) || (!canEdit && user.afSequenceCount)
+      } else {
+          return (canEdit && user.sequenceDraftCount || user.sequenceCount) || (!canEdit && user.sequenceCount)
+      }
     }
 
     const renderSequences = (props) => {

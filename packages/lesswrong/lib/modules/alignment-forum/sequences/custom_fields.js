@@ -1,6 +1,6 @@
-import { Comments } from "meteor/example-forum";
+import Sequences from '../../../collections/sequences/collection.js';
 
-Comments.addField([
+Sequences.addField([
   // This commment will appear in alignment forum view
   {
     fieldName: 'af',
@@ -13,15 +13,5 @@ Comments.addField([
       editableBy: ['alignmentVoters'],
       insertableBy: ['alignmentVoters'],
     }
-  },
-
-  {
-    fieldName: 'afBaseScore',
-    fieldSchema: {
-      type: Number,
-      optional: true,
-      label: "Alignment Base Score",
-      viewableBy: ['guests'],
-    }
-  },
+  }
 ])

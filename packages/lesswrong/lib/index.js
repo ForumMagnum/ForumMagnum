@@ -16,6 +16,9 @@ import './modules/alignment-forum/posts/custom_fields.js';
 import './modules/alignment-forum/posts/callbacks.js';
 import './modules/alignment-forum/comments/custom_fields.js';
 import './modules/alignment-forum/comments/callbacks.js';
+import './modules/alignment-forum/sequences/custom_fields.js'
+import './modules/alignment-forum/sequences/callbacks.js';
+
 
 // Subscriptions
 import './collections/subscription_fields.js';
