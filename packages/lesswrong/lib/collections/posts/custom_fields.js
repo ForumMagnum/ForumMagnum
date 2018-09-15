@@ -25,7 +25,6 @@ export const formGroups = {
   options: {
     order:10,
     name: "options",
-    label: "Basic Options",
     defaultStyle: true,
     flexStyle: true
   },
