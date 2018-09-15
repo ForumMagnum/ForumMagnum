@@ -1,31 +1,5 @@
-
-.sunshine-sidebar-item {
-
-  .sunshine-sidebar-posts-actions {
-    opacity:0;
-  }
-  &:hover {
-    .sunshine-sidebar-posts-actions {
-      opacity:1;
-    }
-  }
-}
-.sunshine-sidebar-posts-actions {
-  position:absolute;
-  top:0;
-  right:0;
-  height:100%;
-}
 .sunshine-sidebar-posts-action {
-  float:right;
-  width:35px;
-  margin-top:15px;
-
-  span {
-    position:relative !important;
-    top:-6px !important;
-  }
-
+  margin-right:12px;
   &:hover {
     cursor:pointer;
     span {
@@ -33,33 +7,7 @@
     }
   }
 
-  &.new-comment.review {
-    span {
-      position:relative !important;
-      top:-5px !important;
-    }
-  }
-
-  &.new-comment.clear {
-    span {
-      position:relative !important;
-      top:-5px !important;
-    }
-  }
-
-  &.review {
-    span {
-      position:relative !important;
-      top:-3px !important;
-    }
-  }
   &.clear, &.purge {
-    span {
-      position:relative !important;
-      top:-2px !important;
-      right:-3px;
-
-    }
     &:hover {
       .sunshine-sidebar-posts-item-delete-overlay {
         background:rgba(255,50,0,.2);

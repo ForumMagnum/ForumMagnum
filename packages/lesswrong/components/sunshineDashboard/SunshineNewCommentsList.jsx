@@ -2,6 +2,7 @@ import { Components, registerComponent, withList, withCurrentUser } from 'meteor
 import React, { Component } from 'react';
 import { Comments } from 'meteor/example-forum';
 import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -20,7 +21,7 @@ class SunshineNewCommentsList extends Component {
           </Components.SunshineListTitle>
           {this.props.results.map(comment =>
             <div key={comment._id} >
-              <Components.SunshineCommentsItem comment={comment}/>
+              <Components.SunshineNewCommentsItem comment={comment}/>
             </div>
           )}
         </div>
@@ -35,6 +36,11 @@ const withListOptions = {
   collection: Comments,
   queryName: 'sunshineNewCommentsListQuery',
   fragmentName: 'SelectCommentsList',
+};
+
+SunshineNewCommentsList.propTypes = {
+  results: PropTypes.array,
+  classes: PropTypes.object.isRequired
 };
 
 registerComponent(

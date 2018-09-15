@@ -68,8 +68,11 @@ class EditorFormComponent extends Component {
     // Otherwise, default to rich-text, but maybe show others
     if (document && (document.lastEditedAs === "html")) {
       return "html"
-    } else if (enableMarkDownEditor && (Users.useMarkdownPostEditor(currentUser)) ||
-          document && (document.lastEditedAs === "markdown")) {
+    } else if (document && (document.lastEditedAs === "markdown")) {
+      return "markdown"
+    } else if (document && (document.lastEditedAs === "draft-js")){
+      return "draft-js"
+    } else if (enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser)){
       return "markdown"
     } else {
       return "draft-js"

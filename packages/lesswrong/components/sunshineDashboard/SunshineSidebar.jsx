@@ -2,6 +2,7 @@ import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:cor
 import React from 'react';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -19,10 +20,10 @@ const styles = theme => ({
   }
 })
 
-const SunshineSidebar = (props) => {
-  if (Users.canDo(props.currentUser, 'posts.moderate.all')) {
+const SunshineSidebar = ({currentUser, classes}) => {
+  if (Users.canDo(currentUser, 'posts.moderate.all')) {
     return (
-      <div className={props.classes.root}>
+      <div className={classes.root}>
         <Components.SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
         <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
@@ -33,6 +34,11 @@ const SunshineSidebar = (props) => {
   } else {
     return null
   }
+};
+
+SunshineSidebar.propTypes = {
+  currentUser: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired
 };
 
 SunshineSidebar.displayName = "SunshineSidebar";

@@ -125,7 +125,7 @@ class SearchBar extends Component {
           <div className={classNames(classes.root, {"open":this.state.inputOpen})}>
             <div onClick={this.handleSearchTap}>
               <Icon className={classes.searchIcon}>search</Icon>
-              <SearchBox resetComponent={false} focusShortcuts={[]} />
+              <SearchBox resetComponent={null} focusShortcuts={[]} />
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
               <Icon className={classes.closeSearchIcon}>close</Icon>
