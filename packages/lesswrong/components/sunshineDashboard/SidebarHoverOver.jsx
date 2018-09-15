@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import grey from '@material-ui/core/colors/grey';
 import defineComponent from '../../lib/defineComponent';
 import Popper from '@material-ui/core/Popper';
 import PropTypes from 'prop-types';

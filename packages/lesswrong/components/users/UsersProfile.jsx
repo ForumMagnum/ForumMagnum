@@ -168,5 +168,5 @@ const options = {
 export default defineComponent({
   name: 'UsersProfile',
   component: UsersProfile,
-  hocs: [ withRouter, [withDocument, options] ]
+  hocs: [ withCurrentUser, withRouter, [withDocument, options] ]
 });
