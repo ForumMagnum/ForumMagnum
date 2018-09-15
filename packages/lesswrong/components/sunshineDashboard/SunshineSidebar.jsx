@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import Icon from '@material-ui/core/Icon';
+import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 
 const styles = theme => ({
   root: {
@@ -41,9 +42,14 @@ class SunshineSidebar extends Component {
     if (Users.canDo(currentUser, 'posts.moderate.all')) {
       return (
         <div className={classes.root}>
-          <Icon className={classes.toggle} onClick={this.toggleSidebar}>
-            { showSidebar ? "keyboard_arrow_down" : "keyboard_arrow_left"}
-          </Icon>
+          { showSidebar ? <KeyboardArrowDown
+            className={classes.toggle}
+            onClick={this.toggleSidebar}/>
+            :
+            <KeyboardArrowLeft
+              className={classes.toggle}
+              onClick={this.toggleSidebar}
+            />}
           { showSidebar && <div>
             <Components.SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
             <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
