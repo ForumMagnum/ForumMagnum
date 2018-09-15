@@ -31,3 +31,4 @@ export default defineComponent({
   styles: styles,
   hocs: [ muiThemeable() ]
 });
+

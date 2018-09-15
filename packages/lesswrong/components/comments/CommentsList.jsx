@@ -91,3 +91,4 @@ export default defineComponent({
   component: CommentsList,
   hocs: [ [withEdit, withEditOptions] ]
 });
+

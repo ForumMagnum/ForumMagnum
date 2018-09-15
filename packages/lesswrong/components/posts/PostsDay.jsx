@@ -48,3 +48,4 @@ export default defineComponent({
   component: PostsDay,
   styles: styles,
 });
+

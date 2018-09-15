@@ -1,4 +1,4 @@
-import { Components, replaceComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch/dom';
 import React, { Component } from 'react';
 import defineComponent from '../lib/defineComponent';
@@ -121,3 +121,4 @@ export default defineComponent({
   styles: styles,
   hocs: [ withRouter, withApollo, withTheme() ]
 });
+

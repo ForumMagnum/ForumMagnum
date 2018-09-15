@@ -18,3 +18,4 @@ export default defineComponent({
   name: 'PostsListHeader',
   component: PostsListHeader
 });
+

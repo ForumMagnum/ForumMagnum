@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument, withCurrentUser } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -159,8 +159,14 @@ UsersProfile.propTypes = {
   // document: PropTypes.object.isRequired,
 }
 
+const options = {
+  collection: Users,
+  queryName: 'usersSingleQuery',
+  fragmentName: 'UsersProfile',
+};
+
 export default defineComponent({
   name: 'UsersProfile',
   component: UsersProfile,
-  hocs: [ withRouter ]
+  hocs: [ withRouter, [withDocument, options] ]
 });

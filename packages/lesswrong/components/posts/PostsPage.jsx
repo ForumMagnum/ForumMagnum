@@ -58,6 +58,7 @@ const styles = theme => ({
     author: {
       marginTop: 18,
       textAlign: 'center',
+      ...theme.typography.postStyle
     },
     mainContent: {
       position: 'relative',
@@ -290,6 +291,9 @@ class PostsPage extends Component {
               </div>
               <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
                 {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
+                { post.coauthors.map(coauthor=><span key={coauthor._id} >
+                  , <Components.UsersName user={coauthor} />
+                </span>)}
               </Typography>
             </div>
             <div className={classes.mainContent}>

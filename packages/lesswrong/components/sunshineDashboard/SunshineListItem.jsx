@@ -13,6 +13,9 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit,
   },
+  content: {
+    overflow: "hidden",
+  },
   hover: {
     backgroundColor: theme.palette.grey[50]
   }
@@ -20,7 +23,7 @@ const styles = theme => ({
 
 const SunshineListItem = ({children, classes, hover}) => {
   return <div className={classNames(classes.root, {[classes.hover]:hover})}>
-        { children }
+        <div className={classes.content}>{ children }</div>
       </div>
 };
 

@@ -1,4 +1,4 @@
-import { addCallback, removeCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { performVoteServer } from 'meteor/vulcan:voting';
@@ -140,9 +140,6 @@ function PostsNewDefaultTypes (post) {
 }
 
 addCallback("posts.new.sync", PostsNewDefaultTypes);
-
-//LESSWRONG: Remove original CommentsNewUpvoteOwnComment from Vulcan
-removeCallback('posts.new.after', 'PostsNewUpvoteOwnPost');
 
 // LESSWRONG – bigUpvote
 async function LWPostsNewUpvoteOwnPost(post) {
