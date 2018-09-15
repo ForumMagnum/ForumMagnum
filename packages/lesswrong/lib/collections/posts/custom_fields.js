@@ -25,7 +25,6 @@ export const formGroups = {
   options: {
     order:10,
     name: "options",
-    label: "Options",
     defaultStyle: true,
     flexStyle: true
   },
@@ -39,7 +38,14 @@ export const formGroups = {
     name: "canonicalSequence",
     label: "Canonical Sequence",
     startCollapsed: true,
-  }
+  },
+  advancedOptions: {
+    order:40,
+    name: "advancedOptions",
+    label: "Options",
+    startCollapsed: true,
+    flexStyle: true
+  },
 };
 
 Posts.addField([
@@ -430,6 +436,38 @@ Posts.addField([
         },
         addOriginalField: true
       },
+    }
+  },
+
+  {
+    fieldName: 'coauthorUserIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members'],
+      optional: true,
+      label: "Co-Authors",
+      control: "UsersListEditor",
+      hidden: true,
+      group: formGroups.advancedOptions,
+      resolveAs: {
+        fieldName: 'coauthors',
+        type: '[User]',
+        resolver: (post, args, context) => {
+          return _.map(post.coauthorUserIds,
+            (coauthorId => {return context.Users.findOne({ _id: coauthorId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
+          )
+        },
+        addOriginalField: true
+      },
+    }
+  },
+  {
+    fieldName: 'coauthorUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
     }
   },
 

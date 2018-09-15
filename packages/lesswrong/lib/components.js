@@ -153,23 +153,25 @@ import '../components/admin/BenchmarkComponent.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
-import '../components/sunshineDashboard/SunshineDashboard.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersItem.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsItem.jsx';
-import '../components/sunshineDashboard/SunshineCommentsItem.jsx';
+import '../components/sunshineDashboard/SunshineNewCommentsItem.jsx';
 import '../components/sunshineDashboard/SunshineNewCommentsList.jsx';
 import '../components/sunshineDashboard/SunshineReportedCommentsList.jsx';
-import '../components/sunshineDashboard/SunshineReportsItem.jsx';
+import '../components/sunshineDashboard/SunshineReportedCommentsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';
 import '../components/sunshineDashboard/SunshineListTitle.jsx';
 import '../components/sunshineDashboard/SunshineListItem.jsx';
 import '../components/sunshineDashboard/SidebarHoverOver.jsx';
+import '../components/sunshineDashboard/SidebarInfo.jsx';
+import '../components/sunshineDashboard/SidebarActionMenu.jsx';
+import '../components/sunshineDashboard/SidebarAction.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

@@ -93,6 +93,9 @@ const createLWTheme = (theme) => {
         fontWeight: 400,
         marginBottom: 3,
       },
+      caption: {
+        fontSize: ".9rem"
+      },
       blockquote: {
         fontWeight: 400,
         paddingTop: spacingUnit*2,

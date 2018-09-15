@@ -6,46 +6,55 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import PropTypes from 'prop-types';
+
+const styles = theme => ({
+  comment: {
+    fontSize: "1rem",
+    lineHeight: "1.5em"
+  }
+})
 
 class SunshineCommentsItemOverview extends Component {
 
   render () {
-    const { comment } = this.props
-    let commentExcerpt = comment.body.substring(0,40);
-    if (comment) {
-      return (
-        <div className="sunshine-sidebar-posts-item new-comment">
-          <Components.MetaInfo>
-            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              { comment.deleted ? <span>COMMENT DELETED</span>
-                : <span>{ commentExcerpt }</span>
-              }
+    const { comment, classes } = this.props
+    let commentExcerpt = comment.body.substring(0,38);
+    return (
+      <div>
+        <Typography variant="body2">
+          <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
+            { comment.deleted ? <span>COMMENT DELETED</span>
+              : <span>{ commentExcerpt }</span>
+            }
+          </Link>
+        </Typography>
+        <div>
+          <Components.SidebarInfo>
+            { comment.baseScore }
+          </Components.SidebarInfo>
+          <Components.SidebarInfo>
+            <Link to={Users.getProfileUrl(comment.user)}>
+                {comment.user.displayName}
             </Link>
-          </Components.MetaInfo>
-          <div>
-            <Components.MetaInfo>
-              { comment.baseScore }
-            </Components.MetaInfo>
-            <Components.MetaInfo>
-              <Link
-                className="sunshine-sidebar-posts-author"
-                to={Users.getProfileUrl(comment.user)}>
-                  {comment.user.displayName}
-              </Link>
-            </Components.MetaInfo>
-            <Components.MetaInfo>
-              <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-                {moment(new Date(comment.postedAt)).fromNow()}
-                <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
-              </Link>
-            </Components.MetaInfo>
-          </div>
+          </Components.SidebarInfo>
+          <Components.SidebarInfo>
+            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+              {moment(new Date(comment.postedAt)).fromNow()}
+              <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
+            </Link>
+          </Components.SidebarInfo>
         </div>
-      )
-    } else {
-      return null
-    }
+      </div>
+    )
   }
 }
 
-registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withUser);
+SunshineCommentsItemOverview.propTypes = {
+  comment: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired
+}
+
+registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withUser, withStyles(styles));

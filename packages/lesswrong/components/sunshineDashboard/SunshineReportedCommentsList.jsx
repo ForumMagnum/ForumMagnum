@@ -8,10 +8,11 @@ import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
-    backgroundColor: "rgba(60,0,0,.04)"
+    backgroundColor: "rgba(60,0,0,.08)"
   }
 })
 
@@ -21,10 +22,12 @@ class SunshineReportedCommentsList extends Component {
     if (results && results.length) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>Flagged Comments</Components.SunshineListTitle>
+          <Components.SunshineListTitle>
+            Flagged Comments
+          </Components.SunshineListTitle>
           {results.map(report =>
             <div key={report._id} >
-              <Components.SunshineReportsItem
+              <Components.SunshineReportedCommentsItem
                 report={report}
                 reportEditMutation={editMutation}
               />
@@ -37,6 +40,12 @@ class SunshineReportedCommentsList extends Component {
     }
   }
 }
+
+SunshineReportedCommentsList.propTypes = {
+  results: PropTypes.array,
+  editMutation: PropTypes.func.isRequired,
+  classes: PropTypes.object.isRequired,
+};
 
 const withListOptions = {
   collection: Reports,

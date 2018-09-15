@@ -1,8 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import PropTypes from 'prop-types';
+import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 
 const styles = theme => ({
   root: {
@@ -17,23 +20,55 @@ const styles = theme => ({
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
+  },
+  toggle: {
+    float: "right",
+    margin: 12,
+    cursor: "pointer",
+    color: theme.palette.grey[400]
   }
 })
 
-const SunshineSidebar = (props) => {
-  if (Users.canDo(props.currentUser, 'posts.moderate.all')) {
-    return (
-      <div className={props.classes.root}>
-        <Components.SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
-        <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-        <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
-        <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
-        <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
-      </div>
-    )
-  } else {
-    return null
+class SunshineSidebar extends Component {
+  state = { showSidebar: true }
+
+  toggleSidebar = () => {
+    this.setState({showSidebar: !this.state.showSidebar})
   }
+
+  render () {
+    const { currentUser, classes } = this.props
+    const { showSidebar } = this.state
+
+    if (Users.canDo(currentUser, 'posts.moderate.all')) {
+      return (
+        <div className={classes.root}>
+          { showSidebar ? <KeyboardArrowDown
+            className={classes.toggle}
+            onClick={this.toggleSidebar}/>
+            :
+            <KeyboardArrowLeft
+              className={classes.toggle}
+              onClick={this.toggleSidebar}
+            />}
+          { showSidebar && <div>
+            <Components.SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
+            <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
+            <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
+            <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
+            <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
+          </div>}
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+}
+
+SunshineSidebar.propTypes = {
+  currentUser: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired
 };
 
 SunshineSidebar.displayName = "SunshineSidebar";
