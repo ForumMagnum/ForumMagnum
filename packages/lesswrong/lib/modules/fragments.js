@@ -602,3 +602,51 @@ registerFragment(`
     afBaseScore
   }
 `);
+
+//
+// example-forum migrated fragments
+//
+
+registerFragment(/* GraphQL */`
+  fragment PostsPage on Post {
+    ...PostsList
+    body
+    htmlBody
+  }
+`);
+
+
+// note: fragment used by default on CategoriesList & PostsList fragments
+registerFragment(`
+  fragment CategoriesMinimumInfo on Category {
+    # vulcan:categories
+    _id
+    name
+    slug
+  }
+`);
+
+registerFragment(`
+  fragment CategoriesList on Category {
+    # vulcan:categories
+    ...CategoriesMinimumInfo
+    description
+    order
+    image
+    parentId
+    parent {
+      ...CategoriesMinimumInfo
+    }
+  }
+`);
+
+// note: fragment used by default on the UsersProfile fragment
+registerFragment(/* GraphQL */`
+  fragment VotedItem on Vote {
+    # vulcan:voting
+    documentId
+    power
+    votedAt
+  }
+`);
+

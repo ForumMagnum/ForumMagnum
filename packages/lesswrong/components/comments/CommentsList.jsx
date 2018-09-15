@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
@@ -88,4 +88,4 @@ const withEditOptions = {
 };
 
 
-replaceComponent('CommentsList', CommentsList, [withEdit, withEditOptions]);
+registerComponent('CommentsList', CommentsList, [withEdit, withEditOptions]);

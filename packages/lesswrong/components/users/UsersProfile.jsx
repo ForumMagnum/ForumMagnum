@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument, withCurrentUser } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -160,4 +160,10 @@ UsersProfile.propTypes = {
 
 UsersProfile.displayName = "UsersProfile";
 
-replaceComponent('UsersProfile', UsersProfile, withRouter);
+const options = {
+  collection: Users,
+  queryName: 'usersSingleQuery',
+  fragmentName: 'UsersProfile',
+};
+
+registerComponent('UsersProfile', UsersProfile, withCurrentUser, [withDocument, options], withRouter);

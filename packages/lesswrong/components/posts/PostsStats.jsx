@@ -1,4 +1,4 @@
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
 const PostsStats = ({post}) => {
@@ -19,4 +19,4 @@ const PostsStats = ({post}) => {
 
 PostsStats.displayName = "PostsStats";
 
-replaceComponent('PostsStats', PostsStats);
+registerComponent('PostsStats', PostsStats);
