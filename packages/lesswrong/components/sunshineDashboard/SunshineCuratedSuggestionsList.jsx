@@ -2,6 +2,7 @@ import { Components, registerComponent, withList, withCurrentUser } from 'meteor
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import defineComponent from '../../lib/defineComponent';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -19,7 +20,9 @@ class SunshineCuratedSuggestionsList extends Component {
     if (results && results.length) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>Suggestions for Curated</Components.SunshineListTitle>
+          <Components.SunshineListTitle>
+            Suggestions for Curated
+          </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
               <Components.SunshineCuratedSuggestionsItem post={post}/>
@@ -33,11 +36,15 @@ class SunshineCuratedSuggestionsList extends Component {
   }
 }
 
+SunshineCuratedSuggestionsList.propTypes = {
+  results: PropTypes.array,
+  classes: PropTypes.object.isRequired
+};
+
 const withListOptions = {
   collection: Posts,
   queryName: 'sunshineCuratedsuggestionsListQuery',
-  fragmentName: 'PostsList',
-
+  fragmentName: 'PostsList'
 };
 
 export default defineComponent({
