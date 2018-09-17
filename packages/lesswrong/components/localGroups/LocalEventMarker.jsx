@@ -1,11 +1,12 @@
 /* global google */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 import CloseIcon from '@material-ui/icons/Close';
 import { Posts } from 'meteor/example-forum';
+import defineComponent from '../../lib/defineComponent';
 
 class LocalEventMarker extends PureComponent {
   render() {
@@ -51,4 +52,7 @@ LocalEventMarker.propTypes = {
   location: PropTypes.object,
 }
 
-registerComponent("LocalEventMarker", LocalEventMarker);
+export default defineComponent({
+  name: "LocalEventMarker",
+  component: LocalEventMarker
+});

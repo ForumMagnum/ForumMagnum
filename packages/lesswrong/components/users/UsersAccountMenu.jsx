@@ -1,10 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import defineComponent from '../../lib/defineComponent';
 
 import Popover from 'material-ui/Popover';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   userButton: {
@@ -68,4 +68,8 @@ UsersAccountMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersAccountMenu', UsersAccountMenu, withStyles(styles, { name: "UsersAccountMenu" }));
+export default defineComponent({
+  name: 'UsersAccountMenu',
+  component: UsersAccountMenu,
+  styles: styles,
+});

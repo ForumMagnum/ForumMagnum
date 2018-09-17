@@ -1,5 +1,5 @@
-import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const Footer = props => {
   return (
@@ -7,6 +7,7 @@ const Footer = props => {
   )
 }
 
-Footer.displayName = "Footer";
-
-registerComponent('Footer', Footer);
+export default defineComponent({
+  name: 'Footer',
+  component: Footer
+});

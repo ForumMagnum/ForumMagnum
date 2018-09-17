@@ -1,10 +1,11 @@
-import { Components, registerComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
+import { Components, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from 'meteor/example-forum';
 import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 const Error = ({error}) => <Alert className="flash-message" bsStyle="danger">
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -51,8 +52,6 @@ const PostsList = ({
   )
 };
 
-PostsList.displayName = "PostsList";
-
 PostsList.propTypes = {
   results: PropTypes.array,
   terms: PropTypes.object,
@@ -78,4 +77,8 @@ const options = {
   ssr: true
 };
 
-registerComponent('PostsList', PostsList, withCurrentUser, [withList, options]);
+export default defineComponent({
+  name: 'PostsList',
+  component: PostsList,
+  hocs: [ withCurrentUser, [withList, options] ]
+});

@@ -1,7 +1,7 @@
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from 'meteor/example-forum';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -43,10 +43,10 @@ SunshineNewCommentsList.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent(
-  'SunshineNewCommentsList',
-  SunshineNewCommentsList,
-  [withList, withListOptions],
-  withCurrentUser,
-  withStyles(styles, {name: "SunshineNewCommentsList"})
-);
+export default defineComponent({
+  name: 'SunshineNewCommentsList',
+  component: SunshineNewCommentsList,
+  styles: styles,
+  hocs: [ [withList, withListOptions], withCurrentUser,  ]
+});
+

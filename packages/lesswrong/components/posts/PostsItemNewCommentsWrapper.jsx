@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent} from 'meteor/vulcan:core';
+import { withList, Components } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsItemNewCommentsWrapper = (props, /* context*/) => {
 
@@ -46,4 +47,8 @@ const options = {
   // totalResolver: false,
 };
 
-registerComponent('PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, [withList, options]);
+export default defineComponent({
+  name: 'PostsItemNewCommentsWrapper',
+  component: PostsItemNewCommentsWrapper,
+  hocs: [ [withList, options] ]
+});

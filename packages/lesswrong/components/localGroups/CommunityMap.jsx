@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, withList } from 'meteor/vulcan:core';
 import { Localgroups } from '../../lib/index.js';
 import mapStyle from './mapStyles.js';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps"
+import defineComponent from '../../lib/defineComponent';
 
 class CommunityMap extends Component {
   constructor(props, context) {
@@ -90,4 +91,8 @@ const listOptions = {
   limit: 500,
 }
 
-registerComponent("CommunityMap", CommunityMap, [withList, listOptions], withScriptjs, withGoogleMap)
+export default defineComponent({
+  name: "CommunityMap",
+  component: CommunityMap,
+  hocs: [ [withList, listOptions], withScriptjs, withGoogleMap ]
+});

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
 import { withRouter } from 'react-router';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import Checkbox from 'material-ui/Checkbox';
+import defineComponent from '../../lib/defineComponent';
 
 
 
@@ -53,4 +54,8 @@ class CommunityMapFilter extends Component {
   }
 }
 
-registerComponent('CommunityMapFilter', CommunityMapFilter, withRouter);
+export default defineComponent({
+  name: 'CommunityMapFilter',
+  component: CommunityMapFilter,
+  hocs: [ withRouter ]
+});

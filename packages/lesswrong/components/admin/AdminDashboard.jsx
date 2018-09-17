@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, withCurrentUser, AdminColumns, registerComponent} from 'meteor/vulcan:core';
+import { Components, withCurrentUser, AdminColumns } from 'meteor/vulcan:core';
 import Bans from '../../lib/collections/bans/collection.js';
 import LWEvents from '../../lib/collections/lwevents/collection.js';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import { addAdminColumn } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 const UserIPsDisplay = ({column, document}) => {
   return <div>
@@ -95,4 +96,8 @@ const AdminHome = ({ currentUser }) =>
     </Components.ShowIf>
   </div>
 
-registerComponent("AdminDashboard", AdminHome, withCurrentUser)
+export default defineComponent({
+  component: AdminHome,
+  name: "AdminDashboard",
+  hocs: [ withCurrentUser ]
+})

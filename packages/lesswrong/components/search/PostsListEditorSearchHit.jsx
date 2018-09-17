@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent} from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 
 const styles = theme => ({
@@ -42,4 +42,9 @@ const PostsListEditorSearchHit = ({hit, clickAction, router, classes}) => {
 }
 
 
-registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, withRouter, withStyles(styles, { name: "PostsListEditorSearchHit" }));
+export default defineComponent({
+  name: "PostsListEditorSearchHit",
+  component: PostsListEditorSearchHit,
+  styles: styles,
+  hocs: [ withRouter ]
+});

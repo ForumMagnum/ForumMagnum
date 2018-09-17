@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
+import { withMessages, Components } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import PropTypes from 'prop-types';
 import withSetAlignmentComment from '../../alignment-forum/withSetAlignmentComment.jsx'
 import { withApollo } from 'react-apollo'
+import defineComponent from '../../../lib/defineComponent';
 
 class MoveToAlignmentMenuItem extends PureComponent {
 
@@ -62,11 +63,8 @@ const mutationOptions = {
   fragmentName: "CommentsList"
 };
 
-registerComponent(
-  'MoveToAlignmentMenuItem',
-   MoveToAlignmentMenuItem,
-   [withSetAlignmentComment, mutationOptions],
-   withMessages,
-   withApollo,
-);
-export default MoveToAlignmentMenuItem;
+export default defineComponent({
+  name: 'MoveToAlignmentMenuItem',
+  component: MoveToAlignmentMenuItem,
+  hocs: [ [withSetAlignmentComment, mutationOptions], withMessages, withApollo ]
+});

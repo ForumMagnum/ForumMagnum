@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList, withCurrentUser, Loading, withEdit } from 'meteor/vulcan:core';
+import { Components, withList, withCurrentUser, Loading, withEdit } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
+import defineComponent from '../../lib/defineComponent';
 
 const RecentComments = ({results, currentUser, loading, fontSize, loadMore, networkStatus, editMutation}) => {
   const loadingMore = networkStatus === 2;
@@ -43,4 +44,8 @@ const withEditOptions = {
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('RecentComments', RecentComments, [withList, commentsOptions], [withEdit, withEditOptions], withCurrentUser);
+export default defineComponent({
+  name: 'RecentComments',
+  component: RecentComments,
+  hocs: [ [withList, commentsOptions], [withEdit, withEditOptions], withCurrentUser ]
+});

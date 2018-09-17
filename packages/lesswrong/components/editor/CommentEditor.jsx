@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, commentBodyStyles } from '../../themes/stylePiping'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   commentStyle: editorStyles(theme, commentBodyStyles),
@@ -54,4 +54,9 @@ CommentEditor.contextTypes = {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent('CommentEditor', CommentEditor, withCurrentUser, withStyles(styles, { name: "CommentEditor" }));
+export default defineComponent({
+  name: 'CommentEditor',
+  component: CommentEditor,
+  styles: styles,
+  hocs: [ withCurrentUser ]
+});

@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, replaceComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withCurrentUser } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
@@ -138,7 +139,9 @@ FormSubmit.contextTypes = {
 }
 
 
-replaceComponent('FormSubmit', FormSubmit,
-  withCurrentUser, withTheme(),
-  withStyles(styles, { name: "FormSubmit" })
-);
+export default defineComponent({
+  name: 'FormSubmit',
+  component: FormSubmit,
+  styles: styles,
+  hocs: [ withCurrentUser, withTheme() ]
+});

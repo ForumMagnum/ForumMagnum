@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import Icon from '@material-ui/core/Icon';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   buttons: {
@@ -100,4 +100,8 @@ class SubscribeWidget extends Component {
   }
 }
 
-registerComponent('SubscribeWidget', SubscribeWidget, withStyles(styles, { name: "SubscribeWidget" }));
+export default defineComponent({
+  name: 'SubscribeWidget',
+  component: SubscribeWidget,
+  styles: styles,
+});

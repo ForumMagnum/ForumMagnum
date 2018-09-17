@@ -2,6 +2,7 @@ import { Components, registerComponent, getFragment, withMessages } from 'meteor
 import React from 'react';
 import PropTypes from 'prop-types';
 import Chapters from '../../lib/collections/chapters/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
@@ -23,4 +24,8 @@ const ChaptersEditForm = (props) => {
   )
 }
 
-registerComponent('ChaptersEditForm', ChaptersEditForm, withMessages);
+export default defineComponent({
+  name: 'ChaptersEditForm',
+  component: ChaptersEditForm,
+  hocs: [ withMessages ]
+});

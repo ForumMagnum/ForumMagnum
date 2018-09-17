@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles'
+import defineComponent from '../../lib/defineComponent';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
@@ -32,6 +32,9 @@ SunshineListItem.propTypes = {
   hover: PropTypes.bool.isRequired,
 };
 
-SunshineListItem.displayName = "SunshineListItem";
+export default defineComponent({
+  name: 'SunshineListItem',
+  component: SunshineListItem,
+  styles: styles,
+});
 
-registerComponent('SunshineListItem', SunshineListItem, withStyles(styles, { name: 'SunshineListItem'}));

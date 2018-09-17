@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -22,6 +22,9 @@ SunshineListTitle.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-SunshineListTitle.displayName = "SunshineListTitle";
+export default defineComponent({
+  name: 'SunshineListTitle',
+  component: SunshineListTitle,
+  styles: styles,
+});
 
-registerComponent('SunshineListTitle', SunshineListTitle, withStyles(styles, { name: 'SunshineListTitle'}));

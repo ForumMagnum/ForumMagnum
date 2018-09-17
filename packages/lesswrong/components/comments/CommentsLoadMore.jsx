@@ -1,8 +1,8 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import classNames from 'classnames';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   link: {
@@ -25,9 +25,9 @@ const CommentsLoadMore = ({loading, loadMore, count, totalCount, muiTheme, class
   )
 }
 
-CommentsLoadMore.displayName = "CommentsLoadMore";
-
-registerComponent('CommentsLoadMore', CommentsLoadMore,
-  muiThemeable(),
-  withStyles(styles, { name: "CommentsLoadMore" })
-);
+export default defineComponent({
+  name: 'CommentsLoadMore',
+  component: CommentsLoadMore,
+  styles: styles,
+  hocs: [ muiThemeable() ]
+});

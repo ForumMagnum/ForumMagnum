@@ -1,6 +1,5 @@
 import {
   Components,
-  registerComponent,
   withEdit,
   withCurrentUser
 } from 'meteor/vulcan:core';
@@ -8,6 +7,7 @@ import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
 import withSetAlignmentPost from "../alignment-forum/withSetAlignmentPost.jsx";
+import defineComponent from '../../lib/defineComponent';
 
 class PostsPageAdminActions extends Component {
 
@@ -122,8 +122,6 @@ class PostsPageAdminActions extends Component {
   }
 }
 
-PostsPageAdminActions.displayName = "PostsPageAdminActions";
-
 const withEditOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
@@ -134,10 +132,8 @@ const setAlignmentOptions = {
 }
 
 
-registerComponent(
-  'PostsPageAdminActions',
-  PostsPageAdminActions,
-  [withEdit, withEditOptions],
-  [withSetAlignmentPost, setAlignmentOptions],
-  withCurrentUser
-);
+export default defineComponent({
+  name: 'PostsPageAdminActions',
+  component: PostsPageAdminActions,
+  hocs: [ [withEdit, withEditOptions], [withSetAlignmentPost, setAlignmentOptions], withCurrentUser ]
+});

@@ -1,8 +1,9 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, withDocument } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
+import defineComponent from '../../lib/defineComponent';
 
 
 const PostsItemWrapper = ({document, loading, ...props}) => {
@@ -41,4 +42,8 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('PostsItemWrapper', PostsItemWrapper, [withDocument, options]);
+export default defineComponent({
+  name: 'PostsItemWrapper',
+  component: PostsItemWrapper,
+  hocs: [ [withDocument, options] ]
+});

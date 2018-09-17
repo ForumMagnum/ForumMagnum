@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
 
@@ -127,10 +128,9 @@ const withEditOptions = {
   fragmentName: 'PostsList',
 }
 
-registerComponent(
-  'SunshineCuratedSuggestionsItem',
-  SunshineCuratedSuggestionsItem,
-  [withEdit, withEditOptions],
-  withCurrentUser,
-  withHover
-);
+export default defineComponent({
+  name: 'SunshineCuratedSuggestionsItem',
+  component: SunshineCuratedSuggestionsItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser, withHover ]
+});
+

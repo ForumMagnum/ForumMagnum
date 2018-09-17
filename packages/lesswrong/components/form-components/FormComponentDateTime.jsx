@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import DateTimePicker from 'react-datetime';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   input: {
@@ -60,4 +60,8 @@ FormComponentDateTime.contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("FormComponentDateTime", FormComponentDateTime, withStyles(styles, { name: "FormComponentDateTime" }));
+export default defineComponent({
+  name: "FormComponentDateTime",
+  component: FormComponentDateTime,
+  style: styles,
+});

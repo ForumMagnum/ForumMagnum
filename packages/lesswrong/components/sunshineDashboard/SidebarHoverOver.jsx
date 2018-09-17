@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 import Popper from '@material-ui/core/Popper';
 import PropTypes from 'prop-types';
 
@@ -34,6 +34,8 @@ SidebarHoverOver.propTypes = {
   width: PropTypes.number,
 };
 
-SidebarHoverOver.displayName = "SidebarHoverOver";
-
-registerComponent('SidebarHoverOver', SidebarHoverOver, withStyles(styles, { name: 'SidebarHoverOver'}));
+export default defineComponent({
+  name: 'SidebarHoverOver',
+  component: SidebarHoverOver,
+  styles: styles,
+});

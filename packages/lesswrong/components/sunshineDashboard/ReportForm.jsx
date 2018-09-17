@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import Reports from '../../lib/collections/reports/collection.js'
 import Dialog from 'material-ui/Dialog';
+import defineComponent from '../../lib/defineComponent';
 
 class ReportForm extends Component {
 
@@ -52,4 +53,7 @@ ReportForm.propTypes = {
     link: PropTypes.string.isRequired
 }
 
-registerComponent('ReportForm', ReportForm);
+export default defineComponent({
+  name: 'ReportForm',
+  component: ReportForm
+});

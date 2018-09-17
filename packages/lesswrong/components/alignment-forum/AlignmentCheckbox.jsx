@@ -1,7 +1,7 @@
-import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'formsy-react-components';
+import defineComponent from '../../lib/defineComponent';
 
 class AlignmentCheckbox extends Component {
 
@@ -35,4 +35,8 @@ class AlignmentCheckbox extends Component {
   }
 }
 
-registerComponent("AlignmentCheckbox", AlignmentCheckbox);
+export default defineComponent({
+  name: "AlignmentCheckbox",
+  component: AlignmentCheckbox,
+  register: true
+});

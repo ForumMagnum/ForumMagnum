@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, getRawComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
@@ -16,8 +16,8 @@ import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
-import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
+import defineComponent from '../../../lib/defineComponent';
 
 const moreActionsMenuStyle = {
   position: 'inherit',
@@ -415,8 +415,9 @@ class CommentsItem extends Component {
       />
 }
 
-registerComponent('CommentsItem', CommentsItem,
-  withRouter, withMessages,
-  withStyles(styles, { name: "CommentsItem" })
-);
-export default CommentsItem;
+export default defineComponent({
+  name: 'CommentsItem',
+  component: CommentsItem,
+  styles: styles,
+  hocs: [ withRouter, withMessages ]
+});

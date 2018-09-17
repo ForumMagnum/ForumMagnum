@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import FlatButton from 'material-ui/FlatButton';
+import defineComponent from '../../lib/defineComponent';
 
 
 class MultiSelectButtons extends Component {
@@ -64,4 +65,7 @@ MultiSelectButtons.contextTypes = {
 MultiSelectButtons.defaultProps = {
 
 }
-registerComponent("MultiSelectButtons", MultiSelectButtons);
+export default defineComponent({
+  name: "MultiSelectButtons",
+  component: MultiSelectButtons
+});

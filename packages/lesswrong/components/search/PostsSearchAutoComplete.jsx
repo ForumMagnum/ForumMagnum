@@ -3,6 +3,7 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
 import { InstantSearch, Configure } from 'react-instantsearch/dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsSearchAutoComplete = ({clickAction, HitComponent}) => {
   const algoliaAppId = getSetting('algolia.appId')
@@ -48,4 +49,7 @@ const AutoComplete = connectAutoComplete(
   }
 );
 
-registerComponent("PostsSearchAutoComplete", PostsSearchAutoComplete);
+export default defineComponent({
+  name: "PostsSearchAutoComplete",
+  component: PostsSearchAutoComplete
+});

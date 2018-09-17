@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import mapStyle from './mapStyles.js';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps"
+import defineComponent from '../../lib/defineComponent';
 
 class SmallMapPreview extends Component {
   constructor(props, context) {
@@ -53,4 +54,8 @@ class SmallMapPreview extends Component {
   }
 }
 
-registerComponent("SmallMapPreview", SmallMapPreview, withScriptjs, withGoogleMap)
+export default defineComponent({
+  name: "SmallMapPreview",
+  component: SmallMapPreview,
+  hocs: [ withScriptjs, withGoogleMap ]
+});

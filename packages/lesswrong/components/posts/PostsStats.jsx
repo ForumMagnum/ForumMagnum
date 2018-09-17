@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsStats = ({post}) => {
 
@@ -17,6 +18,7 @@ const PostsStats = ({post}) => {
   )
 }
 
-PostsStats.displayName = "PostsStats";
-
-registerComponent('PostsStats', PostsStats);
+export default defineComponent({
+  name: 'PostsStats',
+  component: PostsStats
+});

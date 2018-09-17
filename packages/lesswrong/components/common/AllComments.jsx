@@ -1,5 +1,6 @@
-import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { Components, withCurrentUser } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const AllComments = (props, context) => {
   const commentTerms = _.isEmpty(props.location && props.location.query) ? {view: 'recentComments', limit: 20}: props.location.query;
@@ -15,4 +16,8 @@ const AllComments = (props, context) => {
   )
 };
 
-registerComponent('AllComments', AllComments, withCurrentUser);
+export default defineComponent({
+  name: 'AllComments',
+  component: AllComments,
+  hocs: [ withCurrentUser ]
+});

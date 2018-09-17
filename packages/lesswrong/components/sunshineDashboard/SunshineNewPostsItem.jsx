@@ -4,6 +4,7 @@ import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
 
@@ -101,4 +102,9 @@ const withEditOptions = {
   fragmentName: 'PostsList',
 }
 
-registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withEdit, withEditOptions], withCurrentUser, withHover);
+export default defineComponent({
+  name: 'SunshineNewPostsItem',
+  component: SunshineNewPostsItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser, withHover ]
+});
+

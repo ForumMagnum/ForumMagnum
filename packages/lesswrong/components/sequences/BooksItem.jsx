@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 class BooksItem extends Component {
   constructor(props) {
@@ -54,4 +55,7 @@ class BooksItem extends Component {
   }
 }
 
-registerComponent('BooksItem', BooksItem)
+export default defineComponent({
+  name: 'BooksItem',
+  component: BooksItem
+})

@@ -1,7 +1,8 @@
-import { Components, replaceComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Snackbar from 'material-ui/Snackbar';
 import { intlShape } from 'meteor/vulcan:i18n';
+import defineComponent from '../../lib/defineComponent';
 
 class FlashMessages extends Component {
   handleRequestClose = () => {
@@ -53,8 +54,8 @@ FlashMessages.contextTypes = {
   intl: intlShape
 }
 
-
-
-FlashMessages.displayName = "FlashMessages";
-
-replaceComponent('FlashMessages', FlashMessages, withMessages);
+export default defineComponent({
+  name: 'FlashMessages',
+  component: FlashMessages,
+  hocs: [ withMessages ]
+});

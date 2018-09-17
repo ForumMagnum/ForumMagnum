@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import TextField from '@material-ui/core/TextField';
 import classnames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   labelColor: {
@@ -76,4 +76,8 @@ MuiTextField.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiTextField", MuiTextField, withStyles(styles, { name: "MuiTextField" }));
+export default defineComponent({
+  name: "MuiTextField",
+  component: MuiTextField,
+  styles: styles,
+});

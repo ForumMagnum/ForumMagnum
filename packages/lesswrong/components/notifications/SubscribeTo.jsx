@@ -4,7 +4,8 @@ import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import Users from 'meteor/vulcan:users';
-import { withCurrentUser, withMessages, registerComponent, Utils } from 'meteor/vulcan:core';
+import { withCurrentUser, withMessages, Utils } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 // boolean -> unsubscribe || subscribe
 const getSubscribeAction = subscribed => subscribed ? 'unsubscribe' : 'subscribe'
@@ -103,4 +104,8 @@ const SubscribeTo = props => {
 }
 
 
-registerComponent('SubscribeTo', SubscribeTo, withCurrentUser, withMessages);
+export default defineComponent({
+  name: 'SubscribeTo',
+  component: SubscribeTo,
+  hocs: [ withCurrentUser, withMessages ]
+});

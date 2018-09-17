@@ -1,6 +1,7 @@
-import { Components, getRawComponent, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, getRawComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import { Comments } from "meteor/example-forum";
+import defineComponent from '../../lib/defineComponent';
 
 const RecentCommentsSingle = (props) => {
   if (props.document && !props.loading) {
@@ -16,4 +17,8 @@ const documentOptions = {
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('RecentCommentsSingle', RecentCommentsSingle, [withDocument, documentOptions]);
+export default defineComponent({
+  name: 'RecentCommentsSingle',
+  component: RecentCommentsSingle,
+  hocs: [ [withDocument, documentOptions] ]
+});

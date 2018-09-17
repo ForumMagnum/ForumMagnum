@@ -1,8 +1,8 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import ListGroupItem from 'react-bootstrap/lib/ListGroupItem';
 import { LinkContainer } from 'react-router-bootstrap';
-
+import defineComponent from '../../lib/defineComponent';
 
 
 class NotificationsFullscreenItem extends Component {
@@ -20,4 +20,7 @@ class NotificationsFullscreenItem extends Component {
 
 }
 
-registerComponent('NotificationsFullscreenItem', NotificationsFullscreenItem);
+export default defineComponent({
+  name: 'NotificationsFullscreenItem',
+  component: NotificationsFullscreenItem
+});

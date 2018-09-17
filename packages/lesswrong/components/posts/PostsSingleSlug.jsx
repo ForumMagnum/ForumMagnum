@@ -1,7 +1,8 @@
-import { Components, registerComponent, withList} from 'meteor/vulcan:core';
+import { Components, withList} from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import React from 'react';
 import { Error404 } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsSingleSlug = (props) => {
   if (props.results && props.results[0]._id) {
@@ -11,8 +12,6 @@ const PostsSingleSlug = (props) => {
   }
 };
 
-PostsSingleSlug.displayName = "PostsSingleSlug";
-
 const options = {
   collection: Posts,
   queryName: 'LWPostsPageSlugQuery',
@@ -21,4 +20,8 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);
+export default defineComponent({
+  name: 'PostsSingleSlug',
+  component: PostsSingleSlug,
+  hocs: [ [withList, options] ]
+});

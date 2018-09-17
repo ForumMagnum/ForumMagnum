@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsSingleRoute = (props) => {
   if (props.route._id) {
@@ -7,6 +8,7 @@ const PostsSingleRoute = (props) => {
   }
 };
 
-PostsSingleRoute.displayName = "PostsSingleRoute";
-
-registerComponent('PostsSingleRoute', PostsSingleRoute);
+export default defineComponent({
+  name: 'PostsSingleRoute',
+  component: PostsSingleRoute
+});

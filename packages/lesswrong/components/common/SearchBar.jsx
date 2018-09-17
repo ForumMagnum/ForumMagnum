@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import { InstantSearch, SearchBox } from 'react-instantsearch/dom';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -146,4 +146,8 @@ SearchBar.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles));
+export default defineComponent({
+  name: "SearchBar",
+  component: SearchBar,
+  styles: styles,
+});

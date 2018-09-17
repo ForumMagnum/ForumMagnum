@@ -1,6 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch/dom';
 import React, { Component } from 'react';
+import defineComponent from '../lib/defineComponent';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
@@ -11,7 +12,7 @@ import Intercom from 'react-intercom';
 
 import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
@@ -114,6 +115,10 @@ Layout.contextTypes = {
   userAgent: PropTypes.string,
 }
 
-Layout.displayName = "Layout";
+export default defineComponent({
+  name: 'Layout',
+  component: Layout,
+  styles: styles,
+  hocs: [ withRouter, withApollo, withTheme() ]
+});
 
-registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme());

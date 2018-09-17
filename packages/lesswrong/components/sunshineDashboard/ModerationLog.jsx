@@ -4,6 +4,7 @@ import { Posts, Comments } from "meteor/example-forum";
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';
 import { Link } from 'react-router'
+import defineComponent from '../../lib/defineComponent';
 
 const DateDisplay = ({column, document}) => {
   return <div>{document[column.name] && moment(document[column.name]).fromNow()}</div>
@@ -152,4 +153,7 @@ class ModerationLog extends PureComponent {
   }
 }
 
-registerComponent('ModerationLog', ModerationLog);
+export default defineComponent({
+  name: 'ModerationLog',
+  component: ModerationLog
+});

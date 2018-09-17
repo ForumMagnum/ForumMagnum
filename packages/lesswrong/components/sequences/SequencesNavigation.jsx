@@ -2,6 +2,7 @@ import { Components, registerComponent, withDocument, Utils } from 'meteor/vulca
 import Sequences from '../../lib/collections/sequences/collection.js';
 import { Link } from 'react-router';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const SequencesNavigation = ({
     document,
@@ -44,4 +45,8 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options]);
+export default defineComponent({
+  name: 'SequencesNavigation',
+  component: SequencesNavigation,
+  hocs: [ [withDocument, options] ]
+});

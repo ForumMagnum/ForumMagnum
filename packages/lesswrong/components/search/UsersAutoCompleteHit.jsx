@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -26,4 +26,8 @@ const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
     return <Components.Loading />
   }
 };
-registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, withStyles(styles));
+export default defineComponent({
+  name: 'UsersAutoCompleteHit',
+  component: UsersAutoCompleteHit,
+  styles: styles,
+});

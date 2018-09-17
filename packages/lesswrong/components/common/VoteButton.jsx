@@ -1,13 +1,14 @@
-import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, withMessages } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withVote, hasVotedClient } from 'meteor/vulcan:voting';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp'
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -156,8 +157,9 @@ class VoteButton extends PureComponent {
   )}
 }
 
-registerComponent('VoteButton', VoteButton,
-  withMessages, withVote,
-  withStyles(styles, { name: "VoteButton" }),
-  withTheme()
-);
+export default defineComponent({
+  name: 'VoteButton',
+  component: VoteButton,
+  styles: styles,
+  hocs: [ withMessages, withVote, withTheme() ]
+});

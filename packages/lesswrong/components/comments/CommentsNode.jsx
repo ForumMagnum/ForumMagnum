@@ -1,10 +1,10 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -163,7 +163,10 @@ CommentsNode.propTypes = {
   router: PropTypes.object.isRequired
 };
 
-registerComponent('CommentsNode', CommentsNode,
-  withRouter, muiThemeable(),
-  withStyles(styles, { name: "CommentsNode" })
-);
+export default defineComponent({
+  name: 'CommentsNode',
+  component: CommentsNode,
+  styles: styles,
+  hocs: [ withRouter, muiThemeable() ]
+});
+

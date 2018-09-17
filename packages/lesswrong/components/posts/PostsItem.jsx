@@ -1,6 +1,5 @@
 import {
   Components,
-  registerComponent,
   withMutation,
   getActions,
   getSetting,
@@ -20,8 +19,8 @@ import Paper from '@material-ui/core/Paper';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
-import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -350,12 +349,10 @@ const mutationOptions = {
 const mapStateToProps = state => ({ postsViewed: state.postsViewed });
 const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
-registerComponent(
-  'PostsItem',
-  PostsItem,
-  withMutation(mutationOptions),
-  muiThemeable(),
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles, { name: "PostsItem" })
-);
+export default defineComponent({
+  name: 'PostsItem',
+  component: PostsItem,
+  styles: styles,
+  hocs: [ withMutation(mutationOptions), muiThemeable(), withNewEvents, connect(mapStateToProps, mapDispatchToProps) ]
+});
+

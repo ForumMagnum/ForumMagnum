@@ -5,7 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 
@@ -56,4 +56,9 @@ SunshineCommentsItemOverview.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withCurrentUser, withStyles(styles));
+export default defineComponent({
+  name: 'SunshineCommentsItemOverview',
+  component: SunshineCommentsItemOverview,
+  styles: styles,
+  hocs: [ withCurrentUser ]
+});

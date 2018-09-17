@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 import withHover from '../common/withHover'
 
 class SunshineNewUsersItem extends Component {
@@ -99,4 +100,9 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withCurrentUser, withHover);
+export default defineComponent({
+  name: 'SunshineNewUsersItem',
+  component: SunshineNewUsersItem,
+  hocs: [ [withEdit, withEditOptions], withCurrentUser, withHover ]
+});
+

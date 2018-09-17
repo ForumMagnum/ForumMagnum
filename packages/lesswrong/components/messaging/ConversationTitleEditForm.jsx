@@ -6,8 +6,9 @@ A component to configure the "Edit Title" form.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment } from "meteor/vulcan:core";
+import { Components, getFragment } from "meteor/vulcan:core";
 import Conversations from '../../lib/collections/conversations/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const ConversationTitleEditForm = props =>{
   return <Components.SmartForm
@@ -22,4 +23,7 @@ const ConversationTitleEditForm = props =>{
   />
 }
 
-registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
+export default defineComponent({
+  name: 'ConversationTitleEditForm',
+  component: ConversationTitleEditForm
+});

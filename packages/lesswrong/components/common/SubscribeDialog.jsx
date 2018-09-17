@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, withCurrentUser, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "meteor/example-forum";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -18,8 +18,8 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { withStyles } from '@material-ui/core/styles';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   thresholdSelector: {
@@ -302,8 +302,9 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent("SubscribeDialog", SubscribeDialog,
-  withMobileDialog(),
-  withCurrentUser,
-  [withEdit, withEditOptions],
-  withStyles(styles, { name: "SubscribeDialog" }));
+export default defineComponent({
+  name: "SubscribeDialog",
+  component: SubscribeDialog,
+  styles: styles,
+  hocs: [ withMobileDialog(), withCurrentUser, [withEdit, withEditOptions] ]
+});

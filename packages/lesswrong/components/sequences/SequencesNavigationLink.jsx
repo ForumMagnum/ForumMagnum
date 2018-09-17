@@ -3,6 +3,7 @@ import { Posts } from 'meteor/example-forum';
 import IconButton from 'material-ui/IconButton'
 import React from 'react';
 import { withRouter } from 'react-router';
+import defineComponent from '../../lib/defineComponent';
 
 const SequencesNavigationLink = ({
     slug,
@@ -36,4 +37,8 @@ const options = {
   totalResolver: false,
 }
 
-registerComponent('SequencesNavigationLink', SequencesNavigationLink, [withDocument, options], withRouter);
+export default defineComponent({
+  name: 'SequencesNavigationLink',
+  component: SequencesNavigationLink,
+  hocs: [ [withDocument, options], withRouter ]
+});

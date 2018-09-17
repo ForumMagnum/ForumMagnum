@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
+import { withMessages, withEdit } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import Users from 'meteor/vulcan:users';
 import PropTypes from 'prop-types';
+import defineComponent from '../../../lib/defineComponent';
 
 class BanUserFromAllPostsMenuItem extends PureComponent {
 
@@ -40,5 +41,8 @@ const withEditOptions = {
 };
 
 
-registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, withMessages, [withEdit, withEditOptions]);
-export default BanUserFromAllPostsMenuItem;
+export default defineComponent({
+  name: 'BanUserFromAllPostsMenuItem',
+  component: BanUserFromAllPostsMenuItem,
+  hocs: [ withMessages, [withEdit, withEditOptions] ]
+});

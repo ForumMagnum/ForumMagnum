@@ -1,8 +1,9 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, withDocument } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
+import defineComponent from '../../lib/defineComponent';
 
 
 const SequencesListEditorItem = ({document, loading, documentId, ...props}) => {
@@ -40,4 +41,8 @@ const options = {
   fragmentName: 'SequencesPageFragment',
 };
 
-registerComponent('SequencesListEditorItem', SequencesListEditorItem, [withDocument, options]);
+export default defineComponent({
+  name: 'SequencesListEditorItem',
+  component: SequencesListEditorItem,
+  hocs: [ [withDocument, options] ]
+});

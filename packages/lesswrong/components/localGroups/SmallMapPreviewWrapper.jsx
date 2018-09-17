@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, getSetting} from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 /*
   Wrapper around SmallMapPreview to ensure the defaultProps are accessibel to the HoCs
@@ -26,4 +27,7 @@ SmallMapPreviewWrapper.defaultProps = {
   initialOpenWindows: []
 }
 
-registerComponent("SmallMapPreviewWrapper", SmallMapPreviewWrapper)
+export default defineComponent({
+  name: "SmallMapPreviewWrapper",
+  component: SmallMapPreviewWrapper
+});

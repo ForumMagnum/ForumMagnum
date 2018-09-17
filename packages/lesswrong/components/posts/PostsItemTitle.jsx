@@ -1,8 +1,8 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles'
 import grey from '@material-ui/core/colors/grey';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -38,8 +38,8 @@ const PostsItemTitle = ({post, classes, sticky}) => {
   )
 }
 
-PostsItemTitle.displayName = "PostsItemTitle";
-
-registerComponent('PostsItemTitle', PostsItemTitle,
-  withStyles(styles, { name: "PostsItemTitle" })
-);
+export default defineComponent({
+  name: 'PostsItemTitle',
+  component: PostsItemTitle,
+  styles: styles,
+});

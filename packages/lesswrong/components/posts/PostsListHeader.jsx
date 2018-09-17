@@ -1,5 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsListHeader = () => {
 
@@ -13,6 +14,8 @@ const PostsListHeader = () => {
   )
 }
 
-PostsListHeader.displayName = "PostsListHeader";
+export default defineComponent({
+  name: 'PostsListHeader',
+  component: PostsListHeader
+});
 
-registerComponent('PostsListHeader', PostsListHeader);

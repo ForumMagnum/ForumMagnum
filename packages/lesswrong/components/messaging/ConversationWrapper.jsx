@@ -6,11 +6,11 @@ The Navigation for the Inbox components
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
+import { Components, withList, withCurrentUser, getFragment } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
 import Conversations from '../../lib/collections/conversations/collection.js';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   conversationTitle: {
@@ -81,4 +81,9 @@ const options = {
   totalResolver: false,
 };
 
-registerComponent('ConversationWrapper', ConversationWrapper, [withList, options], withCurrentUser, withStyles(styles, { name: "ConversationWrapper" }));
+export default defineComponent({
+  name: 'ConversationWrapper',
+  component: ConversationWrapper,
+  styles: styles,
+  hocs: [ [withList, options], withCurrentUser ]
+});

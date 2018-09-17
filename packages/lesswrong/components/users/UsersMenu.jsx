@@ -1,6 +1,7 @@
 import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
+import defineComponent from '../../lib/defineComponent';
 
 import { Meteor } from 'meteor/meteor';
 import { Link } from 'react-router';
@@ -11,8 +12,6 @@ import Popover from 'material-ui/Popover';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Button from '@material-ui/core/Button';
-
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   userButton: {
@@ -87,7 +86,9 @@ UsersMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersMenu', UsersMenu,
-  withCurrentUser, withApollo,
-  withStyles(styles, { name: "UsersMenu" })
-);
+export default defineComponent({
+  name: 'UsersMenu',
+  component: UsersMenu,
+  styles: styles,
+  hocs: [ withCurrentUser, withApollo ]
+});

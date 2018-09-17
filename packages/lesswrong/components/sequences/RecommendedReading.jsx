@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withRouter, Link } from 'react-router';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle}) => {
   return <div className="sequences-navigation-bottom-content">
@@ -24,4 +25,8 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
 };
 
 
-registerComponent('RecommendedReading', RecommendedReading,  withRouter);
+export default defineComponent({
+  name: 'RecommendedReading',
+  component: RecommendedReading,
+  hocs: [ withRouter ]
+});

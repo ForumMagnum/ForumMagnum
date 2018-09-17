@@ -7,8 +7,7 @@ import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
 import { withRouter } from 'react-router'
 import Typography from '@material-ui/core/Typography';
-
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   header: {
@@ -80,9 +79,9 @@ UsersEditForm.contextTypes = {
   intl: intlShape
 };
 
-UsersEditForm.displayName = 'UsersEditForm';
-
-registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withCurrentUser, withRouter,
-  withStyles(styles, { name: "UsersEditForm" })
-);
+export default defineComponent({
+  name: 'UsersEditForm',
+  component: UsersEditForm,
+  styles: styles,
+  hocs: [ withMessages, withCurrentUser, withRouter,  ]
+});

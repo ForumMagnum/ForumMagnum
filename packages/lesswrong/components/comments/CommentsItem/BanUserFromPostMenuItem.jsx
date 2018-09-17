@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
+import { withMessages, withEdit } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import { Posts } from 'meteor/example-forum';
 import PropTypes from 'prop-types';
+import defineComponent from '../../../lib/defineComponent';
 
 class BanUserFromPostMenuItem extends PureComponent {
 
@@ -47,5 +48,8 @@ const withEditOptions = {
   fragmentName: 'LWPostsPage',
 };
 
-registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withEdit, withEditOptions]);
-export default BanUserFromPostMenuItem;
+export default defineComponent({
+  name: 'BanUserFromPostMenuItem',
+  component: BanUserFromPostMenuItem,
+  hocs: [ withMessages, [withEdit, withEditOptions] ]
+});

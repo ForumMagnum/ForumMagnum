@@ -3,7 +3,7 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment';
 import { Link } from 'react-router';
 import React, { PureComponent } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
@@ -30,4 +30,8 @@ const UsersSearchHit = ({hit, clickAction, classes}) => <div className={classes.
   </Link>
 </div>
 
-registerComponent("UsersSearchHit", UsersSearchHit, withStyles(styles, { name: "UsersSearchHit" }));
+export default defineComponent({
+  name: "UsersSearchHit",
+  component: UsersSearchHit,
+  styles: styles,
+});

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import { registerComponent } from 'meteor/vulcan:core';
+import defineComponent from '../../lib/defineComponent';
 
 /**
  * Dialog group, with trigger-button and dialog-instance
@@ -59,4 +59,7 @@ DialogGroup.defaultProps = {
   open: false,
 }
 
-registerComponent('DialogGroup', DialogGroup);
+export default defineComponent({
+  name: 'DialogGroup',
+  component: DialogGroup
+});

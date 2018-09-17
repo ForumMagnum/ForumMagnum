@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withList, Components, registerComponent } from 'meteor/vulcan:core';
+import { withList, Components } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 import { unflattenComments } from "../../lib/modules/utils/unflatten";
+import defineComponent from '../../lib/defineComponent';
 
 class PostsCommentsThread extends PureComponent {
   render() {
@@ -36,4 +37,8 @@ const options = {
   totalResolver: true,
 };
 
-registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options]);
+export default defineComponent({
+  name: 'PostsCommentsThread',
+  component: PostsCommentsThread,
+  hocs: [ [withList, options] ]
+});

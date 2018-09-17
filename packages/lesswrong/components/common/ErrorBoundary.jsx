@@ -1,7 +1,7 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   errorText: {
@@ -38,4 +38,8 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-registerComponent("ErrorBoundary", ErrorBoundary, withStyles(styles, { name: "ErrorBoundary" }));
+export default defineComponent({
+  name: "ErrorBoundary",
+  component: ErrorBoundary,
+  styles: styles,
+});

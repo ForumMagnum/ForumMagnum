@@ -1,8 +1,9 @@
-import { Components , registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, withDocument } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import { Localgroups } from '../../lib/index.js';
+import defineComponent from '../../lib/defineComponent';
 
 
 class PostsGroupDetails extends Component {
@@ -28,4 +29,8 @@ const options = {
   enableCache: true,
 }
 
-registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withDocument, options]);
+export default defineComponent({
+  name: 'PostsGroupDetails',
+  component: PostsGroupDetails,
+  hocs: [ [withDocument, options] ]
+});

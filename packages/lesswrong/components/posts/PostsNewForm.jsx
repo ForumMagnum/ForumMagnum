@@ -1,9 +1,10 @@
-import { Components, registerComponent, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import { Posts } from "meteor/example-forum";
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
+import defineComponent from '../../lib/defineComponent';
 
 const PostsNewForm = (props, context) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
@@ -43,6 +44,8 @@ PostsNewForm.propTypes = {
   flash: PropTypes.func,
 }
 
-PostsNewForm.displayName = "PostsNewForm";
-
-registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter);
+export default defineComponent({
+  name: 'PostsNewForm',
+  component: PostsNewForm,
+  hocs: [ withRouter, withMessages, withRouter ]
+});

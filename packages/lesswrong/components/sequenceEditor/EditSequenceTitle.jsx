@@ -2,6 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Textarea } from 'formsy-react-components';
+import defineComponent from '../../lib/defineComponent';
 
 const EditSequenceTitle = (props) => {
   return <div className="sequences-editor-banner">
@@ -17,4 +18,7 @@ const EditSequenceTitle = (props) => {
   </div>
 }
 
-registerComponent("EditSequenceTitle", EditSequenceTitle);
+export default defineComponent({
+  name: "EditSequenceTitle",
+  component: EditSequenceTitle
+});

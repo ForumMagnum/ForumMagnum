@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
+import defineComponent from '../../lib/defineComponent';
 
 const styles = (theme) => ({
   root: {
@@ -28,4 +28,8 @@ const MetaInfo = ({children, classes, button, className}) => {
   </Typography>
 }
 
-registerComponent( 'MetaInfo', MetaInfo, withStyles(styles, {name: 'MetaInfo'}))
+export default defineComponent({
+  name: 'MetaInfo',
+  component: MetaInfo,
+  styles: styles,
+})

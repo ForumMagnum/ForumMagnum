@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import React from 'react';
+import defineComponent from '../../lib/defineComponent';
 
 const CollectionsNavigation = ({
     nextPostSlug,
@@ -30,4 +31,7 @@ const CollectionsNavigation = ({
     )
   }
 
-registerComponent('CollectionsNavigation', CollectionsNavigation);
+export default defineComponent({
+  name: 'CollectionsNavigation',
+  component: CollectionsNavigation
+});
