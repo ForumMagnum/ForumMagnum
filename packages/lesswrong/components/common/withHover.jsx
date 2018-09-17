@@ -4,7 +4,7 @@ const withHover = (WrappedComponent) => {
   return class HoverableComponent extends Component {
     state = { hover: false, anchorEl: null }
 
-    handleMouseEnter = (event) => {
+    handleMouseOver = (event) => {
       this.setState({ hover: true, anchorEl: event.currentTarget})
     }
 
@@ -15,7 +15,7 @@ const withHover = (WrappedComponent) => {
     render () {
       const props = { hover: this.state.hover, anchorEl: this.state.anchorEl, ...this.props }
       return (
-        <div onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+        <div onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseLeave}>
           <WrappedComponent { ...props } />
         </div>
       )
