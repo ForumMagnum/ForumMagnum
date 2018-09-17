@@ -106,6 +106,7 @@ const SequencesHome = ({document, currentUser, loading}) => {
 export default defineComponent({
   name: 'SequencesHome',
   component: SequencesHome,
+  register: false,
   hocs: [
     //withList(options)
   ]

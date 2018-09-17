@@ -1,4 +1,14 @@
-import { addRoute, getSetting} from 'meteor/vulcan:core';
+import { addRoute, getSetting, getDynamicComponent } from 'meteor/vulcan:core';
+
+// Top-level routes, ie, URL patterns.
+//
+// Some routes are dynamic; they have a component attribute of the from
+//   (props) => getDynamicComponent(import('../components/...'), props)
+// This someone unfortunate idiom can't be extracted into a function because
+// import(...) is more like a macro than a function; meteor scans our source
+// code at compile time looking for import("string-literal") and uses that to
+// decide what to include in the bundle, so if we used import(...) on something
+// other than a string literal, the target would be missing from the bundle.
 
 // example-forum routes
 addRoute([
@@ -17,7 +27,12 @@ addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' }
 addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
 
 // Sequences
-addRoute({ name: 'sequencesHome', path: '/library', componentName: 'SequencesHome', title: "The Library" });
+addRoute({
+  name: 'sequencesHome',
+  path: '/library',
+  title: "The Library",
+  component: (props) => getDynamicComponent(import('../components/sequences/SequencesHome'), props),
+});
 addRoute({ name: 'sequences.single.old', path: '/sequences/:_id', componentName: 'SequencesSingle' });
 addRoute({ name: 'sequences.single', path: '/s/:_id', componentName: 'SequencesSingle' });
 addRoute({ name: 'sequencesEdit', path: '/sequencesEdit/:_id', componentName: 'SequencesEditForm'});
