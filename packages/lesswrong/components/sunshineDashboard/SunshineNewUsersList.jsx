@@ -1,6 +1,7 @@
 import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
+import PropTypes from 'prop-types';
 
 class SunshineNewUsersList extends Component {
   render () {
@@ -8,7 +9,9 @@ class SunshineNewUsersList extends Component {
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
         <div>
-          <Components.SunshineListTitle>New Users</Components.SunshineListTitle>
+          <Components.SunshineListTitle>
+            New Users
+          </Components.SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
               <Components.SunshineNewUsersItem user={user}/>
@@ -21,6 +24,10 @@ class SunshineNewUsersList extends Component {
     }
   }
 }
+
+SunshineNewUsersList.propTypes = {
+  results: PropTypes.array,
+};
 
 const withListOptions = {
   collection: Users,

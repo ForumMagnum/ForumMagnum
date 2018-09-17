@@ -1,13 +1,20 @@
 import { addRoute, getSetting} from 'meteor/vulcan:core';
 
+// example-forum routes
+addRoute([
+  {name:'posts.daily',      path:'daily',                 componentName: 'PostsDaily'},
+  {name:'users.single',     path:'users/:slug',           componentName: 'UsersSingle'},
+  {name:'users.account',    path:'account',               componentName: 'UsersAccount'},
+  {name:'users.edit',       path:'users/:slug/edit',      componentName: 'UsersAccount'},
+  {name:'admin.categories', path:'admin/categories',      componentName: 'CategoriesDashboard'},
+]);
+
+// Miscellaneous LW2 routes
 addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', title: "New Post" });
 addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' });
 addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
-
-// Sunshine Dashboard
-addRoute({ name: 'SunshineDashboard', path: '/sunshine', componentName: 'SunshineDashboard', title: "Sunshine Dashboard" });
 
 // Sequences
 addRoute({ name: 'sequencesHome', path: '/library', componentName: 'SequencesHome', title: "The Library" });
