@@ -21,6 +21,8 @@ const styles = theme => ({
     }
   },
   toggle: {
+    position:"relative",
+    zIndex:1001,
     float: "right",
     margin: 12,
     cursor: "pointer",
