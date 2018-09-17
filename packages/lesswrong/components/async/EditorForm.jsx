@@ -66,16 +66,16 @@ class EditorForm extends Component {
     const dividerPlugin = createDividerPlugin({decorator});
 
     const toolbarButtons = [
-      {button: BoldButton, commentEditor: true},
-      {button: ItalicButton, commentEditor: true},
-      {button: UnderlineButton, commentEditor: true},
-      {button: linkPlugin.LinkButton, commentEditor: true},
-      {button: Separator, commentEditor: true},
-      {button: HeadlineOneButton, commentEditor: false},
-      {button: HeadlineTwoButton, commentEditor: true},
-      {button: BlockquoteButton, commentEditor: true},
-      {button: dividerPlugin.DividerButton, commentEditor: false},
-      {button: ImageButton, commentEditor: false},
+      { button: BoldButton,                    commentEditor: true   },
+      { button: ItalicButton,                  commentEditor: true   },
+      { button: UnderlineButton,               commentEditor: true   },
+      { button: linkPlugin.LinkButton,         commentEditor: true   },
+      { button: Separator,                     commentEditor: true   },
+      { button: HeadlineOneButton,             commentEditor: false  },
+      { button: HeadlineTwoButton,             commentEditor: true   },
+      { button: BlockquoteButton,              commentEditor: true   },
+      { button: dividerPlugin.DividerButton,   commentEditor: false  },
+      { button: ImageButton,                   commentEditor: false  },
     ]
 
     const inlineToolbarPlugin = createInlineToolbarPlugin({
