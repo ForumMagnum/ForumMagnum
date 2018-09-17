@@ -123,8 +123,11 @@ Users.blockedCommentingReason = (user, post) => {
 
 // Return true if the user's account has at least one verified email address.
 Users.emailAddressIsVerified = (user) => {
+  if (!user || !user.emails)
+    return false;
   for (let email of user.emails) {
-    if (email.verified) return true;
+    if (email && email.verified)
+      return true;
   }
   return false;
 };
