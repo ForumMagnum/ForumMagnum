@@ -55,7 +55,7 @@ const Layout = ({currentUser, children, currentRoute, location, params, client, 
         </Components.ErrorBoundary>
       </div>
     } else if (!currentUser) {
-      return<div id="intercome-outer-frame">
+      return <div id="intercome-outer-frame">
           <Components.ErrorBoundary>
             <Intercom appID={intercomAppId}/>
           </Components.ErrorBoundary>
