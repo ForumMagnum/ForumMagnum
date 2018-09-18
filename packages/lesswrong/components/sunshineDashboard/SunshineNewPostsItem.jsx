@@ -68,7 +68,7 @@ class SunshineNewPostsItem extends Component {
             <Link
               className="sunshine-sidebar-posts-author"
               to={Users.getProfileUrl(post.user)}>
-                {post.user.displayName}
+                {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>
         </div>
