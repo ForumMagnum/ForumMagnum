@@ -136,5 +136,6 @@ export default defineComponent({
   name: 'SequencesPage',
   component: SequencesPage,
   styles: styles,
+  register: false,
   hocs: [ [withDocument, options], withCurrentUser ]
 });

@@ -33,8 +33,16 @@ addRoute({
   title: "The Library",
   component: (props) => getDynamicComponent(import('../components/sequences/SequencesHome'), props),
 });
-addRoute({ name: 'sequences.single.old', path: '/sequences/:_id', componentName: 'SequencesSingle' });
-addRoute({ name: 'sequences.single', path: '/s/:_id', componentName: 'SequencesSingle' });
+addRoute({
+  name: 'sequences.single.old',
+  path: '/sequences/:_id',
+  component: (props) => getDynamicComponent(import('../components/sequences/SequencesSingle'), props),
+});
+addRoute({
+  name: 'sequences.single',
+  path: '/s/:_id',
+  component: (props) => getDynamicComponent(import('../components/sequences/SequencesSingle'), props),
+});
 addRoute({ name: 'sequencesEdit', path: '/sequencesEdit/:_id', componentName: 'SequencesEditForm'});
 addRoute({ name: 'sequencesNew', path: '/sequencesNew', componentName: 'SequencesNewForm', title: "New Sequence" });
 addRoute({ name: 'sequencesPost', path: '/s/:sequenceId/p/:postId', componentName: 'SequencesPost'});

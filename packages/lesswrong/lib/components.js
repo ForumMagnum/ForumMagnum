@@ -177,9 +177,9 @@ import '../components/sunshineDashboard/SidebarAction.jsx';
 import '../components/sequenceEditor/EditSequenceTitle.jsx';
 
 // Sequences
-import '../components/sequences/SequencesPage.jsx';
+//import '../components/sequences/SequencesPage.jsx';
 import '../components/sequences/SequencesPostsList.jsx';
-import '../components/sequences/SequencesSingle.jsx';
+//import '../components/sequences/SequencesSingle.jsx';
 import '../components/sequences/SequencesEditForm.jsx';
 import '../components/sequences/SequencesNewForm.jsx';
 //import '../components/sequences/SequencesHome.jsx';
