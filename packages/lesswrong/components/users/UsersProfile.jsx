@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent, withDocument, withUser, getSetting } from 'meteor/vulcan:core';
+import { Components, replaceComponent, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -9,6 +9,7 @@ import MessageIcon from '@material-ui/icons/Message'
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   meta: {
