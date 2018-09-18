@@ -1,7 +1,6 @@
 import Sequences from '../../../collections/sequences/collection.js';
 
 Sequences.addField([
-  // This commment will appear in alignment forum view
   {
     fieldName: 'af',
     fieldSchema: {

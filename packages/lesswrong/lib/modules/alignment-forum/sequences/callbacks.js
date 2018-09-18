@@ -2,7 +2,7 @@ import Sequences from '../../../collections/sequences/collection.js';
 import { addCallback } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 
-async function SequenceMoveToAFUpdatesAFPostCount (sequence, oldSequence) {
+async function SequenceMoveToAFUpdatesAFPostCount (sequence) {
   const afSequenceCount = Sequences.find({
     userId:sequence.userId,
     af: true,

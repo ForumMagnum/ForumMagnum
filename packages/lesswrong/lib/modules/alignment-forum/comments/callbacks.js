@@ -45,11 +45,9 @@ function AlignmentCommentsNewOperations (comment) {
 }
 addCallback('comments.new.async', AlignmentCommentsNewOperations);
 
-async function CommentsMoveToAFUpdatesAFPostCount (comment, oldComment) {
-  if (!oldComment || (comment.af !== oldComment.af)) {
-    const afCommentCount = Comments.find({userId:comment.userId, af: true}).count()
-    Users.update({_id:comment.userId}, {$set: {afCommentCount: afCommentCount}})
-  }
+async function CommentsMoveToAFUpdatesAFPostCount (comment) {
+  const afCommentCount = Comments.find({userId:comment.userId, af: true}).count()
+  Users.update({_id:comment.userId}, {$set: {afCommentCount: afCommentCount}})
 }
 
 addCallback("comments.alignment.async", CommentsMoveToAFUpdatesAFPostCount);

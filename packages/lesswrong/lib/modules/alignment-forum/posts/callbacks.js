@@ -10,11 +10,9 @@ async function PostsMoveToAFAddsAlignmentVoting (post, oldPost) {
 
 addCallback("posts.alignment.async", PostsMoveToAFAddsAlignmentVoting);
 
-async function PostsMoveToAFUpdatesAFPostCount (post, oldPost) {
-  if (!oldPost || (post.af !== oldPost.af)) {
-    const afPostCount = Posts.find({userId:post.userId, af: true, draft: false}).count()
-    Users.update({_id:post.userId}, {$set: {afPostCount: afPostCount}})
-  }
+async function PostsMoveToAFUpdatesAFPostCount (post) {
+  const afPostCount = Posts.find({userId:post.userId, af: true, draft: false}).count()
+  Users.update({_id:post.userId}, {$set: {afPostCount: afPostCount}})
 }
 
 addCallback("posts.alignment.async", PostsMoveToAFUpdatesAFPostCount);
