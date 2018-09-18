@@ -28,5 +28,6 @@ class EventsDaily extends Component {
 
 export default defineComponent({
   name: 'EventsDaily',
-  component: EventsDaily
+  component: EventsDaily,
+  register: false
 });

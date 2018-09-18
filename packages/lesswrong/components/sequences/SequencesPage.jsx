@@ -14,6 +14,9 @@ import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import defineComponent from '../../lib/defineComponent';
+import SequencesEditForm from './SequencesEditForm';
+import ChaptersList from './ChaptersList';
+import ChaptersNewForm from './ChaptersNewForm';
 
 const styles = theme => ({
   title: {
@@ -55,7 +58,7 @@ class SequencesPage extends Component {
     } if (loading || !document) {
       return <Components.Loading />
     } else if (this.state.edit) {
-      return <Components.SequencesEditForm
+      return <SequencesEditForm
         documentId={document._id}
         successCallback={this.showSequence}
         cancelCallback={this.showSequence} />
@@ -107,8 +110,8 @@ class SequencesPage extends Component {
           </div>
         </Components.Section>
         <div className="sequences-chapters">
-          <Components.ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
-          {canCreateChapter ? <Components.ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
+          <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+          {canCreateChapter ? <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
         </div>
         {/*<div className="sequences-page-content-footer">
           <div className="sequences-page-content-footer-voting">

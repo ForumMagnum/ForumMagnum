@@ -78,4 +78,5 @@ export default defineComponent({
   name: 'MessageItem',
   component: MessageItem,
   styles: styles,
+  register: false
 });

@@ -25,5 +25,6 @@ const ConversationTitleEditForm = props =>{
 
 export default defineComponent({
   name: 'ConversationTitleEditForm',
-  component: ConversationTitleEditForm
+  component: ConversationTitleEditForm,
+  register: false
 });

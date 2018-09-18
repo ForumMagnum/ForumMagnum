@@ -26,5 +26,6 @@ const SequencesEditForm = (props, context) => {
 export default defineComponent({
   name: 'SequencesEditForm',
   component: SequencesEditForm,
+  register: false,
   hocs: [ withMessages, withRouter ]
 });

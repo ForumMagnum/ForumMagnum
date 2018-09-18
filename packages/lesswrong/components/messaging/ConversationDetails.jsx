@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, withCurrentUser } from 'meteor/vulcan:core';
 import defineComponent from '../../lib/defineComponent';
+import ConversationTitleEditForm from './ConversationTitleEditForm';
 
 const styles = theme => ({
   root: {
@@ -38,7 +39,7 @@ class ConversationDetails extends Component {
           </span>
           <Components.DialogGroup title="Conversation Options"
             actions={[]} trigger={<Components.MetaInfo button>Conversation Options</Components.MetaInfo>}>
-            <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
+            <ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>
       )
@@ -52,5 +53,6 @@ export default defineComponent({
   name: 'ConversationDetails',
   component: ConversationDetails,
   styles: styles,
+  register: false,
   hocs: [ withCurrentUser ]
 });

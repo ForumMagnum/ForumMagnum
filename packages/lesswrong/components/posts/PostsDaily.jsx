@@ -52,5 +52,6 @@ class PostsDaily extends Component {
 
 export default defineComponent({
   name: 'PostsDaily',
-  component: PostsDaily
+  component: PostsDaily,
+  register: false
 });

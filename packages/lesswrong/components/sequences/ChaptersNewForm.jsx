@@ -26,5 +26,6 @@ const ChaptersNewForm = (props) => {
 export default defineComponent({
   name: 'ChaptersNewForm',
   component: ChaptersNewForm,
+  register: false,
   hocs: [ withMessages ]
 });

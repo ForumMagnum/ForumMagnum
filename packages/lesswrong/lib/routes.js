@@ -17,7 +17,7 @@ addRoute([
   {
     name:'posts.daily',
     path:'daily',
-    componentName: 'PostsDaily'
+    component: (props) => getDynamicComponent(import('../components/posts/PostsDaily'), props),
   },
   {
     name:'users.single',
@@ -52,7 +52,7 @@ addRoute([
     name: 'inbox',
     path: '/inbox',
     title: "Inbox",
-    componentName: 'InboxWrapper',
+    component: (props) => getDynamicComponent(import('../components/messaging/InboxWrapper'), props),
   },
   {
     name: 'newPost',
@@ -69,7 +69,7 @@ addRoute([
     name: 'recentComments',
     path: '/recentComments',
     title: "Recent Comments",
-    componentName: 'RecentCommentsPage',
+    component: (props) => getDynamicComponent(import('../components/comments/RecentCommentsPage'), props),
   },
 
   ////////////////////////////////////////////////////////////////////////////
@@ -94,13 +94,13 @@ addRoute([
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
-    componentName: 'SequencesEditForm'
+    component: (props) => getDynamicComponent(import('../components/sequences/SequencesEditForm'), props),
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     title: "New Sequence",
-    componentName: 'SequencesNewForm',
+    component: (props) => getDynamicComponent(import('../components/sequences/SequencesNewForm'), props),
   },
   {
     name: 'sequencesPost',
@@ -112,7 +112,7 @@ addRoute([
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
     title: "Edit Chapter",
-    componentName: 'ChaptersEditForm',
+    component: (props) => getDynamicComponent(import('../components/sequences/ChaptersEditForm'), props),
   },
 
   ////////////////////////////////////////////////////////////////////////////
@@ -127,13 +127,13 @@ addRoute([
     name: 'Sequences',
     path: '/sequences',
     title: "Rationality: A-Z",
-    componentName: 'CoreSequences',
+    component: (props) => getDynamicComponent(import('../components/sequences/CoreSequences'), props),
   },
   {
     name: 'Rationality',
     path: '/rationality',
     title: "Rationality: A-Z",
-    componentName: 'CoreSequences',
+    component: (props) => getDynamicComponent(import('../components/sequences/CoreSequences'), props),
   },
   {
     name: 'Rationality.posts.single',
@@ -146,6 +146,7 @@ addRoute([
     path: '/hpmor',
     title: "Harry Potter and the Methods of Rationality",
     componentName: 'HPMOR',
+    component: (props) => getDynamicComponent(import('../components/sequences/HPMOR'), props),
   },
   {
     name: 'HPMOR.posts.single',
@@ -157,7 +158,7 @@ addRoute([
     name: 'Codex',
     path: '/codex',
     title: "The Codex",
-    componentName: 'Codex',
+    component: (props) => getDynamicComponent(import('../components/sequences/Codex'), props),
   },
   {
     name: 'Codex.posts.single',
@@ -179,7 +180,7 @@ addRoute([
     name: 'EventsDaily',
     path: '/pastEvents',
     title: "Past Events by Day",
-    componentName: 'EventsDaily',
+    component: (props) => getDynamicComponent(import('../components/posts/EventsDaily'), props),
   },
   {
     name: 'FeaturedPosts',

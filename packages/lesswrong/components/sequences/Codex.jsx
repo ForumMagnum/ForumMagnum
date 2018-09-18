@@ -8,5 +8,6 @@ const Codex = (props, context) => {
 
 export default defineComponent({
   name: 'Codex',
-  component: Codex
+  component: Codex,
+  register: false
 });

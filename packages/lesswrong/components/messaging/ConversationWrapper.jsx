@@ -12,6 +12,9 @@ import Typography from '@material-ui/core/Typography';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import defineComponent from '../../lib/defineComponent';
 
+import ConversationDetails from './ConversationDetails';
+import MessageItem from './MessageItem';
+
 const styles = theme => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
@@ -32,7 +35,7 @@ class ConversationWrapper extends Component {
     if (results && results.length) {
       return (
         <div>
-          {results.map((message) => (<Components.MessageItem key={message._id} currentUser={currentUser} message={message} />))}
+          {results.map((message) => (<MessageItem key={message._id} currentUser={currentUser} message={message} />))}
         </div>);
     } else if (loading) {
       return <Components.Loading/>
@@ -51,7 +54,7 @@ class ConversationWrapper extends Component {
           <Typography variant="display2" className={classes.conversationTitle}>
             { Conversations.getTitle(conversation, currentUser)}
           </Typography>
-          <Components.ConversationDetails conversation={conversation}/>
+          <ConversationDetails conversation={conversation}/>
           {this.renderMessages(results, currentUser)}
           <div className={classes.editor}>
             <Components.SmartForm
@@ -85,5 +88,6 @@ export default defineComponent({
   name: 'ConversationWrapper',
   component: ConversationWrapper,
   styles: styles,
+  register: false,
   hocs: [ [withList, options], withCurrentUser ]
 });

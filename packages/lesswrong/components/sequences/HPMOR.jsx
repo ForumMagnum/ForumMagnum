@@ -8,5 +8,6 @@ const HPMOR = (props, context) => {
 
 export default defineComponent({
   name: 'HPMOR',
-  component: HPMOR
+  component: HPMOR,
+  register: false
 });

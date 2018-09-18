@@ -3,11 +3,12 @@ import PropTypes from 'prop-types'
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import Chapters from '../../lib/collections/chapters/collection.js';
 import defineComponent from '../../lib/defineComponent';
+import ChaptersItem from './ChaptersItem';
 
 const ChaptersList = ({results, loading, canEdit}) => {
   if (results && !loading) {
     return <div className="chapters-list">
-      {results.map((chapter) => <Components.ChaptersItem key={chapter._id} chapter={chapter} canEdit={canEdit} />)}
+      {results.map((chapter) => <ChaptersItem key={chapter._id} chapter={chapter} canEdit={canEdit} />)}
     </div>
   } else {
     return <Components.Loading />
@@ -25,5 +26,6 @@ const options = {
 export default defineComponent({
   name: 'ChaptersList',
   component: ChaptersList,
+  register: false,
   hocs: [ [withList, options ] ]
 })

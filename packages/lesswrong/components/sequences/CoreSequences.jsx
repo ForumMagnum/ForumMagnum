@@ -8,5 +8,6 @@ const CoreSequences = (props, context) => {
 
 export default defineComponent({
   name: 'CoreSequences',
-  component: CoreSequences
+  component: CoreSequences,
+  register: false
 });

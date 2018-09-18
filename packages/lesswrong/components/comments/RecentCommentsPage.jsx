@@ -14,5 +14,6 @@ const RecentCommentsPage = (props, context) => {
 
 export default defineComponent({
   name: 'RecentCommentsPage',
-  component: RecentCommentsPage
+  component: RecentCommentsPage,
+  register: false
 });

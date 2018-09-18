@@ -27,5 +27,6 @@ const ChaptersEditForm = (props) => {
 export default defineComponent({
   name: 'ChaptersEditForm',
   component: ChaptersEditForm,
+  register: false,
   hocs: [ withMessages ]
 });

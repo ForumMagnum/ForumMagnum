@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { Link } from 'react-router';
 import grey from '@material-ui/core/colors/grey';
 import defineComponent from '../../lib/defineComponent';
+import ConversationWrapper from './ConversationWrapper'
 
 const styles = theme => ({
   root: {
@@ -64,7 +65,7 @@ class InboxNavigation extends Component {
           titleComponent={this.renderNavigation()}
           >
             <div className={classes.conversation}>
-              <Components.ConversationWrapper terms={messagesTerms} conversation={conversation} />
+              <ConversationWrapper terms={messagesTerms} conversation={conversation} />
             </div>
         </Components.Section>
       )
@@ -112,5 +113,6 @@ export default defineComponent({
   name: 'InboxNavigation',
   component: InboxNavigation,
   styles: styles,
+  register: false,
   hocs: [ [withList, conversationOptions], withCurrentUser, withRouter ]
 });

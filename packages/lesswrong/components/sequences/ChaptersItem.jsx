@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import defineComponent from '../../lib/defineComponent';
+import ChaptersEditForm from './ChaptersEditForm';
 
 class ChaptersItem extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class ChaptersItem extends Component {
   render() {
     const chapter = this.props.chapter;
     if (this.state.edit) {
-      return <Components.ChaptersEditForm
+      return <ChaptersEditForm
                 documentId={chapter._id}
                 successCallback={this.showChapter}
                 cancelCallback={this.showChapter} />
@@ -50,5 +51,6 @@ class ChaptersItem extends Component {
 
 export default defineComponent({
   name: 'ChaptersItem',
-  component: ChaptersItem
+  component: ChaptersItem,
+  register: false
 })

@@ -32,5 +32,6 @@ const SequencesNewForm = (props, context) => {
 export default defineComponent({
   name: 'SequencesNewForm',
   component: SequencesNewForm,
+  register: false,
   hocs: [ withMessages, withRouter, withCurrentUser ]
 });
