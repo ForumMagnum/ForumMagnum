@@ -94,5 +94,6 @@ const listOptions = {
 export default defineComponent({
   name: "CommunityMap",
   component: CommunityMap,
+  register: false,
   hocs: [ [withList, listOptions], withScriptjs, withGoogleMap ]
 });

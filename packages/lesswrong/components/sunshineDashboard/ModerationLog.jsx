@@ -33,7 +33,7 @@ const DeletedByUserDisplay = ({column, document}) => {
 const BannedUsersDisplay = ({column, document}) => {
   const bannedUsers = document[column.name]
   return <div>
-    { bannedUsers.map((userId) => <div key={userId}>
+    { bannedUsers && bannedUsers.map((userId) => <div key={userId}>
       <Components.UsersNameWrapper documentId={userId} />
       </div>)}
   </div>
@@ -155,5 +155,6 @@ class ModerationLog extends PureComponent {
 
 export default defineComponent({
   name: 'ModerationLog',
-  component: ModerationLog
+  component: ModerationLog,
+  register: false
 });

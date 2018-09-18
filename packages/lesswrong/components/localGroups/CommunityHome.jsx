@@ -12,6 +12,7 @@ import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import defineComponent from '../../lib/defineComponent';
+import CommunityMapWrapper from './CommunityMapWrapper'
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -123,7 +124,7 @@ class CommunityHome extends Component {
     }
     return (
       <div className="community-home">
-        <Components.CommunityMapWrapper
+        <CommunityMapWrapper
           terms={mapEventTerms}
         />
         <Components.Section title="Local Groups" titleComponent={<div>
@@ -165,5 +166,6 @@ const withEditOptions = {
 export default defineComponent({
   name: 'CommunityHome',
   component: CommunityHome,
+  register: false,
   hocs: [ withCurrentUser, withMessages, withRouter, [withEdit, withEditOptions] ]
 });

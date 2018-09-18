@@ -3,11 +3,12 @@ import { Components, getSetting, withList } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import { withRouter } from 'react-router';
 import defineComponent from '../../lib/defineComponent';
+import CommunityMap from './CommunityMap';
 
 const CommunityMapWrapper = (props) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
     return (
-      <Components.CommunityMap
+      <CommunityMap
         terms={props.groupQueryTerms || {view: "all", filters: props.router.location.query && props.router.location.query.filters || []}}
         loadingElement= {<div style={{ height: `100%` }} />}
         events={props.results}
@@ -29,5 +30,6 @@ const listOptions = {
 export default defineComponent({
   name: "CommunityMapWrapper",
   component: CommunityMapWrapper,
+  register: false,
   hocs: [ [withList, listOptions], withRouter ]
 })

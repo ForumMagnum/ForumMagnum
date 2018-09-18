@@ -10,7 +10,9 @@ import { addRoute, getSetting, getDynamicComponent } from 'meteor/vulcan:core';
 // decide what to include in the bundle, so if we used import(...) on something
 // other than a string literal, the target would be missing from the bundle.
 
+//////////////////////////////////////////////////////////////////////////////
 // example-forum routes
+//////////////////////////////////////////////////////////////////////////////
 addRoute([
   {name:'posts.daily',      path:'daily',                 componentName: 'PostsDaily'},
   {name:'users.single',     path:'users/:slug',           componentName: 'UsersSingle'},
@@ -19,14 +21,42 @@ addRoute([
   {name:'admin.categories', path:'admin/categories',      componentName: 'CategoriesDashboard'},
 ]);
 
-// Miscellaneous LW2 routes
-addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
-addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
-addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', title: "New Post" });
-addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' });
-addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
+//////////////////////////////////////////////////////////////////////////////
+// Miscellaneous routes
+//////////////////////////////////////////////////////////////////////////////
+addRoute({
+  name: 'login',
+  path: '/login',
+  title: "Login",
+  componentName: 'LoginPage',
+});
+addRoute({
+  name: 'inbox',
+  path: '/inbox',
+  title: "Inbox",
+  componentName: 'InboxWrapper',
+});
+addRoute({
+  name: 'newPost',
+  path: '/newPost',
+  title: "New Post",
+  componentName: 'PostsNewForm',
+});
+addRoute({
+  name: 'editPost',
+  path: '/editPost',
+  componentName: 'PostsEditForm'
+});
+addRoute({
+  name: 'recentComments',
+  path: '/recentComments',
+  title: "Recent Comments",
+  componentName: 'RecentCommentsPage',
+});
 
+//////////////////////////////////////////////////////////////////////////////
 // Sequences
+//////////////////////////////////////////////////////////////////////////////
 addRoute({
   name: 'sequencesHome',
   path: '/library',
@@ -43,51 +73,202 @@ addRoute({
   path: '/s/:_id',
   component: (props) => getDynamicComponent(import('../components/sequences/SequencesSingle'), props),
 });
-addRoute({ name: 'sequencesEdit', path: '/sequencesEdit/:_id', componentName: 'SequencesEditForm'});
-addRoute({ name: 'sequencesNew', path: '/sequencesNew', componentName: 'SequencesNewForm', title: "New Sequence" });
-addRoute({ name: 'sequencesPost', path: '/s/:sequenceId/p/:postId', componentName: 'SequencesPost'});
+addRoute({
+  name: 'sequencesEdit',
+  path: '/sequencesEdit/:_id',
+  componentName: 'SequencesEditForm'
+});
+addRoute({
+  name: 'sequencesNew',
+  path: '/sequencesNew',
+  title: "New Sequence",
+  componentName: 'SequencesNewForm',
+});
+addRoute({
+  name: 'sequencesPost',
+  path: '/s/:sequenceId/p/:postId',
+  componentName: 'SequencesPost'
+});
 
-addRoute({ name: 'chaptersEdit', path: '/chaptersEdit/:_id', componentName: 'ChaptersEditForm', title: "Edit Chapter"});
+addRoute({
+  name: 'chaptersEdit',
+  path: '/chaptersEdit/:_id',
+  title: "Edit Chapter",
+  componentName: 'ChaptersEditForm',
+});
 
+//////////////////////////////////////////////////////////////////////////////
 // Collections
-addRoute({ name: 'collections', path: '/collections/:_id', componentName: 'CollectionsSingle' });
-addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences', title: "Rationality: A-Z" })
-addRoute({ name: 'Rationality', path: '/rationality', componentName: 'CoreSequences', title: "Rationality: A-Z" })
-addRoute({ name: 'Rationality.posts.single', path: '/rationality/:slug', componentName: 'PostsSingleSlugWrapper'})
+//////////////////////////////////////////////////////////////////////////////
+addRoute({
+  name: 'collections',
+  path: '/collections/:_id',
+  componentName: 'CollectionsSingle',
+});
+addRoute({
+  name: 'Sequences',
+  path: '/sequences',
+  title: "Rationality: A-Z",
+  componentName: 'CoreSequences',
+})
+addRoute({
+  name: 'Rationality',
+  path: '/rationality',
+  title: "Rationality: A-Z",
+  componentName: 'CoreSequences',
+})
+addRoute({
+  name: 'Rationality.posts.single',
+  path: '/rationality/:slug',
+  componentName: 'PostsSingleSlugWrapper'
+})
 
-addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR', title: "Harry Potter and the Methods of Rationality" })
-addRoute({ name: 'HPMOR.posts.single', path: '/hpmor/:slug', componentName: 'PostsSingleSlugWrapper'})
+addRoute({
+  name: 'HPMOR',
+  path: '/hpmor',
+  title: "Harry Potter and the Methods of Rationality",
+  componentName: 'HPMOR',
+})
+addRoute({
+  name: 'HPMOR.posts.single',
+  path: '/hpmor/:slug',
+  componentName: 'PostsSingleSlugWrapper'
+})
 
-addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex', title: "The Codex"})
-addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'PostsSingleSlugWrapper'})
+addRoute({
+  name: 'Codex',
+  path: '/codex',
+  title: "The Codex",
+  componentName: 'Codex',
+})
+addRoute({
+  name: 'Codex.posts.single',
+  path: '/codex/:slug',
+  componentName: 'PostsSingleSlugWrapper'
+})
 
 
-addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
-addRoute({ name: 'EventsDaily', path: '/pastEvents', componentName: 'EventsDaily', title: "Past Events by Day"})
-addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
-addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
-addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome', title: "Community"})
-addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome', title: "Community"})
+//////////////////////////////////////////////////////////////////////////////
+// Sections and Views
+//////////////////////////////////////////////////////////////////////////////
+addRoute({
+  name: 'Meta',
+  path: '/meta',
+  title: "Meta",
+  componentName: 'Meta',
+})
+addRoute({
+  name: 'EventsDaily',
+  path: '/pastEvents',
+  title: "Past Events by Day",
+  componentName: 'EventsDaily',
+})
+addRoute({
+  name: 'FeaturedPosts',
+  path: '/featured',
+  componentName: 'FeaturedPostsPage'
+})
+addRoute({
+  name: 'AllComments',
+  path: '/allComments',
+  componentName: 'AllComments',
+  title: "All Comments"
+})
+addRoute({
+  name: 'CommunityHome',
+  path: '/community',
+  title: "Community",
+  component: (props) => getDynamicComponent(import('../components/localGroups/CommunityHome'), props),
+})
+addRoute({
+  name: 'MeetupsHome',
+  path: '/meetups',
+  title: "Community",
+  component: (props) => getDynamicComponent(import('../components/localGroups/CommunityHome'), props),
+})
 
-//Route for testing the editor. Useful for debugging
-addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});
-addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
-addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
 
-addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'PostsSingle'});
-addRoute({name:'Localgroups.single',   path:'groups/:groupId', componentName: 'LocalGroupSingle'});
-addRoute({name:'events.single',   path:'events/:_id(/:slug)', componentName: 'PostsSingle'});
-addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'PostsSingle'});
+addRoute({
+  name:'posts.single',
+  path:'posts/:_id(/:slug)',
+  componentName: 'PostsSingle'
+});
+addRoute({
+  name: 'Localgroups.single',
+  path: 'groups/:groupId',
+  component: (props) => getDynamicComponent(import('../components/localGroups/LocalGroupSingle'), props),
+});
+addRoute({
+  name:'events.single',
+  path:'events/:_id(/:slug)',
+  componentName: 'PostsSingle'
+});
+addRoute({
+  name: 'groups.post',
+  path: '/g/:groupId/p/:_id',
+  componentName: 'PostsSingle'
+});
 
-addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Admin" });
-addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog', title: "Moderation Log" });
+addRoute({
+  name: 'admin',
+  path: '/admin',
+  title: "Admin",
+  componentName: 'AdminHome',
+});
+addRoute({
+  name: 'moderation',
+  path: '/moderation',
+  title: "Moderation Log",
+  component: (props) => getDynamicComponent(import('../components/sunshineDashboard/ModerationLog'), props),
+});
 
-addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
+addRoute({
+  name:'about',
+  path:'/about',
+  _id:"ANDbEKqbdDuBCQAnM",
+  componentName: 'PostsSingleRoute',
+});
 
+//////////////////////////////////////////////////////////////////////////////
+// Front page
+//////////////////////////////////////////////////////////////////////////////
 if(getSetting('AlignmentForum', false)) {
-    addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
+  addRoute({
+    name:'alignment.home',
+    path:'/',
+    componentName: 'AlignmentForumHome'
+  });
 } else {
-    addRoute({name: 'home', path: '/', componentName: 'Home'});
+  addRoute({
+    name: 'home',
+    path: '/',
+    componentName: 'Home'
+  });
 }
 
-addRoute({name:'benchmark',   path:'/benchmark', componentName: 'BenchmarkComponent', title: "Benchmark" });
+//////////////////////////////////////////////////////////////////////////////
+// Test routes
+//////////////////////////////////////////////////////////////////////////////
+addRoute({
+  name:'benchmark',
+  path:'/benchmark',
+  title: "Benchmark",
+  componentName: 'BenchmarkComponent',
+});
+
+//Route for testing the editor. Useful for debugging
+addRoute({
+  name: 'searchTest',
+  path: '/searchTest',
+  componentName: 'SearchBar'
+});
+addRoute({
+  name: 'postsListEditorTest',
+  path:'/postsListEditorTest',
+  componentName: 'PostsListEditor'
+})
+addRoute({
+  name: 'imageUploadTest',
+  path: '/imageUpload',
+  componentName: 'ImageUpload'
+});

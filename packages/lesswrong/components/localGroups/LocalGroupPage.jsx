@@ -4,6 +4,7 @@ import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
 import { Posts } from 'meteor/example-forum';
 import defineComponent from '../../lib/defineComponent';
+import CommunityMapWrapper from './CommunityMapWrapper'
 
 class LocalGroupPage extends Component {
   renderTitleComponent = () => {
@@ -28,7 +29,7 @@ class LocalGroupPage extends Component {
       const { googleLocation: { geometry: { location } }} = group;
       return (
         <div className="local-group-page">
-          <Components.CommunityMapWrapper
+          <CommunityMapWrapper
             terms={{view: "events", groupId: groupId}}
             groupQueryTerms={{view: "single", groupId: groupId}}
             mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
@@ -62,5 +63,6 @@ const options = {
 export default defineComponent({
   name: 'LocalGroupPage',
   component: LocalGroupPage,
+  register: false,
   hocs: [ withCurrentUser, withMessages, withRouter, [withDocument, options] ]
 })
