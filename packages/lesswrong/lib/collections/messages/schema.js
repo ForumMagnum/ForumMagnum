@@ -34,22 +34,6 @@ const schema = {
       return new Date();
     },
   },
-  content: {
-    type: Object,
-    viewableBy: ['members'],
-    insertableBy: ['members'],
-    editableBy: Users.owns,
-    control: 'EditorFormComponent',
-    order: 2,
-    blackbox: true,
-    optional: true,
-    form: {
-      //Use the comment editor functionality (e.g. available toolbar options)
-      commentEditor: true,
-      //Use the comment editor styles (e.g. font and size)
-      commentStyles: true,
-    }
-  },
   conversationId: {
     type: String,
     viewableBy: ['members'],

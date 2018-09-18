@@ -21,7 +21,6 @@ import './server/scripts/legacyKarma_aggregate2.js';
 import './server/legacy-redirects/routes.js';
 import './server/logging.js';
 import './server/material-ui/themeProvider';
-import './server/editor/callbacks.js';
 import './server/editor/utils.js';
 import './server/emails/index.js';
 

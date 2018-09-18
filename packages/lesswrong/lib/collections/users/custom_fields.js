@@ -43,7 +43,7 @@ Users.addField([
         hidden: true
     }
   },
-  
+
   /**
     Emails (not to be confused with email). This field belongs to Meteor's
     accounts system; we should never write it, but we do need to read it to find
@@ -56,7 +56,7 @@ Users.addField([
       viewableBy: ['members'],
     }
   },
-  
+
   /**
   */
   {
@@ -137,21 +137,10 @@ Users.addField([
   },
 
   {
-    fieldName: 'markDownCommentEditor',
-    fieldSchema: {
-      order: 70,
-      type: Boolean,
-      optional: true,
-      defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
-      control: 'checkbox',
-      label: "Markdown Comment Editor"
-    }
-  },
-
-  {
+    /*
+      This field-name is no longer accurate, but is here because we used to have that field
+      around and then removed `markDownCommentEditor` and merged it into this field. 
+    */
     fieldName: 'markDownPostEditor',
     fieldSchema: {
       order: 70,
@@ -162,7 +151,7 @@ Users.addField([
       editableBy: ['members'],
       insertableBy: ['members'],
       control: 'checkbox',
-      label: "Markdown Post Editor"
+      label: "Activate Markdown Editor"
     }
   },
 
@@ -586,7 +575,7 @@ Users.addField([
       label: "Notifications For Replies to My Comments"
     }
   },
-  
+
   /**
     Email settings
   */
@@ -603,7 +592,7 @@ Users.addField([
       viewableBy: ['members'],
     }
   },
-  
+
   /**
     Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   */

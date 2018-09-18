@@ -66,7 +66,7 @@ const createNotifications = (userIds, notificationType, documentType, documentId
 
 const sendPostByEmail = async (users, postId) => {
   let post = Posts.findOne(postId);
-  
+
   let email = await VulcanEmail.build({
     emailName: "newPost",
     variables: {
@@ -74,7 +74,7 @@ const sendPostByEmail = async (users, postId) => {
     },
     locale: "en"
   });
-  
+
   users.forEach(user => {
     if(user.email) {
       VulcanEmail.send(user.email, email.subject, email.html, email.text, false);
@@ -199,7 +199,7 @@ addCallback("posts.undraft.async", PostsUndraftNotification);
 function postsNewNotifications (post) {
   if (post.status === Posts.config.STATUS_PENDING || post.draft) {
     // if post is pending or saved to draft, only notify admins
-    let adminIds = _.pluck(Users.find({isAdmin: true}), '_id');
+    let adminIds = _.pluck(Users.find({isAdmin: true}).fetch(), '_id');
 
     // remove this post's author
     adminIds = _.without(adminIds, post.userId);
@@ -249,7 +249,7 @@ addCallback("posts.new.async", postsNewNotifications);
 
 function findUsersToEmail(filter) {
   let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
-  
+
   let usersToEmail = usersMatchingFilter.filter(u => {
     let primaryAddress = u.email;
     for(let i=0; i<u.emails.length; i++)
@@ -506,4 +506,3 @@ function fixUsernameOnGithubLogin(user) {
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
 
 removeCallback('router.onUpdate', 'RouterClearMessages');
-
