@@ -11,6 +11,7 @@ const defaultOptions = {
     insertableBy: ['members']
   },
   fieldName: "",
+  order: 0,
 }
 
 export const makeEditable = ({collection, options = {}}) => {
@@ -22,7 +23,8 @@ export const makeEditable = ({collection, options = {}}) => {
     formGroup,
     adminFormGroup,
     permissions,
-    fieldName
+    fieldName,
+    order
   } = options
 
   collection.addField([
@@ -38,6 +40,7 @@ export const makeEditable = ({collection, options = {}}) => {
         control: 'EditorFormComponent',
         blackbox: true,
         group: formGroup,
+        order,
         form: {
           hintText:"Plain Markdown Editor",
           multiLine:true,

@@ -1033,5 +1033,6 @@ makeEditable({
   options: {
     formGroup: formGroups.content,
     adminFormGroup: formGroups.adminOptions,
+    order: 25
   }
 })

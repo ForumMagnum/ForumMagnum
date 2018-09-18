@@ -57,6 +57,7 @@ makeEditable({
       viewableBy: ['members'],
       insertableBy: ['members'],
       editableBy: Users.owns,
-    }
+    },
+    order: 2,
   }
 })
