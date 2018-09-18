@@ -83,7 +83,7 @@ class SunshineCuratedSuggestionsItem extends Component {
           </Components.SidebarInfo>
           <Components.SidebarInfo>
             <Link to={Users.getProfileUrl(post.user)}>
-                {post.user.displayName}
+                {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>
           {post.postedAt && <Components.SidebarInfo>

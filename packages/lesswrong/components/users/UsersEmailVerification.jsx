@@ -4,6 +4,7 @@ import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   root: {
@@ -72,6 +73,7 @@ const withEditOptions = {
 };
 
 registerComponent('UsersEmailVerification', UsersEmailVerification,
+  withErrorBoundary,
   withUser,
   [withEdit, withEditOptions],
   withStyles(styles, { name: "UsersEmailVerification" })

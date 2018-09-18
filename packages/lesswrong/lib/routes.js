@@ -66,3 +66,4 @@ if(getSetting('AlignmentForum', false)) {
 } else {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
 }
+

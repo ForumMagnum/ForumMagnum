@@ -31,7 +31,9 @@ const PostsList = ({
     if (results && results.length) {
       return <div>
         <div className="posts-list-wrapper">
-          {results.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser} terms={terms} />)}
+          {results.map(post => <Components.ErrorBoundary key={post._id}>
+            <Components.PostsItem post={post} currentUser={currentUser} terms={terms} />
+          </Components.ErrorBoundary>)}
         </div>
         {showLoadMore ? <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
