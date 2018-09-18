@@ -49,10 +49,10 @@ const styleMap = theme => ({
 class EditorForm extends Component {
   constructor(props) {
     super(props);
-    this.plugins = this.initializePlugins(props.isClient);
+    this.plugins = this.initializePlugins(props.isClient, props.commentEditor);
   }
 
-  initializePlugins = (isClient) => {
+  initializePlugins = (isClient, commentEditor) => {
     const linkPlugin = createLinkPlugin();
     const alignmentPlugin = createAlignmentPlugin();
     const focusPlugin = createFocusPlugin();
@@ -65,19 +65,24 @@ class EditorForm extends Component {
 
     const dividerPlugin = createDividerPlugin({decorator});
 
+    const toolbarButtons = [
+      { button: BoldButton,                    commentEditor: true   },
+      { button: ItalicButton,                  commentEditor: true   },
+      { button: UnderlineButton,               commentEditor: true   },
+      { button: linkPlugin.LinkButton,         commentEditor: true   },
+      { button: Separator,                     commentEditor: true   },
+      { button: HeadlineOneButton,             commentEditor: false  },
+      { button: HeadlineTwoButton,             commentEditor: true   },
+      { button: BlockquoteButton,              commentEditor: true   },
+      { button: dividerPlugin.DividerButton,   commentEditor: false  },
+      { button: ImageButton,                   commentEditor: false  },
+    ]
+
     const inlineToolbarPlugin = createInlineToolbarPlugin({
-      structure: [
-        BoldButton,
-        ItalicButton,
-        UnderlineButton,
-        linkPlugin.LinkButton,
-        Separator,
-        HeadlineOneButton,
-        HeadlineTwoButton,
-        BlockquoteButton,
-        dividerPlugin.DividerButton,
-        ImageButton,
-      ]
+      structure: _.chain(toolbarButtons)
+                  .filter(b => commentEditor ? b.commentEditor : true)
+                  .pluck('button')
+                  .value()
     });
 
     const richButtonsPlugin = createRichButtonsPlugin();
@@ -85,7 +90,7 @@ class EditorForm extends Component {
     const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
 
     const imagePlugin = createImagePlugin({ decorator });
-    const plugins = [
+    let plugins = [
       inlineToolbarPlugin,
       alignmentPlugin,
       focusPlugin,
@@ -106,7 +111,7 @@ class EditorForm extends Component {
     return plugins;
   }
 
-  focus() {
+  focus = () => {
     this._ref && this._ref.focus();
   }
 
