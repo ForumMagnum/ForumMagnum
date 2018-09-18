@@ -36,7 +36,7 @@ class SunshineCommentsItemOverview extends Component {
           </Components.SidebarInfo>
           <Components.SidebarInfo>
             <Link to={Users.getProfileUrl(comment.user)}>
-                {comment.user.displayName}
+                {comment.user && comment.user.displayName}
             </Link>
           </Components.SidebarInfo>
           <Components.SidebarInfo>
