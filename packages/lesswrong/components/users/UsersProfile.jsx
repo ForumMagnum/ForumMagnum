@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent, withDocument, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, replaceComponent, registerComponent, withDocument, withUser, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -187,4 +187,4 @@ const options = {
   fragmentName: 'UsersProfile',
 };
 
-registerComponent('UsersProfile', UsersProfile, withCurrentUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));

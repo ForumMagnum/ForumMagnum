@@ -68,7 +68,6 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
-  markDownCommentEditor
   markDownPostEditor
   commentSorting
   location
