@@ -1,66 +1,27 @@
 import ls from 'local-storage';
 
-export const commentLSHandlers = {
-  get: ({doc, name}) => {
-    if (doc && doc._id) { // When restoring the edit state for a specific comment, ask for permission
-      const savedState = ls.get(doc._id);
-      if (savedState && Meteor.isClient && window) {
-        const result = window.confirm("We've found a previously saved state for this comment, would you like to restore it?")
-        if (result) { return savedState }
-      } else {
-        return null;
-      }
-    } else if (doc && doc.parentCommentId) {
-      return ls.get('parent:' +  doc.parentCommentId)
-    } else if (doc && doc.postId) {
-      return ls.get('post:' + doc.postId)
-    } else {
-      return null
-    }
-  },
-  set: ({state, doc, name}) => {
-    if (doc && doc._id) {
-      ls.set(doc._id, state);
-    } else if (doc && doc.parentCommentId) {
-      ls.set('parent:' + doc.parentCommentId, state);
-    } else if (doc && doc.postId, state) {
-      ls.set('post:' + doc.postId, state);
-    }
-  },
-  reset: ({doc, name}) => {
-    if (doc._id) { ls.remove(doc._id) }
-    else { ls.remove(name) }
-  }
+const defaulGetDocumentStorageId = (doc, name) => {
+  const { _id, conversationId } = doc
+  if (_id) { return {id: _id, verify: true }}
+  if (conversationId) { return {id: conversationId, verify: true }}
+  if (name) { return {id: name, verify: true }}
+  else { throw Error("Can't get storage ID for this document:", doc)}
 }
 
-export const defaultLSHandlers = {
-  get: ({doc, name}) => {
-    let savedState = {};
-    if (doc && doc._id) { // When restoring the edit state for a specific document, ask for permission
-      savedState = ls.get(doc._id);
-    } else if (doc && doc.conversationId) { // Special case for private messages
-      savedState = ls.get(doc.conversationId)
-    } else {
-      savedState = ls.get(name);
-    }
-    if (savedState && Meteor.isClient && window) {
-      const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
-      if (result) { return savedState }
-    }
-    return null;
-  },
-  set: ({state, doc, name}) => {
-    if (doc && doc._id) {
-      ls.set(doc._id, state);
-    } else if (doc && doc.conversationId) {
-      ls.set(doc.conversationId, state)
-    } else if (name) {
-      ls.set(name, state);
-    }
-  },
-  reset: ({doc, name}) => {
-    if (doc._id) { ls.remove(doc._id) }
-    else if (doc.conversationId) { ls.remove(doc.conversationId) }
-    else { ls.remove(name) }
+export const getLSHandlers = (getLocalStorageId = null) => {
+  const idGenerator = getLocalStorageId || defaulGetDocumentStorageId
+  return {
+    get: ({doc, name}) => {
+      const { id, verify } = idGenerator(doc, name)
+      const savedState = ls.get(id)
+      if (verify && savedState && Meteor.isClient && window) {
+        const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
+        return result ? savedState : null
+      } else {
+        return savedState
+      }
+    },
+    set: ({state, doc, name}) => {ls.set(idGenerator(doc, name).id, state)},
+    reset: ({doc, name}) => {ls.remove(idGenerator(doc, name).id)}
   }
 }

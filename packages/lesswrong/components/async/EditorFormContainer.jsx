@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { commentLSHandlers, defaultLSHandlers } from './localStorageHandlers.js'
+import { getLSHandlers } from './localStorageHandlers.js'
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import { htmlToDraft } from '../../lib/editor/utils.js'
 import EditorForm from './EditorForm'
@@ -14,7 +14,7 @@ class EditorFormContainer extends Component {
   }
 
   getStorageHandlers = () => {
-    return this.props.form && this.props.form.commentLocalStorage ? commentLSHandlers : defaultLSHandlers
+    return getLSHandlers(this.props.form && this.props.form.getLocalStorageId)
   }
 
   initializeContent = () => {
@@ -91,7 +91,7 @@ class EditorFormContainer extends Component {
       // TODO: Consider saving on blur
       this.changeCount = this.changeCount + 1;
       if (this.changeCount % 30 === 0) {
-        const rawContent = convertToRaw(editorState.getCurrentContent());
+        const rawContent = convertToRaw(newContent);
         this.getStorageHandlers().set({state: rawContent, doc: document, name})
       }
     }
