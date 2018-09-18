@@ -3,12 +3,17 @@ import { addRoute, getSetting, getDynamicComponent } from 'meteor/vulcan:core';
 // Top-level routes, ie, URL patterns.
 //
 // Some routes are dynamic; they have a component attribute of the from
-//   (props) => getDynamicComponent(import('../components/...'), props)
-// This someone unfortunate idiom can't be extracted into a function because
-// import(...) is more like a macro than a function; meteor scans our source
-// code at compile time looking for import("string-literal") and uses that to
-// decide what to include in the bundle, so if we used import(...) on something
-// other than a string literal, the target would be missing from the bundle.
+//   dynamicRoute(() => import('../components/...'))
+// This somewhat unfortunate idiom can't be fully extracted into a function
+// because import(...) is more like a macro than a function; meteor scans our
+// source code at compile time looking for import("string-literal") and uses
+// that to decide what to include in the bundle, so if we used import(...) on
+// something other than a string literal, the target would be missing from the
+// bundle.
+
+function dynamicRoute(module) {
+  return (props) => getDynamicComponent(module, props);
+}
 
 addRoute([
   ////////////////////////////////////////////////////////////////////////////
@@ -17,7 +22,7 @@ addRoute([
   {
     name:'posts.daily',
     path:'daily',
-    component: (props) => getDynamicComponent(import('../components/posts/PostsDaily'), props),
+    component: (props) => dynamicRoute(() => import('../components/posts/PostsDaily')),
   },
   {
     name:'users.single',
@@ -52,7 +57,7 @@ addRoute([
     name: 'inbox',
     path: '/inbox',
     title: "Inbox",
-    component: (props) => getDynamicComponent(import('../components/messaging/InboxWrapper'), props),
+    component: (props) => dynamicRoute(() => import('../components/messaging/InboxWrapper')),
   },
   {
     name: 'newPost',
@@ -69,7 +74,7 @@ addRoute([
     name: 'recentComments',
     path: '/recentComments',
     title: "Recent Comments",
-    component: (props) => getDynamicComponent(import('../components/comments/RecentCommentsPage'), props),
+    component: (props) => dynamicRoute(() => import('../components/comments/RecentCommentsPage')),
   },
 
   ////////////////////////////////////////////////////////////////////////////
@@ -79,28 +84,28 @@ addRoute([
     name: 'sequencesHome',
     path: '/library',
     title: "The Library",
-    component: (props) => getDynamicComponent(import('../components/sequences/SequencesHome'), props),
+    component: dynamicRoute(() => import('../components/sequences/SequencesHome')),
   },
   {
     name: 'sequences.single.old',
     path: '/sequences/:_id',
-    component: (props) => getDynamicComponent(import('../components/sequences/SequencesSingle'), props),
+    component: dynamicRoute(() => import('../components/sequences/SequencesSingle')),
   },
   {
     name: 'sequences.single',
     path: '/s/:_id',
-    component: (props) => getDynamicComponent(import('../components/sequences/SequencesSingle'), props),
+    component: dynamicRoute(() => import('../components/sequences/SequencesSingle')),
   },
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
-    component: (props) => getDynamicComponent(import('../components/sequences/SequencesEditForm'), props),
+    component: dynamicRoute(() => import('../components/sequences/SequencesEditForm')),
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     title: "New Sequence",
-    component: (props) => getDynamicComponent(import('../components/sequences/SequencesNewForm'), props),
+    component: dynamicRoute(() => import('../components/sequences/SequencesNewForm')),
   },
   {
     name: 'sequencesPost',
@@ -112,7 +117,7 @@ addRoute([
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
     title: "Edit Chapter",
-    component: (props) => getDynamicComponent(import('../components/sequences/ChaptersEditForm'), props),
+    component: dynamicRoute(() => import('../components/sequences/ChaptersEditForm')),
   },
 
   ////////////////////////////////////////////////////////////////////////////
@@ -127,13 +132,13 @@ addRoute([
     name: 'Sequences',
     path: '/sequences',
     title: "Rationality: A-Z",
-    component: (props) => getDynamicComponent(import('../components/sequences/CoreSequences'), props),
+    component: dynamicRoute(() => import('../components/sequences/CoreSequences')),
   },
   {
     name: 'Rationality',
     path: '/rationality',
     title: "Rationality: A-Z",
-    component: (props) => getDynamicComponent(import('../components/sequences/CoreSequences'), props),
+    component: dynamicRoute(() => import('../components/sequences/CoreSequences')),
   },
   {
     name: 'Rationality.posts.single',
@@ -146,7 +151,7 @@ addRoute([
     path: '/hpmor',
     title: "Harry Potter and the Methods of Rationality",
     componentName: 'HPMOR',
-    component: (props) => getDynamicComponent(import('../components/sequences/HPMOR'), props),
+    component: dynamicRoute(() => import('../components/sequences/HPMOR')),
   },
   {
     name: 'HPMOR.posts.single',
@@ -158,7 +163,7 @@ addRoute([
     name: 'Codex',
     path: '/codex',
     title: "The Codex",
-    component: (props) => getDynamicComponent(import('../components/sequences/Codex'), props),
+    component: dynamicRoute(() => import('../components/sequences/Codex')),
   },
   {
     name: 'Codex.posts.single',
@@ -180,7 +185,7 @@ addRoute([
     name: 'EventsDaily',
     path: '/pastEvents',
     title: "Past Events by Day",
-    component: (props) => getDynamicComponent(import('../components/posts/EventsDaily'), props),
+    component: dynamicRoute(() => import('../components/posts/EventsDaily')),
   },
   {
     name: 'FeaturedPosts',
@@ -197,13 +202,13 @@ addRoute([
     name: 'CommunityHome',
     path: '/community',
     title: "Community",
-    component: (props) => getDynamicComponent(import('../components/localGroups/CommunityHome'), props),
+    component: dynamicRoute(() => import('../components/localGroups/CommunityHome')),
   },
   {
     name: 'MeetupsHome',
     path: '/meetups',
     title: "Community",
-    component: (props) => getDynamicComponent(import('../components/localGroups/CommunityHome'), props),
+    component: dynamicRoute(() => import('../components/localGroups/CommunityHome')),
   },
 
 
@@ -215,7 +220,7 @@ addRoute([
   {
     name: 'Localgroups.single',
     path: 'groups/:groupId',
-    component: (props) => getDynamicComponent(import('../components/localGroups/LocalGroupSingle'), props),
+    component: dynamicRoute(() => import('../components/localGroups/LocalGroupSingle')),
   },
   {
     name:'events.single',
@@ -238,7 +243,7 @@ addRoute([
     name: 'moderation',
     path: '/moderation',
     title: "Moderation Log",
-    component: (props) => getDynamicComponent(import('../components/sunshineDashboard/ModerationLog'), props),
+    component: dynamicRoute(() => import('../components/sunshineDashboard/ModerationLog')),
   },
 
   {
