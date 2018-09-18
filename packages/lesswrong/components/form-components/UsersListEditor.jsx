@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
-import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 
 
 const sortableItemStyles = theme => ({
@@ -134,6 +135,6 @@ UsersListEditor.contextTypes = {
 };
 
 registerComponent("UsersListEditor", UsersListEditor,
-  withCurrentUser,
+  withUser,
   withStyles(usersListEditorStyles, { name: "UsersListEditor" })
 );

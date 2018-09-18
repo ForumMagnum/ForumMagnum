@@ -1,8 +1,9 @@
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -44,4 +45,4 @@ const withListOptions = {
   fragmentName: 'PostsList',
 };
 
-registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withCurrentUser, withStyles(styles, {name:"SunshineNewPostsList"}));
+registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withUser, withStyles(styles, {name:"SunshineNewPostsList"}));

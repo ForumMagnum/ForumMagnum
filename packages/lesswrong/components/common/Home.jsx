@@ -1,8 +1,9 @@
-import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   recommendedReading: {
@@ -147,4 +148,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser, withStyles(styles, { name: "Home" }));
+registerComponent('Home', Home, withUser, withStyles(styles, { name: "Home" }));

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withCurrentUser, Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem'
 import LWEvents from '../../lib/collections/lwevents/collection.js'
 import moment from 'moment';
+import withUser from '../common/withUser';
 
 class LastVisitList extends Component {
   render() {
@@ -26,4 +27,4 @@ const options = {
   enableCache: true,
 };
 
-registerComponent("LastVisitList", LastVisitList, withCurrentUser, [withList, options]);
+registerComponent("LastVisitList", LastVisitList, withUser, [withList, options]);

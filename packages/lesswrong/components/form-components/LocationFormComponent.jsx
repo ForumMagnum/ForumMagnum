@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import Geosuggest from 'react-geosuggest';
+import withUser from '../common/withUser';
 
 class LocationFormComponent extends Component {
   constructor(props, context) {
@@ -54,4 +55,4 @@ LocationFormComponent.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("LocationFormComponent", LocationFormComponent, withCurrentUser);
+registerComponent("LocationFormComponent", LocationFormComponent, withUser);

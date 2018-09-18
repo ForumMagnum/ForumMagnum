@@ -1,6 +1,7 @@
-import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
+import withUser from '../common/withUser';
 
 import { Meteor } from 'meteor/meteor';
 import { Link } from 'react-router';
@@ -88,6 +89,6 @@ UsersMenu.defaultProps = {
 }
 
 registerComponent('UsersMenu', UsersMenu,
-  withCurrentUser, withApollo,
+  withUser, withApollo,
   withStyles(styles, { name: "UsersMenu" })
 );

@@ -1,10 +1,11 @@
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
+import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
 
@@ -131,6 +132,6 @@ registerComponent(
   'SunshineCuratedSuggestionsItem',
   SunshineCuratedSuggestionsItem,
   [withEdit, withEditOptions],
-  withCurrentUser,
+  withUser,
   withHover
 );

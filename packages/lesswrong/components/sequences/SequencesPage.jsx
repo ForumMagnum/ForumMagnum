@@ -3,7 +3,6 @@ import {
   Components,
   withDocument,
   registerComponent,
-  withCurrentUser,
 } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
@@ -14,6 +13,7 @@ import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   title: {
@@ -132,4 +132,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withCurrentUser, withStyles(styles, { name: "SequencesPage" }));
+registerComponent('SequencesPage', SequencesPage, [withDocument, options], withUser, withStyles(styles, { name: "SequencesPage" }));

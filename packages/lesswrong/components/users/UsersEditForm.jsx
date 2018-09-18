@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, withMessages, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
 import { withRouter } from 'react-router'
 import Typography from '@material-ui/core/Typography';
+import withUser from '../common/withUser';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -83,6 +84,6 @@ UsersEditForm.contextTypes = {
 UsersEditForm.displayName = 'UsersEditForm';
 
 registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withCurrentUser, withRouter,
+  withMessages, withUser, withRouter,
   withStyles(styles, { name: "UsersEditForm" })
 );

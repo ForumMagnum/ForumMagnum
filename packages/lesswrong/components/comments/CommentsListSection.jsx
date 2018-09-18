@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import {
-  withCurrentUser,
   Components,
   registerComponent,
   getSetting
@@ -16,6 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   meta: {
@@ -162,7 +162,7 @@ class CommentsListSection extends Component {
 }
 
 registerComponent("CommentsListSection", CommentsListSection,
-  withCurrentUser, withRouter,
+  withUser, withRouter,
   withStyles(styles, { name: "CommentsListSection" })
 );
 export default CommentsListSection

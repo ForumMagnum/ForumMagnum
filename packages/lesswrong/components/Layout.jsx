@@ -13,6 +13,7 @@ import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { customizeTheme } from '../lib/modules/utils/theme';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
+import { UserContext } from './common/withUser';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -42,35 +43,36 @@ const styles = theme => ({
 
 const Layout = ({currentUser, children, currentRoute, location, params, client, classes, theme}, { userAgent }) => {
 
-    const showIntercom = currentUser => {
-      if (currentUser && !currentUser.hideIntercom) {
-        return <div id="intercome-outer-frame">
+  const showIntercom = currentUser => {
+    if (currentUser && !currentUser.hideIntercom) {
+      return <div id="intercome-outer-frame">
+        <Components.ErrorBoundary>
+          <Intercom
+            appID={intercomAppId}
+            user_id={currentUser._id}
+            email={currentUser.email}
+            name={currentUser.displayName}/>
+        </Components.ErrorBoundary>
+      </div>
+    } else if (!currentUser) {
+      return <div id="intercome-outer-frame">
           <Components.ErrorBoundary>
-            <Intercom
-              appID={intercomAppId}
-              user_id={currentUser._id}
-              email={currentUser.email}
-              name={currentUser.displayName}/>
+            <Intercom appID={intercomAppId}/>
           </Components.ErrorBoundary>
         </div>
-      } else if (!currentUser) {
-        return<div id="intercome-outer-frame">
-            <Components.ErrorBoundary>
-              <Intercom appID={intercomAppId}/>
-            </Components.ErrorBoundary>
-          </div>
-      } else {
-        return null
-      }
+    } else {
+      return null
     }
-    
-    const routeName = currentRoute.name
-    const query = location && location.query
-    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
+  }
+  
+  const routeName = currentRoute.name
+  const query = location && location.query
+  const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
+  const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+  const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
 
-    return <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
+  return <UserContext.Provider value={currentUser}>
+    <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
       <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
         <div>
           <CssBaseline />
@@ -108,6 +110,7 @@ const Layout = ({currentUser, children, currentRoute, location, params, client, 
         </div>
       </V0MuiThemeProvider>
     </div>
+  </UserContext.Provider>;
 }
 
 Layout.contextTypes = {

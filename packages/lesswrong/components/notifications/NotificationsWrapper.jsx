@@ -8,7 +8,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import withUser from '../common/withUser';
 
 class NotificationsWrapper extends Component {
 
@@ -46,4 +47,4 @@ class NotificationsWrapper extends Component {
   }
 }
 
-registerComponent('NotificationsWrapper', NotificationsWrapper, withCurrentUser);
+registerComponent('NotificationsWrapper', NotificationsWrapper, withUser);

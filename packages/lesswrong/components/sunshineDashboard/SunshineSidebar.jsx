@@ -1,7 +1,8 @@
-import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
@@ -74,4 +75,4 @@ SunshineSidebar.propTypes = {
 
 SunshineSidebar.displayName = "SunshineSidebar";
 
-registerComponent('SunshineSidebar', SunshineSidebar, withCurrentUser, withStyles(styles, { name: 'SunshineSidebar'}));
+registerComponent('SunshineSidebar', SunshineSidebar, withUser, withStyles(styles, { name: 'SunshineSidebar'}));
