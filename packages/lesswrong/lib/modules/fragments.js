@@ -509,6 +509,7 @@ registerFragment(`
     afCommentCount
     sequenceCount
     afSequenceCount
+    afSequenceDraftCount
     sequenceDraftCount
     moderationStyle
     bannedUserIds
@@ -652,4 +653,3 @@ registerFragment(/* GraphQL */`
     votedAt
   }
 `);
-

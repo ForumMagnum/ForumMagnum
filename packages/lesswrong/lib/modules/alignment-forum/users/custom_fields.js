@@ -40,4 +40,14 @@ Users.addField([
       onInsert: (document, currentUser) => 0,
     }
   },
+
+  {
+    fieldName: 'afSequenceDraftCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: (document, currentUser) => 0,
+    }
+  },
 ]);

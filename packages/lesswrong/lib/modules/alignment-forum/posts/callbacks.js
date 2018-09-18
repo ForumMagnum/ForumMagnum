@@ -12,7 +12,7 @@ addCallback("posts.alignment.async", PostsMoveToAFAddsAlignmentVoting);
 
 async function PostsMoveToAFUpdatesAFPostCount (post, oldPost) {
   if (!oldPost || (post.af !== oldPost.af)) {
-    const afPostCount = Posts.find({userId:post.userId, af: true}).count()
+    const afPostCount = Posts.find({userId:post.userId, af: true, draft: false}).count()
     Users.update({_id:post.userId}, {$set: {afPostCount: afPostCount}})
   }
 }

@@ -18,6 +18,7 @@ registerFragment(`
     draft
     isDeleted
     curatedOrder
+    af
   }
 `);
 

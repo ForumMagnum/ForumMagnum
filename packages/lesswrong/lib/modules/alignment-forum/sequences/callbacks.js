@@ -3,11 +3,21 @@ import { addCallback } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 
 async function SequenceMoveToAFUpdatesAFPostCount (sequence, oldSequence) {
-  if (!oldSequence || (sequence.af !== oldSequence.af)) {
-    const afSequenceCount = Sequences.find({userId:sequence.userId, af: true}).count()
-    Users.update({_id:sequence.userId}, {$set: {afSequenceCount: afSequenceCount}})
-  }
+  const afSequenceCount = Sequences.find({
+    userId:sequence.userId,
+    af: true,
+    draft: false
+  }).count()
+  const afSequenceDraftCount = Sequences.find({
+    userId:sequence.userId,
+    af: true,
+    draft: true
+  }).count()
+  Users.update({_id:sequence.userId}, {$set: {
+    afSequenceCount: afSequenceCount,
+    afSequenceDraftCount: afSequenceDraftCount
+  }})
 }
 
-addCallback("sequence.edit.async", SequenceMoveToAFUpdatesAFPostCount);
-addCallback("sequence.new.async", SequenceMoveToAFUpdatesAFPostCount);
+addCallback("sequences.edit.async", SequenceMoveToAFUpdatesAFPostCount);
+addCallback("sequences.new.async", SequenceMoveToAFUpdatesAFPostCount);

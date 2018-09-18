@@ -133,6 +133,9 @@ import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
 import '../components/comments/LastVisitList.jsx'
 
+
+import '../components/icons/OmegaIcon.jsx';
+
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';
 import '../components/search/PostsSearchAutoComplete.jsx';
