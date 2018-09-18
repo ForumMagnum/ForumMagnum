@@ -14,7 +14,9 @@ const styles = theme => ({
   meta: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-end",
+    [theme.breakpoints.up('md')]: {
+      justifyContent: "flex-end",
+    }
   },
   icon: {
     '&$specificalz': {
@@ -47,9 +49,9 @@ const UsersProfile = (props) => {
       const user = props.document;
       return (<div className="users-profile-actions">
         { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        {props.currentUser && props.currentUser.isAdmin && <Components.ModalTrigger label={<Components.SectionSubtitle>Register new RSS Feed</Components.SectionSubtitle>}>
+        {props.currentUser && props.currentUser.isAdmin && <Components.DialogGroup actions={[]} trigger={<Components.SectionSubtitle>Register new RSS Feed</Components.SectionSubtitle>}>
           <div><Components.newFeedButton user={user} /></div>
-        </Components.ModalTrigger>}
+        </Components.DialogGroup>}
         <Components.ShowIf check={Users.options.mutations.edit.check} document={user}>
           <Components.SectionSubtitle><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></Components.SectionSubtitle>
         </Components.ShowIf>
@@ -85,7 +87,7 @@ const UsersProfile = (props) => {
 
     const renderUserProfileHeader = (props) => {
       return (
-        <Components.Section title={user.displayName} titleComponent={ renderMeta(props) }>
+        <Components.Section title="User Profile" titleComponent={ renderMeta(props) }>
           { user.bio &&
             <div className="content-body">
               <div className="users-profile-bio">
