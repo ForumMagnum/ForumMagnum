@@ -56,8 +56,8 @@ const UsersProfile = (props) => {
         <Components.ShowIf check={Users.options.mutations.edit.check} document={user}>
           <Components.SectionSubtitle><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></Components.SectionSubtitle>
         </Components.ShowIf>
-        { props.currentUser && props.currentUser._id != user._id && <div><Components.NewConversationButton user={user}> <a>Send a message</a> </Components.NewConversationButton></div> }
-        { props.currentUser && props.currentUser._id !== user._id && <div><Components.SubscribeTo document={user} /></div> }
+        { props.currentUser && props.currentUser._id != user._id && <Components.SectionSubtitle><Components.NewConversationButton user={user}> <a>Send a message</a> </Components.NewConversationButton></Components.SectionSubtitle> }
+        { props.currentUser && props.currentUser._id !== user._id && <Components.SectionSubtitle><Components.SubscribeTo document={user} /></Components.SectionSubtitle> }
       </div>)
     }
 
@@ -187,4 +187,4 @@ const options = {
   fragmentName: 'UsersProfile',
 };
 
-registerComponent('UsersProfile', UsersProfile, withCurrentUser, [withDocument, options], withRouter, withStyles(styles));
+registerComponent('UsersProfile', UsersProfile, withCurrentUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));

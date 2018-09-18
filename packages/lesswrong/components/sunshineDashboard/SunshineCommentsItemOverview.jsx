@@ -57,4 +57,4 @@ SunshineCommentsItemOverview.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withUser, withStyles(styles));
+registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, withUser, withStyles(styles, { name: "SunshineCommentsItemOverview"}));

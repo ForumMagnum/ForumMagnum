@@ -37,4 +37,4 @@ const CommentsSearchHit = ({hit, clickAction, classes}) => {
   </div>
 }
 
-registerComponent("CommentsSearchHit", CommentsSearchHit, withStyles(styles));
+registerComponent("CommentsSearchHit", CommentsSearchHit, withStyles(styles, {name: "CommentsSearchHit"}));

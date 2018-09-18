@@ -26,4 +26,4 @@ const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
     return <Components.Loading />
   }
 };
-registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, withStyles(styles));
+registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, withStyles(styles, { name: "UsersAutoCompleteHit"}));

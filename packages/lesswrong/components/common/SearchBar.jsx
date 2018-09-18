@@ -146,4 +146,4 @@ SearchBar.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles));
+registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}));

@@ -44,4 +44,4 @@ const SearchPagination = ({classes, pagesPadding=0, showFirst=false}) => {
     </div>
 }
 
-registerComponent("SearchPagination", SearchPagination, withStyles(styles));
+registerComponent("SearchPagination", SearchPagination, withStyles(styles, {name: "SearchPagination"}));
