@@ -118,11 +118,12 @@
       font-weight:300;
       line-height:18px;
       font-size:12px;
-      white-space: pre;
-      // font-family:$comments-font;
       padding:10px 0;
       z-index:1;
     }
+  }
+  .view-chip.daily {
+    display:block;
   }
   .view-chip:hover .view-chip-menu-wrapper, .view-chip-menu-wrapper:hover {
     display:block;
@@ -973,9 +974,6 @@ svg.drag-handle {
 
 .recent-discussion-thread-meta {
   cursor:pointer;
-  font-size:13px;
-  color:rgba(0,0,0,.5);
-  line-height:13px;
 
   .recent-discussion-show-highlight {
     opacity:0;

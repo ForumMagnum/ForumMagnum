@@ -7,6 +7,7 @@ import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
 import { Posts, Categories, Comments } from 'meteor/example-forum';
+import VulcanEmail from 'meteor/vulcan:email'
 import {
   addCallback,
   removeCallback,
@@ -60,6 +61,24 @@ const createNotifications = (userIds, notificationType, documentType, documentId
       currentUser: user,
       validate: false
     });
+  });
+}
+
+const sendPostByEmail = async (users, postId) => {
+  let post = Posts.findOne(postId);
+
+  let email = await VulcanEmail.build({
+    emailName: "newPost",
+    variables: {
+      documentId: post._id
+    },
+    locale: "en"
+  });
+
+  users.forEach(user => {
+    if(user.email) {
+      VulcanEmail.send(user.email, email.subject, email.html, email.text, false);
+    }
   });
 }
 
@@ -180,7 +199,7 @@ addCallback("posts.undraft.async", PostsUndraftNotification);
 function postsNewNotifications (post) {
   if (post.status === Posts.config.STATUS_PENDING || post.draft) {
     // if post is pending or saved to draft, only notify admins
-    let adminIds = _.pluck(Users.find({isAdmin: true}), '_id');
+    let adminIds = _.pluck(Users.find({isAdmin: true}).fetch(), '_id');
 
     // remove this post's author
     adminIds = _.without(adminIds, post.userId);
@@ -227,6 +246,29 @@ function postsNewNotifications (post) {
   }
 }
 addCallback("posts.new.async", postsNewNotifications);
+
+function findUsersToEmail(filter) {
+  let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
+
+  let usersToEmail = usersMatchingFilter.filter(u => {
+    let primaryAddress = u.email;
+    for(let i=0; i<u.emails.length; i++)
+    {
+      if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+        return true;
+    }
+    return false;
+  });
+  return usersToEmail
+}
+
+function PostsCurateNotification (post, oldPost) {
+  if(post.curatedDate && !oldPost.curatedDate) {
+    let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
+    sendPostByEmail(usersToEmail, post._id);
+  }
+}
+addCallback("posts.edit.async", PostsCurateNotification);
 
 
 // add new comment notification callback on comment submit

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { addCallback } from 'meteor/vulcan:core';
 import JssProvider from 'react-jss/lib/JssProvider';
@@ -10,7 +9,9 @@ import JssCleanup from '../../components/themes/JssCleanup';
 function wrapWithMuiTheme (app, { req, res, store, apolloClient }) {
   const sheetsRegistry = new SheetsRegistry();
   req.sheetsRegistry = sheetsRegistry;
-  const generateClassName = createGenerateClassName();
+  const generateClassName = createGenerateClassName({
+    dangerouslyUseGlobalCSS: true
+  });
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>

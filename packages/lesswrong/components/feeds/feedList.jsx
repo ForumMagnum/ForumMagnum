@@ -1,8 +1,9 @@
 // import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 // import { ListGroup, ListGroupItem } from 'react-bootstrap';
-// import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+// import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 // import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+// import withUser from '../common/withUser';
 //
 // class FeedList extends Component {
 //
@@ -38,4 +39,4 @@
 //   totalResolver: false,
 // };
 //
-// registerComponent('FeedList', FeedList, [withList, options], withCurrentUser);
+// registerComponent('FeedList', FeedList, [withList, options], withUser);

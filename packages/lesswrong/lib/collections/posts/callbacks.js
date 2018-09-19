@@ -1,4 +1,4 @@
-import { addCallback, removeCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { performVoteServer } from 'meteor/vulcan:voting';
@@ -101,7 +101,20 @@ addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
 
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
-    Posts.update({_id: newDocument._id}, {$set: {maxBaseScore: newDocument.baseScore}})
+    let thresholdTimestamp = {};
+    if (!newDocument.scoreExceeded2Date && newDocument.baseScore >= 2) {
+      thresholdTimestamp.scoreExceeded2Date = new Date();
+    }
+    if (!newDocument.scoreExceeded30Date && newDocument.baseScore >= 30) {
+      thresholdTimestamp.scoreExceeded30 = new Date();
+    }
+    if (!newDocument.scoreExceeded45Date && newDocument.baseScore >= 45) {
+      thresholdTimestamp.scoreExceeded45Date = new Date();
+    }
+    if (!newDocument.scoreExceeded75Date && newDocument.baseScore >= 75) {
+      thresholdTimestamp.scoreExceeded75Date = new Date();
+    }
+    Posts.update({_id: newDocument._id}, {$set: {maxBaseScore: newDocument.baseScore, ...thresholdTimestamp}})
   }
 }
 
@@ -127,9 +140,6 @@ function PostsNewDefaultTypes (post) {
 }
 
 addCallback("posts.new.sync", PostsNewDefaultTypes);
-
-//LESSWRONG: Remove original CommentsNewUpvoteOwnComment from Vulcan
-removeCallback('posts.new.after', 'PostsNewUpvoteOwnPost');
 
 // LESSWRONG – bigUpvote
 async function LWPostsNewUpvoteOwnPost(post) {

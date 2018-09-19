@@ -1,14 +1,29 @@
-import { Components, registerComponent, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
+import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
+import PropTypes from 'prop-types';
+
+const styles = theme => ({
+  root: {
+    opacity:.2,
+    '&:hover': {
+      opacity: 1,
+    }
+  }
+})
+
 
 class SunshineCuratedSuggestionsList extends Component {
   render () {
-    const results = this.props.results
+    const { results, classes } = this.props
     if (results && results.length) {
       return (
-        <div className="sunshine-curated-suggestions-list">
-          <div className="sunshine-sidebar-title">Suggestions for Curated</div>
+        <div className={classes.root}>
+          <Components.SunshineListTitle>
+            Suggestions for Curated
+          </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
               <Components.SunshineCuratedSuggestionsItem post={post}/>
@@ -22,16 +37,21 @@ class SunshineCuratedSuggestionsList extends Component {
   }
 }
 
+SunshineCuratedSuggestionsList.propTypes = {
+  results: PropTypes.array,
+  classes: PropTypes.object.isRequired
+};
+
 const withListOptions = {
   collection: Posts,
   queryName: 'sunshineCuratedsuggestionsListQuery',
-  fragmentName: 'PostsList',
-
+  fragmentName: 'PostsList'
 };
 
 registerComponent(
   'SunshineCuratedSuggestionsList',
   SunshineCuratedSuggestionsList,
   [withList, withListOptions],
-  withCurrentUser
+  withUser,
+  withStyles(styles, {name: "SunshineCuratedSuggestionsList"})
 );

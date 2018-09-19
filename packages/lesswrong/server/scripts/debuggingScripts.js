@@ -257,6 +257,7 @@ Vulcan.createBulkyTestPost = async ({
   // Create some comments
   for(var ii=0; ii<numRootComments; ii++)
   {
+    //eslint-disable-next-line no-await-in-loop
     var rootComment = await createDummyComment(user, {
       postId: post._id,
       body: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)

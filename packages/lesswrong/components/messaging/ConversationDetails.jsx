@@ -6,8 +6,9 @@ Component for displaying details about currently selected conversation
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -36,8 +37,8 @@ class ConversationDetails extends Component {
               { i < conversation.participants.length-1 && ","}
             </Components.MetaInfo>)}
           </span>
-          <Components.DialogGroup title="Edit Conversation Title"
-            actions={[]} trigger={<Components.MetaInfo button>Edit Conversation Title</Components.MetaInfo>}>
+          <Components.DialogGroup title="Conversation Options"
+            actions={[]} trigger={<Components.MetaInfo button>Conversation Options</Components.MetaInfo>}>
             <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
           </Components.DialogGroup>
         </div>
@@ -48,4 +49,4 @@ class ConversationDetails extends Component {
   }
 }
 
-registerComponent('ConversationDetails', ConversationDetails, withCurrentUser, withStyles(styles));
+registerComponent('ConversationDetails', ConversationDetails, withUser, withStyles(styles, { name: "ConversationDetails" }));

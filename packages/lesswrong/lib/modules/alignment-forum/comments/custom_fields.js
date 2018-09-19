@@ -1,7 +1,6 @@
 import { Comments } from "meteor/example-forum";
 
 Comments.addField([
-  // This commment will appear in alignment forum view
   {
     fieldName: 'af',
     fieldSchema: {
@@ -12,7 +11,6 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['alignmentVoters'],
       insertableBy: ['alignmentVoters'],
-      control: 'AlignmentCheckbox'
     }
   },
 

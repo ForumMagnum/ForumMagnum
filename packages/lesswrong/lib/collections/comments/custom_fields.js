@@ -2,6 +2,7 @@ import React from 'react'
 import { Components } from "meteor/vulcan:core";
 import { Comments } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
+import { makeEditable } from '../../editor/make_editable.js'
 
 Comments.addField([
 
@@ -22,50 +23,11 @@ Comments.addField([
         resolver: async (comment, args, {currentUser, Users}) => {
           if (!comment.userId || comment.hideAuthor) return null;
           const user = await Users.loader.load(comment.userId);
+          if (!user) return null;
           if (user.deleted) return null;
           return Users.restrictViewableFields(currentUser, Users, user);
         },
         addOriginalField: true
-      },
-    }
-  },
-  {
-    fieldName: 'body',
-    fieldSchema: {
-      type: String,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      control: "textarea",
-      optional: true,
-      hidden: true,
-      // LESSWRONG: Drastically increased original Vulcan character limit
-      max: 1000000,
-    }
-  },
-
-  /**
-    Ory Editor content JSON
-  */
-  {
-    fieldName: 'content',
-    fieldSchema: {
-      type: Object,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
-      control: 'CommentEditor',
-      blackbox: true,
-      order: 25,
-      form: {
-        hintText:"Plain Markdown Editor",
-        multiLine:true,
-        fullWidth:true,
-        disableUnderline:true,
-        enableMarkDownEditor: true,
-        minHeight: 400,
-        name: "body"
       },
     }
   },
@@ -342,22 +304,21 @@ Comments.addField([
       insertableBy: ['admins'],
     }
   },
-
-  /*
-    lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
-    appropriate editor when being edited, overwriting user-preferences
-  */
-
-  {
-    fieldName: 'lastEditedAs',
-    fieldSchema: {
-      type: String,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      optional: true,
-      hidden: true,
-    }
-  }
-
 ]);
+
+makeEditable({
+  collection: Comments,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    // Sets the algorithm for determing what storage ids to use for local storage management
+    getLocalStorageId: (comment, name) => {
+      if (comment._id) { return {id: comment._id, verify: true} }
+      if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
+      if (comment.postId) { return {id: ('post:' + comment.postId), verify: false}}
+    },
+    order: 25
+  }
+})

@@ -48,7 +48,6 @@ class MuiTextField extends Component {
 
     return <TextField
         select={select}
-        children={children}
         value={this.state.content}
         defaultValue={defaultValue}
         label={label}
@@ -66,7 +65,9 @@ class MuiTextField extends Component {
           classes.textField,
           {fullWidth:fullWidth}
         )}
-      />
+      >
+        {children}
+      </TextField>
   }
 }
 
@@ -75,4 +76,4 @@ MuiTextField.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("MuiTextField", MuiTextField, withStyles(styles));
+registerComponent("MuiTextField", MuiTextField, withStyles(styles, { name: "MuiTextField" }));

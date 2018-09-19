@@ -1,8 +1,9 @@
-import { Components, registerComponent, withCurrentUser, withMessages, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages, withDocument } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
 import { Posts } from 'meteor/example-forum';
+import withUser from '../common/withUser';
 
 class LocalGroupPage extends Component {
   renderTitleComponent = () => {
@@ -58,4 +59,4 @@ const options = {
   fragmentName: 'localGroupsHomeFragment',
 };
 
-registerComponent('LocalGroupPage', LocalGroupPage, withCurrentUser, withMessages, withRouter, [withDocument, options]);
+registerComponent('LocalGroupPage', LocalGroupPage, withUser, withMessages, withRouter, [withDocument, options]);

@@ -1,4 +1,4 @@
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import classNames from 'classnames';
 import muiThemeable from 'material-ui/styles/muiThemeable';
@@ -27,4 +27,7 @@ const PostsLoadMore = ({loading, loadMore, count, totalCount, muiTheme, classes}
 
 PostsLoadMore.displayName = "PostsLoadMore";
 
-replaceComponent('PostsLoadMore', PostsLoadMore, muiThemeable(), withStyles(styles));
+registerComponent('PostsLoadMore', PostsLoadMore,
+  muiThemeable(),
+  withStyles(styles, { name: "PostsLoadMore" })
+);

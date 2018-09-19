@@ -3,7 +3,6 @@ import {
   Components,
   registerComponent,
   withList,
-  withCurrentUser,
   Loading,
   getActions,
   withMutation
@@ -16,6 +15,7 @@ import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 
 import Users from "meteor/vulcan:users";
@@ -90,23 +90,23 @@ class RecentDiscussionThread extends PureComponent {
     this.handleMarkAsRead()
   }
 
-  renderLinkPost = () => {
-    const { post } = this.props
-    if (post.url) {
-      return <div className="recent-discussion-highlight-link-post">
-        Linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
-      </div>
-    }
-  }
-
   render() {
-    const { post, results, loading, editMutation, currentUser, classes } = this.props
+    const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
     const nestedComments = unflattenComments(results);
 
-    if (!loading && results && !results.length && post.commentCount != null) {
+    // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
+    if (loading && postCount === 0) {
+      return  <Loading />
+    } else if (loading && postCount !== 0) {
+      return null
+    } else if (results && !results.length && post.commentCount != null) {
+      // New posts should render (to display their highlight).
+      // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
       return null
     }
+
     const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null})
+
     return (
       <div className="recent-discussion-thread-wrapper">
         <div className={classNames(classes.postItem)}>
@@ -116,54 +116,56 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
-            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
-              <span title="Unread" className="posts-item-unread-dot">•</span>
-            }
-            {Posts.options.mutations.edit.check(currentUser, post) &&
-              <Link className="recent-discussion-edit"
-                to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-                Edit
-              </Link>
-            }
-            <span className="recent-discussion-username">
-              <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
-            </span>
-            {post.postedAt && !post.isEvent &&
-              <span className="recent-discussion-thread-date">
-                {moment(new Date(post.postedAt)).fromNow()}
+            <Components.MetaInfo>
+              {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
+                <span title="Unread" className="posts-item-unread-dot">•</span>
+              }
+              {Posts.options.mutations.edit.check(currentUser, post) &&
+                <Link className="recent-discussion-edit"
+                  to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+                  Edit
+                </Link>
+              }
+              <span className="recent-discussion-username">
+                <Link to={ Users.getProfileUrl(post.user) }>{post.user && post.user.displayName}</Link>
               </span>
-            }
-            <span className="posts-item-points">
-              { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
-            </span>
-            {post.wordCount && !post.isEvent &&
-              <span className="recent-discussion-thread-readtime">
-                {parseInt(post.wordCount/300) || 1 } min read
+              {post.postedAt && !post.isEvent &&
+                <span className="recent-discussion-thread-date">
+                  {moment(new Date(post.postedAt)).fromNow()}
+                </span>
+              }
+              <span className="posts-item-points">
+                { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
               </span>
-            }
-            <span className="recent-discussion-show-highlight">
+              {post.wordCount && !post.isEvent &&
+                <span className="recent-discussion-thread-readtime">
+                  {parseInt(post.wordCount/300) || 1 } min read
+                </span>
+              }
+              <span className="recent-discussion-show-highlight">
 
-              { this.state.showExcerpt ?
+                { this.state.showExcerpt ?
+                  <span>
+                    Hide Highlight
+                    <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                      subdirectory_arrow_left
+                    </FontIcon>
+                  </span>
+                :
                 <span>
-                  Hide Highlight
-                  <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                  Show Highlight
+                  <FontIcon className={classNames("material-icons","show-highlight-button")}>
                     subdirectory_arrow_left
                   </FontIcon>
-                </span>
-              :
-              <span>
-                Show Highlight
-                <FontIcon className={classNames("material-icons","show-highlight-button")}>
-                  subdirectory_arrow_left
-                </FontIcon>
-              </span>  }
-            </span>
+                </span>  }
+              </span>
+            </Components.MetaInfo>
           </div>
         </div>
 
         { this.state.showExcerpt ?
           <div className={highlightClasses}>
-            { this.renderLinkPost() }
+            <Components.LinkPostMessage post={post} />
             { post.htmlHighlight ?
               <div>
                 <div className={classNames("post-highlight", classes.postBody)} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
@@ -178,18 +180,18 @@ class RecentDiscussionThread extends PureComponent {
             }
           </div>
           : <div className={highlightClasses} onClick={() => { this.showExcerpt() }}>
-              { this.renderLinkPost() }
-              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <div className="post-highlight excerpt" dangerouslySetInnerHTML={{__html: post.excerpt}}/>}
+              <Components.LinkPostMessage post={post} />
+              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <div className={classNames(classes.postBody, "post-highlight", "excerpt")}  dangerouslySetInnerHTML={{__html: post.excerpt}}/>}
             </div>
         }
         <div className="recent-discussion-thread-comment-list">
-          {loading || !results ? <Loading /> :
           <div className={"comments-items"}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <Components.CommentsNode
                   currentUser={currentUser}
                   comment={comment.item}
+                  //eslint-disable-next-line react/no-children-prop
                   children={comment.children}
                   key={comment.item._id}
                   editMutation={editMutation}
@@ -198,7 +200,7 @@ class RecentDiscussionThread extends PureComponent {
                 />
               </div>
             )}
-          </div>}
+          </div>
         </div>
       </div>
     )
@@ -228,8 +230,8 @@ registerComponent(
   RecentDiscussionThread,
   [withList, commentsOptions],
   withMutation(mutationOptions),
-  withCurrentUser,
+  withUser,
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles),
+  withStyles(styles, { name: "RecentDiscussionThread" }),
 );

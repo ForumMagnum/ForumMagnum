@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "meteor/example-forum";
@@ -55,6 +55,7 @@ class CommentsList extends Component {
                 currentUser={currentUser}
                 comment={comment.item}
                 nestingLevel={1}
+                //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}
@@ -87,4 +88,4 @@ const withEditOptions = {
 };
 
 
-replaceComponent('CommentsList', CommentsList, [withEdit, withEditOptions]);
+registerComponent('CommentsList', CommentsList, [withEdit, withEditOptions]);

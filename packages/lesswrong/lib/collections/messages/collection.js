@@ -3,6 +3,7 @@ import schema from './schema.js';
 import './permissions.js'
 import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
 import Conversations from '../conversations/collection.js'
+import { makeEditable } from '../../editor/make_editable.js'
 
 /**
  * @summary Telescope Messages namespace
@@ -44,3 +45,19 @@ const Messages = createCollection({
 });
 
 export default Messages;
+
+makeEditable({
+  collection: Messages,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    permissions: {
+      viewableBy: ['members'],
+      insertableBy: ['members'],
+      editableBy: Users.owns,
+    },
+    order: 2,
+  }
+})

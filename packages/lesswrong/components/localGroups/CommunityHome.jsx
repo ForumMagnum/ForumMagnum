@@ -1,7 +1,6 @@
 import {
   Components,
   registerComponent,
-  withCurrentUser,
   getFragment,
   withMessages,
   withEdit
@@ -12,6 +11,7 @@ import Dialog from 'material-ui/Dialog';
 import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
+import withUser from '../common/withUser';
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -162,4 +162,4 @@ const withEditOptions = {
   fragmentName: 'UsersProfile',
 };
 
-registerComponent('CommunityHome', CommunityHome, withCurrentUser, withMessages, withRouter, [withEdit, withEditOptions]);
+registerComponent('CommunityHome', CommunityHome, withUser, withMessages, withRouter, [withEdit, withEditOptions]);

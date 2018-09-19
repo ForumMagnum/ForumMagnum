@@ -121,6 +121,17 @@ Users.blockedCommentingReason = (user, post) => {
   return "You cannot comment at this time"
 }
 
+// Return true if the user's account has at least one verified email address.
+Users.emailAddressIsVerified = (user) => {
+  if (!user || !user.emails)
+    return false;
+  for (let email of user.emails) {
+    if (email && email.verified)
+      return true;
+  }
+  return false;
+};
+
 
 
 const clientRequiresMarkdown = () => {

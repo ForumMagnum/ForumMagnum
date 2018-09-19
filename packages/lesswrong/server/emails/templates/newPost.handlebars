@@ -1,0 +1,27 @@
+<div class="heading">
+  <h1>
+    <a href="{{PostsSingle.linkUrl}}" class="action-link">{{PostsSingle.title}}</a>
+  </h1>
+  
+  <hr></hr>
+  
+  <div class="postAuthor">
+    <a href="{{PostsSingle.user.pageUrl}}">{{PostsSingle.user.displayName}}</a>
+  </div>
+  <div class="postDate">
+    {{formatPostDate PostsSingle.postedAt}}
+  </div>
+</div>
+
+<br><br>
+
+{{#if PostsSingle.htmlBody}}
+  <div class="post-body">
+  {{{PostsSingle.htmlBody}}}
+  </div>
+  <br>
+{{/if}}
+
+<a href="{{PostsSingle.pageUrl}}">Discuss</a><br><br>
+
+You are receiving this email because you are subscribed to new posts on LessWrong.

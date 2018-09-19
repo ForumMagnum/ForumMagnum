@@ -23,19 +23,16 @@ export const postBodyStyles = (theme, fontSize) => {
       ...theme.typography.postStyle
     },
     '& h1': {
-      ...theme.typography.display3,
-      ...theme.typography.postStyle,
-      ...theme.typography.headerStyle
+      ...theme.typography.display2,
+      ...theme.typography.postStyle
     },
     '& h2': {
-      ...theme.typography.display2,
+      ...theme.typography.display1,
       ...theme.typography.postStyle,
-      ...theme.typography.headerStyle
     },
     '& h3': {
-      ...theme.typography.display2,
+      ...theme.typography.display1,
       ...theme.typography.postStyle,
-      ...theme.typography.headerStyle
     },
     '& h4': {
       ...theme.typography.body1,
@@ -64,6 +61,8 @@ export const postBodyStyles = (theme, fontSize) => {
 
 export const commentBodyStyles = theme => {
   const commentBodyStyles = {
+    marginTop: ".5em",
+    marginBottom: ".5em",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     '& blockquote': {
