@@ -19,6 +19,7 @@ const options = {
   fragmentName: 'ChaptersFragment',
   totalResolver: false,
   enableCache: true,
+  ssr: true
 }
 
 registerComponent('ChaptersList', ChaptersList, [withList, options])

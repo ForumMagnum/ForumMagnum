@@ -129,6 +129,7 @@ const options = {
   queryName: "SequencesPageQuery",
   fragmentName: 'SequencesPageFragment',
   totalResolver: false,
+  ssr: true
 };
 
 
