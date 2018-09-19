@@ -1,11 +1,13 @@
 /* global confirm */
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components as C, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import Typography from '@material-ui/core/Typography';
+import withUser from '../common/withUser';
+import withHover from '../common/withHover'
 
 class SunshineNewUsersItem extends Component {
 
@@ -36,71 +38,66 @@ class SunshineNewUsersItem extends Component {
   }
 
   render () {
-    const { user } = this.props
+    const { user, hover, anchorEl } = this.props
     return (
-      <div className="sunshine-sidebar-item new-user">
-        <Link to={Users.getProfileUrl(user)}
-          className="sunshine-sidebar-username">
-            {user.displayName}
-        </Link>
-        <div className="sunshine-sidebar-content-hoverover user">
-          <Link to={Users.getProfileUrl(user)}>
-            <h4>{ user.displayName }</h4>
-          </Link>
-          <div>Posts: { user.postCount || 0 }</div>
-          <div>Comments: { user.commentCount || 0 }</div>
-          <hr />
-          <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-          <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-          <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-          <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-
-        </div>
-        <div className="sunshine-sidebar-item-meta">
-          <span className="karma">
-            { user.karma || 0 }
-          </span>
-          <span className="email">
-            { user.email }
-          </span>
-          <span className="created-at">
-            { moment(new Date(user.createdAt)).fromNow() }
-          </span>
-        </div>
-        <div className="sunshine-sidebar-posts-actions new-user">
-          <div
-            className="sunshine-sidebar-posts-action purge"
-            title="Purge User (delete and ban)"
-            onClick={this.handlePurge}>
-              <FontIcon
-                style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                className="material-icons">
-                  delete_forever
-              </FontIcon>
-              <div className="sunshine-sidebar-posts-item-delete-overlay" />
+        <C.SunshineListItem hover={hover}>
+          <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+            <Typography variant="body2">
+              <Link to={Users.getProfileUrl(user)}>
+                { user.displayName }
+              </Link>
+              <br/>
+              <C.MetaInfo>
+                <div>Posts: { user.postCount || 0 }</div>
+                <div>Comments: { user.commentCount || 0 }</div>
+                <hr />
+                <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+                <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
+                <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+                <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+              </C.MetaInfo>
+            </Typography>
+          </C.SidebarHoverOver>
+          <div>
+            <C.MetaInfo>
+              <Link to={Users.getProfileUrl(user)}>
+                  {user.displayName}
+              </Link>
+            </C.MetaInfo>
+            <C.MetaInfo>
+              { user.karma || 0 }
+            </C.MetaInfo>
+            <C.MetaInfo>
+              { user.email }
+            </C.MetaInfo>
+            <C.MetaInfo>
+              { moment(new Date(user.createdAt)).fromNow() }
+            </C.MetaInfo>
           </div>
-          <span
-            className="sunshine-sidebar-posts-action review"
-            title="Mark as Reviewed"
-            onClick={this.handleReview}>
-            <FontIcon
-              style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-              className="material-icons">
-                done
-            </FontIcon>
-          </span>
-        </div>
-      </div>
+
+          { hover && <C.SidebarActionMenu>
+            <C.SidebarAction title="Review" onClick={this.handleReview}>
+              done
+            </C.SidebarAction>
+            <C.SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
+              delete_forever
+            </C.SidebarAction>
+          </C.SidebarActionMenu>}
+        </C.SunshineListItem>
     )
   }
 }
 
 SunshineNewUsersItem.propTypes = {
   user: PropTypes.object.isRequired,
+  hover: PropTypes.bool.isRequired,
+  anchorEl: PropTypes.object,
+  currentUser: PropTypes.object.isRequired,
+  editMutation: PropTypes.func.isRequired,
 }
 
 const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withCurrentUser);
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover);

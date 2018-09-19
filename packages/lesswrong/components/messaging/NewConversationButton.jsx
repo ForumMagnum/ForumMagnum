@@ -6,9 +6,10 @@ Button used to start a new conversation for a given user
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withCurrentUser, withNew } from 'meteor/vulcan:core';
+import { Components, registerComponent, withNew } from 'meteor/vulcan:core';
 import {  withRouter } from 'react-router';
 import Conversations from '../../lib/collections/conversations/collection.js';
+import withUser from '../common/withUser';
 
 class NewConversationButton extends Component {
 
@@ -49,4 +50,4 @@ const withNewOptions = {
   fragmentName: 'newConversationFragment',
 }
 
-registerComponent('NewConversationButton', NewConversationButton, [withNew, withNewOptions], withCurrentUser, withRouter);
+registerComponent('NewConversationButton', NewConversationButton, [withNew, withNewOptions], withUser, withRouter);

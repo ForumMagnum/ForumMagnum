@@ -1,6 +1,7 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
-import React from 'react';
 import { getSetting } from 'meteor/vulcan:lib';
+import React from 'react';
+import withUser from '../common/withUser';
 
 const Home = (props, context) => {
   const { currentUser, router } = props;
@@ -29,9 +30,11 @@ const Home = (props, context) => {
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
       <Components.Section title={recentPostsTitle}
-                          titleComponent= {<div className="recent-posts-title-component">
-                            <Components.PostsViews />
-                          </div>} >
+        titleComponent= {<div className="recent-posts-title-component">
+          <Components.PostsViews />
+        </div>}
+        subscribeLinks={<Components.SubscribeWidget view={recentPostsTerms.view} />}
+      >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments">
@@ -41,4 +44,6 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withCurrentUser);
+// TODO put back withStyles?
+registerComponent('Home', Home, withUser);
+

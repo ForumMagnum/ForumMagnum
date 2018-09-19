@@ -1,8 +1,9 @@
-import { Components, registerComponent, getFragment, withMessages, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
+import withUser from '../common/withUser';
 
 const SequencesNewForm = (props, context) => {
   if (props.currentUser) {
@@ -28,4 +29,4 @@ const SequencesNewForm = (props, context) => {
   }
 }
 
-registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withRouter, withCurrentUser);
+registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withRouter, withUser);

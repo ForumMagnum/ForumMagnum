@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
@@ -6,60 +6,12 @@ import { withRouter, Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
+import postViewSections from '../../lib/sections.js'
+import withUser from '../common/withUser';
 
-const viewDataDict = {
-  'frontpage': {
-    label:'Frontpage Posts',
-    description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the EA community.",
-    includes: "(includes curated content and frontpage posts)",
-    rssView: "frontpage-rss",
-    rss:true
-  },
-  'community': {
-    label: 'All Posts',
-    description: "Includes personal and community blogposts\n (as well as frontpage).",
-    categoryIcon:"person",
-    rssView: "all-posts-rss",
-    rss:true
-  },
-  'meta': {
-    label: 'Community',
-    description: "Discussion about the EA Community and the EA Forum itself",
-    categoryIcon:"details",
-    rssView: "community-rss",
-    rss:true
-  },
-  'daily': {
-    label: 'Daily',
-    description: "Daily - All posts on the EA Forum, sorted by date",
-    rss:false
-  },
-  'more': {
-    label: '...',
-    description: "See more options",
-    rss:false
-  },
-  'pending': 'pending posts',
-  'rejected': 'rejected posts',
-  'scheduled': 'scheduled posts',
-  'all_drafts': 'all drafts',
-}
 // TODO replace list with single value
 const defaultViews = ["frontpage"];
-const defaultExpandedViews = ["community"];
-
-const ChipStyle = {
-  display: "inline-block",
-  backgroundColor: "transparent",
-  fontSize: "16px",
-  fontStyle: "italic",
-  color: "rgba(0, 0, 0, .45)",
-  paddingLeft: "3px",
-  paddingRight: "0px",
-  lineHeight: "25px",
-  cursor: "pointer",
-  textDecoration: "none"
-}
+const defaultExpandedViews = ["community"]; // TODO ??
 
 
 class PostsViews extends Component {
@@ -72,7 +24,7 @@ class PostsViews extends Component {
     }
   }
 
-  handleChange = (view) => {
+  handleChange = (view, event) => {
     const { router } = this.props;
     const query = { ...router.location.query, view };
     const location = { pathname: router.location.pathname, query };
@@ -108,7 +60,6 @@ class PostsViews extends Component {
               <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
-          { viewData.rss && <div className="view-chip-menu-item"><Components.RSSOutLinkbuilder view={viewData.rssView} /></div> }
         </div>
       </div>
     )
@@ -130,10 +81,10 @@ class PostsViews extends Component {
         {views.map(view => (
           <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
-            <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)}>
+            <span className="view-chip" onClick={() => this.handleChange(view)}>
               <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {viewDataDict[view].label}
-                { this.renderMenu(viewDataDict[view], view)}
+                {postViewSections[view].label}
+                { this.renderMenu(postViewSections[view], view)}
               </Components.SectionSubtitle>
             </span>
           </div>
@@ -148,29 +99,33 @@ class PostsViews extends Component {
                   {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
                 )}
               >
-                <span style={ChipStyle} className="view-chip" onClick={() => this.handleChange(view)} >
+                <span className="view-chip" onClick={() => this.handleChange(view)} >
                   <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {viewDataDict[view].label}
-                    { this.renderMenu(viewDataDict[view])}
+                    {postViewSections[view].label}
+                    { this.renderMenu(postViewSections[view])}
                   </Components.SectionSubtitle>
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div className="posts-view-button"><span style={ChipStyle} className="view-chip">
+            {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+<<<<<<< HEAD
                 <Link to="/community">Community { this.renderMenu(viewDataDict["meta"])}</Link>
+=======
+                <Link to="/meta">Meta</Link> { this.renderMenu(postViewSections["meta"])}
+>>>>>>> devel
               </Components.SectionSubtitle></span>
             </div>}
-            {!props.hideDaily && <span style={ChipStyle} className="view-chip">
+            {!props.hideDaily && <span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/daily">Daily { this.renderMenu(viewDataDict["daily"])}</Link>
+                <Link to="/daily">Daily</Link> { this.renderMenu(postViewSections["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
-            <a style={ChipStyle} className="view-chip more"
+            <a className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
-              { this.renderMenu(viewDataDict["more"])}
+              { this.renderMenu(postViewSections["more"])}
             </a>
           </span>
         }
@@ -196,4 +151,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('PostsViews', PostsViews, withRouter, withCurrentUser, [withEdit, withEditOptions]);
+registerComponent('PostsViews', PostsViews, withRouter, withUser, [withEdit, withEditOptions]);

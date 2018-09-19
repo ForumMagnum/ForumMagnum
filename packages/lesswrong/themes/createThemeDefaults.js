@@ -78,7 +78,7 @@ const createLWTheme = (theme) => {
       },
       display2: {
         color: grey[800],
-        fontSize: '2rem',
+        fontSize: '2.8rem',
         marginTop: '1em'
       },
       display3: {
@@ -92,6 +92,9 @@ const createLWTheme = (theme) => {
         fontSize: 18,
         fontWeight: 400,
         marginBottom: 3,
+      },
+      caption: {
+        fontSize: ".9rem"
       },
       blockquote: {
         fontWeight: 400,
@@ -131,7 +134,7 @@ const createLWTheme = (theme) => {
       },
       code: {
         fontFamily: monoStack,
-        fontSize: ".85em",
+        fontSize: ".9em",
         fontWeight: 400,
         backgroundColor: grey[100],
         borderRadius: 2,

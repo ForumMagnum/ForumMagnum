@@ -53,17 +53,20 @@ class DeleteCommentMenuItem extends PureComponent {
 
     const modalActions = [
       <FlatButton
+        key="cancel"
         label="Cancel"
         primary={true}
         onClick={()=>{this.setState({open:false})}}
       />,
       <FlatButton
+        key="delete_without_trace"
         label="Delete Without Trace"
         primary={true}
         style={{float:"left"}}
         onClick={this.handleDelete}
       />,
       <FlatButton
+        key="delete"
         label="Delete"
         primary={false}
         onClick={this.handleDeletePublic}

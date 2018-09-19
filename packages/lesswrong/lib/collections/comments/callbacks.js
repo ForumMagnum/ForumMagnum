@@ -1,6 +1,6 @@
 import React from 'react';
 import { Comments, Posts } from "meteor/example-forum";
-import { addCallback, removeCallback, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { performVoteServer } from 'meteor/vulcan:voting';
@@ -120,9 +120,6 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
 
 addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
 
-//LESSWRONG: Remove original LWCommentsNewUpvoteOwnComment from Vulcan
-removeCallback('comments.new.after', 'CommentsNewUpvoteOwnComment');
-
 /**
  * @summary Make users upvote their own new comments
  */
@@ -174,7 +171,8 @@ addCallback("comments.new.async", CommentsAlignmentNew);
 
 function NewCommentNeedsReview (comment) {
   const user = Users.findOne({_id:comment.userId})
-  if (user.karma < 100) {
+  const karma = user.karma || 0
+  if (karma < 100) {
     Comments.update({_id:comment._id}, {$set: {needsReview: true}});
   }
 }

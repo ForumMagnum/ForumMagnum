@@ -16,7 +16,8 @@ class HeadTags extends PureComponent {
   render() {
 
     const url = this.props.url || Utils.getSiteUrl();
-    const title = this.props.title || getSetting('title', 'My App');
+    const appTitle = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+    const title = this.props.title ? `${this.props.title} - ${appTitle}` : appTitle;
     const description = this.props.description || getSetting('tagline') || getSetting('description');
 
     return (

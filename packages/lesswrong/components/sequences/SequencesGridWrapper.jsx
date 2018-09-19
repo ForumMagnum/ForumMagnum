@@ -1,7 +1,8 @@
-import { Components, registerComponent, withCurrentUser, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React from 'react';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import classNames from 'classnames';
+import withUser from '../common/withUser';
 
 //TODO: What do the terms do in other list components? Check posts list.
 const SequencesGridWrapper = ({
@@ -16,8 +17,7 @@ const SequencesGridWrapper = ({
   loadingMore,
   showLoadMore = false,
   showAuthor = false,
-  listMode = false,
-  error}) => {
+  listMode = false}) => {
   if (results && results.length) {
     // render grid of sequences
     return (<div className={classNames(className, 'sequences-grid-wrapper')}>
@@ -32,7 +32,6 @@ const SequencesGridWrapper = ({
   } else {
     // TODO: Replace with SequencesNoResults
     return (<div className={classNames(className, 'sequences-grid')}>
-      {error ? <Error error={error} /> : null }
       <div className="sequences-grid-content">
         <Components.PostsNoResults/>
       </div>
@@ -49,4 +48,4 @@ const options = {
 }
 
 
-registerComponent('SequencesGridWrapper', SequencesGridWrapper, [withList, options] ,withCurrentUser);
+registerComponent('SequencesGridWrapper', SequencesGridWrapper, [withList, options], withUser);

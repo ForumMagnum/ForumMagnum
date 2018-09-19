@@ -38,8 +38,12 @@ const moreActionsMenuIconStyle = {
 
 const styles = theme => ({
   commentStyling: {
-    marginTop: ".5em",
     ...commentBodyStyles(theme)
+  },
+  author: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    fontWeight: 600,
   },
   postTitle: {
     marginRight: 5,
@@ -122,14 +126,14 @@ class CommentsItem extends Component {
   }
 
   renderExcerpt() {
-    const { comment } = this.props
+    const { comment, classes } = this.props
 
     if (comment.body) {
       let commentExcerpt = comment.body.substring(0,300).split("\n\n");
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className="recent-comments-item-text comments-item-text content-body">
+      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)}>
         {commentExcerpt}
         <p>{lastElement + "..."}
           <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
@@ -146,7 +150,7 @@ class CommentsItem extends Component {
 
     const commentBody = this.props.collapsed ? "" : (
       <div>
-        {this.state.showEdit ? this.renderEdit() : this.renderComment()}
+        {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
         {!comment.deleted && this.renderCommentBottom()}
       </div>
     )
@@ -192,7 +196,7 @@ class CommentsItem extends Component {
               }
               { comment.deleted || comment.hideAuthor || !comment.user ?
                 ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                <span> <Components.UsersName user={comment.user}/> </span>
+                <span className={classes.author}> <Components.UsersName user={comment.user}/> </span>
               }
               <div className="comments-item-date">
                 { !postPage ?
@@ -281,11 +285,13 @@ class CommentsItem extends Component {
                   rightIcon={<ArrowDropRight />}
                   menuItems={[
                     <Components.BanUserFromPostMenuItem
+                      key='banUserFromPost'
                       comment={comment}
                       post={post}
                       currentUser={currentUser}
                     />,
                     <Components.BanUserFromAllPostsMenuItem
+                      key='banUserFromAllPosts'
                       comment={comment}
                       post={post}
                       currentUser={currentUser}
@@ -382,17 +388,6 @@ class CommentsItem extends Component {
     }
   }
 
-  renderComment = () =>  {
-    const { comment, classes } = this.props;
-    const htmlBody = {__html: comment.htmlBody};
-    return (
-      <div className={classes.commentStyling}>
-        {htmlBody && !comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
-        {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
-      </div>
-    )
-  }
-
   renderReply = () => {
     const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
@@ -420,5 +415,8 @@ class CommentsItem extends Component {
       />
 }
 
-registerComponent('CommentsItem', CommentsItem, withRouter, withMessages, withStyles(styles));
+registerComponent('CommentsItem', CommentsItem,
+  withRouter, withMessages,
+  withStyles(styles, { name: "CommentsItem" })
+);
 export default CommentsItem;

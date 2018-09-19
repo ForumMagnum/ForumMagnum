@@ -1,5 +1,6 @@
 import { Comments, Posts } from "meteor/example-forum";
 import { addCallback, editMutation } from 'meteor/vulcan:core';
+import Users from "meteor/vulcan:users";
 
 function ModerateCommentsPostUpdate (comment, oldComment) {
   const afComments = Comments.find({
@@ -43,3 +44,12 @@ function AlignmentCommentsNewOperations (comment) {
   }
 }
 addCallback('comments.new.async', AlignmentCommentsNewOperations);
+
+async function CommentsMoveToAFUpdatesAFPostCount (comment) {
+  const afCommentCount = Comments.find({userId:comment.userId, af: true}).count()
+  Users.update({_id:comment.userId}, {$set: {afCommentCount: afCommentCount}})
+}
+
+addCallback("comments.alignment.async", CommentsMoveToAFUpdatesAFPostCount);
+addCallback("comments.edit.async", CommentsMoveToAFUpdatesAFPostCount);
+addCallback("comments.new.async", CommentsMoveToAFUpdatesAFPostCount);

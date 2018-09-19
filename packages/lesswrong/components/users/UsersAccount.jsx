@@ -1,7 +1,8 @@
-import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import withUser from '../common/withUser';
 
 const UsersAccount = (props, /* context*/) => {
 
@@ -21,4 +22,4 @@ UsersAccount.propTypes = {
 
 UsersAccount.displayName = 'UsersAccount';
 
-registerComponent('UsersAccount', UsersAccount, withCurrentUser);
+registerComponent('UsersAccount', UsersAccount, withUser);

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
-import { Components, withCurrentUser, AdminColumns, registerComponent } from 'meteor/vulcan:core';
+import { Components, AdminColumns, registerComponent } from 'meteor/vulcan:core';
 import { Bans, LWEvents } from 'meteor/lesswrong';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
+import withUser from '../common/withUser';
 
 // import '../modules/columns.js';
 
@@ -194,4 +195,4 @@ class AdminHome extends PureComponent {
   }
 }
 
-registerComponent('AdminHome', AdminHome, withCurrentUser);
+registerComponent('AdminHome', AdminHome, withUser);

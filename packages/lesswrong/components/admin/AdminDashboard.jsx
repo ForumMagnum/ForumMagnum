@@ -1,14 +1,15 @@
 import React from 'react';
-import { Components, withCurrentUser, AdminColumns, registerComponent} from 'meteor/vulcan:core';
+import { Components, AdminColumns, registerComponent} from 'meteor/vulcan:core';
 import Bans from '../../lib/collections/bans/collection.js';
 import LWEvents from '../../lib/collections/lwevents/collection.js';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import { addAdminColumn } from 'meteor/vulcan:core';
+import withUser from '../common/withUser';
 
 const UserIPsDisplay = ({column, document}) => {
   return <div>
-    {document.IPs && document.IPs.map(ip => <div>{ip}</div>)}
+    {document.IPs && document.IPs.map(ip => <div key={ip}>{ip}</div>)}
   </div>
 }
 
@@ -95,4 +96,4 @@ const AdminHome = ({ currentUser }) =>
     </Components.ShowIf>
   </div>
 
-registerComponent("AdminDashboard", AdminHome, withCurrentUser)
+registerComponent("AdminDashboard", AdminHome, withUser)

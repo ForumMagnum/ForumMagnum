@@ -12,7 +12,6 @@ const styles = theme => ({
       padding: theme.spacing.unit,
       borderBottom: "solid 1px",
       borderBottomColor: grey[200],
-      maxWidth:450,
       '&:hover': {
         backgroundColor: grey[100],
       }
@@ -39,10 +38,10 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
           {hit.baseScore} points
         </Components.MetaInfo>
         {hit.postedAt && <Components.MetaInfo> {moment(new Date(hit.postedAt)).fromNow()} </Components.MetaInfo>}
-        <Snippet attributeName="body" hit={hit} tagName="mark" />
+        <div><Snippet attributeName="body" hit={hit} tagName="mark" /></div>
     </Link>
   </div>
 }
 
 
-registerComponent("PostsSearchHit", PostsSearchHit, withRouter, withStyles(styles));
+registerComponent("PostsSearchHit", PostsSearchHit, withRouter, withStyles(styles, { name: "PostsSearchHit" }));

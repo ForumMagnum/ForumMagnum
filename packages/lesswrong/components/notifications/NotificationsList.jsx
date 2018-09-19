@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { List, ListItem } from 'material-ui/List';
-import { Components, registerComponent, withList, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
+import withUser from '../common/withUser';
 
 class NotificationsList extends Component {
 
@@ -24,7 +25,7 @@ class NotificationsList extends Component {
         </List>
       )
     } else {
-      return <div className="notifications-list-empty"> You don't have any notifications yet!</div>
+      return <div className="notifications-list-empty"> You don{"'"}t have any notifications yet!</div>
     }
   }
 }
@@ -42,4 +43,4 @@ const withEditOptions = {
   fragmentName: 'NotificationsList',
 };
 
-registerComponent('NotificationsList', NotificationsList, [withList, options], [withEdit, withEditOptions], withCurrentUser);
+registerComponent('NotificationsList', NotificationsList, [withList, options], [withEdit, withEditOptions], withUser);

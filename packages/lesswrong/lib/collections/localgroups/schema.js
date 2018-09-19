@@ -20,14 +20,26 @@ const schema = {
     }
   },
 
+
+  name: {
+    type: String,
+    searchable: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    order:10,
+    insertableBy: ['members'],
+    control: "MuiInput",
+    label: "Local Group Name"
+  },
+
   organizerIds: {
     type: Array,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    hidden: true,
-    optional: true,
+    order:20,
     control: "UsersListEditor",
+    label: "Add Organizers",
     resolveAs: {
       fieldName: 'organizers',
       type: '[User]',
@@ -53,16 +65,6 @@ const schema = {
     editableBy: ['members'],
     onInsert: () => new Date(),
     hidden: true,
-  },
-
-  name: {
-    type: String,
-    searchable: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
-    control: "MuiInput",
-    label: "Local Group Name"
   },
 
   types: {

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList, Loading, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
 import { Posts, Comments } from 'meteor/example-forum';
+import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({
   results,
@@ -21,10 +22,11 @@ const RecentDiscussionThreadsList = ({
       <div className="discussion-thread-list">
         {loading || !results ? <Loading /> :
         <div className="discussion-threads">
-          {results.map(post =>
+          {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
+              postCount={i}
               terms={{view:threadView, postId:post._id}}
               currentUser={currentUser}
               editMutation={editMutation}/>
@@ -50,4 +52,4 @@ const withEditOptions = {
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withCurrentUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser);

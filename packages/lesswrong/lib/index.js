@@ -16,6 +16,9 @@ import './modules/alignment-forum/posts/custom_fields.js';
 import './modules/alignment-forum/posts/callbacks.js';
 import './modules/alignment-forum/comments/custom_fields.js';
 import './modules/alignment-forum/comments/callbacks.js';
+import './modules/alignment-forum/sequences/custom_fields.js'
+import './modules/alignment-forum/sequences/callbacks.js';
+
 
 // Subscriptions
 import './collections/subscription_fields.js';
@@ -73,6 +76,7 @@ import './collections/bans/admin.js';
 import Sequences from './collections/sequences/collection.js';
 import './collections/sequences/views.js';
 import './collections/sequences/utils.js';
+import './collections/sequences/helpers.js';
 
 import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';

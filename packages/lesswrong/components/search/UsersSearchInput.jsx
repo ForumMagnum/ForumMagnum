@@ -23,4 +23,6 @@ const UsersSearchInput = ({ inputProps, classes }) => <Input
         </InputAdornment>}
       />
 
-registerComponent("UsersSearchInput", UsersSearchInput, withStyles(styles));
+registerComponent("UsersSearchInput", UsersSearchInput,
+  withStyles(styles, { name: "UsersSearchInput" })
+);

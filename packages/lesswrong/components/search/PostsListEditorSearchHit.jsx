@@ -42,4 +42,4 @@ const PostsListEditorSearchHit = ({hit, clickAction, router, classes}) => {
 }
 
 
-registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, withRouter, withStyles(styles));
+registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, withRouter, withStyles(styles, { name: "PostsListEditorSearchHit" }));

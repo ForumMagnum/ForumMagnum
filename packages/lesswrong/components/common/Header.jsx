@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withEdit, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
@@ -17,6 +17,7 @@ import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
+import withUser from '../common/withUser';
 
 const getTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -141,7 +142,7 @@ class Header extends Component {
                 </Typography>
                 <div className={classes.rightHeaderItems}>
                   <NoSSR><Components.ErrorBoundary>
-                    <Components.SearchBar color={getTextColor(theme)} />
+                    <Components.SearchBar />
                   </Components.ErrorBoundary></NoSSR>
                   {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
                   {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
@@ -175,4 +176,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());
