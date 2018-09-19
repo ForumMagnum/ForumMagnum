@@ -1066,11 +1066,13 @@ Posts.addField([
   },
 ]);
 
+export const makeEditableOptions = {
+  formGroup: formGroups.content,
+  adminFormGroup: formGroups.adminOptions,
+  order: 25
+}
+
 makeEditable({
   collection: Posts,
-  options: {
-    formGroup: formGroups.content,
-    adminFormGroup: formGroups.adminOptions,
-    order: 25
-  }
+  options: makeEditableOptions
 })

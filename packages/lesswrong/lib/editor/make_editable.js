@@ -24,7 +24,7 @@ export const makeEditable = ({collection, options = {}}) => {
     adminFormGroup,
     permissions,
     fieldName,
-    order
+    order,
   } = options
 
   collection.addField([
@@ -66,6 +66,7 @@ export const makeEditable = ({collection, options = {}}) => {
         insertableBy: ['admins'],
         control: "textarea",
         group: adminFormGroup,
+        hidden: !adminFormGroup, // Only display htmlBody if admin form group is given
       }
     },
 
