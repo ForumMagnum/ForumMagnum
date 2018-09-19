@@ -25,4 +25,4 @@ CommentBody.propTypes = {
 };
 
 
-registerComponent('CommentBody', CommentBody, withStyles(styles));
+registerComponent('CommentBody', CommentBody, withStyles(styles, {name: "CommentBody"}));

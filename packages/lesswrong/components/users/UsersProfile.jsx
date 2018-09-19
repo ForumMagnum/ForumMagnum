@@ -1,18 +1,35 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, replaceComponent, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
 import Users from "meteor/vulcan:users";
-import FontIcon from 'material-ui/FontIcon';
-import withUser from '../common/withUser'
+import StarIcon from '@material-ui/icons/Star'
+import DescriptionIcon from '@material-ui/icons/Description'
+import MessageIcon from '@material-ui/icons/Message'
+import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import withUser from '../common/withUser';
 
-
-const iconStyle = {
-  color: 'rgba(0,0,0,0.5)',
-  fontSize: '18px',
-  verticalAlign: 'sub',
-  marginRight: '3px'
-}
+const styles = theme => ({
+  meta: {
+    display: "flex",
+    alignItems: "center",
+    [theme.breakpoints.up('md')]: {
+      justifyContent: "flex-end",
+    }
+  },
+  icon: {
+    '&$specificalz': {
+      fontSize: 18,
+      color: 'rgba(0,0,0,0.5)',
+      marginRight: 4
+    }
+  },
+  // Dark Magick
+  // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
+  specificalz: {}
+})
 
 const UsersProfile = (props) => {
   if (props.loading) {
@@ -34,49 +51,49 @@ const UsersProfile = (props) => {
       const user = props.document;
       return (<div className="users-profile-actions">
         { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        {props.currentUser && props.currentUser.isAdmin && <Components.ModalTrigger label="Register new RSS Feed">
+        {props.currentUser && props.currentUser.isAdmin && <Components.DialogGroup actions={[]} trigger={<Components.SectionSubtitle>Register new RSS Feed</Components.SectionSubtitle>}>
           <div><Components.newFeedButton user={user} /></div>
-        </Components.ModalTrigger>}
+        </Components.DialogGroup>}
         <Components.ShowIf check={Users.options.mutations.edit.check} document={user}>
-          <div><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></div>
+          <Components.SectionSubtitle><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></Components.SectionSubtitle>
         </Components.ShowIf>
-        { props.currentUser && props.currentUser._id != user._id && <div><Components.NewConversationButton user={user}> <a>Send a message</a> </Components.NewConversationButton></div> }
-        { props.currentUser && props.currentUser._id !== user._id && <div><Components.SubscribeTo document={user} /></div> }
+        { props.currentUser && props.currentUser._id != user._id && <Components.SectionSubtitle><Components.NewConversationButton user={user}> <a>Send a message</a> </Components.NewConversationButton></Components.SectionSubtitle> }
+        { props.currentUser && props.currentUser._id !== user._id && <Components.SectionSubtitle><Components.SubscribeTo document={user} /></Components.SectionSubtitle> }
       </div>)
     }
 
     const renderMeta = (props) => {
-      const {karma, postCount, commentCount, afKarma} = props.document;
+      const { classes } = props
+      const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
 
-      return <div className="users-profile-header-meta">
-        <div title="Karma" className="users-profile-header-meta-karma">
-          <FontIcon className="material-icons" style={iconStyle}>star</FontIcon>
+      return <div className={classes.meta}>
+        { !getSetting('AlignmentForum', false) && <StarIcon className={classNames(classes.icon, classes.specificalz)}/>}
+        { !getSetting('AlignmentForum', false) && <Components.MetaInfo title="Karma">
           {karma || 0}
-        </div>
-        <div title="Posts" className="users-profile-header-meta-post-count">
-          <FontIcon className="material-icons" style={iconStyle}>description</FontIcon>
-          {postCount || 0}
-        </div>
-        <div title="Comments" className="users-profile-header-meta-comment-count">
-          <FontIcon className="material-icons" style={iconStyle}>message</FontIcon>
-          {commentCount || 0}
-        </div>
-        { afKarma ?
-          <div title="Comments" className="users-profile-header-meta-comment-count">
-            AF {afKarma || 0}
-          </div>
-          : null
+        </Components.MetaInfo>}
+        { afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
+        { afKarma && <Components.MetaInfo title="Alignment Karma">
+            {afKarma || 0}
+          </Components.MetaInfo>
         }
+        <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
+        <Components.MetaInfo title="Posts">
+          { !getSetting('AlignmentForum', false) ? postCount || 0 : afPostCount || 0}
+        </Components.MetaInfo>
+        <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
+        <Components.MetaInfo title="Comments">
+          { !getSetting('AlignmentForum', false) ? commentCount || 0 : afCommentCount || 0}
+        </Components.MetaInfo>
       </div>
     }
 
     const renderUserProfileHeader = (props) => {
       return (
         <Components.Section title="User Profile" titleComponent={ renderMeta(props) }>
-          { props.document.bio &&
+          { user.bio &&
             <div className="content-body">
               <div className="users-profile-bio">
-                <p>{ props.document.bio }</p>
+                <p>{ user.bio }</p>
               </div>
             </div>}
           { renderActions(props) }
@@ -90,7 +107,7 @@ const UsersProfile = (props) => {
             <Components.Section title="My Drafts"
               titleComponent= {
                 <div className="recent-posts-title-component users-profile-drafts">
-                  <div className="new-post-link"><Link to={"/newPost"}> new blog post </Link></div>
+                  <Components.SectionSubtitle><Link to={"/newPost"}> new blog post </Link></Components.SectionSubtitle>
                 </div>
               }
             >
@@ -116,7 +133,11 @@ const UsersProfile = (props) => {
     }
 
     const displaySequenceSection = (canEdit, user)  => {
-      return (canEdit && user.sequenceDraftCount || user.sequenceCount) || (!canEdit && user.sequenceCount)
+      if (getSetting('AlignmentForum', false)) {
+          return (canEdit && user.afSequenceDraftCount || user.afSequenceCount) || (!canEdit && user.afSequenceCount)
+      } else {
+          return (canEdit && user.sequenceDraftCount || user.sequenceCount) || (!canEdit && user.sequenceCount)
+      }
     }
 
     const renderSequences = (props) => {
@@ -167,4 +188,4 @@ const options = {
   fragmentName: 'UsersProfile',
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withDocument, options], withRouter);
+registerComponent('UsersProfile', UsersProfile, withUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));

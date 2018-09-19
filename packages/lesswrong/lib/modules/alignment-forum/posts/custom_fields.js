@@ -2,7 +2,6 @@ import { Posts } from "meteor/example-forum";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
 
 Posts.addField([
-  // This post will appear in alignment forum view
   {
     fieldName: 'af',
     fieldSchema: {

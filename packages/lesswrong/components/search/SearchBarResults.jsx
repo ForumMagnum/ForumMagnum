@@ -93,4 +93,4 @@ class SearchBarResults extends Component {
   }
 }
 
-registerComponent("SearchBarResults", SearchBarResults, withStyles(styles));
+registerComponent("SearchBarResults", SearchBarResults, withStyles(styles, {name: "SearchBarResults"}));

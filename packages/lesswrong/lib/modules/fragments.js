@@ -501,10 +501,14 @@ registerFragment(`
     groups
     # example-forum
     postCount
+    afPostCount
     frontpagePostCount
     # example-forum
     commentCount
+    afCommentCount
     sequenceCount
+    afSequenceCount
+    afSequenceDraftCount
     sequenceDraftCount
     moderationStyle
     bannedUserIds

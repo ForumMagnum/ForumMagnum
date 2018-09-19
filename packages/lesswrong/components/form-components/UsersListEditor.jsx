@@ -15,7 +15,7 @@ const sortableItemStyles = theme => ({
 
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableItem = withStyles(sortableItemStyles)(SortableElement(({userId, currentUser, removeItem, classes}) =>
+const SortableItem = withStyles(sortableItemStyles, {name: "SortableItem"})(SortableElement(({userId, currentUser, removeItem, classes}) =>
   <li className={classes.root}>
     <Components.SingleUsersItemWrapper documentId={userId} currentUser={currentUser} removeItem={removeItem} />
   </li>
@@ -30,7 +30,7 @@ const sortableListStyles = theme => ({
 })
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableList = withStyles(sortableListStyles)(SortableContainer(({items, currentUser, removeItem, classes}) => {
+const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(SortableContainer(({items, currentUser, removeItem, classes}) => {
   return (
     <div className={classes.root}>
       {items.map((userId, index) => (
