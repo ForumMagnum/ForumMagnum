@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import Badge from 'material-ui/Badge';
-import { Components, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withList } from 'meteor/vulcan:core';
 import IconButton from 'material-ui/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const badgeContainerStyle = {
   padding: 'none',
@@ -56,5 +57,5 @@ const options = {
 export default defineComponent({
   name: 'NotificationsMenuButton',
   component: NotificationsMenuButton,
-  hocs: [ [withList, options], withCurrentUser ]
+  hocs: [ [withList, options], withUser ]
 });

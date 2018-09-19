@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from 'meteor/example-forum';
 import { Link } from 'react-router'
@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { Posts } from 'meteor/example-forum';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
+import withUser from '../common/withUser';
 
 class SunshineReportedCommentsItem extends Component {
 
@@ -101,6 +102,6 @@ registerComponent(
   'SunshineReportedCommentsItem',
   SunshineReportedCommentsItem,
   [withEdit, withEditOptions],
-  withCurrentUser,
+  withUser,
   withHover
 );

@@ -3,7 +3,6 @@ import {
   Components,
   withDocument,
   registerComponent,
-  withCurrentUser,
 } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
@@ -14,6 +13,8 @@ import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
+
 import SequencesEditForm from './SequencesEditForm';
 import ChaptersList from './ChaptersList';
 import ChaptersNewForm from './ChaptersNewForm';
@@ -140,5 +141,5 @@ export default defineComponent({
   component: SequencesPage,
   styles: styles,
   register: false,
-  hocs: [ [withDocument, options], withCurrentUser ]
+  hocs: [ [withDocument, options], withUser ]
 });

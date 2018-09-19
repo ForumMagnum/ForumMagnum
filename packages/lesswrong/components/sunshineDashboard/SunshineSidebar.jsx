@@ -1,7 +1,8 @@
-import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
@@ -76,6 +77,5 @@ export default defineComponent({
   name: 'SunshineSidebar',
   component: SunshineSidebar,
   styles: styles,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });
-

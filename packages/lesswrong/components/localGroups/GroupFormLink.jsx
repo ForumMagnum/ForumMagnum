@@ -1,10 +1,11 @@
-import { Components, withCurrentUser, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, getFragment, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import Dialog from 'material-ui/Dialog';
 import classNames from "classnames";
 import { withRouter } from 'react-router'
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class GroupFormLink extends Component {
   constructor(props, context) {
@@ -71,5 +72,5 @@ class GroupFormLink extends Component {
 export default defineComponent({
   name: 'GroupFormLink',
   component: GroupFormLink,
-  hocs: [ withCurrentUser, withMessages, withRouter ]
+  hocs: [ withUser, withMessages, withRouter ]
 });

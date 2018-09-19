@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser, withMessages, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
@@ -8,6 +8,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { withRouter } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   header: {
@@ -83,5 +84,5 @@ export default defineComponent({
   name: 'UsersEditForm',
   component: UsersEditForm,
   styles: styles,
-  hocs: [ withMessages, withCurrentUser, withRouter,  ]
+  hocs: [ withMessages, withUser, withRouter,  ]
 });

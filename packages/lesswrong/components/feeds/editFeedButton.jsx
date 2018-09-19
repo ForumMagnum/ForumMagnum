@@ -5,9 +5,10 @@
 // */
 //
 // import React, { Component } from 'react';
-// import { Components, registerComponent, withCurrentUser, getFragment } from 'meteor/vulcan:core';
+// import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 // import { withRouter } from 'react-router';
 // import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+// import withUser from '../common/withUser';
 //
 // class editFeedButton extends Component {
 //   render() {
@@ -32,4 +33,4 @@
 //     }
 // }
 //
-// registerComponent('editFeedButton', editFeedButton, withCurrentUser, withRouter);
+// registerComponent('editFeedButton', editFeedButton, withUser, withRouter);

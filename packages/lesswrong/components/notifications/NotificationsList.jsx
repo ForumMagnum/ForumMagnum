@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { List, ListItem } from 'material-ui/List';
-import { Components, withList, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, withList, withEdit } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class NotificationsList extends Component {
 
@@ -46,5 +47,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'NotificationsList',
   component: NotificationsList,
-  hocs: [ [withList, options], [withEdit, withEditOptions], withCurrentUser ]
+  hocs: [ [withList, options], [withEdit, withEditOptions], withUser ]
 });

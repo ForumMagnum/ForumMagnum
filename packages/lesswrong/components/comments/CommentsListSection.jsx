@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import {
-  withCurrentUser,
   Components,
   getSetting
 } from 'meteor/vulcan:core';
@@ -15,6 +14,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   meta: {
@@ -164,5 +164,5 @@ export default defineComponent({
   name: "CommentsListSection",
   component: CommentsListSection,
   styles: styles,
-  hocs: [ withCurrentUser, withRouter ]
+  hocs: [ withUser, withRouter ]
 });

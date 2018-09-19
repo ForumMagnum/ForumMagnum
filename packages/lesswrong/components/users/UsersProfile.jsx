@@ -1,10 +1,11 @@
-import { Components, registerComponent, withDocument, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 
 const iconStyle = {
@@ -168,5 +169,5 @@ const options = {
 export default defineComponent({
   name: 'UsersProfile',
   component: UsersProfile,
-  hocs: [ withCurrentUser, withRouter, [withDocument, options] ]
+  hocs: [ withUser, withRouter, [withDocument, options] ]
 });

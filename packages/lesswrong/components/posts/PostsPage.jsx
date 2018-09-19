@@ -3,7 +3,6 @@ import {
   getRawComponent,
   withDocument,
   getActions,
-  withCurrentUser,
   withMutation } from 'meteor/vulcan:core';
 
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
@@ -22,6 +21,7 @@ import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
     header: {
@@ -421,7 +421,7 @@ export default defineComponent({
   styles: styles,
   hocs: [
     // HOC to give access to the current user
-    withCurrentUser,
+    withUser,
     // HOC to give access to LW2 event API
     withNewEvents,
     // HOC to give access to router and params

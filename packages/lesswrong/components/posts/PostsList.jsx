@@ -1,4 +1,4 @@
-import { Components, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
+import { Components, withList, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from 'meteor/example-forum';
@@ -6,6 +6,7 @@ import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const Error = ({error}) => <Alert className="flash-message" bsStyle="danger">
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -31,7 +32,9 @@ const PostsList = ({
     if (results && results.length) {
       return <div>
         <div className="posts-list-wrapper">
-          {results.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser} terms={terms} />)}
+          {results.map(post => <Components.ErrorBoundary key={post._id}>
+            <Components.PostsItem post={post} currentUser={currentUser} terms={terms} />
+          </Components.ErrorBoundary>)}
         </div>
         {showLoadMore ? <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
@@ -80,5 +83,5 @@ const options = {
 export default defineComponent({
   name: 'PostsList',
   component: PostsList,
-  hocs: [ withCurrentUser, [withList, options] ]
+  hocs: [ withUser, [withList, options] ]
 });

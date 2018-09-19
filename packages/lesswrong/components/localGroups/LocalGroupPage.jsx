@@ -1,9 +1,10 @@
-import { Components, withCurrentUser, withMessages, withDocument } from 'meteor/vulcan:core';
+import { Components, withMessages, withDocument } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
 import { Posts } from 'meteor/example-forum';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import CommunityMapWrapper from './CommunityMapWrapper'
 
 class LocalGroupPage extends Component {
@@ -64,5 +65,5 @@ export default defineComponent({
   name: 'LocalGroupPage',
   component: LocalGroupPage,
   register: false,
-  hocs: [ withCurrentUser, withMessages, withRouter, [withDocument, options] ]
+  hocs: [ withUser, withMessages, withRouter, [withDocument, options] ]
 })

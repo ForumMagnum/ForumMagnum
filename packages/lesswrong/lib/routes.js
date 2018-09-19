@@ -297,3 +297,4 @@ if(getSetting('AlignmentForum', false)) {
     componentName: 'Home'
   });
 }
+

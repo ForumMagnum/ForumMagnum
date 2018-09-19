@@ -1,8 +1,9 @@
-import { Components, withCurrentUser } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   recommendedReading: {
@@ -151,5 +152,5 @@ export default defineComponent({
   component: Home,
   name: 'Home',
   styles: styles,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });

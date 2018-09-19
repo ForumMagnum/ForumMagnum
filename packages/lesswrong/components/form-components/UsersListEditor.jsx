@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
-import { Components, withCurrentUser } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 
 const sortableItemStyles = theme => ({
@@ -138,5 +139,5 @@ export default defineComponent({
   name: "UsersListEditor",
   component: UsersListEditor,
   styles: usersListEditorStyles,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });

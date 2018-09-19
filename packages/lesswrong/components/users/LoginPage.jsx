@@ -1,7 +1,8 @@
-import { Components, registerComponent, withCurrentUser, } from 'meteor/vulcan:core';
+import { Components, registerComponent, } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class LoginPage extends Component {
   UNSAFE_componentWillMount() {
@@ -26,5 +27,5 @@ class LoginPage extends Component {
 export default defineComponent({
   name: 'LoginPage',
   component: LoginPage,
-  hocs: [ withCurrentUser, withRouter ]
+  hocs: [ withUser, withRouter ]
 });

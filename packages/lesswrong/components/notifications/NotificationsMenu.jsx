@@ -1,4 +1,4 @@
-import { Components, withCurrentUser, withList } from 'meteor/vulcan:core';
+import { Components, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
@@ -10,6 +10,7 @@ import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection.js'
@@ -130,5 +131,5 @@ const options = {
 export default defineComponent({
   name: 'NotificationsMenu',
   component: NotificationsMenu,
-  hocs: [ withCurrentUser, [withList, options] ]
+  hocs: [ withUser, [withList, options] ]
 });

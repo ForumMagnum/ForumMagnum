@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, withEdit, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, withEdit, getSetting } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
@@ -18,6 +18,7 @@ import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const getTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -173,5 +174,5 @@ export default defineComponent({
   name: 'Header',
   component: Header,
   styles: styles,
-  hocs: [ withRouter, withApollo, [withEdit, withEditOptions], withCurrentUser, muiThemeable(), withTheme() ]
+  hocs: [ withRouter, withApollo, [withEdit, withEditOptions], withUser, muiThemeable(), withTheme() ]
 });

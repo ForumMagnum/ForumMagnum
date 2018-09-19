@@ -1,9 +1,10 @@
-import { Components , withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class SuggestCurated extends Component {
   handleSuggestCurated = () => {
@@ -70,5 +71,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'SuggestCurated',
   component: SuggestCurated,
-  hocs: [ [withEdit, withEditOptions], withCurrentUser ]
+  hocs: [ [withEdit, withEditOptions], withUser ]
 });

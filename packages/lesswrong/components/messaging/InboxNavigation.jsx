@@ -7,7 +7,7 @@ The Navigation for the Inbox components
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Components, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withList } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
@@ -15,6 +15,7 @@ import { Link } from 'react-router';
 import grey from '@material-ui/core/colors/grey';
 import defineComponent from '../../lib/defineComponent';
 import ConversationWrapper from './ConversationWrapper'
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -114,5 +115,5 @@ export default defineComponent({
   component: InboxNavigation,
   styles: styles,
   register: false,
-  hocs: [ [withList, conversationOptions], withCurrentUser, withRouter ]
+  hocs: [ [withList, conversationOptions], withUser, withRouter ]
 });

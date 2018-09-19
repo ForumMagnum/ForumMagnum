@@ -2,7 +2,6 @@ import React, { Component, PureComponent } from 'react';
 import {
   Components,
   withList,
-  withCurrentUser,
   Loading,
   getActions,
   withMutation
@@ -16,6 +15,7 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
@@ -231,7 +231,7 @@ export default defineComponent({
   hocs: [
     [withList, commentsOptions],
     withMutation(mutationOptions),
-    withCurrentUser,
+    withUser,
     withNewEvents,
     connect(mapStateToProps, mapDispatchToProps),
   ]

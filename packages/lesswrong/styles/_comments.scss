@@ -326,40 +326,9 @@ New CSS File
 .comments-edit-form, .comments-new-form{
   position:relative;
   padding-bottom:12px;
-  .input-deleted, .input-spam {
-    position:absolute;
-    bottom:0;
-  }
-  .input-deleted {
-    left:15px;
-  }
-  .input-spam {
-    left:105px;
-  }
-  .input-content {
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
-    border-bottom-color: rgba(0,0,0,0.1);
-    font-size: 18px;
-    .commentEditor {
-      font-size: 16px;
-      padding: 0px;
-      margin-bottom: 0px;
-
-      p {
-        font-size: 16px;
-      }
-    }
-  }
-  .input-deleted {
-    font-size:14px;
-  }
   .form-submit {
     text-align: right;
     margin-right:10px;
-  }
-  .input-body{
-    margin-bottom: $hmargin;
   }
 }
 

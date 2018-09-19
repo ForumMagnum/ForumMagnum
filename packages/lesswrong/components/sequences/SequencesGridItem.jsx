@@ -1,7 +1,6 @@
 import {
   Components,
   registerComponent,
-  withCurrentUser,
   Utils
 } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
@@ -11,6 +10,7 @@ import { Link, withRouter } from 'react-router';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -65,5 +65,5 @@ export default defineComponent({
   name: 'SequencesGridItem',
   component: SequencesGridItem,
   styles: styles,
-  hocs: [ withCurrentUser, withRouter ]
+  hocs: [ withUser, withRouter ]
 });

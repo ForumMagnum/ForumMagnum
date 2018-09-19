@@ -6,8 +6,9 @@ Wrapper for the Inbox components
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, withCurrentUser } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import InboxNavigation from './InboxNavigation'
 
 class InboxWrapper extends Component {
@@ -25,5 +26,5 @@ export default defineComponent({
   name: 'InboxWrapper',
   component: InboxWrapper,
   register: false,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });

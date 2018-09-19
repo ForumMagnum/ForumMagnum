@@ -6,8 +6,9 @@ Component for displaying details about currently selected conversation
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, withCurrentUser } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import ConversationTitleEditForm from './ConversationTitleEditForm';
 
 const styles = theme => ({
@@ -54,5 +55,5 @@ export default defineComponent({
   component: ConversationDetails,
   styles: styles,
   register: false,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });

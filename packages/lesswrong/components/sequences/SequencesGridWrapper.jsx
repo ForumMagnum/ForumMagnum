@@ -1,8 +1,9 @@
-import { Components, registerComponent, withCurrentUser, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React from 'react';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import classNames from 'classnames';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 //TODO: What do the terms do in other list components? Check posts list.
 const SequencesGridWrapper = ({
@@ -51,5 +52,5 @@ const options = {
 export default defineComponent({
   name: 'SequencesGridWrapper',
   component: SequencesGridWrapper,
-  hocs: [ [withList, options], withCurrentUser ]
+  hocs: [ [withList, options], withUser ]
 });

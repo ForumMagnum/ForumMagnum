@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, getDynamicComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, getDynamicComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   postEditor: {
-    minHeight:100,
+    minHeight:250,
     ...editorStyles(theme, postBodyStyles)
+  },
+  commentEditor: {
+    minHeight: 100,
+    ...editorStyles(theme, commentBodyStyles)
   },
   markdownEditor: {
     fontSize: '1.4rem',
@@ -91,9 +96,10 @@ class EditorFormComponent extends Component {
     const AsyncEditor = this.state.editor
     const { editorOverride } = this.state
     const { document, currentUser, formType } = this.props
+    const commentStyles = this.props.form && this.props.form.commentStyles
     const { classes, ...passedDownProps } = this.props
     return (
-      <div>
+      <div className={commentStyles ? classes.commentEditor : classes.postEditor}>
         {!editorOverride && formType !== "new" && document && document.lastEditedAs && document.lastEditedAs !== this.getUserDefaultEditor(currentUser) && this.renderEditorWarning()}
         { this.getCurrentEditorType() === "markdown" &&
           <Components.MuiInput {...passedDownProps} className={classes.markdownEditor} name="body" />
@@ -102,7 +108,7 @@ class EditorFormComponent extends Component {
           <Components.MuiInput {...passedDownProps} className={classes.markdownEditor} name="htmlBody" />
         }
         { this.getCurrentEditorType() === "draft-js" &&
-          <div className={classes.postEditor}> <AsyncEditor {...passedDownProps}/> </div>
+          <div> <AsyncEditor {...passedDownProps}/> </div>
         }
       </div>
 
@@ -118,5 +124,5 @@ export default defineComponent({
   name: 'EditorFormComponent',
   component: EditorFormComponent,
   styles: styles,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });

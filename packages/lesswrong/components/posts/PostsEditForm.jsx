@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, getFragment, withMessages, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from "meteor/example-forum";
 import Users from "meteor/vulcan:users";
 import { withRouter } from 'react-router'
 import Helmet from 'react-helmet';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class PostsEditForm extends PureComponent {
 
@@ -73,5 +74,5 @@ PostsEditForm.contextTypes = {
 export default defineComponent({
   name: 'PostsEditForm',
   component: PostsEditForm,
-  hocs: [ withMessages, withRouter, withCurrentUser ]
+  hocs: [ withMessages, withRouter, withUser ]
 });

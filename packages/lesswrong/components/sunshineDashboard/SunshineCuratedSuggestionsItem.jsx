@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
 
@@ -83,7 +84,7 @@ class SunshineCuratedSuggestionsItem extends Component {
           </Components.SidebarInfo>
           <Components.SidebarInfo>
             <Link to={Users.getProfileUrl(post.user)}>
-                {post.user.displayName}
+                {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>
           {post.postedAt && <Components.SidebarInfo>
@@ -131,6 +132,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'SunshineCuratedSuggestionsItem',
   component: SunshineCuratedSuggestionsItem,
-  hocs: [ [withEdit, withEditOptions], withCurrentUser, withHover ]
+  hocs: [ [withEdit, withEditOptions], withUser, withHover ]
 });
-

@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types'
 import ListGroup from 'react-bootstrap/lib/ListGroup';
 import ListGroupItem from 'react-bootstrap/lib/ListGroupItem';
-import { Components, withList, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withList } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class NotificationsFullscreenList extends Component {
 
@@ -40,5 +41,5 @@ const options = {
 export default defineComponent({
   name: 'NotificationsFullscreenList',
   component: NotificationsFullscreenList,
-  hocs: [ [withList, options], withCurrentUser ]
+  hocs: [ [withList, options], withUser ]
 });

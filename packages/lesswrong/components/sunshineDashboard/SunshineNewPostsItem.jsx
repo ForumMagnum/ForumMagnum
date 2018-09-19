@@ -1,10 +1,11 @@
-import { Components, registerComponent, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
 
@@ -69,7 +70,7 @@ class SunshineNewPostsItem extends Component {
             <Link
               className="sunshine-sidebar-posts-author"
               to={Users.getProfileUrl(post.user)}>
-                {post.user.displayName}
+                {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>
         </div>
@@ -105,6 +106,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'SunshineNewPostsItem',
   component: SunshineNewPostsItem,
-  hocs: [ [withEdit, withEditOptions], withCurrentUser, withHover ]
+  hocs: [ [withEdit, withEditOptions], withUser, withHover ]
 });
-

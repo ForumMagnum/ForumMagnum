@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList, withCurrentUser, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, Utils } from 'meteor/vulcan:core';
+import withUser from '../common/withUser';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from 'meteor/example-forum';
@@ -63,5 +64,5 @@ const options = {
 export default defineComponent({
   name: 'UsersPostsList',
   component: UsersPostsList,
-  hocs: [ withCurrentUser, [withList, options] ]
+  hocs: [ withUser, [withList, options] ]
 });

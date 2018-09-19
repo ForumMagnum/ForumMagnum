@@ -3,6 +3,7 @@ import ReactDOMServer from 'react-dom/server';
 import { Components, Connectors } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
+import { makeEditable } from '../../editor/make_editable.js'
 
 export const formGroups = {
   adminOptions: {
@@ -80,58 +81,6 @@ Posts.addField([
     fieldName: "categoriesIds",
     fieldSchema: {
       hidden: true,
-    }
-  },
-
-
-  /**
-    Ory Editor JSON
-  */
-  {
-    fieldName: 'content',
-    fieldSchema: {
-      type: Object,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
-      control: 'EditorFormComponent',
-      blackbox: true,
-      order: 25,
-      group: formGroups.content,
-      form: {
-        hintText:"Plain Markdown Editor",
-        multiLine:true,
-        fullWidth:true,
-        disableUnderline:true,
-        enableMarkDownEditor: true,
-        minHeight: 400,
-      },
-    }
-  },
-
-  /**
-    Html Body field, made editable to allow access in edit form
-  */
-  {
-    fieldName: 'htmlBody',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      control: "textarea",
-      group: formGroups.adminOptions,
-    }
-  },
-
-  {
-    fieldName: 'htmlHighlight',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      hidden:true,
-      viewableBy: ['guests'],
     }
   },
 
@@ -221,23 +170,6 @@ Posts.addField([
       editableBy: ['admins'],
       insertableBy: ['admins'],
       group: formGroups.adminOptions
-    }
-  },
-
-  /**
-    body: Changed original body attribute to be just a plain-text version of the
-    original content, to allow for search.
-  */
-  {
-    fieldName: 'body',
-    fieldSchema: {
-      type: String,
-      max: 1000000000,
-      optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      hidden: true,
     }
   },
 
@@ -755,15 +687,6 @@ Posts.addField([
       control: "checkbox",
     }
   },
-  {
-    fieldName: 'wordCount',
-    fieldSchema: {
-      type: Number,
-      viewableBy: ['guests'],
-      optional: true,
-      hidden:true
-    }
-  },
 
   {
     fieldName: 'groupId',
@@ -1141,37 +1064,13 @@ Posts.addField([
       group: formGroups.adminOptions,
     }
   },
-
-  /*
-    lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
-    appropriate editor when being edited, overwriting user-preferences
-  */
-
-  {
-    fieldName: 'lastEditedAs',
-    fieldSchema: {
-      type: String,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      optional: true,
-      hidden: true,
-      group: formGroups.adminOptions,
-    }
-  },
-
-  /*
-    plaintextExcerpt: Version of the excerpt that is plaintext, used for the description head tags which are
-    used by Facebook and Google to extract previews of content.
-  */
-
-  {
-    fieldName: 'plaintextExcerpt',
-    fieldSchema: {
-      type: String,
-      viewableBy: ['guests'],
-      hidden: true,
-      optional: true
-    }
-  }
 ]);
+
+makeEditable({
+  collection: Posts,
+  options: {
+    formGroup: formGroups.content,
+    adminFormGroup: formGroups.adminOptions,
+    order: 25
+  }
+})

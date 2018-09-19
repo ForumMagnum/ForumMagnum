@@ -1,13 +1,13 @@
 import {
   Components,
   withEdit,
-  withCurrentUser
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from 'meteor/example-forum';
 import Users from "meteor/vulcan:users";
 import withSetAlignmentPost from "../alignment-forum/withSetAlignmentPost.jsx";
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class PostsPageAdminActions extends Component {
 
@@ -135,5 +135,9 @@ const setAlignmentOptions = {
 export default defineComponent({
   name: 'PostsPageAdminActions',
   component: PostsPageAdminActions,
-  hocs: [ [withEdit, withEditOptions], [withSetAlignmentPost, setAlignmentOptions], withCurrentUser ]
+  hocs: [
+    [withEdit, withEditOptions],
+    [withSetAlignmentPost, setAlignmentOptions],
+    withUser
+  ]
 });

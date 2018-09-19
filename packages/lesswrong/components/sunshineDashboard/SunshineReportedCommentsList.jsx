@@ -2,12 +2,12 @@ import {
   Components,
   registerComponent,
   withList,
-  withCurrentUser,
   withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -62,5 +62,5 @@ export default defineComponent({
   name: 'SunshineReportedCommentsList',
   component: SunshineReportedCommentsList,
   styles: styles,
-  hocs: [ [withList, withListOptions], [withEdit, withEditOptions], withCurrentUser ]
+  hocs: [ [withList, withListOptions], [withEdit, withEditOptions], withUser ]
 });

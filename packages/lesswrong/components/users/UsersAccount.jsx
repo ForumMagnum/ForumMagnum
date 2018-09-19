@@ -1,8 +1,9 @@
-import { Components, registerComponent, withCurrentUser, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const UsersAccount = (props, /* context*/) => {
 
@@ -23,5 +24,5 @@ UsersAccount.propTypes = {
 export default defineComponent({
   name: 'UsersAccount',
   component: UsersAccount,
-  hocs: [ withCurrentUser ]
+  hocs: [ withUser ]
 });

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Components, withList, Loading, withEdit, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withList, Loading, withEdit } from 'meteor/vulcan:core';
 import { Posts, Comments } from 'meteor/example-forum';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({
   results,
@@ -55,5 +56,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'RecentDiscussionThreadsList',
   component: RecentDiscussionThreadsList,
-  hocs: [ [withList, discussionThreadsOptions], [withEdit, withEditOptions], withCurrentUser ]
+  hocs: [ [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser ]
 });

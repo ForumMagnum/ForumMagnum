@@ -1,8 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   root: {
@@ -74,5 +76,5 @@ export default defineComponent({
   name: 'UsersEmailVerification',
   component: UsersEmailVerification,
   styles: styles,
-  hocs: [ withCurrentUser, [withEdit, withEditOptions] ]
+  hocs: [ withErrorBoundary, withUser, [withEdit, withEditOptions] ]
 });

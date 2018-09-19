@@ -1,6 +1,5 @@
 import {
   Components,
-  withCurrentUser,
   getFragment,
   withMessages,
   withEdit
@@ -12,6 +11,7 @@ import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 import CommunityMapWrapper from './CommunityMapWrapper'
 
 class CommunityHome extends Component {
@@ -167,5 +167,5 @@ export default defineComponent({
   name: 'CommunityHome',
   component: CommunityHome,
   register: false,
-  hocs: [ withCurrentUser, withMessages, withRouter, [withEdit, withEditOptions] ]
+  hocs: [ withUser, withMessages, withRouter, [withEdit, withEditOptions] ]
 });

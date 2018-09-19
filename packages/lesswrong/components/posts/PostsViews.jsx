@@ -1,4 +1,4 @@
-import { Components, withCurrentUser, withEdit } from 'meteor/vulcan:core';
+import { Components, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
@@ -8,6 +8,7 @@ import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 import postViewSections from '../../lib/sections.js'
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
@@ -147,5 +148,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'PostsViews',
   component: PostsViews,
-  hocs: [ withRouter, withCurrentUser, [withEdit, withEditOptions] ]
+  hocs: [ withRouter, withUser, [withEdit, withEditOptions] ]
 });

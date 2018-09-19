@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Components, withList, withCurrentUser, Loading, withEdit } from 'meteor/vulcan:core';
+import { Components, withList, Loading, withEdit } from 'meteor/vulcan:core';
 import { Comments } from 'meteor/example-forum';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 const RecentComments = ({results, currentUser, loading, fontSize, loadMore, networkStatus, editMutation}) => {
   const loadingMore = networkStatus === 2;
@@ -47,5 +48,5 @@ const withEditOptions = {
 export default defineComponent({
   name: 'RecentComments',
   component: RecentComments,
-  hocs: [ [withList, commentsOptions], [withEdit, withEditOptions], withCurrentUser ]
+  hocs: [ [withList, commentsOptions], [withEdit, withEditOptions], withUser ]
 });

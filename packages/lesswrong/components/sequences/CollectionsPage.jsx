@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types'
-import { Components, withDocument, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
 import FlatButton from 'material-ui/FlatButton';
 import { Link } from 'react-router';
 import defineComponent from '../../lib/defineComponent';
+import withUser from '../common/withUser';
 
 class CollectionsPage extends Component {
   constructor(props) {
@@ -66,5 +67,5 @@ const options = {
 export default defineComponent({
   name: 'CollectionsPage',
   component: CollectionsPage,
-  hocs: [ [withDocument, options], withCurrentUser ]
+  hocs: [ [withDocument, options], withUser ]
 });
