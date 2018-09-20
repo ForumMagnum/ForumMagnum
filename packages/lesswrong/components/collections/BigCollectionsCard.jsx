@@ -47,7 +47,10 @@ const styles = theme => ({
   },
   media: {
     height:271,
+    width:307,
     [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      maxWidth: 307,
       height: 90,
       order:2,
       overflow: "hidden"
