@@ -8,51 +8,40 @@ import withUser from '../common/withUser';
 class SuggestAlignment extends Component {
   handleSuggestAlignment = () => {
     const { currentUser, post, editMutation } = this.props
-    let suggestUserIds = _.clone(post.suggestForAlignmentUserIds) || []
-    if (!suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds.push(currentUser._id)
-    }
+    const suggestUserIds = post.suggestForAlignmentUserIds || []
+    const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
     editMutation({
       documentId: post._id,
-      set: {suggestForAlignmentUserIds:suggestUserIds},
+      set: {suggestForAlignmentUserIds: newSuggestUserIds},
       unset: {}
     })
   }
 
   handleUnsuggestAlignment = () => {
     const { currentUser, post, editMutation } = this.props
-    let suggestUserIds = _.clone(post.suggestForAlignmentUserIds) || []
-    if (suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds = _.without(suggestUserIds, currentUser._id);
-    }
+    const suggestUserIds = post.suggestForAlignmentUserIds || []
+    const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
     editMutation({
       documentId: post._id,
-      set: {suggestForAlignmentUserIds:suggestUserIds},
+      set: {suggestForAlignmentUserIds:newSuggestUserIds},
       unset: {}
     })
   }
 
   render() {
     const { currentUser, post } = this.props;
-    if (currentUser &&
-        post &&
-        !post.afDate &&
-        !post.reviewForAlignmentUserId &&
-        Users.canDo(this.props.currentUser, "posts.alignment.new")) {
-      return <div className="posts-page-suggest-curated">
+
+    const shouldRender = currentUser && post && !post.afDate && !post.reviewForAlignmentUserId && Users.canDo(this.props.currentUser, "posts.alignment.suggest")
+
+    if (shouldRender) {
+      return <div>
           { !post.suggestForAlignmentUserIds || !post.suggestForAlignmentUserIds.includes(currentUser._id) ?
-            <span
-              className="posts-page-suggest-curated-button"
-              onClick={this.handleSuggestAlignment}
-              >
+            <a onClick={this.handleSuggestAlignment}>
               Ω Suggest for Alignment
-            </span> :
-            <span
-              className="posts-page-suggest-curated-button suggested"
-              onClick={this.handleUnsuggestAlignment}
-              >
+            </a> :
+            <a onClick={this.handleUnsuggestAlignment}>
               Ω Unsuggest for Alignment
-            </span>
+            </a>
           }
         </div>
     } else {
