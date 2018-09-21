@@ -199,6 +199,14 @@ const schema = {
         return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
       }
     }
+  },
+
+  hidden: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment'],
+    insertableBy: ['sunshineRegiment']
   }
 }
 
