@@ -47,6 +47,7 @@ const schema = {
     optional: true,
     viewableBy: ['members'],
     insertableBy: ['members'],
+    editableBy: ['admins']
   },
   properties: {
     type: Object,
