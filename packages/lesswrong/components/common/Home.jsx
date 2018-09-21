@@ -1,24 +1,8 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
-
-const styles = theme => ({
-  recommendedReading: {
-    marginTop: -20,
-    display:"flex",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    padding: 10,
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: "column",
-      alignItems: "center",
-      padding: 0,
-    }
-  }
-})
 
 const testCollections = [
   {
@@ -51,7 +35,7 @@ const testCollections = [
 ]
 
 const Home = (props, context) => {
-  const { currentUser, router, classes } = props;
+  const { currentUser, router } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -104,11 +88,11 @@ const Home = (props, context) => {
             <Link to="/library">Sequence Library</Link>
           </Components.SectionSubtitle>}
         >
-          <div className={classes.recommendedReading}>
+          <Components.CollectionsCardContainer>
             <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
             <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
             <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
-          </div>
+          </Components.CollectionsCardContainer>
         </Components.Section> :
         <div>
           <Components.Section
@@ -157,4 +141,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withUser, withStyles(styles, { name: "Home" }));
+registerComponent('Home', Home, withUser);
