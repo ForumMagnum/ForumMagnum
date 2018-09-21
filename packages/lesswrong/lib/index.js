@@ -39,14 +39,6 @@ import Messages from './collections/messages/collection.js'
 import './collections/messages/views.js';
 import './collections/messages/permissions.js';
 
-import UserSequenceRels from './collections/usersequencerels/collection.js'
-import './collections/usersequencerels/views.js';
-import './collections/usersequencerels/permissions.js';
-
-import UserCollectionRels from './collections/usercollectionrels/collection.js'
-import './collections/usercollectionrels/views.js';
-import './collections/usercollectionrels/permissions.js';
-
 import Conversations from './collections/conversations/collection.js'
 import './collections/conversations/views.js';
 import './collections/conversations/helpers.js';
@@ -160,7 +152,5 @@ export {
   Reports,
   Books,
   Bans,
-  UserSequenceRels,
-  UserCollectionRels,
   Localgroups
 }

@@ -36,8 +36,6 @@ import './lib/collections/messages/callbacks.js';
 import './lib/collections/users/validate_login.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/lwevents/indexes.js';
-import './lib/collections/usercollectionrels/indexes.js';
-import './lib/collections/usersequencerels/indexes.js';
 import './lib/collections/posts/indexes.js';
 import './lib/collections/localgroups/indexes.js';
 
