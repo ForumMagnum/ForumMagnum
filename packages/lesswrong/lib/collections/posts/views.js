@@ -28,7 +28,6 @@ Posts.addDefaultView(terms => {
   if (terms.userId) {
     params.selector.hideAuthor = {$ne: true}
   }
-
   return params;
 })
 
