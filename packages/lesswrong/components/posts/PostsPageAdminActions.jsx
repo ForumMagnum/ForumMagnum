@@ -33,7 +33,7 @@ class PostsPageAdminActions extends Component {
       }
     })
   }
-
+  
   handleMoveToAlignmentForum = () => {
     const { post, setAlignmentPostMutation } = this.props
     setAlignmentPostMutation({
@@ -111,6 +111,7 @@ class PostsPageAdminActions extends Component {
                   </div>
                 }
                 <Components.SuggestCurated post={post} />
+                <Components.SuggestAlignment post={post} />
               </div>
             </div>
           }
