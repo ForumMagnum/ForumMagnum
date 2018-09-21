@@ -4,6 +4,7 @@ import { draftToHTML } from '../../lib/editor/utils.js';
 
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
+turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'

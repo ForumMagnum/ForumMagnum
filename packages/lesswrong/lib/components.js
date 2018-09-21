@@ -133,6 +133,9 @@ import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
 import '../components/comments/LastVisitList.jsx'
 
+
+import '../components/icons/OmegaIcon.jsx';
+
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';
 import '../components/search/PostsSearchAutoComplete.jsx';
@@ -203,6 +206,7 @@ import '../components/sequences/BooksNewForm.jsx';
 import '../components/sequences/BooksEditForm.jsx';
 import '../components/sequences/BooksItem.jsx';
 import '../components/collections/CollectionsCard.jsx';
+import '../components/collections/BigCollectionsCard.jsx';
 //import '../components/sequences/CoreSequences.jsx';
 //import '../components/sequences/HPMOR.jsx';
 //import '../components/sequences/Codex.jsx';

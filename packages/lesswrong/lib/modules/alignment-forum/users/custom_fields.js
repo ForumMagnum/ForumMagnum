@@ -10,4 +10,44 @@ Users.addField([
       viewableBy: ['guests'],
     }
   },
+
+  {
+    fieldName: 'afPostCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: (document, currentUser) => 0,
+    }
+  },
+
+  {
+    fieldName: 'afCommentCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: (document, currentUser) => 0,
+    }
+  },
+
+  {
+    fieldName: 'afSequenceCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: (document, currentUser) => 0,
+    }
+  },
+
+  {
+    fieldName: 'afSequenceDraftCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
+      onInsert: (document, currentUser) => 0,
+    }
+  },
 ]);

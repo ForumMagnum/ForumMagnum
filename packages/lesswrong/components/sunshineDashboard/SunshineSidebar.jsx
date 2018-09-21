@@ -69,7 +69,7 @@ class SunshineSidebar extends Component {
 }
 
 SunshineSidebar.propTypes = {
-  currentUser: PropTypes.object.isRequired,
+  currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired
 };
 

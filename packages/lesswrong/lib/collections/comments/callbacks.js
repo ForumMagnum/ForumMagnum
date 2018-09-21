@@ -4,10 +4,12 @@ import { addCallback, runCallbacksAsync, newMutation, editMutation } from 'meteo
 import Users from "meteor/vulcan:users";
 import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
 import { performVoteServer } from 'meteor/vulcan:voting';
-
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
+
+import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
+import { makeEditableOptions } from './custom_fields.js'
 
 const getLessWrongAccount = async () => {
   let account = Users.findOne({username: "LessWrong"});
@@ -176,3 +178,5 @@ function NewCommentNeedsReview (comment) {
   }
 }
 addCallback("comments.new.async", NewCommentNeedsReview);
+
+addEditableCallbacks({collection: Comments, options: makeEditableOptions})

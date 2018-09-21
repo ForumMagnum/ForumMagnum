@@ -46,18 +46,20 @@ const Messages = createCollection({
 
 export default Messages;
 
+export const makeEditableOptions = {
+  // Determines whether to use the comment editor configuration (e.g. Toolbars)
+  commentEditor: true,
+  // Determines whether to use the comment editor styles (e.g. Fonts)
+  commentStyles: true,
+  permissions: {
+    viewableBy: ['members'],
+    insertableBy: ['members'],
+    editableBy: Users.owns,
+  },
+  order: 2,
+}
+
 makeEditable({
   collection: Messages,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    permissions: {
-      viewableBy: ['members'],
-      insertableBy: ['members'],
-      editableBy: Users.owns,
-    },
-    order: 2,
-  }
+  options: makeEditableOptions
 })

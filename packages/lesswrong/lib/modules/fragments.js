@@ -68,7 +68,6 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
-  markDownCommentEditor
   markDownPostEditor
   commentSorting
   location
@@ -502,10 +501,14 @@ registerFragment(`
     groups
     # example-forum
     postCount
+    afPostCount
     frontpagePostCount
     # example-forum
     commentCount
+    afCommentCount
     sequenceCount
+    afSequenceCount
+    afSequenceDraftCount
     sequenceDraftCount
     moderationStyle
     bannedUserIds
@@ -649,4 +652,3 @@ registerFragment(/* GraphQL */`
     votedAt
   }
 `);
-

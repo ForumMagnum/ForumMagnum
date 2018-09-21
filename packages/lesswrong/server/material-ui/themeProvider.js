@@ -6,6 +6,15 @@ import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssCleanup from '../../components/themes/JssCleanup';
 
+const MuiThemeProviderWrapper = (props, context) => {
+  // By experimentation, it turns out that context.client is only available to this component
+  // during the initial `getDataFromTree` render, during which we want to skip
+  // style-generation. See https://github.com/mui-org/material-ui/issues/8522
+  return <MuiThemeProvider {...props} disableStylesGeneration={!!context.client}>
+    {props.children}
+  </MuiThemeProvider>
+}
+
 function wrapWithMuiTheme (app, { req, res, store, apolloClient }) {
   const sheetsRegistry = new SheetsRegistry();
   req.sheetsRegistry = sheetsRegistry;
@@ -15,11 +24,11 @@ function wrapWithMuiTheme (app, { req, res, store, apolloClient }) {
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
+      <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
         <JssCleanup>
           {app}
         </JssCleanup>
-      </MuiThemeProvider>
+      </MuiThemeProviderWrapper>
     </JssProvider>
   );
 }

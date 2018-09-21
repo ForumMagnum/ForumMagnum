@@ -26,6 +26,7 @@ const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
     return <Components.Loading />
   }
 };
+
 export default defineComponent({
   name: 'UsersAutoCompleteHit',
   component: UsersAutoCompleteHit,

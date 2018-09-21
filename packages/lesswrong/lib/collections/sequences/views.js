@@ -1,4 +1,15 @@
 import Sequences from './collection.js';
+import { getSetting } from 'meteor/vulcan:core';
+
+Sequences.addDefaultView(terms => {
+  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  let params = {
+    selector: {
+      ...alignmentForum
+    }
+  }
+  return params;
+})
 
 Sequences.addView("userProfile", function (terms) {
   return {

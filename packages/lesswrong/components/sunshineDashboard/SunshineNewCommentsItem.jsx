@@ -7,7 +7,7 @@ import { Posts } from 'meteor/example-forum';
 import withHover from '../common/withHover'
 import Users from 'meteor/vulcan:users';
 import PropTypes from 'prop-types';
-import withUser from '../common/withUser';
+import withUser from '../common/withUser'
 
 class SunshineNewCommentsItem extends Component {
 

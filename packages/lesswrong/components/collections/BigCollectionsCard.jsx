@@ -1,34 +1,42 @@
-import { Components, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { CardMedia } from 'material-ui/Card';
 import { withRouter, Link } from 'react-router';
+import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import defineComponent from '../../lib/defineComponent';
 
 const styles = theme => ({
   root: {
     cursor:"pointer",
-    width: "100%",
-    maxWidth: 347,
+    width:"100%",
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 347
+    },
   },
   card: {
-    padding: theme.spacing.unit*2.5,
-    display: "flex",
-    height: 315,
-    [theme.breakpoints.down('sm')]: {
-      height: "auto",
-    },
+    padding:theme.spacing.unit*2.5,
+    display:"flex",
+    height:310,
     flexWrap: "wrap",
     flexDirection: "column",
     justifyContent: "space-between",
     "&:hover": {
       boxShadow: "0 0 5px rgba(0,0,0,.2)"
     },
+    [theme.breakpoints.down('sm')]: {
+      height: "auto",
+    },
   },
   content: {
+    marginLeft: theme.spacing.unit*5,
     marginBottom:theme.spacing.unit*2,
+    width: "100%",
+    maxWidth: 307,
     borderTop: "solid 4px black",
-    paddingTop: theme.spacing.unit*1.5
+    paddingTop: theme.spacing.unit,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+    }
   },
   text: {
     ...theme.typography.postStyle
@@ -38,18 +46,26 @@ const styles = theme => ({
     marginBottom:theme.spacing.unit,
   },
   media: {
-    '& img':{
+    height:271,
+    width:307,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      maxWidth: 307,
+      height: 90,
+      order:2,
+      overflow: "hidden"
+    },
+    '& img': {
       width:307,
       [theme.breakpoints.down('sm')]: {
         width: "100%",
-        maxWidth:307,
-        overflow: "hidden"
-      },
+        maxWidth: 307,
+      }
     }
   }
 })
 
-class CollectionsCard extends PureComponent {
+class BigCollectionsCard extends PureComponent {
   handleClick = (event) => {
     const { url, router } = this.props
     Utils.manualClickNavigation(event, url, router.push)
@@ -61,6 +77,9 @@ class CollectionsCard extends PureComponent {
 
     return <div className={classes.root} onClick={this.handleClick}>
         <div className={classes.card}>
+          <CardMedia className={classes.media}>
+            <Components.CloudinaryImage publicId={collection.imageId} />
+          </CardMedia>
           <div className={classes.content} style={cardContentStyle}>
             <Typography variant="title" className={classes.title}>
               <Link to={url}>{collection.title}</Link>
@@ -72,18 +91,9 @@ class CollectionsCard extends PureComponent {
               {collection.summary}
             </Typography>
           </div>
-          <CardMedia className={classes.media}>
-            <Components.CloudinaryImage publicId={collection.imageId} />
-          </CardMedia>
         </div>
     </div>
   }
 }
 
-export default defineComponent({
-  name: "CollectionsCard",
-  component: CollectionsCard,
-  styles: styles,
-  register: true,
-  hocs: [ withRouter ]
-});
+registerComponent("BigCollectionsCard", BigCollectionsCard, withStyles(styles, { name: "BigCollectionsCard" }), withRouter);
