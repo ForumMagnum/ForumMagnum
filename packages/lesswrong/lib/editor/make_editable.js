@@ -149,9 +149,4 @@ export const makeEditable = ({collection, options = {}}) => {
       }
     },
   ])
-  if (Meteor.isServer) {
-    import('../../server/editor/make_editable_callbacks.js').then(({addEditableCallbacks}) => {
-      addEditableCallbacks({collection, options})
-    })
-  }
 }
