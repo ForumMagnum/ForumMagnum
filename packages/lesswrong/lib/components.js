@@ -204,6 +204,7 @@ import '../components/sequences/CollectionsEditForm.jsx';
 import '../components/sequences/BooksNewForm.jsx';
 import '../components/sequences/BooksEditForm.jsx';
 import '../components/sequences/BooksItem.jsx';
+import '../components/collections/CollectionsCardContainer.jsx';
 import '../components/collections/CollectionsCard.jsx';
 import '../components/collections/BigCollectionsCard.jsx';
 import '../components/sequences/CoreSequences.jsx';
