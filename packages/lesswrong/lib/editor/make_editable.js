@@ -12,6 +12,7 @@ const defaultOptions = {
   },
   fieldName: "",
   order: 0,
+  enableMarkDownEditor: true
 }
 
 export const makeEditable = ({collection, options = {}}) => {
@@ -25,6 +26,7 @@ export const makeEditable = ({collection, options = {}}) => {
     permissions,
     fieldName,
     order,
+    enableMarkDownEditor
   } = options
 
   collection.addField([
@@ -48,7 +50,8 @@ export const makeEditable = ({collection, options = {}}) => {
           disableUnderline:true,
           commentEditor,
           commentStyles,
-          getLocalStorageId
+          getLocalStorageId,
+          enableMarkDownEditor,
         },
       }
     },
