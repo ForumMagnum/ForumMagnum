@@ -7,7 +7,16 @@ import withUser from '../common/withUser';
 
 const styles = theme => ({
   recommendedReading: {
-    marginTop: -20
+    marginTop: -20,
+    display:"flex",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    padding: 10,
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: "column",
+      alignItems: "center",
+      padding: 0,
+    }
   }
 })
 
@@ -96,9 +105,9 @@ const Home = (props, context) => {
           </Components.SectionSubtitle>}
         >
           <div className={classes.recommendedReading}>
-            <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-            <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-            <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
+            <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
+            <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
+            <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
           </div>
         </Components.Section> :
         <div>

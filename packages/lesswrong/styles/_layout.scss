@@ -47,27 +47,6 @@
       }
       .section-content {
         width: inherit !important;
-        .collection-card-item {
-          &.big {
-            width: auto;
-            .collection-card {
-              & > div {
-                flex-direction: column;
-              }
-            }
-            .collection-card-media {
-              position: absolute !important;
-              order: 2;
-              bottom: 20px;
-              width: 315px;
-              height: 90px;
-
-              @include max-tiny() {
-                width:100%;
-              }
-            }
-          }
-        }
       }
     }
   }
