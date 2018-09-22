@@ -38,34 +38,8 @@ class SuggestAlignmentItem extends Component {
     })
   }
 
-  handleSuggestAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    let suggestUserIds = _.clone(post.suggestForAlignmentUserIds) || []
-    if (!suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds.push(currentUser._id)
-    }
-    editMutation({
-      documentId: post._id,
-      set: {suggestForAlignmentUserIds:suggestUserIds},
-      unset: {}
-    })
-  }
-
-  handleUnsuggestAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    let suggestUserIds = _.clone(post.suggestForAlignmentUserIds) || []
-    if (suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds = _.without(suggestUserIds, currentUser._id);
-    }
-    editMutation({
-      documentId: post._id,
-      set: {suggestForAlignmentUserIds:suggestUserIds},
-      unset: {}
-    })
-  }
-
   render () {
-    const { post, currentUser, hover, anchorEl } = this.props
+    const { post, currentUser, hover, anchorEl, editMutation } = this.props
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
@@ -99,11 +73,11 @@ class SuggestAlignmentItem extends Component {
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { !post.suggestForAlignmentUserIds || !post.suggestForAlignmentUserIds.includes(currentUser._id) ?
-            <Components.SidebarAction title="Endorse for Alignment" onClick={this.handleSuggestAlignment}>
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, editMutation})}>
               <PlusOneIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={this.handleUnsuggestAlignment}>
+            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
               <UndoIcon/>
             </Components.SidebarAction>
           }

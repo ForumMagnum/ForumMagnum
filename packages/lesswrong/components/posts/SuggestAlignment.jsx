@@ -6,30 +6,8 @@ import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 
 class SuggestAlignment extends Component {
-  handleSuggestAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    const suggestUserIds = post.suggestForAlignmentUserIds || []
-    const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
-    editMutation({
-      documentId: post._id,
-      set: {suggestForAlignmentUserIds: newSuggestUserIds},
-      unset: {}
-    })
-  }
-
-  handleUnsuggestAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    const suggestUserIds = post.suggestForAlignmentUserIds || []
-    const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
-    editMutation({
-      documentId: post._id,
-      set: {suggestForAlignmentUserIds:newSuggestUserIds},
-      unset: {}
-    })
-  }
-
   render() {
-    const { currentUser, post } = this.props;
+    const { currentUser, post, editMutation } = this.props;
 
     const shouldRender = currentUser && post && !post.afDate && !post.reviewForAlignmentUserId && Users.canDo(this.props.currentUser, "posts.alignment.suggest")
 
@@ -38,11 +16,11 @@ class SuggestAlignment extends Component {
     if (shouldRender) {
       return <div>
           { userHasSuggested ?
-            <a onClick={this.handleUnsuggestAlignment}>
+            <a onClick={() => Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
               Ω Unsuggest for Alignment
             </a>
             :
-            <a onClick={this.handleSuggestAlignment}>
+            <a onClick={() => Posts.suggestForAlignment({currentUser, post, editMutation})}>
               Ω Suggest for Alignment
             </a>
           }
