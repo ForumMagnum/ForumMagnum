@@ -14,7 +14,9 @@ const styles = theme => ({
     paddingBottom: theme.spacing.unit,
   },
   content: {
+    ...theme.typography.postStyle,
     overflow: "hidden",
+    lineHeight: "1.2rem"
   },
   hover: {
     backgroundColor: theme.palette.grey[50]
