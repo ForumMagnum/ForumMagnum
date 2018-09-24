@@ -366,8 +366,8 @@ class CommentsItem extends Component {
   }
 
   renderMoveToAlignmentMenuItem = () =>  {
-    const { currentUser, comment } = this.props
-    if (Users.canDo(currentUser, 'comments.alignment.move.all')) {
+    const { currentUser, comment, post } = this.props
+    if (post.af && Users.canDo(currentUser, 'comments.alignment.move.all')) {
       return (
         <Components.MoveToAlignmentMenuItem
           currentUser={currentUser}
