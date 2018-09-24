@@ -96,9 +96,14 @@ const schema = {
       fieldName: 'posts',
       type: '[Post]',
       resolver: (book, args, context) => {
-        return (_.map(book.postIds, (id) => {
-          return context.Posts.findOne({_id: id}, {fields: context.Users.getViewableFields(context.currentUser, context.Posts)})
-        }))
+        return {
+          results: (_.map(book.postIds, (id) => {
+            return context.Posts.findOne(
+              {_id: id},
+              {fields: context.Users.getViewableFields(context.currentUser, context.Posts)}
+            )
+          }))
+        }
       },
       addOriginalField: true,
     },
@@ -120,15 +125,12 @@ const schema = {
       fieldName: 'sequences',
       type: '[Sequence]',
       resolver: async (book, args, {currentUser, Users, Sequences}) => {
-        if (!book.sequenceIds) return [];
-        const sequences = _.compact(await Sequences.loader.loadMany(book.sequenceIds));
-        return Users.restrictViewableFields(currentUser, Sequences, sequences);
+        if (!book.sequenceIds) return {results: []}
+        const sequences = _.compact(await Sequences.loader.loadMany(book.sequenceIds))
+        return {
+          results: Users.restrictViewableFields(currentUser, Sequences, sequences)
+        }
       },
-      // resolver: (book, args, context) => {
-      //   return (_.map(book.sequenceIds, (id) =>
-      //     { return context.Sequences.findOne({ _id: id }, { fields: context.Users.getViewableFields(context.currentUser, context.Sequences)})
-      //   }))
-      // },
       addOriginalField: true,
     },
     control: 'SequencesListEditor',

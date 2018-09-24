@@ -79,7 +79,12 @@ const schema = {
       fieldName: 'sequence',
       type: 'Sequence',
       resolver: (chapter, args, context) => {
-        return context.Sequences.findOne({_id: chapter.sequenceId}, {fields: context.Users.getViewableFields(context.currentUser, context.Posts)})
+        return {
+          result: context.Sequences.findOne(
+            {_id: chapter.sequenceId},
+            {fields: context.Users.getViewableFields(context.currentUser, context.Posts)}
+          )
+        }
       },
       addOriginalField: true,
     }
@@ -99,11 +104,6 @@ const schema = {
         const posts = _.compact(await Posts.loader.loadMany(chapter.postIds));
         return Users.restrictViewableFields(currentUser, Posts, posts);
       },
-      // resolver: (chapter, args, context) => {
-      //   return (_.map(chapter.postIds, (id) =>
-      //     { return context.Posts.findOne({ _id: id }, { fields: context.Users.getViewableFields(context.currentUser, context.Posts)})
-      //   }))
-      // },
       addOriginalField: true,
     },
     control: 'PostsListEditor',

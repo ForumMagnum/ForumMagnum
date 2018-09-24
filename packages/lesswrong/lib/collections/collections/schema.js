@@ -27,7 +27,12 @@ const schema = {
       fieldName: 'user',
       type: 'User',
       resolver: (sequence, args, context) => {
-        return context.Users.findOne({ _id: sequence.userId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users)})
+        return {
+          result: context.Users.findOne(
+            { _id: sequence.userId },
+            { fields: context.Users.getViewableFields(context.currentUser, context.Users)}
+          )
+        }
       },
       addOriginalField: true,
     }
@@ -85,8 +90,14 @@ const schema = {
       fieldName: 'books',
       type: '[Book]',
       resolver: (collection, args, context) => {
-        const books = context.Books.find({collectionId: collection._id}, {sort: {number: 1}, fields: context.Users.getViewableFields(context.currentUser, context.Books)}).fetch();
-        return books;
+        const books = context.Books.find(
+          {collectionId: collection._id},
+          {
+            sort: {number: 1},
+            fields: context.Users.getViewableFields(context.currentUser, context.Books)
+          }
+        ).fetch();
+        return {results: books};
       }
     }
   },

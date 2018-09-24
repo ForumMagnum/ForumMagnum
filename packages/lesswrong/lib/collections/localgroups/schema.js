@@ -44,9 +44,13 @@ const schema = {
       fieldName: 'organizers',
       type: '[User]',
       resolver: (localGroup, args, context) => {
-        return _.map(localGroup.organizerIds,
-          (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-        )
+        const organizers = _.map(localGroup.organizerIds, (organizerId =>
+          {return context.Users.findOne(
+            { _id: organizerId },
+            { fields: context.Users.getViewableFields(context.currentUser, context.Users) }
+          )}
+        ))
+        return {results: organizers}
       },
       addOriginalField: true
     }
@@ -172,7 +176,8 @@ const schema = {
       type: "Post",
       resolver: (event, args, context) => {
         const post = context.Posts.findOne({eventId: event._id});
-        return context.Users.restrictViewableFields(context.currentUser, context.Posts, post);
+        const limitedPost = context.Users.restrictViewableFields(context.currentUser, context.Posts, post);
+        return { result: limitedPost }
       }
     }
   }

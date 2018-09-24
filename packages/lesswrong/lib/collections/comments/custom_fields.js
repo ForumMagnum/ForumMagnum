@@ -21,11 +21,11 @@ Comments.addField([
         fieldName: 'user',
         type: 'User',
         resolver: async (comment, args, {currentUser, Users}) => {
-          if (!comment.userId || comment.hideAuthor) return null;
+          if (!comment.userId || comment.hideAuthor) return {result: null};
           const user = await Users.loader.load(comment.userId);
-          if (!user) return null;
-          if (user.deleted) return null;
-          return Users.restrictViewableFields(currentUser, Users, user);
+          if (!user) return {result: null};
+          if (user.deleted) return {result: null};
+          return {result: Users.restrictViewableFields(currentUser, Users, user)};
         },
         addOriginalField: true
       },
@@ -199,9 +199,10 @@ Comments.addField([
         fieldName: 'deletedByUser',
         type: 'User',
         resolver: async (comment, args, context) => {
-          if (!comment.deletedByUserId) return null;
+          if (!comment.deletedByUserId) return {result: null};
           const user = await context.Users.loader.load(comment.deletedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+          const userLimited = context.Users.restrictViewableFields(context.currentUser, context.Users, user)
+          return {result: userLimited};
         },
         addOriginalField: true
       },
@@ -282,7 +283,8 @@ Comments.addField([
         resolver: async (comment, args, context) => {
           if (!comment.reviewedByUserId) return null;
           const user = await context.Users.loader.load(comment.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
+          const userLimited = context.Users.restrictViewableFields(context.currentUser, context.Users, user)
+          return {result: userLimited};
         },
         addOriginalField: true
       },

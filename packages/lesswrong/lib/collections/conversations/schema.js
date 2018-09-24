@@ -39,9 +39,13 @@ const schema = {
       fieldName: 'participants',
       type: '[User]',
       resolver: (conversation, args, context) => {
-        return _.map(conversation.participantIds,
-          (participantId => {return context.Users.findOne({ _id: participantId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
+        const participants = _.map(conversation.participantIds, participantId =>
+          {return context.Users.findOne(
+            { _id: participantId },
+            { fields: context.Users.getViewableFields(context.currentUser, context.Users) }
+          )}
         )
+        return {results: participants}
       },
       addOriginalField: true
     }
