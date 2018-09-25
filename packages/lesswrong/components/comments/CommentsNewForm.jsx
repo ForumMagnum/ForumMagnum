@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Comments } from '../../modules/comments/index.js';
+import { Comments } from 'meteor/example-forum';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 
 const CommentsNewForm = (props, context) => {
@@ -27,7 +27,7 @@ const CommentsNewForm = (props, context) => {
         <Components.SmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
-          successCallback={props.successCallback} 
+          successCallback={props.successCallback}
           cancelCallback={props.type === "reply" ? props.cancelCallback : null}
           prefilledProps={prefilledProps}
           layout="elementOnly"
