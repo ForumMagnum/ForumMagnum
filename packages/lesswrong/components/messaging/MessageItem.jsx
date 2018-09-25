@@ -37,6 +37,11 @@ const styles = theme => ({
   },
   createdAt: {
     marginLeft: theme.spacing.unit
+  },
+  messageBody: {
+    '& a': {
+      color: theme.palette.primary.light
+    }
   }
 })
 
@@ -58,7 +63,7 @@ class MessageItem extends Component {
               </span>}
               {message.createdAt && <span className={classes.createdAt}>{moment(message.createdAt).fromNow()}</span>}
             </div>
-            <div dangerouslySetInnerHTML={htmlBody}></div>
+            <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
           </Typography>
         </div>
       )
