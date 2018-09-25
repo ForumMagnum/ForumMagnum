@@ -48,6 +48,11 @@ import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
+import '../components/common/Logo.jsx';
+import '../components/common/Newsletter.jsx';
+import '../components/common/NewsletterButton.jsx';
+import '../components/common/SearchForm.jsx';
+import '../components/common/Vote.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
