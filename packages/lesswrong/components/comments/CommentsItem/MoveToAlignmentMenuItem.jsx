@@ -40,7 +40,7 @@ class MoveToAlignmentMenuItem extends PureComponent {
   render() {
     const { comment } = this.props
 
-    if (!this.props.comment.af) {
+    if (!comment.af) {
       return (
         <MenuItem
           className="comment-menu-item-move-to-alignment"
