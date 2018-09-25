@@ -32,7 +32,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     createdAt
-    content
+    htmlBody
     conversationId
   }
 `);

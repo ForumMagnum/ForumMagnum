@@ -12,6 +12,7 @@ const defaultOptions = {
   },
   fieldName: "",
   order: 0,
+  enableMarkDownEditor: true
 }
 
 export const makeEditable = ({collection, options = {}}) => {
@@ -24,7 +25,8 @@ export const makeEditable = ({collection, options = {}}) => {
     adminFormGroup,
     permissions,
     fieldName,
-    order
+    order,
+    enableMarkDownEditor
   } = options
 
   collection.addField([
@@ -48,7 +50,8 @@ export const makeEditable = ({collection, options = {}}) => {
           disableUnderline:true,
           commentEditor,
           commentStyles,
-          getLocalStorageId
+          getLocalStorageId,
+          enableMarkDownEditor,
         },
       }
     },
@@ -66,6 +69,7 @@ export const makeEditable = ({collection, options = {}}) => {
         insertableBy: ['admins'],
         control: "textarea",
         group: adminFormGroup,
+        hidden: !adminFormGroup, // Only display htmlBody if admin form group is given
       }
     },
 
@@ -148,9 +152,4 @@ export const makeEditable = ({collection, options = {}}) => {
       }
     },
   ])
-  if (Meteor.isServer) {
-    import('../../server/editor/make_editable_callbacks.js').then(({addEditableCallbacks}) => {
-      addEditableCallbacks({collection, options})
-    })
-  }
 }

@@ -20,6 +20,9 @@ const styles = theme => ({
     fontVariant: "small-caps",
     color: "white",
     ...theme.typography.postStyle
+  },
+  htmlDescription: {
+    ...theme.typography.postStyle
   }
 })
 
@@ -38,7 +41,7 @@ class SequencesPage extends Component {
   showSequence = () => {
     this.setState({edit: false})
   }
-  
+
   // Are sequences (as opposed to sequence-posts) a type
   // of entity that people should be able to comment on?
   // Maybe, at some point in the future? The current answer
@@ -87,21 +90,21 @@ class SequencesPage extends Component {
         </div>
         <Components.Section titleComponent={
           <div className="sequences-meta">
-            <div className="sequences-date">
-              {date}
-            </div>
+            <Typography variant="subheading"><strong>{date}</strong></Typography>
             { this.commentsEnabled() && (
               <div className="sequences-comment-count">
                 {document.commentCount || 0} comments
-              </div>)
-            }
-            {document.userId ? <div className="sequences-author-top">
-              by <Link className="sequences-author-top-name" to={Users.getProfileUrl(document.user)}>{document.user.displayName}</Link>
-            </div> : null}
-            {canEdit ? <a onClick={this.showEdit}>edit</a> : null}
+              </div>)}
+            {document.userId && <Typography variant="subheading">
+              by <Link to={Users.getProfileUrl(document.user)}>
+                {document.user.displayName}
+              </Link>
+            </Typography>}
+            {canEdit && <Components.SectionSubtitle>
+              <a onClick={this.showEdit}>edit</a></Components.SectionSubtitle>}
           </div>}>
           <div className="sequences-description content-body">
-            <Typography variant="body2">
+            <Typography variant="body1" className={classes.htmlDescription}>
               {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
             </Typography>
           </div>

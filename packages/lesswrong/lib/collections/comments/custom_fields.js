@@ -306,9 +306,7 @@ Comments.addField([
   },
 ]);
 
-makeEditable({
-  collection: Comments,
-  options: {
+export const makeEditableOptions = {
     // Determines whether to use the comment editor configuration (e.g. Toolbars)
     commentEditor: true,
     // Determines whether to use the comment editor styles (e.g. Fonts)
@@ -321,4 +319,8 @@ makeEditable({
     },
     order: 25
   }
+
+makeEditable({
+  collection: Comments,
+  options: makeEditableOptions
 })
