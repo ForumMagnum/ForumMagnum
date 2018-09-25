@@ -10,31 +10,6 @@ import '../components/common/NewsletterButton.jsx';
 import '../components/common/SearchForm.jsx';
 import '../components/common/Vote.jsx';
 
-// posts
-
-import '../components/posts/PostsHome.jsx';
-import '../components/posts/PostsSingle.jsx';
-import '../components/posts/PostsNewButton.jsx';
-//import '../components/posts/PostsLoadMore.jsx';
-import '../components/posts/PostsNoMore.jsx';
-import '../components/posts/PostsNoResults.jsx';
-//import '../components/posts/PostsItem.jsx';
-import '../components/posts/PostsLoading.jsx';
-//import '../components/posts/PostsViews.jsx';
-//import '../components/posts/PostsList.jsx';
-//import '../components/posts/PostsListHeader.jsx';
-import '../components/posts/PostsCategories.jsx';
-import '../components/posts/PostsCommenters.jsx';
-//import '../components/posts/PostsPage.jsx';
-//import '../components/posts/PostsStats.jsx';
-//import '../components/posts/PostsDaily.jsx';
-import '../components/posts/PostsDailyList.jsx';
-//import '../components/posts/PostsDay.jsx';
-import '../components/posts/PostsThumbnail.jsx';
-//import '../components/posts/PostsEditForm.jsx';
-//import '../components/posts/PostsNewForm.jsx';
-//import '../components/posts/PostsCommentsThread.jsx';
-
 // comments
 
 //import '../components/comments/CommentsItem.jsx';
