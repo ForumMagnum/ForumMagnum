@@ -22,7 +22,7 @@ class ChaptersItem extends Component {
     {chapter.subtitle ?   <div className="chapters-item-subtitle">
       {chapter.subtitle}
     </div> : null}
-    {canEdit ? <a onClick={this.showEdit}>Add/Remove Posts</a> : null}
+    {canEdit && <Components.SectionSubtitle><a onClick={this.showEdit}>Add/Remove Posts</a></Components.SectionSubtitle>}
   </div>
 
   render() {

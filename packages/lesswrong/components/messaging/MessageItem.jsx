@@ -6,8 +6,7 @@ Display of a single message in the Conversation Wrapper
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { convertFromRaw } from 'draft-js';
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
@@ -38,6 +37,11 @@ const styles = theme => ({
   },
   createdAt: {
     marginLeft: theme.spacing.unit
+  },
+  messageBody: {
+    '& a': {
+      color: theme.palette.primary.light
+    }
   }
 })
 
@@ -48,11 +52,8 @@ class MessageItem extends Component {
 
     const isCurrentUser = currentUser._id == message.user._id
 
-    if (message.content && !message.content.id) { //Check for ID to avoid trying to render ory-content fields (TODO: Remove or import old ory-content messages)
-      // console.log(message.content);
-      let htmlBody = "";
-      const contentState = convertFromRaw(message.content);
-      htmlBody = {__html: Utils.draftToHTML(contentState)};
+    if (message.htmlBody) {
+      const htmlBody = {__html: message.htmlBody};
       return (
         <div>
           <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
@@ -62,7 +63,7 @@ class MessageItem extends Component {
               </span>}
               {message.createdAt && <span className={classes.createdAt}>{moment(message.createdAt).fromNow()}</span>}
             </div>
-            <div dangerouslySetInnerHTML={htmlBody}></div>
+            <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
           </Typography>
         </div>
       )

@@ -44,6 +44,4 @@ const Home = (props, context) => {
   )
 };
 
-// TODO put back withStyles?
 registerComponent('Home', Home, withUser);
-

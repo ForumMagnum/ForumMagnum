@@ -51,15 +51,13 @@ const SequencesHome = ({document, currentUser, loading}) => {
       </div>
     </Components.Section>
     {/* Curated collections tripartite */}
-    <div className="sequences-list-curated-collections">
-      <Components.Section title="Core Reading">
-        <div className="sequences-core-reading">
-          <Components.CollectionsCard collection={testCollections[0]} big={true} url={"/rationality"}/>
-          <Components.CollectionsCard collection={testCollections[1]} float={"left"} url={"/codex"}/>
-          <Components.CollectionsCard collection={testCollections[2]} float={"right"} url={"/hpmor"}/>
-        </div>
-      </Components.Section>
-    </div>
+    <Components.Section title="Core Reading">
+      <Components.CollectionsCardContainer>
+        <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
+        <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
+        <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
+      </Components.CollectionsCardContainer>
+    </Components.Section>
     {/* Other curated sequences grid (make a sequencesGrid component w/ flexbox) */}
     <div className="sequences-list-curated-sequences">
       <Components.Section title="Curated Sequences">

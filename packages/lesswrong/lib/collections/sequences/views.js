@@ -5,6 +5,7 @@ Sequences.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
+      hidden: {$ne: true},
       ...alignmentForum
     }
   }
