@@ -57,16 +57,22 @@ import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
+
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
 import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
+import '../components/users/UsersAvatar.jsx';
+import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
+import '../components/users/UsersProfileCheck.jsx';
+import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
+
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemTitle.jsx';
