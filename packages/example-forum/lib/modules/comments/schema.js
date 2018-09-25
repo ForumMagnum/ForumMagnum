@@ -5,6 +5,7 @@ Comments schema
 */
 
 import Users from 'meteor/vulcan:users';
+import { generateIdResolverSingle } from 'meteor/lesswrong';
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
 
@@ -34,11 +35,9 @@ const schema = {
     resolveAs: {
       fieldName: 'parentComment',
       type: 'Comment',
-      resolver: async (comment, args, {currentUser, Users, Comments}) => {
-        if (!comment.parentCommentId) return null;
-        const parentComment = await Comments.loader.load(comment.parentCommentId);
-        return Users.restrictViewableFields(currentUser, Comments, parentComment);
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Comments', fieldName: 'parentCommentId'}
+      ),
       addOriginalField: true
     },
     hidden: true // never show this
@@ -56,11 +55,9 @@ const schema = {
     resolveAs: {
       fieldName: 'topLevelComment',
       type: 'Comment',
-      resolver: async (comment, args, {currentUser, Users, Comments}) => {
-        if (!comment.topLevelCommentId) return null;
-        const topLevelComment = await Comments.loader.load(comment.topLevelCommentId);
-        return Users.restrictViewableFields(currentUser, Comments, topLevelComment);
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Comments', fieldName: 'topLevelCommentId'}
+      ),
       addOriginalField: true
     },
     hidden: true // never show this
@@ -143,11 +140,9 @@ const schema = {
     resolveAs: {
       fieldName: 'post',
       type: 'Post',
-      resolver: async (comment, args, {currentUser, Users, Posts}) => {
-        if (!comment.postId) return null;
-        const post = await Posts.loader.load(comment.postId);
-        return Users.restrictViewableFields(currentUser, Posts, post);
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Posts', fieldName: 'postId'}
+      ),
       addOriginalField: true
     },
     hidden: true // never show this
@@ -164,11 +159,9 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: async (comment, args, {currentUser, Users}) => {
-        if (!comment.userId) return null;
-        const user = await Users.loader.load(comment.userId);
-        return Users.restrictViewableFields(currentUser, Users, user);
-      },
+      resolver: Utils.generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true
     },
   },
@@ -206,7 +199,7 @@ const schema = {
       fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
-        return context.Comments.getPageUrl(comment, true);
+        return {result: context.Comments.getPageUrl(comment, true)}
       },
     }
   },

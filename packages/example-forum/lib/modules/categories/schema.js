@@ -96,11 +96,9 @@ const schema = {
     resolveAs: {
       fieldName: 'parent',
       type: 'Category',
-      resolver: async (category, args, {currentUser, Users, Categories}) => {
-        if (!category.parentId) return null;
-        const parent = await Categories.loader.load(category.parentId);
-        return Users.restrictViewableFields(currentUser, Categories, parent);
-      },
+      resolver: Utils.generateIdResolverSingle(
+        {collectionName: 'Categories', fieldName: 'parentId'}
+      ),
       addOriginalField: true
     },
     options: props => {

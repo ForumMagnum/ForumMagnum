@@ -6,6 +6,7 @@ Custom fields on Posts collection
 
 import { Posts } from '../../modules/posts/index.js';
 import { getCategoriesAsOptions } from './schema.js';
+import { Utils } from 'meteor/vulcan:core';
 
 Posts.addField([
   {
@@ -31,11 +32,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'categories',
         type: '[Category]',
-        resolver: async (post, args, {currentUser, Users, Categories}) => {
-          if (!post.categoriesIds) return [];
-          const categories = _.compact(await Categories.loader.loadMany(post.categoriesIds));
-          return Users.restrictViewableFields(currentUser, Categories, categories);
-        },
+        resolver: Utils.generateIdResolverMulti(
+          {collectionName: 'Categories', fieldName: 'categoriesIds'}
+        ),
         addOriginalField: true,
       }
     }

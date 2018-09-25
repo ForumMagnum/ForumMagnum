@@ -1,5 +1,8 @@
 // # Vulcan Modifications
 
+// schema utils
+import { generateIdResolverMulti, generateIdResolverSingle } from './modules/schemaUtils.js'
+
 // ## Accounts
 import './modules/accounts/modify_accounts_ui.js';
 
@@ -152,5 +155,7 @@ export {
   Reports,
   Books,
   Bans,
-  Localgroups
+  Localgroups,
+  generateIdResolverMulti,
+  generateIdResolverSingle
 }

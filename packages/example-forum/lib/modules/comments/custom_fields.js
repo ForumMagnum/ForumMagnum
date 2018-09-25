@@ -1,5 +1,6 @@
 import { Posts } from '../posts/index.js';
 import Users from 'meteor/vulcan:users';
+import { Utils } from 'meteor/vulcan:core';
 
 Users.addField([
   /**
@@ -40,11 +41,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'commenters',
         type: '[User]',
-        resolver: async (post, args, {currentUser, Users}) => {
-          if (!post.commenters) return [];
-          const commenters = await Users.loader.loadMany(post.commenters);
-          return Users.restrictViewableFields(currentUser, Users, commenters);
-        },
+        resolver: Utils.generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'commenters'}
+        ),
       },
       viewableBy: ['guests'],
     }
