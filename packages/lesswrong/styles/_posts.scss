@@ -440,18 +440,6 @@
 //////////////////////////////////////////////////////
 
 
-
-.posts-page-content-header-author {
-  text-align: center;
-  color: rgba(0,0,0,0.5);
-  font-size: 16px;
-
-  a:hover, a:focus, a:active {
-    text-decoration: none;
-    color: rgba(0,0,0,0.3);
-  }
-}
-
 .posts-page-content-body-metadata {
   position: absolute;
   right: 100%;
@@ -550,9 +538,6 @@
       width: inherit !important;
     }
   }
-  .posts-page-content-body {
-    width: inherit;
-  }
   .posts-item-summary {
     white-space: inherit !important;
   }
@@ -576,11 +561,6 @@
 }
 .posts-page-content-header-title {
   margin: 25px 0;
-}
-
-.posts-page-body{
-  font-size: $large-font;
-  margin-bottom: $hmargin;
 }
 
 //////////////////////////////////////////////////////
@@ -718,10 +698,6 @@ svg.drag-handle {
   }
 }
 
-.posts-page-content-body-link-post {
-  font-size: 16px;
-}
-
 .posts-page-content-header-title-draft {
   text-transform: uppercase;
   color: rgba(100, 169, 105, 0.9)
@@ -735,6 +711,7 @@ svg.drag-handle {
     background-color: rgba(0,0,0,.05);
   }
 }
+
 .post-category-tooltip {
   line-height:14px;
   padding:5px 0;
