@@ -285,5 +285,8 @@ div#mocha {
 .mjx-chtml {
   overflow-x: auto;
   overflow-y: hidden;
+  
+  // !important because the MathJax stylesheet (which gets embedded into posts)
+  // has an ill-advised max-width:none in it.
   max-width: 100% !important;
 }
