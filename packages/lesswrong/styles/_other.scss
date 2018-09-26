@@ -9,23 +9,6 @@
   }
 }
 
-.modal-form-title{
-  border-bottom: $border;
-  padding-bottom: $vmargin;
-  margin-bottom: $vmargin;
-  line-height: 1;
-}
-
-.input-categories{
-  .col-sm-9{
-    display: flex;
-    flex-wrap: wrap;
-    .checkbox{
-      width: 50%;
-    }
-  }
-}
-
 .private{
   text-transform: uppercase;
   font-size: $smaller-font;
@@ -36,26 +19,6 @@
   a{
     color: $white;
   }
-}
-
-.editor-form-component-description {
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-.rss-out-linkbuilder-content {
-  display: inline-block;
-  vertical-align: top;
-  padding: 10px;
-  text-align: center;
-}
-
-.rss-out-linkbuilder-header {
-  display: block;
-}
-.rss-out-linkbuilder-button {
-  cursor: pointer;
-  color:rgba(255,255,255,.75);
 }
 
 .email-link {
