@@ -229,11 +229,3 @@ div#mocha {
   width: 20px;
   z-index: 10000000;
 }
-
-.events-near-you {
-  @include frontpage-subtitle-link()
-}
-
-.recommended-reading-library {
-  @include frontpage-subtitle-link()
-}
