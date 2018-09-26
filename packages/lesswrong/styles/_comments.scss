@@ -138,10 +138,6 @@ New CSS File
 
 */
 
-.posts-comments-thread-title{
-  margin-bottom: $vmargin;
-}
-
 .posts-comments-thread {
   font-weight:400;
   font-family: $comments-font;
@@ -570,13 +566,6 @@ New CSS File
   @include max-tiny() {
     margin:-2px 0;
   }
-}
-
-.comment-editor-information {
-  font-size:11px;
-  float:right;
-  margin-top:-25px;
-  color:rgba(0,0,0,.5);
 }
 
 .recent-comment-parent.root {
