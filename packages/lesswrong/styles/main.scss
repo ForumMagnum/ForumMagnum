@@ -279,3 +279,11 @@ div#mocha {
 .recommended-reading-library {
   @include frontpage-subtitle-link()
 }
+
+// Maximum width for LaTeX, to prevent causing horizontal scroll or otherwise
+// breaking the layout.
+.mjx-chtml {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100% !important;
+}
