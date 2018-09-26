@@ -86,26 +86,3 @@
     margin-left:10px;
   }
 }
-
-.lw-tooltip-wrapper {
-  position:relative;
-
-  .lw-tooltip {
-    position:absolute;
-    top:0;
-    left:0;
-    font-size:13px;
-    transition:.25s;
-  }
-
-  .lw-default-tooltip {
-    background: white;
-    border:solid 1px rgba(0,0,0,.1);
-    box-shadow:0 0 5px 0 rgba(0,0,0,.1);
-    padding:10px;
-    min-width:200px;
-    position:relative;
-    top:25px;
-    border-radius:2px;
-  }
-}

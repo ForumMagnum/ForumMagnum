@@ -65,13 +65,6 @@ then moved to more specific files as it becomes necessary.
 
 // CSS modifications for comment threads
 
-.header-taglines {
-  font-size: 16px;
-  margin-top: 28px;
-  float: left;
-  margin-left: 15px;
-}
-
 .posts-comments-thread-linked-comment{
   max-width: 640px;
   margin-left: auto;
@@ -124,12 +117,6 @@ then moved to more specific files as it becomes necessary.
 
 // CSS Modifications for Navbar buttons and styles
 
-.post-new-button{
-  a{
-    color: $lw-green !important;
-  }
-}
-
 .users-menu-contents a {
   // When the user menu is first opened, it incorrectly detects the first menu
   // item as hovered, but doesn't activate it like it would with a real hover.
@@ -138,35 +125,7 @@ then moved to more specific files as it becomes necessary.
   opacity: 1 !important;
 }
 
-// CSS modifications for notifications navbar
-.navbar-nav{
-  .notification-nav{
-    .dropdown-menu{
-      white-space: normal;
-      min-width: 250px;
-      padding: 16px;
-      li {
-        a {
-          white-space: normal;
-        }
-      }
-      .viewed {
-        background-color: $lightest-grey;
-      }
-      .unviewed {
-        background-color: $white;
-      }
-    }
-  }
-}
-
-
 // CSS modifications for notifications page
-.nav-notifications {
-  background-color: transparent;
-  margin-right: 20px;
-}
-
 .notification-filters{
   margin-bottom: 20px;
 }
