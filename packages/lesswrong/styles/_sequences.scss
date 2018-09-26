@@ -252,43 +252,6 @@
       .material-icons:hover {
         background-color: rgba(0,0,0,0.05);
       }
-
-      .upvote-button {
-        position: absolute;
-        margin-left: auto;
-        margin-right: auto;
-        left: 0px;
-        right: 0px;
-        top: -23px;
-        width: 50px;
-        height: 30px;
-
-      }
-      .downvote-button {
-        position: absolute;
-        margin-left: auto;
-        margin-right: auto;
-        left: 0px;
-        right: 0px;
-        top: 30px;
-        width: 50px;
-        height: 30px;
-      }
-    }
-    .upvoted {
-      .upvote-button {
-        .material-icons {
-          color: rgba(100, 169, 105, 0.9) !important;
-        }
-      }
-    }
-
-    .downvoted {
-      .downvote-button {
-        .material-icons {
-          color: rgba(100, 169, 105, 0.9) !important;
-        }
-      }
     }
   }
   .sequences-page-content-footer-author {
