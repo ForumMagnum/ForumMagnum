@@ -26,7 +26,10 @@ const styles = theme => ({
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
-    marginBottom:theme.spacing.unit*2
+    marginBottom:theme.spacing.unit*2,
+    maxWidth: "100%",
+    overflowX: "auto",
+    overflowY: "hidden",
   },
   postItem: {
     paddingLeft:10,
