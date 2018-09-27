@@ -1,6 +1,7 @@
 /* global Vulcan */
 import Users from 'meteor/vulcan:users';
-import { Posts, Comments } from 'meteor/example-forum';
+import { Posts } from 'meteor/example-forum';
+import { Comments } from '../../lib/collections/comments'
 import { newMutation, Utils } from 'meteor/vulcan:core';
 import moment from 'moment';
 import marked from 'marked';

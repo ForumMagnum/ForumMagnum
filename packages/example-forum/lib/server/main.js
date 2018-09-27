@@ -8,9 +8,6 @@ export * from './email/notifications.js';
 
 import './email/templates.js';
 
-import './comments/index.js';
-
 import './posts/index.js';
 
-import './api.js';
 import './rss.js';

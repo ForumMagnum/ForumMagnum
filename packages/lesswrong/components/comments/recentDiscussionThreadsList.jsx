@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
-import { Posts, Comments } from 'meteor/example-forum';
+import { Posts } from 'meteor/example-forum';
+import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({

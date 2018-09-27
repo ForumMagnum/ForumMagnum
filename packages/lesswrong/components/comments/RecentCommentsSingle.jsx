@@ -1,6 +1,6 @@
 import { Components, getRawComponent, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
-import { Comments } from "meteor/example-forum";
+import { Comments } from '../../lib/collections/comments';
 
 const RecentCommentsSingle = (props) => {
   if (props.document && !props.loading) {

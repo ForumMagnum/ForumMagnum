@@ -1,4 +1,5 @@
-import { Comments, Posts } from "meteor/example-forum";
+import { Posts } from "meteor/example-forum";
+import { Comments } from '../../../collections/comments'
 import { addCallback, editMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 

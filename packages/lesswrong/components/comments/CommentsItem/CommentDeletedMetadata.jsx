@@ -1,7 +1,7 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
-import { Comments } from 'meteor/example-forum';
+import { Comments } from '../../../lib/collections/comments';
 
 const CommentDeletedMetadata = ({document}) => {
   if (document && document.deleted) {

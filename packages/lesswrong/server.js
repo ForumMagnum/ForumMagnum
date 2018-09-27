@@ -1,3 +1,5 @@
+export * from './lib/index.js';
+
 import './server/database-import/database_import.js';
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
@@ -45,5 +47,3 @@ import './lib/events/server.js';
 
 import './lib/modules/indexes.js';
 import './lib/modules/connection_logs.js';
-
-export * from './lib/index.js';
