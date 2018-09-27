@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { Posts, Comments, Categories } from 'meteor/example-forum';
+import { Posts, Comments } from 'meteor/example-forum';
 import { Utils, GraphQLSchema, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Localgroups } from '../index.js';
 
@@ -180,7 +180,6 @@ export const performSubscriptionAction = (action, collection, itemId, user) => {
 subscribeMutationsGenerator(Users);
 subscribeMutationsGenerator(Posts);
 subscribeMutationsGenerator(Comments);
-subscribeMutationsGenerator(Categories);
 subscribeMutationsGenerator(Localgroups);
 
 export default subscribeMutationsGenerator;

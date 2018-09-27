@@ -10,8 +10,6 @@ import './email/templates.js';
 
 import './comments/index.js';
 
-import './categories/index.js';
-
 import './posts/index.js';
 
 import './api.js';

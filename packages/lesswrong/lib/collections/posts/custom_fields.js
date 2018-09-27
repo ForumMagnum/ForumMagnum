@@ -75,16 +75,6 @@ Posts.addField([
   },
 
   /**
-    categoriesIds: Change original Vulcan field to hidden
-  */
-  {
-    fieldName: "categoriesIds",
-    fieldSchema: {
-      hidden: true,
-    }
-  },
-
-  /**
     Legacy: Boolean used to indicate that post was imported from old LW database
   */
   {

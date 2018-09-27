@@ -58,12 +58,6 @@ import '../components/common/Vote.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
-// categories
-import '../components/categories/CategoriesMenu.jsx';
-import '../components/categories/CategoriesEditForm.jsx';
-import '../components/categories/CategoriesNewForm.jsx';
-import '../components/categories/CategoriesDashboard.jsx';
-
 
 
 import '../components/users/UsersMenu.jsx';
@@ -93,7 +87,6 @@ import '../components/posts/PostsNewButton.jsx';
 import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
-import '../components/posts/PostsCategories.jsx';
 import '../components/posts/PostsCommenters.jsx';
 import '../components/posts/PostsDailyList.jsx';
 import '../components/posts/PostsThumbnail.jsx';
