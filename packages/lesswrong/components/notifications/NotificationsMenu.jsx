@@ -40,7 +40,11 @@ const styles = theme => ({
   menuContainer: {
     height: "100vh",
     boxShadow: "none",
-    transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"
+    transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+    
+    // !important because material-UI defines an (incorrect)
+    // overflow
+    overflowX: "hidden !important"
   },
   icon: {
     color: "rgba(0,0,0,0.8)",
