@@ -52,7 +52,7 @@ body {
        font-size: 3.2rem;
        line-height: 1;
 
-       @include very-small-break() {
+       @include max-tiny() {
          font-size: 2.35rem;
        }
      }
@@ -63,7 +63,7 @@ body {
        margin-bottom: 1.4rem;
        font-size: 2.2rem;
        line-height: 1;
-       @include very-small-break() {
+       @include max-tiny() {
          font-size: 1.9rem;
        }
      }

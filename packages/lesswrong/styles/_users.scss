@@ -77,7 +77,7 @@
     width: 120px;
     margin-left: auto;
     margin-bottom: 15px;
-    @include very-small-break() {
+    @include max-tiny() {
       width:auto;
     }
   }
