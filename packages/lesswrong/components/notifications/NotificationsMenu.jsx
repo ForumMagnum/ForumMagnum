@@ -11,6 +11,7 @@ import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import classNames from 'classnames';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection.js'
@@ -18,16 +19,6 @@ import Notifications from '../../lib/collections/notifications/collection.js'
 const tabLabelStyle = {
   color: "rgba(0,0,0,0.8)",
   fontFamily: "freight-sans-pro, sans-serif"
-}
-
-const iconStyle = {
-  color: "rgba(0,0,0,0.8)",
-}
-
-const cancelStyle = {
-  color: "rgba(0,0,0,0.3)",
-  margin: "10px",
-  cursor: "pointer"
 }
 
 const styles = theme => ({
@@ -45,6 +36,19 @@ const styles = theme => ({
     right: "-15px",
     top: 0,
     pointerEvents: "none",
+  },
+  menuContainer: {
+    height: "100vh",
+    boxShadow: "none",
+    transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"
+  },
+  icon: {
+    color: "rgba(0,0,0,0.8)",
+  },
+  cancel: {
+    color: "rgba(0,0,0,0.3)",
+    margin: "10px",
+    cursor: "pointer"
   }
 });
 
@@ -73,25 +77,24 @@ class NotificationsMenu extends Component {
               <Drawer
                 open={open}
                 width={270}
-                containerStyle={{height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"}}
-                containerClassName="notifications-menu-container"
+                containerClassName={classNames("notifications-menu-container", classes.menuContainer)}
                 openSecondary={true}
                 onRequestChange={handleToggle}
               >
                 { hasOpened && <div className="notifications-menu-content">
                   <Tabs>
                     <Tab
-                      icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>}
+                      icon={<span title="All Notifications"><AllIcon classes={{root: classes.icon}}/></span>}
                       style={tabLabelStyle}
                       onActive={() => this.setState({notificationTerms: AllNotificationTerms})}
                     />
                     <Tab
-                      icon={<span title="New Posts"><PostsIcon style={iconStyle}/></span>}
+                      icon={<span title="New Posts"><PostsIcon classes={{root: classes.icon}}/></span>}
                       style={tabLabelStyle}
                       onActive={() => this.setState({notificationTerms: PostsNotificationTerms})}
                     />
                     <Tab
-                      icon={<span title="New Comments"><CommentsIcon style={iconStyle} /></span>}
+                      icon={<span title="New Comments"><CommentsIcon classes={{root: classes.icon}} /></span>}
                       style={tabLabelStyle}
                       onActive={() => this.setState({notificationTerms: CommentsNotificationTerms})}
                     />
@@ -101,7 +104,7 @@ class NotificationsMenu extends Component {
                           classes={{ root: classes.badgeContainer, badge: classes.badge }}
                           badgeContent={(newMessages && newMessages.length) || ""}
                         >
-                          <MessagesIcon style={iconStyle} />
+                          <MessagesIcon classes={{root: classes.icon}} />
                         </Badge>
                       </span>}
                       style={tabLabelStyle}
@@ -109,7 +112,7 @@ class NotificationsMenu extends Component {
                     />
                     <Tab className="notifications-menu-hidden-tab"/>
                   </Tabs>
-                  <ClearIcon className="notifications-hide-button" onClick={handleToggle} style={cancelStyle} />
+                  <ClearIcon className={classNames("notifications-hide-button", classes.cancel)} onClick={handleToggle} />
                   <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
                 </div>}
               </Drawer>
