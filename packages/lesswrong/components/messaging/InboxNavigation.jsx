@@ -33,7 +33,7 @@ const styles = theme => ({
     '&:hover': {
       color: grey[400]
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
     },
   },
@@ -42,7 +42,7 @@ const styles = theme => ({
   },
   navigation: {
     marginTop: theme.spacing.unit*2,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       maxHeight: 100,
       overflowX: "auto",
       overflowY: "scroll",
