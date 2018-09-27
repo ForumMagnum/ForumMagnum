@@ -11,29 +11,23 @@ $lw-medium: 950px;
 $lw-large: 1100px;
 $lw-huge: 1200px;
 
-$posts-page-section-header-break-width: $lw-huge;
-$section-header-break-width: $lw-medium;
-$collection-card-break-width: $lw-small;
-$very-small-break-width: $lw-tiny;
-
-
 @mixin section-header-break(){ //Break for when section headers need to be moved on top
-  @media screen and (max-width: $section-header-break-width) {
+  @media screen and (max-width: $lw-medium) {
     @content;
   }
 }
 @mixin collection-card-break(){ //Break for moving from 2-column to 1 column layout
-  @media screen and (max-width: $collection-card-break-width) {
+  @media screen and (max-width: $lw-small) {
     @content;
   }
 }
 @mixin posts-page-section-header-break(){
-  @media screen and (max-width: $posts-page-section-header-break-width), print {
+  @media screen and (max-width: $lw-huge), print {
     @content;
   }
 }
 @mixin very-small-break() {
-  @media screen and (max-width: $very-small-break-width) {
+  @media screen and (max-width: $lw-tiny) {
     @content;
   }
 }
