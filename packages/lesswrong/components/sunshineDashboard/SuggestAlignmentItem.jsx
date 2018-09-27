@@ -40,6 +40,9 @@ class SuggestAlignmentItem extends Component {
 
   render () {
     const { post, currentUser, hover, anchorEl, editMutation } = this.props
+
+    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
@@ -72,13 +75,13 @@ class SuggestAlignmentItem extends Component {
           Endorsed by { post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user.displayName).join(", ") }
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
-          { !post.suggestForAlignmentUserIds || !post.suggestForAlignmentUserIds.includes(currentUser._id) ?
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, editMutation})}>
-              <PlusOneIcon/>
-            </Components.SidebarAction>
-            :
+          { userHasVoted ?
             <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
               <UndoIcon/>
+            </Components.SidebarAction>
+            :
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, editMutation})}>
+              <PlusOneIcon/>
             </Components.SidebarAction>
           }
           <Components.SidebarAction title="Move to Alignment" onClick={this.handleMoveToAlignment}>
