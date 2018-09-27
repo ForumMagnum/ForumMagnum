@@ -1,6 +1,3 @@
-$section-width: 950px;
-$menu-width: 150px;
-
 // Vulcan Header Sections (Do not use)
 $small-break:  600px;
 $medium-break: 800px;
@@ -13,20 +10,13 @@ $lw-small: 715px;
 $lw-medium: 950px;
 $lw-large: 1100px;
 $lw-huge: 1200px;
-$lw-huger: 1400px;
 
-$menu-break-width: $lw-large;
 $posts-page-section-header-break-width: $lw-huge;
 $section-header-break-width: $lw-medium;
 $collection-card-break-width: $lw-small;
 $very-small-break-width: $lw-tiny;
 
 
-@mixin menu-break(){ //Break that gives menu solid background
-  @media screen and (max-width: $menu-break-width) {
-    @content;
-  }
-}
 @mixin section-header-break(){ //Break for when section headers need to be moved on top
   @media screen and (max-width: $section-header-break-width) {
     @content;
@@ -54,13 +44,6 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
-@mixin min-tiny(){
-  @media screen and (min-width: $lw-tiny) {
-    @content;
-  }
-}
-.max-tiny { @include min-tiny { display:none }}
-.min-tiny { @include max-tiny { display:none }}
 
 @mixin max-small(){
   @media screen and (max-width: $lw-small) {
@@ -72,8 +55,6 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
-.max-small { @include min-small { display:none }}
-.min-small { @include max-small { display:none }}
 
 @mixin max-medium(){
   @media screen and (max-width: $lw-medium) {
@@ -85,43 +66,11 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
-@mixin max-large(){
-  @media screen and (max-width: $lw-large) {
-    @content;
-  }
-}
-@mixin min-large(){
-  @media screen and (min-width: $lw-large) {
-    @content;
-  }
-}
-@mixin max-huge(){ // smaller than small-break
-  @media screen and (max-width: $lw-huge) {
-    @content;
-  }
-}
-@mixin min-huge(){ // smaller than small-break
-  @media screen and (min-width: $lw-huge) {
-    @content;
-  }
-}
-@mixin min-huger(){ // smaller than small-break
-  @media screen and (min-width: $lw-huger) {
-    @content;
-  }
-}
-
-
 
 
 
 @mixin small(){ // smaller than small-break
   @media screen and (max-width: $small-break) {
-    @content;
-  }
-}
-@mixin small-medium(){ // smaller than medium-break
-  @media screen and (max-width: $medium-break) {
     @content;
   }
 }
