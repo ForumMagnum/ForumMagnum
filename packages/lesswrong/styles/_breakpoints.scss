@@ -1,10 +1,6 @@
-// Vulcan Header Sections (Do not use)
-$small-break:  600px;
-$medium-break: 800px;
-$large: 1200px;
-
-// Our Header Sections
-
+// Legacy LW breakpoints
+// We are migrating away from these (and the mixins that use them), towards
+// material-UI's breakpoints.
 $lw-tiny: 400px;
 $lw-small: 715px;
 $lw-medium: 950px;
@@ -45,7 +41,73 @@ $lw-huge: 1200px;
   }
 }
 
+// Material-UI breakpoints
+// These are defined to be the same as Material-UI's breakpoints, ie, those
+// documented in https://material-ui.com/layout/breakpoints/ . When we turn
+// CSS into JSS, these map straightforwardly (unlike legacy LW breakpoints and
+// Vulcan breakpoints, which are at weird pixel amounts.)
 
+@mixin mui-breakpoint-xs(){
+  @media screen and (max-width: 600px) {
+    @content;
+  }
+}
+@mixin mui-breakpoint-sm(){
+  @media screen and (min-width: 600px) and (max-width: 960px) {
+    @content
+  }
+}
+
+@mixin mui-breakpoint-down-sm(){
+  @media screen and (max-width: 960px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-up-sm(){
+  @media screen and (min-width: 600px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-md(){
+  @media screen and (min-width: 960px) and (max-width: 1280px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-down-md(){
+  @media screen and (max-width: 1280px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-up-md(){
+  @media screen and (min-width: 960px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-lg(){
+  @media screen and (min-width: 1280px) and (max-width: 1920) {
+    @content
+  }
+}
+@mixin mui-breakpoint-down-lg(){
+  @media screen and (max-width: 1920) {
+    @content
+  }
+}
+@mixin mui-breakpoint-up-lg(){
+  @media screen and (min-width: 1280px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-xl(){
+  @media screen and (min-width: 1920px) {
+    @content
+  }
+}
+
+// Vulcan breakpoints (Do not use)
+$small-break:  600px;
+$medium-break: 800px;
+$large: 1200px;
 
 @mixin small(){ // smaller than small-break
   @media screen and (max-width: $small-break) {
