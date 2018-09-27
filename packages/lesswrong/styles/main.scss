@@ -250,12 +250,15 @@ h3{
 
 // Deactivate intercom on smaller devices
 
-
-@include section-header-break {
-  #intercom-container {
+#intercom-container {
+  @include section-header-break {
+    display: none;
+  }
+  @include max-small {
     display: none;
   }
 }
+
 
 div#mocha {
   background: white;

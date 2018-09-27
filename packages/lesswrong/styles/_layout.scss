@@ -124,12 +124,6 @@
   }
 }
 
-@include max-small {
-  #intercom-container {
-    display: none;
-  }
-}
-
 //Styles for header scrolling, provided by react-headroom: https://github.com/KyleAMathews/react-headroom
 
 .header {
