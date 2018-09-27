@@ -139,34 +139,8 @@ then moved to more specific files as it becomes necessary.
   opacity: 1 !important;
 }
 
-// CSS modifications for notifications navbar
-.navbar-nav{
-  .notification-nav{
-    .dropdown-menu{
-      white-space: normal;
-      min-width: 250px;
-      padding: 16px;
-      li {
-        a {
-          white-space: normal;
-        }
-      }
-      .viewed {
-        background-color: $lightest-grey;
-      }
-      .unviewed {
-        background-color: $white;
-      }
-    }
-  }
-}
-
 
 // CSS modifications for notifications page
-.nav-notifications {
-  background-color: transparent;
-  margin-right: 20px;
-}
 
 .notification-filters{
   margin-bottom: 20px;
