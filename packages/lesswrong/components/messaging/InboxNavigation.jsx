@@ -44,7 +44,8 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
     [theme.breakpoints.down('md')]: {
       maxHeight: 100,
-      overflow: "scroll",
+      overflowX: "auto",
+      overflowY: "scroll",
     },
   }
 })
