@@ -11,28 +11,6 @@ $lw-medium: 950px;
 $lw-large: 1100px;
 $lw-huge: 1200px;
 
-@mixin section-header-break(){ //Break for when section headers need to be moved on top
-  @media screen and (max-width: $lw-medium) {
-    @content;
-  }
-}
-@mixin collection-card-break(){ //Break for moving from 2-column to 1 column layout
-  @media screen and (max-width: $lw-small) {
-    @content;
-  }
-}
-@mixin posts-page-section-header-break(){
-  @media screen and (max-width: $lw-huge), print {
-    @content;
-  }
-}
-@mixin very-small-break() {
-  @media screen and (max-width: $lw-tiny) {
-    @content;
-  }
-}
-
-
 @mixin max-tiny(){
   @media screen and (max-width: $lw-tiny) {
     @content;
@@ -57,6 +35,12 @@ $lw-huge: 1200px;
 }
 @mixin min-medium(){
   @media screen and (min-width: $lw-medium) {
+    @content;
+  }
+}
+
+@mixin max-huge(){
+  @media screen and (max-width: $lw-huge), print {
     @content;
   }
 }

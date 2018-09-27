@@ -52,7 +52,7 @@
   a:hover {
     color: rgba(0,0,0,0.4) !important;
   }
-  @include section-header-break {
+  @include max-medium {
     br {
       display: none;
     }
@@ -485,7 +485,7 @@
     display: relative;
   }
 }
-@include posts-page-section-header-break() {
+@include max-huge() {
   .section {
     border-top-style: solid;
     width: 715px !important;
@@ -543,7 +543,7 @@
     }
   }
 }
-@include collection-card-break() {
+@include max-small() {
   .section {
     width: inherit !important;
     .section-content {
