@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router';
-import { Categories } from '../../modules/categories/index.js';
+import { Categories } from 'meteor/example-forum';
 import { withApollo } from 'react-apollo';
 
 /*
@@ -27,7 +27,7 @@ class CategoriesMenu extends PureComponent {
 
     const menuItem = {
       to: { pathname: Utils.getRoutePath('posts.list'), query: resetCategoriesQuery },
-      itemProps: { 
+      itemProps: {
         eventKey: 0,
         className: 'category-menu-item category-menu-item-all dropdown-item',
       },

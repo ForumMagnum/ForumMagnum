@@ -58,6 +58,12 @@ import '../components/common/Vote.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
+// categories
+import '../components/categories/CategoriesMenu.jsx';
+import '../components/categories/CategoriesEditForm.jsx';
+import '../components/categories/CategoriesNewForm.jsx';
+import '../components/categories/CategoriesDashboard.jsx';
+
 
 
 import '../components/users/UsersMenu.jsx';

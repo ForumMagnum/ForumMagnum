@@ -10,21 +10,21 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 
-import { Categories } from '../../modules/categories';
+import { Categories } from 'meteor/example-forum';
 
 const CategoriesDashboard = () =>
 
   <div className="categories-dashboard">
-    
+
     <h3><FormattedMessage id='categories'/></h3>
 
-    <Components.Datatable 
+    <Components.Datatable
       collection={Categories}
       columns={['name', 'description', 'order', 'slug']}
       showEdit={true}
       showNew={true}
     />
-  
+
   </div>
 
 registerComponent('CategoriesDashboard', CategoriesDashboard);
