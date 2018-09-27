@@ -2,28 +2,18 @@ import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
-import Badge from 'material-ui/Badge';
+import Badge from '@material-ui/core/Badge';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import AllIcon from '@material-ui/icons/Notifications';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
+import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection.js'
-
-
-const badgeContainerStyle = {
-  padding: 'none',
-}
-const badgeStyle = {
-  backgroundColor: 'none',
-  color: 'rgba(0,0,0,0.6)',
-  fontFamily: 'freight-sans-pro, sans-serif',
-  right: "-16px"
-}
 
 const tabLabelStyle = {
   color: "rgba(0,0,0,0.8)",
@@ -40,6 +30,24 @@ const cancelStyle = {
   cursor: "pointer"
 }
 
+const styles = theme => ({
+  badgeContainer: {
+    padding: "none",
+    fontFamily: 'freight-sans-pro, sans-serif',
+    verticalAlign: "inherit",
+  },
+  badge: {
+    backgroundColor: 'inherit',
+    color: 'rgba(0,0,0,0.6)',
+    fontFamily: 'freight-sans-pro, sans-serif',
+    fontSize: "12px",
+    fontWeight: 500,
+    right: "-15px",
+    top: 0,
+    pointerEvents: "none",
+  }
+});
+
 class NotificationsMenu extends Component {
   constructor(props, context) {
     super(props);
@@ -50,8 +58,8 @@ class NotificationsMenu extends Component {
   }
 
   render() {
-      const newMessages = this.props.results && _.filter(this.props.results, (x) => x.createdAt > this.state.lastNotificationsCheck);
-      const currentUser = this.props.currentUser;
+      const { classes, currentUser, results, open, handleToggle, hasOpened } = this.props;
+      const newMessages = results && _.filter(results, (x) => x.createdAt > this.state.lastNotificationsCheck);
       if (!currentUser) {
         return null;
       } else {
@@ -63,14 +71,14 @@ class NotificationsMenu extends Component {
           <div className="notifications-menu">
             <Components.ErrorBoundary>
               <Drawer
-                open={this.props.open}
+                open={open}
                 width={270}
                 containerStyle={{height: "100vh", boxShadow: "none", transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms"}}
                 containerClassName="notifications-menu-container"
                 openSecondary={true}
-                onRequestChange={this.props.handleToggle}
+                onRequestChange={handleToggle}
               >
-                { this.props.hasOpened && <div className="notifications-menu-content">
+                { hasOpened && <div className="notifications-menu-content">
                   <Tabs>
                     <Tab
                       icon={<span title="All Notifications"><AllIcon style={iconStyle}/></span>}
@@ -89,7 +97,10 @@ class NotificationsMenu extends Component {
                     />
                     <Tab
                       icon={<span title="New Messages">
-                        <Badge style={badgeContainerStyle} badgeContent={(newMessages && newMessages.length) || ""} primary={true} badgeStyle={badgeStyle}>
+                        <Badge
+                          classes={{ root: classes.badgeContainer, badge: classes.badge }}
+                          badgeContent={(newMessages && newMessages.length) || ""}
+                        >
                           <MessagesIcon style={iconStyle} />
                         </Badge>
                       </span>}
@@ -98,7 +109,7 @@ class NotificationsMenu extends Component {
                     />
                     <Tab className="notifications-menu-hidden-tab"/>
                   </Tabs>
-                  <ClearIcon className="notifications-hide-button" onClick={this.props.handleToggle} style={cancelStyle} />
+                  <ClearIcon className="notifications-hide-button" onClick={handleToggle} style={cancelStyle} />
                   <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
                 </div>}
               </Drawer>
@@ -127,4 +138,4 @@ const options = {
 };
 
 
-registerComponent('NotificationsMenu', NotificationsMenu, withUser, [withList, options]);
+registerComponent('NotificationsMenu', NotificationsMenu, withUser, [withList, options], withStyles(styles, { name: "NotificationsMenu" }));
