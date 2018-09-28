@@ -22,11 +22,13 @@ import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/legacy-redirects/routes.js';
-import './server/logging.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
+
+import './server/logging.js';
+import './server/rss.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
