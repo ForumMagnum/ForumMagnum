@@ -460,20 +460,8 @@ svg.drag-handle {
 
 .sequences-navigation-bottom-next-post {
   float: right;
-  .posts-item-title:before {
-    content: "Next Post: ";
-    font-weight: bold;
-    color: rgba(0,0,0,0.5);
-  }
 }
 
-.sequences-navigation-bottom-previous-post {
-  .posts-item-title:before {
-    content: "Previous Post: ";
-    font-weight: bold;
-    color: rgba(0,0,0,0.5);
-  }
-}
 .sequences-navigation-bottom-clear {
   clear:both;
 }

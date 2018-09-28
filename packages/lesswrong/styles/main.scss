@@ -64,45 +64,6 @@ then moved to more specific files as it becomes necessary.
 
 */
 
-// CSS modifications for comment threads
-
-.header-taglines {
-  font-size: 16px;
-  margin-top: 28px;
-  float: left;
-  margin-left: 15px;
-}
-
-.posts-comments-thread-linked-comment{
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50px;
-  .comment-wrapper{
-    margin-top: 15px;
-    min-height: 30px;
-  }
-  .posts-comments-thread-linked-comment-title{
-    display: inline;
-  }
-  .comment-inline {
-    .comment-inline-text{
-      font-weight: 300;
-    }
-    .well{
-      padding-top: 9px;
-      padding-bottom: 9px;
-      .comment-inline-description{
-        margin-bottom: 5px;
-        font-weight: 400;
-      }
-    }
-    font-size: 14px;
-    padding: 10px;
-  }
-}
-
-
 // Recent Comments Page CSS Modifications
 
 .recent-comments-page{
@@ -125,12 +86,6 @@ then moved to more specific files as it becomes necessary.
 
 // CSS Modifications for Navbar buttons and styles
 
-.post-new-button{
-  a{
-    color: $lw-green !important;
-  }
-}
-
 .users-menu-contents a {
   // When the user menu is first opened, it incorrectly detects the first menu
   // item as hovered, but doesn't activate it like it would with a real hover.
@@ -138,7 +93,6 @@ then moved to more specific files as it becomes necessary.
   // it's grayed out.
   opacity: 1 !important;
 }
-
 
 // CSS modifications for notifications page
 
@@ -171,22 +125,7 @@ then moved to more specific files as it becomes necessary.
   }
 }
 
-.messageEditor{
-  font-size: 16px !important;
-  border: #d1d1d1;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 5px;
-  padding: 16px;
-  margin-bottom: 10px;
-  color: rgba(0,0,0,0.87);
-}
-
 // CSS modifications for posts
-
-.posts-item-title{
-  margin-top: 0px;
-}
 
 .posts-actions{
   margin-right: 10px;
