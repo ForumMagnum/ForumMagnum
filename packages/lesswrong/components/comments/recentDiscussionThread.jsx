@@ -34,6 +34,16 @@ const styles = theme => ({
   continueReading: {
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
+  },
+  unreadDot: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.light,
+    fontSize: 30,
+    lineHeight:0,
+    position: "relative",
+    top:5.5,
+    marginLeft:2,
+    marginRight:5
   }
 })
 
@@ -114,6 +124,11 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
+            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
+              <span title="Unread" className={classes.unreadDot}>
+                •
+              </span>
+            }
             <Components.PostsItemMeta post={post}/>
             <span className="recent-discussion-show-highlight">
               { this.state.showExcerpt ?
