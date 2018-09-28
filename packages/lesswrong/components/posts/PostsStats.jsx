@@ -1,22 +1,32 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components as C, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
 
-const PostsStats = ({post}) => {
+const styles = theme => ({
+  root: {
+    opacity:.5,
+    [theme.breakpoints.down('sm')]: {
+      display:"none"
+    }
+  }
+})
+
+const PostsStats = ({post, classes}) => {
 
   return (
-    <div className="posts-stats">
+    <span className={classes.root}>
       {post.score &&
-        <span className="posts-stats-item" title="Score">
+        <C.MetaInfo title="Score">
           {Math.floor((post.score || 0)*10000)/10000}
-        </span>
+        </C.MetaInfo>
       }
-      <span className="posts-stats-item" title="Views">
+      <C.MetaInfo title="Views">
         {post.viewCount || 0}
-      </span>
-    </div>
+      </C.MetaInfo>
+    </span>
   )
 }
 
 PostsStats.displayName = "PostsStats";
 
-registerComponent('PostsStats', PostsStats);
+registerComponent('PostsStats', PostsStats, withStyles(styles));
