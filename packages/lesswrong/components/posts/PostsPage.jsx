@@ -16,7 +16,7 @@ import { Link, withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';

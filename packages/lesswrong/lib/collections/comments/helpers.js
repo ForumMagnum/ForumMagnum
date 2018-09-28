@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum'
+import { Posts } from '../posts'
 import { Comments } from './index'
 import Users from "meteor/vulcan:users"
 import { getSetting } from 'meteor/vulcan:core'

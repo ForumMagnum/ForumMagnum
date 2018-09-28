@@ -6,7 +6,7 @@ import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 
 class SunshineReportsItem extends Component {

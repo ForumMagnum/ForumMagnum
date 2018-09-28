@@ -2,7 +2,7 @@ import { Components, registerComponent, withList, Utils } from 'meteor/vulcan:co
 import withUser from '../common/withUser';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';

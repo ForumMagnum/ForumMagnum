@@ -3,7 +3,7 @@ import { Components } from "meteor/vulcan:core";
 import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../posts';
 
 Comments.addField([
 

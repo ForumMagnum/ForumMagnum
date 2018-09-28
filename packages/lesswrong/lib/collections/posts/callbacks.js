@@ -1,5 +1,5 @@
 import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
 import { performVoteServer } from 'meteor/vulcan:voting';
 import Localgroups from '../localgroups/collection.js';

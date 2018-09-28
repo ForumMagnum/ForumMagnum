@@ -1,6 +1,6 @@
 import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
 // import moment from 'moment';
-import { Posts } from '../../modules/posts/index.js';
+import { Posts } from '../../lib/collections/posts';
 
 SyncedCron.options = {
   log: true,
@@ -38,4 +38,3 @@ const addJob = function () {
 Meteor.startup(function () {
   addJob();
 });
-

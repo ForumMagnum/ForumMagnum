@@ -26,6 +26,7 @@ import './server/logging.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
 import './server/emails/index.js';
+import './server/posts/index.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';

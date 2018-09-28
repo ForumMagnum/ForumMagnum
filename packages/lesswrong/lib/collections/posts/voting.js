@@ -1,4 +1,3 @@
 import { makeVoteable } from 'meteor/vulcan:voting';
-import { Posts } from './posts/index.js';
-
+import { Posts } from './collection.js'
 makeVoteable(Posts);

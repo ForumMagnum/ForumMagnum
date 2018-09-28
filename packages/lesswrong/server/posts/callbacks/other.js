@@ -10,7 +10,7 @@ Callbacks to:
 
 */
 
-import { Posts } from '../../../modules/posts/index.js'
+import { Posts } from '../../../lib/collections/posts'
 import Users from 'meteor/vulcan:users';
 import { Connectors, addCallback, getSetting, registerSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import Events from 'meteor/vulcan:events';
@@ -96,8 +96,8 @@ function PostsClickTracking(post, ip) {
 }
 
 // track links clicked, locally in Events collection
-// note: this event is not sent to segment cause we cannot access the current user 
-// in our server-side route /out -> sending an event would create a new anonymous 
+// note: this event is not sent to segment cause we cannot access the current user
+// in our server-side route /out -> sending an event would create a new anonymous
 // user: the free limit of 1,000 unique users per month would be reached quickly
 addCallback('posts.click.async', PostsClickTracking);
 

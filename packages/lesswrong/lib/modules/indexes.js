@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../collections/posts';
 import { Comments } from '../collections/comments'
 import { Votes } from "meteor/vulcan:voting";
 import LWEvents from '../collections/lwevents/collection.js'

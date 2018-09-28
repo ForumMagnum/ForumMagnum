@@ -8,7 +8,7 @@ import {
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
-import { Posts } from "meteor/example-forum";
+import { Posts } from "../../lib/collections/posts";
 import moment from 'moment';
 import classNames from 'classnames';
 

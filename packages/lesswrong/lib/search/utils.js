@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../collections/posts';
 import { Comments } from '../collections/comments'
 import Users from 'meteor/vulcan:users';
 import RSSFeeds from '../collections/rssfeeds/collection.js';

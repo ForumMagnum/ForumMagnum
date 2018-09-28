@@ -6,7 +6,7 @@ import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../collections/posts';
 import { Comments } from '../collections/comments'
 import VulcanEmail from 'meteor/vulcan:email'
 import {

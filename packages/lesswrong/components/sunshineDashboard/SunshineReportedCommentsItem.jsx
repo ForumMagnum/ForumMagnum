@@ -4,7 +4,7 @@ import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types'
 

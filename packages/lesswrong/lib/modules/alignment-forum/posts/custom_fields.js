@@ -1,4 +1,4 @@
-import { Posts } from "meteor/example-forum";
+import { Posts } from "../../../collections/posts";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
 
 Posts.addField([

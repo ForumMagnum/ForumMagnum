@@ -7,7 +7,7 @@ Comments collection
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../posts';
 /**
  * @summary The global namespace for Comments.
  * @namespace Comments

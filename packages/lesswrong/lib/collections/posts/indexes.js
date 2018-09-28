@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from './collection';
 
 Posts._ensureIndex({'slug': 1});
 Posts._ensureIndex({'curatedDate': 1});
