@@ -125,9 +125,7 @@ class RecentDiscussionThread extends PureComponent {
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
-              <span title="Unread" className={classes.unreadDot}>
-                •
-              </span>
+              <span title="Unread" className={classes.unreadDot}>•</span>
             }
             <Components.PostsItemMeta post={post}/>
             <span className="recent-discussion-show-highlight">

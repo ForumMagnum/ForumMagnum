@@ -242,14 +242,6 @@
     text-decoration: none;
     color: rgba(0,0,0,0.3);
   }
-  .post-feed-nickname{
-    font-size: 0.9rem;
-    color: rgba(0,0,0,0.5);
-    margin-right: 5px;
-    @include max-tiny() {
-      display:none;
-    }
-  }
 
   .posts-item-meta {
     display: block;
@@ -698,13 +690,6 @@ svg.drag-handle {
   padding:10px 0;
   font-size:14px;
   font-weight:600;
-}
-
-.posts-stats {
-  display: inline;
-  @include max-tiny() {
-    width:0 !important;
-  }
 }
 
 .posts-daily {

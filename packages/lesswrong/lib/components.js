@@ -29,9 +29,8 @@ import '../components/notifications/SubscribeTo.jsx';
 
 import '../components/Layout.jsx';
 
-import '../components/common/FromDate.jsx';
+import '../components/common/FromNowDate.jsx';
 import '../components/common/FlashMessages.jsx';
-import '../components/common/LWTooltip.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';

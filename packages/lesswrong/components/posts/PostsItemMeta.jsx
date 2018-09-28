@@ -18,7 +18,7 @@ const PostsItemMeta = ({currentUser, post}) => {
         {post.feed.nickname}
       </C.MetaInfo>}
       {post.postedAt && !post.isEvent && <C.MetaInfo>
-        <C.FromDate date={post.postedAt}/>
+        <C.FromNowDate date={post.postedAt}/>
       </C.MetaInfo>}
       <C.MetaInfo>
         { baseScore || 0 } { baseScore == 1 ? "point" : "points"}

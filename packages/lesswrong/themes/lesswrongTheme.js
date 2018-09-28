@@ -83,6 +83,11 @@ const theme = createLWTheme({
       voteScores: {
         margin: "25% 15% 15% 15%"
       }
+    },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem"
+      }
     }
   }
 });
