@@ -59,6 +59,7 @@ class SunshineSidebar extends Component {
             <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
             <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
             <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
+            <Components.SuggestAlignmentList terms={{view:"alignmentSuggestions"}}/>
           </div>}
         </div>
       )

@@ -1,0 +1,21 @@
+import { Posts } from 'meteor/example-forum';
+
+Posts.suggestForAlignment = ({ currentUser, post, editMutation }) => {
+  const suggestUserIds = post.suggestForAlignmentUserIds || []
+  const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
+  editMutation({
+    documentId: post._id,
+    set: {suggestForAlignmentUserIds: newSuggestUserIds},
+    unset: {}
+  })
+}
+
+Posts.unSuggestForAlignment = ({ currentUser, post, editMutation }) => {
+  const suggestUserIds = post.suggestForAlignmentUserIds || []
+  const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
+  editMutation({
+    documentId: post._id,
+    set: {suggestForAlignmentUserIds:newSuggestUserIds},
+    unset: {}
+  })
+}

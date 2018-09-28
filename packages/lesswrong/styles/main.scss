@@ -7,7 +7,6 @@
 @import "layout";
 @import "accounts";
 @import "categories";
-@import "cheatsheet";
 @import "comments";
 @import "editor";
 @import "header";
@@ -64,6 +63,7 @@ then moved to more specific files as it becomes necessary.
 
 */
 
+
 // Recent Comments Page CSS Modifications
 
 .recent-comments-page{
@@ -107,21 +107,6 @@ then moved to more specific files as it becomes necessary.
 
   .comment-edit{
     margin-right: $hmargin;
-  }
-}
-
-// CSS modifications for voting
-
-
-.upvoted{
-  .upvote-button{
-    color: $lw-green !important;
-  }
-}
-
-.downvoted{
-  .downvote-button{
-    color: $lw-green !important;
   }
 }
 
@@ -186,14 +171,6 @@ div#mocha {
   top: 0;
   width: 20px;
   z-index: 10000000;
-}
-
-.events-near-you {
-  @include frontpage-subtitle-link()
-}
-
-.recommended-reading-library {
-  @include frontpage-subtitle-link()
 }
 
 // Maximum width for LaTeX, to prevent causing horizontal scroll or otherwise
