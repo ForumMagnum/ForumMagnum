@@ -30,22 +30,6 @@ Package.onUse(function (api) {
 
   ]);
 
-  api.addAssets([
-    'lib/server/email/templates/common/test.handlebars',
-    'lib/server/email/templates/common/wrapper.handlebars',
-    'lib/server/email/templates/comments/newComment.handlebars',
-    'lib/server/email/templates/comments/newReply.handlebars',
-    'lib/server/email/templates/posts/newPendingPost.handlebars',
-    'lib/server/email/templates/posts/newPost.handlebars',
-    'lib/server/email/templates/posts/postApproved.handlebars',
-    'lib/server/email/templates/users/accountApproved.handlebars',
-    'lib/server/email/templates/users/newUser.handlebars',
-    'lib/server/email/templates/newsletter/newsletter.handlebars',
-    'lib/server/email/templates/newsletter/newsletterConfirmation.handlebars',
-    'lib/server/email/templates/newsletter/postItem.handlebars',
-    
-  ], ['server']);
-
   api.mainModule("lib/server/main.js", "server");
   api.mainModule("lib/client/main.js", "client");
 
