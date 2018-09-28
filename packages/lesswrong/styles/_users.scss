@@ -101,7 +101,7 @@
   width:60%;
   margin:auto;
   margin-bottom:100px;
-  @include small {
+  @include mui-breakpoint-xs {
     width:100%;
   }
 }
@@ -116,7 +116,7 @@
 //     width:40%;
 //     margin-bottom:35px;
 //     text-transform: uppercase;
-//     @include small {
+//     @include mui-breakpoint-xs {
 //       width:100%;
 //     }
 //     a {

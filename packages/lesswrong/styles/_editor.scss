@@ -2,14 +2,14 @@
     width:672px;
     margin:0 auto;
 
-    @include small {
+    @include mui-breakpoint-xs {
         width:100%;
     }
 
     .document-edit .posts-delete-link {
         bottom:6px;
         left:0;
-        @include small {
+        @include mui-breakpoint-xs {
           bottom:56px;
           width:100px;
         }
@@ -25,7 +25,7 @@
     .document-edit .input-frontpage,
     .document-new .input-frontpage {
         margin:0;
-        @include small {
+        @include mui-breakpoint-xs {
             width:125px;
         }
 
@@ -36,7 +36,7 @@
         .checkbox {
             width:150px;
             margin:0 0 6px 0;
-            @include small {
+            @include mui-breakpoint-xs {
                 width:150px;
             }
         }
@@ -52,7 +52,7 @@
     .document-new .input-draft {
         right:115px;
         width:125px;
-        @include small {
+        @include mui-breakpoint-xs {
           bottom:50px;
           right:0px;
           width:100px;
@@ -67,7 +67,7 @@
     .document-new .input-frontpage {
         right:255px;
         width:150px;
-        @include small {
+        @include mui-breakpoint-xs {
           bottom:50px;
           right:150px;
           width:100px;

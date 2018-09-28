@@ -41,11 +41,22 @@ $lw-huge: 1200px;
   }
 }
 
+@mixin min-huge(){
+  @media screen and (min-width: $lw-huge) {
+    @content;
+  }
+}
+
 // Material-UI breakpoints
 // These are defined to be the same as Material-UI's breakpoints, ie, those
 // documented in https://material-ui.com/layout/breakpoints/ . When we turn
 // CSS into JSS, these map straightforwardly (unlike legacy LW breakpoints and
 // Vulcan breakpoints, which are at weird pixel amounts.)
+//   xs  extra-small  0px or larger
+//   sm  small        600px or larger
+//   md  medium       960px or larger
+//   lg  large        1280px or larger
+//   xl  extra-large  1920px or larger
 
 @mixin mui-breakpoint-xs(){
   @media screen and (max-width: 600px) {
