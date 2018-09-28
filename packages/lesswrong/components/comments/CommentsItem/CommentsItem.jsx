@@ -201,14 +201,14 @@ class CommentsItem extends Component {
               <div className="comments-item-date">
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    {moment(new Date(comment.postedAt)).fromNow()}
+                    <Components.FromDate date={comment.postedAt}/>
                     <FontIcon className="material-icons comments-item-permalink"> link
                     </FontIcon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  {moment(new Date(comment.postedAt)).fromNow()}
+                  <Components.FromDate date={comment.postedAt}/>
                   <FontIcon className="material-icons comments-item-permalink"> link
                   </FontIcon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}

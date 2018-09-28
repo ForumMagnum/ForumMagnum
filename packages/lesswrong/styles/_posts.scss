@@ -242,9 +242,6 @@
     text-decoration: none;
     color: rgba(0,0,0,0.3);
   }
-  .posts-item-show-highlight-button {
-    display:none;
-  }
   .post-feed-nickname{
     font-size: 0.9rem;
     color: rgba(0,0,0,0.5);
@@ -260,10 +257,7 @@
     width:100%;
     max-width: 570px;
     padding-bottom:5px;
-    & > div {
-      display: inline;
-      margin-right: 5px;
-    }
+
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -279,7 +273,6 @@
       @include min-medium() {
         cursor: pointer;
         .posts-item-show-highlight-button {
-          display:inline;
           opacity:.7;
           margin-left:4px;
         }
@@ -412,15 +405,6 @@
 
 .posts-categories{
   display: inline;
-}
-
-.posts-item-meta{
-  display: inline;
-  font-size: 1rem;
-  line-height: 1.4rem;
-  .users-name, .posts-item-date, .posts-item-comments, .posts-item-admin, .posts-actions, .posts-item-user, .posts-item-unread-dot {
-    display: inline;
-  }
 }
 
 .posts-commenters-avatars{
@@ -880,11 +864,6 @@ svg.drag-handle {
 
 .recent-discussion-thread-wrapper {
   margin-bottom:30px;
-
-  a:hover, a:visited, a:active {
-    text-decoration: none !important;
-    color:rgba(0,0,0,.5);
-  }
 }
 
 .post-highlight {
@@ -909,32 +888,14 @@ svg.drag-handle {
 
   .recent-discussion-show-highlight {
     opacity:0;
-    color:rgba(0,0,0,.4);
   }
   &:hover {
     .recent-discussion-show-highlight {
       opacity:1;
     }
   }
-
-  .recent-discussion-username,
-  .recent-discussion-thread-date,
-  .posts-item-unread-dot,
-  .posts-item-points,
-  .recent-discussion-edit,
-  .recent-discussion-thread-readtime {
-    margin-right:8px;
-  }
 }
 
-.recent-discussion-username a {
-  // font-weight:600;
-  // color:rgba(0,0,0,.55) !important;
-
-  &:hover {
-    color:rgba(0,0,0,.3) !important;
-  }
-}
 .posts-item-unread-dot {
   color:rgba(100,170,105,.65);
   font-size:30px;
@@ -1011,8 +972,4 @@ svg.drag-handle {
 .posts-daily-content-wrapper {
   margin-top:-12px;
   margin-left:15px;
-}
-
-.posts-stats-item {
-  margin-right:5px;
 }
