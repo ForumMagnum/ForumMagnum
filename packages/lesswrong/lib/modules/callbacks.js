@@ -197,15 +197,7 @@ addCallback("posts.undraft.async", PostsUndraftNotification);
  * @summary Add new post notification callback on post submit
  */
 function postsNewNotifications (post) {
-  if (post.status === Posts.config.STATUS_PENDING || post.draft) {
-    // if post is pending or saved to draft, only notify admins
-    let adminIds = _.pluck(Users.find({isAdmin: true}).fetch(), '_id');
-
-    // remove this post's author
-    adminIds = _.without(adminIds, post.userId);
-
-    createNotifications(adminIds, 'newPendingPost', 'post', post._id);
-  } else {
+  if (!post.draft && post.status !== Posts.config.STATUS_PENDING) {
     // add users who get notifications for all new posts
     let usersToNotify = _.pluck(Users.find({'notifications_posts': true}, {fields: {_id:1}}).fetch(), '_id');
 
