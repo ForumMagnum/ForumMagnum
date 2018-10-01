@@ -157,6 +157,9 @@ registerFragment(`
     suggestForCuratedUsernames
     reviewForCuratedUserId
     af
+    afDate
+    suggestForAlignmentUserIds
+    reviewForAlignmentUserId
     afBaseScore
     afCommentCount
     afLastCommentedAt
