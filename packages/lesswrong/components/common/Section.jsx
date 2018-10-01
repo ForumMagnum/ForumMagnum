@@ -18,7 +18,7 @@ const styles = (theme) => ({
       marginLeft: 50
     },
   },
-  wrapper: {
+  root: {
     maxWidth: "100vw",
     overflowX: "hidden",
   },
@@ -86,7 +86,7 @@ const Section = ({
 
   return (
     <Components.ErrorBoundary>
-      <div className={classes.wrapper}>
+      <div className={classes.root}>
       <Grid container className={classes.section} spacing={24}>
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>

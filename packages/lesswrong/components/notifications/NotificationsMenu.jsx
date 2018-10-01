@@ -18,19 +18,16 @@ import Notifications from '../../lib/collections/notifications/collection.js'
 
 const tabLabelStyle = {
   color: "rgba(0,0,0,0.8)",
-  fontFamily: "freight-sans-pro, sans-serif"
 }
 
 const styles = theme => ({
   badgeContainer: {
     padding: "none",
-    fontFamily: 'freight-sans-pro, sans-serif',
     verticalAlign: "inherit",
   },
   badge: {
     backgroundColor: 'inherit',
     color: 'rgba(0,0,0,0.6)',
-    fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,
     right: "-15px",
