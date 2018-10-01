@@ -139,7 +139,7 @@ Users.addField([
   {
     /*
       This field-name is no longer accurate, but is here because we used to have that field
-      around and then removed `markDownCommentEditor` and merged it into this field. 
+      around and then removed `markDownCommentEditor` and merged it into this field.
     */
     fieldName: 'markDownPostEditor',
     fieldSchema: {
@@ -523,36 +523,6 @@ Users.addField([
 
   {
     fieldName: 'newsletter_subscribeToNewsletter',
-    fieldSchema: {
-      hidden: true,
-    }
-  },
-
-  /**
-    Overwrite email notification settings to be hidden (for now) TODO: Get email notifications to run properly
-    (These settings are all defined by Vulcan-Starter in Vulcan-Starter/packages/example-forum/lib/modules/notifications/custom_fields.js)
-  */
-  {
-    fieldName: 'notifications_comments',
-    fieldSchema: {
-      hidden: true,
-    }
-  },
-  {
-    fieldName: 'notifications_replies',
-    fieldSchema: {
-      hidden: true,
-    }
-  },
-  {
-    fieldName: 'notifications_posts',
-    fieldSchema: {
-      group: null,
-      hidden: true,
-    }
-  },
-  {
-    fieldName: 'notifications_users',
     fieldSchema: {
       hidden: true,
     }

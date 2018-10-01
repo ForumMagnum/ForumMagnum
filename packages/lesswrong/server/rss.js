@@ -1,6 +1,6 @@
 import RSS from 'rss';
 import { Posts } from '../lib/collections/posts';
-import { rssTermsToUrl } from 'meteor/example-forum';
+import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';

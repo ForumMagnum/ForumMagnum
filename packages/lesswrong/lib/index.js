@@ -3,6 +3,9 @@
 // Permissions
 import './modules/permissions.js';
 
+// Head tags
+import './modules/headtags.js'
+
 // ## Accounts
 import './modules/accounts/modify_accounts_ui.js';
 
