@@ -89,13 +89,17 @@ class PostsDailyList extends PureComponent {
     const posts = this.props.results;
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before);
 
-    return (
-      <div className="posts-daily">
-        {/* <Components.PostsListHeader /> */}
-        {dates.map((date, index) => <Components.PostsDay key={index} number={index} date={date} posts={this.getDatePosts(posts, date)} networkStatus={this.props.networkStatus} currentUser={this.props.currentUser} />)}
-        {this.state.loading? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
-      </div>
-    )
+    if (this.props.loading && (!posts || !posts.length)) {
+      return <Components.PostsLoading />
+    } else {
+      return (
+        <div className="posts-daily">
+          {/* <Components.PostsListHeader /> */}
+          {dates.map((date, index) => <Components.PostsDay key={index} number={index} date={date} posts={this.getDatePosts(posts, date)} networkStatus={this.props.networkStatus} currentUser={this.props.currentUser} />)}
+          {this.state.loading? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
+        </div>
+      )
+    }
   }
 }
 
@@ -115,6 +119,7 @@ const options = {
   queryName: 'postsDailyListQuery',
   fragmentName: 'PostsList',
   limit: 0,
+  ssr: true,
 };
 
 registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options]);

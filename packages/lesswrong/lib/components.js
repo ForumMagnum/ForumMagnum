@@ -29,6 +29,7 @@ import '../components/notifications/SubscribeTo.jsx';
 
 import '../components/Layout.jsx';
 
+import '../components/common/FromNowDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
@@ -53,6 +54,7 @@ import '../components/common/CloudinaryImage.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
+import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/LinkPostMessage.jsx';
@@ -70,6 +72,7 @@ import '../components/users/LoginPage.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItem.jsx';
+import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';

@@ -241,7 +241,8 @@ figure:after {
     content: "Write here. Select text for formatting options. We support LaTeX! (Ctrl-4 for inline equations, Ctrl-M for block-level equations). You can switch to a markdown editor in your user settings.";
     max-width: 640px;
     position: absolute;
-    color: rgba(0,0,0,0.2);
+    color: rgba(0,0,0,0.55);
+    font-weight: 200;
 }
 
 .form-component-EditorFormComponent {
