@@ -518,17 +518,6 @@ Users.addField([
   },
 
   /**
-    Overwrite newsletter subscribe field to be hidden (for now) TODO: Get newsletter to run properly
-  */
-
-  {
-    fieldName: 'newsletter_subscribeToNewsletter',
-    fieldSchema: {
-      hidden: true,
-    }
-  },
-
-  /**
     New Notifications settings
   */
   {

@@ -1,5 +1,5 @@
 import { Picker } from 'meteor/meteorhacks:picker';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 

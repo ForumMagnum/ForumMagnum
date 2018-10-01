@@ -15,6 +15,7 @@ vulcan:voting
 vulcan:events
 vulcan:embed
 # vulcan:subscribe
+vulcan:accounts
 
 ############ Theme Packages ############
 
@@ -42,7 +43,6 @@ accounts-github@1.4.1
 # example-simple
 # example-movies
 # example-instagram
-example-forum
 
 # example-customization
 # example-permissions

@@ -1,6 +1,5 @@
 export * from './lib/index.js';
 
-import './server/database-import/database_import.js';
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';

@@ -32,7 +32,6 @@ ecmascript-runtime-server@0.7.0
 ejson@1.1.0
 email@1.2.3
 es5-shim@4.8.0
-example-forum@1.11.0
 facebook-oauth@1.5.0
 fourseven:scss@4.9.0
 geojson-utils@1.0.10
@@ -71,14 +70,14 @@ practicalmeteor:mocha-core@1.0.1
 promise@0.11.1
 random@1.1.0
 rate-limit@1.0.9
-reactive-dict@1.2.0
+reactive-dict@1.2.1
 reactive-var@1.0.11
 reload@1.2.0
 retry@1.1.0
 routepolicy@1.0.13
 server-render@0.3.1
 service-configuration@1.0.11
-session@1.1.7
+session@1.1.8
 sha@1.0.9
 shell-server@0.3.1
 socket-stream-client@0.2.2
