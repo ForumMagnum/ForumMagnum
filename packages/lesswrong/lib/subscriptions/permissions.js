@@ -7,8 +7,6 @@ const membersActions = [
   "comments.unsubscribe",
   "users.subscribe",
   "users.unsubscribe",
-  "categories.subscribe",
-  "categories.unsubscribe",
   "localgroups.subscribe",
   "localgroups.unsubscribe"
 ];

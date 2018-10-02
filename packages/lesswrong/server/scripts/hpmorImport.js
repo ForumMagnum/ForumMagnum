@@ -1,6 +1,6 @@
 import fs from 'fs';
 import Users from 'meteor/vulcan:users';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import { newMutation } from 'meteor/vulcan:core';
 
 const hpmorImport = false;

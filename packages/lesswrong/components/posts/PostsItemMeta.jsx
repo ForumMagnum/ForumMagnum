@@ -1,5 +1,5 @@
 import { Components as C, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
 import moment from 'moment';

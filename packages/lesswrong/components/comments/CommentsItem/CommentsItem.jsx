@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Comments, Posts } from "meteor/example-forum";
+import { Posts } from "../../../lib/collections/posts";
+import { Comments } from '../../../lib/collections/comments'
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';

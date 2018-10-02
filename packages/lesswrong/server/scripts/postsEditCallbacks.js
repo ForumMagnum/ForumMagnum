@@ -1,5 +1,5 @@
 /* global Vulcan */
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import { runCallbacks } from 'meteor/vulcan:core';
 
 Vulcan.runPostEditCallbacks = () => {

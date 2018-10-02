@@ -9,8 +9,6 @@
     "requirePostsApproval":false,
     "requireViewInvite":false,
     "requirePostInvite":false,
-    "enableNewsletter":false,
-    "newsletterFrequency": [1, 2, 3, 4],
     "autoSubscribe":false,
     "emailNotifications":true,
     "postInterval": 20,

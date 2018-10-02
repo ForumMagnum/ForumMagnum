@@ -1,4 +1,5 @@
-import './server/database-import/database_import.js';
+export * from './lib/index.js';
+
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
@@ -20,10 +21,13 @@ import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/legacy-redirects/routes.js';
-import './server/logging.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
 import './server/emails/index.js';
+import './server/posts/index.js';
+
+import './server/logging.js';
+import './server/rss.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
@@ -43,5 +47,3 @@ import './lib/events/server.js';
 
 import './lib/modules/indexes.js';
 import './lib/modules/connection_logs.js';
-
-export * from './lib/index.js';

@@ -2,7 +2,7 @@ import { Components, registerComponent, withMessages, withDocument } from 'meteo
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 
 class LocalGroupPage extends Component {
