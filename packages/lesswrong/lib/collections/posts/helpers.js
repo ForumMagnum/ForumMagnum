@@ -211,3 +211,7 @@ Posts.getLastCommentedAt = (post) => {
     return post.lastCommentedAt;
   }
 }
+
+Posts.canEdit = (currentUser, post) => {
+  return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
+}

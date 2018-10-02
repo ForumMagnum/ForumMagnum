@@ -80,7 +80,7 @@ const schema = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members'],
+    editableBy: Users.owns,
     control: 'url',
     order: 10,
     searchable: true,
@@ -100,7 +100,7 @@ const schema = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members'],
+    editableBy: Users.owns,
     control: 'text',
     order: 20,
     searchable: true
@@ -130,7 +130,7 @@ const schema = {
     max: 3000,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members'],
+    editableBy: Users.owns,
     control: 'textarea',
     order: 30
   },

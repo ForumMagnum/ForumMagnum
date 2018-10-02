@@ -1,3 +1,5 @@
+import Users from 'meteor/vulcan:users'
+
 const defaultOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: false,
@@ -7,7 +9,7 @@ const defaultOptions = {
   commentLocalStorage: false,
   permissions: {
     viewableBy: ['guests'],
-    editableBy: ['members'],
+    editableBy: Users.owns,
     insertableBy: ['members']
   },
   fieldName: "",
