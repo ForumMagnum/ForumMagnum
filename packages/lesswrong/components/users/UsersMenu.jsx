@@ -20,6 +20,9 @@ const styles = theme => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
+  },
+  loggedInUserKarma: {
+    paddingLeft: '5px'
   }
 })
 
@@ -53,6 +56,7 @@ class UsersMenu extends PureComponent {
         <Button onClick={this.handleClick}>
           <span className={classes.userButton} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
+            {currentUser && currentUser.karma>0 && <span className={classes.loggedInUserKarma}>({currentUser.karma})</span>}
           </span>
         </Button>
         <Popover
