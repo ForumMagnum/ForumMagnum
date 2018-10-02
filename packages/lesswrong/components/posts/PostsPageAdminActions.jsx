@@ -111,6 +111,7 @@ class PostsPageAdminActions extends Component {
                   </div>
                 }
                 <Components.SuggestCurated post={post} />
+                {/* <Components.SuggestAlignment post={post} /> */}
               </div>
             </div>
           }

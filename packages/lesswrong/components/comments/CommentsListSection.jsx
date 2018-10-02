@@ -40,6 +40,12 @@ const styles = theme => ({
     "@media print": {
       display: "none"
     }
+  },
+  newCommentLabel: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    fontWeight: 600,
+    marginTop: theme.spacing.unit
   }
 })
 
@@ -140,7 +146,7 @@ class CommentsListSection extends Component {
         }
         {currentUser && Users.isAllowedToComment(currentUser, post) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
-            <h4><FormattedMessage id="comments.new"/></h4>
+            <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
               postId={postId}
               prefilledProps={{af: Comments.defaultToAlignment(currentUser, post)}}

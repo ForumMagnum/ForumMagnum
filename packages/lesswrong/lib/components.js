@@ -29,6 +29,7 @@ import '../components/notifications/SubscribeTo.jsx';
 
 import '../components/Layout.jsx';
 
+import '../components/common/FromNowDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
@@ -50,13 +51,10 @@ import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 import '../components/common/Logo.jsx';
 import '../components/common/SearchForm.jsx';
-import '../components/common/Vote.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
-
-
 
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
@@ -75,6 +73,7 @@ import '../components/users/LoginPage.jsx';
 
 // posts
 
+import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/LinkPostMessage.jsx';
@@ -89,7 +88,9 @@ import '../components/posts/PostsCommenters.jsx';
 import '../components/posts/PostsDailyList.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
+import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItem.jsx';
+import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
@@ -178,6 +179,8 @@ import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
+import '../components/sunshineDashboard/SuggestAlignmentItem.jsx';
+import '../components/sunshineDashboard/SuggestAlignmentList.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersItem.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';

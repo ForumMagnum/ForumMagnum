@@ -28,7 +28,6 @@ Posts.addDefaultView(terms => {
   if (terms.userId) {
     params.selector.hideAuthor = {$ne: true}
   }
-
   return params;
 })
 
@@ -391,6 +390,21 @@ Posts.addView("sunshineCuratedSuggestions", function () {
     selector: {
       suggestForCuratedUserIds: {$exists:true, $ne: []},
       reviewForCuratedUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
+  }
+})
+
+Posts.addView("alignmentSuggestions", function () {
+  return {
+    selector: {
+      af: false,
+      suggestForAlignmentUserIds: {$exists:true, $ne: []},
+      reviewForAlignmentUserId: {$exists:false}
     },
     options: {
       sort: {

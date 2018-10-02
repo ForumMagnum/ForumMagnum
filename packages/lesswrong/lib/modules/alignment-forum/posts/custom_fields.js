@@ -19,6 +19,22 @@ Posts.addField([
   },
 
   {
+    fieldName: 'afDate',
+    fieldSchema: {
+      order:10,
+      type: Date,
+      optional: true,
+      label: "Alignment Forum",
+      defaultValue: false,
+      hidden: true,
+      viewableBy: ['guests'],
+      editableBy: ['alignmentForum'],
+      insertableBy: ['alignmentForum'],
+      group: formGroups.options,
+    }
+  },
+
+  {
     fieldName: 'afBaseScore',
     fieldSchema: {
       type: Number,
@@ -39,8 +55,6 @@ Posts.addField([
       viewableBy: ['guests'],
     }
   },
-
-
 
   {
     fieldName: 'afLastCommentedAt',
@@ -78,6 +92,51 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  {
+    fieldName: 'suggestForAlignmentUserIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['members'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      optional: true,
+      label: "Suggested for Alignment by",
+      control: "UsersListEditor",
+      group: formGroups.adminOptions,
+      resolveAs: {
+        fieldName: 'suggestForAlignmentUsers',
+        type: '[User]',
+        resolver: (post, args, context) => {
+          return _.map(post.suggestForAlignmentUserIds,
+            (userId => {return context.Users.findOne({ _id: userId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
+          )
+        },
+        addOriginalField: true
+      },
+    }
+  },
+
+  {
+    fieldName: 'suggestForAlignmentUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'reviewForAlignmentUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['alignmentForumAdmins', 'admins'],
+      insertableBy: ['alignmentForumAdmins', 'admins'],
+      group: formGroups.adminOptions,
+      label: "AF Review UserId"
     }
   },
 
