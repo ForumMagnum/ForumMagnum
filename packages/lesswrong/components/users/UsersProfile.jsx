@@ -71,8 +71,8 @@ const UsersProfile = (props) => {
         { !getSetting('AlignmentForum', false) && <Components.MetaInfo title="Karma">
           {karma || 0}
         </Components.MetaInfo>}
-        { afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
-        { afKarma && <Components.MetaInfo title="Alignment Karma">
+        { !!afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
+        { !!afKarma && <Components.MetaInfo title="Alignment Karma">
             {afKarma || 0}
           </Components.MetaInfo>
         }
