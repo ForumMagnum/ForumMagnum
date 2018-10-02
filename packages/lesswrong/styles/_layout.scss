@@ -1,6 +1,6 @@
 
 .wrapper {
-  @include section-header-break {
+  @include max-medium {
     .collections-page {
       margin-right: 0px;
     }
@@ -28,7 +28,7 @@
       }
     }
   }
-  @include collection-card-break(){
+  @include max-small(){
     .section {
       width: 100% !important;
       .section-title {
@@ -50,7 +50,7 @@
       }
     }
   }
-  @include very-small-break() {
+  @include max-tiny() {
     .section {
       width: 100% !important;
       .section-content {
@@ -121,12 +121,6 @@
         }
       }
     }
-  }
-}
-
-@include max-small {
-  #intercom-container {
-    display: none;
   }
 }
 

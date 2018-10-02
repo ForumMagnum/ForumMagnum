@@ -48,7 +48,7 @@ class ConversationWrapper extends Component {
 
     if (conversation) {
       return (
-        <div>
+        <Components.ErrorBoundary>
           <Typography variant="display2" className={classes.conversationTitle}>
             { Conversations.getTitle(conversation, currentUser)}
           </Typography>
@@ -66,7 +66,7 @@ class ConversationWrapper extends Component {
               }}
             />
           </div>
-        </div>
+        </Components.ErrorBoundary>
       )
     } else {
       return <Components.NoContent>No Conversation Selected</Components.NoContent>

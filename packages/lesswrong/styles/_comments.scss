@@ -116,11 +116,6 @@ $medium-text: $dark-grey;
     .vote {
       display: inline;
     }
-    .vote-count {
-      color: rgba(0,0,0,0.5);
-      display: inline;
-      margin-right: 5px;
-    }
     .comments-item-reply-link {
       margin-right: 5px;
       display: inline;
@@ -137,10 +132,6 @@ $medium-text: $dark-grey;
 New CSS File
 
 */
-
-.posts-comments-thread-title{
-  margin-bottom: $vmargin;
-}
 
 .posts-comments-thread {
   font-weight:400;
@@ -498,12 +489,6 @@ New CSS File
   background-color: rgba(0,0,0,.05);
   padding:7px 9px 25px 9px;
 }
-.posts-comments-thread-linked-comment {
-  padding:40px 0 60px 0;
-  .recent-comments-node.comments-node-root {
-    margin-bottom:10px;
-  }
-}
 .comment-context-link {
   font-family: $comments-font;
   text-align:right;
@@ -570,13 +555,6 @@ New CSS File
   @include max-tiny() {
     margin:-2px 0;
   }
-}
-
-.comment-editor-information {
-  font-size:11px;
-  float:right;
-  margin-top:-25px;
-  color:rgba(0,0,0,.5);
 }
 
 .recent-comment-parent.root {

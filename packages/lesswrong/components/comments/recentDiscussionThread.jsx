@@ -10,7 +10,6 @@ import {
 import { Link } from 'react-router';
 import { Posts, Comments } from 'meteor/example-forum';
 import classNames from 'classnames';
-import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
@@ -18,7 +17,6 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 
-import Users from "meteor/vulcan:users";
 import FontIcon from 'material-ui/FontIcon';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
@@ -26,7 +24,10 @@ const styles = theme => ({
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
-    marginBottom:theme.spacing.unit*2
+    marginBottom:theme.spacing.unit*2,
+    maxWidth: "100%",
+    overflowX: "auto",
+    overflowY: "hidden",
   },
   postItem: {
     paddingLeft:10,
@@ -36,6 +37,16 @@ const styles = theme => ({
   continueReading: {
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
+  },
+  unreadDot: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.light,
+    fontSize: 30,
+    lineHeight:0,
+    position: "relative",
+    top:5.5,
+    marginLeft:2,
+    marginRight:5
   }
 })
 
@@ -116,50 +127,26 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
-            <Components.MetaInfo>
-              {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
-                <span title="Unread" className="posts-item-unread-dot">•</span>
-              }
-              {Posts.options.mutations.edit.check(currentUser, post) &&
-                <Link className="recent-discussion-edit"
-                  to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-                  Edit
-                </Link>
-              }
-              <span className="recent-discussion-username">
-                <Link to={ Users.getProfileUrl(post.user) }>{post.user && post.user.displayName}</Link>
-              </span>
-              {post.postedAt && !post.isEvent &&
-                <span className="recent-discussion-thread-date">
-                  {moment(new Date(post.postedAt)).fromNow()}
-                </span>
-              }
-              <span className="posts-item-points">
-                { post.baseScore } { post.baseScore == 1 ? "point" : "points"}
-              </span>
-              {post.wordCount && !post.isEvent &&
-                <span className="recent-discussion-thread-readtime">
-                  {parseInt(post.wordCount/300) || 1 } min read
-                </span>
-              }
-              <span className="recent-discussion-show-highlight">
-
-                { this.state.showExcerpt ?
-                  <span>
-                    Hide Highlight
-                    <FontIcon className={classNames("material-icons","hide-highlight-button")}>
-                      subdirectory_arrow_left
-                    </FontIcon>
-                  </span>
-                :
-                <span>
-                  Show Highlight
-                  <FontIcon className={classNames("material-icons","show-highlight-button")}>
+            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
+              <span title="Unread" className={classes.unreadDot}>•</span>
+            }
+            <Components.PostsItemMeta post={post}/>
+            <span className="recent-discussion-show-highlight">
+              { this.state.showExcerpt ?
+                <Components.MetaInfo>
+                  Hide Highlight
+                  <FontIcon className={classNames("material-icons","hide-highlight-button")}>
                     subdirectory_arrow_left
                   </FontIcon>
-                </span>  }
-              </span>
-            </Components.MetaInfo>
+                </Components.MetaInfo>
+              :
+              <Components.MetaInfo>
+                Show Highlight
+                <FontIcon className={classNames("material-icons","show-highlight-button")}>
+                  subdirectory_arrow_left
+                </FontIcon>
+              </Components.MetaInfo> }
+            </span>
           </div>
         </div>
 

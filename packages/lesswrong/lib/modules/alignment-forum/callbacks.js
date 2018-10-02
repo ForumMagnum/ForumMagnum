@@ -13,7 +13,7 @@ async function updateAlignmentKarmaServer (newDocument, vote) {
   // Update a
   const voter = Users.findOne(vote.userId)
 
-  if (Users.canDo(voter, "votes.alignment")) {
+  if (Users.canDo(voter, "votes.alignment") && newDocument.af) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
     let newAFBaseScore = 0
 
