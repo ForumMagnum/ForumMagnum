@@ -319,12 +319,6 @@
     width:100%;
     left:0;
   }
-  // .post-item-new-comments-header {
-  //   position:absolute;
-  //   top:0;
-  //   width:100%;
-  //   left:0;
-  // }
   .posts-item-hide-comments, .posts-item-view-all-comments {
     color:rgba(0,0,0,.5);
     padding:0 15px;
@@ -430,56 +424,7 @@
   }
 }
 
-.section {
-  margin-right: 235px;
-  .section-title {
-    top: 0px;
-    padding-right: 15px;
-    right: 100%;
-  }
-  .section-content {
-    display: relative;
-  }
-}
 @include max-huge() {
-  .section {
-    border-top-style: solid;
-    width: 715px !important;
-    display: inherit !important;
-    margin-right: auto;
-    border-top-width: 4px;
-    padding-top: 4px;
-    .section-title {
-      position: relative;
-      padding: 0px;
-      margin-bottom: 0px;
-      width: auto !important;
-      text-align: inherit;
-      display: block;
-      right: inherit;
-      h2 {
-        &:before {
-          display: none;
-        }
-        display: inline;
-        margin-right: 10px;
-        border-top-style: none;
-      }
-      .sequences-navigation-title-subtitle {
-        display: inline-block;
-      }
-      .comments-title-component {
-        margin-left: 0px;
-      }
-      .highlight-date-selector {
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-    }
-    .section-content {
-      margin-top: 20px;
-    }
-  }
   .posts-page-content-body-metadata {
     position: inherit !important;
     right: inherit !important;
@@ -497,12 +442,6 @@
   }
 }
 @include max-small() {
-  .section {
-    width: inherit !important;
-    .section-content {
-      width: inherit !important;
-    }
-  }
   .posts-item-summary {
     white-space: inherit !important;
   }

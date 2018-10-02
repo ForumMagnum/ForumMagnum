@@ -282,15 +282,6 @@ $lw-green: #588f27;
   color: rgba(0,0,0,0.7);
 }
 
-.local-group-page {
-  .section-title {
-    padding-top: 66px;
-  }
-  .section-title-bottom {
-    @include frontpage-subtitle-link();
-  }
-}
-
 .local-group-page-name {
   margin-top: 0px !important;
   margin-bottom: 0.5rem !important;
