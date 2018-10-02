@@ -18,6 +18,10 @@ const styles = (theme) => ({
       marginLeft: 50
     },
   },
+  root: {
+    maxWidth: "100vw",
+    overflowX: "hidden",
+  },
   sectionTitleContainer: {
     [theme.breakpoints.up('md')]: {
       textAlign: 'right',
@@ -82,6 +86,7 @@ const Section = ({
 
   return (
     <Components.ErrorBoundary>
+      <div className={classes.root}>
       <Grid container className={classes.section} spacing={24}>
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>
@@ -102,6 +107,7 @@ const Section = ({
           </div>
         </Grid>
       </Grid>
+      </div>
     </Components.ErrorBoundary>
   )
 };

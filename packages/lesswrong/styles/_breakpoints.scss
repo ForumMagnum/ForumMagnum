@@ -1,66 +1,17 @@
-$section-width: 950px;
-$menu-width: 150px;
-
-// Vulcan Header Sections (Do not use)
-$small-break:  600px;
-$medium-break: 800px;
-$large: 1200px;
-
-// Our Header Sections
-
+// Legacy LW breakpoints
+// We are migrating away from these (and the mixins that use them), towards
+// material-UI's breakpoints.
 $lw-tiny: 400px;
 $lw-small: 715px;
 $lw-medium: 950px;
 $lw-large: 1100px;
 $lw-huge: 1200px;
-$lw-huger: 1400px;
-
-$menu-break-width: $lw-large;
-$posts-page-section-header-break-width: $lw-huge;
-$section-header-break-width: $lw-medium;
-$collection-card-break-width: $lw-small;
-$very-small-break-width: $lw-tiny;
-
-
-@mixin menu-break(){ //Break that gives menu solid background
-  @media screen and (max-width: $menu-break-width) {
-    @content;
-  }
-}
-@mixin section-header-break(){ //Break for when section headers need to be moved on top
-  @media screen and (max-width: $section-header-break-width) {
-    @content;
-  }
-}
-@mixin collection-card-break(){ //Break for moving from 2-column to 1 column layout
-  @media screen and (max-width: $collection-card-break-width) {
-    @content;
-  }
-}
-@mixin posts-page-section-header-break(){
-  @media screen and (max-width: $posts-page-section-header-break-width), print {
-    @content;
-  }
-}
-@mixin very-small-break() {
-  @media screen and (max-width: $very-small-break-width) {
-    @content;
-  }
-}
-
 
 @mixin max-tiny(){
   @media screen and (max-width: $lw-tiny) {
     @content;
   }
 }
-@mixin min-tiny(){
-  @media screen and (min-width: $lw-tiny) {
-    @content;
-  }
-}
-.max-tiny { @include min-tiny { display:none }}
-.min-tiny { @include max-tiny { display:none }}
 
 @mixin max-small(){
   @media screen and (max-width: $lw-small) {
@@ -72,8 +23,6 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
-.max-small { @include min-small { display:none }}
-.min-small { @include max-small { display:none }}
 
 @mixin max-medium(){
   @media screen and (max-width: $lw-medium) {
@@ -85,43 +34,94 @@ $very-small-break-width: $lw-tiny;
     @content;
   }
 }
-@mixin max-large(){
-  @media screen and (max-width: $lw-large) {
+
+@mixin max-huge(){
+  @media screen and (max-width: $lw-huge), print {
     @content;
   }
 }
-@mixin min-large(){
-  @media screen and (min-width: $lw-large) {
-    @content;
-  }
-}
-@mixin max-huge(){ // smaller than small-break
-  @media screen and (max-width: $lw-huge) {
-    @content;
-  }
-}
-@mixin min-huge(){ // smaller than small-break
+
+@mixin min-huge(){
   @media screen and (min-width: $lw-huge) {
     @content;
   }
 }
-@mixin min-huger(){ // smaller than small-break
-  @media screen and (min-width: $lw-huger) {
+
+// Material-UI breakpoints
+// These are defined to be the same as Material-UI's breakpoints, ie, those
+// documented in https://material-ui.com/layout/breakpoints/ . When we turn
+// CSS into JSS, these map straightforwardly (unlike legacy LW breakpoints and
+// Vulcan breakpoints, which are at weird pixel amounts.)
+//   xs  extra-small  0px or larger
+//   sm  small        600px or larger
+//   md  medium       960px or larger
+//   lg  large        1280px or larger
+//   xl  extra-large  1920px or larger
+
+@mixin mui-breakpoint-xs(){
+  @media screen and (max-width: 600px) {
     @content;
   }
 }
+@mixin mui-breakpoint-sm(){
+  @media screen and (min-width: 600px) and (max-width: 960px) {
+    @content
+  }
+}
 
+@mixin mui-breakpoint-down-sm(){
+  @media screen and (max-width: 960px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-up-sm(){
+  @media screen and (min-width: 600px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-md(){
+  @media screen and (min-width: 960px) and (max-width: 1280px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-down-md(){
+  @media screen and (max-width: 1280px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-up-md(){
+  @media screen and (min-width: 960px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-lg(){
+  @media screen and (min-width: 1280px) and (max-width: 1920) {
+    @content
+  }
+}
+@mixin mui-breakpoint-down-lg(){
+  @media screen and (max-width: 1920) {
+    @content
+  }
+}
+@mixin mui-breakpoint-up-lg(){
+  @media screen and (min-width: 1280px) {
+    @content
+  }
+}
+@mixin mui-breakpoint-xl(){
+  @media screen and (min-width: 1920px) {
+    @content
+  }
+}
 
-
-
+// Vulcan breakpoints (Do not use)
+$small-break:  600px;
+$medium-break: 800px;
+$large: 1200px;
 
 @mixin small(){ // smaller than small-break
   @media screen and (max-width: $small-break) {
-    @content;
-  }
-}
-@mixin small-medium(){ // smaller than medium-break
-  @media screen and (max-width: $medium-break) {
     @content;
   }
 }
