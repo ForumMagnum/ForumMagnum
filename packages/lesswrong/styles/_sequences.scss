@@ -1,6 +1,6 @@
 .sequences-home {
   margin-right: 90px;
-  @include section-header-break {
+  @include max-medium {
     margin-right: 0px;
   }
 }
@@ -9,7 +9,7 @@
   padding-left: 20px;
   margin-bottom: 50px;
 
-  @include very-small-break() {
+  @include max-tiny() {
     padding-left: 0;
   }
 }
@@ -34,7 +34,7 @@
 .sequences-grid-content {
   margin-top: -15px;
   padding-left: 5px;
-  @include very-small-break() {
+  @include max-tiny() {
     padding-left: 0;
   }
 
@@ -60,7 +60,7 @@
     }
     width: 233px;
     padding: 15px;
-    @include very-small-break() {
+    @include max-tiny() {
       padding: 15px 0 15px 0;
     }
 
@@ -99,16 +99,16 @@
       width: 203px;
       height: 80px;
       background-color: rgba(0,0,0,0.05);
-      @include very-small-break() {
+      @include max-tiny() {
         width: 100%;
       }
-      @include section-header-break() {
+      @include max-medium() {
         height: auto,
       }
       img {
         width: 203px;
         height: 80px;
-        @include very-small-break() {
+        @include max-tiny() {
           width: 100% !important;
         }
       }
@@ -416,20 +416,8 @@ svg.drag-handle {
 
 .sequences-navigation-bottom-next-post {
   float: right;
-  .posts-item-title:before {
-    content: "Next Post: ";
-    font-weight: bold;
-    color: rgba(0,0,0,0.5);
-  }
 }
 
-.sequences-navigation-bottom-previous-post {
-  .posts-item-title:before {
-    content: "Previous Post: ";
-    font-weight: bold;
-    color: rgba(0,0,0,0.5);
-  }
-}
 .sequences-navigation-bottom-clear {
   clear:both;
 }
@@ -488,7 +476,7 @@ svg.drag-handle {
   font-weight:600;
   font-size:1.2rem;
 }
-@include section-header-break() {
+@include max-medium() {
   .sequences-page {
     margin-right: 0px;
   }
@@ -514,7 +502,7 @@ svg.drag-handle {
   }
 }
 
-@include collection-card-break() {
+@include max-small() {
   .sequences-grid-item {
     width: 335px !important;
     .sequences-grid-item-image {
@@ -526,7 +514,7 @@ svg.drag-handle {
   }
 }
 
-@include very-small-break() {
+@include max-tiny() {
   .sequences-grid-item {
     width: 100% !important;
     padding:14px 10px 12px 10px !important;
@@ -553,7 +541,7 @@ svg.drag-handle {
   top: 60px;
   width: 100vw;
   height: 380px;
-  @include very-small-break() {
+  @include max-tiny() {
     top: 40px;
   }
   img {
@@ -583,11 +571,11 @@ svg.drag-handle {
   position:absolute !important;
   left:15px;
   top:15px;
-  @include section-header-break() {
+  @include max-medium() {
     left:15px;
     top:40px;
   }
-  @include very-small-break() {
+  @include max-tiny() {
     left:12px;
     top:15px;
   }
@@ -615,7 +603,7 @@ svg.drag-handle {
       position: relative !important;
       left:45px;
       margin:auto;
-      @include section-header-break() {
+      @include max-medium() {
         left:0;
         padding:0 10px;
       }
@@ -654,7 +642,7 @@ svg.drag-handle {
       left:0;
       max-width:100%;
 
-      @include section-header-break() {
+      @include max-medium() {
         margin-top:40px;
         padding:0;
       }
@@ -705,7 +693,7 @@ svg.drag-handle {
       left:-230px;
       top:3px;
       z-index: 3;
-      @include section-header-break() {
+      @include max-medium() {
         left:0;
       }
     }
@@ -714,7 +702,7 @@ svg.drag-handle {
   margin-top:65px;
   background-color: rgba(0,0,0,0.25);
   height: 380px;
-  @include section-header-break() {
+  @include max-medium() {
     margin-top:40px;
   }
 }
@@ -729,7 +717,7 @@ svg.drag-handle {
     color:rgba(255,255,255,.5);
   }
 }
-@include section-header-break() {
+@include max-medium() {
   .sequences-editor-title-wrapper {
     left:0;
     width:100%;

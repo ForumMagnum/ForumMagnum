@@ -61,37 +61,6 @@ then moved to more specific files as it becomes necessary.
 
 */
 
-// CSS modifications for comment threads
-
-.posts-comments-thread-linked-comment{
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50px;
-  .comment-wrapper{
-    margin-top: 15px;
-    min-height: 30px;
-  }
-  .posts-comments-thread-linked-comment-title{
-    display: inline;
-  }
-  .comment-inline {
-    .comment-inline-text{
-      font-weight: 300;
-    }
-    .well{
-      padding-top: 9px;
-      padding-bottom: 9px;
-      .comment-inline-description{
-        margin-bottom: 5px;
-        font-weight: 400;
-      }
-    }
-    font-size: 14px;
-    padding: 10px;
-  }
-}
-
 
 // Recent Comments Page CSS Modifications
 
@@ -124,6 +93,7 @@ then moved to more specific files as it becomes necessary.
 }
 
 // CSS modifications for notifications page
+
 .notification-filters{
   margin-bottom: 20px;
 }
@@ -136,12 +106,6 @@ then moved to more specific files as it becomes necessary.
   .comment-edit{
     margin-right: $hmargin;
   }
-}
-
-// CSS modifications for posts
-
-.posts-item-title{
-  margin-top: 0px;
 }
 
 // CSS Modifications for RSS Feed integration
@@ -176,12 +140,15 @@ h3{
 
 // Deactivate intercom on smaller devices
 
-
-@include section-header-break {
-  #intercom-container {
+#intercom-container {
+  @include max-medium {
+    display: none;
+  }
+  @include max-small {
     display: none;
   }
 }
+
 
 div#mocha {
   background: white;
@@ -196,4 +163,15 @@ div#mocha {
   top: 0;
   width: 20px;
   z-index: 10000000;
+}
+
+// Maximum width for LaTeX, to prevent causing horizontal scroll or otherwise
+// breaking the layout.
+.mjx-chtml {
+  overflow-x: auto;
+  overflow-y: hidden;
+  
+  // !important because the MathJax stylesheet (which gets embedded into posts)
+  // has an ill-advised max-width:none in it.
+  max-width: 100% !important;
 }

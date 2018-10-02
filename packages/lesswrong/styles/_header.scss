@@ -1,26 +1,5 @@
 $header-mobile: 43px !important;
 
-.nav{
-  @include flex-center;
-  @include small{
-    border-top: 1px solid $medium-grey;
-    margin-top: $vmargin;
-    padding-top: $vmargin;
-    justify-content: space-between;
-  }
-  @include medium-large{
-    .nav-user{
-      margin-right: $hmargin;
-    }
-  }
-  .nav-new-post{
-    @include small{
-
-    }
-  }
-}
-
-
 .users-account-menu, .users-menu{
   display: inline-block;
   vertical-align: text-bottom;

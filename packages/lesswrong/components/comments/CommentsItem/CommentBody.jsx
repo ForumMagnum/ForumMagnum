@@ -6,7 +6,10 @@ import PropTypes from 'prop-types';
 
 const styles = theme => ({
   commentStyling: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
+    maxWidth: "100%",
+    overflowX: "auto",
+    overflowY: "hidden",
   }
 })
 const CommentBody = ({comment, classes}) => {

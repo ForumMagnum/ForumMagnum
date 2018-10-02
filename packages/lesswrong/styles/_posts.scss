@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////
 
 .posts-list-header{
-  @include medium-large{
+  @include mui-breakpoint-up-sm{
     @include flex-center;
     justify-content: space-between;
   }
@@ -12,7 +12,7 @@
 }
 
 .posts-list-header-categories{
-  @include small{
+  @include mui-breakpoint-xs{
     margin: 0 auto;
     margin-bottom: $vmargin;
     text-align: center;
@@ -52,7 +52,7 @@
   a:hover {
     color: rgba(0,0,0,0.4) !important;
   }
-  @include section-header-break {
+  @include max-medium {
     br {
       display: none;
     }
@@ -179,7 +179,7 @@
 
 
 .posts-list-header{
-  @include medium-large{
+  @include mui-breakpoint-up-sm{
     .search-form, .posts-list-header-categories button, .posts-views button{
       width: 160px;
     }
@@ -274,9 +274,6 @@
     // .posts-item-readtime {
     //   margin-right:10px;
     // }
-  }
-  .posts-item-title-link:hover {
-    color:rgba(0,0,0,.4) !important;
   }
   .posts-item-highlight-content {
     overflow: hidden;
@@ -440,7 +437,7 @@
     display: relative;
   }
 }
-@include posts-page-section-header-break() {
+@include max-huge() {
   .section {
     border-top-style: solid;
     width: 715px !important;
@@ -495,7 +492,7 @@
     }
   }
 }
-@include collection-card-break() {
+@include max-small() {
   .section {
     width: inherit !important;
     .section-content {
@@ -518,7 +515,7 @@
   display: inline;
   padding:0 5px;
   line-height: 20px;
-  @include large {
+  @include min-huge {
       display:block;
       padding:0;
   }

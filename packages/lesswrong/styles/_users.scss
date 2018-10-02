@@ -68,7 +68,7 @@
     width: 120px;
     margin-left: auto;
     margin-bottom: 15px;
-    @include very-small-break() {
+    @include max-tiny() {
       width:auto;
     }
   }
@@ -92,7 +92,7 @@
   width:60%;
   margin:auto;
   margin-bottom:100px;
-  @include small {
+  @include mui-breakpoint-xs {
     width:100%;
   }
 }
@@ -107,7 +107,7 @@
 //     width:40%;
 //     margin-bottom:35px;
 //     text-transform: uppercase;
-//     @include small {
+//     @include mui-breakpoint-xs {
 //       width:100%;
 //     }
 //     a {
