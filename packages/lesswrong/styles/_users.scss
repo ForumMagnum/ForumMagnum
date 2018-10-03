@@ -47,7 +47,7 @@
 .users-profile {
   margin-left: auto;
   margin-right: 200px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     margin:0;
   }
 }
@@ -77,10 +77,6 @@
 .users-profile-header {
   h2:before {
     display:none;
-  }
-
-  .section-content {
-    padding-top:6px;
   }
 }
 

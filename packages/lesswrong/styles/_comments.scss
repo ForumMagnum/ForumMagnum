@@ -7,72 +7,11 @@ Old comments file TODO: Integrate this properly into the CSS file
 $comments-font: Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $lw-green: #588f27;
 
-$hmargin: 10px;
 $small-font: 1.1rem;
-
-$light-yellow: #FFFBDB;
-
-$lightest-grey: #f3f3f3;
-$lighter-grey: #eee;
-$light-grey: #ddd;
-
-$light-blue: #DAEDFF;
-$blue: #0275d8;
-$white: #fff;
-$medium-grey: #bbb;
-$dark-grey: #888;
-$black: #333;
-
-$red: #E04E4B;
-
-$header-bg: $light-blue;
-
-$active-color: $lightest-grey !important;
-
-$lightest-border: $lightest-grey;
-$lighter-border: $lighter-grey;
-$light-border: $light-grey;
-
-$light-text: $medium-grey;
-$medium-text: $dark-grey;
 
 @mixin flex-center{
   display: flex;
   align-items: center;
-}
-
-@mixin comment-style {
-  font-family: $comments-font !important;
-  font-size: 1.1rem !important;
-  line-height: 1.5rem !important;
-  font-weight: 400 !important;
-  p, ol, ul, blockquote, .public-DraftStyleDefault-block {
-    font-size: 1.1rem !important;
-    line-height: 1.5rem !important;
-    margin-top: .25px !important;
-    margin-bottom: 0.5rem !important;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    .public-DraftStyleDefault-block {
-      font-size: inherit !important;
-      line-height: inherit !important;
-      margin-top: inherit !important;
-      margin-bottom: inherit !important;
-    }
-  }
-  blockquote {
-    margin: 0 !important;
-  }
-  h1 {
-    font-size: 1.8rem;
-    margin-top: 2rem;
-    margin-bottom: 1.4rem;
-  }
-  h2, h3, h4 {
-    font-size: 1.5rem;
-    margin-top: 1rem;
-    margin-bottom: 1.2rem;
-  }
 }
 
 .comments-item{
@@ -85,7 +24,6 @@ $medium-text: $dark-grey;
     }
   }
   a {
-    color: $black;
     font-weight: 400;
   }
   .comments-item-meta {
@@ -200,7 +138,7 @@ New CSS File
 }
 
 .comments-item-body{
-  @include border-radius;
+  border-radius: .25rem;
   border: $border;
 }
 
