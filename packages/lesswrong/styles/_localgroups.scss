@@ -38,7 +38,7 @@ $lw-green: #588f27;
   padding: .5em 1em 0.5em 0em !important;
   width:350px;
   font-size:13px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     width:100%;
   }
   &:focus {
@@ -280,15 +280,6 @@ $lw-green: #588f27;
   display: inline-block;
   font-size: 14px;
   color: rgba(0,0,0,0.7);
-}
-
-.local-group-page {
-  .section-title {
-    padding-top: 66px;
-  }
-  .section-title-bottom {
-    @include frontpage-subtitle-link();
-  }
 }
 
 .local-group-page-name {

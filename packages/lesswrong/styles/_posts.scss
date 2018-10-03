@@ -11,21 +11,6 @@
   margin-bottom: $vmargin;
 }
 
-.posts-list-header-categories{
-  @include mui-breakpoint-xs{
-    margin: 0 auto;
-    margin-bottom: $vmargin;
-    text-align: center;
-    .btn-group{
-      margin-right: 0;
-      width: 100%;
-    }
-    .dropdown-toggle{
-      width: 100%;
-    }
-  }
-}
-
 .recent-posts-title-component {
   font-style: italic;
   margin-top: 20px;
@@ -52,7 +37,7 @@
   a:hover {
     color: rgba(0,0,0,0.4) !important;
   }
-  @include max-medium {
+  @include mui-breakpoint-down-sm {
     br {
       display: none;
     }
@@ -130,7 +115,7 @@
   }
 
 
-  @include max-medium {
+  @include mui-breakpoint-down-sm {
     .posts-view-button {
       &::after {
         content: "|";
@@ -177,10 +162,9 @@
 }
 
 
-
 .posts-list-header{
   @include mui-breakpoint-up-sm{
-    .search-form, .posts-list-header-categories button, .posts-views button{
+    .search-form, .posts-views button{
       width: 160px;
     }
   }
@@ -262,7 +246,7 @@
       margin-left:4px;
     }
     &:hover {
-      @include min-medium() {
+      @include mui-breakpoint-up-md {
         cursor: pointer;
         .posts-item-show-highlight-button {
           opacity:.7;
@@ -319,12 +303,6 @@
     width:100%;
     left:0;
   }
-  // .post-item-new-comments-header {
-  //   position:absolute;
-  //   top:0;
-  //   width:100%;
-  //   left:0;
-  // }
   .posts-item-hide-comments, .posts-item-view-all-comments {
     color:rgba(0,0,0,.5);
     padding:0 15px;
@@ -407,7 +385,6 @@
 // Post Page                                        //
 //////////////////////////////////////////////////////
 
-
 .posts-page-content-body-metadata {
   position: absolute;
   right: 100%;
@@ -430,56 +407,7 @@
   }
 }
 
-.section {
-  margin-right: 235px;
-  .section-title {
-    top: 0px;
-    padding-right: 15px;
-    right: 100%;
-  }
-  .section-content {
-    display: relative;
-  }
-}
-@include max-huge() {
-  .section {
-    border-top-style: solid;
-    width: 715px !important;
-    display: inherit !important;
-    margin-right: auto;
-    border-top-width: 4px;
-    padding-top: 4px;
-    .section-title {
-      position: relative;
-      padding: 0px;
-      margin-bottom: 0px;
-      width: auto !important;
-      text-align: inherit;
-      display: block;
-      right: inherit;
-      h2 {
-        &:before {
-          display: none;
-        }
-        display: inline;
-        margin-right: 10px;
-        border-top-style: none;
-      }
-      .sequences-navigation-title-subtitle {
-        display: inline-block;
-      }
-      .comments-title-component {
-        margin-left: 0px;
-      }
-      .highlight-date-selector {
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-    }
-    .section-content {
-      margin-top: 20px;
-    }
-  }
+@include mui-breakpoint-down-md() {
   .posts-page-content-body-metadata {
     position: inherit !important;
     right: inherit !important;
@@ -497,18 +425,6 @@
   }
 }
 @include max-small() {
-  .section {
-    width: inherit !important;
-    .section-content {
-      width: inherit !important;
-    }
-  }
-  .posts-item-summary {
-    white-space: inherit !important;
-  }
-  .sequences-navigation-top-left, .sequences-navigation-top-right {
-    position: static !important;
-  }
   .sequences-navigation-title {
     max-width: 60%;
     height: inherit;
@@ -519,7 +435,7 @@
   display: inline;
   padding:0 5px;
   line-height: 20px;
-  @include min-huge {
+  @include mui-breakpoint-up-lg {
       display:block;
       padding:0;
   }
@@ -643,17 +559,6 @@ svg.drag-handle {
     text-align: center;
     margin-top: -15px;
     margin-bottom: 25px;
-}
-
-.sequences-navigation-top-left, .sequences-navigation-top-right {
-  .material-icons {
-    color: rgba(0,0,0,0.5) !important;
-  }
-  &:disabled {
-    .material-icons {
-      color: rgba(0,0,0,0.2) !important;
-    }
-  }
 }
 
 .post-category-display-container {
@@ -918,7 +823,7 @@ svg.drag-handle {
 
 
 .posts-daily-wrapper {
-  @include min-medium() {
+  @include mui-breakpoint-up-md {
     margin-left:-100px;
   }
 }
@@ -927,7 +832,7 @@ svg.drag-handle {
   margin-top:10px;
   width:150px;
 
-  @include min-medium() {
+  @include mui-breakpoint-up-md {
     float:right;
   }
 

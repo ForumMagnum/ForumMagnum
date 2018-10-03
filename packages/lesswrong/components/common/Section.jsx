@@ -11,16 +11,9 @@ const BORDER_TOP_WIDTH = 3
 const styles = (theme) => ({
   section: {
     marginBottom: theme.spacing.unit * 4,
-    [theme.breakpoints.only('md')]: {
-      marginLeft: 15
-    },
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: 50
-    },
   },
   root: {
     maxWidth: "100vw",
-    overflowX: "hidden",
   },
   sectionTitleContainer: {
     [theme.breakpoints.up('md')]: {
@@ -58,7 +51,10 @@ const styles = (theme) => ({
   // left to provide overrides
   sectionTitleBottom: {},
   sectionContent: {
-    maxWidth: 715
+    maxWidth: 739,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 24
+    }
   },
   subscribeWidget: {
   },
@@ -87,7 +83,7 @@ const Section = ({
   return (
     <Components.ErrorBoundary>
       <div className={classes.root}>
-      <Grid container className={classes.section} spacing={24}>
+      <Grid container className={classes.section} spacing={0}>
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>
             <Typography variant="display1" className={classes.sectionTitle}>

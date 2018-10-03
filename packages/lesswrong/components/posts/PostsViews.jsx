@@ -126,8 +126,9 @@ class PostsViews extends Component {
         }
         <br/>
       </div>
-    )}
-    }
+    )
+  }
+}
 
 PostsViews.propTypes = {
   currentUser: PropTypes.object,
