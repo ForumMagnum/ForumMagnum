@@ -13,7 +13,7 @@ async function updateAlignmentKarmaServer (newDocument, vote) {
   // Update a
   const voter = Users.findOne(vote.userId)
 
-  if (Users.canDo(voter, "votes.alignment") && newDocument.af) {
+  if (Users.canDo(voter, "votes.alignment")) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
     let newAFBaseScore = 0
 
@@ -56,7 +56,7 @@ addCallback("votes.smallDownvote.sync", updateAlignmentKarmaServerCallback);
 addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
 
 async function updateAlignmentUserServer (newDocument, vote, multiplier) {
-  if (newDocument.userId != vote.userId) {
+  if (newDocument.af && newDocument.userId != vote.userId) {
     const documentUser = Users.findOne({_id:newDocument.userId})
     const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
     if (newAfKarma > 0) {
@@ -138,3 +138,29 @@ function clearAlignmentKarmaClientCallback (document, collection, voter) {
 }
 
 addCallback("votes.clear.client", clearAlignmentKarmaClientCallback);
+
+
+async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
+  if (document.af && !oldDocument.af) {
+    Users.update({_id:document.userId}, {
+      $inc: {afKarma: document.afBaseScore},
+      $addToSet: {groups: 'alignmentVoters'}
+    })
+  } else if (!document.af && oldDocument.af) {
+    const documentUser = Users.findOne({_id:document.userId})
+    const newAfKarma = (documentUser.afKarma || 0) - ((document.afBaseScore || 0))
+    if (newAfKarma > 0) {
+      Users.update({_id:document.userId}, {$set: {afKarma: newAfKarma}})
+    } else {
+      Users.update({_id:document.userId}, {
+        $set: {afKarma: newAfKarma},
+        $pull: {groups: 'alignmentVoters'}
+      })
+    }
+  }
+}
+
+addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
+addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
+addCallback("posts.edit.async", MoveToAFUpdatesUserAFKarma);
+addCallback("posts.alignment.async", MoveToAFUpdatesUserAFKarma);
