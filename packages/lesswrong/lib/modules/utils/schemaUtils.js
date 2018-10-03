@@ -26,7 +26,7 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
     const { checkAccess } = collection
 
     const resolvedDocs = await collection.loader.loadMany(doc[fieldName])
-    const filteredDocs = checkAccess ? _.filter(resolvedDocs, d => checkAccess(d, currentUser)) : resolvedDocs
+    const filteredDocs = checkAccess ? _.filter(resolvedDocs, d => checkAccess(currentUser, d)) : resolvedDocs
     const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
 
     return restrictedDocs
