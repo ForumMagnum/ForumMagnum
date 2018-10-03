@@ -1,6 +1,6 @@
 .sequences-home {
   margin-right: 90px;
-  @include max-medium {
+  @include mui-breakpoint-down-sm {
     margin-right: 0px;
   }
 }
@@ -102,7 +102,7 @@
       @include max-tiny() {
         width: 100%;
       }
-      @include max-medium() {
+      @include mui-breakpoint-down-sm {
         height: auto,
       }
       img {
@@ -476,7 +476,7 @@ svg.drag-handle {
   font-weight:600;
   font-size:1.2rem;
 }
-@include max-medium() {
+@include mui-breakpoint-down-sm {
   .sequences-page {
     margin-right: 0px;
   }
@@ -562,7 +562,7 @@ svg.drag-handle {
   position:absolute !important;
   left:15px;
   top:15px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     left:15px;
     top:40px;
   }
@@ -594,7 +594,7 @@ svg.drag-handle {
       position: relative !important;
       left:45px;
       margin:auto;
-      @include max-medium() {
+      @include mui-breakpoint-down-sm {
         left:0;
         padding:0 10px;
       }
@@ -633,7 +633,7 @@ svg.drag-handle {
       left:0;
       max-width:100%;
 
-      @include max-medium() {
+      @include mui-breakpoint-down-sm {
         margin-top:40px;
         padding:0;
       }
@@ -684,7 +684,7 @@ svg.drag-handle {
       left:-230px;
       top:3px;
       z-index: 3;
-      @include max-medium() {
+      @include mui-breakpoint-down-sm {
         left:0;
       }
     }
@@ -693,7 +693,7 @@ svg.drag-handle {
   margin-top:65px;
   background-color: rgba(0,0,0,0.25);
   height: 380px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     margin-top:40px;
   }
 }
@@ -708,7 +708,7 @@ svg.drag-handle {
     color:rgba(255,255,255,.5);
   }
 }
-@include max-medium() {
+@include mui-breakpoint-down-sm {
   .sequences-editor-title-wrapper {
     left:0;
     width:100%;

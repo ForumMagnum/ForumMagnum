@@ -143,10 +143,7 @@ h3{
 // Deactivate intercom on smaller devices
 
 #intercom-container {
-  @include max-medium {
-    display: none;
-  }
-  @include max-small {
+  @include mui-breakpoint-down-sm {
     display: none;
   }
 }

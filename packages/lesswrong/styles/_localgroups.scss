@@ -38,7 +38,7 @@ $lw-green: #588f27;
   padding: .5em 1em 0.5em 0em !important;
   width:350px;
   font-size:13px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     width:100%;
   }
   &:focus {

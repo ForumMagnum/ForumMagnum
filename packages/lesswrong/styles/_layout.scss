@@ -1,6 +1,6 @@
 
 .wrapper {
-  @include max-medium {
+  @include mui-breakpoint-down-sm {
     .collections-page {
       margin-right: 0px;
     }

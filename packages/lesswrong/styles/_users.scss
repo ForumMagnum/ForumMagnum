@@ -52,7 +52,7 @@
 .users-profile {
   margin-left: auto;
   margin-right: 200px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     margin:0;
   }
 }

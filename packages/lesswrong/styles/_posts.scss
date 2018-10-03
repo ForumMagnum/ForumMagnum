@@ -37,7 +37,7 @@
   a:hover {
     color: rgba(0,0,0,0.4) !important;
   }
-  @include max-medium {
+  @include mui-breakpoint-down-sm {
     br {
       display: none;
     }
@@ -115,7 +115,7 @@
   }
 
 
-  @include max-medium {
+  @include mui-breakpoint-down-sm {
     .posts-view-button {
       &::after {
         content: "|";
@@ -246,7 +246,7 @@
       margin-left:4px;
     }
     &:hover {
-      @include min-medium() {
+      @include mui-breakpoint-up-md {
         cursor: pointer;
         .posts-item-show-highlight-button {
           opacity:.7;
@@ -823,7 +823,7 @@ svg.drag-handle {
 
 
 .posts-daily-wrapper {
-  @include min-medium() {
+  @include mui-breakpoint-up-md {
     margin-left:-100px;
   }
 }
@@ -832,7 +832,7 @@ svg.drag-handle {
   margin-top:10px;
   width:150px;
 
-  @include min-medium() {
+  @include mui-breakpoint-up-md {
     float:right;
   }
 
