@@ -22,14 +22,6 @@
     }
   }
 }
-//
-.wrapper {
-  @include max-small {
-    .main {
-      padding: 0px 10px;
-    }
-  }
-}
 
 //Styles for header scrolling, provided by react-headroom: https://github.com/KyleAMathews/react-headroom
 
