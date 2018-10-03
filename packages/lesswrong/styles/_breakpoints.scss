@@ -59,18 +59,18 @@ $lw-huge: 1200px;
 //   xl  extra-large  1920px or larger
 
 @mixin mui-breakpoint-xs(){
-  @media screen and (max-width: 600px) {
+  @media screen and (not (min-width: 600px)) {
     @content;
   }
 }
 @mixin mui-breakpoint-sm(){
-  @media screen and (min-width: 600px) and (max-width: 960px) {
+  @media screen and (min-width: 600px) and (not (min-width: 960px)) {
     @content
   }
 }
 
 @mixin mui-breakpoint-down-sm(){
-  @media screen and (max-width: 960px) {
+  @media screen and (not (min-width: 960px)) {
     @content
   }
 }
@@ -80,12 +80,12 @@ $lw-huge: 1200px;
   }
 }
 @mixin mui-breakpoint-md(){
-  @media screen and (min-width: 960px) and (max-width: 1280px) {
+  @media screen and (min-width: 960px) and (not (min-width: 1280px)) {
     @content
   }
 }
 @mixin mui-breakpoint-down-md(){
-  @media screen and (max-width: 1280px) {
+  @media screen and (not (min-width: 1280px)) {
     @content
   }
 }
@@ -95,12 +95,12 @@ $lw-huge: 1200px;
   }
 }
 @mixin mui-breakpoint-lg(){
-  @media screen and (min-width: 1280px) and (max-width: 1920) {
+  @media screen and (min-width: 1280px) and (not (min-width: 1920)) {
     @content
   }
 }
 @mixin mui-breakpoint-down-lg(){
-  @media screen and (max-width: 1920) {
+  @media screen and (not (min-width: 1920)) {
     @content
   }
 }
