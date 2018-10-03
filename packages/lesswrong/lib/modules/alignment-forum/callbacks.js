@@ -56,7 +56,7 @@ addCallback("votes.smallDownvote.sync", updateAlignmentKarmaServerCallback);
 addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
 
 async function updateAlignmentUserServer (newDocument, vote, multiplier) {
-  if (newDocument.af && newDocument.userId != vote.userId) {
+  if (newDocument.af && (newDocument.userId != vote.userId)) {
     const documentUser = Users.findOne({_id:newDocument.userId})
     const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
     if (newAfKarma > 0) {
@@ -148,12 +148,12 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
     })
   } else if (!document.af && oldDocument.af) {
     const documentUser = Users.findOne({_id:document.userId})
-    const newAfKarma = (documentUser.afKarma || 0) - ((document.afBaseScore || 0))
+    const newAfKarma = (documentUser.afKarma || 0) - (document.afBaseScore || 0)
     if (newAfKarma > 0) {
-      Users.update({_id:document.userId}, {$set: {afKarma: newAfKarma}})
+      Users.update({_id:document.userId}, {$inc: {afKarma: -document.afBaseScore}})
     } else {
       Users.update({_id:document.userId}, {
-        $set: {afKarma: newAfKarma},
+        $inc: {afKarma: -document.afBaseScore},
         $pull: {groups: 'alignmentVoters'}
       })
     }
