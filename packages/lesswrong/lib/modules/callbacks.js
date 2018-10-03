@@ -3,7 +3,7 @@ import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
 import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../collections/localgroups/collection.js';
-import Bans from '../collections/bans/collection.js';
+import { Bans } from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
 import { Posts } from '../collections/posts';

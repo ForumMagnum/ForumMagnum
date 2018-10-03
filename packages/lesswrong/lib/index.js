@@ -1,7 +1,7 @@
 // # Vulcan Modifications
 
 // schema utils
-import { generateIdResolverMulti, generateIdResolverSingle } from './modules/schemaUtils.js'
+import { generateIdResolverMulti, generateIdResolverSingle } from './modules/utils/schemaUtils.js'
 // Permissions
 import './modules/permissions.js';
 
@@ -46,16 +46,10 @@ import './collections/reports/views.js'
 import './collections/reports/permissions.js'
 
 // LWEvents
-import LWEvents from './collections/lwevents/collection.js';
-import './collections/lwevents/permissions.js';
-import './collections/lwevents/fragments.js';
-import './collections/lwevents/views.js';
+import { LWEvents } from './collections/lwevents/index.js';
 
 // Bans
-import Bans from './collections/bans/collection.js';
-import './collections/bans/permissions.js';
-import './collections/bans/fragments.js';
-import './collections/bans/admin.js';
+import { Bans } from './collections/bans/index.js'
 // Chapters
 import Sequences from './collections/sequences/collection.js';
 import './collections/sequences/views.js';

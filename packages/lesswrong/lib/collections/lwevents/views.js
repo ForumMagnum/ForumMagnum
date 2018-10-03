@@ -1,4 +1,4 @@
-import LWEvents from "./collection.js"
+import { LWEvents } from "./collection.js"
 
 LWEvents.addView("adminView", function (terms) {
   return {

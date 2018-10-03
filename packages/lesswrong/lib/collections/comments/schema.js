@@ -5,7 +5,7 @@ Comments schema
 */
 
 import Users from 'meteor/vulcan:users';
-import { generateIdResolverSingle } from 'meteor/lesswrong';
+import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
 
@@ -159,7 +159,7 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: Utils.generateIdResolverSingle(
+      resolver: generateIdResolverSingle(
         {collectionName: 'Users', fieldName: 'userId'}
       ),
       addOriginalField: true
