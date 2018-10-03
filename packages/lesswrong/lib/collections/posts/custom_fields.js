@@ -1,6 +1,6 @@
 import { Posts } from './collection';
 import ReactDOMServer from 'react-dom/server';
-import { Components, Connectors } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
