@@ -4,8 +4,6 @@
 $lw-tiny: 400px;
 $lw-small: 715px;
 $lw-medium: 950px;
-$lw-large: 1100px;
-$lw-huge: 1200px;
 
 @mixin max-tiny(){
   @media screen and (max-width: $lw-tiny) {
@@ -31,18 +29,6 @@ $lw-huge: 1200px;
 }
 @mixin min-medium(){
   @media screen and (min-width: $lw-medium) {
-    @content;
-  }
-}
-
-@mixin max-huge(){
-  @media screen and (max-width: $lw-huge), print {
-    @content;
-  }
-}
-
-@mixin min-huge(){
-  @media screen and (min-width: $lw-huge) {
     @content;
   }
 }
