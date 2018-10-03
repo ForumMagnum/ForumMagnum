@@ -70,7 +70,6 @@ oauth@1.2.3
 oauth2@1.2.1-rc171.11
 ordered-dict@1.1.0
 percolatestudio:synced-cron@1.1.0
-practicalmeteor:mocha-core@1.0.1
 promise@0.11.1
 random@1.1.0
 rate-limit@1.0.9

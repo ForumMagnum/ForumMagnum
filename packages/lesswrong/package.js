@@ -40,7 +40,7 @@ Package.onTest(function(api) {
     'vulcan:voting',
     'practicalmeteor:sinon',
     'coffeescript',
-    'practicalmeteor:mocha',
+    'meteortesting:mocha',
   ]);
   // Entry points for tests
   api.mainModule('./testing/client.tests.js', 'client');
