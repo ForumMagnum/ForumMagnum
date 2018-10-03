@@ -60,7 +60,7 @@ const options = {
   collection: Collections,
   queryName: "CollectionsPageQuery",
   fragmentName: 'CollectionsPageFragment',
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withUser);

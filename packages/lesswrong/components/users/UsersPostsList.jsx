@@ -58,7 +58,7 @@ const options = {
   collection: Posts,
   queryName: 'usersPostsListQuery',
   fragmentName: 'PostsList',
-  totalResolver: true,
+  enableTotal: true,
   enableCache: true
 };
 

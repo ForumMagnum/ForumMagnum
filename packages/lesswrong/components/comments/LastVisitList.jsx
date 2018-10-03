@@ -23,7 +23,7 @@ const options = {
   collection: LWEvents,
   queryName: 'LastVisitListFragment',
   fragmentName: 'lastEventFragment',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
 };
 

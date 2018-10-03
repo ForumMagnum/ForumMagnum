@@ -7,6 +7,6 @@ const sunshineRegimentActions = [
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
 Users.checkAccess = (user, document) => {
-  if (document.deleted) return Users.canDo(user, 'users.view.deleted')
+  if (document && document.deleted) return Users.canDo(user, 'users.view.deleted')
   return true
 };

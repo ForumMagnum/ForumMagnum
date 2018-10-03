@@ -10,7 +10,7 @@ const options = {
   collection: Sequences,
   queryName: "SequencesNavigationQuery",
   fragmentName: 'SequencesNavigationFragment',
-  totalResolver: false,
+  enableTotal: false,
 }
 
 registerComponent('SequencesPost', SequencesPost, [withDocument, options]);

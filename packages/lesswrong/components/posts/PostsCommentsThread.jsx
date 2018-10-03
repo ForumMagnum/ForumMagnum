@@ -33,7 +33,7 @@ const options = {
   queryName: 'PostCommentsThreadQuery',
   fragmentName: 'CommentsList',
   // enableCache: true,
-  totalResolver: true,
+  enableTotal: true,
 };
 
 registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options]);
