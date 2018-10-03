@@ -11,21 +11,6 @@
   margin-bottom: $vmargin;
 }
 
-.posts-list-header-categories{
-  @include mui-breakpoint-xs{
-    margin: 0 auto;
-    margin-bottom: $vmargin;
-    text-align: center;
-    .btn-group{
-      margin-right: 0;
-      width: 100%;
-    }
-    .dropdown-toggle{
-      width: 100%;
-    }
-  }
-}
-
 .recent-posts-title-component {
   font-style: italic;
   margin-top: 20px;
@@ -179,7 +164,7 @@
 
 .posts-list-header{
   @include mui-breakpoint-up-sm{
-    .search-form, .posts-list-header-categories button, .posts-views button{
+    .search-form, .posts-views button{
       width: 160px;
     }
   }
@@ -440,12 +425,6 @@
   }
 }
 @include max-small() {
-  .posts-item-summary {
-    white-space: inherit !important;
-  }
-  .sequences-navigation-top-left, .sequences-navigation-top-right {
-    position: static !important;
-  }
   .sequences-navigation-title {
     max-width: 60%;
     height: inherit;
@@ -580,17 +559,6 @@ svg.drag-handle {
     text-align: center;
     margin-top: -15px;
     margin-bottom: 25px;
-}
-
-.sequences-navigation-top-left, .sequences-navigation-top-right {
-  .material-icons {
-    color: rgba(0,0,0,0.5) !important;
-  }
-  &:disabled {
-    .material-icons {
-      color: rgba(0,0,0,0.2) !important;
-    }
-  }
 }
 
 .post-category-display-container {
