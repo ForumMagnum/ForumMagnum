@@ -15,6 +15,7 @@ const styles = theme => ({
     fontSize: 'inherit',
     width: 'initial',
     height: 'initial',
+    padding: 0,
     '&:hover': {
       backgroundColor: 'transparent',
     }
