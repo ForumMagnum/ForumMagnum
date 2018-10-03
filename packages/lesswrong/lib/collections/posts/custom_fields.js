@@ -202,7 +202,7 @@ Posts.addField([
         type: 'Date',
         resolver: async (post, args, { LWEvents, currentUser }) => {
           if(currentUser){
-            const event = await Connectors.get(LWEvents, {name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+            const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
             return event && event.createdAt
           } else {
             return post.lastVisitDateDefault
