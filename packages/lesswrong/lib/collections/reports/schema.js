@@ -1,3 +1,4 @@
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 /*
 
 A SimpleSchema-compatible JSON schema
@@ -18,9 +19,9 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: (report, args, context) => {
-        return context.Users.findOne({_id: report.userId}, {fields: context.getViewableFields(context.currentUser, context.Users)});
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true,
     },
     optional: true,
@@ -34,9 +35,9 @@ const schema = {
     resolveAs: {
       fieldName: 'comment',
       type: 'Comment',
-      resolver: (report, args, context) => {
-        return context.Comments.findOne({_id: report.commentId}, {fields: context.getViewableFields(context.currentUser, context.Comments)});
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Comments', fieldName: 'commentId'}
+      ),
       addOriginalField: true,
     },
   },
@@ -49,9 +50,9 @@ const schema = {
     resolveAs: {
       fieldName: 'post',
       type: 'Post',
-      resolver: (report, args, context) => {
-        return context.Posts.findOne({_id: report.postId}, {fields: context.getViewableFields(context.currentUser, context.Posts)});
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Posts', fieldName: 'postId'}
+      ),
       addOriginalField: true,
     },
   },
@@ -73,9 +74,9 @@ const schema = {
     resolveAs: {
       fieldName: 'claimedUser',
       type: 'User',
-      resolver: (report, args, context) => {
-        return context.Users.findOne({_id: report.claimedUserId}, {fields: context.getViewableFields(context.currentUser, context.Users)});
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'claimedUserId'}
+      ),
       addOriginalField: true,
     },
   },

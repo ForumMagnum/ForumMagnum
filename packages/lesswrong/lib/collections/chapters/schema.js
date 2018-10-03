@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components } from 'meteor/vulcan:core';
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
 const schema = {
 
@@ -78,14 +79,9 @@ const schema = {
     resolveAs: {
       fieldName: 'sequence',
       type: 'Sequence',
-      resolver: (chapter, args, context) => {
-        return {
-          result: context.Sequences.findOne(
-            {_id: chapter.sequenceId},
-            {fields: context.Users.getViewableFields(context.currentUser, context.Posts)}
-          )
-        }
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Sequences', fieldName: 'sequenceId'}
+      ),
       addOriginalField: true,
     }
   },
@@ -99,11 +95,9 @@ const schema = {
     resolveAs: {
       fieldName: 'posts',
       type: '[Post]',
-      resolver: async (chapter, args, {currentUser, Users, Posts}) => {
-        if (!chapter.postIds) return [];
-        const posts = _.compact(await Posts.loader.loadMany(chapter.postIds));
-        return Users.restrictViewableFields(currentUser, Posts, posts);
-      },
+      resolver: generateIdResolverMulti(
+        {collectionName: 'Posts', fieldName: 'postIds'}
+      ),
       addOriginalField: true,
     },
     control: 'PostsListEditor',

@@ -1,3 +1,5 @@
+import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+
 /*
 
 A SimpleSchema-compatible JSON schema
@@ -38,15 +40,9 @@ const schema = {
     resolveAs: {
       fieldName: 'participants',
       type: '[User]',
-      resolver: (conversation, args, context) => {
-        const participants = _.map(conversation.participantIds, participantId =>
-          {return context.Users.findOne(
-            { _id: participantId },
-            { fields: context.Users.getViewableFields(context.currentUser, context.Users) }
-          )}
-        )
-        return {results: participants}
-      },
+      resolver: generateIdResolverMulti(
+        {collectionName: 'Users', fieldName: 'participantIds'}
+      ),
       addOriginalField: true
     }
   },

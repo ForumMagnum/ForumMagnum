@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 /*
 
 A SimpleSchema-compatible JSON schema
@@ -39,12 +39,9 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: (event, args, context) => ({
-        result: context.Users.findOne(
-          {_id: event.userId},
-          {fields: context.getViewableFields(context.currentUser, context.Users)}
-        )
-      }),
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true,
     },
     optional: true,

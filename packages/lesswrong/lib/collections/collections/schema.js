@@ -1,3 +1,5 @@
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+
 const schema = {
 
   // default properties
@@ -26,14 +28,9 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: (sequence, args, context) => {
-        return {
-          result: context.Users.findOne(
-            { _id: sequence.userId },
-            { fields: context.Users.getViewableFields(context.currentUser, context.Users)}
-          )
-        }
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true,
     }
   },
@@ -82,7 +79,7 @@ const schema = {
     Dummy field that resolves to the array of books that belong to a sequence
   */
 
-  booksDummy: {
+  books: {
     type: Array,
     optional: true,
     viewableBy: ['guests'],
@@ -102,7 +99,7 @@ const schema = {
     }
   },
 
-  'booksDummy.$': {
+  'books.$': {
     type: String,
     optional: true,
   },
