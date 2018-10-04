@@ -32,6 +32,7 @@ const styles = theme => ({
     ...postBodyStyles(theme),
     
     marginLeft: "24px",
+    marginBottom: "30px",
     
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
