@@ -259,7 +259,7 @@ $lw-green: #588f27;
 
 .local-event-marker-body, .local-group-marker-body {
   max-height: 250px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .community-map-filter-wrapper {
