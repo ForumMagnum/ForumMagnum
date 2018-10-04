@@ -10,6 +10,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 const styles = theme => ({
   groupName: {
     ...theme.typography.headerStyle,
+    fontSize: "30px",
     
     marginTop: "0px",
     marginBottom: "0.5rem"
@@ -29,8 +30,6 @@ const styles = theme => ({
     marginBottom: "20px",
   },
   groupDescription: {
-    ...postBodyStyles(theme),
-    
     marginLeft: "24px",
     marginBottom: "30px",
     
@@ -38,6 +37,10 @@ const styles = theme => ({
       marginLeft: 0
     }
   },
+  
+  groupDescriptionBody: {
+    ...postBodyStyles(theme),
+  }
 });
 
 class LocalGroupPage extends Component {
@@ -76,7 +79,9 @@ class LocalGroupPage extends Component {
                 <div className={classes.groupLocation}>{group.location}</div>
                 <div className={classes.groupLinks}><Components.GroupLinks document={group} /></div>
               </div>
+              <div className={classes.groupDescriptionBody}>
               <Components.DraftJSRenderer content={this.props.document.description}/>
+              </div>
             </div>}
             <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} showHeader={false} />
           </Components.Section>
