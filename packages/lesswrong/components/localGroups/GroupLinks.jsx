@@ -6,6 +6,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
+import { withStyles } from '@material-ui/core/styles';
 
 
 const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -29,10 +30,27 @@ const groupTypeStyles = {
   height: '20px',
 }
 
+const styles = theme => ({
+  facebookIcon: {
+    width: "12px",
+    height: "12px",
+    display: "inline-block",
+    color: "rgba(0, 0, 0, 0.7)",
+    paddingTop: "0px",
+    transform: "translateY(1px)",
+  },
+  
+  linkIcon: {
+    height: "17px",
+    width: "17px",
+    paddingTop: "2px",
+    transform: "translateY(3px) rotate(-45deg)",
+  }
+});
 
 class GroupLinks extends PureComponent {
   render() {
-    const document = this.props.document;
+    const { document, classes } = this.props;
     return(
       <div className="group-links">
         {document.types && document.types.map(type => {
@@ -54,7 +72,7 @@ class GroupLinks extends PureComponent {
             placement="top-end"
           >
             <a href={document.facebookLink}><IconButton style={buttonStyles}>
-              <FacebookIcon className="group-links-facebook-icon"/>
+              <FacebookIcon className={classes.facebookIcon}/>
             </IconButton></a>
           </Tooltip>}
         {document.website
@@ -63,7 +81,7 @@ class GroupLinks extends PureComponent {
             placement="top-end"
           >
             <a href={document.website}><IconButton style={buttonStyles}>
-              <LinkIcon className="group-links-link-icon"/>
+              <LinkIcon className={classes.linkIcon}/>
             </IconButton></a>
           </Tooltip>}
       </div>
@@ -71,4 +89,4 @@ class GroupLinks extends PureComponent {
   }
 }
 
-registerComponent("GroupLinks", GroupLinks);
+registerComponent("GroupLinks", GroupLinks, withStyles(styles, { name: "GroupLinks" }));
