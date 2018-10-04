@@ -6,10 +6,14 @@ import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 import CloseIcon from '@material-ui/icons/Close';
 import { Posts } from 'meteor/example-forum';
+import { withStyles } from '@material-ui/core/styles';
+
+// Share JSS styles with LocalGroupMarker
+import { styles } from './LocalGroupMarker';
 
 class LocalEventMarker extends PureComponent {
   render() {
-    const { event, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
+    const { event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location || {geometry: {location: {lat: -98.44228020000003, lng: 35.1592256}}};
 
     var arrowIcon = {
@@ -31,13 +35,13 @@ class LocalEventMarker extends PureComponent {
       >
         {infoOpen &&
           <InfoWindow>
-            <div style={{width: "250px"}}>
-              <a><CloseIcon className="local-group-marker-close-icon" onClick={() => handleInfoWindowClose(event._id)}/></a>
-              <Link to={Posts.getPageUrl(event)}><h5 className="local-group-marker-name"> [Event] {event.title} </h5></Link>
-              <div className="local-event-marker-body"><Components.DraftJSRenderer content={event.content} /></div>
-              {event.contactInfo && <div className="local-group-marker-contact-info">{event.contactInfo}</div>}
-              <Link className="local-group-marker-page-link" to={Posts.getPageUrl(event)}> Full link </Link>
-              <div className="local-group-links-wrapper"><Components.GroupLinks document={event}/></div>
+            <div className={classes.mapInfoWindow}>
+              <a><CloseIcon className={classes.closeIcon} onClick={() => handleInfoWindowClose(event._id)}/></a>
+              <Link to={Posts.getPageUrl(event)}><h5 className={classes.groupMarkerName}> [Event] {event.title} </h5></Link>
+              <div className={classes.markerBody}><Components.DraftJSRenderer content={event.content} /></div>
+              {event.contactInfo && <div className={classes.contactInfo}>{event.contactInfo}</div>}
+              <Link className={classes.markerPageLink} to={Posts.getPageUrl(event)}> Full link </Link>
+              <div className={classes.linksWrapper}><Components.GroupLinks document={event}/></div>
             </div>
           </InfoWindow>
         }
@@ -51,4 +55,4 @@ LocalEventMarker.propTypes = {
   location: PropTypes.object,
 }
 
-registerComponent("LocalEventMarker", LocalEventMarker);
+registerComponent("LocalEventMarker", LocalEventMarker, withStyles(styles, { name: "LocalEventMarker" }));

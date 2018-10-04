@@ -142,38 +142,6 @@ $lw-green: #588f27;
   margin-bottom: 10px;
 }
 
-.local-group-links-wrapper {
-  position: absolute;
-  bottom: 0px;
-  right: -2px;
-}
-
-.local-group-marker-name {
-  font-size: 15px;
-  margin-top: 3.5px;
-  margin-bottom: 0px;
-}
-
-.local-group-marker-close-icon {
-  position: absolute;
-  right: -3px;
-  top: 4px;
-  color: rgba(0,0,0,0.5) !important;
-  height: 15px !important;
-  width: 15px !important;
-}
-
-.local-group-marker-contact-info {
-    margin-bottom: 10px;
-    font-weight: 400;
-    color: rgba(0,0,0,0.6);
-}
-
-.local-group-marker-page-link {
-  font-weight: 400;
-  color: rgba(0,0,0,0.4);
-}
-
 /* Experimental: Somewhat hacky solution to get rid of close window in google Info Windows */
 .gm-style-iw + div {display: none;}
 
@@ -221,11 +189,6 @@ $lw-green: #588f27;
   margin-left: 32px;
   border: 0;
   border-top: 1px solid #eee;
-}
-
-.local-event-marker-body, .local-group-marker-body {
-  max-height: 250px;
-  overflow-y: auto;
 }
 
 .community-map-filter-wrapper {
