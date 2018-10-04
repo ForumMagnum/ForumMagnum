@@ -5,15 +5,21 @@ import { withRouter, Link } from 'react-router';
 import { Posts } from 'meteor/example-forum';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   groupName: {
+    ...theme.typography.headerStyle,
+    
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
+  groupSubtitle: {
+  },
   groupLocation: {
+    ...theme.typography.body2,
+    
     display: "inline-block",
-    fontSize: "14px",
     color: "rgba(0,0,0,0.7)",
   },
   groupLinks: {
@@ -23,8 +29,8 @@ const styles = theme => ({
     marginBottom: "20px",
   },
   groupDescription: {
-    fontSize: "20px",
-    lineHeight: 1.25,
+    ...postBodyStyles(theme),
+    
     marginLeft: "24px",
     
     [theme.breakpoints.down('xs')]: {
@@ -65,7 +71,7 @@ class LocalGroupPage extends Component {
           <Components.Section titleComponent={this.renderTitleComponent()}>
             {this.props.document && this.props.document.description && <div className={classes.groupDescription}>
               <h2 className={classes.groupName}>{group.name}</h2>
-              <div className="local-group-page-subtitle">
+              <div className={classes.groupSubtitle}>
                 <div className={classes.groupLocation}>{group.location}</div>
                 <div className={classes.groupLinks}><Components.GroupLinks document={group} /></div>
               </div>
