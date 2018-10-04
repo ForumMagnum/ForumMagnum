@@ -199,7 +199,7 @@ const schema = {
       fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
-        return {result: context.Comments.getPageUrl(comment, true)}
+        return context.Comments.getPageUrl(comment, true)
       },
     }
   },

@@ -1072,7 +1072,7 @@ Users.addField([
           // restrict documents fields
           const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
           const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
-          return {results: restrictedPosts}
+          return restrictedPosts
         }
       }
     }

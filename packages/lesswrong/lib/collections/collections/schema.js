@@ -94,7 +94,7 @@ const schema = {
             fields: context.Users.getViewableFields(context.currentUser, context.Books)
           }
         ).fetch();
-        return {results: books};
+        return books
       }
     }
   },
