@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
-import SvgIcon from 'material-ui/SvgIcon';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from 'material-ui/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
 
 
@@ -36,24 +37,35 @@ class GroupLinks extends PureComponent {
       <div className="group-links">
         {document.types && document.types.map(type => {
           return (
-            <IconButton
-              tooltipPosition='top-left'
-              tooltip="Group Type"
-              style={groupTypeStyles}
+            <Tooltip
+              title="Group Type"
+              placement="top-end"
               key={type}
             >
-              <GroupTypeIcon type={type}/>
-            </IconButton>
+              <IconButton style={groupTypeStyles}>
+                <GroupTypeIcon type={type}/>
+              </IconButton>
+            </Tooltip>
           )
         })}
         {document.facebookLink
-          && <a href={document.facebookLink}><IconButton tooltipPosition='top-left' style={buttonStyles} tooltip="Facebook Group">
-            <FacebookIcon className="group-links-facebook-icon"/>
-          </IconButton></a>}
+          && <Tooltip
+            title="Facebook Group"
+            placement="top-end"
+          >
+            <a href={document.facebookLink}><IconButton style={buttonStyles}>
+              <FacebookIcon className="group-links-facebook-icon"/>
+            </IconButton></a>
+          </Tooltip>}
         {document.website
-          && <a href={document.website}><IconButton tooltipPosition='top-left' tooltip="Group Website" style={buttonStyles}>
-            <LinkIcon className="group-links-link-icon"/>
-          </IconButton></a>}
+          && <Tooltip
+            title="Group Website"
+            placement="top-end"
+          >
+            <a href={document.website}><IconButton style={buttonStyles}>
+              <LinkIcon className="group-links-link-icon"/>
+            </IconButton></a>
+          </Tooltip>}
       </div>
     )
   }
