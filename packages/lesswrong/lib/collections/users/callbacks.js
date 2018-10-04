@@ -22,7 +22,7 @@ function maybeSendVerificationEmail (modifier, user)
 {
   if(modifier.$set.whenConfirmationEmailSent
       && (!user.whenConfirmationEmailSent
-          || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent))
+          || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
     Accounts.sendVerificationEmail(user._id);
   }
