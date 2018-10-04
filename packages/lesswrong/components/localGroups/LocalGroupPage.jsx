@@ -4,6 +4,34 @@ import { Localgroups } from '../../lib/index.js';
 import { withRouter, Link } from 'react-router';
 import { Posts } from 'meteor/example-forum';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  groupName: {
+    marginTop: "0px",
+    marginBottom: "0.5rem"
+  },
+  groupLocation: {
+    display: "inline-block",
+    fontSize: "14px",
+    color: "rgba(0,0,0,0.7)",
+  },
+  groupLinks: {
+    display: "inline-block",
+    marginTop: "-7px",
+    marginLeft: "10px",
+    marginBottom: "20px",
+  },
+  groupDescription: {
+    fontSize: "20px",
+    lineHeight: 1.25,
+    marginLeft: "24px",
+    
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 0
+    }
+  },
+});
 
 class LocalGroupPage extends Component {
   renderTitleComponent = () => {
@@ -22,6 +50,7 @@ class LocalGroupPage extends Component {
     )
   }
   render() {
+    const { classes } = this.props;
     const { groupId } = this.props.params;
     const group = this.props.document;
     if (this.props.document) {
@@ -34,11 +63,11 @@ class LocalGroupPage extends Component {
             mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
           />
           <Components.Section titleComponent={this.renderTitleComponent()}>
-            {this.props.document && this.props.document.description && <div className="local-groups-description content-body">
-              <h2 className="local-group-page-name">{group.name}</h2>
+            {this.props.document && this.props.document.description && <div className={classes.groupDescription}>
+              <h2 className={classes.groupName}>{group.name}</h2>
               <div className="local-group-page-subtitle">
-                <div className="local-group-page-location">{group.location}</div>
-                <div className="local-group-page-group-links"><Components.GroupLinks document={group} /></div>
+                <div className={classes.groupLocation}>{group.location}</div>
+                <div className={classes.groupLinks}><Components.GroupLinks document={group} /></div>
               </div>
               <Components.DraftJSRenderer content={this.props.document.description}/>
             </div>}
@@ -59,4 +88,7 @@ const options = {
   fragmentName: 'localGroupsHomeFragment',
 };
 
-registerComponent('LocalGroupPage', LocalGroupPage, withUser, withMessages, withRouter, [withDocument, options]);
+registerComponent('LocalGroupPage', LocalGroupPage,
+  withUser, withMessages, withRouter,
+  withStyles(styles, { name: "LocalGroupPage" }),
+  [withDocument, options]);
