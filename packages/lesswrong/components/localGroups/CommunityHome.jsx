@@ -176,7 +176,7 @@ class CommunityHome extends Component {
             </div>}
         </Components.Section>
         <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} />
+          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />
         </Components.Section>
       </div>
     )
