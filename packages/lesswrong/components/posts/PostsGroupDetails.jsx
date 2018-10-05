@@ -26,6 +26,7 @@ const options = {
   fragmentName: 'localGroupsHomeFragment',
   totalResolver: false,
   enableCache: true,
+  ssr: true,
 }
 
 registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withDocument, options]);
