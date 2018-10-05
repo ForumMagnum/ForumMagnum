@@ -4,11 +4,20 @@ import { withRouter } from 'react-router';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Checkbox from 'material-ui/Checkbox';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
-
-
+import { withStyles } from '@material-ui/core/styles';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
 
+const styles = theme => ({
+  root: {
+    position: "absolute",
+    top: "10px",
+    padding: "10px 10px 5px 10px",
+    right: "10px"
+  },
+  filters: {
+  },
+});
 
 class CommunityMapFilter extends Component {
   constructor(props) {
@@ -36,8 +45,9 @@ class CommunityMapFilter extends Component {
   }
 
   render() {
-    return <Paper className="community-map-filter-wrapper" elevation={1}>
-      <div className="community-map-filter">
+    const { classes } = this.props;
+    return <Paper className={classes.root} elevation={1}>
+      <div className={classes.filters}>
         {availableFilters.map(value => {
           return <Checkbox
             label={value}
@@ -54,4 +64,7 @@ class CommunityMapFilter extends Component {
   }
 }
 
-registerComponent('CommunityMapFilter', CommunityMapFilter, withRouter);
+registerComponent('CommunityMapFilter', CommunityMapFilter,
+  withRouter,
+  withStyles(styles, {name: "CommunityMapFilter"})
+);
