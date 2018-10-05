@@ -4,6 +4,7 @@ import { Components, Connectors } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
+import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 
 export const formGroups = {
   adminOptions: {
@@ -943,16 +944,7 @@ Posts.addField([
       group: formGroups.event,
       optional: true,
       form: {
-        options: [
-          {value: "LW", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-          {value: "SSC", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-          {value: "EA", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-          {value: "MIRIx", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"}
-          // Alternative colorization, keep around for now
-          // {value: "SSC", color: "rgba(136, 172, 184, 0.9)", hoverColor: "rgba(136, 172, 184, 0.5)"},
-          // {value: "EA", color: "rgba(29, 135, 156,0.5)", hoverColor: "rgba(29, 135, 156,0.5)"},
-          // {value: "MIRIx", color: "rgba(225, 96, 1,0.6)", hoverColor: "rgba(225, 96, 1,0.3)"}
-        ]
+        options: localGroupTypeFormOptions
       },
     }
   },

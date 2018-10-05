@@ -3,10 +3,11 @@ import Paper from '@material-ui/core/Paper';
 import { withRouter } from 'react-router';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Checkbox from 'material-ui/Checkbox';
+import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 
 
 
-const filters = ["LW", "EA", "SSC", "MIRIx"];
+const availableFilters = _.map(groupTypes, t => t.shortName);
 
 
 class CommunityMapFilter extends Component {
@@ -37,7 +38,7 @@ class CommunityMapFilter extends Component {
   render() {
     return <Paper className="community-map-filter-wrapper" elevation={1}>
       <div className="community-map-filter">
-        {filters.map(value => {
+        {availableFilters.map(value => {
           return <Checkbox
             label={value}
             checked={this.state.filters.includes(value)}
