@@ -25,12 +25,21 @@ const buttonStyles = {
 }
 
 const styles = theme => ({
+  groupTypes: {
+    display: 'inline-block',
+  },
+  
   groupType: {
     ...theme.typography.headerStyle,
     display: 'inline-block',
-    padding: '5px',
+    padding: '4px',
     width: 'initial',
     height: '20px',
+  },
+  
+  groupLinks: {
+    display: 'inline-block',
+    marginLeft: '6px'
   },
   
   facebookIcon: {
@@ -47,7 +56,7 @@ const styles = theme => ({
     width: "17px",
     paddingTop: "2px",
     transform: "translateY(3px) rotate(-45deg)",
-  }
+  },
 });
 
 class GroupLinks extends PureComponent {
@@ -55,37 +64,41 @@ class GroupLinks extends PureComponent {
     const { document, classes } = this.props;
     return(
       <div className="group-links">
-        {document.types && document.types.map(type => {
-          return (
-            <Tooltip
-              title="Group Type"
+        <div className={classes.groupTypes}>
+          {document.types && document.types.map(type => {
+            return (
+              <Tooltip
+                title="Group Type"
+                placement="top-end"
+                key={type}
+              >
+                <div className={classes.groupType}>
+                  <GroupTypeIcon type={type}/>
+                </div>
+              </Tooltip>
+            )
+          })}
+        </div>
+        <div className={classes.groupLinks}>
+          {document.facebookLink
+            && <Tooltip
+              title="Facebook Group"
               placement="top-end"
-              key={type}
             >
-              <div className={classes.groupType}>
-                <GroupTypeIcon type={type}/>
-              </div>
-            </Tooltip>
-          )
-        })}
-        {document.facebookLink
-          && <Tooltip
-            title="Facebook Group"
-            placement="top-end"
-          >
-            <a href={document.facebookLink}><IconButton style={buttonStyles}>
-              <FacebookIcon className={classes.facebookIcon}/>
-            </IconButton></a>
-          </Tooltip>}
-        {document.website
-          && <Tooltip
-            title="Group Website"
-            placement="top-end"
-          >
-            <a href={document.website}><IconButton style={buttonStyles}>
-              <LinkIcon className={classes.linkIcon}/>
-            </IconButton></a>
-          </Tooltip>}
+              <a href={document.facebookLink}><IconButton style={buttonStyles}>
+                <FacebookIcon className={classes.facebookIcon}/>
+              </IconButton></a>
+            </Tooltip>}
+          {document.website
+            && <Tooltip
+              title="Group Website"
+              placement="top-end"
+            >
+              <a href={document.website}><IconButton style={buttonStyles}>
+                <LinkIcon className={classes.linkIcon}/>
+              </IconButton></a>
+            </Tooltip>}
+        </div>
       </div>
     )
   }
