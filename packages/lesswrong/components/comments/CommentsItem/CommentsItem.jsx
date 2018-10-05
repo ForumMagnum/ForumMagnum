@@ -129,7 +129,11 @@ class CommentsItem extends Component {
     const { comment, classes } = this.props
 
     if (comment.body) {
-      let commentExcerpt = comment.body.substring(0,300).split("\n\n");
+      // Replace Markdown Links with just their display text
+      let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
+      
+      let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
+
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
@@ -146,6 +150,7 @@ class CommentsItem extends Component {
 
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
+
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
