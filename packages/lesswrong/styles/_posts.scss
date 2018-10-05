@@ -425,7 +425,7 @@
   }
 }
 @include max-small() {
-  .sequences-navigation-title {
+  .sequences-navigation-title, .posts-page-group-title {
     max-width: 60%;
     height: inherit;
     margin-bottom: 10px;
@@ -540,7 +540,7 @@ svg.drag-handle {
   margin:20px 0;
 }
 
-.sequences-navigation-title {
+.sequences-navigation-title, .posts-page-group-title {
     display: inline-block;
     font-size: 22px;
     vertical-align: middle;
@@ -555,7 +555,7 @@ svg.drag-handle {
     }
 }
 
-.sequences-navigation-top {
+.sequences-navigation-top, .posts-page-group-details {
     text-align: center;
     margin-top: -15px;
     margin-bottom: 25px;
