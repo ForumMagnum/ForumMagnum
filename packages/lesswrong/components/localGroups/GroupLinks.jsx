@@ -24,13 +24,15 @@ const buttonStyles = {
   height: '18px'
 }
 
-const groupTypeStyles = {
-  padding: '5px',
-  width: 'initial',
-  height: '20px',
-}
-
 const styles = theme => ({
+  groupType: {
+    ...theme.typography.headerStyle,
+    display: 'inline-block',
+    padding: '5px',
+    width: 'initial',
+    height: '20px',
+  },
+  
   facebookIcon: {
     width: "12px",
     height: "12px",
@@ -60,9 +62,9 @@ class GroupLinks extends PureComponent {
               placement="top-end"
               key={type}
             >
-              <IconButton style={groupTypeStyles}>
+              <div className={classes.groupType}>
                 <GroupTypeIcon type={type}/>
-              </IconButton>
+              </div>
             </Tooltip>
           )
         })}
