@@ -15,8 +15,6 @@ import '../components/editor/SaveDraftButton.jsx';
 // RSS Feed Integration
 import '../components/feeds/newFeedButton.jsx';
 import '../components/feeds/editFeedButton.jsx';
-import '../components/feeds/feedItem.jsx';
-import '../components/feeds/feedList.jsx';
 
 import '../components/notifications/NotificationsMenu.jsx';
 import '../components/notifications/NotificationsList.jsx';
