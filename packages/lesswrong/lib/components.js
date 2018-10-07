@@ -64,6 +64,7 @@ import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
+import '../components/users/LoginPopupLink.jsx';
 
 // posts
 
