@@ -13,9 +13,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router'
-import { LinkContainer } from 'react-router-bootstrap';
-import DropdownButton from 'react-bootstrap/lib/DropdownButton';
-import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import moment from 'moment';
@@ -123,31 +120,6 @@ const styles = theme => ({
 })
 
 class PostsPage extends Component {
-  renderCommentViewSelector() {
-
-    let views = ["top", "new"];
-    const query = _.clone(this.props.router.location.query);
-
-    return (
-      <DropdownButton
-        bsStyle="default"
-        className="views btn-secondary"
-        title={this.context.intl.formatMessage({id: "posts.view"})}
-        id="views-dropdown"
-      >
-        {views.map(view =>
-          <LinkContainer key={view} to={{pathname: this.props.router.location.pathname, query: {...query, view: view}}} className="dropdown-item">
-            <MenuItem>
-              { /* borrow the text from post views */ }
-              <FormattedMessage id={"posts."+view}/>
-            </MenuItem>
-          </LinkContainer>
-        )}
-      </DropdownButton>
-    )
-
-  }
-
   getCommentCountStr = (post) => {
     let count = Posts.getCommentCount(post)
 
