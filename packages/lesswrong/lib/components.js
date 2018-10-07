@@ -60,7 +60,6 @@ import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersAvatar.jsx';
 import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
-import '../components/users/UsersProfileCheck.jsx';
 import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
