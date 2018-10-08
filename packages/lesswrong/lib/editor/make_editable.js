@@ -9,7 +9,7 @@ const defaultOptions = {
   commentLocalStorage: false,
   permissions: {
     viewableBy: ['guests'],
-    editableBy: Users.owns,
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members']
   },
   fieldName: "",
