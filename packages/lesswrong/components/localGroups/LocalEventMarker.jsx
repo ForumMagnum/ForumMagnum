@@ -5,10 +5,10 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 import CloseIcon from '@material-ui/icons/Close';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
 
-// Share JSS styles with LocalGroupMarker
+// Share JSS styles with LocalGroupMarkers
 import { styles } from './LocalGroupMarker';
 
 class LocalEventMarker extends PureComponent {

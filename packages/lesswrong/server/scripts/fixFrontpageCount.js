@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 
 const fixFrontpageCounts = false

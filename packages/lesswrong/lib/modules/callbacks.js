@@ -6,7 +6,8 @@ import Localgroups from '../collections/localgroups/collection.js';
 import Bans from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
-import { Posts, Categories, Comments } from 'meteor/example-forum';
+import { Posts } from '../collections/posts';
+import { Comments } from '../collections/comments'
 import VulcanEmail from 'meteor/vulcan:email'
 import {
   addCallback,
@@ -205,16 +206,6 @@ function postsNewNotifications (post) {
     const postAuthor = Users.findOne(post.userId);
     if (!!postAuthor.subscribers) {
       usersToNotify = _.union(usersToNotify, postAuthor.subscribers);
-    }
-
-    // add users who are subscribed to this post's categories
-    if (!!post.categories) {
-      post.categories.forEach(cid => {
-        let c = Categories.findOne(cid);
-        if (!!c.subscribers) {
-          usersToNotify = _.union(usersToNotify, c.subscribers);
-        }
-      });
     }
 
     // add users who are subscribed to this post's groups

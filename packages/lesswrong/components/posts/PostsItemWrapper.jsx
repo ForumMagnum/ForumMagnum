@@ -1,5 +1,5 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';

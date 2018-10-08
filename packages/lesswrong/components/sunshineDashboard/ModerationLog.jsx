@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Posts, Comments } from "meteor/example-forum";
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';
 import { Link } from 'react-router'

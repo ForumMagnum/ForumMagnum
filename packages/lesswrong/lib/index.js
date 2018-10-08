@@ -1,5 +1,11 @@
 // # Vulcan Modifications
 
+// Permissions
+import './modules/permissions.js';
+
+// Head tags
+import './modules/headtags.js'
+
 // ## Accounts
 import './modules/accounts/modify_accounts_ui.js';
 
@@ -7,28 +13,10 @@ import './modules/accounts/modify_accounts_ui.js';
 import './modules/voting/new_vote_types.js';
 import './modules/voting/callbacks.js';
 
-// Alignment Forum
-import './modules/alignment-forum/callbacks.js';
-import './modules/alignment-forum/permissions.js';
-import './modules/alignment-forum/graphql.js';
-import './modules/alignment-forum/users/custom_fields.js';
-import './modules/alignment-forum/posts/custom_fields.js';
-import './modules/alignment-forum/posts/callbacks.js';
-import './modules/alignment-forum/posts/fragments.js';
-import './modules/alignment-forum/posts/helpers.js';
-import './modules/alignment-forum/comments/custom_fields.js';
-import './modules/alignment-forum/comments/callbacks.js';
-import './modules/alignment-forum/sequences/custom_fields.js'
-import './modules/alignment-forum/sequences/callbacks.js';
-
-
 // Subscriptions
 import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
-
-// Permissions
-import './modules/permissions.js';
 
 // Notifications
 import Notifications from './collections/notifications/collection.js';
@@ -122,10 +110,7 @@ import './collections/users/views.js';
 import './collections/users/permissions.js';
 
 // Comments
-import './collections/comments/custom_fields.js';
-import './collections/comments/permissions.js';
-import './collections/comments/views.js';
-import './collections/comments/helpers.js';
+import { Comments } from './collections/comments'
 
 // Votes
 import './collections/votes/custom_fields.js';
@@ -149,6 +134,23 @@ import './search/utils.js';
 import './search/callbacks.js';
 
 import './components.js';
+
+// Alignment Forum
+import './modules/alignment-forum/callbacks.js';
+import './modules/alignment-forum/permissions.js';
+import './modules/alignment-forum/graphql.js';
+import './modules/alignment-forum/users/custom_fields.js';
+import './modules/alignment-forum/posts/custom_fields.js';
+import './modules/alignment-forum/posts/callbacks.js';
+import './modules/alignment-forum/posts/fragments.js';
+import './modules/alignment-forum/posts/helpers.js';
+import './modules/alignment-forum/comments/custom_fields.js';
+import './modules/alignment-forum/comments/callbacks.js';
+import './modules/alignment-forum/sequences/custom_fields.js'
+import './modules/alignment-forum/sequences/callbacks.js';
+
+
+
 //
 export {
   Conversations,
@@ -164,5 +166,6 @@ export {
   Bans,
   UserSequenceRels,
   UserCollectionRels,
-  Localgroups
+  Localgroups,
+  Comments
 }

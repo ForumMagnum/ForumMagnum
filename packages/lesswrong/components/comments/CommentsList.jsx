@@ -1,7 +1,7 @@
 import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Comments } from "meteor/example-forum";
+import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 class CommentsList extends Component {

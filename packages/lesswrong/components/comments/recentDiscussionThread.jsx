@@ -8,7 +8,8 @@ import {
   withMutation
 } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
-import { Posts, Comments } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';

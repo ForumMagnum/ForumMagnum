@@ -1,6 +1,6 @@
 import Collections from "../collections/collection";
 import Sequences from "../sequences/collection";
-import { Posts } from "meteor/example-forum";
+import { Posts } from "../posts";
 import { addCallback, runQuery } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';

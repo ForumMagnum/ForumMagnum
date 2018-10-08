@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import moment from 'moment';
 import { Link, withRouter } from 'react-router';
 import { Snippet} from 'react-instantsearch/dom';

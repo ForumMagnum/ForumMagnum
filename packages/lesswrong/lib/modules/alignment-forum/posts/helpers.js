@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../../collections/posts';
 
 Posts.suggestForAlignment = ({ currentUser, post, editMutation }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
