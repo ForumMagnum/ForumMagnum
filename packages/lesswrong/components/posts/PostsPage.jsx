@@ -98,6 +98,27 @@ const styles = theme => ({
       lineHeight: 1.25,
       fontWeight: 600,
     },
+    eventTimeStart: {
+      display: "inline-block",
+    },
+    eventTimeEnd: {
+      display: "inline-block",
+    },
+    
+    eventLocation: {
+      fontSize: "14px",
+      fontWeight: 400,
+      lineHeight: 1.25,
+    },
+    eventContact: {
+      fontSize: "14px",
+      fontWeight: 400,
+      lineHeight: 1.25,
+      marginBottom: "5px",
+    },
+    eventLinks: {
+      fontWeight: 400,
+    },
 })
 
 class PostsPage extends Component {
@@ -240,27 +261,30 @@ class PostsPage extends Component {
   }
 
   renderEventLocation = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent && post.location) {
-      return <div className="posts-page-event-location">
+      return <div className={classes.eventLocation}>
         {post.location}
       </div>
     }
   }
 
   renderEventLinks = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent) {
-      return <div className="posts-page-event-links">
+      return <div className={classes.eventLinks}>
         <Components.GroupLinks document={post} />
       </div>
     }
   }
 
   renderContactInfo = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent && post.contactInfo) {
-      return <div className="posts-page-event-contact">
+      return <div className={classes.eventContact}>
         Contact: {post.contactInfo}
       </div>
     }
