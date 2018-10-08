@@ -15,14 +15,9 @@ async function updateAlignmentKarmaServer (newDocument, vote) {
 
   if (Users.canDo(voter, "votes.alignment")) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
-    let newAFBaseScore = 0
 
-    if (vote._id) {
-      Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
-      newAFBaseScore = await recalculateAFBaseScore(newDocument)
-    } else {
-      newAFBaseScore = await recalculateAFBaseScore(newDocument) + votePower
-    }
+    Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
+    const newAFBaseScore = await recalculateAFBaseScore(newDocument)
 
     const collection = getCollection(vote.collectionName)
 
@@ -35,7 +30,7 @@ async function updateAlignmentKarmaServer (newDocument, vote) {
       },
       vote: {
         ...vote,
-        afPower:votePower
+        afPower: votePower
       }
     }
   } else {
