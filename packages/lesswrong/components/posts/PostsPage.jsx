@@ -90,7 +90,35 @@ const styles = theme => ({
     },
     draft: {
       color: theme.palette.secondary.light
-    }
+    },
+    
+    eventTimes: {
+      marginTop: "5px",
+      fontSize: "14px",
+      lineHeight: 1.25,
+      fontWeight: 600,
+    },
+    eventTimeStart: {
+      display: "inline-block",
+    },
+    eventTimeEnd: {
+      display: "inline-block",
+    },
+    
+    eventLocation: {
+      fontSize: "14px",
+      fontWeight: 400,
+      lineHeight: 1.25,
+    },
+    eventContact: {
+      fontSize: "14px",
+      fontWeight: 400,
+      lineHeight: 1.25,
+      marginBottom: "5px",
+    },
+    eventLinks: {
+      fontWeight: 400,
+    },
 })
 
 class PostsPage extends Component {
@@ -181,13 +209,9 @@ class PostsPage extends Component {
   renderPostDate = () => {
     const post = this.props.document;
     const { classes } = this.props
-    const calendarFormat = {sameElse : 'MMMM Do YY, HH:mm'}
     if (post.isEvent) {
-      return <div>
-        <div className="posts-page-event-times">
-          <span className="posts-page-event-times-start"> From: {post.startTime ? moment(post.startTime).calendar({}, calendarFormat): "TBD"} </span>
-          {post.endTime && <span className="posts-page-event-times-start"> To: {moment(post.endTime).calendar({}, calendarFormat)} </span>}
-        </div>
+      return <div className={classes.eventTimes}>
+        {this.renderEventTimes(post.startTime, post.endTime)}
       </div>
     } else {
       return <div className={classes.subtitle}>
@@ -195,29 +219,72 @@ class PostsPage extends Component {
       </div>
     }
   }
+  
+  renderEventTimes = (start, end) => {
+    const classes = this.props.classes;
+    const timeFormat = 'h:mm A';
+    const dateFormat = 'MMMM Do YY, '+timeFormat
+    const calendarFormat = {sameElse : dateFormat}
+    
+    // Neither start nor end time specified
+    if (!start && !end) {
+      return "TBD";
+    }
+    // Start time specified, end time missing. Use
+    // moment.calendar, which has a bunch of its own special
+    // cases like "tomorrow".
+    // (Or vise versa. Specifying end time without specifying start time makes
+    // less sense, but users can enter silly things.)
+    else if (!start || !end) {
+      const eventTime = start ? start : end;
+      return moment(eventTime).calendar({}, calendarFormat)
+    }
+    // Both start end end time specified
+    else {
+      // If the start and end time are on the same date, render it like:
+      //   January 15 13:00-15:00
+      // If they're on different dates, render it like:
+      //   January 15 19:00 to January 16 12:00
+      if (moment(start).format("YYYY-MM-DD") === moment(end).format("YYYY-MM-DD")) {
+        return moment(start).format(dateFormat) + '-' + moment(end).format(timeFormat);
+      } else {
+        return (<span>
+          <span className={classes.eventTimeStart}>
+            From: {moment(start).calendar({}, calendarFormat)}
+          </span>
+          <span className={classes.eventTimeEnd}>
+            To: {moment(end).calendar({}, calendarFormat)}
+          </span>
+        </span>);
+      }
+    }
+  }
 
   renderEventLocation = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent && post.location) {
-      return <div className="posts-page-event-location">
+      return <div className={classes.eventLocation}>
         {post.location}
       </div>
     }
   }
 
   renderEventLinks = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent) {
-      return <div className="posts-page-event-links">
+      return <div className={classes.eventLinks}>
         <Components.GroupLinks document={post} />
       </div>
     }
   }
 
   renderContactInfo = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent && post.contactInfo) {
-      return <div className="posts-page-event-contact">
+      return <div className={classes.eventContact}>
         Contact: {post.contactInfo}
       </div>
     }
