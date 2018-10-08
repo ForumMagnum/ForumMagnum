@@ -9,11 +9,6 @@ $lw-green: #588f27;
 
 $small-font: 1.1rem;
 
-@mixin flex-center{
-  display: flex;
-  align-items: center;
-}
-
 .comments-item{
   .comments-item-body {
     border-style: none;
@@ -364,16 +359,6 @@ New CSS File
   transform: rotate(3deg);
 }
 
-.comments-node-even {
-  background-color: rgb(242,242,242);
-}
-.comments-node-odd {
-  background-color: rgb(252,252,252);
-}
-.comments-node-root {
-  background-color: white;
-}
-
 .recent-comments-node {
   margin:0;
   width:100%;
@@ -409,14 +394,12 @@ New CSS File
   .recent-comments-node .comments-item {
     border-right:solid 1px rgba(0,0,0,.2);
   }
-  &.comments-node-root {
-    background-color:none;
-  }
 
   .comments-node {
     margin:0;
   }
   &.comments-node-root {
+    background-color:none;
     border:solid 1px rgba(0,0,0,.2);
     margin-bottom:.8em;
     position:inherit;
