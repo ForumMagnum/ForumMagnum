@@ -588,7 +588,7 @@ svg.drag-handle {
   margin:0;
 }
 
-.posts-item-recent-comments-title, .posts-item-top-comments-title {
+.posts-item-recent-comments-title {
   padding:10px 0;
   font-size:14px;
   font-weight:600;
@@ -754,11 +754,6 @@ svg.drag-handle {
       opacity:1;
     }
   }
-}
-
-.posts-item-unread {
-  color:rgba(100,170,105,.86);
-  margin-right:6px;
 }
 
 .posts-page-suggest-curated-button {

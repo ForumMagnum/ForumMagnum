@@ -1,23 +1,6 @@
+// TODO: Possibly rendered unused by example-forum merging.
 .category-menu-item{
   position: relative;
-  .categories-delete-link, .edit-category-link{
-    position: absolute;
-    top: 4px;
-    right: 5px;
-  }
-}
-
-.categories-new-button{
-  text-align: center;
-  padding: $vmargin/2;
-  button{
-    display: inline-block;
-  }
-}
-
-.categories-node .categories-node{
-  border-left: 10px $lightest-border solid;
-  padding-left: $hmargin;
 }
 
 .categories-edit-form-admin{

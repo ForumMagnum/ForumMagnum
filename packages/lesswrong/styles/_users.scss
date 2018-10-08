@@ -1,3 +1,4 @@
+// Used in the vulcan-accounts package
 .accounts-ui{
   .field{
     margin-bottom: $vmargin/2;
@@ -22,6 +23,8 @@
   }
 }
 
+// TODO: Possibly becomes unused with example-forum merge, or with deletion of
+// unused components.
 .avatar-initials{
   background: $light-grey;
   color: $dark-grey;
@@ -35,17 +38,6 @@
   span{
     display: block;
     line-height: 1;
-  }
-}
-
-.users-newsletter-settings {
-  @include flex-center;
-  margin-top: $vmargin;
-}
-
-.log-in-message{
-  h3{
-    text-align: center;
   }
 }
 
@@ -176,20 +168,4 @@
   .form-group.row {
     display:block;
   }
-}
-
-.user-profile-posts-title {
-  padding-left:1em;
-  padding-bottom:1.5em;
-  font-size:18px;
-  font-style:italic;
-
-  span.wing {
-    width:100px;
-    border-bottom:solid 1px $light-grey;
-  }
-}
-
-.single-users-item-name {
-  font-family: $comments-font;
 }

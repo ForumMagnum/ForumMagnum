@@ -1,9 +1,5 @@
-.users-account-menu{
-  .icon{
-    display: none;
-  }
-}
 
+// Used in the vulcan-accounts package
 .accounts-ui {
 
   input, button {
@@ -65,10 +61,7 @@
   }
 }
 
+// Used in the vulcan-accounts package
 .password-reset-form{
   text-align: center;
-}
-
-.change-password-link{
-  margin-bottom: $vmargin;
 }
