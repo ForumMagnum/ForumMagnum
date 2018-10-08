@@ -8,6 +8,12 @@ import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
+  groupSidebar: {
+    // HACK/TODO: Move the group page action links down past the title and
+    // metadata lines so they line up with the description.
+    marginTop: "93px",
+  },
+  
   groupName: {
     ...theme.typography.headerStyle,
     fontSize: "30px",
@@ -45,17 +51,29 @@ const styles = theme => ({
 
 class LocalGroupPage extends Component {
   renderTitleComponent = () => {
+    const { classes } = this.props;
     const { groupId } = this.props.params;
     const group = this.props.document;
     return (
-      <div>
-        {this.props.currentUser && <div><Components.SubscribeTo document={group} /></div>}
+      <div className={classes.groupSidebar}>
+        {this.props.currentUser
+          && <Components.SectionSubtitle>
+            <Components.SubscribeTo document={group} />
+          </Components.SectionSubtitle>}
         {Posts.options.mutations.new.check(this.props.currentUser)
-          && <div><Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}}> Create new event </Link></div>}
+          && <Components.SectionSubtitle>
+            <Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}}>
+              Create new event
+            </Link>
+          </Components.SectionSubtitle>}
         {Posts.options.mutations.new.check(this.props.currentUser)
-          && <div><Link to={{pathname:"/newPost", query: {groupId}}}> Create new group post </Link></div>}
+          && <Components.SectionSubtitle>
+            <Link to={{pathname:"/newPost", query: {groupId}}}>
+              Create new group post
+            </Link>
+          </Components.SectionSubtitle>}
         {Localgroups.options.mutations.edit.check(this.props.currentUser, group)
-          && <div><Components.GroupFormLink documentId={groupId} label="Edit group" /></div>}
+          && <Components.GroupFormLink documentId={groupId} label="Edit group" />}
       </div>
     )
   }
