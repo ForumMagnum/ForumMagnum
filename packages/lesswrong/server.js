@@ -15,6 +15,7 @@ import './server/scripts/slugDeduplication.js';
 import './server/scripts/debuggingScripts.js';
 import './server/scripts/importOldPasswords.js';
 import './server/scripts/postsEditCallbacks.js';
+import './server/scripts/rerunAFvotes.js';
 import './server/scripts/messagesEditCallbacks.js';
 import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';

@@ -421,7 +421,7 @@
   }
 }
 @include max-small() {
-  .sequences-navigation-title {
+  .sequences-navigation-title, .posts-page-group-title {
     max-width: 60%;
     height: inherit;
     margin-bottom: 10px;
@@ -536,7 +536,7 @@ svg.drag-handle {
   margin:20px 0;
 }
 
-.sequences-navigation-title {
+.sequences-navigation-title, .posts-page-group-title {
     display: inline-block;
     font-size: 22px;
     vertical-align: middle;
@@ -551,7 +551,7 @@ svg.drag-handle {
     }
 }
 
-.sequences-navigation-top {
+.sequences-navigation-top, .posts-page-group-details {
     text-align: center;
     margin-top: -15px;
     margin-bottom: 25px;
@@ -712,33 +712,6 @@ svg.drag-handle {
   }
 }
 
-.posts-page-event-times {
-  margin-top: 5px;
-  font-size: 14px;
-  line-height: 1.25;
-  font-weight: 600;
-}
-
-.posts-page-event-times-start, .posts-page-event-times-end {
-  display: inline-block;
-}
-
-.posts-page-event-location {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.25;
-}
-
-.posts-page-event-contact {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.25;
-  margin-bottom: 5px;
-}
-
-.posts-page-event-links {
-  font-weight: 400;
-}
 
 .post-highlight img {
   max-width:100%;

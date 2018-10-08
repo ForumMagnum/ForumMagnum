@@ -5,6 +5,46 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
 import { Link } from 'react-router';
 import CloseIcon from '@material-ui/icons/Close';
+import { withStyles } from '@material-ui/core/styles';
+
+// Shared with LocalEventMarker
+export const styles = theme => ({
+  mapInfoWindow: {
+    width: "250px",
+  },
+  closeIcon: {
+    position: "absolute",
+    right: "-3px",
+    top: "4px",
+    color: "rgba(0,0,0,0.5)",
+    height: "15px",
+    width: "15px",
+  },
+  groupMarkerName: {
+    fontSize: "15px",
+    marginTop: "3.5px",
+    marginBottom: "0px",
+  },
+  markerBody: {
+    maxHeight: "250px",
+    overflowY: "auto"
+  },
+  contactInfo: {
+    marginBottom: "10px",
+    marginTop: "10px",
+    fontWeight: 400,
+    color: "rgba(0,0,0,0.6)",
+  },
+  markerPageLink: {
+    fontWeight: 400,
+    color: "rgba(0,0,0,0.4)",
+  },
+  linksWrapper: {
+    position: "absolute",
+    bottom: "0px",
+    right: "-2px",
+  },
+});
 
 class LocalGroupMarker extends PureComponent {
   // March 13th 2018: If this is still around in six months, probably time to say goodbye
@@ -23,7 +63,7 @@ class LocalGroupMarker extends PureComponent {
   // }
 
   render() {
-    const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location } = this.props;
+    const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
 
     var circleIcon = {
@@ -44,13 +84,13 @@ class LocalGroupMarker extends PureComponent {
       >
         {infoOpen &&
           <InfoWindow>
-            <div style={{width: "250px"}}>
-              <a><CloseIcon className="local-group-marker-close-icon" onClick={() => handleInfoWindowClose(group._id)}/></a>
-              <Link to={'/groups/'+group._id}><h5 className="local-group-marker-name"> [Group] {group.name} </h5></Link>
-              <div className="local-group-marker-body"><Components.DraftJSRenderer content={group.description} /></div>
-              {group.contactInfo && <div className="local-group-marker-contact-info">{group.contactInfo}</div>}
-              <Link className="local-group-marker-page-link" to={'/groups/'+group._id}> Full link </Link>
-              <div className="local-group-links-wrapper"><Components.GroupLinks document={group}/></div>
+            <div className={classes.mapInfoWindow}>
+              <a><CloseIcon className={classes.closeIcon} onClick={() => handleInfoWindowClose(group._id)}/></a>
+              <Link to={'/groups/'+group._id}><h5 className={classes.groupMarkerName}> [Group] {group.name} </h5></Link>
+              <div className={classes.markerBody}><Components.DraftJSRenderer content={group.description} /></div>
+              {group.contactInfo && <div className={classes.contactInfo}>{group.contactInfo}</div>}
+              <Link className={classes.markerPageLink} to={'/groups/'+group._id}> Full link </Link>
+              <div className={classes.linksWrapper}><Components.GroupLinks document={group}/></div>
             </div>
           </InfoWindow>
         }
@@ -64,4 +104,4 @@ LocalGroupMarker.propTypes = {
   location: PropTypes.object.isRequired,
 }
 
-registerComponent("LocalGroupMarker", LocalGroupMarker);
+registerComponent("LocalGroupMarker", LocalGroupMarker, withStyles(styles, { name: "LocalGroupMarker" }));
