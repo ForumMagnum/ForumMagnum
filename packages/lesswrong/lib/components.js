@@ -22,9 +22,6 @@ import '../components/notifications/NotificationsMenu.jsx';
 import '../components/notifications/NotificationsList.jsx';
 import '../components/notifications/NotificationsItem.jsx';
 import '../components/notifications/NotificationsMenuButton.jsx';
-import '../components/notifications/NotificationsFullscreenItem.jsx';
-import '../components/notifications/NotificationsFullscreenList.jsx';
-import '../components/notifications/NotificationsWrapper.jsx';
 import '../components/notifications/SubscribeTo.jsx';
 
 import '../components/Layout.jsx';
