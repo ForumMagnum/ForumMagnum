@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link, withRouter } from 'react-router'
+import { withRouter } from 'react-router'
 import { LinkContainer } from 'react-router-bootstrap';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
@@ -293,7 +293,7 @@ class PostsPage extends Component {
 
   renderPostMetadata = () => {
     const post = this.props.document;
-    const { classes } = this.props
+    const { classes, currentUser } = this.props
     return <div className={classNames("posts-page-content-body-metadata", classes.metadata)}>
       <div className="posts-page-content-body-metadata-date">
         {this.renderPostDate()}
@@ -305,13 +305,7 @@ class PostsPage extends Component {
         <a href="#comments">{ this.getCommentCountStr(post) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
-        {Posts.options.mutations.edit.check(this.props.currentUser, post) &&
-          <div className="posts-page-content-body-metadata-action">
-            <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-              Edit
-            </Link>
-          </div>
-        }
+        { Posts.canEdit(currentUser,post) && <Components.PostsEdit post={post}/>}
         <Components.PostsPageAdminActions post={post} />
         {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
           <div className="posts-page-content-body-metadata-action">

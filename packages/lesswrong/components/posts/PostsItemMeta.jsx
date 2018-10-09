@@ -8,8 +8,8 @@ const PostsItemMeta = ({currentUser, post}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
   return <span>
-      { Posts.options.mutations.edit.check(currentUser, post) && <C.MetaInfo>
-        <C.PostsEdit post={post} />
+      { Posts.canEdit(currentUser,post) && <C.MetaInfo>
+        <C.PostsEdit post={post}/>
       </C.MetaInfo>}
       { post.user && <C.MetaInfo>
         <C.UsersName user={post.user}/>

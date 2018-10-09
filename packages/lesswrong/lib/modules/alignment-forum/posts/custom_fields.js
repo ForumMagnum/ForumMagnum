@@ -102,7 +102,7 @@ Posts.addField([
       type: Array,
       viewableBy: ['members'],
       insertableBy: ['sunshineRegiment', 'admins'],
-      editableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['alignmentForum', 'alignmentForumAdmins'],
       optional: true,
       label: "Suggested for Alignment by",
       control: "UsersListEditor",

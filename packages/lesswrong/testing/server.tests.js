@@ -9,3 +9,5 @@ import './moderation/moderation.frontend.tests.js';
 import '../lib/collections/comments/tests.js';
 import '../lib/collections/posts/tests.js';
 import '../lib/collections/notifications/tests.js';
+
+import '../lib/modules/alignment-forum/posts/tests.js';
