@@ -17,7 +17,7 @@ const options = {
   queryName: 'UsersNameWrapperQuery',
   fragmentName: 'UsersList',
   limit: 1,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('UsersNameWrapper', UsersNameWrapper, [withDocument, options]);

@@ -9,7 +9,7 @@ import {
 } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
-import { Comments } from "meteor/example-forum";
+import { Comments } from "../../lib/collections/comments";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';

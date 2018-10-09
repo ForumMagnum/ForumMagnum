@@ -1,5 +1,5 @@
 import { Components as C, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
 import moment from 'moment';
@@ -8,8 +8,8 @@ const PostsItemMeta = ({currentUser, post}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
   return <span>
-      { Posts.options.mutations.edit.check(currentUser, post) && <C.MetaInfo>
-        <C.PostsEdit post={post} />
+      { Posts.canEdit(currentUser,post) && <C.MetaInfo>
+        <C.PostsEdit post={post}/>
       </C.MetaInfo>}
       { post.user && <C.MetaInfo>
         <C.UsersName user={post.user}/>

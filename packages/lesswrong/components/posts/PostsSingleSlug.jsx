@@ -1,5 +1,5 @@
 import { Components, registerComponent, withList} from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { Error404 } from 'meteor/vulcan:core';
 
@@ -18,7 +18,7 @@ const options = {
   queryName: 'LWPostsPageSlugQuery',
   fragmentName: 'LWPostsPage',
   limit: 1,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);

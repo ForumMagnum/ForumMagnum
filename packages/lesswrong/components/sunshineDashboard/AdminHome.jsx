@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, AdminColumns, registerComponent } from 'meteor/vulcan:core';
-import { Bans, LWEvents } from 'meteor/lesswrong';
+import { Bans } from '../../lib/collections/bans';
+import { LWEvents } from '../../lib/collections/lwevents';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment';

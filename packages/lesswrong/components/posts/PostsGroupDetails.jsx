@@ -10,7 +10,7 @@ class PostsGroupDetails extends Component {
     const post = this.props.post;
     if (this.props.document) {
       return <div className="posts-page-group-details">
-        <div className="sequences-navigation-title">
+        <div className="posts-page-group-title">
           {post && post.groupId && <Link to={'/groups/' + post.groupId }>{ this.props.document.name }</Link>}
         </div>
       </div>
@@ -24,8 +24,9 @@ const options = {
   collection: Localgroups,
   queryName: "PostsGroupDetailsQuery",
   fragmentName: 'localGroupsHomeFragment',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
+  ssr: true,
 }
 
 registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withDocument, options]);

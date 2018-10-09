@@ -9,12 +9,7 @@
   }
 }
 
-.private{
-  text-transform: uppercase;
-  font-size: $smaller-font;
-  color: $red;
-}
-
+// TODO: Possibly unused
 .dropdown-item.active{
   a{
     color: $white;

@@ -1,3 +1,4 @@
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 /*
 
 A SimpleSchema-compatible JSON schema
@@ -19,9 +20,9 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: (message, args, context) => {
-        return context.Users.findOne({_id: message.userId}, {fields: context.getViewableFields(context.currentUser, context.Users)});
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true,
     },
     optional: true,
@@ -42,8 +43,9 @@ const schema = {
     resolveAs: {
       fieldName: 'conversation',
       type: 'Conversation',
-      resolver: (message, args, context) => {
-        return context.Conversations.findOne({ _id: message.conversationId }, { fields: context.getViewableFields(context.currentUser, context.Conversations) })},
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Conversations', fieldName: 'conversationId'}
+      ),
       addOriginalField: true,
     },
   }

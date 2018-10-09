@@ -2,7 +2,7 @@ import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import FontIcon from 'material-ui/FontIcon';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import classNames from 'classnames'
 import Users from 'meteor/vulcan:users';
 
@@ -54,7 +54,7 @@ const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
   fragmentName: 'LWPostsPage',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
 };
 

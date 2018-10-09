@@ -1,5 +1,5 @@
 import { Components, registerComponent, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
-import { Posts } from "meteor/example-forum";
+import { Posts } from '../../lib/collections/posts';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';

@@ -1,9 +1,11 @@
+import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+
 /*
 
 A SimpleSchema-compatible JSON schema
 
 */
-
+import { localGroupTypeFormOptions } from './groupTypes';
 
 const schema = {
   _id: {
@@ -43,11 +45,9 @@ const schema = {
     resolveAs: {
       fieldName: 'organizers',
       type: '[User]',
-      resolver: (localGroup, args, context) => {
-        return _.map(localGroup.organizerIds,
-          (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-        )
-      },
+      resolver: generateIdResolverMulti(
+        {collectionName: 'Users', fieldName: 'organizerIds'}
+      ),
       addOriginalField: true
     }
   },
@@ -76,16 +76,7 @@ const schema = {
     label: "Group Type:",
     minCount: 1, // Ensure that at least one type is selected
     form: {
-      options: [
-        {value: "LW", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-        {value: "SSC", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-        {value: "EA", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-        {value: "MIRIx", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"}
-        // Alternative colorization, keep around for now
-        // {value: "SSC", color: "rgba(136, 172, 184, 0.9)", hoverColor: "rgba(136, 172, 184, 0.5)"},
-        // {value: "EA", color: "rgba(29, 135, 156,0.5)", hoverColor: "rgba(29, 135, 156,0.5)"},
-        // {value: "MIRIx", color: "rgba(225, 96, 1,0.6)", hoverColor: "rgba(225, 96, 1,0.3)"}
-      ]
+      options: localGroupTypeFormOptions
     },
   },
 
@@ -162,20 +153,6 @@ const schema = {
     control: "MuiInput",
     optional: true,
   },
-
-  post: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    resolveAs: {
-      fieldName: 'post',
-      type: "Post",
-      resolver: (event, args, context) => {
-        const post = context.Posts.findOne({eventId: event._id});
-        return context.Users.restrictViewableFields(context.currentUser, context.Posts, post);
-      }
-    }
-  }
 };
 
 export default schema;

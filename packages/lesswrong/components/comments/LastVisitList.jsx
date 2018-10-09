@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem'
-import LWEvents from '../../lib/collections/lwevents/collection.js'
+import { LWEvents } from '../../lib/collections/lwevents/collection.js'
 import moment from 'moment';
 import withUser from '../common/withUser';
 
@@ -23,7 +23,7 @@ const options = {
   collection: LWEvents,
   queryName: 'LastVisitListFragment',
   fragmentName: 'lastEventFragment',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
 };
 

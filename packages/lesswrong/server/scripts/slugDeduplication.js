@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 
 const runDeduplication = false;
 

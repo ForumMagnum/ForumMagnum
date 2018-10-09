@@ -131,7 +131,7 @@ const options = {
   collection: Sequences,
   queryName: "SequencesPageQuery",
   fragmentName: 'SequencesPageFragment',
-  totalResolver: false,
+  enableTotal: false,
 };
 
 

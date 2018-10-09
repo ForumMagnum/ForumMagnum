@@ -8,7 +8,7 @@ import {
   createDummyPost,
 } from './utils.js'
 
-import { Posts } from 'meteor/example-forum'
+import { Posts } from '../lib/collections/posts'
 
 chai.should();
 chai.use(chaiAsPromised);

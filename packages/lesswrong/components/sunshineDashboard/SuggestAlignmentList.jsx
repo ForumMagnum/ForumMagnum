@@ -1,6 +1,6 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
@@ -25,7 +25,7 @@ class SuggestAlignmentList extends Component {
       return (
         <div className={classes.root}>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> Suggestions for Alignment
+            <Components.OmegaIcon className={classes.icon}/> Suggest for Alignment
           </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >

@@ -17,7 +17,7 @@ const options = {
   collection: Users,
   queryName: "SingleUsersItemQuery",
   fragmentName: 'UsersProfile',
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('SingleUsersItemWrapper', SingleUsersItemWrapper, [withDocument, options]);

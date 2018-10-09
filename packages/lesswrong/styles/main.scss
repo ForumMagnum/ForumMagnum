@@ -6,18 +6,15 @@
 @import "global";
 @import "layout";
 @import "accounts";
-@import "categories";
 @import "comments";
 @import "editor";
 @import "header";
-@import "newsletter";
 @import "other";
 @import "forms";
 @import "posts";
 @import "users";
 @import "collections";
 @import "sequences";
-@import "stats";
 @import "localgroups";
 @import "admin";
 @import "sunshine-sidebar";
@@ -92,12 +89,6 @@ then moved to more specific files as it becomes necessary.
   // With Bootstrap's default hover effect for <a> links, this would look like
   // it's grayed out.
   opacity: 1 !important;
-}
-
-// CSS modifications for notifications page
-
-.notification-filters{
-  margin-bottom: 20px;
 }
 
 // CSS modifications for comments

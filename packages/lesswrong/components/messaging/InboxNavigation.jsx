@@ -108,7 +108,7 @@ const conversationOptions = {
   queryName: 'conversationsListQuery',
   fragmentName: 'conversationsListFragment',
   limit: 20,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions], withUser, withRouter, withStyles(styles, { name: "InboxNavigation" }));

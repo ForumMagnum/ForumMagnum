@@ -138,7 +138,7 @@ const options = {
   fragmentName: 'NotificationsList',
   pollInterval: 0,
   limit: 20,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 

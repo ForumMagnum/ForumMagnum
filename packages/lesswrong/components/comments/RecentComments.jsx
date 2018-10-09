@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
-import { Comments } from 'meteor/example-forum';
+import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 
 const RecentComments = ({results, currentUser, loading, fontSize, loadMore, networkStatus, editMutation}) => {
@@ -34,7 +34,7 @@ const commentsOptions = {
   collection: Comments,
   queryName: 'selectCommentsListQuery',
   fragmentName: 'SelectCommentsList',
-  totalResolver: false,
+  enableTotal: false,
   pollInterval: 0,
   enableCache: true,
 };

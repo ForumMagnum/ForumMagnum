@@ -1,4 +1,4 @@
-import { Comments } from "meteor/example-forum";
+import { Comments } from "../../../collections/comments";
 
 Comments.addField([
   {

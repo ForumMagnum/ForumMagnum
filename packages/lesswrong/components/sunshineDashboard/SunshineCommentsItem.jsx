@@ -1,11 +1,11 @@
 import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Comments } from 'meteor/example-forum';
+import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 
 class SunshineCommentsItem extends Component {
