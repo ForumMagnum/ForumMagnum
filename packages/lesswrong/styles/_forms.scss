@@ -3,7 +3,9 @@ select.form-control{
 }
 
 
-/* Example Styles for React Tags*/
+// TODO: This looks like remnants of styling from a library we may no longer be
+// using. Confirm that there was once a ReactTags library and isn't anymore.
+// Example Styles for React Tags
 div.ReactTags__tags {
   position: relative;
 }
@@ -88,6 +90,8 @@ div.ReactTags__suggestions mark{
   padding: 0;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// Styles for vulcan-forms
 .form-section{
   .form-section-heading{
     border-bottom: 1px solid $light-border;
@@ -157,6 +161,9 @@ div.ReactTags__suggestions mark{
   display: none;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+// TODO: Possibly used by a library, or possibly unused
 .modal-dialog {
   margin-top: 100px !important;
 }

@@ -6,15 +6,40 @@ import { Link } from 'react-router'
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import { getVotePower } from 'meteor/vulcan:voting';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  root: {
+    paddingLeft: ".5em",
+    borderTop: "solid 1px $light-grey",
+  },
+  header: {
+  },
+  reminder: {
+    fontSize: "14px",
+    fontStyle: "italic",
+    marginLeft: "5px",
+  },
+  stats: {
+    // TODO: Update Modal so it displays long content in a reasonable way
+    paddingLeft: "1em",
+    maxHeight: "200px",
+    overflow: "scroll",
+  },
+  statsUpvoters: {
+  },
+  statsDownvoters: {
+  },
+});
 
 class VotesInfo extends Component {
 
   render() {
-    const document = this.props.document
+    const { classes, document } = this.props;
     return (
-      <div className="votes-info">
-        <h5 className="votes-info-header">Voting</h5>
-        <div className="votes-info-stats">
+      <div className={classes.root}>
+        <h5 className={classes.header}>Voting</h5>
+        <div className={classes.stats}>
           { document && (
               <div>
                 <div>Score: { document.score } (weighted by time)</div>
@@ -22,7 +47,7 @@ class VotesInfo extends Component {
               </div>
           )}
           <strong>Upvoters {document && <span>({ document.upvotes })</span>}</strong>
-          <ul className="stats-upvoters">
+          <ul className={classes.statsUpvoters}>
             { document && document.upvoters.map(
               voter => (
                   <li key={voter._id}>
@@ -33,7 +58,7 @@ class VotesInfo extends Component {
             )}
           </ul>
           <strong>Downvoters {document && <span>({ document.downvotes })</span>}</strong>
-          <ul className="stats-downvoters">
+          <ul className={classes.statsDownvoters}>
             { document && document.downvoters.map(
               voter => (
                 <li key={voter._id}>
@@ -44,7 +69,7 @@ class VotesInfo extends Component {
             )}
           </ul>
         </div>
-        <span className="votes-info-reminder">(scroll to see all)</span>
+        <span className={classes.reminder}>(scroll to see all)</span>
       </div>
     );
   }
@@ -66,5 +91,11 @@ const postOptions = {
   fragmentName: 'PostStats',
 };
 
-registerComponent('CommentVotesInfo', VotesInfo, [withDocument, commentOptions]);
-registerComponent('PostVotesInfo', VotesInfo, [withDocument, postOptions]);
+registerComponent('CommentVotesInfo', VotesInfo,
+  [withDocument, commentOptions],
+  withStyles(styles, { name: "CommentVotesInfo" })
+);
+registerComponent('PostVotesInfo', VotesInfo,
+  [withDocument, postOptions],
+  withStyles(styles, { name: "PostVotesInfo" })
+);
