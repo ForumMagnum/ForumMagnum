@@ -95,21 +95,24 @@ describe('Users.isAllowedToComment --', async () => {
   })
 })
 
-describe('Posts Moderation --', async () => {
-  it('CommentsNew should succeed if user is not in bannedUserIds list', async () => {
+describe('Posts Moderation --', async function() {
+  this.timeout(10000)
+  it('CommentsNew should succeed if user is not in bannedUserIds list', async function() {
     const user = await createDummyUser()
     const post = await createDummyPost()
 
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", body: "test"}){
-          postId
-          body
+        createComment(data:{postId: "${post._id}", body: "test"}){
+          data {
+            postId
+            body
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: "test" } } }
+    const expectedOutput = { data: { createComment: {data: { postId: post._id, body: "test" } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it('new comment on a post should fail if user in Post.bannedUserIds list', async () => {
@@ -117,8 +120,10 @@ describe('Posts Moderation --', async () => {
     const post = await createDummyPost(user, {bannedUserIds:[user._id]})
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", body: "test"}){
-          body
+        createComment(data:{postId: "${post._id}", body: "test"}){
+          data {
+            body
+          }
         }
       }
     `;
@@ -131,9 +136,11 @@ describe('Posts Moderation --', async () => {
     const post = await createDummyPost(user)
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", body: "test"}){
-          body
-          userId
+        createComment(data:{postId:"${post._id}", body: "test"}){
+          data {
+            body
+            userId
+          }
         }
       }
     `;
@@ -146,14 +153,16 @@ describe('Posts Moderation --', async () => {
     const post = await createDummyPost(user)
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", body: "test"}){
-          body
-          postId
+        createComment(data:{postId:"${post._id}", body: "test"}){
+          data {
+            body
+            postId
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
-    const expectedOutput = { data: { CommentsNew: { postId: post._id, body: "test" } } }
+    const expectedOutput = { data: { createComment: { data: {postId: post._id, body: "test"} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
@@ -166,11 +175,13 @@ describe('User moderation fields --', async () => {
   it("non-trusted users cannot set their moderationStyle", async () => {
     const user = await createDummyUser()
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderationStyle:"0"}) {
+    mutation UsersUpdate {
+      updateUser(selector: {_id: "${user._id}"}, data: {moderationStyle:"0"}) {
+        data {
           moderationStyle
         }
       }
+    }
     `;
     const response = runQuery(query, {}, {currentUser:user})
     return response.should.be.rejected;
@@ -178,9 +189,11 @@ describe('User moderation fields --', async () => {
   it("non-trusted users cannot set their moderationGuidelines", async () => {
     const user = await createDummyUser()
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderationGuidelines:"foo"}) {
-          moderationGuidelines
+      mutation UsersUpdate {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines:"foo"}) {
+          data {
+            moderationGuidelines
+          }
         }
       }
     `;
@@ -190,9 +203,11 @@ describe('User moderation fields --', async () => {
   it("non-trusted users cannot set their moderatorAssistance", async () => {
     const user = await createDummyUser()
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderatorAssistance:true}) {
-          moderatorAssistance
+      mutation UsersUpdate {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance:"foo"}) {
+          data {
+            moderatorAssistance
+          }
         }
       }
     `;
@@ -202,49 +217,57 @@ describe('User moderation fields --', async () => {
   it("trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderationStyle:"easy-going"}) {
-          moderationStyle
+      mutation UsersUpdate {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationStyle:"easy-going"}) {
+          data {
+            moderationStyle
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { usersEdit: { moderationStyle: "easy-going" } } }
+    const expectedOutput = { data: { updateUser: {data: { moderationStyle: "easy-going" } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can set their moderationGuidelines", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderationGuidelines:"blah"}) {
-          moderationGuidelines
+      mutation UsersUpdate {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines:"blah"}) {
+          data {
+            moderationGuidelines
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { usersEdit: { moderationGuidelines: "blah" } } }
+    const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: "blah"} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can set their moderatorAssistance", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderatorAssistance:true}) {
-          moderatorAssistance
+      mutation UsersUpdate {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance: true}) {
+          data {
+            moderatorAssistance
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { usersEdit: { moderatorAssistance: true } } }
+    const expectedOutput = { data: { updateUser: { data: {moderatorAssistance: true} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can NOT set other user's moderationGuidelines", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const user2 = await createDummyUser({groups:["trustLevel1"]})
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{moderationGuidelines:"blah"}) {
-          moderationGuidelines
+      mutation UsersUpdate {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: "blah"}) {
+          data {
+            moderationGuidelines
+          }
         }
       }
     `;
@@ -259,14 +282,16 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     const post = await createDummyPost(user)
     const testBannedUserIds = "test"
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{bannedUserIds:["${testBannedUserIds}"]}) {
-          bannedUserIds
+      mutation PostsEdit {
+        updatePost(selector: {_id :"${post._id}"},data: {bannedUserIds:["${testBannedUserIds}"]}) {
+          data {
+            bannedUserIds
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { PostsEdit: { bannedUserIds: [testBannedUserIds] } } }
+    const expectedOutput = { data: { updatePost: { data: {bannedUserIds: [testBannedUserIds]} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
   it("PostsEdit bannedUserIds should fail if user owns post, has set moderationStyle, and is NOT in trustLevel1", async () => {
@@ -274,9 +299,11 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     const post = await createDummyPost(user)
     const testBannedUserIds = "test"
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{bannedUserIds:["${testBannedUserIds}"]}) {
-          bannedUserIds
+      mutation PostsEdit {
+        updatePost(selector: {_id :"${post._id}"},data: {bannedUserIds:["${testBannedUserIds}"]}) {
+          data {
+            bannedUserIds
+          }
         }
       }
     `;
@@ -289,9 +316,11 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     const post = await createDummyPost(otherUser)
     const testBannedUserIds = "test"
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{bannedUserIds:["${testBannedUserIds}"]}) {
-          bannedUserIds
+      mutation PostsEdit {
+        updatePost(selector: {_id :"${post._id}"},data: {bannedUserIds:["${testBannedUserIds}"]}) {
+          data {
+            bannedUserIds
+          }
         }
       }
     `;
@@ -301,10 +330,13 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
   it("PostsEdit bannedUserIds should fail if user in trustLevel1, owns post, but has NOT set moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const post = await createDummyPost(user)
+    const testBannedUserIds = "test"
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{bannedUserIds:"test"}) {
-          bannedUserIds
+      mutation PostsEdit {
+        updatePost(selector: {_id :"${post._id}"},data: {bannedUserIds:["${testBannedUserIds}"]}) {
+          data {
+            bannedUserIds
+          }
         }
       }
     `;
@@ -316,24 +348,30 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
 describe('UsersEdit bannedUserIds permissions --', async ()=> {
   it("usersEdit bannedUserIds should succeed if user in trustLevel1", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
+    const testBannedUserIds = "test"
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
-          bannedUserIds
+      mutation UsersEdit {
+        updateUser(selector: {_id :"${user._id}"},data: {bannedUserIds:["${testBannedUserIds}"]}) {
+          data {
+            bannedUserIds
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { usersEdit: { bannedUserIds: ["test"] } } }
+    const expectedOutput = { data: { updateUser: { data: {bannedUserIds: ["test"] } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
   it("usersEdit bannedUserIds should fail if user has set moderationStyle and in trustLevel1 but is NOT the target user ", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
     const user2 = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
+    const testBannedUserIds = "test"
     const query = `
-      mutation  {
-        usersEdit(documentId:"${user._id}",set:{bannedUserIds:["test"]}) {
-          bannedUserIds
+      mutation UsersEdit {
+        updateUser(selector: {_id :"${user._id}"},data: {bannedUserIds:["${testBannedUserIds}"]}) {
+          data {
+            bannedUserIds
+          }
         }
       }
     `;
@@ -403,21 +441,24 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
   })
 })
 
-describe('Comments deleted permissions --', async ()=> {
-  it("CommentsEdit Deleted should succeed if user in sunshineRegiment", async () => {
+describe('Comments deleted permissions --', async function() {
+  this.timeout(10000)
+  it("CommentsEdit Deleted should succeed if user in sunshineRegiment", async function() {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
     const query = `
-      mutation  {
-        CommentsEdit(documentId:"${comment._id}",set:{deleted:true}) {
-          deleted
+      mutation CommentsEdit {
+        updateComment(selector: {_id:"${comment._id}"}, data:{deleted:true}) {
+          data {
+            deleted
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { CommentsEdit: { deleted: true } } }
+    const expectedOutput = { data: { updateComment: { data: {deleted: true} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
   it("CommentsEdit set Deleted should fail if user is trustLevel1 and has set moderationStyle", async () => {
@@ -426,9 +467,11 @@ describe('Comments deleted permissions --', async ()=> {
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
     const query = `
-      mutation  {
-        CommentsEdit(documentId:"${comment._id}",set:{deleted:true}) {
-          deleted
+      mutation CommentsEdit {
+        updateComment(selector: {_id:"${comment._id}"}, data:{deleted:true}) {
+          data {
+            deleted
+          }
         }
       }
     `;
@@ -520,14 +563,16 @@ describe('CommentLock permissions --', async ()=> {
     const author = await createDummyUser()
     const post = await createDummyPost(author)
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
-          commentsLocked
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{commentsLocked:true}) {
+          data {
+            commentsLocked
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { PostsEdit: { commentsLocked: true } } }
+    const expectedOutput = { data: { updatePost: { data: {commentsLocked: true} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
   it("PostsEdit.commentLock should fail if user is rando", async () => {
@@ -535,9 +580,11 @@ describe('CommentLock permissions --', async ()=> {
     const author = await createDummyUser()
     const post = await createDummyPost(author)
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
-          commentsLocked
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{commentsLocked:true}) {
+          data {
+            commentsLocked
+          }
         }
       }
     `;
@@ -548,9 +595,11 @@ describe('CommentLock permissions --', async ()=> {
     const author = await createDummyUser()
     const post = await createDummyPost(author)
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
-          commentsLocked
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{commentsLocked:true}) {
+          data {
+            commentsLocked
+          }
         }
       }
     `;
@@ -561,14 +610,16 @@ describe('CommentLock permissions --', async ()=> {
     const author = await createDummyUser({groups:["canCommentLock"]})
     const post = await createDummyPost(author)
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{commentsLocked:true}) {
-          commentsLocked
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{commentsLocked:true}) {
+          data {
+            commentsLocked
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:author})
-    const expectedOutput = { data: { PostsEdit: { commentsLocked: true } } }
+    const expectedOutput = { data: { updatePost: { data: {commentsLocked: true} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
   it("CommentsNew should fail if post is commentLocked", async () => {
@@ -576,12 +627,15 @@ describe('CommentLock permissions --', async ()=> {
     const post = await createDummyPost(undefined, {commentsLocked:true})
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{postId:"${post._id}", body: "test"}){
-          postId
+        createComment(data:{postId:"${post._id}", body: "test"}){
+          data {
+            postId
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
     return response.should.be.rejected;
   });
+  
 })
