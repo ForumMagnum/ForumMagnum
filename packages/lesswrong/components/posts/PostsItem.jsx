@@ -86,8 +86,6 @@ class PostsItem extends PureComponent {
     this.state = {
       categoryHover: false,
       showNewComments: false,
-      lastVisitedAt: props.post.lastVisitedAt,
-      lastCommentedAt: Posts.getLastCommentedAt(props.post),
       readStatus: false,
     }
   }
@@ -167,6 +165,8 @@ class PostsItem extends PureComponent {
   render() {
 
     const { post, currentUser, terms, classes } = this.props;
+    const { lastVisitedAt } = post
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
 
     let commentCount = Posts.getCommentCount(post)
 
@@ -174,8 +174,8 @@ class PostsItem extends PureComponent {
     if (this.state.showHighlight) postClass += " show-highlight";
 
     const renderCommentsButton = () => {
-      const read = this.state.lastVisitedAt;
-      const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
+      const read = lastVisitedAt;
+      const newComments = lastVisitedAt < lastCommentedAt;
       const commentsButtonClassnames = classNames(
         "posts-item-comments",
         {
@@ -236,7 +236,7 @@ class PostsItem extends PureComponent {
               </div>
             </div>
             <div className="post-category-display-container" onClick={this.toggleHighlight}>
-              <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
+              <Components.CategoryDisplay post={post} read={lastVisitedAt || this.state.readStatus}/>
             </div>
 
             { renderCommentsButton() }
@@ -265,7 +265,7 @@ class PostsItem extends PureComponent {
               <div className="posts-item-recent-comments-title">Recent Comments</div>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
-                highlightDate={this.state.lastVisitedAt}
+                highlightDate={lastVisitedAt}
                 terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
