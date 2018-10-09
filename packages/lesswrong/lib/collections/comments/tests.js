@@ -9,18 +9,21 @@ chai.should();
 chai.use(chaiAsPromised);
 
 
-describe('CommentsNew', async () => {
-  it('should return data if a user is provided', async () => {
+describe('CommentsNew', async function() {
+  this.timeout(10000)
+  it('should return data if a user is provided', async function() {
     const user = await createDummyUser()
     const query = `
       mutation CommentsNew {
-        CommentsNew(document:{body: "test"}){
-          body
+        createComment(data:{body: "test"}){
+          data {
+            body
+          }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser: user})
-    const expectedOutput = { data: { CommentsNew: { body: "test" } } }
+    const expectedOutput = { data: { createComment: { data : {body: "test" } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
