@@ -15,9 +15,11 @@ describe('AlignmentForum PostsEdit', async () => {
     const newTitle = "New Test Title"
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{title:"${newTitle}"}) {
-          title
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},,data:{title:"${newTitle}"}) {
+          data {
+            title
+          }
         }
       }
     `;
@@ -31,9 +33,11 @@ describe('AlignmentForum PostsEdit', async () => {
     const newContent = "New Test Title"
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{content:"${newContent}"}) {
-          title
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},,data:{content:"${newContent}"}) {
+          data {
+            title
+          }
         }
       }
     `;
@@ -47,14 +51,16 @@ describe('AlignmentForum PostsEdit', async () => {
     const userIds = user._id
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{suggestForAlignmentUserIds:["${userIds}"]}) {
-          suggestForAlignmentUserIds
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{suggestForAlignmentUserIds:["${userIds}"]}) {
+          data {
+            suggestForAlignmentUserIds
+          }
         }
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { PostsEdit: { suggestForAlignmentUserIds: [`${userIds}`] } } }
+    const expectedOutput = { data: { updatePost: { data: {suggestForAlignmentUserIds: [`${userIds}`] } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("succeeds when alignmentForumAdmin edits the suggestForAlignmentUserIds field", async () => {
@@ -64,14 +70,16 @@ describe('AlignmentForum PostsEdit', async () => {
     const userIds = user._id
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{suggestForAlignmentUserIds:["${userIds}"]}) {
-          suggestForAlignmentUserIds
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{suggestForAlignmentUserIds:["${userIds}"]}) {
+          data {
+            suggestForAlignmentUserIds
+          }
         }
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { PostsEdit: { suggestForAlignmentUserIds: [`${userIds}`] } } }
+    const expectedOutput = { data: { updatePost: { data: {suggestForAlignmentUserIds: [`${userIds}`] } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("fails when alignmentForum user edits the reviewForAlignmentUserId field", async () => {
@@ -79,9 +87,11 @@ describe('AlignmentForum PostsEdit', async () => {
     const post = await createDummyPost()
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{reviewForAlignmentUserId:"${user._id}"}) {
-          reviewForAlignmentUserId
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{reviewForAlignmentUserId:"${user._id}"}) {
+          data {
+            reviewForAlignmentUserId
+          }
         }
       }
     `;
@@ -93,14 +103,16 @@ describe('AlignmentForum PostsEdit', async () => {
     const post = await createDummyPost()
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{reviewForAlignmentUserId:"${user._id}"}) {
-          reviewForAlignmentUserId
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"},data:{reviewForAlignmentUserId:"${user._id}"}) {
+          data {
+            reviewForAlignmentUserId
+          }
         }
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { PostsEdit: { reviewForAlignmentUserId: `${user._id}` } } }
+    const expectedOutput = { data: { updatePost: { data: { reviewForAlignmentUserId: `${user._id}` } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 })
