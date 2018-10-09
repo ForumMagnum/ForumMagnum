@@ -2,6 +2,7 @@
 // Was originally part of _bootstrap.scss, then deleted breaking things, now
 // restored to un-break them. Ideally we would like to not depend on Vulcan's
 // Components.ModalTrigger (which in turn depends on react-bootstrap's Modal).
+// TODO: Refactor out usage of react-bootstrap's Modal so we don't need this
 
 div[role=dialog] {
   .fade{
