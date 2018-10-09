@@ -33,7 +33,7 @@ const options = {
   collection: Posts,
   queryName: "SequencesPostNavigationLinkQuery",
   fragmentName: 'SequencesPostNavigationLink',
-  totalResolver: false,
+  enableTotal: false,
 }
 
 registerComponent('SequencesNavigationLink', SequencesNavigationLink, [withDocument, options], withRouter);

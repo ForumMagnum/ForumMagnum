@@ -24,7 +24,7 @@ const options = {
   collection: Localgroups,
   queryName: "PostsGroupDetailsQuery",
   fragmentName: 'localGroupsHomeFragment',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
   ssr: true,
 }

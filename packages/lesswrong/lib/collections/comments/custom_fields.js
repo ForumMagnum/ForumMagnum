@@ -4,6 +4,7 @@ import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
 Comments.addField([
 
@@ -21,13 +22,9 @@ Comments.addField([
       resolveAs: {
         fieldName: 'user',
         type: 'User',
-        resolver: async (comment, args, {currentUser, Users}) => {
-          if (!comment.userId || comment.hideAuthor) return null;
-          const user = await Users.loader.load(comment.userId);
-          if (!user) return null;
-          if (user.deleted) return null;
-          return Users.restrictViewableFields(currentUser, Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'userId'}
+        ),
         addOriginalField: true
       },
     }
@@ -199,11 +196,9 @@ Comments.addField([
       resolveAs: {
         fieldName: 'deletedByUser',
         type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!comment.deletedByUserId) return null;
-          const user = await context.Users.loader.load(comment.deletedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'deletedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -280,11 +275,9 @@ Comments.addField([
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!comment.reviewedByUserId) return null;
-          const user = await context.Users.loader.load(comment.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'reviewedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -358,24 +351,22 @@ Posts.addField([
     An array containing the `_id`s of commenters
   */
   {
-    fieldName: 'commenters',
+    fieldName: 'commenterIds',
     fieldSchema: {
       type: Array,
       optional: true,
       resolveAs: {
         fieldName: 'commenters',
         type: '[User]',
-        resolver: async (post, args, {currentUser, Users}) => {
-          if (!post.commenters) return [];
-          const commenters = await Users.loader.loadMany(post.commenters);
-          return Users.restrictViewableFields(currentUser, Users, commenters);
-        },
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'commenterIds'}
+        ),
       },
       viewableBy: ['guests'],
     }
   },
   {
-    fieldName: 'commenters.$',
+    fieldName: 'commenterIds.$',
     fieldSchema: {
       type: String,
       optional: true

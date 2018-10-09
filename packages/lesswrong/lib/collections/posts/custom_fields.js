@@ -1,9 +1,10 @@
 import { Posts } from './collection';
 import ReactDOMServer from 'react-dom/server';
-import { Components, Connectors } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 
 export const formGroups = {
@@ -141,7 +142,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'feed',
         type: 'RSSFeed',
-        resolver: (post, args, context) => context.RSSFeeds.findOne({_id: post.feedId}, {fields: context.getViewableFields(context.currentUser, context.RSSFeeds)}),
+        resolver: generateIdResolverSingle(
+          {collectionName: 'RSSFeeds', fieldName: 'feedId'}
+        ),
         addOriginalField: true,
       },
       group: formGroups.adminOptions,
@@ -200,10 +203,10 @@ Posts.addField([
         type: 'Date',
         resolver: async (post, args, { LWEvents, currentUser }) => {
           if(currentUser){
-            const event = await Connectors.get(LWEvents, {name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+            const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
             return event && event.createdAt
           } else {
-            return post.lastVisitDateDefault;
+            return post.lastVisitDateDefault
           }
         }
       }
@@ -351,12 +354,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'user',
         type: 'User',
-        resolver: async (post, args, context) => {
-          if (!post.userId || post.hideAuthor) return null;
-          const user = await context.Users.loader.load(post.userId);
-          if (user.deleted) return null;
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'userId'}
+        ),
         addOriginalField: true
       },
     }
@@ -377,11 +377,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'coauthors',
         type: '[User]',
-        resolver: (post, args, context) => {
-          return _.map(post.coauthorUserIds,
-            (coauthorId => {return context.Users.findOne({ _id: coauthorId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-          )
-        },
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'coauthorUserIds'}
+        ),
         addOriginalField: true
       },
     }
@@ -407,11 +405,9 @@ Posts.addField([
         fieldName: 'canonicalSequence',
         addOriginalField: true,
         type: "Sequence",
-        resolver: (post, args, context) => {
-          if (!post.canonicalSequenceId) return null;
-          const sequence = context.Sequences.findOne({_id: post.canonicalSequenceId});
-          return Users.restrictViewableFields(context.currentUser, context.Sequences, sequence);
-        }
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Sequences', fieldName: 'canonicalSequenceId'}
+        ),
       },
       hidden: false,
       control: "text"
@@ -433,11 +429,9 @@ Posts.addField([
         fieldName: 'canonicalCollection',
         addOriginalField: true,
         type: "Collection",
-        resolver: (post, args, context) => {
-          if (!post.canonicalCollectionSlug) return null;
-          const collection = context.Collections.findOne({slug: post.canonicalCollectionSlug})
-          return Users.restrictViewableFields(context.currentUser, context.Collections, collection);
-        }
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'userId'}
+        ),
       }
     }
   },
@@ -457,11 +451,9 @@ Posts.addField([
         fieldName: 'canonicalBook',
         addOriginalField: true,
         type: "Book",
-        resolver: (post, args, context) => {
-          if (!post.canonicalBookId) return null;
-          const book = context.Books.findOne({_id: post.canonicalBookId});
-          return Users.restrictViewableFields(context.currentUser, context.Books, book);
-        }
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Books', fieldName: 'canonicalBookId'}
+        ),
       }
     }
   },
@@ -679,27 +671,6 @@ Posts.addField([
     }
   },
 
-  {
-    fieldName: 'groupId',
-    fieldSchema: {
-      type: String,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment'],
-      insertableBy: ['members'],
-      hidden: true,
-      optional: true,
-      resolveAs: {
-        fieldName: 'group',
-        addOriginalField: true,
-        type: "Localgroup",
-        resolver: (post, args, context) => {
-          const group = context.Localgroups.findOne({_id: post.groupId});
-          return Users.restrictViewableFields(context.currentUser, context.Localgroups, group);
-        }
-      }
-    }
-  },
-
   /*
     Event specific fields:
   */
@@ -717,11 +688,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'organizers',
         type: '[User]',
-        resolver: (localEvent, args, context) => {
-          return _.map(localEvent.organizerIds,
-            (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-          )
-        },
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'organizerIds'}
+        ),
         addOriginalField: true
       },
       group: formGroups.event,
@@ -749,9 +718,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'group',
         type: ['Localgroup'],
-        resolver: (localEvent, args, context) => {
-          return context.Localgroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.Localgroups)});
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Localgroups', fieldName: 'groupId'}
+        ),
         addOriginalField: true,
       }
     }
@@ -782,11 +751,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
-        resolver: async (post, args, context) => {
-          if (!post.reviewedByUserId) return null;
-          const user = await context.Users.loader.load(post.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'reviewedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -1097,7 +1064,7 @@ Users.addField([
           // restrict documents fields
           const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
           const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
-          return restrictedPosts;
+          return restrictedPosts
         }
       }
     }

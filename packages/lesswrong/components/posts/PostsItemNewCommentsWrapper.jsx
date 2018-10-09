@@ -43,7 +43,7 @@ const options = {
   queryName: 'PostsItemNewCommentsThreadQuery',
   fragmentName: 'CommentsList',
   limit: 5,
-  // totalResolver: false,
+  // enableTotal: false,
 };
 
 registerComponent('PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, [withList, options]);

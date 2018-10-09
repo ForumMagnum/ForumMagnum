@@ -51,7 +51,7 @@ const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
   fragmentName: 'LWPostsPage',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
 };
 

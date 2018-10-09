@@ -1,5 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
 const formGroups = {
   moderationGroup: {
@@ -658,11 +659,9 @@ Users.addField([
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
-        resolver: async (user, args, context) => {
-          if (!user.reviewedByUserId) return null;
-          const reviewUser = await context.Users.loader.load(user.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, reviewUser);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'reviewedByUserId'}
+        ),
         addOriginalField: true
       },
     }
