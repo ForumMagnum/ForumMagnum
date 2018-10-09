@@ -136,6 +136,7 @@ import './modules/alignment-forum/comments/custom_fields.js';
 import './modules/alignment-forum/comments/callbacks.js';
 import './modules/alignment-forum/sequences/custom_fields.js'
 import './modules/alignment-forum/sequences/callbacks.js';
+import './modules/alignment-forum/users/helpers.js';
 
 
 

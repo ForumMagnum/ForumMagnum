@@ -752,39 +752,10 @@ svg.drag-handle {
   }
 }
 
-.posts-page-suggest-curated-button {
-  cursor:pointer;
-
-  &:hover {
-    color:rgba(0,0,0,.3);
-  }
-
-  &.suggested {
-    color:rgba(0,0,0,.4);
-  }
+.posts-item-unread {
+  color:rgba(100,170,105,.86);
+  margin-right:6px;
 }
-
-.posts-page-admin-actions-wrapper {
-  .posts-page-admin-actions {
-    display:none;
-  }
-  &:hover {
-    .posts-page-admin-actions {
-      display:block;
-    }
-    .posts-page-admin-more-options {
-      color:rgba(0,0,0,.2);
-      @media print { display: none; }
-    }
-  }
-}
-.posts-page-admin-action {
-  cursor:pointer;
-  &:hover {
-    color:rgba(0,0,0,.35);
-  }
-}
-
 
 .posts-daily-wrapper {
   @include mui-breakpoint-up-md {
