@@ -87,7 +87,7 @@ class PostsPageAdminActions extends Component {
     const { currentUser, post } = this.props
     return Users.canDo(currentUser, "posts.edit.all") ||
       Users.canMakeAlignmentPost(currentUser, post) ||
-      Users.canSuggestPostForAlignment(currentUser, post)
+      Users.canSuggestPostForAlignment({currentUser, post})
   }
 
   render() {
