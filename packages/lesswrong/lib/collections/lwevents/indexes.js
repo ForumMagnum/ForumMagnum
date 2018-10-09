@@ -1,4 +1,4 @@
-import LWEvents from "./collection.js"
+import { LWEvents } from "./collection.js"
 
 LWEvents._ensureIndex({name:1, createdAt:-1})
 

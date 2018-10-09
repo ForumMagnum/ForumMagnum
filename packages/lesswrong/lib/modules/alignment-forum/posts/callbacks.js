@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { addCallback } from 'meteor/vulcan:core';
-import { Posts } from "meteor/example-forum";
+import { Posts } from "../../../collections/posts";
 
 async function PostsMoveToAFAddsAlignmentVoting (post, oldPost) {
   if (post.af && !oldPost.af) {

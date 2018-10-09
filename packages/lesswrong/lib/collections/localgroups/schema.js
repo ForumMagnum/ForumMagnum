@@ -1,3 +1,5 @@
+import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+
 /*
 
 A SimpleSchema-compatible JSON schema
@@ -43,11 +45,9 @@ const schema = {
     resolveAs: {
       fieldName: 'organizers',
       type: '[User]',
-      resolver: (localGroup, args, context) => {
-        return _.map(localGroup.organizerIds,
-          (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-        )
-      },
+      resolver: generateIdResolverMulti(
+        {collectionName: 'Users', fieldName: 'organizerIds'}
+      ),
       addOriginalField: true
     }
   },
@@ -153,20 +153,6 @@ const schema = {
     control: "MuiInput",
     optional: true,
   },
-
-  post: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    resolveAs: {
-      fieldName: 'post',
-      type: "Post",
-      resolver: (event, args, context) => {
-        const post = context.Posts.findOne({eventId: event._id});
-        return context.Users.restrictViewableFields(context.currentUser, context.Posts, post);
-      }
-    }
-  }
 };
 
 export default schema;

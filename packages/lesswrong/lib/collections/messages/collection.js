@@ -13,19 +13,22 @@ import { makeEditable } from '../../editor/make_editable.js'
 const options = {
   newCheck: (user, document) => {
     if (!user || !document) return false;
-    return Conversations.findOne({_id: document.conversationId}).participantIds.includes(user._id) ?
+    const conversation = Conversations.findOne({_id: document.conversationId})
+    return conversation && conversation.participantIds.includes(user._id) ?
       Users.canDo(user, 'messages.new.own') : Users.canDo(user, `messages.new.all`)
   },
 
   editCheck: (user, document) => {
     if (!user || !document) return false;
-    return Conversations.findOne({_id: document.conversationId}).participantIds.includes(user._id) ?
+    const conversation = Conversations.findOne({_id: document.conversationId})
+    return conversation && conversation.participantIds.includes(user._id) ?
     Users.canDo(user, 'messages.edit.own') : Users.canDo(user, `messages.edit.all`)
   },
 
   removeCheck: (user, document) => {
     if (!user || !document) return false;
-    return Conversations.findOne({_id: document.conversationId}).participantIds.includes(user._id) ?
+    const conversation = Conversations.findOne({_id: document.conversationId})
+    return conversation && conversation.participantIds.includes(user._id) ?
     Users.canDo(user, 'messages.remove.own') : Users.canDo(user, `messages.remove.all`)
   },
 }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
-import { Posts, Comments } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({
@@ -42,7 +43,7 @@ const discussionThreadsOptions = {
   collection: Posts,
   queryName: 'selectCommentsListQuery',
   fragmentName: 'PostsList',
-  totalResolver: false,
+  enableTotal: false,
   pollInterval: 0,
   enableCache: true,
 };

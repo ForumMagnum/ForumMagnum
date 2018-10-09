@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
+import DraftJSEditor from '../async/EditorFormContainer'
 
 const styles = theme => ({
   postEditor: {
@@ -33,9 +34,8 @@ class EditorFormComponent extends Component {
     }
   }
 
-  async UNSAFE_componentWillMount() {
-    const {default: Editor} = await import('../async/EditorFormContainer.jsx');
-    this.setState({editor: Editor});
+  UNSAFE_componentWillMount() {
+    this.setState({editor: DraftJSEditor});
 
     const removeUnusedFields = (data) => {
       let { content, body, htmlBody, ...newData } = data

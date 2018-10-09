@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { rssTermsToUrl } from "meteor/example-forum";
+import { rssTermsToUrl } from "../../lib/modules/rss_urls.js";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -93,7 +93,7 @@ class SubscribeDialog extends Component {
       copiedRSSLink: false,
       subscribedByEmail: false
     };
-    
+
     if(this.props.method === "email" && !this.emailFeedExists(this.props.view))
       this.state.view = "curated";
   }
@@ -146,7 +146,7 @@ class SubscribeDialog extends Component {
     if (view === "curated") return true;
     return false;
   }
-  
+
   isAlreadySubscribed() {
     if (this.state.view === "curated"
         && this.props.currentUser

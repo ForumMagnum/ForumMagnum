@@ -121,11 +121,6 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
-    # vulcan:embedly
-    # example-forum
-    categories {
-      ...CategoriesMinimumInfo
-    }
     # example-forum
     commentCount
     # vulcan:voting
@@ -618,31 +613,6 @@ registerFragment(/* GraphQL */`
     ...PostsList
     body
     htmlBody
-  }
-`);
-
-
-// note: fragment used by default on CategoriesList & PostsList fragments
-registerFragment(`
-  fragment CategoriesMinimumInfo on Category {
-    # vulcan:categories
-    _id
-    name
-    slug
-  }
-`);
-
-registerFragment(`
-  fragment CategoriesList on Category {
-    # vulcan:categories
-    ...CategoriesMinimumInfo
-    description
-    order
-    image
-    parentId
-    parent {
-      ...CategoriesMinimumInfo
-    }
   }
 `);
 

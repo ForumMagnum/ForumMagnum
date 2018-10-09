@@ -2,7 +2,7 @@ import { withNew } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
-import LWEvents from '../collections/lwevents/collection.js';
+import { LWEvents } from '../collections/lwevents/collection.js';
 
 
 /*

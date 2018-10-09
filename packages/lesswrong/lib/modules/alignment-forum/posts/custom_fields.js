@@ -1,5 +1,6 @@
-import { Posts } from "meteor/example-forum";
+import { Posts } from "../../../collections/posts";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
+import { generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
 
 Posts.addField([
   {
@@ -109,11 +110,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'suggestForAlignmentUsers',
         type: '[User]',
-        resolver: (post, args, context) => {
-          return _.map(post.suggestForAlignmentUserIds,
-            (userId => {return context.Users.findOne({ _id: userId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-          )
-        },
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'suggestForAlignmentUserIds'}
+        ),
         addOriginalField: true
       },
     }

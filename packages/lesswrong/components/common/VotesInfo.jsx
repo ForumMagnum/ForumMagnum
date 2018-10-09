@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router'
-import { Posts, Comments } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import { getVotePower } from 'meteor/vulcan:voting';
 import { withStyles } from '@material-ui/core/styles';
 

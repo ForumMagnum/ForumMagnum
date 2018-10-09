@@ -15,7 +15,7 @@ const options = {
   collection: Sequences,
   queryName: "SequencesNavigationQuery",
   fragmentName: 'SequencesNavigationFragment',
-  totalResolver: false,
+  enableTotal: false,
 }
 
 registerComponent('RecommendedReadingWrapper', RecommendedReadingWrapper, [withDocument, options]);

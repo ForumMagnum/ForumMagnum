@@ -79,7 +79,7 @@ const options = {
   queryName: 'messagesForConversation',
   fragmentName: 'messageListFragment',
   limit: 1000,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('ConversationWrapper', ConversationWrapper, [withList, options], withUser, withStyles(styles, { name: "ConversationWrapper" }));

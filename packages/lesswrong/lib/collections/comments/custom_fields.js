@@ -1,8 +1,10 @@
 import React from 'react'
 import { Components } from "meteor/vulcan:core";
-import { Comments } from "meteor/example-forum";
+import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
+import { Posts } from '../posts';
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
 Comments.addField([
 
@@ -20,13 +22,9 @@ Comments.addField([
       resolveAs: {
         fieldName: 'user',
         type: 'User',
-        resolver: async (comment, args, {currentUser, Users}) => {
-          if (!comment.userId || comment.hideAuthor) return null;
-          const user = await Users.loader.load(comment.userId);
-          if (!user) return null;
-          if (user.deleted) return null;
-          return Users.restrictViewableFields(currentUser, Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'userId'}
+        ),
         addOriginalField: true
       },
     }
@@ -198,11 +196,9 @@ Comments.addField([
       resolveAs: {
         fieldName: 'deletedByUser',
         type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!comment.deletedByUserId) return null;
-          const user = await context.Users.loader.load(comment.deletedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'deletedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -279,11 +275,9 @@ Comments.addField([
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!comment.reviewedByUserId) return null;
-          const user = await context.Users.loader.load(comment.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'reviewedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -324,3 +318,58 @@ makeEditable({
   collection: Comments,
   options: makeEditableOptions
 })
+
+Users.addField([
+  /**
+    Count of the user's comments
+  */
+  {
+    fieldName: 'commentCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      viewableBy: ['guests'],
+    }
+  }
+]);
+
+Posts.addField([
+  /**
+    Count of the post's comments
+  */
+  {
+    fieldName: 'commentCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      viewableBy: ['guests'],
+    }
+  },
+  /**
+    An array containing the `_id`s of commenters
+  */
+  {
+    fieldName: 'commenterIds',
+    fieldSchema: {
+      type: Array,
+      optional: true,
+      resolveAs: {
+        fieldName: 'commenters',
+        type: '[User]',
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'commenterIds'}
+        ),
+      },
+      viewableBy: ['guests'],
+    }
+  },
+  {
+    fieldName: 'commenterIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  }
+]);

@@ -5,7 +5,7 @@ import { createDummyUser, createDummyPost, addTestToCallbackOnce, createDummyCom
 import { performSubscriptionAction } from '../../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
-import { Comments } from 'meteor/example-forum'
+import { Comments } from '../comments'
 import Notifications from './collection.js';
 
 chai.should();
