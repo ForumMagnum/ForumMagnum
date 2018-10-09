@@ -3,18 +3,20 @@ import Handlebars from 'handlebars';
 import moment from 'moment';
 
 const postsQuery = `
-  query PostsSingleQuery($documentId: String){
-    PostsSingle(documentId: $documentId){
-      title
-      url
-      pageUrl
-      linkUrl
-      postedAt
-      htmlBody
-      thumbnailUrl
-      user{
+  query post($documentId: String) {
+    post(input: {selector: {_id: $documentId}}) {
+      result {
+        title
+        url
         pageUrl
-        displayName
+        linkUrl
+        postedAt
+        htmlBody
+        thumbnailUrl
+        user{
+          pageUrl
+          displayName
+        }
       }
     }
   }
@@ -25,9 +27,9 @@ VulcanEmail.addEmails({
     template: "newPost",
     path: "/email/new-post/:documentId",
     subject(data) {
-      if(!data || !data.PostsSingle)
+      if(!data || !data.post || !data.post.result)
         throw new Error("Missing post when rendering newPost email");
-      const post = data.PostsSingle;
+      const post = data.post.result;
       return post.title;
     },
     query: postsQuery

@@ -1,27 +1,27 @@
 <div class="heading">
   <h1>
-    <a href="{{PostsSingle.linkUrl}}" class="action-link">{{PostsSingle.title}}</a>
+    <a href="{{post.result.linkUrl}}" class="action-link">{{post.result.title}}</a>
   </h1>
   
   <hr></hr>
   
   <div class="postAuthor">
-    <a href="{{PostsSingle.user.pageUrl}}">{{PostsSingle.user.displayName}}</a>
+    <a href="{{post.result.user.pageUrl}}">{{post.result.user.displayName}}</a>
   </div>
   <div class="postDate">
-    {{formatPostDate PostsSingle.postedAt}}
+    {{formatPostDate post.result.postedAt}}
   </div>
 </div>
 
 <br><br>
 
-{{#if PostsSingle.htmlBody}}
+{{#if post.result.htmlBody}}
   <div class="post-body">
-  {{{PostsSingle.htmlBody}}}
+  {{{post.result.htmlBody}}}
   </div>
   <br>
 {{/if}}
 
-<a href="{{PostsSingle.pageUrl}}">Discuss</a><br><br>
+<a href="{{post.result.pageUrl}}">Discuss</a><br><br>
 
 You are receiving this email because you are subscribed to new posts on LessWrong.
