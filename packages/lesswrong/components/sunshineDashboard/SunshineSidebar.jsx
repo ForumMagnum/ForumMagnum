@@ -38,7 +38,7 @@ class SunshineSidebar extends Component {
     this.setState({showSidebar: !this.state.showSidebar})
   }
 
-  renderSidebar = () => {
+  shouldRenderSidebar = () => {
     const { currentUser } = this.props
     return Users.canDo(currentUser, 'posts.moderate.all') ||
     Users.canDo(currentUser, 'alignment.sidebar')
@@ -48,7 +48,7 @@ class SunshineSidebar extends Component {
     const { currentUser, classes } = this.props
     const { showSidebar } = this.state
 
-    if (this.renderSidebar()) {
+    if (this.shouldRenderSidebar()) {
       return (
         <div className={classes.root}>
           { showSidebar ? <KeyboardArrowDownIcon

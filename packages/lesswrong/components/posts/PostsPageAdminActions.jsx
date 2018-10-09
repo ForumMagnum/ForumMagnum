@@ -21,6 +21,9 @@ const styles = theme => ({
       display:"block"
     }
   },
+  actionsIcon: {
+    color: theme.palette.grey[400]
+  },
   actions: {
     display: "none",
   }
@@ -92,7 +95,7 @@ class PostsPageAdminActions extends Component {
     if (post && this.showAdminActions()) {
       return (
           <div className={classes.root}>
-            <MoreHorizIcon />
+            <MoreHorizIcon className={classes.actionsIcon}/>
             <div className={classes.actions}>
               { Users.canDo(currentUser, "posts.edit.all") &&
                 <span>

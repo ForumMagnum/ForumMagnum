@@ -399,7 +399,7 @@ Posts.addView("sunshineCuratedSuggestions", function () {
   }
 })
 
-Posts.addView("alignmentSuggestions", function (terms) {
+Posts.addView("alignmentSuggestions", function () {
   return {
     selector: {
       af: {$ne: true},

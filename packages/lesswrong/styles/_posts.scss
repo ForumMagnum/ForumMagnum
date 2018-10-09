@@ -752,11 +752,6 @@ svg.drag-handle {
   }
 }
 
-.posts-item-unread {
-  color:rgba(100,170,105,.86);
-  margin-right:6px;
-}
-
 .posts-daily-wrapper {
   @include mui-breakpoint-up-md {
     margin-left:-100px;
