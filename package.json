@@ -88,7 +88,7 @@
     "markdown-it": "^8.4.2",
     "marked": "^0.3.19",
     "material-ui": "^0.19.0",
-    "mathjax-node": "^1.2.1",
+    "mathjax-node": "^2.1.1",
     "mathjax-node-page": "^3.0.0",
     "meteor-node-stubs": "^0.2.3",
     "mingo": "^2.2.0",
