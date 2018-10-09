@@ -42,18 +42,12 @@ class SuggestCurated extends Component {
         Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return <div className="posts-page-suggest-curated">
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-            <span
-              className="posts-page-suggest-curated-button"
-              onClick={this.handleSuggestCurated}
-              >
+            <a onClick={this.handleSuggestCurated}>
               Suggest Curation
-            </span> :
-            <span
-              className="posts-page-suggest-curated-button suggested"
-              onClick={this.handleUnsuggestCurated}
-              >
+            </a> :
+            <a onClick={this.handleUnsuggestCurated}>
               Unsuggest Curation
-            </span>
+            </a>
           }
         </div>
     } else {

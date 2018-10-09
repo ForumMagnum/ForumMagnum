@@ -25,7 +25,7 @@ class SuggestAlignmentList extends Component {
       return (
         <div className={classes.root}>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> Suggestions for Alignment
+            <Components.OmegaIcon className={classes.icon}/> Suggest for Alignment
           </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
