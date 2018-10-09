@@ -18,7 +18,7 @@ const options = {
   queryName: 'LWPostsPageSlugQuery',
   fragmentName: 'LWPostsPage',
   limit: 1,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);

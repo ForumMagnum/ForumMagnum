@@ -38,7 +38,7 @@ const options = {
   collection: Posts,
   queryName: "PostsItemWrapperQuery",
   fragmentName: 'PostsList',
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('PostsItemWrapper', PostsItemWrapper, [withDocument, options]);

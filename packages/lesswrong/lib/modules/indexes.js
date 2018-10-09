@@ -1,7 +1,7 @@
 import { Posts } from '../collections/posts';
 import { Comments } from '../collections/comments'
 import { Votes } from "meteor/vulcan:voting";
-import LWEvents from '../collections/lwevents/collection.js'
+import { LWEvents } from '../collections/lwevents/collection.js'
 import Notifications from '../collections/notifications/collection.js'
 import Users from "meteor/vulcan:users";
 

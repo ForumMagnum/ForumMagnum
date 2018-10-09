@@ -7,6 +7,7 @@ Posts schema
 import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 //import marked from 'marked';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
@@ -323,11 +324,9 @@ const schema = {
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: async (post, args, context) => {
-        if (!post.userId) return null;
-        const user = await context.Users.loader.load(post.userId);
-        return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true
     },
   },
@@ -404,22 +403,17 @@ const schema = {
     }
   },
 
-  comments: {
+  commentIds: {
     type: Object,
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
+      fieldName: 'comments',
       arguments: 'limit: Int = 5',
       type: '[Comment]',
-      resolver: (post, { limit }, { currentUser, Users, Comments }) => {
-        const comments = Comments.find({ postId: post._id }, { limit }).fetch();
-
-        // restrict documents fields
-        const viewableComments = _.filter(comments, comments => Comments.checkAccess(currentUser, comments));
-        const restrictedComments = Users.restrictViewableFields(currentUser, Comments, viewableComments);
-
-        return restrictedComments;
-      }
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Comments', fieldName: 'commentIds'}
+      ),
     }
   },
 

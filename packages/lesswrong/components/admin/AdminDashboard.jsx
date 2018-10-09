@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, AdminColumns, registerComponent} from 'meteor/vulcan:core';
-import Bans from '../../lib/collections/bans/collection.js';
-import LWEvents from '../../lib/collections/lwevents/collection.js';
+import { Bans } from '../../lib/collections/bans/collection.js';
+import { LWEvents } from '../../lib/collections/lwevents/collection.js';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import { addAdminColumn } from 'meteor/vulcan:core';

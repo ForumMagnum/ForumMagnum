@@ -43,7 +43,7 @@ const discussionThreadsOptions = {
   collection: Posts,
   queryName: 'selectCommentsListQuery',
   fragmentName: 'PostsList',
-  totalResolver: false,
+  enableTotal: false,
   pollInterval: 0,
   enableCache: true,
 };

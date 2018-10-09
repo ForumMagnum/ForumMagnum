@@ -1,5 +1,7 @@
 // # Vulcan Modifications
 
+// schema utils
+import { generateIdResolverMulti, generateIdResolverSingle } from './modules/utils/schemaUtils.js'
 // Permissions
 import './modules/permissions.js';
 
@@ -29,14 +31,6 @@ import Messages from './collections/messages/collection.js'
 import './collections/messages/views.js';
 import './collections/messages/permissions.js';
 
-import UserSequenceRels from './collections/usersequencerels/collection.js'
-import './collections/usersequencerels/views.js';
-import './collections/usersequencerels/permissions.js';
-
-import UserCollectionRels from './collections/usercollectionrels/collection.js'
-import './collections/usercollectionrels/views.js';
-import './collections/usercollectionrels/permissions.js';
-
 import Conversations from './collections/conversations/collection.js'
 import './collections/conversations/views.js';
 import './collections/conversations/helpers.js';
@@ -52,16 +46,10 @@ import './collections/reports/views.js'
 import './collections/reports/permissions.js'
 
 // LWEvents
-import LWEvents from './collections/lwevents/collection.js';
-import './collections/lwevents/permissions.js';
-import './collections/lwevents/fragments.js';
-import './collections/lwevents/views.js';
+import { LWEvents } from './collections/lwevents/index.js';
 
 // Bans
-import Bans from './collections/bans/collection.js';
-import './collections/bans/permissions.js';
-import './collections/bans/fragments.js';
-import './collections/bans/admin.js';
+import { Bans } from './collections/bans/index.js'
 // Chapters
 import Sequences from './collections/sequences/collection.js';
 import './collections/sequences/views.js';
@@ -164,8 +152,8 @@ export {
   Reports,
   Books,
   Bans,
-  UserSequenceRels,
-  UserCollectionRels,
   Localgroups,
+  generateIdResolverMulti,
+  generateIdResolverSingle,
   Comments
 }

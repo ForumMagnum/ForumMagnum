@@ -75,7 +75,7 @@ const options = {
   collection: Posts,
   queryName: 'postsListQuery',
   fragmentName: 'PostsList',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
   fetchPolicy: 'cache-and-network',
   ssr: true

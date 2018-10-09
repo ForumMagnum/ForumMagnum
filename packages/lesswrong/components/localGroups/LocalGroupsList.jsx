@@ -17,7 +17,7 @@ const options = {
   collection: Localgroups,
   queryName: 'localGroupsListQuery',
   fragmentName: 'localGroupsHomeFragment',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
   ssr: true
 }
