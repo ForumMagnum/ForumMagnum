@@ -48,7 +48,7 @@ import '../components/common/ErrorBoundary.jsx';
 import '../components/common/Logo.jsx';
 import '../components/common/GuestWelcomeScreen.jsx';
 import '../components/common/CloudinaryImage.jsx';
-import '../components/common/Logo.jsx';
+import '../components/common/SiteLogo.jsx';
 import '../components/common/SearchForm.jsx';
 
 // Outgoing RSS Feed builder

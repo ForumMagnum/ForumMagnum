@@ -15,6 +15,6 @@ const SiteLogo = ({classes}) => getSetting('logoUrl', null) && <img
   alt={`${getSetting('title')} Logo`}
 />
 
-Logo.displayName = "SiteLogo";
+SiteLogo.displayName = "SiteLogo";
 
 registerComponent('SiteLogo', SiteLogo, withStyles(styles), withTheme());

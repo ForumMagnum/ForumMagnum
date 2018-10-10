@@ -1,4 +1,4 @@
-import { Comments } from 'meteor/example-forum'
+import { Comments } from './collection'
 import Users from 'meteor/vulcan:users';
 
 // TODO: IBETA ONLY Only logged-in users can see forum posts
@@ -22,8 +22,6 @@ Comments.checkAccess = (currentUser, comment) => {
 Example-forum permissions
 
 */
-
-Users.groups.guests.can(guestsActions);
 
 const membersActions = [
   'comments.view',

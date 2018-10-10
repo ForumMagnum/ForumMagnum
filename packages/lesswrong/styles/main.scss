@@ -83,15 +83,6 @@ then moved to more specific files as it becomes necessary.
 
 // CSS Modifications for Navbar buttons and styles
 
-<<<<<<< HEAD
-.post-new-button{
-  a{
-    color: $ea-blue !important;
-  }
-}
-
-=======
->>>>>>> master
 .users-menu-contents a {
   // When the user menu is first opened, it incorrectly detects the first menu
   // item as hovered, but doesn't activate it like it would with a real hover.
