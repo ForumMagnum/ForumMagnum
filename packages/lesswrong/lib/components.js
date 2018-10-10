@@ -116,6 +116,7 @@ import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
 import '../components/localGroups/CommunityMapFilter.jsx';
 import '../components/localGroups/CommunityMapWrapper.jsx';
+import '../components/localGroups/EventTime.jsx';
 import '../components/localGroups/LocalGroupMarker.jsx';
 import '../components/localGroups/LocalEventMarker.jsx';
 import '../components/localGroups/LocalGroupPage.jsx';

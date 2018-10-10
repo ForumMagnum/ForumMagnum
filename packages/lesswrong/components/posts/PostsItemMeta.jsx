@@ -26,7 +26,7 @@ const PostsItemMeta = ({currentUser, post}) => {
         {parseInt(post.wordCount/300) || 1 } min read
       </C.MetaInfo>}
       { post.isEvent && post.startTime && <C.MetaInfo>
-        <Components.CalendarDate date={post.startTime}/>
+        <C.EventTime post={post}/>
       </C.MetaInfo>}
       { post.isEvent && post.location && <C.MetaInfo>
         {post.location}
