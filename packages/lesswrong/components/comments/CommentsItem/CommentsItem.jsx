@@ -59,7 +59,8 @@ class CommentsItem extends Component {
       showEdit: false,
       showReport: false,
       showStats: false,
-      showParent: false
+      showParent: false,
+      expanded: false,
     };
   }
 
@@ -126,22 +127,36 @@ class CommentsItem extends Component {
     return false;
   }
 
+  expand = (event) => {
+    event.preventDefault()
+    event.stopPropagation();
+    this.setState({softCollapsed: false, collapsed: false, expanded: true})
+  }
+
+  shouldRenderExcerpt = () => {
+    const { softCollapsed, comment } = this.props
+    const { expanded } = this.state
+    return softCollapsed && comment.body.length > 300 && !expanded
+  }
+
   renderExcerpt() {
     const { comment, classes } = this.props
 
     if (comment.body) {
       // Replace Markdown Links with just their display text
       let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
-      
+
       let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
 
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)}>
+      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)} onClick={this.expand}>
         {commentExcerpt}
         <p>{lastElement + "..."}
-          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
+          <a className="read-more">
+            (read more)
+          </a>
         </p>
       </div>
     } else {
@@ -149,17 +164,20 @@ class CommentsItem extends Component {
     }
   }
 
-  render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
-
-    const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
-
-    const commentBody = this.props.collapsed ? "" : (
-      <div>
+  renderCommentBody = () => {
+    const { collapsed, softCollapsed, comment } = this.props
+    if (collapsed && !softCollapsed) {
+      return ""
+    } else {
+      return <div>
         {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
         {!comment.deleted && this.renderCommentBottom()}
       </div>
-    )
+    }
+  }
+
+  render() {
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
 
     if (comment) {
       return (
@@ -181,7 +199,7 @@ class CommentsItem extends Component {
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
                 level={nestingLevel + 1}
-                expanded={true}
+                softCollapsed={false}
                 key={comment.parentCommentId}
               />
             </div>
@@ -224,9 +242,9 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { (!postPage && !expanded) ? this.renderExcerpt() : commentBody}
+            { this.shouldRenderExcerpt() ? this.renderExcerpt() : this.renderCommentBody()}
           </div>
-          {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
+          {this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
       )
     } else {
