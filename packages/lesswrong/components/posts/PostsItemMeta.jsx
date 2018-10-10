@@ -26,7 +26,7 @@ const PostsItemMeta = ({currentUser, post}) => {
         {parseInt(post.wordCount/300) || 1 } min read
       </C.MetaInfo>}
       { post.isEvent && post.startTime && <C.MetaInfo>
-        <C.EventTime post={post}/>
+        <C.EventTime post={post} dense={true} />
       </C.MetaInfo>}
       { post.isEvent && post.location && <C.MetaInfo>
         {post.location}

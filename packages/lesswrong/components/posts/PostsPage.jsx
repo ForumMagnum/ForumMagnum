@@ -206,7 +206,7 @@ class PostsPage extends Component {
     const { classes } = this.props
     if (post.isEvent) {
       return <div className={classes.eventTimes}>
-        <Components.EventTime post={post}/>
+        <Components.EventTime post={post} dense={false} />
       </div>
     } else {
       return <div className={classes.subtitle}>
