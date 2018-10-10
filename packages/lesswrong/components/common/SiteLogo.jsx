@@ -8,13 +8,13 @@ const styles = theme => ({
   }
 })
 
-const Logo = ({classes}) => getSetting('logoUrl', null) && <img
+const SiteLogo = ({classes}) => getSetting('logoUrl', null) && <img
   className={classes.root}
   src={getSetting('logoUrl')}
   title={getSetting('title')}
   alt={`${getSetting('title')} Logo`}
 />
 
-Logo.displayName = "Logo";
+Logo.displayName = "SiteLogo";
 
-registerComponent('Logo', Logo, withStyles(styles), withTheme());
+registerComponent('SiteLogo', SiteLogo, withStyles(styles), withTheme());

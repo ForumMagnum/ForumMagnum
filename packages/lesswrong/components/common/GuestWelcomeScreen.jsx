@@ -27,7 +27,7 @@ const styles = theme => ({
 
 const GuestWelcomeScreen = ({classes}) => <div className={classes.root}>
   <div className={classes.logoWrapper}>
-    <Components.Logo className={classes.logo} />
+    <Components.SiteLogo className={classes.logo} />
   </div>
   <Grid container justify={'center'}>
     <Grid item xs={12} sm={8} md={6}>
