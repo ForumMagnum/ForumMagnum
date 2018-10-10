@@ -119,7 +119,7 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes } = this.props;
+    const { currentUser, comments, postId, post, classes, totalComments } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -129,6 +129,7 @@ class CommentsListSection extends Component {
         <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
         <Components.CommentsList
           currentUser={currentUser}
+          totalComments={totalComments}
           comments={comments}
           highlightDate={this.state.highlightDate}
           post={post}
