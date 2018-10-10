@@ -1,5 +1,4 @@
 import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
-// import moment from 'moment';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
 import { newMutation, editMutation } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
