@@ -28,6 +28,7 @@ import '../components/Layout.jsx';
 
 import '../components/common/CalendarDate.jsx';
 import '../components/common/FromNowDate.jsx';
+import '../components/common/SimpleDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';

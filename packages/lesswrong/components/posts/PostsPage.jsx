@@ -18,7 +18,6 @@ import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
-import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
@@ -210,7 +209,7 @@ class PostsPage extends Component {
       </div>
     } else {
       return <div className={classes.subtitle}>
-        {moment(post.postedAt).format('MMM D, YYYY')}
+        <Components.SimpleDate date={post.postedAt}/>
       </div>
     }
   }
