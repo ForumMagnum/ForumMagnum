@@ -1,0 +1,73 @@
+$header-mobile: 43px !important;
+
+.users-menu{
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-top: 5px;
+
+  color: rgba(0,0,0,0.5) !important;
+  .dropdown-toggle{
+    @include flex-center;
+    padding: 0;
+    background: none;
+    img{
+      margin-right: 5px;
+    }
+  }
+}
+
+// Used in vulcan-accounts
+.accounts-ui{
+  padding: $vmargin;
+  width: 240px;
+  margin:auto;
+  .buttons{
+    .btn{
+      display: block;
+      width: 100%;
+      text-align: center;
+      margin-bottom: $vmargin;
+      &:last-child{
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// TODO: Figure out if this is used
+.search {
+  display: inline-block;
+}
+
+.notifications-menu {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.notifications-menu-container {
+  @include max-tiny() {
+    top: $header-mobile;
+  }
+}
+
+.notifications-menu-hidden-tab {
+  pointer-events: none;
+}
+.notifications-hide-button {
+  position:absolute;
+  top:0;
+  right:5px;
+}
+
+.notifications-list-empty {
+  padding: 10px;
+}
+
+.notifications-item {
+  &:hover {
+    background-color: rgba(0,0,0,0.02) !important;
+  }
+  &.read:hover {
+    background-color: rgba(0,0,0,0.08) !important;
+  }
+}

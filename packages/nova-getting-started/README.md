@@ -1,1 +1,0 @@
-Telescope getting started package, used internally. 

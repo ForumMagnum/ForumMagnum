@@ -1,1 +1,0 @@
-Telescope scoring package, used internally. 

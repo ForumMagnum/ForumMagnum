@@ -1,1 +1,0 @@
-Telescope core package, used internally. 

@@ -1,0 +1,171 @@
+// Used in the vulcan-accounts package
+.accounts-ui{
+  .field{
+    margin-bottom: $vmargin/2;
+  }
+  &.ready {
+    a {
+      width:50%;
+      margin-left:auto !important;
+      margin-right:auto !important;
+    }
+  }
+  .message {
+    color:red;
+    word-wrap: break-word;
+    max-width:210px;
+  }
+}
+
+.users-menu{
+  .avatar{
+    margin-right: 5px;
+  }
+}
+
+// TODO: Possibly becomes unused with example-forum merge, or with deletion of
+// unused components.
+.avatar-initials{
+  background: $light-grey;
+  color: $dark-grey;
+  text-align: center;
+  border-radius: 100%;
+  text-decoration: none;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span{
+    display: block;
+    line-height: 1;
+  }
+}
+
+.users-profile {
+  margin-left: auto;
+  margin-right: 200px;
+  @include mui-breakpoint-down-sm {
+    margin:0;
+  }
+}
+
+.users-profile-bio {
+  margin:0;
+  padding-bottom:10px;
+  padding-left: 20px;
+
+  p {
+    font-size: 16px;
+    line-height: 26px;
+  }
+}
+
+.users-profile-recent-posts {
+  .search-form {
+    width: 120px;
+    margin-left: auto;
+    margin-bottom: 15px;
+    @include max-tiny() {
+      width:auto;
+    }
+  }
+}
+
+.users-profile-header {
+  h2:before {
+    display:none;
+  }
+}
+
+.users-profile-actions {
+  margin-left:20px;
+}
+//
+.users-edit-form {
+  width:60%;
+  margin:auto;
+  margin-bottom:100px;
+  @include mui-breakpoint-xs {
+    width:100%;
+  }
+}
+
+
+//
+//   .change-password-link {
+//     border:solid 1px $light-grey;
+//     border-radius:3px;
+//     padding:7px;
+//     text-align:center;
+//     width:40%;
+//     margin-bottom:35px;
+//     text-transform: uppercase;
+//     @include mui-breakpoint-xs {
+//       width:100%;
+//     }
+//     a {
+//       &:hover {
+//         text-decoration: none;
+//       }
+//     }
+//     &:hover {
+//       background-color: $lighter-grey;
+//       cursor: pointer;
+//     }
+//   }
+
+//   .form-input.input-hideIntercom {
+//     margin-left:5px;
+//     .control-label.col-sm-3 {
+//       display:none;
+//     }
+//   }
+//   .form-group.email {
+//     &:before {
+//       content: ' ';
+//       clear: right;
+//       display: block;
+//     }
+//     width:100%;
+//   }
+//
+//   .form-input.input-bio .control-label.col-sm-3 {
+//     position:relative;
+//     top:3px;
+//     text-transform: uppercase;
+//     width:110px;
+//   }
+//
+//   .control-label.col-sm-3 {
+//     // TODO instead fix the col-sm-3 at a root level that isn't janky
+//     text-transform: uppercase;
+//   }
+//   .form-input.form-component-textarea {
+//     line-height:1.5em;
+//     margin-top:2em;
+//
+//     textarea {
+//       line-height:1.35em;
+//       min-height:90px;
+//     }
+//   }
+//   .form-component-checkbox {
+//     margin-left:5px;
+//     .control-label.col-sm-3 {
+//       display:none;
+//     }
+//   }
+//   .form-section-heading {
+//     padding:1em 0;
+//   }
+// }
+
+.users-profile .posts-no-results {
+  font-size:18px;
+  font-style:italic;
+}
+.form-component-checkboxgroup {
+  .form-group.row {
+    display:block;
+  }
+}

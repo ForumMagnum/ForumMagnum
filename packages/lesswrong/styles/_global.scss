@@ -1,0 +1,28 @@
+
+a{
+  cursor: pointer;
+  color: inherit;
+}
+
+.message.error {
+  color: $red;
+}
+
+.ais-InstantSearch__root {
+  font-family: inherit !important;
+}
+
+h1 {
+  font-size: 40px;
+}
+
+.noscript-warning {
+  padding: 20px;
+  font-size: 17px;
+}
+
+// Global link styling
+a:hover, a:active, a:focus {
+  text-decoration: none;
+  opacity: 0.5;
+}

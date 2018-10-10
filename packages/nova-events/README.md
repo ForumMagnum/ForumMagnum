@@ -1,1 +1,0 @@
-Telescope events package, used internally. 

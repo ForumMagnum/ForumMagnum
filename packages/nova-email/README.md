@@ -1,1 +1,0 @@
-Telescope email package, used internally. 

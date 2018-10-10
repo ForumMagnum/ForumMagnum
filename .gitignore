@@ -19,8 +19,8 @@ deploy.sh
 dump/
 dump/*
 
-settings.json
-settings.json.not-used
+settings*
+
 .idea
 
 scratch
@@ -46,3 +46,17 @@ bundle.tar.gz
 
 jsdoc-conf.json
 jsdoc.json
+packages/nova-router/.npm
+npm-debug.log
+
+typings
+*.swp
+*.un~
+yarn.lock
+
+*.swp
+*.un~
+yarn.lock
+
+*.swp
+*.un~

@@ -1,3 +1,12 @@
+## v1.1.0 => vNEXT
+
+We now keep track of the version thanks to [`release`](https://github.com/zeit/release).
+
+To see the updates, check the [Nova's repo releases](https://github.com/TelescopeJS/Telescope/releases).
+
+## v1.0.0
+- A lot of breaking changes: this is the Apollo/GraphQL version of Telescope Nova. [You can find the documentation here](http://nova-docs.telescopeapp.org/).
+
 ## v0.27.5
 
 - Nova is now powered by Meteor 1.4.2.3.
