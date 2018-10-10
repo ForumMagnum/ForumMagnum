@@ -1,6 +1,5 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import moment from 'moment';
 import { Link } from 'react-router';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
@@ -19,7 +18,7 @@ const isLeftClick = (event) => {
 const UsersSearchHit = ({hit, clickAction, classes}) => <div className={classes.root}>
   <Link to={Users.getProfileUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction()}>
     <Components.MetaInfo>
-      {moment(new Date(hit.createdAt)).fromNow()}
+      <Components.FromNowDate date={hit.createdAt}/>
     </Components.MetaInfo>
     <Components.MetaInfo>
       {hit.displayName}

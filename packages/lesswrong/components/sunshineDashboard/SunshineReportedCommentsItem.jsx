@@ -2,7 +2,6 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router'
-import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withHover from '../common/withHover'
@@ -69,7 +68,7 @@ class SunshineReportedCommentsItem extends Component {
             </Components.SidebarHoverOver>
             <Components.SunshineCommentsItemOverview comment={comment}/>
             <Components.SidebarInfo>
-              <em>"{ report.description }"</em> – {report.user.displayName}, { moment(new Date(report.createdAt)).fromNow() }
+              <em>"{ report.description }"</em> – {report.user.displayName}, <Components.FromNowDate date={report.createdAt}/>
             </Components.SidebarInfo>
             {hover && <Components.SidebarActionMenu>
               <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
