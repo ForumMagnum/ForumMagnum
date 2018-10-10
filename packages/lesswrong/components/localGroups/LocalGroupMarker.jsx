@@ -27,7 +27,9 @@ export const styles = theme => ({
   },
   markerBody: {
     maxHeight: "250px",
-    overflowY: "auto"
+    overflowY: "auto",
+    marginTop: 10,
+    marginBottom: 10,
   },
   contactInfo: {
     marginBottom: "10px",
@@ -65,6 +67,7 @@ class LocalGroupMarker extends PureComponent {
   render() {
     const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
+    const htmlBody = {__html: group.htmlBody};
 
     var circleIcon = {
         path: google.maps.SymbolPath.CIRCLE,
@@ -87,7 +90,7 @@ class LocalGroupMarker extends PureComponent {
             <div className={classes.mapInfoWindow}>
               <a><CloseIcon className={classes.closeIcon} onClick={() => handleInfoWindowClose(group._id)}/></a>
               <Link to={'/groups/'+group._id}><h5 className={classes.groupMarkerName}> [Group] {group.name} </h5></Link>
-              <div className={classes.markerBody}><Components.DraftJSRenderer content={group.description} /></div>
+              <div dangerouslySetInnerHTML={htmlBody} className={classes.markerBody}></div>
               {group.contactInfo && <div className={classes.contactInfo}>{group.contactInfo}</div>}
               <Link className={classes.markerPageLink} to={'/groups/'+group._id}> Full link </Link>
               <div className={classes.linksWrapper}><Components.GroupLinks document={group}/></div>
