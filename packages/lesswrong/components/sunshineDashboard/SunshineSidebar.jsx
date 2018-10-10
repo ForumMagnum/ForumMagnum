@@ -10,7 +10,9 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 const styles = theme => ({
   root: {
     position:"absolute",
-    top:0,
+    // TODO JP just hacked this, should actually figure out how to get it to
+    // float beneath the header properly
+    top:30,
     right:0,
     width:250,
     marginTop:63,

@@ -19,7 +19,7 @@ const serifStack = [
   'serif'
 ].join(',')
 
-
+// TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
   'Merriweather Sans',
   'Lato',
