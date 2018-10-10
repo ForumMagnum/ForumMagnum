@@ -21,10 +21,10 @@ const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
 const styles = theme => ({
   main: {
-    margin: '64px auto 15px auto',
+    margin: '50px auto 15px auto',
     maxWidth: 1200,
     [theme.breakpoints.down('sm')]: {
-      marginTop: 20,
+      marginTop: 0,
       paddingLeft: theme.spacing.unit,
       paddingRight: theme.spacing.unit,
     },
@@ -85,7 +85,7 @@ class Layout extends PureComponent {
         return null
       }
     }
-  
+
     const routeName = currentRoute.name
     const query = location && location.query
     const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}

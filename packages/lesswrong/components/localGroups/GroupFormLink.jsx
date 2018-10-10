@@ -1,10 +1,11 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
-import Dialog from 'material-ui/Dialog';
 import classNames from "classnames";
 import { withRouter } from 'react-router'
 import withUser from '../common/withUser';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
 
 class GroupFormLink extends Component {
   constructor(props, context) {
@@ -41,28 +42,26 @@ class GroupFormLink extends Component {
         <span onClick={this.handleOpenGroupForm}>{labelText}</span>
       </Components.SectionSubtitle>
       <Dialog
-        contentStyle={{maxWidth:"500px"}}
         open={this.state.groupFormOpen}
-        onRequestClose={this.handleCloseGroupForm}
-        className={dialogClasses}
-        bodyClassName="local-group-form-body"
-        autoScrollBodyContent
+        onClose={this.handleCloseGroupForm}
       >
-        <Components.SmartForm
-          collection={Localgroups}
-          documentId={this.props.documentId}
-          mutationFragment={getFragment('localGroupsHomeFragment')}
-          prefilledProps={this.props.documentId ? {} : {organizerIds: [this.props.currentUser._id]}} // If edit form, do not prefill organizerIds
-          successCallback={group => {
-            this.handleCloseGroupForm();
-            if (this.props.documentId) {
-              this.props.flash("Successfully edited local group " + group.name);
-            } else {
-              this.props.flash("Successfully created new local group " + group.name)
-              this.props.router.push({pathname: '/groups/' + group._id});
-            }
-          }}
-        />
+        <DialogContent className={dialogClasses}>
+          <Components.SmartForm
+            collection={Localgroups}
+            documentId={this.props.documentId}
+            mutationFragment={getFragment('localGroupsHomeFragment')}
+            prefilledProps={this.props.documentId ? {} : {organizerIds: [this.props.currentUser._id]}} // If edit form, do not prefill organizerIds
+            successCallback={group => {
+              this.handleCloseGroupForm();
+              if (this.props.documentId) {
+                this.props.flash("Successfully edited local group " + group.name);
+              } else {
+                this.props.flash("Successfully created new local group " + group.name)
+                this.props.router.push({pathname: '/groups/' + group._id});
+              }
+            }}
+          />
+        </DialogContent>
       </Dialog>
     </div>)
   }

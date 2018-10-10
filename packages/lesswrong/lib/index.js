@@ -64,7 +64,6 @@ import Localgroups from './collections/localgroups/collection.js'
 import './collections/localgroups/views.js';
 import './collections/localgroups/permissions.js';
 import './collections/localgroups/fragments.js';
-import './collections/localgroups/callbacks.js';
 
 import './modules/fragments.js';
 import './collections/chapters/fragments.js';

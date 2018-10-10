@@ -81,7 +81,6 @@ const Home = (props, context) => {
       <Components.HeadTags image={getSetting('siteImage')} />
       { !currentUser ?
         <Components.Section
-          contentStyle={{marginTop: '-20px'}}
           title="Recommended Reading"
           titleLink="/library"
           titleComponent= {<Components.SectionSubtitle>
