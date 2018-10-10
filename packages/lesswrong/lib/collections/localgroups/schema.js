@@ -92,6 +92,8 @@ const schema = {
     editableBy: ['members'],
     control: 'EditorFormComponent',
     blackbox: true,
+    hidden: true,
+    optional: true,
     form: {
       enableMarkDownEditor: false
     }
