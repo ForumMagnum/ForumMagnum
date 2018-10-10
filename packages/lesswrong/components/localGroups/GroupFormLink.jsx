@@ -5,10 +5,7 @@ import classNames from "classnames";
 import { withRouter } from 'react-router'
 import withUser from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 
 class GroupFormLink extends Component {
   constructor(props, context) {
