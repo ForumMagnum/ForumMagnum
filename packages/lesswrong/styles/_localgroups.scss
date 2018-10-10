@@ -9,16 +9,10 @@ $ea-blue: #0c869b;
   width: 100vw;
   height: 440px !important;
   top: 64px;
-  left: 0px;
+  right: 0px;
   @include max-tiny {
     top: 43px !important;
   }
-}
-
-.local-group-marker {
-  color: $ea-blue !important;
-  transform: translateX(-50%) translateY(-100%);
-  font-size: 30px !important;
 }
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
@@ -38,7 +32,7 @@ $ea-blue: #0c869b;
   padding: .5em 1em 0.5em 0em !important;
   width:350px;
   font-size:13px;
-  @include max-medium() {
+  @include mui-breakpoint-down-sm {
     width:100%;
   }
   &:focus {
@@ -112,9 +106,6 @@ $ea-blue: #0c869b;
   }
   .content-editor-is-empty:before {
     content: "Short Description";
-    max-width: 640px;
-    position: absolute;
-    color: rgba(0, 0, 0, 0.2);
   }
   .form-component-select {
     .col-sm-9 {
@@ -138,77 +129,6 @@ $ea-blue: #0c869b;
 .small-map-preview-wrapper {
   padding-top: 5px;
   margin-bottom: 20px;
-}
-
-.posts-page-group-details {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.local-group-location {
-  font-size: 11px;
-  color: rgba(0,0,0,0.6);
-  display: inline-block;
-  max-width: 130px;
-  line-height: 1.25;
-  margin-top: 5px;
-}
-
-.local-groups-description {
-  font-size: 20px;
-  line-height: 1.25;
-  margin-left: 24px;
-  @include max-tiny() {
-    margin-left: 0px;
-  }
-}
-
-.local-group-links-wrapper {
-  position: absolute;
-  bottom: 0px;
-  right: -2px;
-}
-
-.group-links-facebook-icon {
-    width: 12px !important;
-    height: 12px !important;
-    display: inline-block;
-    color: rgba(0, 0, 0, 0.7);
-    padding-top: 0px;
-    transform: translateY(1px);
-}
-
-.group-links-link-icon {
-  height: 17px !important;
-  width: 17px !important;
-  padding-top: 2px;
-  transform: translateY(3px) rotate(-45deg);
-}
-
-.local-group-marker-name {
-  font-size: 15px;
-  margin-top: 3.5px;
-  margin-bottom: 0px;
-}
-
-.local-group-marker-close-icon {
-  position: absolute;
-  right: -3px;
-  top: 4px;
-  color: rgba(0,0,0,0.5) !important;
-  height: 15px !important;
-  width: 15px !important;
-}
-
-.local-group-marker-contact-info {
-    margin-bottom: 10px;
-    font-weight: 400;
-    color: rgba(0,0,0,0.6);
-}
-
-.local-group-marker-page-link {
-  font-weight: 400;
-  color: rgba(0,0,0,0.4);
 }
 
 /* Experimental: Somewhat hacky solution to get rid of close window in google Info Windows */
@@ -252,53 +172,10 @@ $ea-blue: #0c869b;
 }
 
 
-.local-groups-menu {
-  @include frontpage-subtitle-link()
-}
-
 .community-home-list-divider {
   margin-top: 12px;
   margin-right: 37px;
   margin-left: 32px;
   border: 0;
   border-top: 1px solid #eee;
-}
-
-.local-event-marker-body, .local-group-marker-body {
-  max-height: 250px;
-  overflow-y: scroll;
-}
-
-.community-map-filter-wrapper {
-  position: absolute;
-  top: 10px;
-  padding: 10px 10px 5px 10px;
-  right: 10px;
-}
-
-.local-group-page-group-links {
-  display: inline-block;
-  margin-top: -7px;
-  margin-left: 10px;
-  margin-bottom: 20px;
-}
-
-.local-group-page-location {
-  display: inline-block;
-  font-size: 14px;
-  color: rgba(0,0,0,0.7);
-}
-
-.local-group-page {
-  .section-title {
-    padding-top: 66px;
-  }
-  .section-title-bottom {
-    @include frontpage-subtitle-link();
-  }
-}
-
-.local-group-page-name {
-  margin-top: 0px !important;
-  margin-bottom: 0.5rem !important;
 }

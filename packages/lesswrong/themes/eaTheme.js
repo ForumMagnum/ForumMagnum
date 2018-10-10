@@ -152,6 +152,11 @@ const theme = createLWTheme({
         }
       },
     },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem"
+      }
+    }
   }
 });
 

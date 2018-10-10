@@ -1,65 +1,11 @@
 
 .wrapper {
-  @include section-header-break {
+  @include mui-breakpoint-down-sm {
     .collections-page {
       margin-right: 0px;
     }
-    .section {
-      width: 715px !important;
-      display: inherit !important;
-      .section-title {
-        width: auto !important;
-        display: inherit;
-        margin-right: inherit;
-        text-align: inherit;
-        width: inherit;
-        position: relative;
-        margin-bottom: 30px;
-        padding-left: 20px;
-        h2 {
-          font-size: 36px;
-          position: inherit;
-        }
-        h2:before {
-          left: inherit;
-          right: inherit;
-          width: 667px;
-        }
-      }
-    }
   }
-  @include collection-card-break(){
-    .section {
-      width: 100% !important;
-      .section-title {
-        padding: 20px;
-        margin-bottom: 0px;
-        h2 {
-          &:before {
-            display: none;
-          }
-          width: 100%;
-          display: inline-block;
-          padding-top: 5px;
-          border-top-style: solid;
-          border-top-width: 4px;
-        }
-      }
-      .section-content {
-        width: inherit !important;
-      }
-    }
-  }
-  @include very-small-break() {
-    .section {
-      width: 100% !important;
-      .section-content {
-        margin-top: 0px !important;
-      }
-      .section-title {
-        padding: 0px;
-      }
-    }
+  @include max-tiny() {
     .collection-card {
       padding: 0px !important;
     }
@@ -76,62 +22,11 @@
     }
   }
 }
-//
-.wrapper {
-  @include max-small {
-    .main {
-      padding: 0px 10px;
-    }
-  }
-}
-
-.section {
-  clear: both;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 30px;
-  .section-title {
-    display: inline;
-    margin-right: 10px;
-    text-align: right;
-    padding-top: 11px;
-    padding-left: 0px;
-    h2 {
-      padding-top: 5px;
-      font-size: 28px;
-      position: relative;
-      display: inline;
-      padding-left: 0px;
-    }
-    h2:before {
-      position: absolute;
-      left: 0;
-      top: 2px;
-      width: 100%;
-      height: 11px;
-      border-top-style: solid;
-      border-top-width: 3px;
-      content: "";
-    }
-    .section-title-top {
-      a:hover {
-        text-decoration: none;
-        h2 {
-          color: rgba(0,0,0,0.6);
-        }
-      }
-    }
-  }
-}
-
-@include max-small {
-  #intercom-container {
-    display: none;
-  }
-}
 
 //Styles for header scrolling, provided by react-headroom: https://github.com/KyleAMathews/react-headroom
 
+// TODO: This is probably unused, but is a bad search term so hard to remove
+// safely.
 .header {
   height: inherit;
 }

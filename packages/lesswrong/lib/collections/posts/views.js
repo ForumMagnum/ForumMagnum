@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
 import { getSetting } from 'meteor/vulcan:core';
 import moment from 'moment';
@@ -28,7 +28,6 @@ Posts.addDefaultView(terms => {
   if (terms.userId) {
     params.selector.hideAuthor = {$ne: true}
   }
-
   return params;
 })
 
@@ -391,6 +390,21 @@ Posts.addView("sunshineCuratedSuggestions", function () {
     selector: {
       suggestForCuratedUserIds: {$exists:true, $ne: []},
       reviewForCuratedUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
+  }
+})
+
+Posts.addView("alignmentSuggestions", function () {
+  return {
+    selector: {
+      af: {$ne: true},
+      suggestForAlignmentUserIds: {$exists:true, $ne: []},
+      reviewForAlignmentUserId: {$exists:false}
     },
     options: {
       sort: {

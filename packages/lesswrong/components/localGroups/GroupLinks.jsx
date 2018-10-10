@@ -2,9 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
-import SvgIcon from 'material-ui/SvgIcon';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from 'material-ui/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
+import { withStyles } from '@material-ui/core/styles';
 
 
 const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -22,41 +24,84 @@ const buttonStyles = {
   height: '18px'
 }
 
-const groupTypeStyles = {
-  padding: '5px',
-  width: 'initial',
-  height: '20px',
-}
-
+const styles = theme => ({
+  groupTypes: {
+    display: 'inline-block',
+  },
+  
+  groupType: {
+    ...theme.typography.headerStyle,
+    display: 'inline-block',
+    padding: '4px',
+    width: 'initial',
+    height: '20px',
+  },
+  
+  groupLinks: {
+    display: 'inline-block',
+    marginLeft: '6px'
+  },
+  
+  facebookIcon: {
+    width: "12px",
+    height: "12px",
+    display: "inline-block",
+    color: "rgba(0, 0, 0, 0.7)",
+    paddingTop: "0px",
+    transform: "translateY(1px)",
+  },
+  
+  linkIcon: {
+    height: "17px",
+    width: "17px",
+    paddingTop: "2px",
+    transform: "translateY(3px) rotate(-45deg)",
+  },
+});
 
 class GroupLinks extends PureComponent {
   render() {
-    const document = this.props.document;
+    const { document, classes } = this.props;
     return(
       <div className="group-links">
-        {document.types && document.types.map(type => {
-          return (
-            <IconButton
-              tooltipPosition='top-left'
-              tooltip="Group Type"
-              style={groupTypeStyles}
-              key={type}
+        <div className={classes.groupTypes}>
+          {document.types && document.types.map(type => {
+            return (
+              <Tooltip
+                title="Group Type"
+                placement="top-end"
+                key={type}
+              >
+                <div className={classes.groupType}>
+                  <GroupTypeIcon type={type}/>
+                </div>
+              </Tooltip>
+            )
+          })}
+        </div>
+        <div className={classes.groupLinks}>
+          {document.facebookLink
+            && <Tooltip
+              title="Facebook Group"
+              placement="top-end"
             >
-              <GroupTypeIcon type={type}/>
-            </IconButton>
-          )
-        })}
-        {document.facebookLink
-          && <a href={document.facebookLink}><IconButton tooltipPosition='top-left' style={buttonStyles} tooltip="Facebook Group">
-            <FacebookIcon className="group-links-facebook-icon"/>
-          </IconButton></a>}
-        {document.website
-          && <a href={document.website}><IconButton tooltipPosition='top-left' tooltip="Group Website" style={buttonStyles}>
-            <LinkIcon className="group-links-link-icon"/>
-          </IconButton></a>}
+              <a href={document.facebookLink}><IconButton style={buttonStyles}>
+                <FacebookIcon className={classes.facebookIcon}/>
+              </IconButton></a>
+            </Tooltip>}
+          {document.website
+            && <Tooltip
+              title="Group Website"
+              placement="top-end"
+            >
+              <a href={document.website}><IconButton style={buttonStyles}>
+                <LinkIcon className={classes.linkIcon}/>
+              </IconButton></a>
+            </Tooltip>}
+        </div>
       </div>
     )
   }
 }
 
-registerComponent("GroupLinks", GroupLinks);
+registerComponent("GroupLinks", GroupLinks, withStyles(styles, { name: "GroupLinks" }));

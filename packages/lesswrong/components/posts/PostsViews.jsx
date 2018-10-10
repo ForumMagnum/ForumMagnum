@@ -118,17 +118,18 @@ class PostsViews extends Component {
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
-            <a className="view-chip more"
+            <div className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
               { this.renderMenu(postViewSections["more"])}
-            </a>
+            </div>
           </span>
         }
         <br/>
       </div>
-    )}
-    }
+    )
+  }
+}
 
 PostsViews.propTypes = {
   currentUser: PropTypes.object,

@@ -66,6 +66,11 @@ const theme = createLWTheme({
       titleLink: {
         top: 0
       }
+    },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem"
+      }
     }
   }
 });

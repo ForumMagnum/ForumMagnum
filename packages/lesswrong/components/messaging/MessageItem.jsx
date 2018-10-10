@@ -55,7 +55,7 @@ class MessageItem extends Component {
     if (message.htmlBody) {
       const htmlBody = {__html: message.htmlBody};
       return (
-        <div>
+        <Components.ErrorBoundary>
           <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
             <div className={classes.meta}>
               {message.user && <span className={classes.usersName}>
@@ -65,7 +65,7 @@ class MessageItem extends Component {
             </div>
             <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
           </Typography>
-        </div>
+        </Components.ErrorBoundary>
       )
     } else {
       return null

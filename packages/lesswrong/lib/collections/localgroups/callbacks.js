@@ -1,5 +1,5 @@
 import { addCallback, newMutation } from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../posts';
 
 function GroupsNewDefaultPost (group, context) {
   const newFields = {

@@ -51,3 +51,26 @@ const alignmentPostResolvers = {
 
 addGraphQLResolvers(alignmentPostResolvers);
 addGraphQLMutation('alignmentPost(postId: String, af: Boolean): Post');
+
+
+// const suggestAlignmentPostResolvers = {
+//   Mutation: {
+//     suggestAlignmentPost(root, { postId, suggestForAlignmentUserIds }, context) {
+//       const post = context.Posts.findOne(postId)
+//
+//       if (Users.canDo(context.currentUser, "posts.alignment.new")) {
+//         let modifier = { $set: {suggestForAlignmentUserIds: suggestForAlignmentUserIds} };
+//         modifier = runCallbacks('posts.suggestAlignment.sync', modifier);
+//         context.Posts.update({_id: postId}, modifier);
+//         const updatedPost = context.Posts.findOne(postId)
+//         runCallbacksAsync('posts.suggestAlignment.async', updatedPost, post, context);
+//         return context.Users.restrictViewableFields(context.currentUser, context.Posts, updatedPost);
+//       } else {
+//         throw new Error({id: `app.user_cannot_sugest_post_alignment_forum_status`});
+//       }
+//     }
+//   }
+// };
+//
+// addGraphQLResolvers(suggestAlignmentPostResolvers);
+// addGraphQLMutation('suggestAlignmentPost(postId: String, suggestForAlignmentUserIds: Array): Post');

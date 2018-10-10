@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, getSetting, withList} from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router';
 
 const CommunityMapWrapper = (props) => {

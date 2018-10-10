@@ -36,7 +36,7 @@
 //   queryName: 'userRSSListQuery',
 //   fragmentName: 'RSSFeedMinimumInfo',
 //   limit: 10,
-//   totalResolver: false,
+//   enableTotal: false,
 // };
 //
 // registerComponent('FeedList', FeedList, [withList, options], withUser);

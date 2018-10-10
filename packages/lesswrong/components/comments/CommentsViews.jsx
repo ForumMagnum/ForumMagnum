@@ -5,7 +5,7 @@ import { withRouter } from 'react-router'
 import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Comments } from 'meteor/example-forum'
+import { Comments } from '../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 

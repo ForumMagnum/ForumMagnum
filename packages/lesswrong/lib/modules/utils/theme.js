@@ -1,6 +1,6 @@
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Users from 'meteor/vulcan:users';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../collections/posts';
 import Sequences from '../../collections/sequences/collection'
 import { getSetting } from 'meteor/vulcan:core';
 

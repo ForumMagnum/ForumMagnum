@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withList, Components, registerComponent } from 'meteor/vulcan:core';
-import { Comments } from 'meteor/example-forum';
+import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/modules/utils/unflatten";
 
 class PostsCommentsThread extends PureComponent {
@@ -33,7 +33,7 @@ const options = {
   queryName: 'PostCommentsThreadQuery',
   fragmentName: 'CommentsList',
   // enableCache: true,
-  totalResolver: true,
+  enableTotal: true,
 };
 
 registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options]);

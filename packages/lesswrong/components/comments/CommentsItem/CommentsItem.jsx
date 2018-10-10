@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Comments, Posts } from "meteor/example-forum";
+import { Posts } from "../../../lib/collections/posts";
+import { Comments } from '../../../lib/collections/comments'
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
@@ -129,7 +130,11 @@ class CommentsItem extends Component {
     const { comment, classes } = this.props
 
     if (comment.body) {
-      let commentExcerpt = comment.body.substring(0,300).split("\n\n");
+      // Replace Markdown Links with just their display text
+      let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
+      
+      let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
+
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
@@ -146,6 +151,7 @@ class CommentsItem extends Component {
 
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
+
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -201,14 +207,14 @@ class CommentsItem extends Component {
               <div className="comments-item-date">
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    {moment(new Date(comment.postedAt)).fromNow()}
+                    <Components.FromNowDate date={comment.postedAt}/>
                     <FontIcon className="material-icons comments-item-permalink"> link
                     </FontIcon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  {moment(new Date(comment.postedAt)).fromNow()}
+                  <Components.FromNowDate date={comment.postedAt}/>
                   <FontIcon className="material-icons comments-item-permalink"> link
                   </FontIcon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}

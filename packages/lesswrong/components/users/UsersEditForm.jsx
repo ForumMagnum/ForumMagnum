@@ -52,11 +52,6 @@ const UsersEditForm = (props) => {
         }>
         Reset Password
       </Button>
-      {/* <div className="change-password-link">
-        <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="accounts.change_password" /></a>}>
-          <Components.AccountsLoginForm formState={STATES.PASSWORD_CHANGE} />
-        </Components.ModalTrigger>
-      </div> */}
 
       <Components.SmartForm
         collection={Users}

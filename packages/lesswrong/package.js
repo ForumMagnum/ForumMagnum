@@ -9,9 +9,21 @@ Package.onUse( function(api) {
   api.versionsFrom("METEOR@1.0");
 
   api.use([
+    'promise',
     'fourseven:scss',
+
+    // vulcan core
     'vulcan:core',
-    'example-forum',
+
+    // vulcan packages
+    'vulcan:ui-bootstrap',
+    'vulcan:voting',
+    'vulcan:accounts',
+    'vulcan:email',
+    'vulcan:forms',
+    'vulcan:events',
+    'vulcan:embed',
+    'vulcan:admin',
     'vulcan:users',
     'vulcan:voting',
   ]);
@@ -35,12 +47,11 @@ Package.onTest(function(api) {
   api.use([
     'fourseven:scss',
     'vulcan:core',
-    'example-forum',
     'vulcan:users',
     'vulcan:voting',
     'practicalmeteor:sinon',
     'coffeescript',
-    'practicalmeteor:mocha',
+    'meteortesting:mocha',
   ]);
   // Entry points for tests
   api.mainModule('./testing/client.tests.js', 'client');

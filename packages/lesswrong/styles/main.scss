@@ -6,19 +6,15 @@
 @import "global";
 @import "layout";
 @import "accounts";
-@import "categories";
-@import "cheatsheet";
 @import "comments";
 @import "editor";
 @import "header";
-@import "newsletter";
 @import "other";
 @import "forms";
 @import "posts";
 @import "users";
 @import "collections";
 @import "sequences";
-@import "stats";
 @import "localgroups";
 @import "admin";
 @import "sunshine-sidebar";
@@ -64,44 +60,6 @@ then moved to more specific files as it becomes necessary.
 
 */
 
-// CSS modifications for comment threads
-
-.header-taglines {
-  font-size: 16px;
-  margin-top: 28px;
-  float: left;
-  margin-left: 15px;
-}
-
-.posts-comments-thread-linked-comment{
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50px;
-  .comment-wrapper{
-    margin-top: 15px;
-    min-height: 30px;
-  }
-  .posts-comments-thread-linked-comment-title{
-    display: inline;
-  }
-  .comment-inline {
-    .comment-inline-text{
-      font-weight: 300;
-    }
-    .well{
-      padding-top: 9px;
-      padding-bottom: 9px;
-      .comment-inline-description{
-        margin-bottom: 5px;
-        font-weight: 400;
-      }
-    }
-    font-size: 14px;
-    padding: 10px;
-  }
-}
-
 
 // Recent Comments Page CSS Modifications
 
@@ -125,51 +83,21 @@ then moved to more specific files as it becomes necessary.
 
 // CSS Modifications for Navbar buttons and styles
 
+<<<<<<< HEAD
 .post-new-button{
   a{
     color: $ea-blue !important;
   }
 }
 
+=======
+>>>>>>> master
 .users-menu-contents a {
   // When the user menu is first opened, it incorrectly detects the first menu
   // item as hovered, but doesn't activate it like it would with a real hover.
   // With Bootstrap's default hover effect for <a> links, this would look like
   // it's grayed out.
   opacity: 1 !important;
-}
-
-// CSS modifications for notifications navbar
-.navbar-nav{
-  .notification-nav{
-    .dropdown-menu{
-      white-space: normal;
-      min-width: 250px;
-      padding: 16px;
-      li {
-        a {
-          white-space: normal;
-        }
-      }
-      .viewed {
-        background-color: $lightest-grey;
-      }
-      .unviewed {
-        background-color: $white;
-      }
-    }
-  }
-}
-
-
-// CSS modifications for notifications page
-.nav-notifications {
-  background-color: transparent;
-  margin-right: 20px;
-}
-
-.notification-filters{
-  margin-bottom: 20px;
 }
 
 // CSS modifications for comments
@@ -180,42 +108,6 @@ then moved to more specific files as it becomes necessary.
   .comment-edit{
     margin-right: $hmargin;
   }
-}
-
-// CSS modifications for voting
-
-
-.upvoted{
-  .upvote-button{
-    color: $ea-blue !important;
-  }
-}
-
-.downvoted{
-  .downvote-button{
-    color: $ea-blue !important;
-  }
-}
-
-.messageEditor{
-  font-size: 16px !important;
-  border: #d1d1d1;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 5px;
-  padding: 16px;
-  margin-bottom: 10px;
-  color: rgba(0,0,0,0.87);
-}
-
-// CSS modifications for posts
-
-.posts-item-title{
-  margin-top: 0px;
-}
-
-.posts-actions{
-  margin-right: 10px;
 }
 
 // CSS Modifications for RSS Feed integration
@@ -250,12 +142,12 @@ h3{
 
 // Deactivate intercom on smaller devices
 
-
-@include section-header-break {
-  #intercom-container {
+#intercom-container {
+  @include mui-breakpoint-down-sm {
     display: none;
   }
 }
+
 
 div#mocha {
   background: white;
@@ -272,10 +164,13 @@ div#mocha {
   z-index: 10000000;
 }
 
-.events-near-you {
-  @include frontpage-subtitle-link()
-}
+// Maximum width for LaTeX, to prevent causing horizontal scroll or otherwise
+// breaking the layout.
+.mjx-chtml {
+  overflow-x: auto;
+  overflow-y: hidden;
 
-.recommended-reading-library {
-  @include frontpage-subtitle-link()
+  // !important because the MathJax stylesheet (which gets embedded into posts)
+  // has an ill-advised max-width:none in it.
+  max-width: 100% !important;
 }

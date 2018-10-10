@@ -1,5 +1,6 @@
 import { Picker } from 'meteor/meteorhacks:picker';
-import { Posts, Comments } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts'
+import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 
 // Some legacy routes have an optional subreddit prefix, which is either

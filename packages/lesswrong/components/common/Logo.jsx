@@ -1,20 +1,25 @@
+import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { IndexLink } from 'react-router';
 
-const styles = theme => ({
-  root: {
-    height: 48
+const Logo = ({logoUrl, siteTitle}) => {
+  if (logoUrl) {
+    return (
+      <h1 className="logo-image ">
+        <IndexLink to={{pathname: "/"}}>
+          <img src={logoUrl} alt={siteTitle} />
+        </IndexLink>
+      </h1>
+    )
+  } else {
+    return (
+      <h1 className="logo-text">
+        <IndexLink to={{pathname: "/"}}>{siteTitle}</IndexLink>
+      </h1>
+    )
   }
-})
-
-const Logo = ({classes}) => getSetting('logoUrl', null) && <img
-  className={classes.root}
-  src={getSetting('logoUrl')}
-  title={getSetting('title')}
-  alt={`${getSetting('title')} Logo`}
-/>
+}
 
 Logo.displayName = "Logo";
 
-registerComponent('Logo', Logo, withStyles(styles), withTheme());
+registerComponent('Logo', Logo);
