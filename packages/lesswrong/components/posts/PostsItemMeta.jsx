@@ -2,7 +2,6 @@ import { Components as C, registerComponent, getSetting } from 'meteor/vulcan:co
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
-import moment from 'moment';
 
 const PostsItemMeta = ({currentUser, post}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
@@ -27,7 +26,7 @@ const PostsItemMeta = ({currentUser, post}) => {
         {parseInt(post.wordCount/300) || 1 } min read
       </C.MetaInfo>}
       { post.isEvent && post.startTime && <C.MetaInfo>
-        {moment(post.startTime).calendar()}
+        <Components.CalendarDate date={post.startTime}/>
       </C.MetaInfo>}
       { post.isEvent && post.location && <C.MetaInfo>
         {post.location}
