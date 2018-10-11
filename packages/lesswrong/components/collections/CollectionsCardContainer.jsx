@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    marginTop: -20,
+    marginTop: -30,
     display:"flex",
     flexWrap: "wrap",
     justifyContent: "space-between",
@@ -13,6 +13,7 @@ const styles = theme => ({
       flexDirection: "column",
       alignItems: "center",
       padding: 0,
+      marginTop: 0,
     }
   }
 })
