@@ -1,6 +1,9 @@
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 import { Posts } from '../posts';
 
+import { Localgroups, makeEditableOptions } from './collection'
+import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
+
 function GroupsNewDefaultPost (group, context) {
   const newFields = {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
@@ -27,3 +30,5 @@ const groupWelcomePostTemplate = {
   <p><em>Who would be a good fit for you group?</em></p>
   <p><em>Should they have any particular skills or have done some specific background reading?</em></p>`,
 }
+
+addEditableCallbacks({collection: Localgroups, options: makeEditableOptions})

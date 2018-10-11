@@ -1,13 +1,10 @@
 import {
   Components,
   registerComponent,
-  getFragment,
   withMessages,
   withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Localgroups } from '../../lib/index.js';
-import Dialog from 'material-ui/Dialog';
 import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
@@ -32,7 +29,7 @@ class CommunityHome extends Component {
       this.setState({ currentUserLocation: this.getUserLocation() });
     }
   }
-  
+
   // Return the current user's location, as a latitude-longitude pair, plus
   // boolean fields `loading` and `known`. If `known` is false, the lat/lng are
   // invalid placeholders. If `loading` is true, then `known` is false, but the
@@ -67,7 +64,7 @@ class CommunityHome extends Component {
           }
         });
       }
-      
+
       return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};
     }
   }
@@ -94,34 +91,6 @@ class CommunityHome extends Component {
     this.setState({
       newEventFormOpen: false,
     })
-  }
-
-  renderNewGroupForm = () => {
-    if (this.props.currentUser) {
-      return (<div>
-        <a onClick={this.handleOpenNewGroupForm}>Create new group</a>
-        <Dialog
-          contentStyle={{maxWidth:"400px"}}
-          title="New Local Group Form"
-          open={this.state.newGroupFormOpen}
-          onRequestClose={this.handleCloseNewGroupForm}
-          className="comments-item-text local-group-new-form"
-          bodyClassName="local-group-new-form-body"
-          autoScrollBodyContent
-        >
-          <Components.SmartForm
-            collection={Localgroups}
-            mutationFragment={getFragment('localGroupsHomeFragment')}
-            prefilledProps={{organizerIds: [this.props.currentUser._id]}}
-            successCallback={localGroup => {
-              this.handleCloseNewGroupForm();
-              this.props.flash("Successfully created new local group " + localGroup.name);
-              this.props.router.push({pathname: '/groups/' + localGroup._id});
-            }}
-          />
-        </Dialog>
-      </div>)
-    }
   }
 
   render() {

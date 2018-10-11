@@ -87,7 +87,7 @@ class PostsPageAdminActions extends Component {
     const { currentUser, post } = this.props
     return Users.canDo(currentUser, "posts.edit.all") ||
       Users.canMakeAlignmentPost(currentUser, post) ||
-      Users.canSuggestPostForAlignment(currentUser, post)
+      Users.canSuggestPostForAlignment({currentUser, post})
   }
 
   render() {
@@ -100,31 +100,41 @@ class PostsPageAdminActions extends Component {
               { Users.canDo(currentUser, "posts.edit.all") &&
                 <span>
                   { !post.meta &&
-                    <a onClick={this.handleMoveToMeta }>
-                      Move to Meta
-                    </a>
+                    <div>
+                      <a onClick={this.handleMoveToMeta }>
+                        Move to Meta
+                      </a>
+                    </div>
                   }
                   { !post.frontpageDate &&
-                    <a onClick={this.handleMoveToFrontpage }>
-                      Move to Frontpage
-                    </a>
+                    <div>
+                      <a onClick={this.handleMoveToFrontpage }>
+                        Move to Frontpage
+                      </a>
+                    </div>
                   }
                   { (post.frontpageDate || post.meta || post.curatedDate) &&
-                     <a onClick={this.handleMoveToPersonalBlog }>
-                      Move to Personal Blog
-                    </a>
+                     <div>
+                       <a onClick={this.handleMoveToPersonalBlog }>
+                         Move to Personal Blog
+                       </a>
+                     </div>
                   }
                 </span>
               }
               <Components.SuggestAlignment post={post} />
               { Users.canMakeAlignmentPost(currentUser, post) &&
-                !post.af && <a onClick={this.handleMoveToAlignmentForum }>
-                  Ω Make Alignment
-              </a>}
+                !post.af && <div>
+                  <a onClick={this.handleMoveToAlignmentForum }>
+                    Ω Move to Alignment
+                  </a>
+                </div>}
               { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
-                <a onClick={this.handleRemoveFromAlignmentForum }>
-                  Ω Remove Alignment
-                </a>
+                <div>
+                  <a onClick={this.handleRemoveFromAlignmentForum }>
+                    Ω Remove Alignment
+                  </a>
+                </div>
               }
               <Components.SuggestCurated post={post} />
             </div>
