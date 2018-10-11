@@ -1,7 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment-timezone';
-import Tooltip from '@material-ui/core/Tooltip';
 import withTimezone from '../common/withTimezone';
 
 /// A date rendered with moment().calendar(). Includes a plethora of special
