@@ -136,6 +136,12 @@ $lw-green: #588f27;
   display: none !important;
 }
 
+/* Hacky solution for double-scrollbar on Google Maps markers. */
+.gm-style-iw > div {
+  overflow: visible;
+  padding-bottom: 20px;
+}
+
 .local-groups-item-title {
   font-size: 1.4rem;
   line-height: 1.4rem;

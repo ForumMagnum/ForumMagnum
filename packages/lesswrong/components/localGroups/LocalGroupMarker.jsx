@@ -11,6 +11,9 @@ import { withStyles } from '@material-ui/core/styles';
 export const styles = theme => ({
   mapInfoWindow: {
     width: "250px",
+    maxHeight: "250px",
+    overflowX: "hidden",
+    overflowY: "auto",
   },
   closeIcon: {
     position: "absolute",
@@ -26,8 +29,6 @@ export const styles = theme => ({
     marginBottom: "0px",
   },
   markerBody: {
-    maxHeight: "250px",
-    overflowY: "auto"
   },
   contactInfo: {
     marginBottom: "10px",
