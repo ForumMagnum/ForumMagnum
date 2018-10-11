@@ -52,10 +52,8 @@ const styles = theme => ({
     voteDivider: {
       borderTopColor: theme.palette.grey[600],
       width: 80,
-      WebkitMarginBefore: 0,
-      WebkitMarginAfter: 0,
-      WebkitMarginStart: 0,
-      WebkitMarginEnd: 0
+      marginLeft: 0,
+      marginRight: 0,
     },
     author: {
       marginTop: 18,
@@ -92,7 +90,7 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    
+
     eventTimes: {
       marginTop: "5px",
       fontSize: "14px",
@@ -105,7 +103,7 @@ const styles = theme => ({
     eventTimeEnd: {
       display: "inline-block",
     },
-    
+
     eventLocation: {
       fontSize: "14px",
       fontWeight: 400,
@@ -220,13 +218,13 @@ class PostsPage extends Component {
       </div>
     }
   }
-  
+
   renderEventTimes = (start, end) => {
     const classes = this.props.classes;
     const timeFormat = 'h:mm A';
     const dateFormat = 'MMMM Do YY, '+timeFormat
     const calendarFormat = {sameElse : dateFormat}
-    
+
     // Neither start nor end time specified
     if (!start && !end) {
       return "TBD";
