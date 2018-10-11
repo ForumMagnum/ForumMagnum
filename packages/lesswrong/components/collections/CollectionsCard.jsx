@@ -26,12 +26,11 @@ const styles = theme => ({
     },
   },
   content: {
-    marginBottom:theme.spacing.unit*2,
     borderTop: "solid 4px black",
     paddingTop: theme.spacing.unit*1.5
   },
   text: {
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
   },
   author: {
     ...theme.typography.postStyle,

@@ -51,10 +51,8 @@ const styles = theme => ({
     voteDivider: {
       borderTopColor: theme.palette.grey[600],
       width: 80,
-      WebkitMarginBefore: 0,
-      WebkitMarginAfter: 0,
-      WebkitMarginStart: 0,
-      WebkitMarginEnd: 0
+      marginLeft: 0,
+      marginRight: 0,
     },
     author: {
       marginTop: 18,
@@ -91,14 +89,13 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    
+
     eventTimes: {
       marginTop: "5px",
       fontSize: "14px",
       lineHeight: 1.25,
       fontWeight: 600,
     },
-    
     eventLocation: {
       fontSize: "14px",
       fontWeight: 400,
