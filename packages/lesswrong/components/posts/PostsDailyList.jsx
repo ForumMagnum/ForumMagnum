@@ -113,8 +113,6 @@ class PostsDailyList extends PureComponent {
     const posts = this.props.results;
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
     
-    const postsByDate = this.groupByDate(posts);
-
     if (this.props.loading && (!posts || !posts.length)) {
       return <Components.PostsLoading />
     } else {
