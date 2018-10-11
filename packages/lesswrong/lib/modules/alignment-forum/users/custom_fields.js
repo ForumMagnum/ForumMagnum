@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import { formGroups } from "../../../collections/users/custom_fields.js"
 
 Users.addField([
   {
@@ -50,4 +51,18 @@ Users.addField([
       onInsert: (document, currentUser) => 0,
     }
   },
+
+  {
+    fieldName: 'reviewForAlignmentFormUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['alignmentForumAdmins', 'admins'],
+      insertableBy: ['alignmentForumAdmins', 'admins'],
+      group: formGroups.adminOptions,
+      label: "AF Review UserId"
+    }
+  },
+
 ]);
