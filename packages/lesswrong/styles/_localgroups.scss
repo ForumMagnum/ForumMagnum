@@ -132,7 +132,9 @@ $lw-green: #588f27;
 }
 
 /* Experimental: Somewhat hacky solution to get rid of close window in google Info Windows */
-.gm-style-iw + div {display: none;}
+.gm-style-iw + button {
+  display: none !important;
+}
 
 .local-groups-item-title {
   font-size: 1.4rem;
