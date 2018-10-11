@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import moment from 'moment';
 import { Link, withRouter } from 'react-router';
 import { Snippet} from 'react-instantsearch/dom';
 import { withStyles } from '@material-ui/core/styles';
@@ -37,7 +36,9 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
         <Components.MetaInfo>
           {hit.baseScore} points
         </Components.MetaInfo>
-        {hit.postedAt && <Components.MetaInfo> {moment(new Date(hit.postedAt)).fromNow()} </Components.MetaInfo>}
+        {hit.postedAt && <Components.MetaInfo>
+          <Components.FromNowDate date={hit.postedAt}/>
+        </Components.MetaInfo>}
         <div><Snippet attributeName="body" hit={hit} tagName="mark" /></div>
     </Link>
   </div>
