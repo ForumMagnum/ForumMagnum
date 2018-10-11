@@ -21,6 +21,37 @@
 @import "alignment-forum";
 @import "modal";
 
+@font-face { font-family: "et-book";
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284541/et-book-roman-line-figures_tqyky9.eot");
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284541/et-book-roman-line-figures_tqyky9.eot?#iefix") format("embedded-opentype"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284541/et-book-roman-line-figures_qwnmtg.woff") format("woff"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284542/et-book-bold-line-figures_nos3pc.ttf") format("truetype");
+             font-weight: normal;
+             font-style: normal; }
+
+@font-face { font-family: "et-book";
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-display-italic-old-style-figures_q55sac.eot");
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-display-italic-old-style-figures_q55sac.eot?#iefix") format("embedded-opentype"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-display-italic-old-style-figures_l5dmqn.woff") format("woff"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-display-italic-old-style-figures_nzn4hq.ttf") format("truetype");
+             font-weight: normal;
+             font-style: italic; }
+
+@font-face { font-family: "et-book";
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284542/et-book-bold-line-figures_w9l1sy.eot");
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284542/et-book-bold-line-figures_w9l1sy.eot?#iefix") format("embedded-opentype"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284542/et-book-bold-line-figures_lqvbwh.woff") format("woff"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284542/et-book-bold-line-figures_nos3pc.ttf") format("truetype");
+             font-weight: 700;
+             font-style: normal; }
+
+@font-face { font-family: "et-book";
+            src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-semi-bold-old-style-figures_ot2s9o.eot");
+            src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-semi-bold-old-style-figures_ot2s9o.eot?#iefix") format("embedded-opentype"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284544/et-book-semi-bold-old-style-figures_fkjal5.woff") format("woff"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284543/et-book-semi-bold-old-style-figures_aimlbn.ttf") format("truetype");
+            font-weight: 600;
+            font-style: normal; }
+
+@font-face { font-family: "et-book-roman-old-style";
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284546/et-book-roman-old-style-figures_zu4udt.eot");
+             src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284546/et-book-roman-old-style-figures_zu4udt.eot?#iefix") format("embedded-opentype"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284547/et-book-roman-old-style-figures_ztojd0.woff") format("woff"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284546/et-book-roman-old-style-figures_yoocwj.ttf") format("truetype");
+             font-weight: normal;
+             font-style: normal; }
+
+
 .new-post-button{
   margin-bottom: 15px;
 }
@@ -160,7 +191,7 @@ div#mocha {
 .mjx-chtml {
   overflow-x: auto;
   overflow-y: hidden;
-  
+
   // !important because the MathJax stylesheet (which gets embedded into posts)
   // has an ill-advised max-width:none in it.
   max-width: 100% !important;
