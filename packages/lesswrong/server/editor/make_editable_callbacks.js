@@ -1,6 +1,7 @@
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
+import { highlightFromHTML, excerptFromHTML } from '../../lib/editor/ellipsize.jsx';
 
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
@@ -24,30 +25,39 @@ function mjPagePromise(html, beforeSerializationCallback) {
   })
 }
 
-const createHtmlHighlight = (body) => {
-  if (body.length > 2400) {
-    // drop the last paragraph
-    const highlight2400Shortened = body.slice(0,2400).split("\n").slice(0,-1).join("\n")
-    const highlightnewlineShortened = body.split("\n\n").slice(0,5).join("\n\n")
-    if (highlightnewlineShortened.length > highlight2400Shortened.length) {
-      return mdi.render(highlight2400Shortened)
-    } else {
-      return mdi.render(highlightnewlineShortened)
-    }
-  } else {
-    return mdi.render(body)
+export const getExcerptFieldsFromMarkdown = (markdownBody, fieldName, mdi) => {
+  const wordCount = wordcountFromMarkdown(markdownBody)
+  const htmlBody = mdi.render(markdownBody);
+  const htmlHighlight = mdi.render(highlightFromHTML(htmlBody))
+  const excerpt = excerptFromHTML(htmlBody);
+  const plaintextExcerpt = htmlToText.fromString(excerpt);
+  return {
+    [`${fieldName}wordCount`]: wordCount,
+    [`${fieldName}htmlHighlight`]: htmlHighlight,
+    [`${fieldName}excerpt`]: excerpt,
+    [`${fieldName}plaintextExcerpt`]: plaintextExcerpt,
   }
 }
 
-const createExcerpt = (body) => {
-  const excerpt = body.slice(0,400)
-  if (excerpt.includes("[")) {
-    const excerptTrimLink = excerpt.split("[").slice(0, -1).join('[')
-    return mdi.render(excerptTrimLink + "... (Read More)")
-  } else {
-    return mdi.render(excerpt + "... (Read More)")
+export const getExcerptFieldsFromHTML = (html, fieldName, mdi) => {
+  const markdownBody = htmlToMarkdown(html);
+  const wordCount = wordcountFromMarkdown(markdownBody);
+  const htmlHighlight = mdi.render(highlightFromHTML(html));
+  const excerpt = excerptFromHTML(html);
+  const plaintextExcerpt = htmlToText.fromString(excerpt);
+  return {
+    [`${fieldName}wordCount`]: wordCount,
+    [`${fieldName}htmlHighlight`]: htmlHighlight,
+    [`${fieldName}excerpt`]: excerpt,
+    [`${fieldName}plaintextExcerpt`]: plaintextExcerpt,
   }
 }
+
+const wordcountFromMarkdown = (markdownBody) => {
+  return markdownBody.split(" ").length;
+}
+
+
 
 const convertFromContent = (content, fieldName = "") => {
   const contentState = convertFromRaw(content);
@@ -56,7 +66,7 @@ const convertFromContent = (content, fieldName = "") => {
   return {
     [`${fieldName}htmlBody`]: htmlBody,
     [`${fieldName}body`]: body,
-    ...getExcerptFields(body, fieldName),
+    ...getExcerptFieldsFromHTML(htmlBody, fieldName, mdi),
     [`${fieldName}lastEditedAs`]: 'draft-js'
   }
 }
@@ -66,20 +76,7 @@ const convertFromContentAsync = async function(content, fieldName = "") {
   return convertFromContent(newContent, fieldName)
 }
 
-const getExcerptFields = (body, fieldName = "") => {
-  const wordCount = body.split(" ").length
-  const htmlHighlight = createHtmlHighlight(body)
-  const excerpt = createExcerpt(body)
-  const plaintextExcerpt = htmlToText.fromString(excerpt)
-  return {
-    [`${fieldName}wordCount`]: wordCount,
-    [`${fieldName}htmlHighlight`]:htmlHighlight,
-    [`${fieldName}excerpt`]:excerpt,
-    [`${fieldName}plaintextExcerpt`]:plaintextExcerpt,
-  }
-}
-
-const htmlToMarkdown = (html) => {
+export const htmlToMarkdown = (html) => {
   return turndownService.turndown(html)
 }
 
@@ -89,7 +86,7 @@ const convertFromHTML = (html, sanitize, fieldName = "") => {
   return {
     [`${fieldName}htmlBody`]: htmlBody,
     [`${fieldName}body`]: body,
-    ...getExcerptFields(body, fieldName),
+    ...getExcerptFieldsFromHTML(html, fieldName, mdi),
     [`${fieldName}lastEditedAs`]: "html",
   }
 }
@@ -98,7 +95,7 @@ const convertFromMarkdown = (body, fieldName = "") => {
   return {
     [`${fieldName}htmlBody`]: mdi.render(body),
     [`${fieldName}body`]: body,
-    ...getExcerptFields(body, fieldName),
+    ...getExcerptFieldsFromMarkdown(body, fieldName, mdi),
     [`${fieldName}lastEditedAs`]: "markdown"
   }
 }

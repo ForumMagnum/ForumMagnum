@@ -141,12 +141,28 @@ class CommentsItem extends Component {
 
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
-    const commentBody = this.props.collapsed ? "" : (
-      <div>
-        {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
-        {!comment.deleted && this.renderCommentBottom()}
-      </div>
-    )
+    let commentBody;
+    if (!postPage && !expanded) {
+      commentBody = renderExcerpt({
+        key: comment._id,
+        body: comment.body,
+        htmlBody: comment.htmlBody,
+        classes: classes,
+        onReadMore: () => this.setState({expanded: true}),
+      });
+    } else if (this.props.collapsed) {
+      commentBody = "";
+    } else {
+      commentBody = (
+        <div>
+          {this.state.showEdit
+            ? this.renderEdit()
+            : <Components.CommentBody comment={comment}/>}
+          {!comment.deleted
+            && this.renderCommentBottom()}
+        </div>
+      );
+    }
 
     if (comment && post) {
       return (
@@ -212,7 +228,7 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { (!postPage && !expanded) ? this.renderExcerpt() : commentBody}
+            { commentBody }
           </div>
           {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
         </div>
