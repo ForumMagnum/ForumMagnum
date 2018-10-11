@@ -8,7 +8,7 @@ Users.addField([
       type: Number,
       optional: true,
       label: "Alignment Base Score",
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -17,7 +17,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -27,7 +27,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -37,7 +37,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -47,7 +47,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -57,9 +57,9 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['alignmentForumAdmins', 'admins'],
-      insertableBy: ['alignmentForumAdmins', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['alignmentForumAdmins', 'admins'],
+      canCreate: ['alignmentForumAdmins', 'admins'],
       group: formGroups.adminOptions,
       label: "AF Review UserId"
     }
