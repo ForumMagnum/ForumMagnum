@@ -3,6 +3,7 @@ import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 const sansSerifStack = [
+  'warnock-pro',
   'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
@@ -20,6 +21,7 @@ const sansSerifStack = [
 ].join(',')
 
 const serifStack = [
+  'ETBembo',
   'warnock-pro',
   'Palatino',
   '"Palatino Linotype"',
@@ -47,6 +49,9 @@ const palette = {
 const theme = createLWTheme({
   palette: palette,
   typography: {
+    fontDownloads: [
+      "https://fonts.googleapis.com/css?family=Cardo:400,400i,700"
+    ],
     fontFamily: sansSerifStack,
     postStyle: {
       fontFamily: serifStack,
