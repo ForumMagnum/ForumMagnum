@@ -11,7 +11,6 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
-import moment from 'moment';
 
 const styles = theme => ({
   message: {
@@ -50,7 +49,7 @@ class MessageItem extends Component {
   render() {
     const { currentUser, message, classes } = this.props;
 
-    const isCurrentUser = currentUser._id == message.user._id
+    const isCurrentUser = (currentUser && message && message.user) && currentUser._id == message.user._id
 
     if (message.htmlBody) {
       const htmlBody = {__html: message.htmlBody};
@@ -61,7 +60,9 @@ class MessageItem extends Component {
               {message.user && <span className={classes.usersName}>
                 <Components.UsersName user={message.user}/>
               </span>}
-              {message.createdAt && <span className={classes.createdAt}>{moment(message.createdAt).fromNow()}</span>}
+              {message.createdAt && <span className={classes.createdAt}>
+                <Components.FromNowDate date={message.createdAt}/>
+              </span>}
             </div>
             <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
           </Typography>

@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
@@ -68,7 +67,7 @@ class SuggestAlignmentItem extends Component {
             </Link>
           </Components.SidebarInfo>
           {post.postedAt && <Components.SidebarInfo>
-            {moment(new Date(post.postedAt)).fromNow()}
+            <Components.FromNowDate date={post.postedAt}/>
           </Components.SidebarInfo>}
         </div>
         <Components.SidebarInfo>

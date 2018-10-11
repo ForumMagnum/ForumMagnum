@@ -1,6 +1,5 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router';
 import FontIcon from 'material-ui/FontIcon';
@@ -89,7 +88,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
                       <div className="comments-item-date">
-                        {moment(new Date(comment.postedAt)).fromNow()}
+                        <Components.FromNowDate date={comment.postedAt}/>
                         <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
                       </div>
                       { showTitle && comment.post && comment.post.title}

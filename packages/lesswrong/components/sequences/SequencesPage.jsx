@@ -6,7 +6,6 @@ import {
 } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
-import moment from 'moment';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
@@ -63,7 +62,6 @@ class SequencesPage extends Component {
         successCallback={this.showSequence}
         cancelCallback={this.showSequence} />
     } else {
-      const date = moment(new Date(document.createdAt)).format('MMM DD, YYYY');
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
 
@@ -90,7 +88,9 @@ class SequencesPage extends Component {
         </div>
         <Components.Section titleComponent={
           <div className="sequences-meta">
-            <Typography variant="subheading"><strong>{date}</strong></Typography>
+            <Typography variant="subheading"><strong>
+              <Components.SimpleDate date={document.createdAt}/>
+            </strong></Typography>
             { this.commentsEnabled() && (
               <div className="sequences-comment-count">
                 {document.commentCount || 0} comments
