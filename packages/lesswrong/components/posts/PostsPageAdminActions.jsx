@@ -8,6 +8,26 @@ import { Posts } from '../../lib/collections/posts';
 import Users from "meteor/vulcan:users";
 import withSetAlignmentPost from "../alignment-forum/withSetAlignmentPost.jsx";
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+
+const styles = theme => ({
+  root: {
+    minHeight:75,
+    "@media print": {
+      display: "none"
+    },
+    '&:hover $actions': {
+      display:"block"
+    }
+  },
+  actionsIcon: {
+    color: theme.palette.grey[400]
+  },
+  actions: {
+    display: "none",
+  }
+})
 
 class PostsPageAdminActions extends Component {
 
@@ -65,57 +85,60 @@ class PostsPageAdminActions extends Component {
 
   showAdminActions = () => {
     const { currentUser, post } = this.props
-    return Users.canDo(currentUser, "posts.edit.all") || Users.canMakeAlignmentPost(currentUser, post)
+    return Users.canDo(currentUser, "posts.edit.all") ||
+      Users.canMakeAlignmentPost(currentUser, post) ||
+      Users.canSuggestPostForAlignment({currentUser, post})
   }
 
   render() {
-    const { currentUser, post } = this.props
-    if (post) {
+    const { currentUser, post, classes } = this.props
+    if (post && this.showAdminActions()) {
       return (
-        <div className="posts-page-admin-actions-wrapper">
-          { this.showAdminActions() &&
-            <div>
-              <div className="posts-page-admin-more-options">...</div>
-              <div className="posts-page-admin-actions">
-                { Users.canDo(currentUser, "posts.edit.all") &&
-                  <span>
-                    { !post.meta &&
-                      <div className="posts-page-admin-action"
-                        onClick={this.handleMoveToMeta }>
+          <div className={classes.root}>
+            <MoreHorizIcon className={classes.actionsIcon}/>
+            <div className={classes.actions}>
+              { Users.canDo(currentUser, "posts.edit.all") &&
+                <span>
+                  { !post.meta &&
+                    <div>
+                      <a onClick={this.handleMoveToMeta }>
                         Move to Meta
-                      </div>
-                    }
-                    { !post.frontpageDate &&
-                      <div className="posts-page-admin-action"
-                        onClick={this.handleMoveToFrontpage }>
+                      </a>
+                    </div>
+                  }
+                  { !post.frontpageDate &&
+                    <div>
+                      <a onClick={this.handleMoveToFrontpage }>
                         Move to Frontpage
-                      </div>
-                    }
-                    { (post.frontpageDate || post.meta || post.curatedDate) &&
-                       <div className="posts-page-admin-action"
-                         onClick={this.handleMoveToPersonalBlog }>
-                        Move to Personal Blog
-                      </div>
-                    }
-                  </span>
-                }
-                { Users.canMakeAlignmentPost(currentUser, post) &&
-                  !post.af && <div className="posts-page-admin-action"
-                    onClick={this.handleMoveToAlignmentForum }>
-                    Ω Make Alignment
+                      </a>
+                    </div>
+                  }
+                  { (post.frontpageDate || post.meta || post.curatedDate) &&
+                     <div>
+                       <a onClick={this.handleMoveToPersonalBlog }>
+                         Move to Personal Blog
+                       </a>
+                     </div>
+                  }
+                </span>
+              }
+              <Components.SuggestAlignment post={post} />
+              { Users.canMakeAlignmentPost(currentUser, post) &&
+                !post.af && <div>
+                  <a onClick={this.handleMoveToAlignmentForum }>
+                    Ω Move to Alignment
+                  </a>
                 </div>}
-                { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
-                  <div className="posts-page-admin-action"
-                    onClick={this.handleRemoveFromAlignmentForum }>
+              { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
+                <div>
+                  <a onClick={this.handleRemoveFromAlignmentForum }>
                     Ω Remove Alignment
-                  </div>
-                }
-                <Components.SuggestCurated post={post} />
-                {/* <Components.SuggestAlignment post={post} /> */}
-              </div>
+                  </a>
+                </div>
+              }
+              <Components.SuggestCurated post={post} />
             </div>
-          }
-        </div>
+          </div>
       )
     } else {
       return null
@@ -140,5 +163,6 @@ registerComponent(
   PostsPageAdminActions,
   [withEdit, withEditOptions],
   [withSetAlignmentPost, setAlignmentOptions],
-  withUser
+  withUser,
+  withStyles(styles, {name: "PostsPageAdminActions"})
 );

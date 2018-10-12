@@ -26,7 +26,9 @@ import '../components/notifications/SubscribeTo.jsx';
 
 import '../components/Layout.jsx';
 
+import '../components/common/CalendarDate.jsx';
 import '../components/common/FromNowDate.jsx';
+import '../components/common/SimpleDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
@@ -115,6 +117,7 @@ import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
 import '../components/localGroups/CommunityMapFilter.jsx';
 import '../components/localGroups/CommunityMapWrapper.jsx';
+import '../components/localGroups/EventTime.jsx';
 import '../components/localGroups/LocalGroupMarker.jsx';
 import '../components/localGroups/LocalEventMarker.jsx';
 import '../components/localGroups/LocalGroupPage.jsx';

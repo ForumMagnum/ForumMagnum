@@ -9,20 +9,22 @@ class SuggestAlignment extends Component {
   render() {
     const { currentUser, post, editMutation } = this.props;
 
-    const shouldRender = currentUser && post && !post.afDate && !post.reviewForAlignmentUserId && Users.canDo(this.props.currentUser, "posts.alignment.suggest")
-
     const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
 
-    if (shouldRender) {
+    if (Users.canSuggestPostForAlignment({currentUser, post})) {
       return <div>
           { userHasSuggested ?
-            <a onClick={() => Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
-              Ω Unsuggest for Alignment
-            </a>
+            <div>
+              <a onClick={() => Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
+                Ω Unsuggest for Alignment
+              </a>
+            </div>
             :
-            <a onClick={() => Posts.suggestForAlignment({currentUser, post, editMutation})}>
-              Ω Suggest for Alignment
-            </a>
+            <div>
+              <a onClick={() => Posts.suggestForAlignment({currentUser, post, editMutation})}>
+                Ω Suggest for Alignment
+              </a>
+            </div>
           }
         </div>
     } else {

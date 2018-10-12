@@ -64,7 +64,6 @@ import Localgroups from './collections/localgroups/collection.js'
 import './collections/localgroups/views.js';
 import './collections/localgroups/permissions.js';
 import './collections/localgroups/fragments.js';
-import './collections/localgroups/callbacks.js';
 
 import './modules/fragments.js';
 import './collections/chapters/fragments.js';
@@ -91,8 +90,8 @@ import './collections/posts/permissions.js';
 import './collections/posts/helpers.js';
 //
 // Users
-import './collections/users/custom_fields.js';
 import './collections/users/helpers.js';
+import './collections/users/custom_fields.js';
 import './collections/users/callbacks.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
@@ -136,6 +135,7 @@ import './modules/alignment-forum/comments/custom_fields.js';
 import './modules/alignment-forum/comments/callbacks.js';
 import './modules/alignment-forum/sequences/custom_fields.js'
 import './modules/alignment-forum/sequences/callbacks.js';
+import './modules/alignment-forum/users/helpers.js';
 
 
 
