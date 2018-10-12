@@ -642,7 +642,7 @@ Posts.addField([
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
-      viewableBy: ['members'],
+      viewableBy: ['guests'],
       group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),

@@ -331,7 +331,7 @@ Users.addField([
     fieldSchema: {
       type: Array,
       group: formGroups.moderationGroup,
-      viewableBy: ['members'],
+      viewableBy: ['guests'],
       editableBy: ['trustLevel1'],
       insertableBy: ['trustLevel1'],
       optional: true,
