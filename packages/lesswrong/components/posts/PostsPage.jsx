@@ -273,7 +273,7 @@ class PostsPage extends Component {
     if (loading) {
       return <div><Components.Loading/></div>
     } else if (!document) {
-      return <div><FormattedMessage id="app.404"/></div>
+      return <Components.Error404/>
     } else {
 
       const post = document
