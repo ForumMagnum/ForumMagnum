@@ -6,6 +6,7 @@ import Conversations from '../lib/collections/conversations/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
 import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
+import { runQuery } from 'meteor/vulcan:core';
 
 export const createDefaultUser = async() => {
   // Creates defaultUser if they don't already exist
@@ -129,4 +130,46 @@ export function addTestToCallbackOnce(callbackHook, test, done) {
   }
   Object.defineProperty(testCallback, "name", { value: callbackFunctionName });
   addCallback(callbackHook, testCallback);
+}
+
+export const userUpdateFieldFails = async ({user, document, fieldName, newValue}) => {
+  if (!newValue) {
+    newValue = Random.id()
+  }
+
+  const query = `
+    mutation {
+      updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:"${newValue}"}) {
+        data {
+          ${fieldName}
+        }
+      }
+    }
+  `;
+  const response = runQuery(query,{},{currentUser:user})
+  return response.should.be.rejected;
+}
+
+export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue}) => {
+
+  let comparedValue = newValue
+
+  if (!newValue) {
+    comparedValue = Random.id()
+    newValue = `"${comparedValue}"`
+  }
+
+  const query = ` 
+      mutation {
+        updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:${newValue}}) {
+          data {
+            ${fieldName}
+          }
+        }
+      }
+    `;
+  const response = runQuery(query,{},{currentUser:user})
+  const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
+  return response.should.eventually.deep.equal(expectedOutput);
+
 }

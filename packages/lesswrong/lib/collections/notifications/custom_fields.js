@@ -15,9 +15,9 @@ Users.addField([
       optional: true,
       onInsert: (document, currentUser) => false,
       control: "checkbox",
-      viewableBy: ['guests'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
       group: notificationsGroup,
     }
   },
@@ -29,9 +29,9 @@ Users.addField([
       optional: true,
       onInsert: (document, currentUser) => false,
       control: "checkbox",
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       group: notificationsGroup,
     }
   }
@@ -46,9 +46,9 @@ Users.addField([
       optional: true,
       onInsert: (document, currentUser) => true,
       control: "checkbox",
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       group: notificationsGroup,
     }
   },
@@ -60,9 +60,9 @@ Users.addField([
       optional: true,
       onInsert: (document, currentUser) => true,
       control: "checkbox",
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       group: notificationsGroup,
     }
   }
