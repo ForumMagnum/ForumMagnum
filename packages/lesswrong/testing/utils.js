@@ -132,8 +132,11 @@ export function addTestToCallbackOnce(callbackHook, test, done) {
   addCallback(callbackHook, testCallback);
 }
 
-export const testUserCannotUpdateField = async (user, document, fieldName) => {
-  const newValue = Random.id()
+export const userUpdateFieldFails = async ({user, document, fieldName, newValue}) => {
+  if (!newValue) {
+    newValue = Random.id()
+  }
+
   const query = `
     mutation {
       updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:"${newValue}"}) {
@@ -147,18 +150,26 @@ export const testUserCannotUpdateField = async (user, document, fieldName) => {
   return response.should.be.rejected;
 }
 
-export const testUserCanUpdateField = async (user, document, fieldName, collectionType) => {
-  const newValue = ""
-  const query = `
-    mutation {
-      updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:"${newValue}"}) {
-        data {
-          ${fieldName}
+export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue}) => {
+
+  let comparedValue = newValue
+
+  if (!newValue) {
+    comparedValue = Random.id()
+    newValue = `"${comparedValue}"`
+  }
+
+  const query = ` 
+      mutation {
+        updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:${newValue}}) {
+          data {
+            ${fieldName}
+          }
         }
       }
-    }
-  `;
+    `;
   const response = runQuery(query,{},{currentUser:user})
-  const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: newValue} }}}
+  const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return response.should.eventually.deep.equal(expectedOutput);
+
 }

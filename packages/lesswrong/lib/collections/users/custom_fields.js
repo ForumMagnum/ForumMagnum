@@ -341,8 +341,8 @@ Users.addField([
       type: Array,
       group: formGroups.moderationGroup,
       canRead: ['members'],
-      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'trustLevel1'],
-      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'trustLevel1'],
+      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
       optional: true,
       label: "Banned Users",
       control: 'UsersListEditor'
