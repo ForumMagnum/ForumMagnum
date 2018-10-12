@@ -97,7 +97,7 @@ class CommentsListSection extends Component {
         className={this.props.classes.inline}
       >
         Highlighting new comments since <a className={classes.link} onClick={this.handleClick}>
-          {moment(highlightDate).calendar()}
+          <Components.CalendarDate date={highlightDate}/>
         </a>
         <Menu
           anchorEl={anchorEl}

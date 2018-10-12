@@ -23,6 +23,7 @@ Users.groups.alignmentForum.can(alignmentForumActions);
 
 const alignmentForumAdminsActions = [
   'posts.alignment.move.all',
+  'alignment.sidebar',
 ]
 
 Users.groups.alignmentForumAdmins.can(alignmentForumAdminsActions);

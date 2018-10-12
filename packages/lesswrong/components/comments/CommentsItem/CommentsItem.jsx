@@ -5,7 +5,6 @@ import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
-import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
@@ -249,7 +248,7 @@ class CommentsItem extends Component {
       <div className="comments-item-bottom">
         { blockedReplies &&
           <div className="comment-blocked-replies">
-            A moderator has deactivated replies on this comment until {moment(new Date(comment.repliesBlockedUntil)).calendar()}
+            A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
           </div>
         }
         <div>

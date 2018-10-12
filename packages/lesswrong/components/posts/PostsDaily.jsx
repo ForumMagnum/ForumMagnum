@@ -42,7 +42,8 @@ class PostsDaily extends Component {
     return <div className="posts-daily-wrapper">
       <Components.Section title="Posts by Day" titleComponent={this.renderTitle()}>
         <div className="posts-daily-content-wrapper">
-          <Components.PostsDailyList title="Posts by Day" terms={terms}/>
+          <Components.PostsDailyList title="Posts by Day"
+            terms={terms} days={numberOfDays}/>
         </div>
       </Components.Section>
     </div>

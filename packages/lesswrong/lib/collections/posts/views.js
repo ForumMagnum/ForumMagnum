@@ -402,7 +402,7 @@ Posts.addView("sunshineCuratedSuggestions", function () {
 Posts.addView("alignmentSuggestions", function () {
   return {
     selector: {
-      af: false,
+      af: {$ne: true},
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
       reviewForAlignmentUserId: {$exists:false}
     },
