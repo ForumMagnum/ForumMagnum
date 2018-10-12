@@ -1,3 +1,4 @@
+/* global Vulcan */
 import { Posts } from '../../lib/collections/posts'
 import Users from 'meteor/vulcan:users';
 import { Utils } from 'meteor/vulcan:core';
@@ -134,6 +135,7 @@ Vulcan.findBrokenLinks = async () => {
   {
     let post = postsToCheck[i];
     let result = await checkPost(post);
+    //eslint-disable-next-line no-console
     console.log(result);
   }
   //eslint-disable-next-line no-console
