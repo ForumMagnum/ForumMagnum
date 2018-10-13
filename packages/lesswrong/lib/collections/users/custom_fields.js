@@ -12,6 +12,7 @@ export const formGroups = {
     order:50,
     name: "banUser",
     label: "Ban & Purge User",
+    startCollapsed: true,
   },
   notifications: {
     order: 10,
@@ -22,7 +23,13 @@ export const formGroups = {
     order: 15,
     name: "emails",
     label: "Emails"
-  }
+  },
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: "Admin Options",
+    startCollapsed: true,
+  },
 }
 
 Users.addField([

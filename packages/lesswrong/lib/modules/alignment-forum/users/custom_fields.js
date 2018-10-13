@@ -53,7 +53,7 @@ Users.addField([
   },
 
   {
-    fieldName: 'reviewForAlignmentFormUserId',
+    fieldName: 'reviewForAlignmentForumUserId',
     fieldSchema: {
       type: String,
       optional: true,
@@ -64,5 +64,12 @@ Users.addField([
       label: "AF Review UserId"
     }
   },
+
+  {
+    fieldName: 'groups',
+    fieldSchema: {
+      canUpdate: ['alignmentForumAdmins', 'admins'],
+    }
+  }
 
 ]);
