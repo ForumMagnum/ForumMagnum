@@ -387,22 +387,6 @@
     width:100%;
   }
 }
-.sequences-navigation-title-subtitle {
-  font-size: 16px;
-  font-style: italic;
-  line-height: normal;
-  color: rgba(0, 0, 0, 0.6);
-  .sequences-navigation-sequence-name {
-    font-variant: small-caps;
-    color: rgba(0,0,0,0.6);
-    font-size: 18px;
-    margin-left: 5px;
-    background-image: none;
-    &:hover{
-      color: rgba(0,0,0,0.3);
-    }
-  }
-}
 
 .sequences-navigation-bottom-next-post {
   float: right;
