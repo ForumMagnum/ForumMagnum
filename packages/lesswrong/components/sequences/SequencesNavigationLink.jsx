@@ -27,17 +27,15 @@ const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({
-  slug,
+  disabled,
   document,
-  documentId,
   documentUrl,
   loading,
   direction,
   router,
   classes}
 ) => {
-  const post = (slug || documentId) && document
-  const disabled = (!slug && !documentId);
+  const post = !disabled && document
   const button = (
     <IconButton
       classes={{

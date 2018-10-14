@@ -19,7 +19,7 @@ const SequencesNavigation = ({
   return (
     <div className="sequences-navigation-top">
       <Components.SequencesNavigationLink
-        documentId={ prevPost && prevPost._id }
+        disabled={!prevPost}
         documentUrl={ "/s/" + document._id + (prevPost ? ("/p/" + prevPost._id) : "")}
         direction="left"
       />
@@ -29,7 +29,7 @@ const SequencesNavigation = ({
       </div>
 
       <Components.SequencesNavigationLink
-        documentId={ nextPost && nextPost._id }
+        disabled={!nextPost}
         documentUrl={ "/s/" + document._id + (nextPost ? ("/p/" + nextPost._id) : "")}
         direction="right"
       />

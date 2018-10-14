@@ -3,8 +3,6 @@ import { Link } from 'react-router';
 import React from 'react';
 
 const CollectionsNavigation = ({
-  nextPostSlug,
-  prevPostSlug,
   nextPostUrl,
   prevPostUrl,
   title,
@@ -14,7 +12,7 @@ const CollectionsNavigation = ({
   return (
     <div className="sequences-navigation-top">
       <Components.SequencesNavigationLink
-        slug={prevPostSlug}
+        disabled={!prevPostUrl}
         documentUrl={prevPostUrl}
         direction="left"
       />
@@ -24,7 +22,7 @@ const CollectionsNavigation = ({
       </div>
 
       <Components.SequencesNavigationLink
-        slug={nextPostSlug}
+        disabled={!nextPostUrl}
         documentUrl={nextPostUrl}
         direction="right"
       />

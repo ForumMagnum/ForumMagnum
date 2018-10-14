@@ -188,8 +188,6 @@ class PostsPage extends Component {
         <Components.CollectionsNavigation
           title={ title }
           titleUrl={ titleUrl }
-          nextPostSlug={ post.canonicalNextPostSlug }
-          prevPostSlug={ post.canonicalPrevPostSlug }
           nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
           prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
         />
