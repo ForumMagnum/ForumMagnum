@@ -30,6 +30,7 @@ const options = {
   queryName: "SequencesNavigationQuery",
   fragmentName: 'SequencesNavigationFragment',
   enableTotal: false,
+  ssr: true
 }
 
 registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options]);
