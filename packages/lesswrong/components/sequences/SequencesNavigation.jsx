@@ -16,25 +16,13 @@ const SequencesNavigation = ({
   let title = document ? document.title : ""
   let titleUrl = documentId ? "/s/" + documentId : ""
   const { nextPost, prevPost } = Utils.getSequencePostLinks(document, post)
-  return (
-    <div className="sequences-navigation-top">
-      <Components.SequencesNavigationLink
-        disabled={!prevPost}
-        documentUrl={ "/s/" + document._id + (prevPost ? ("/p/" + prevPost._id) : "")}
-        direction="left"
-      />
-
-      <div className="sequences-navigation-title">
-        {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
-      </div>
-
-      <Components.SequencesNavigationLink
-        disabled={!nextPost}
-        documentUrl={ "/s/" + document._id + (nextPost ? ("/p/" + nextPost._id) : "")}
-        direction="right"
-      />
-    </div>
-  )
+  
+  return <Components.CollectionsNavigation
+    nextPostUrl={document && nextPost && "/s/" + document._id + (nextPost ? ("/p/" + nextPost._id) : "")}
+    prevPostUrl={document && prevPost && "/s/" + document._id + (prevPost ? ("/p/" + prevPost._id) : "")}
+    title={title}
+    titleUrl={titleUrl}
+  />
 }
 
 const options = {
