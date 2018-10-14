@@ -27,32 +27,32 @@ const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({
-    slug,
-    document,
-    documentId,
-    documentUrl,
-    loading,
-    direction,
-    router,
-    classes}
-  ) => {
-    const post = (slug || documentId) && document
-    const disabled = (!slug && !documentId);
-    const button = (
-      <IconButton
-        classes={{
-          root: classnames(classes.root, disabled ? classes.disabled : classes.normal)
-        }}
-        disabled={disabled}
-        onClick={() => router.push(documentUrl)}>
-        { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
-       </IconButton>
-     )
-    if (post && post.title) {
-      return <Tooltip title={post.title}>{button}</Tooltip>
-    } else {
-      return button;
-    }
+  slug,
+  document,
+  documentId,
+  documentUrl,
+  loading,
+  direction,
+  router,
+  classes}
+) => {
+  const post = (slug || documentId) && document
+  const disabled = (!slug && !documentId);
+  const button = (
+    <IconButton
+      classes={{
+        root: classnames(classes.root, disabled ? classes.disabled : classes.normal)
+      }}
+      disabled={disabled}
+      onClick={() => router.push(documentUrl)}>
+      { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
+     </IconButton>
+   )
+  if (post && post.title) {
+    return <Tooltip title={post.title}>{button}</Tooltip>
+  } else {
+    return button;
+  }
 };
 
 const options = {
