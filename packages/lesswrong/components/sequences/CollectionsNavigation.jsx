@@ -6,26 +6,29 @@ const CollectionsNavigation = ({
   nextPostUrl,
   prevPostUrl,
   title,
-  titleUrl
+  titleUrl,
+  loading
 }) => {
 
   return (
     <div className="sequences-navigation-top">
-      <Components.SequencesNavigationLink
-        disabled={!prevPostUrl}
-        documentUrl={prevPostUrl}
-        direction="left"
-      />
-
-      <div className="sequences-navigation-title">
-        {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
-      </div>
-
-      <Components.SequencesNavigationLink
-        disabled={!nextPostUrl}
-        documentUrl={nextPostUrl}
-        direction="right"
-      />
+      {loading ? <Components.Loading/> : <>
+        <Components.SequencesNavigationLink
+          disabled={!prevPostUrl}
+          documentUrl={prevPostUrl}
+          direction="left"
+        />
+  
+        <div className="sequences-navigation-title">
+          {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
+        </div>
+  
+        <Components.SequencesNavigationLink
+          disabled={!nextPostUrl}
+          documentUrl={nextPostUrl}
+          direction="right"
+        />
+      </>}
     </div>
   )
 }

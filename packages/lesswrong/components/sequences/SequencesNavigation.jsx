@@ -9,8 +9,8 @@ const SequencesNavigation = ({
   loading,
   post
 }) => {
-  if (!(document && !loading)) {
-    return <div><Components.Loading /></div>
+  if (!document || loading) {
+    return <Components.CollectionsNavigation loading={true}/>
   }
   
   let title = document ? document.title : ""
