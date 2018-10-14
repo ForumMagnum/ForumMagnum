@@ -3,6 +3,20 @@ import { Posts } from '../../lib/collections/posts';
 import IconButton from 'material-ui/IconButton'
 import React from 'react';
 import { withRouter } from 'react-router';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  normal: {
+    "& .material-icons": {
+      color: "rgba(0,0,0, 0.5) !important"
+    }
+  },
+  disabled: {
+    "& .material-icons": {
+      color: "rgba(0,0,0, 0.2) !important"
+    }
+  },
+});
 
 const SequencesNavigationLink = ({
     slug,
@@ -11,16 +25,15 @@ const SequencesNavigationLink = ({
     documentUrl,
     loading,
     direction,
-    router}
+    router,
+    classes}
   ) => {
     const post = (slug || documentId) && document
-    const className = "sequences-navigation-top-" + direction
-    const iconStyle = !slug && !documentId ? {color: "rgba(0,0,0,.2)"} : {}
+    const disabled = (!slug && !documentId);
     return (
       <IconButton
-        iconStyle={ iconStyle }
-        className={ className }
-        disabled={ !slug && !documentId }
+        className={disabled ? classes.disabled : classes.normal}
+        disabled={disabled}
         iconClassName="material-icons"
         tooltip={post && post.title}
         onClick={() => router.push(documentUrl)}>
@@ -36,4 +49,5 @@ const options = {
   enableTotal: false,
 }
 
-registerComponent('SequencesNavigationLink', SequencesNavigationLink, [withDocument, options], withRouter);
+registerComponent('SequencesNavigationLink', SequencesNavigationLink,
+  [withDocument, options], withRouter, withStyles(styles, {name: "SequencesNavigationLink"}));
