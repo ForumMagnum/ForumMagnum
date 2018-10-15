@@ -14,9 +14,9 @@ import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { postBodyStyles } from '../../themes/stylePiping'
 
-// TODO: Styling overhaul. In particular, this page has some questionable
-// typography overrides and breakpoints.
+// TODO: Styling overhaul.
 
 const styles = theme => ({
   root: {
@@ -38,12 +38,8 @@ const styles = theme => ({
     },
   },
   description: {
-    fontSize: 20,
-    lineHeight: 1.25,
     marginLeft: 10,
-  },
-  htmlDescription: {
-    ...theme.typography.postStyle
+    ...postBodyStyles(theme),
   },
   banner: {
     position: "absolute",
@@ -153,9 +149,7 @@ class SequencesPage extends Component {
               <a onClick={this.showEdit}>edit</a></Components.SectionSubtitle>}
           </div>}>
           <div className={classNames(classes.description, "content-body")}>
-            <Typography variant="body1" className={classes.htmlDescription}>
-              {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
-            </Typography>
+            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
           </div>
         </Components.Section>
         <div className="sequences-chapters">
