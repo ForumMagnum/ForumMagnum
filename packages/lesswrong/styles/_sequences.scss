@@ -97,15 +97,6 @@
   }
 }
 
-.sequences-banner-wrapper {
-  position: relative;
-  height: 380px;
-}
-.sequences-meta {
-  margin-top: -4px;
-  line-height: 1.1;
-  color: rgba(0,0,0,0.5);
-}
 .sequences-posts-list {
   margin-top: -10px;
 }
@@ -122,12 +113,6 @@
   line-height: 1.1;
   font-style: italic;
   margin-top: 20px;
-}
-
-.sequences-description {
-  font-size: 20px;
-  line-height: 1.25;
-  margin-left: 10px;
 }
 
 .sequences-page-content-footer {
@@ -265,9 +250,6 @@
   color: rgba(0,0,0,0.7);
 }
 @include mui-breakpoint-down-sm {
-  .sequences-page {
-    margin-right: 0px;
-  }
   .sequences-image-scrim-overlay {
     height: 200px;
   }
@@ -281,9 +263,6 @@
       width: inherit !important;
       text-align: center;
     }
-  }
-  .sequences-meta {
-    text-align: center;
   }
   .sequences-page-content-footer {
     margin-left: 0px;
@@ -314,22 +293,6 @@
   }
 }
 
-.sequences-banner {
-  position: absolute;
-  left: 0;
-  top: 60px;
-  width: 100vw;
-  height: 380px;
-  @include max-tiny() {
-    top: 40px;
-  }
-  img {
-    width: 100vw;
-  }
-  .sequences-banner-wrapper {
-    background-color: rgba(0,0,0,0.5);
-  }
-}
 .sequences-image-scrim-overlay {
   position: absolute;
   bottom: 0px;
