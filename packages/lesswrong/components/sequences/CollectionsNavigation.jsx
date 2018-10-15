@@ -7,7 +7,12 @@ const CollectionsNavigation = ({
   prevPostUrl,
   title,
   titleUrl,
-  loading
+  loading,
+  
+  // Two different ways of identifying the prev/next post for SequencesNavigation,
+  // depending on whether this is a collection or a sequence.
+  nextPostId, prevPostId,
+  nextPostSlug, prevPostSlug,
 }) => {
 
   return (
@@ -17,6 +22,9 @@ const CollectionsNavigation = ({
           disabled={!prevPostUrl}
           documentUrl={prevPostUrl}
           direction="left"
+          
+          documentId={prevPostId}
+          slug={prevPostSlug}
         />
   
         <div className="sequences-navigation-title">
@@ -27,6 +35,9 @@ const CollectionsNavigation = ({
           disabled={!nextPostUrl}
           documentUrl={nextPostUrl}
           direction="right"
+          
+          documentId={nextPostId}
+          slug={nextPostSlug}
         />
       </React.Fragment>}
     </div>

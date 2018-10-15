@@ -190,6 +190,9 @@ class PostsPage extends Component {
           titleUrl={ titleUrl }
           nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
           prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+          
+          nextPostSlug={post.canonicalNextPostSlug}
+          prevPostSlug={post.canonicalPrevPostSlug}
         />
       )
     }

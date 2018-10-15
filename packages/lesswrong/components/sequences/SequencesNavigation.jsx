@@ -21,6 +21,8 @@ const SequencesNavigation = ({
     prevPostUrl={document && prevPost && "/s/" + document._id + (prevPost ? ("/p/" + prevPost._id) : "")}
     title={title}
     titleUrl={titleUrl}
+    nextPostId={nextPost && nextPost._id}
+    prevPostId={prevPost && prevPost._id}
   />
 }
 
