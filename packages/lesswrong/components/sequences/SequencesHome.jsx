@@ -2,6 +2,44 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
+import { withStyles } from '@material-ui/core/styles';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+
+const styles = theme => ({
+  root: {
+    marginRight: 90,
+    
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+    }
+  },
+  
+  header: {
+    paddingLeft: 20,
+    marginBottom: 50,
+  
+    [legacyBreakpoints.maxTiny]: {
+      paddingLeft: 0,
+    }
+  },
+  
+  listTitle: {
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    borderTopStyle: "solid",
+    borderTopWidth: 4,
+
+    "& h1": {
+      marginTop: 7,
+    }
+  },
+  
+  listDescription: {
+    fontSize: 20,
+    marginTop: 30,
+    lineHeight: 1.25,
+  },
+});
 
 const testCollections = [
   {
@@ -33,17 +71,17 @@ const testCollections = [
   }
 ]
 
-const SequencesHome = ({document, currentUser, loading}) => {
+const SequencesHome = ({document, currentUser, loading, classes}) => {
   // TODO: decide on terms for community sequences
-  return <div className="sequences-home">
+  return <div className={classes.root}>
     {/* Title */}
     <Components.Section>
-      <div className="sequences-header">
-        <div className="sequences-list-title">
+      <div className={classes.header}>
+        <div className={classes.listTitle}>
           <h1>The Library</h1>
         </div>
         {/* Description */}
-        <div className="sequences-list-description">
+        <div className={classes.listDescription}>
           Sequences are collections of posts that are curated by the community and
           are structured similarly to books. This is the place where you can find
           the best posts on LessWrong in easy to read formats.
@@ -103,5 +141,6 @@ const SequencesHome = ({document, currentUser, loading}) => {
 registerComponent(
   'SequencesHome',
   SequencesHome,
+  withStyles(styles, {name: "SequencesHome"}),
   //withList(options)
 );
