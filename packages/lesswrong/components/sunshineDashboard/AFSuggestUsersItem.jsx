@@ -1,5 +1,5 @@
 /* global confirm */
-import { Components as C, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components as C, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
@@ -12,27 +12,21 @@ import ClearIcon from '@material-ui/icons/Clear';
 class AFSuggestUsersItem extends Component {
 
   handleReview = () => {
-    const { currentUser, user, editMutation } = this.props
-    let groups = _.clone(user.groups) || []
-    if (!groups.includes('alignmentForum')) {
-      groups.push('alignmentForum')
-    }
-    editMutation({
-      documentId: user._id,
-      set: {
+    const { currentUser, user, updateUser } = this.props
+    updateUser({
+      selector: { _id: user._id },
+      data: {
         reviewForAlignmentForumUserId: currentUser._id,
-        groups: groups
-      },
-      unset: {}
+        groups: _.unique([...user.groups || [], 'alignmentForum'])
+      }
     })
   }
 
   handleIgnore = () => {
-    const { currentUser, user, editMutation } = this.props
-    editMutation({
-      documentId: user._id,
-      set: { reviewForAlignmentForumUserId: currentUser._id },
-      unset: {}
+    const { currentUser, user, updateUser } = this.props
+    updateUser({
+      selector: { _id: user._id },
+      data: { reviewForAlignmentForumUserId: currentUser._id }
     })
   }
 
@@ -88,8 +82,8 @@ AFSuggestUsersItem.propTypes = {
   editMutation: PropTypes.func.isRequired,
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withEdit, withEditOptions], withUser, withHover);
+registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover);
