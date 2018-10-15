@@ -349,10 +349,6 @@
   }
 }
 
-.sequences-navigation-bottom-content {
-  position:relative;
-}
-
 .sequences-navigation-bottom-previous-post, .sequences-navigation-bottom-next-post {
   width: 300px;
   display: inline-block;
@@ -390,10 +386,6 @@
 
 .sequences-navigation-bottom-next-post {
   float: right;
-}
-
-.sequences-navigation-bottom-clear {
-  clear:both;
 }
 
 .sequences-navigation-bottom-divider {
@@ -445,10 +437,6 @@
   padding: 15px;
   font-size: 20px;
   color: rgba(0,0,0,0.7);
-}
-.sequences-navigation-next-sequence-direction {
-  font-weight:600;
-  font-size:1.2rem;
 }
 @include mui-breakpoint-down-sm {
   .sequences-page {
