@@ -174,7 +174,7 @@ const UsersProfile = (props) => {
   } else {
     //eslint-disable-next-line no-console
     console.error(`// missing user (_id/slug: ${props.documentId || props.slug})`);
-    return <div className="page users-profile"><FormattedMessage id="app.404"/></div>
+    return <Components.Error404/>
   }
 }
 

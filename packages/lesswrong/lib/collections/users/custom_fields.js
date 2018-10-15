@@ -340,7 +340,7 @@ Users.addField([
     fieldSchema: {
       type: Array,
       group: formGroups.moderationGroup,
-      canRead: ['members'],
+      canRead: ['guests'],
       canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
       canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
       optional: true,

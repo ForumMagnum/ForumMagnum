@@ -37,6 +37,7 @@ class PostsEditForm extends PureComponent {
             // this.context.events.track("post deleted", {_id: documentId});
           }}
           showRemove={true}
+          submitLabel="Save"
           repeatErrors
         />
       </div>
