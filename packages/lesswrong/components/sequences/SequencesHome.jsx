@@ -97,37 +97,31 @@ const SequencesHome = ({document, currentUser, loading, classes}) => {
       </Components.CollectionsCardContainer>
     </Components.Section>
     {/* Other curated sequences grid (make a sequencesGrid component w/ flexbox) */}
-    <div className="sequences-list-curated-sequences">
-      <Components.Section title="Curated Sequences">
-        <Components.SequencesGridWrapper
-          terms={{'view':'curatedSequences', limit:12}}
-          showAuthor={true}
-          showLoadMore={true}
-        className="community-sequences-grid" />
-      </Components.Section>
-    </div>
+    <Components.Section title="Curated Sequences">
+      <Components.SequencesGridWrapper
+        terms={{'view':'curatedSequences', limit:12}}
+        showAuthor={true}
+        showLoadMore={true}
+      />
+    </Components.Section>
     {/* In-progress sequences grid (make a sequencesGrid component w/ flexbox)*/}
-    {/*<div className="sequences-list-progress-sequences">
-      <Components.Section title="In Progress Sequences">
-        <Components.SequencesGridWrapper terms={communitySeqTerms} className="community-sequences-grid" />
-      </Components.Section>
-    </div> */}
+    {/* <Components.Section title="In Progress Sequences">
+          <Components.SequencesGridWrapper terms={communitySeqTerms} />
+        </Components.Section> */}
     {/* Community sequences list (make a sequencesList w/ roll your own list) */}
     <div>
-      <div className="sequences-list-community-sequences">
-        <Components.Section title="Community Sequences" titleComponent={<div className="recent-posts-title-component users-profile-drafts">
-          <Components.SectionSubtitle>
-            <Link to={"/sequencesnew"}> new sequence </Link>
-          </Components.SectionSubtitle>
-        </div>}>
-          <Components.SequencesGridWrapper
-            terms={{'view':'communitySequences', limit:12}}
-            listMode={true}
-            showAuthor={true}
-            showLoadMore={true}
-          className="community-sequences-grid" />
-        </Components.Section>
-      </div>
+      <Components.Section title="Community Sequences" titleComponent={<div className="recent-posts-title-component users-profile-drafts">
+        <Components.SectionSubtitle>
+          <Link to={"/sequencesnew"}> new sequence </Link>
+        </Components.SectionSubtitle>
+      </div>}>
+        <Components.SequencesGridWrapper
+          terms={{'view':'communitySequences', limit:12}}
+          listMode={true}
+          showAuthor={true}
+          showLoadMore={true}
+        />
+      </Components.Section>
     </div>
 
   </div>;
