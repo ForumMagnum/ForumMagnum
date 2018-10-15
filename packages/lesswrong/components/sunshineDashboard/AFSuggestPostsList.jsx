@@ -6,30 +6,24 @@ import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
-  root: {
-    opacity:.2,
-    '&:hover': {
-      opacity: 1,
-    }
-  },
   icon: {
     marginRight: 4
   }
 })
 
 
-class SuggestAlignmentList extends Component {
+class AFSuggestPostsList extends Component {
   render () {
     const { results, classes } = this.props
     if (results && results.length) {
       return (
-        <div className={classes.root}>
+        <div>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> Suggest for Alignment
+            <Components.OmegaIcon className={classes.icon}/> AF Suggested Posts
           </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
-              <Components.SuggestAlignmentItem post={post}/>
+              <Components.AFSuggestPostsItem post={post}/>
             </div>
           )}
         </div>
@@ -40,7 +34,7 @@ class SuggestAlignmentList extends Component {
   }
 }
 
-SuggestAlignmentList.propTypes = {
+AFSuggestPostsList.propTypes = {
   results: PropTypes.array,
   classes: PropTypes.object.isRequired
 };
@@ -54,9 +48,9 @@ const withListOptions = {
 };
 
 registerComponent(
-  'SuggestAlignmentList',
-  SuggestAlignmentList,
+  'AFSuggestPostsList',
+  AFSuggestPostsList,
   [withList, withListOptions],
   withUser,
-  withStyles(styles, {name: "SuggestAlignmentList"})
+  withStyles(styles, {name: "AFSuggestPostsList"})
 );

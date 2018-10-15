@@ -11,7 +11,7 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 
-class SuggestAlignmentItem extends Component {
+class AFSuggestPostsItem extends Component {
 
   handleMoveToAlignment = () => {
     const { currentUser, post, editMutation } = this.props
@@ -95,7 +95,7 @@ class SuggestAlignmentItem extends Component {
   }
 }
 
-SuggestAlignmentItem.propTypes = {
+AFSuggestPostsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
   editMutation: PropTypes.func.isRequired,
   post: PropTypes.object.isRequired,
@@ -109,8 +109,8 @@ const withEditOptions = {
 }
 
 registerComponent(
-  'SuggestAlignmentItem',
-  SuggestAlignmentItem,
+  'AFSuggestPostsItem',
+  AFSuggestPostsItem,
   [withEdit, withEditOptions],
   withUser,
   withHover

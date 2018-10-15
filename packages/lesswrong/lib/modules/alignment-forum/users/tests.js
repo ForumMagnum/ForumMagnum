@@ -16,22 +16,22 @@ describe('alignment updateUser – ', async () => {
       fieldName:'bio'
     })
   });
-  it("succeeds when alignmentForumAdmin updates user's reviewForAlignmentFormUserId", async () => {
+  it("succeeds when alignmentForumAdmin updates user's reviewForAlignmentForumUserId", async () => {
     const user = await createDummyUser()
     const alignmentAdmin = await createDummyUser({groups:['alignmentForumAdmins']})
     return userUpdateFieldSucceeds({
       user:alignmentAdmin,
       document:user,
-      fieldName:'reviewForAlignmentFormUserId',
+      fieldName:'reviewForAlignmentForumUserId',
       collectionType:'User'
     })
   });
-  it("fails when user update's their reviewForAlignmentFormUserId", async () => {
+  it("fails when user update's their reviewForAlignmentForumUserId", async () => {
     const user = await createDummyUser()
     return userUpdateFieldFails({
       user:user,
       document:user,
-      fieldName:'reviewForAlignmentFormUserId', 
+      fieldName:'reviewForAlignmentForumUserId',
       collectionType:'User'
     })
   });
