@@ -123,6 +123,9 @@ export const customizeTheme = (router, userAgent, params, store) => {
   return muiTheme
 }
 
+// Legacy LW breakpoints
+// We are migrating away from these, towards material-UI's breakpoints. Also
+// defined as a set of SCSS mixin in _breakpoints.scss.
 const lwTiny = "400px";
 const lwSmall = "715px";
 const lwMedium = "950px";
