@@ -231,33 +231,6 @@
   }
 }
 
-.books-item-description {
-  margin-left: 20px;
-  font-size: 20px;
-  line-height: 1.25;
-  margin-right: 28px;
-}
-
-.books-item-subtitle {
-  font-size: 20px;
-  line-height: 1.1;
-  font-style: italic;
-  margin-top: 20px;
-}
-
-.books-item-posts {
-  margin-left: 20px;
-  margin-right: 25px;
-  margin-bottom: 30px;
-  .posts-item {
-    &:hover {
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-    }
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-  }
-}
-
 .posts-page-recommended-reading {
   // height: 200px;
   width: 640px;
