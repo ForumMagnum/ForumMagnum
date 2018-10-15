@@ -181,6 +181,7 @@ const options = {
   queryName: "SequencesPageQuery",
   fragmentName: 'SequencesPageFragment',
   enableTotal: false,
+  ssr: true,
 };
 
 
