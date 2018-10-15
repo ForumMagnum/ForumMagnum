@@ -2,15 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
   },
   description: {
     marginLeft: 20,
-    fontSize: 20,
-    lineHeight: 1.25,
     marginRight: 28,
+    marginBottom: 20,
+    
+    ...postBodyStyles(theme),
   },
   subtitle: {
     fontSize: 20,
