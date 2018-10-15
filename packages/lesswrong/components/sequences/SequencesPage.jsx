@@ -15,6 +15,10 @@ import classNames from 'classnames';
 import withUser from '../common/withUser';
 
 const styles = theme => ({
+  root: {
+    paddingTop: 380,
+    marginRight: 90,
+  },
   title: {
     fontVariant: "small-caps",
     color: "white",
@@ -65,7 +69,7 @@ class SequencesPage extends Component {
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
 
-      return (<div className="sequences-page">
+      return (<div className={classes.root}>
         <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
         <div className="sequences-banner">
           <div className="sequences-banner-wrapper">

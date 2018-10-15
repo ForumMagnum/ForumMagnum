@@ -97,36 +97,31 @@
   }
 }
 
-.sequences-page {
-  padding-top: 380px;
-  margin-right: 90px;
-  .sequences-banner-wrapper {
-    position: relative;
-    height: 380px;
-  }
-  .sequences-meta {
-    margin-top: -4px;
-    line-height: 1.1;
-    color: rgba(0,0,0,0.5);
-  }
+.sequences-banner-wrapper {
+  position: relative;
+  height: 380px;
+}
+.sequences-meta {
+  margin-top: -4px;
+  line-height: 1.1;
+  color: rgba(0,0,0,0.5);
+}
+.sequences-posts-list {
+  margin-top: -10px;
+}
 
-  .sequences-posts-list {
-    margin-top: -10px;
-  }
+.chapters-item-description {
+  margin-left: 10px;
+  font-size: 20px;
+  line-height: 1.25;
+  margin-bottom: 20px;
+}
 
-  .chapters-item-description {
-    margin-left: 10px;
-    font-size: 20px;
-    line-height: 1.25;
-    margin-bottom: 20px;
-  }
-
-  .chapters-item-subtitle {
-    font-size: 20px;
-    line-height: 1.1;
-    font-style: italic;
-    margin-top: 20px;
-  }
+.chapters-item-subtitle {
+  font-size: 20px;
+  line-height: 1.1;
+  font-style: italic;
+  margin-top: 20px;
 }
 
 .sequences-description {
