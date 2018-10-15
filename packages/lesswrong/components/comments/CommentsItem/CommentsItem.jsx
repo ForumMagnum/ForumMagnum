@@ -18,6 +18,7 @@ import Dialog from 'material-ui/Dialog';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
+import withErrorBoundary from '../../common/withErrorBoundary'
 
 const moreActionsMenuStyle = {
   position: 'inherit',
@@ -131,7 +132,7 @@ class CommentsItem extends Component {
     if (comment.body) {
       // Replace Markdown Links with just their display text
       let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
-      
+
       let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
 
       const lastElement = commentExcerpt.slice(-1)[0];
@@ -160,7 +161,7 @@ class CommentsItem extends Component {
       </div>
     )
 
-    if (comment) {
+    if (comment && post) {
       return (
         <div className={
           classNames(
@@ -420,8 +421,15 @@ class CommentsItem extends Component {
       />
 }
 
+CommentsItem.propTypes = {
+  currentUser: PropTypes.object,
+  post: PropTypes.object.isRequired,
+  comment: PropTypes.object.isRequired
+}
+
 registerComponent('CommentsItem', CommentsItem,
   withRouter, withMessages,
-  withStyles(styles, { name: "CommentsItem" })
+  withStyles(styles, { name: "CommentsItem" }),
+  withErrorBoundary
 );
 export default CommentsItem;

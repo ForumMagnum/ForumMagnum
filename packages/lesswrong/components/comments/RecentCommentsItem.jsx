@@ -4,6 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router';
 import FontIcon from 'material-ui/FontIcon';
 import classNames from 'classnames';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
   constructor(props) {
@@ -45,9 +46,9 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const { comment, showTitle, level=1 } = this.props;
+    const { comment, post, showTitle, level=1 } = this.props;
 
-    if (comment) {
+    if (comment && post) {
       return (
         <div
           className={classNames(
@@ -112,4 +113,4 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-registerComponent('RecentCommentsItem', RecentCommentsItem);
+registerComponent('RecentCommentsItem', RecentCommentsItem, withErrorBoundary);
