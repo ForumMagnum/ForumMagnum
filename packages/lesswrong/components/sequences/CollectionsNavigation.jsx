@@ -12,7 +12,7 @@ const CollectionsNavigation = ({
 
   return (
     <div className="sequences-navigation-top">
-      {loading ? <Components.Loading/> : <>
+      {loading ? <Components.Loading/> : <React.Fragment>
         <Components.SequencesNavigationLink
           disabled={!prevPostUrl}
           documentUrl={prevPostUrl}
@@ -28,7 +28,7 @@ const CollectionsNavigation = ({
           documentUrl={nextPostUrl}
           direction="right"
         />
-      </>}
+      </React.Fragment>}
     </div>
   )
 }

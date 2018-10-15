@@ -1,6 +1,5 @@
 import { Components, registerComponent, withDocument, Utils } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
-import { Link } from 'react-router';
 import React from 'react';
 
 const SequencesNavigation = ({
