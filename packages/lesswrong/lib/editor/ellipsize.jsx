@@ -11,11 +11,11 @@ export const highlightFromMarkdown = (body, mdi) => {
 }
 
 export const highlightFromHTML = (html) => {
-  return truncatise(html, {
+  return Utils.sanitize(truncatise(html, {
     TruncateLength: highlightMaxChars,
     TruncateBy: "characters",
     Suffix: "... (Read More)",
-  });
+  }));
 };
 
 export const excerptFromHTML = (html) => {
