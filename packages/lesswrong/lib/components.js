@@ -15,8 +15,6 @@ import '../components/editor/SaveDraftButton.jsx';
 // RSS Feed Integration
 import '../components/feeds/newFeedButton.jsx';
 import '../components/feeds/editFeedButton.jsx';
-import '../components/feeds/feedItem.jsx';
-import '../components/feeds/feedList.jsx';
 
 import '../components/notifications/NotificationsMenu.jsx';
 import '../components/notifications/NotificationsList.jsx';
@@ -64,11 +62,11 @@ import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersAvatar.jsx';
 import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
-import '../components/users/UsersProfileCheck.jsx';
 import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
+import '../components/users/LoginPopupLink.jsx';
 
 // posts
 
@@ -79,7 +77,6 @@ import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/posts/PostsHome.jsx';
 import '../components/posts/PostsSingle.jsx';
-import '../components/posts/PostsNewButton.jsx';
 import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
