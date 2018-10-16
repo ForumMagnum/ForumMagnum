@@ -15,7 +15,6 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from '@material-ui/core/Paper';
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
@@ -308,7 +307,6 @@ registerComponent(
   'PostsItem',
   PostsItem,
   withMutation(mutationOptions),
-  muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem" })
