@@ -13,11 +13,11 @@ const styles = theme => ({
     // metadata lines so they line up with the description.
     marginTop: "93px",
   },
-  
+
   groupName: {
     ...theme.typography.headerStyle,
     fontSize: "30px",
-    
+
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
@@ -25,7 +25,7 @@ const styles = theme => ({
   },
   groupLocation: {
     ...theme.typography.body2,
-    
+
     display: "inline-block",
     color: "rgba(0,0,0,0.7)",
   },
@@ -38,12 +38,12 @@ const styles = theme => ({
   groupDescription: {
     marginLeft: "24px",
     marginBottom: "30px",
-    
+
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
   },
-  
+
   groupDescriptionBody: {
     ...postBodyStyles(theme),
   }
@@ -81,6 +81,7 @@ class LocalGroupPage extends Component {
     const { classes } = this.props;
     const { groupId } = this.props.params;
     const group = this.props.document;
+    const htmlBody = group ? {__html: group.htmlBody} : {_html: ""};
     if (this.props.document) {
       const { googleLocation: { geometry: { location } }} = group;
       return (
@@ -91,15 +92,13 @@ class LocalGroupPage extends Component {
             mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
           />
           <Components.Section titleComponent={this.renderTitleComponent()}>
-            {this.props.document && this.props.document.description && <div className={classes.groupDescription}>
+            {group && <div className={classes.groupDescription}>
               <h2 className={classes.groupName}>{group.name}</h2>
               <div className={classes.groupSubtitle}>
                 <div className={classes.groupLocation}>{group.location}</div>
                 <div className={classes.groupLinks}><Components.GroupLinks document={group} /></div>
               </div>
-              <div className={classes.groupDescriptionBody}>
-              <Components.DraftJSRenderer content={this.props.document.description}/>
-              </div>
+              <div dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
             </div>}
             <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} showHeader={false} />
           </Components.Section>

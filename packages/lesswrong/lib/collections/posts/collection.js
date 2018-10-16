@@ -12,6 +12,30 @@ import Users from 'meteor/vulcan:users';
  * @summary The global namespace for Posts.
  * @namespace Posts
  */
+
+// LESSWRONG - New options
+const options = {
+  newCheck: (user) => {
+    if (!user) return false;
+    return Users.canDo(user, 'posts.new')
+  },
+
+  editCheck: (user, document) => {
+    if (!user || !document) return false;
+    if (Users.canDo(user, 'posts.alignment.move.all') ||
+        Users.canDo(user, 'posts.alignment.suggest')) {
+      return true
+    }
+    return Users.owns(user, document) ? Users.canDo(user, 'posts.edit.own') : Users.canDo(user, `posts.edit.all`)
+  },
+
+  removeCheck: (user, document) => {
+    if (!user || !document) return false;
+    return Users.owns(user, document) ? Users.canDo(user, 'posts.edit.own') : Users.canDo(user, `posts.edit.all`)
+  },
+}
+
+
 export const Posts = createCollection({
 
   collectionName: 'Posts',
@@ -22,7 +46,7 @@ export const Posts = createCollection({
 
   resolvers: getDefaultResolvers('Posts'),
 
-  mutations: getDefaultMutations('Posts'),
+  mutations: getDefaultMutations('Posts', options),
 
 });
 
@@ -68,7 +92,7 @@ Posts.checkAccess = (currentUser, post) => {
     return true;
   } else if (post.isFuture) {
     return false;
-  } else { 
+  } else {
     const status = _.findWhere(Posts.statuses, {value: post.status});
     return Users.canDo(currentUser, `posts.view.${status.label}`);
   }

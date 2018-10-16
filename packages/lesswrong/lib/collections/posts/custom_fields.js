@@ -61,7 +61,8 @@ Posts.addField([
       order: 12,
       control: 'EditUrl',
       placeholder: 'Add a linkpost URL',
-      group: formGroups.options
+      group: formGroups.options,
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins']
     }
   },
   /**
@@ -73,6 +74,7 @@ Posts.addField([
       order: 10,
       placeholder: "Title",
       control: 'EditTitle',
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins']
     },
   },
 
@@ -367,7 +369,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       optional: true,
       label: "Co-Authors",
@@ -429,9 +431,12 @@ Posts.addField([
         fieldName: 'canonicalCollection',
         addOriginalField: true,
         type: "Collection",
-        resolver: generateIdResolverSingle(
-          {collectionName: 'Users', fieldName: 'userId'}
-        ),
+        // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
+        // work out of the box with the id-resolver generators
+        resolver: (post, args, context) => {
+          if (!post.canonicalCollectionSlug) return null;
+          return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        }
       }
     }
   },
@@ -529,7 +534,7 @@ Posts.addField([
       defaultValue: false,
       viewableBy: ['members'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -545,7 +550,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       hidden: true,
       label: "Publish to meta",
@@ -642,7 +647,7 @@ Posts.addField([
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
-      viewableBy: ['members'],
+      viewableBy: ['guests'],
       group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
@@ -681,7 +686,7 @@ Posts.addField([
       type: Array,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       optional: true,
       hidden: true,
       control: "UsersListEditor",
@@ -710,7 +715,7 @@ Posts.addField([
     fieldSchema: {
       type: String,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       optional: true,
       hidden: true,
@@ -778,7 +783,7 @@ Posts.addField([
       type: Date,
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       control: 'datetime',
       label: "Start Time",
@@ -793,7 +798,7 @@ Posts.addField([
       type: Date,
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       control: 'datetime',
       label: "End Time",
@@ -808,7 +813,7 @@ Posts.addField([
       type: Object,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
       blackbox: true,
       optional: true
@@ -822,7 +827,7 @@ Posts.addField([
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       label: "Group Location",
       control: 'LocationFormComponent',
       blackbox: true,
@@ -837,7 +842,7 @@ Posts.addField([
       type: String,
       searchable: true,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       hidden: true,
       optional: true
@@ -866,7 +871,7 @@ Posts.addField([
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       label: "Facebook Event",
       control: "MuiInput",
       optional: true,
@@ -881,7 +886,7 @@ Posts.addField([
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "MuiInput",
       optional: true,
       group: formGroups.event,
@@ -894,7 +899,7 @@ Posts.addField([
       type: Array,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: (props) => !props.eventForm,
       control: 'MultiSelectButtons',
       label: "Group Type:",
@@ -969,7 +974,7 @@ Posts.addField([
       order: 15,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       optional: true,
       control: "UsersListEditor",
       label: "Share draft with users",

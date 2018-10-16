@@ -1,5 +1,4 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import moment from 'moment';
 import { Link } from 'react-router';
 import { Snippet } from 'react-instantsearch/dom';
 import { withStyles } from '@material-ui/core/styles';
@@ -27,7 +26,7 @@ const CommentsSearchHit = ({hit, clickAction, classes}) => {
         <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
         <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>
         <Components.MetaInfo>
-          {moment(new Date(hit.postedAt)).fromNow()}
+          <Components.FromNowDate date={hit.postedAt}/>
         </Components.MetaInfo>
       </div>
       <div className={classes.snippet}>

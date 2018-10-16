@@ -14,7 +14,9 @@ registerFragment(`
     googleLocation
     mongoLocation
     types
-    description
+    htmlBody
+    content
+    body
     contactInfo
     facebookLink
     website

@@ -2,7 +2,7 @@ import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
-const formGroups = {
+export const formGroups = {
   moderationGroup: {
     order:60,
     name: "moderation",
@@ -12,6 +12,7 @@ const formGroups = {
     order:50,
     name: "banUser",
     label: "Ban & Purge User",
+    startCollapsed: true,
   },
   notifications: {
     order: 10,
@@ -22,7 +23,13 @@ const formGroups = {
     order: 15,
     name: "emails",
     label: "Emails"
-  }
+  },
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: "Admin Options",
+    startCollapsed: true,
+  },
 }
 
 Users.addField([
@@ -41,7 +48,8 @@ Users.addField([
   {
     fieldName: 'locale',
     fieldSchema: {
-        hidden: true
+        hidden: true,
+        canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     }
   },
 
@@ -54,7 +62,7 @@ Users.addField([
     fieldName: 'emails',
     fieldSchema: {
       hidden: true,
-      viewableBy: ['members'],
+      canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     }
   },
 
@@ -68,9 +76,9 @@ Users.addField([
       order: 1,
       group: formGroups.emails,
       control: 'UsersEmailVerification',
-      viewableBy: ['members'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -84,9 +92,9 @@ Users.addField([
       optional: true,
       defaultValue: false,
       hidden: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -95,9 +103,9 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       order: 65,
       control: "select",
       form: {
@@ -129,9 +137,9 @@ Users.addField([
       type: Boolean,
       optional: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
       control: 'checkbox',
       label: "Hide Intercom"
     }
@@ -148,9 +156,9 @@ Users.addField([
       type: Boolean,
       optional: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
       control: 'checkbox',
       label: "Activate Markdown Editor"
     }
@@ -160,6 +168,7 @@ Users.addField([
     fieldName: 'email',
     fieldSchema: {
       order: 20,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     }
   },
   {
@@ -167,9 +176,9 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: Users.owns,
-      editableBy: Users.owns,
-      insertableBy: Users.owns,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
       hidden: true,
     }
   },
@@ -178,9 +187,9 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: Users.owns,
-      editableBy: Users.owns,
-      insertableBy: Users.owns,
+      canRead: Users.owns,
+      canUpdate: Users.owns,
+      canCreate: Users.owns,
       hidden: true,
     }
   },
@@ -201,9 +210,9 @@ Users.addField([
       type: String,
       optional: true,
       control: "MuiTextField",
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      viewableBy: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canRead: ['guests'],
       order: 40,
       searchable: true,
       form: {
@@ -223,7 +232,7 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -235,7 +244,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -249,9 +258,9 @@ Users.addField([
       hidden: true,
       optional: true,
       control: "text",
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      viewableBy: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canRead: ['guests'],
       order: 50,
     }
   },
@@ -264,9 +273,9 @@ Users.addField([
       control: "select",
       group: formGroups.moderationGroup,
       label: "Style",
-      viewableBy: ['guests'],
-      editableBy: ['trustLevel1', 'admins'],
-      insertableBy: ['trustLevel1', 'admins'],
+      canRead: ['guests'],
+      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
       blackbox: true,
       order: 55,
       form: {
@@ -290,12 +299,18 @@ Users.addField([
       group: formGroups.moderationGroup,
       label: "Special Guidelines",
       placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
-      viewableBy: ['guests'],
-      editableBy: ['trustLevel1'],
-      insertableBy: ['trustLevel1'],
-      control: 'textarea',
+      canRead: ['guests'],
+      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      control: 'MuiTextField',
       blackbox: true,
       order: 55,
+      form: {
+        hintText:"Bio",
+        rows:4,
+        multiLine:true,
+        fullWidth:true,
+      },
     }
   },
 
@@ -306,9 +321,9 @@ Users.addField([
       optional: true,
       group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
-      viewableBy: ['guests'],
-      editableBy: ['trustLevel1'],
-      insertableBy: ['trustLevel1'],
+      canRead: ['guests'],
+      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
       control: 'checkbox',
       blackbox: true,
       order: 55,
@@ -319,6 +334,7 @@ Users.addField([
     fieldName: 'twitterUsername',
     fieldSchema: {
       hidden: true,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     }
   },
 
@@ -331,9 +347,9 @@ Users.addField([
     fieldSchema: {
       type: Array,
       group: formGroups.moderationGroup,
-      viewableBy: ['members'],
-      editableBy: ['trustLevel1'],
-      insertableBy: ['trustLevel1'],
+      canRead: ['guests'],
+      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
       optional: true,
       label: "Banned Users",
       control: 'UsersListEditor'
@@ -356,9 +372,9 @@ Users.addField([
       type: String,
       hidden: true,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: ['admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -372,9 +388,9 @@ Users.addField([
       type: Boolean,
       optional: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: ['admins'],
+      canCreate: ['members'],
       label: 'Delete this user',
       control: 'checkbox',
       hidden: true,
@@ -393,9 +409,9 @@ Users.addField([
     fieldSchema: {
       type: Object,
       optional: true,
-      viewableBy: ['admins'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['admins'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
       hidden: true,
       blackbox: true,
     }
@@ -410,7 +426,7 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests']
+      canRead: ['guests']
     }
   },
 
@@ -423,9 +439,9 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['admins'],
       control: 'checkbox',
       group: formGroups.banUser,
       label: 'Set all future votes of this user to have zero weight'
@@ -441,9 +457,9 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['admins'],
       control: 'checkbox',
       group: formGroups.banUser,
       label: 'Nullify all past votes'
@@ -459,9 +475,9 @@ Users.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['admins'],
       control: 'checkbox',
       group: formGroups.banUser,
       label: 'Delete all user content'
@@ -477,9 +493,9 @@ Users.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['admins'],
       control: 'datetime',
       label: 'Ban user until',
       group: formGroups.banUser,
@@ -496,7 +512,7 @@ Users.addField([
       type: Array,
       optional: true,
       group: formGroups.banUser,
-      viewableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['sunshineRegiment', 'admins'],
       resolveAs: {
         fieldName: 'IPs',
         type: '[String]',
@@ -532,7 +548,7 @@ Users.addField([
     fieldName: 'auto_subscribe_to_my_comments',
     fieldSchema: {
       group: formGroups.notifications,
-      label: "Notifications For Replies to My Comments"
+      label: "Notifications For Replies to My Comments",
     }
   },
 
@@ -547,9 +563,9 @@ Users.addField([
       group: formGroups.emails,
       control: 'EmailConfirmationRequiredCheckbox',
       label: "Email me new posts in Curated",
-      insertableBy: ['members'],
-      editableBy: ['members'],
-      viewableBy: ['members'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canRead: ['members'],
     }
   },
 
@@ -560,8 +576,8 @@ Users.addField([
   {
     fieldName: 'displayName',
     fieldSchema: {
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     }
   },
 
@@ -574,7 +590,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -588,7 +604,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -602,7 +618,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -611,9 +627,9 @@ Users.addField([
     fieldName: 'mongoLocation',
     fieldSchema: {
       type: Object,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
       blackbox: true,
       optional: true
@@ -624,9 +640,9 @@ Users.addField([
     fieldName: 'googleLocation',
     fieldSchema: {
       type: Object,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       label: "Group Location",
       control: 'LocationFormComponent',
       blackbox: true,
@@ -639,9 +655,9 @@ Users.addField([
     fieldSchema: {
       type: String,
       searchable: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
       hidden: true,
       optional: true
     }
@@ -652,9 +668,9 @@ Users.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['sunshineRegiment', 'admins'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
       hidden: true,
       resolveAs: {
         fieldName: 'reviewedByUser',
@@ -672,7 +688,7 @@ Users.addField([
     fieldSchema: {
       type: Array,
       optional: true,
-      viewableBy: ['admins', 'sunshineRegiment'],
+      canRead: ['admins', 'sunshineRegiment'],
       resolveAs: {
         type: '[Vote]',
         resolver: async (document, args, { Users, Votes, currentUser }) => {
@@ -699,7 +715,7 @@ Users.addField([
       optional: true,
       label: "Alignment Base Score",
       defaultValue: false,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -709,7 +725,7 @@ Users.addField([
       type: Number,
       optional: true,
       label: "Small Upvote Count",
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -718,7 +734,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -727,7 +743,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -736,7 +752,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -745,7 +761,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 ]);

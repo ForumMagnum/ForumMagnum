@@ -6,6 +6,7 @@ import Conversations from '../lib/collections/conversations/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
 import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
+import { runQuery } from 'meteor/vulcan:core';
 
 export const createDefaultUser = async() => {
   // Creates defaultUser if they don't already exist
@@ -24,13 +25,14 @@ export const createDummyPost = async (user, data) => {
     title: Random.id(),
   }
   const postData = {...defaultData, ...data};
-  return await newMutation({
+  const newPostResponse = await newMutation({
     collection: Posts,
     document: postData,
     currentUser: user,
     validate: false,
     context: {},
   });
+  return newPostResponse.data
 }
 
 export const createDummyUser = async (data) => {
@@ -40,12 +42,13 @@ export const createDummyUser = async (data) => {
     email: testUsername + "@test.lesserwrong.com"
   }
   const userData = {...defaultData, ...data};
-  return await newMutation({
+  const newUserResponse = await newMutation({
     collection: Users,
     document: userData,
     validate: false,
     context: {},
-  });
+  })
+  return newUserResponse.data;
 }
 export const createDummyComment = async (user, data) => {
   let defaultData = {
@@ -56,13 +59,14 @@ export const createDummyComment = async (user, data) => {
     defaultData.postId = Posts.findOne()._id; // By default, just grab ID from a random post
   }
   const commentData = {...defaultData, ...data};
-  return await newMutation({
+  const newCommentResponse = await newMutation({
     collection: Comments,
     document: commentData,
     currentUser: user,
     validate: false,
     context: {},
   });
+  return newCommentResponse.data
 }
 
 export const createDummyConversation = async (user, data) => {
@@ -71,13 +75,14 @@ export const createDummyConversation = async (user, data) => {
     participantIds: [user._id],
   }
   const conversationData = {...defaultData, ...data};
-  return await newMutation({
+  const newConversationResponse = await newMutation({
     collection: Conversations,
     document: conversationData,
     currentUser: user,
     validate: false,
     context: {},
   });
+  return newConversationResponse.data
 }
 
 export const createDummyMessage = async (user, data) => {
@@ -86,13 +91,14 @@ export const createDummyMessage = async (user, data) => {
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};
-  return await newMutation({
+  const newMessageResponse = await newMutation({
     collection: Messages,
     document: messageData,
     currentUser: user,
     validate: false,
     context: {},
   });
+  return newMessageResponse.data
 }
 
 export const clearDatabase = async () => {
@@ -124,4 +130,46 @@ export function addTestToCallbackOnce(callbackHook, test, done) {
   }
   Object.defineProperty(testCallback, "name", { value: callbackFunctionName });
   addCallback(callbackHook, testCallback);
+}
+
+export const userUpdateFieldFails = async ({user, document, fieldName, newValue}) => {
+  if (!newValue) {
+    newValue = Random.id()
+  }
+
+  const query = `
+    mutation {
+      updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:"${newValue}"}) {
+        data {
+          ${fieldName}
+        }
+      }
+    }
+  `;
+  const response = runQuery(query,{},{currentUser:user})
+  return response.should.be.rejected;
+}
+
+export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue}) => {
+
+  let comparedValue = newValue
+
+  if (!newValue) {
+    comparedValue = Random.id()
+    newValue = `"${comparedValue}"`
+  }
+
+  const query = ` 
+      mutation {
+        updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:${newValue}}) {
+          data {
+            ${fieldName}
+          }
+        }
+      }
+    `;
+  const response = runQuery(query,{},{currentUser:user})
+  const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
+  return response.should.eventually.deep.equal(expectedOutput);
+
 }
