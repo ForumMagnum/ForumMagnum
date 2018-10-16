@@ -38,7 +38,6 @@ class CommentsItem extends Component {
       showReply: false,
       showEdit: false,
       showReport: false,
-      showStats: false,
       showParent: false
     };
   }
@@ -54,14 +53,6 @@ class CommentsItem extends Component {
   showReport = (event) => {
     event.preventDefault();
     this.setState({showReport: true});
-  }
-
-  showStats = (event) => {
-    event.preventDefault();
-    this.setState({showStats: true});
-  }
-  hideStats = (event) => {
-    this.setState({showStats: false});
   }
 
   showReply = (event) => {
@@ -253,7 +244,6 @@ class CommentsItem extends Component {
             { this.renderSubscribeMenuItem() }
             { this.renderEditMenuItem() }
             { this.renderReportMenuItem() }
-            { this.renderStatsMenuItem() }
             { this.renderDeleteMenuItem() }
             { this.renderMoveToAlignmentMenuItem() }
             { Users.canModeratePost(currentUser, post) &&
@@ -287,24 +277,8 @@ class CommentsItem extends Component {
                 open={true}
               />
             }
-            { this.state.showStats &&
-              <Dialog title="Comment Stats"
-                modal={false}
-                actions={<FlatButton label="Close" primary={true} onClick={ this.hideStats }/>}
-                open={this.state.showStats}
-                onRequestClose={this.hideStats}
-              >
-                <Components.CommentVotesInfo documentId={comment._id} />
-              </Dialog>
-            }
         </div>
       )
-    }
-  }
-
-  renderStatsMenuItem = () => {
-    if (Users.canDo(this.props.currentUser, "comments.edit.all")) {
-      return <MenuItem primaryText="Stats" onClick={this.showStats} />
     }
   }
 
