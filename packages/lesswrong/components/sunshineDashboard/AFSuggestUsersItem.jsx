@@ -20,7 +20,7 @@ class AFSuggestUsersItem extends Component {
       selector: { _id: user._id },
       data: {
         reviewForAlignmentForumUserId: currentUser._id,
-        groups: _.unique([...user.groups || [], 'alignmentForum'])
+        groups: _.unique([...(user.groups || []), 'alignmentForum'])
       }
     })
     this.setState({show:false})

@@ -1,6 +1,7 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import Typography from '@material-ui/core/Typography';
@@ -11,11 +12,11 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 
-class AFSuggestPostsItem extends Component {
+class AFSuggestCommentsItem extends Component {
 
   handleMoveToAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
+    const { currentUser, post, updateComment } = this.props
+    updateComment({
       documentId: post._id,
       set: {
         reviewForAlignmentUserId: currentUser._id,
@@ -27,8 +28,8 @@ class AFSuggestPostsItem extends Component {
   }
 
   handleDisregardForAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
+    const { currentUser, post, updateComment } = this.props
+    updateComment({
       documentId: post._id,
       set: {
         reviewForAlignmentUserId: currentUser._id,
@@ -38,48 +39,31 @@ class AFSuggestPostsItem extends Component {
   }
 
   render () {
-    const { post, currentUser, hover, anchorEl, editMutation } = this.props
+    const { comment, currentUser, hover, anchorEl, updateComment } = this.props
 
-    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
-              { post.title }
+          <Typography variant="body2">
+            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+              Commented on post: <strong>{ comment.post.title }</strong>
             </Link>
+            <Components.CommentBody comment={comment}/>
           </Typography>
-          <br/>
-          <Components.PostsHighlight post={post}/>
         </Components.SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}
-          className="sunshine-sidebar-posts-title">
-            {post.title}
-        </Link>
-        <div>
-          <Components.SidebarInfo>
-            { post.baseScore }
-          </Components.SidebarInfo>
-          <Components.SidebarInfo>
-            <Link to={Users.getProfileUrl(post.user)}>
-                {post.user && post.user.displayName}
-            </Link>
-          </Components.SidebarInfo>
-          {post.postedAt && <Components.SidebarInfo>
-            <Components.FromNowDate date={post.postedAt}/>
-          </Components.SidebarInfo>}
-        </div>
+        <Components.SunshineCommentsItemOverview comment={comment}/>
         <Components.SidebarInfo>
-          Endorsed by { post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user.displayName).join(", ") }
+          Endorsed by { comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user.displayName).join(", ") }
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
+            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Comments.unSuggestForAlignment({currentUser, comment, updateComment})}>
               <UndoIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, editMutation})}>
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Comments.suggestForAlignment({currentUser, comment, updateComment})}>
               <PlusOneIcon/>
             </Components.SidebarAction>
           }
@@ -95,23 +79,23 @@ class AFSuggestPostsItem extends Component {
   }
 }
 
-AFSuggestPostsItem.propTypes = {
+AFSuggestCommentsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
   editMutation: PropTypes.func.isRequired,
-  post: PropTypes.object.isRequired,
+  comment: PropTypes.object.isRequired,
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
 }
 
-const withEditOptions = {
-  collection: Posts,
-  fragmentName: 'SuggestAlignmentPost',
+const withUpdateOptions = {
+  collection: Comments,
+  fragmentName: 'SuggestAlignmentComment',
 }
 
 registerComponent(
-  'AFSuggestPostsItem',
-  AFSuggestPostsItem,
-  [withEdit, withEditOptions],
+  'AFSuggestCommentsItem',
+  AFSuggestCommentsItem,
+  [withUpdate, withUpdateOptions],
   withUser,
   withHover
 );

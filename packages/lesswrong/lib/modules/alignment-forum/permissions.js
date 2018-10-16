@@ -16,7 +16,8 @@ const alignmentForumActions = [
   'posts.alignment.move',
   'posts.alignment.suggest',
   'comments.alignment.new',
-  'comments.alignment.move.all'
+  'comments.alignment.move.all',
+  'comments.alignment.suggest',
 ]
 
 Users.groups.alignmentForum.can(alignmentForumActions);
