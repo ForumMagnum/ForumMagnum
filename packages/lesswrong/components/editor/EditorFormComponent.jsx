@@ -7,7 +7,6 @@ import { editorStyles, postBodyStyles, commentBodyStyles } from '../../themes/st
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import DraftJSEditor from '../async/EditorFormContainer'
-import classNames from 'classnames'
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
