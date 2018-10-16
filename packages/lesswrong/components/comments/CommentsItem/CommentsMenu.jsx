@@ -12,10 +12,14 @@ const styles = theme => ({
     right:0,
     top:0,
     padding: theme.spacing.unit,
+    opacity: .5,
+    '&:hover': {
+      opacity:1
+    }
   },
   icon: {
-    fontSize:"1.4rem",
-    color: theme.palette.grey[400]
+    cursor: "pointer",
+    fontSize:"1.4rem"
   },
   menu: {
     position:"absolute",
