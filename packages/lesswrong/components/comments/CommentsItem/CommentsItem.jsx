@@ -16,6 +16,11 @@ import { commentBodyStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
+  root: {
+    "&:hover $menu": {
+      opacity:1
+    }
+  },
   commentStyling: {
     ...commentBodyStyles(theme)
   },
@@ -28,7 +33,9 @@ const styles = theme => ({
     marginRight: 5,
   },
   menu: {
-    float:"right"
+    float:"right",
+    opacity:.35,
+    marginRight:-5
   }
 })
 
@@ -137,6 +144,7 @@ class CommentsItem extends Component {
       return (
         <div className={
           classNames(
+            classes.root,
             "comments-item",
             "recent-comments-node",
             {

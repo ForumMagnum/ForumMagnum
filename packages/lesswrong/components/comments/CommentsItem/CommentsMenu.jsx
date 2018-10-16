@@ -7,12 +7,6 @@ import Menu from '@material-ui/core/Menu';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  root: {
-    opacity: .5,
-    '&:hover': {
-      opacity:1
-    }
-  },
   icon: {
     cursor: "pointer",
     fontSize:"1.4rem"
@@ -40,7 +34,7 @@ class CommentsMenu extends PureComponent {
     const { children, classes } = this.props
     const { anchorEl } = this.state
     return (
-      <span className={classes.root}>
+      <span>
         <MoreVertIcon
           className={classes.icon}
           onClick={this.handleClick}
