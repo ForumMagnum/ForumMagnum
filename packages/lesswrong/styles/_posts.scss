@@ -758,24 +758,6 @@ svg.drag-handle {
   }
 }
 
-.posts-daily-title-settings {
-  margin-top:10px;
-  width:150px;
-
-  @include mui-breakpoint-up-md {
-    float:right;
-  }
-
-  input {
-    color: black !important;
-  }
-
-  label {
-    margin-top:2px;
-    width:100% !important;
-  }
-}
-
 .posts-daily-content-wrapper {
   margin-top:-12px;
   margin-left:15px;
