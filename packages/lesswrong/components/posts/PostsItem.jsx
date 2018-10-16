@@ -234,9 +234,9 @@ class PostsItem extends PureComponent {
                 </span>
               </div>
             </div>
-            <div className="post-category-display-container" onClick={this.toggleHighlight}>
-              <Components.CategoryDisplay post={post} read={lastVisitedAt || this.state.readStatus}/>
-            </div>
+            <Components.CategoryDisplay
+              onClick={this.toggleHighlight}
+              post={post} read={lastVisitedAt || this.state.readStatus}/>
 
             { renderCommentsButton() }
 
