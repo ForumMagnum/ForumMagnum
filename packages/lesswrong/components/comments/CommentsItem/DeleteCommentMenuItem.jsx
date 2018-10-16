@@ -25,7 +25,7 @@ class DeleteCommentMenuItem extends PureComponent {
       deleted: true,
       deletedPublic: false,
       deletedReason: this.state.deletedReason,
-    }).then(()=>this.props.flash("Successfully deleted comment", "success")).catch(/* error */);
+    }).then(()=>this.props.flash({messageString: "Successfully deleted comment", type: "success"})).catch(/* error */);
     this.setState({open:false})
   }
 
@@ -36,7 +36,7 @@ class DeleteCommentMenuItem extends PureComponent {
       deleted: true,
       deletedPublic: true,
       deletedReason: this.state.deletedReason,
-    }).then(()=>this.props.flash("Successfully deleted comment", "success")).catch(/* error */);
+    }).then(()=>this.props.flash({messageString: "Successfully deleted comment", type: "success"})).catch(/* error */);
     this.setState({open:false})
   }
 
@@ -46,7 +46,7 @@ class DeleteCommentMenuItem extends PureComponent {
       commentId: this.props.comment._id,
       deleted:false,
       deletedReason:"",
-    }).then(()=>this.props.flash("Successfully restored comment", "success")).catch(/* error */);
+    }).then(()=>this.props.flash({messageString: "Successfully restored comment", type: "success"})).catch(/* error */);
   }
 
   render() {

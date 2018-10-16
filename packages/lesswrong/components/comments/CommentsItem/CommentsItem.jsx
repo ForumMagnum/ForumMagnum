@@ -111,7 +111,7 @@ class CommentsItem extends Component {
   }
 
   removeSuccessCallback = ({documentId}) => {
-    this.props.flash("Successfully deleted comment", "success");
+    this.props.flash({messageString: "Successfully deleted comment", type: "success"});
   }
 
   toggleShowParent = () => {

@@ -22,7 +22,7 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
         documentId: this.props.currentUser._id,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
-      }).then(()=>this.props.flash(`User ${this.props.comment.user.displayName} is now banned from commenting on any of your posts`))
+      }).then(()=>this.props.flash({messageString: `User ${this.props.comment.user.displayName} is now banned from commenting on any of your posts`}))
     }
   }
 
