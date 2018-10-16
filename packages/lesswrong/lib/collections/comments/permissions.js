@@ -1,27 +1,16 @@
-import { Comments } from './collection'
 import Users from 'meteor/vulcan:users';
 
-// TODO: IBETA ONLY Only logged-in users can see forum posts
-Comments.checkAccess = (currentUser, comment) => {
-  if (!currentUser) {
-    return false;
-  }
-  if (Users.isAdmin(currentUser)) {
-    return true
-  } else if (Users.owns(currentUser, comment) || Users.isSharedOn(currentUser, comment)) {
-    return true;
-  }
-  if (comment.isFuture || comment.draft) {
-    return false;
-  }
-  return true
-}
 
 /*
 
 Example-forum permissions
 
 */
+
+const guestsActions = [
+  'comments.view'
+];
+Users.groups.guests.can(guestsActions);
 
 const membersActions = [
   'comments.view',

@@ -92,7 +92,7 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    
+
     eventTimes: {
       marginTop: "5px",
       fontSize: "14px",
@@ -105,7 +105,7 @@ const styles = theme => ({
     eventTimeEnd: {
       display: "inline-block",
     },
-    
+
     eventLocation: {
       fontSize: "14px",
       fontWeight: 400,
@@ -220,13 +220,13 @@ class PostsPage extends Component {
       </div>
     }
   }
-  
+
   renderEventTimes = (start, end) => {
     const classes = this.props.classes;
     const timeFormat = 'h:mm A';
     const dateFormat = 'MMMM Do YY, '+timeFormat
     const calendarFormat = {sameElse : dateFormat}
-    
+
     // Neither start nor end time specified
     if (!start && !end) {
       return "TBD";
@@ -325,9 +325,6 @@ class PostsPage extends Component {
     } else if (!document) {
       return <div><FormattedMessage id="app.404"/></div>
     } else {
-
-      // IBETA FORUM
-      if (!currentUser) return <Components.GuestWelcomeScreen />
 
       const post = document
       let query = location && location.query

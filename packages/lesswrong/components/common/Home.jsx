@@ -23,9 +23,6 @@ const Home = (props, context) => {
       recentPostsTitle = "Recent Posts";
   }
 
-  // TODO: IBETA ONLY Only logged-in users should see page content
-  if (!currentUser) return <Components.GuestWelcomeScreen />
-
   return (
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
