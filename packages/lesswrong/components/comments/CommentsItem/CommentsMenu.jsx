@@ -8,10 +8,6 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    position:"absolute",
-    right:0,
-    top:0,
-    padding: theme.spacing.unit,
     opacity: .5,
     '&:hover': {
       opacity:1

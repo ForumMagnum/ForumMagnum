@@ -10,8 +10,6 @@ import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
 import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
 import MenuItem from 'material-ui/MenuItem';
-import FlatButton from 'material-ui/FlatButton';
-import Dialog from 'material-ui/Dialog';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
@@ -28,6 +26,9 @@ const styles = theme => ({
   },
   postTitle: {
     marginRight: 5,
+  },
+  menu: {
+    float:"right"
   }
 })
 
@@ -235,11 +236,11 @@ class CommentsItem extends Component {
   }
 
   renderMenu = () => {
-    const { comment, currentUser } = this.props;
+    const { comment, currentUser, classes } = this.props;
     const post = this.props.post || comment.post;
     if (comment && post) {
       return (
-        <div>
+        <span className={classes.menu}>
           <Components.CommentsMenu>
             { this.renderSubscribeMenuItem() }
             { this.renderEditMenuItem() }
@@ -267,17 +268,17 @@ class CommentsItem extends Component {
                   />
                 ]}
               />}
+              { this.state.showReport &&
+                <Components.ReportForm
+                  commentId={comment._id}
+                  postId={comment.postId}
+                  link={"/posts/" + comment.postId + "/a/" + comment._id}
+                  userId={currentUser._id}
+                  open={true}
+                />
+              }
             </Components.CommentsMenu>
-            { this.state.showReport &&
-              <Components.ReportForm
-                commentId={comment._id}
-                postId={comment.postId}
-                link={"/posts/" + comment.postId + "/a/" + comment._id}
-                userId={currentUser._id}
-                open={true}
-              />
-            }
-        </div>
+        </span>
       )
     }
   }
