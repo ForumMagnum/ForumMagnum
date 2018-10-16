@@ -1,12 +1,17 @@
 import * as Sentry from '@sentry/browser';
+import { getSetting } from 'meteor/vulcan:core'
 
-// Initializing sentry on the client browser
+const sentryUrl = getSetting('sentry.url');
+const sentryEnvironment = getSetting('sentry.environment');
+
 Sentry.init({
-  dsn: 'https://1ab1949fc8d04608b43132f37bb2a1b0@sentry.io/1301611',
+  dsn: sentryUrl,
   beforeBreadcrumb(breadcrumb, hint) {
     if (breadcrumb.level === "error" && breadcrumb.message) {
       Sentry.captureException(breadcrumb.message)
     }
     return breadcrumb
   },
+  environment: sentryEnvironment
 });
+// Initializing sentry on the client browser
