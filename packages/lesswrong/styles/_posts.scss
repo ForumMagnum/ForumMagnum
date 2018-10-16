@@ -370,13 +370,6 @@
   transform: rotate(-90deg);
 }
 
-.posts-commenters-avatars{
-  display: flex;
-  .avatar{
-    margin-right: $hmargin;
-  }
-}
-
 //////////////////////////////////////////////////////
 // Post Page                                        //
 //////////////////////////////////////////////////////
@@ -755,24 +748,6 @@ svg.drag-handle {
 .posts-daily-wrapper {
   @include mui-breakpoint-up-md {
     margin-left:-100px;
-  }
-}
-
-.posts-daily-title-settings {
-  margin-top:10px;
-  width:150px;
-
-  @include mui-breakpoint-up-md {
-    float:right;
-  }
-
-  input {
-    color: black !important;
-  }
-
-  label {
-    margin-top:2px;
-    width:100% !important;
   }
 }
 

@@ -2,9 +2,36 @@ import { Components, registerComponent, getSetting, registerSetting } from 'mete
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Checkbox from 'material-ui/Checkbox';
+import { withStyles } from '@material-ui/core/styles';
+import Checkbox from '@material-ui/core/Checkbox';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
+
+const styles = theme => ({
+  titleSettings: {
+    marginTop: 10,
+    width: 150,
+    
+    [theme.breakpoints.up('md')]: {
+      float: "right"
+    }
+  },
+  checkbox: {
+    padding: 0
+  },
+  checkboxChecked: {
+    // Tone down the material-UI default color to the shade old-material-UI was
+    // using, since the new, darker green doesn't fit the deemphasized position
+    // this element is in.
+    "& svg": {
+      color: "rgba(100, 169, 105, 0.7)"
+    }
+  },
+  checkboxLabel: {
+    ...theme.typography.subheading,
+    marginLeft: 5
+  },
+});
 
 class PostsDaily extends Component {
 
@@ -15,17 +42,17 @@ class PostsDaily extends Component {
     }
   }
 
-  handleKarmaChange = () => {
-    this.setState({hideLowKarma: !this.state.hideLowKarma})
-  }
-
   renderTitle = () => {
-    return <div className="posts-daily-title-settings">
+    const { classes } = this.props;
+    return <div className={classes.titleSettings}>
       <Checkbox
-        label="Hide Low Karma"
+        classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
         checked={this.state.hideLowKarma}
-        onClick={this.handleKarmaChange}
+        onChange={(event, checked) => this.setState({hideLowKarma: checked})}
       />
+      <span className={classes.checkboxLabel}>
+        Hide Low Karma
+      </span>
     </div>
   }
 
@@ -52,4 +79,4 @@ class PostsDaily extends Component {
 
 PostsDaily.displayName = 'PostsDaily';
 
-registerComponent('PostsDaily', PostsDaily);
+registerComponent('PostsDaily', PostsDaily, withStyles(styles, {name: "PostsDaily"}));

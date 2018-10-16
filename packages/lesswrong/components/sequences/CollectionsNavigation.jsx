@@ -18,27 +18,27 @@ const CollectionsNavigation = ({
   return (
     <div className="sequences-navigation-top">
       {loading ? <Components.Loading/> : <React.Fragment>
-        <Components.SequencesNavigationLink
-          disabled={!prevPostUrl}
-          documentUrl={prevPostUrl}
-          direction="left"
-          
-          documentId={prevPostId}
-          slug={prevPostSlug}
-        />
+        {prevPostUrl
+          ? <Components.SequencesNavigationLink
+              documentUrl={prevPostUrl}
+              direction="left"
+              documentId={prevPostId}
+              slug={prevPostSlug} />
+          : <Components.SequencesNavigationLinkDisabled
+              direction="left" />}
   
         <div className="sequences-navigation-title">
           {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
         </div>
   
-        <Components.SequencesNavigationLink
-          disabled={!nextPostUrl}
-          documentUrl={nextPostUrl}
-          direction="right"
-          
-          documentId={nextPostId}
-          slug={nextPostSlug}
-        />
+        {nextPostUrl
+          ? <Components.SequencesNavigationLink
+              documentUrl={nextPostUrl}
+              direction="right"
+              documentId={nextPostUrl && nextPostId}
+              slug={nextPostUrl && nextPostSlug} />
+          : <Components.SequencesNavigationLinkDisabled
+              direction="right" />}
       </React.Fragment>}
     </div>
   )

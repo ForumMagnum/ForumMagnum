@@ -54,9 +54,9 @@ class GroupFormLink extends Component {
             successCallback={group => {
               this.handleCloseGroupForm();
               if (this.props.documentId) {
-                this.props.flash("Successfully edited local group " + group.name);
+                this.props.flash({messageString: "Successfully edited local group " + group.name});
               } else {
-                this.props.flash("Successfully created new local group " + group.name)
+                this.props.flash({messageString: "Successfully created new local group " + group.name})
                 this.props.router.push({pathname: '/groups/' + group._id});
               }
             }}

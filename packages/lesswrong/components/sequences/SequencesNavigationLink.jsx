@@ -9,7 +9,8 @@ import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 
-const styles = theme => ({
+// Shared with SequencesNavigationLinkDisabled
+export const styles = theme => ({
   root: {
     padding: 0,
     margin: 12,
@@ -27,7 +28,6 @@ const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({
-  disabled,
   document,
   documentUrl,
   loading,
@@ -35,19 +35,18 @@ const SequencesNavigationLink = ({
   router,
   classes}
 ) => {
-  const post = !disabled && document
   const button = (
     <IconButton
       classes={{
-        root: classnames(classes.root, disabled ? classes.disabled : classes.normal)
+        root: classnames(classes.root, classes.normal)
       }}
-      disabled={disabled}
-      onClick={() => router.push(documentUrl)}>
+      onClick={() => router.push(documentUrl)}
+    >
       { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
-     </IconButton>
-   )
-  if (post && post.title) {
-    return <Tooltip title={post.title}>{button}</Tooltip>
+    </IconButton>
+  )
+  if (document && document.title) {
+    return <Tooltip title={document.title}>{button}</Tooltip>
   } else {
     return button;
   }
@@ -58,6 +57,7 @@ const options = {
   queryName: "SequencesPostNavigationLinkQuery",
   fragmentName: 'SequencesPostNavigationLink',
   enableTotal: false,
+  ssr: true
 }
 
 registerComponent('SequencesNavigationLink', SequencesNavigationLink,

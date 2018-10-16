@@ -112,6 +112,11 @@ class EditorForm extends Component {
   }
 
   focus = () => {
+    // FIXME: This gets called when you click in the area the text editor has
+    // been allocated, but which it hasn't filled, ie, below the text. So it
+    // should put the cursor at the end of your partially written post/comment.
+    // But instead it restores the cursor to wherever it was when the editor
+    // lost focus.
     this._ref && this._ref.focus();
   }
 
@@ -120,13 +125,16 @@ class EditorForm extends Component {
 
     const InlineToolbar = this.plugins[0].InlineToolbar;
     const AlignmentTool = this.plugins[1].AlignmentTool;
-    const className = classNames({
-      "content-editor-is-empty": !editorState.getCurrentContent().hasText()
-    });
 
     return (
       <div>
-        <div className={className} onClick={this.focus}>
+        <div
+          className={classNames(
+            { "content-editor-is-empty": !editorState.getCurrentContent().hasText() },
+            this.props.className
+          )}
+          onClick={this.focus}
+        >
           <Editor
             editorState={editorState}
             onChange={onChange}

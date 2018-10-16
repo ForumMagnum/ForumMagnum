@@ -3,7 +3,6 @@ import { withRouter } from 'react-router';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import { withStyles } from '@material-ui/core/styles';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
@@ -76,7 +75,6 @@ class CommentsNode extends PureComponent {
       highlightDate,
       editMutation,
       post,
-      muiTheme,
       router,
       postPage,
       classes,
@@ -144,7 +142,6 @@ class CommentsNode extends PureComponent {
                     //eslint-disable-next-line react/no-children-prop
                     children={child.children}
                     key={child.item._id}
-                    muiTheme={muiTheme}
                     highlightDate={highlightDate}
                     editMutation={editMutation}
                     post={post}
@@ -168,6 +165,6 @@ CommentsNode.propTypes = {
 };
 
 registerComponent('CommentsNode', CommentsNode,
-  withRouter, muiThemeable(),
+  withRouter,
   withStyles(styles, { name: "CommentsNode" })
 );

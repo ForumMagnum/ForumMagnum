@@ -45,7 +45,7 @@ const UsersEditForm = (props) => {
     <div className="page users-edit-form">
       <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
       <Button color="secondary" variant="outlined" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
-          (error) => props.flash(error ? error.reason : "Sent password reset email to " + props.currentUser.email))
+          (error) => props.flash({ messageString: error ? error.reason : "Sent password reset email to " + props.currentUser.email }))
         }>
         Reset Password
       </Button>

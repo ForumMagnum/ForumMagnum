@@ -15,7 +15,6 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from '@material-ui/core/Paper';
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
@@ -235,9 +234,9 @@ class PostsItem extends PureComponent {
                 </span>
               </div>
             </div>
-            <div className="post-category-display-container" onClick={this.toggleHighlight}>
-              <Components.CategoryDisplay post={post} read={lastVisitedAt || this.state.readStatus}/>
-            </div>
+            <Components.CategoryDisplay
+              onClick={this.toggleHighlight}
+              post={post} read={lastVisitedAt || this.state.readStatus}/>
 
             { renderCommentsButton() }
 
@@ -308,7 +307,6 @@ registerComponent(
   'PostsItem',
   PostsItem,
   withMutation(mutationOptions),
-  muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem" })
