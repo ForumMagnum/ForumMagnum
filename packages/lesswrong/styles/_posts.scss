@@ -542,7 +542,6 @@ svg.drag-handle {
     vertical-align: middle;
     font-variant: small-caps;
     line-height: 24px;
-    height: 42.5px;
     color: rgba(0,0,0,0.5);
     margin-top: -10p;
 
@@ -554,7 +553,8 @@ svg.drag-handle {
 .sequences-navigation-top, .posts-page-group-details {
     text-align: center;
     margin-top: -15px;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    min-height: 48px;
 }
 
 .post-category-display-container {

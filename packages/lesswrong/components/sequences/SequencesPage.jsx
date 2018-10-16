@@ -13,16 +13,61 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { postBodyStyles } from '../../themes/stylePiping'
+
+// TODO: Styling overhaul.
 
 const styles = theme => ({
+  root: {
+    paddingTop: 380,
+    marginRight: 90,
+    
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+    },
+  },
+  titleWrapper: {
+  },
   title: {
     fontVariant: "small-caps",
     color: "white",
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    
+    [theme.breakpoints.down('sm')]: {
+    },
   },
-  htmlDescription: {
-    ...theme.typography.postStyle
-  }
+  description: {
+    marginLeft: 10,
+    ...postBodyStyles(theme),
+  },
+  banner: {
+    position: "absolute",
+    left: 0,
+    top: 60,
+    width: "100vw",
+    height: 380,
+    [legacyBreakpoints.maxTiny]: {
+      top: 40,
+    },
+    "& img": {
+      width: "100vw",
+    },
+  },
+  bannerWrapper: {
+    position: "relative",
+    height: 380,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  meta: {
+    marginTop: -4,
+    lineHeight: 1.1,
+    color: "rgba(0,0,0,0.5)",
+    
+    [theme.breakpoints.down('sm')]: {
+      textAlign: "center",
+    },
+  },
 })
 
 class SequencesPage extends Component {
@@ -65,10 +110,10 @@ class SequencesPage extends Component {
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
 
-      return (<div className="sequences-page">
+      return (<div className={classes.root}>
         <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
-        <div className="sequences-banner">
-          <div className="sequences-banner-wrapper">
+        <div className={classes.banner}>
+          <div className={classes.bannerWrapper}>
             <NoSSR>
               <div className="sequences-image">
                 <Components.CloudinaryImage
@@ -79,7 +124,7 @@ class SequencesPage extends Component {
                 <div className="sequences-image-scrim-overlay"></div>
               </div>
             </NoSSR>
-            <div className="sequences-title-wrapper">
+            <div className={classNames(classes.titleWrapper, "sequences-title-wrapper")}>
               <Typography variant='display2' className={classNames("sequences-title", classes.title)}>
                 {document.draft && <span className="sequences-page-content-header-title-draft">[Draft] </span>}{document.title}
               </Typography>
@@ -87,7 +132,7 @@ class SequencesPage extends Component {
           </div>
         </div>
         <Components.Section titleComponent={
-          <div className="sequences-meta">
+          <div className={classes.meta}>
             <Typography variant="subheading"><strong>
               <Components.SimpleDate date={document.createdAt}/>
             </strong></Typography>
@@ -103,10 +148,8 @@ class SequencesPage extends Component {
             {canEdit && <Components.SectionSubtitle>
               <a onClick={this.showEdit}>edit</a></Components.SectionSubtitle>}
           </div>}>
-          <div className="sequences-description content-body">
-            <Typography variant="body1" className={classes.htmlDescription}>
-              {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
-            </Typography>
+          <div className={classNames(classes.description, "content-body")}>
+            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
           </div>
         </Components.Section>
         <div className="sequences-chapters">
@@ -132,6 +175,7 @@ const options = {
   queryName: "SequencesPageQuery",
   fragmentName: 'SequencesPageFragment',
   enableTotal: false,
+  ssr: true,
 };
 
 

@@ -157,13 +157,14 @@ class PostsPage extends Component {
     } else if (canonicalCollectionSlug && title && titleUrl) {
       return (
         <Components.CollectionsNavigation
-                  title={ title }
-                  titleUrl={ titleUrl }
-                  nextPostSlug={ post.canonicalNextPostSlug }
-                  prevPostSlug={ post.canonicalPrevPostSlug }
-                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
-                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-                />
+          title={ title }
+          titleUrl={ titleUrl }
+          nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+          prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+          
+          nextPostSlug={post.canonicalNextPostSlug}
+          prevPostSlug={post.canonicalPrevPostSlug}
+        />
       )
     }
   }
