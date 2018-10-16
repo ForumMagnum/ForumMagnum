@@ -70,6 +70,13 @@ Users.addField([
     fieldSchema: {
       canUpdate: ['alignmentForumAdmins', 'admins'],
     }
-  }
+  },
+  {
+    fieldName: 'groups.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
 
 ]);

@@ -65,6 +65,12 @@ Users.addField([
       canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     }
   },
+  {
+    fieldName: 'emails.$',
+    fieldSchema: {
+      type: Object,
+    }
+  },
 
   /**
   */
