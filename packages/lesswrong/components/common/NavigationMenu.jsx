@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
-import Divider from 'material-ui/Divider';
+import Divider from '@material-ui/core/Divider';
 import { Link } from 'react-router';
 
 const NavigationMenu = ({open, handleClose, handleToggle}) => {
