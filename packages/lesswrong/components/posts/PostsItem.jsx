@@ -15,7 +15,7 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from '@material-ui/core/Paper';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
@@ -142,9 +142,9 @@ class PostsItem extends PureComponent {
     return (
       <div className="posts-item-highlight-footer" >
         <span className="posts-item-hide-highlight" onClick={this.toggleHighlight}>
-          <FontIcon className={classNames("material-icons")}>
+          <Icon className={classNames("material-icons")}>
             subdirectory_arrow_left
-          </FontIcon>
+          </Icon>
           Collapse
         </span>
         <Link to={this.getPostLink()}>
@@ -220,16 +220,16 @@ class PostsItem extends PureComponent {
                   { this.state.showHighlight ?
                     <Components.MetaInfo>
                       Hide Highlight
-                      <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                      <Icon className={classNames("material-icons","hide-highlight-button")}>
                         subdirectory_arrow_left
-                      </FontIcon>
+                      </Icon>
                     </Components.MetaInfo>
                   :
                   <Components.MetaInfo>
                     Show Highlight
-                    <FontIcon className={classNames("material-icons","show-highlight-button")}>
+                    <Icon className={classNames("material-icons","show-highlight-button")}>
                       subdirectory_arrow_left
-                    </FontIcon>
+                    </Icon>
                   </Components.MetaInfo>  }
                 </span>
               </div>
@@ -252,9 +252,9 @@ class PostsItem extends PureComponent {
             <div className="posts-item-new-comments-section">
               <div className="post-item-new-comments-header">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <FontIcon className={classNames("material-icons")}>
+                  <Icon className={classNames("material-icons")}>
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                   Collapse
                 </span>
                 <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
@@ -270,9 +270,9 @@ class PostsItem extends PureComponent {
               />
               <div className="post-item-new-comments-footer">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <FontIcon className={classNames("material-icons")}>
+                  <Icon className={classNames("material-icons")}>
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                   Collapse
                 </span>
                 <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
