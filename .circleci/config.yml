@@ -125,7 +125,7 @@ jobs:
       - checkout
       - run:
           name: print settings.json
-          command: printf $settings
+          command: printenv
 
 workflows:
   version: 2
