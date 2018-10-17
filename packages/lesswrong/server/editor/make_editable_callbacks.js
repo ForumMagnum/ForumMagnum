@@ -126,7 +126,7 @@ export function addEditableCallbacks({collection, options = {}}) {
       newFields = await convertFromMarkdownAsync(doc.body, fieldName)
       newDoc = {...doc, ...newFields}
     } else if (doc.htmlBody) {
-      newFields = convertFromHTML(doc.htmlBody, !author.isAdmin, fieldName);
+      newFields = convertFromHTML(doc.htmlBody, !(author && author.isAdmin), fieldName);
       newDoc = {...doc, ...newFields}
     }
     return newDoc
@@ -145,7 +145,7 @@ export function addEditableCallbacks({collection, options = {}}) {
       newModifier.$set = {...modifier.$set, ...newFields}
       if (modifier.$unset) {delete modifier.$unset.htmlBody}
     } else if (modifier.$set && modifier.$set.htmlBody) {
-      newFields = convertFromHTML(modifier.$set.htmlBody, !author.isAdmin, fieldName);
+      newFields = convertFromHTML(modifier.$set.htmlBody, !(author && author.isAdmin), fieldName);
       newModifier.$set = {...modifier.$set, ...newFields}
     }
     return newModifier
