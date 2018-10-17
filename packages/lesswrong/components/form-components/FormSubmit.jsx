@@ -139,6 +139,7 @@ FormSubmit.contextTypes = {
 }
 
 
+// Replaces FormSubmit from vulcan-forms.
 replaceComponent('FormSubmit', FormSubmit,
   withUser, withTheme(),
   withStyles(styles, { name: "FormSubmit" })

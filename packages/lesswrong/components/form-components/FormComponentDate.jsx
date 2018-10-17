@@ -14,4 +14,6 @@ class FormComponentDate extends Component {
   }
 }
 
+// Replaces FormComponentDate from vulcan-ui-bootstrap
+// TODO: This may not work right in nested contexts.
 registerComponent("FormComponentDate", FormComponentDate);

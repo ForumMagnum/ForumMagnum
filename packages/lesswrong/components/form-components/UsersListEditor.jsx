@@ -134,6 +134,8 @@ UsersListEditor.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
+// TODO: Does not work in nested contexts because it doesn't use the
+// vulcan-forms APIs correctly.
 registerComponent("UsersListEditor", UsersListEditor,
   withUser,
   withStyles(usersListEditorStyles, { name: "UsersListEditor" })

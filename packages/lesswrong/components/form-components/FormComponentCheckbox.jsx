@@ -21,26 +21,9 @@ const styles = theme => ({
   }
 })
 
-class MuiCheckbox extends Component {
+class FormComponentCheckbox extends Component {
   constructor(props, context) {
     super(props,context);
-    this.state = {
-      checked: props.document && props.document[props.name] || false
-    }
-  }
-
-  componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({checked: false}))
-    this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || false
-    })
-  }
-
-  onChange = (event) => {
-    this.setState({checked: !this.state.checked})
-    this.context.updateCurrentValues({
-      [this.props.name]: !this.state.checked
-    })
   }
 
   render() {
@@ -48,8 +31,12 @@ class MuiCheckbox extends Component {
     return <div className={classes.root}>
         <Checkbox
           className={classes.size}
-          checked={this.state.checked}
-          onClick={this.onChange}
+          checked={this.props.value}
+          onChange={(event, checked) => {
+            this.context.updateCurrentValues({
+              [this.props.path]: checked
+            })
+          }}
           disabled={disabled}
           disableRipple
         />
@@ -58,9 +45,10 @@ class MuiCheckbox extends Component {
   }
 }
 
-MuiCheckbox.contextTypes = {
+FormComponentCheckbox.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("FormComponentCheckbox", MuiCheckbox, withStyles(styles, { name: "FormComponentCheckbox" }));
+// Replaces FormComponentCheckbox from vulcan-ui-bootstrap
+registerComponent("FormComponentCheckbox", FormComponentCheckbox, withStyles(styles, { name: "FormComponentCheckbox" }));

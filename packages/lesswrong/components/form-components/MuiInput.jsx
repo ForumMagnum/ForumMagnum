@@ -57,4 +57,6 @@ MuiInput.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
+// TODO: Does not work in nested contexts because it doesn't use the
+// vulcan-forms APIs correctly.
 registerComponent("MuiInput", MuiInput, withStyles(styles, { name: "MuiInput" }));
