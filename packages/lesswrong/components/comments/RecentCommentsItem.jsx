@@ -1,10 +1,10 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router';
 import FontIcon from 'material-ui/FontIcon';
 import classNames from 'classnames';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
   constructor(props) {
@@ -46,9 +46,9 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const { comment, showTitle, level=1 } = this.props;
+    const { comment, post, showTitle, level=1 } = this.props;
 
-    if (comment) {
+    if (comment && post) {
       return (
         <div
           className={classNames(
@@ -89,7 +89,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
                       <div className="comments-item-date">
-                        {moment(new Date(comment.postedAt)).fromNow()}
+                        <Components.FromNowDate date={comment.postedAt}/>
                         <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
                       </div>
                       { showTitle && comment.post && comment.post.title}
@@ -113,4 +113,4 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-registerComponent('RecentCommentsItem', RecentCommentsItem);
+registerComponent('RecentCommentsItem', RecentCommentsItem, withErrorBoundary);

@@ -100,6 +100,7 @@ class EditorFormContainer extends Component {
   }
 
   render() {
+    const { className } = this.props;
     const { editorState } = this.state;
     return (
       <EditorForm
@@ -107,6 +108,7 @@ class EditorFormContainer extends Component {
         editorState={editorState}
         onChange={this.onChange}
         commentEditor={this.props.form && this.props.form.commentEditor}
+        className={className}
       />
     )
   }

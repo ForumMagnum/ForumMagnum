@@ -11,14 +11,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
-import { LinkContainer } from 'react-router-bootstrap';
-import DropdownButton from 'react-bootstrap/lib/DropdownButton';
-import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
-import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
@@ -52,10 +47,8 @@ const styles = theme => ({
     voteDivider: {
       borderTopColor: theme.palette.grey[600],
       width: 80,
-      WebkitMarginBefore: 0,
-      WebkitMarginAfter: 0,
-      WebkitMarginStart: 0,
-      WebkitMarginEnd: 0
+      marginLeft: 0,
+      marginRight: 0,
     },
     author: {
       marginTop: 18,
@@ -92,20 +85,13 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    
+
     eventTimes: {
       marginTop: "5px",
       fontSize: "14px",
       lineHeight: 1.25,
       fontWeight: 600,
     },
-    eventTimeStart: {
-      display: "inline-block",
-    },
-    eventTimeEnd: {
-      display: "inline-block",
-    },
-    
     eventLocation: {
       fontSize: "14px",
       fontWeight: 400,
@@ -123,31 +109,6 @@ const styles = theme => ({
 })
 
 class PostsPage extends Component {
-  renderCommentViewSelector() {
-
-    let views = ["top", "new"];
-    const query = _.clone(this.props.router.location.query);
-
-    return (
-      <DropdownButton
-        bsStyle="default"
-        className="views btn-secondary"
-        title={this.context.intl.formatMessage({id: "posts.view"})}
-        id="views-dropdown"
-      >
-        {views.map(view =>
-          <LinkContainer key={view} to={{pathname: this.props.router.location.pathname, query: {...query, view: view}}} className="dropdown-item">
-            <MenuItem>
-              { /* borrow the text from post views */ }
-              <FormattedMessage id={"posts."+view}/>
-            </MenuItem>
-          </LinkContainer>
-        )}
-      </DropdownButton>
-    )
-
-  }
-
   getCommentCountStr = (post) => {
     let count = Posts.getCommentCount(post)
 
@@ -196,13 +157,14 @@ class PostsPage extends Component {
     } else if (canonicalCollectionSlug && title && titleUrl) {
       return (
         <Components.CollectionsNavigation
-                  title={ title }
-                  titleUrl={ titleUrl }
-                  nextPostSlug={ post.canonicalNextPostSlug }
-                  prevPostSlug={ post.canonicalPrevPostSlug }
-                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
-                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-                />
+          title={ title }
+          titleUrl={ titleUrl }
+          nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+          prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+          
+          nextPostSlug={post.canonicalNextPostSlug}
+          prevPostSlug={post.canonicalPrevPostSlug}
+        />
       )
     }
   }
@@ -212,52 +174,12 @@ class PostsPage extends Component {
     const { classes } = this.props
     if (post.isEvent) {
       return <div className={classes.eventTimes}>
-        {this.renderEventTimes(post.startTime, post.endTime)}
+        <Components.EventTime post={post} dense={false} />
       </div>
     } else {
       return <div className={classes.subtitle}>
-        {moment(post.postedAt).format('MMM D, YYYY')}
+        <Components.SimpleDate date={post.postedAt}/>
       </div>
-    }
-  }
-  
-  renderEventTimes = (start, end) => {
-    const classes = this.props.classes;
-    const timeFormat = 'h:mm A';
-    const dateFormat = 'MMMM Do YY, '+timeFormat
-    const calendarFormat = {sameElse : dateFormat}
-    
-    // Neither start nor end time specified
-    if (!start && !end) {
-      return "TBD";
-    }
-    // Start time specified, end time missing. Use
-    // moment.calendar, which has a bunch of its own special
-    // cases like "tomorrow".
-    // (Or vise versa. Specifying end time without specifying start time makes
-    // less sense, but users can enter silly things.)
-    else if (!start || !end) {
-      const eventTime = start ? start : end;
-      return moment(eventTime).calendar({}, calendarFormat)
-    }
-    // Both start end end time specified
-    else {
-      // If the start and end time are on the same date, render it like:
-      //   January 15 13:00-15:00
-      // If they're on different dates, render it like:
-      //   January 15 19:00 to January 16 12:00
-      if (moment(start).format("YYYY-MM-DD") === moment(end).format("YYYY-MM-DD")) {
-        return moment(start).format(dateFormat) + '-' + moment(end).format(timeFormat);
-      } else {
-        return (<span>
-          <span className={classes.eventTimeStart}>
-            From: {moment(start).calendar({}, calendarFormat)}
-          </span>
-          <span className={classes.eventTimeEnd}>
-            To: {moment(end).calendar({}, calendarFormat)}
-          </span>
-        </span>);
-      }
     }
   }
 
@@ -323,7 +245,7 @@ class PostsPage extends Component {
     if (loading) {
       return <div><Components.Loading/></div>
     } else if (!document) {
-      return <div><FormattedMessage id="app.404"/></div>
+      return <Components.Error404/>
     } else {
 
       const post = document

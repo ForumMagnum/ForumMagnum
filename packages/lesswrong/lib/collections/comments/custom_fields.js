@@ -6,6 +6,13 @@ import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
+const moderationOptionsGroup = {
+  order: 50,
+  name: "moderation",
+  label: "Moderator Options",
+  startCollapsed: true
+};
+
 Comments.addField([
 
   /**
@@ -244,6 +251,7 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
+      group: moderationOptionsGroup,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
       insertableBy: ['sunshineRegiment', 'admins'],
@@ -292,6 +300,7 @@ Comments.addField([
     fieldName: 'hideAuthor',
     fieldSchema: {
       type: Boolean,
+      group: moderationOptionsGroup,
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins'],

@@ -14,11 +14,12 @@ Votes.addField([
 ]);
 
 VoteableCollections.forEach(collection => {
-  // Replace currentUserVotes and allVotes with our own implementations. The
-  // default implementations from vulcan-voting don't have batching, which makes
-  // them veeeery slow when applied to votes on comments.
-  collection.removeField("currentUserVotes");
-  collection.removeField("allVotes");
+  // Replace currentUserVotes and allVotes resolvers with our own
+  // implementations. The default implementations from vulcan-voting don't
+  // have batching, which makes them veeeery slow when applied to votes on
+  // comments.
+  collection.removeField(["currentUserVotes", "currentUserVotes.$"]);
+  collection.removeField(["allVotes", "allVotes.$"]);
   collection.addField([
     {
       fieldName: 'currentUserVotes',
@@ -38,6 +39,13 @@ VoteableCollections.forEach(collection => {
       }
     },
     {
+      fieldName: 'currentUserVotes.$',
+      fieldSchema: {
+        type: Object,
+        optional: true
+      }
+    },
+    {
       fieldName: 'allVotes',
       fieldSchema: {
         type: Array,
@@ -51,6 +59,13 @@ VoteableCollections.forEach(collection => {
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
         }
+      }
+    },
+    {
+      fieldName: 'allVotes.$',
+      fieldSchema: {
+        type: Object,
+        optional: true
       }
     },
     {

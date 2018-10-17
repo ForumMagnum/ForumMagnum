@@ -22,6 +22,7 @@ const options = {
   fragmentName: 'SequencesPageFragment',
   enableTotal: false,
   enableCache: true,
+  ssr: true,
 }
 
 

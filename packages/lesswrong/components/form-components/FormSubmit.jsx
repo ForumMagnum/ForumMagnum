@@ -31,8 +31,8 @@ const styles = theme => ({
 });
 
 const FormSubmit = ({
-                      submitLabel,
-                      cancelLabel,
+                      submitLabel = "Submit",
+                      cancelLabel = "Cancel",
                       cancelCallback,
                       document,
                       deleteDocument,
@@ -100,7 +100,7 @@ const FormSubmit = ({
           cancelCallback(document)
         }}
       >
-        Cancel
+        {cancelLabel}
       </Button>
     }
 
@@ -110,7 +110,7 @@ const FormSubmit = ({
       className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
       variant={collectionName=="users" ? "outlined" : undefined}
     >
-      Submit
+      {submitLabel}
     </Button>
 
     {collectionName === "comments" && document && document.postId && <span className="comment-submit-buttons">
