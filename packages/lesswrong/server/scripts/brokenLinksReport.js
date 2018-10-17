@@ -59,6 +59,7 @@ async function urlIsBroken(url)
     if (result.statusCode >= 300 && result.statusCode <= 399) {
       // Redirect. In principle this shouldn't happen because meteor's HTTP.call
       // is documented to follow redirects by default. But maybe it does happen.
+      //eslint-disable-next-line no-console
       console.log("Got "+result.statusCode+" redirect on "+absoluteUrl);
       return false;
     } else if (result.statusCode !== 200) {
