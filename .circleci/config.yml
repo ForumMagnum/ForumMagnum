@@ -126,7 +126,7 @@ jobs:
       - run:
           name: print settings.json
           command: |
-            printf $settings > settings.json
+            echo "$settings" > settings.json
             cat settings.json
 
 workflows:
