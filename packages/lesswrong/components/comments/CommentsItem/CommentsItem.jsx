@@ -8,7 +8,7 @@ import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import FontIcon from 'material-ui/FontIcon';
-import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
+import ArrowRight from '@material-ui/icons/ArrowRight';
 import MenuItem from 'material-ui/MenuItem';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
@@ -260,7 +260,7 @@ class CommentsItem extends Component {
               <MenuItem
                 className="comment-menu-item-ban-user-submenu"
                 primaryText="Ban User"
-                rightIcon={<ArrowDropRight />}
+                rightIcon={<ArrowRight />}
                 menuItems={[
                   <Components.BanUserFromPostMenuItem
                     key='banUserFromPost'
