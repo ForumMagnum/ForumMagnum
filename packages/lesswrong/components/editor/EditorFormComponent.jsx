@@ -13,13 +13,13 @@ const commentEditorHeight = 100;
 
 const styles = theme => ({
   postEditor: {
-    "& textarea": {
+    "&, & textarea": {
       minHeight: postEditorHeight,
       ...editorStyles(theme, postBodyStyles)
     },
   },
   commentEditor: {
-    "& textarea": {
+    "&, & textarea": {
       minHeight: commentEditorHeight,
       ...editorStyles(theme, commentBodyStyles)
     },
