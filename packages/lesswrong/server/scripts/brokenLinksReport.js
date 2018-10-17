@@ -4,13 +4,15 @@ import Users from 'meteor/vulcan:users';
 import { Utils } from 'meteor/vulcan:core';
 import htmlparser2 from 'htmlparser2';
 import { HTTP } from 'meteor/http';
-import url from 'url';
+import { URL } from 'url';
+import fs from 'fs';
 
 const whitelistedImageHosts = [
   "lesswrong.com",
   "www.lesswrong.com",
   "res.cloudinary.com"
 ];
+const baseUrl = "http://www.lesswrong.com";
 
 // Parse an HTML string and return an array of URLs of images it refers to in
 // <img> tags.
@@ -53,8 +55,14 @@ function getLinksInHtml(html)
 async function urlIsBroken(url)
 {
   try {
-    let result = HTTP.call('GET', url, {timeout: 5000});
-    if (result.statusCode !== 200) {
+    let absoluteUrl = new URL(url, baseUrl).toString();
+    let result = HTTP.call('GET', absoluteUrl, {timeout: 5000});
+    if (result.statusCode >= 300 && result.statusCode <= 399) {
+      // Redirect. In principle this shouldn't happen because meteor's HTTP.call
+      // is documented to follow redirects by default. But maybe it does happen.
+      console.log("Got "+result.statusCode+" redirect on "+absoluteUrl);
+      return false;
+    } else if (result.statusCode !== 200) {
       return true;
     } else {
       return false;
@@ -66,7 +74,7 @@ async function urlIsBroken(url)
 
 function imageIsOffsite(imageUrl)
 {
-  const hostname = new url.URL(imageUrl).hostname;
+  const hostname = new URL(imageUrl, baseUrl).hostname;
   
   for(let i=0; i<whitelistedImageHosts.length; i++) {
     if(hostname === whitelistedImageHosts[i])
@@ -79,7 +87,7 @@ function imageIsOffsite(imageUrl)
 const describePost = async (post) =>
 {
   const author = await Users.findOne({_id: post.userId});
-  const postLink = Utils.getSiteUrl() + "posts/"+post._id;
+  const postLink = baseUrl + "/posts/"+post._id;
   return `${post.title} by ${author.displayName} [${post.baseScore}]\n    ${postLink}`;
 }
 
@@ -109,9 +117,9 @@ const checkPost = async (post) => {
       brokenLinks.push(linkUrl);
   }
   
-  let sb = [];
   if(brokenImages.length>0 || offsiteImages.length>0 || brokenLinks.length>0)
   {
+    let sb = [];
     sb.push(await describePost(post)+"\n");
     for(let i=0; i<brokenImages.length; i++)
       sb.push(`    Broken image: ${brokenImages[i]}\n`);
@@ -119,25 +127,54 @@ const checkPost = async (post) => {
       sb.push(`    Broken link: ${brokenLinks[i]}\n`);
     for(let i=0; i<offsiteImages.length; i++)
       sb.push(`    Offsite image: ${offsiteImages[i]}\n`);
+    return sb.join("");
   }
-  return sb.join("");
+  else
+  {
+    return null;
+  }
 };
 
-Vulcan.findBrokenLinks = async () => {
-  //eslint-disable-next-line no-console
-  console.log("Checking all posts for broken links and images.");
+Vulcan.findBrokenLinks = async (
+  startDate, endDate,
+  output
+) => {
+  // TODO: Subdivide date range so we don't try to load all posts at once
+  // TODO: Retry "broken" links to remove false positives from the list
+  let write = null;
+  let onFinish = null;
   
-  const postsToCheck = await Posts.find().fetch();
+  if (!output) {
+    //eslint-disable-next-line no-console
+    write = console.log;
+  } else if(_.isString(output)) {
+    let outputFile = fs.openSync(output, "a");
+    write = (str) => fs.writeSync(outputFile, str);
+    onFinish = () => fs.closeSync(outputFile);
+  } else {
+    write = output;
+  }
   
-  //eslint-disable-next-line no-console
-  console.log("Checking "+postsToCheck.length+" post for broken links and images.");
+  write("Checking posts for broken links and images.\n");
+  let filter = {};
+  if(startDate || endDate) {
+    filter = {postedAt: {
+      $gte: startDate,
+      $lte: endDate
+    }};
+  }
+  const postsToCheck = await Posts.find(filter).fetch();
+  
+  write("Checking "+postsToCheck.length+" post for broken links and images.\n");
   for(let i=0; i<postsToCheck.length; i++)
   {
     let post = postsToCheck[i];
     let result = await checkPost(post);
-    //eslint-disable-next-line no-console
-    console.log(result);
+    if (result) {
+      write(result);
+    }
   }
-  //eslint-disable-next-line no-console
-  console.log("Checked "+postsToCheck.length+" post for broken links and images.");
+  write("Checked "+postsToCheck.length+" post for broken links and images.\n");
+  
+  if(onFinish) onFinish();
 }
