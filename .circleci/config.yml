@@ -124,8 +124,8 @@ jobs:
       # chackout the code from github
       - checkout
       - run:
-        name: print settings.json
-        command: printf $settings
+          name: print settings.json
+          command: printf $settings
 
 workflows:
   version: 2
