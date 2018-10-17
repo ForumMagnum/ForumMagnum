@@ -5,6 +5,7 @@ import withUser from '../common/withUser';
 
 const PostsItemMeta = ({currentUser, post}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
+  const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
 
   return <span>
       { Posts.canEdit(currentUser,post) && <C.MetaInfo>
@@ -22,6 +23,9 @@ const PostsItemMeta = ({currentUser, post}) => {
       <C.MetaInfo>
         { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
       </C.MetaInfo>
+      { afBaseScore && <C.MetaInfo>
+        Ω { afBaseScore || 0 }
+      </C.MetaInfo>}
       {post.wordCount && !post.isEvent && <C.MetaInfo>
         {parseInt(post.wordCount/300) || 1 } min read
       </C.MetaInfo>}
