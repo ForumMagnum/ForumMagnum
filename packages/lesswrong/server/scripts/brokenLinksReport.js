@@ -1,7 +1,6 @@
 /* global Vulcan */
 import { Posts } from '../../lib/collections/posts'
 import Users from 'meteor/vulcan:users';
-import { Utils } from 'meteor/vulcan:core';
 import htmlparser2 from 'htmlparser2';
 import { HTTP } from 'meteor/http';
 import { URL } from 'url';
