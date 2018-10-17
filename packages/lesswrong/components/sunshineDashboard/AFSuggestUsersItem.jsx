@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import ClearIcon from '@material-ui/icons/Clear';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class AFSuggestUsersItem extends Component {
   // TODO This shouldn't be necessary, but for some weird reason this particular sidebar item doesn't update when you edit it and remove itself from the sidebar. (If you don't manually set the state it doesn't disappear until refresh )
@@ -95,4 +96,4 @@ const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover);
+registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);

@@ -21,9 +21,9 @@ class AFSuggestCommentsList extends Component {
           <Components.SunshineListTitle>
             <Components.OmegaIcon className={classes.icon}/> AF Suggested Comments
           </Components.SunshineListTitle>
-          {this.props.results.map(post =>
-            <div key={post._id} >
-              <Components.AFSuggestCommentsItem post={post}/>
+          {this.props.results.map(comment =>
+            <div key={comment._id} >
+              <Components.AFSuggestCommentsItem comment={comment}/>
             </div>
           )}
         </div>

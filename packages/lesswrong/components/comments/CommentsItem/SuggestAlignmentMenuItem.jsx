@@ -10,7 +10,7 @@ class SuggestAlignmentMenuItem extends PureComponent {
   render() {
     const { currentUser, comment, post, updateComment } = this.props
 
-    const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
 
     if (!userHasSuggested) {
       return (
