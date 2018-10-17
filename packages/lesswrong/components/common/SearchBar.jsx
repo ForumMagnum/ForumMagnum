@@ -131,7 +131,7 @@ class SearchBar extends Component {
               <Icon className={classes.closeSearchIcon}>close</Icon>
             </div>}
           </div>
-          { searchOpen && <Components.SearchBarResults />}
+          { searchOpen && <Components.SearchBarResults closeSearch={this.closeSearch} />}
         </InstantSearch>
       </Components.ErrorBoundary>
     </div>
