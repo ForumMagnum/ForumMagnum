@@ -101,6 +101,19 @@ jobs:
       - attach_workspace:
          at: ~/
       - run:
+          name: show build-temp directories
+          command: |
+            cd ..
+            cd ..
+            ls
+      - run:
+          name: show build-temp directories content
+          command: |
+            cd ..
+            cd ..
+            cd build-temp
+            ls
+      - run:
           name: restore cached meteor bin
           command: |
             if [ -e ~/build-temp/meteor-bin ]
