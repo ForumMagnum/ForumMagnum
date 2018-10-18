@@ -229,5 +229,11 @@ workflows:
     jobs:
       - build
       - test
+        requires:
+          - build
       - cache
+        requires:
+          - test
       - deploy
+        requires:
+          - test
