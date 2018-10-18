@@ -103,7 +103,9 @@ jobs:
           command: ls
       - run:
           name: navigate into app directory
-          command: cd app
+          command: |
+            cd app
+            ls
       - run:
           name: list directories
           command: ls
