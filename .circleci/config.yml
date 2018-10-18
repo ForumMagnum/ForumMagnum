@@ -84,7 +84,7 @@ jobs:
             - build
   test:
      - attach_workspace:
-        at: ~/
+        at: /app
     docker:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
