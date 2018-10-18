@@ -117,6 +117,7 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
+
     working_directory: ~/app/lesswrong
 
     steps:
@@ -158,7 +159,10 @@ jobs:
           command: meteor yarn lint
       - run:
           name: testing
-          command: METEOR_PACKAGE_DIRS="../Vulcan/packages" TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
+          environment:
+            METEOR_PACKAGE_DIRS: ../Vulcan/packages
+            TOOLD_NODE_FLAGS: --max_old_space_size=3072
+          command: meteor yarn test
   deploy:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -212,7 +216,12 @@ jobs:
             echo "$settings" > settings.json
             echo "$meteor_token" > token.json
       - deploy:
-          command: METEOR_SESSION_FILE=token.json DEPLOY_HOSTNAME=us-east-1.galaxy-deploy.meteor.com meteor deploy www.lessestwrong.com --settings settings.json
+          environment:
+            METEOR_PACKAGE_DIRS: ../Vulcan/packages
+            TOOLD_NODE_FLAGS: --max_old_space_size=3072
+            METEOR_SESSION_FILE: token.json
+            DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
+          command: meteor deploy www.lessestwrong.com --settings settings.json
 
 workflows:
   version: 2
