@@ -99,8 +99,17 @@ jobs:
       - attach_workspace:
          at: ~/app
       - run:
-          name: navigate into correct directory
-          command: cd app/lesswrong
+          name: list directories
+          command: ls
+      - run:
+          name: navigate into app directory
+          command: cd app
+      - run:
+          name: list directories
+          command: ls
+      - run:
+          name: navigate into lesswrong directory
+          command: cd lesswrong
       - run:
           name: code linting
           command: meteor yarn lint
