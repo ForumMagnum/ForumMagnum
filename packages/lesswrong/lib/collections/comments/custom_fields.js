@@ -23,8 +23,8 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
       hidden: true,
       resolveAs: {
         fieldName: 'user',
@@ -47,9 +47,9 @@ Comments.addField([
       optional: true,
       hidden: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -62,9 +62,9 @@ Comments.addField([
       type: String,
       hidden: true,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -78,9 +78,9 @@ Comments.addField([
       optional: true,
       hidden: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -93,9 +93,9 @@ Comments.addField([
       type: String,
       hidden: true,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -111,9 +111,9 @@ Comments.addField([
     fieldSchema: {
       type: Object,
       optional: true,
-      viewableBy: ['admins'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['admins'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
       hidden: true,
       blackbox: true,
     }
@@ -129,9 +129,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: Users.owns,
-      editableBy: Users.owns,
+      canRead: ['guests'],
+      canCreate: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
     }
@@ -147,9 +147,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
     }
@@ -160,9 +160,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -172,9 +172,9 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -184,9 +184,9 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -196,9 +196,9 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
       hidden: true,
       resolveAs: {
         fieldName: 'deletedByUser',
@@ -221,9 +221,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
       control: "checkbox",
       hidden: true,
     }
@@ -238,7 +238,7 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests']
+      canRead: ['guests']
     }
   },
 
@@ -252,9 +252,9 @@ Comments.addField([
       type: Date,
       optional: true,
       group: moderationOptionsGroup,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
       control: 'datetime'
     }
   },
@@ -264,9 +264,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -276,9 +276,9 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
       hidden: true,
       resolveAs: {
         fieldName: 'reviewedByUser',
@@ -302,9 +302,9 @@ Comments.addField([
       type: Boolean,
       group: moderationOptionsGroup,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      canRead: ['guests'],
+      canUpdate: ['admins'],
+      canCreate: ['admins'],
     }
   },
 ]);
@@ -338,7 +338,7 @@ Users.addField([
       type: Number,
       optional: true,
       defaultValue: 0,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   }
 ]);
@@ -353,7 +353,7 @@ Posts.addField([
       type: Number,
       optional: true,
       defaultValue: 0,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
   /**
@@ -371,7 +371,7 @@ Posts.addField([
           {collectionName: 'Users', fieldName: 'commenterIds'}
         ),
       },
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
   {
