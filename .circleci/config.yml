@@ -93,7 +93,7 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/
+    working_directory: ~/app/lesswrong
 
     steps:
       - attach_workspace:
@@ -103,9 +103,7 @@ jobs:
           command: ls
       - run:
           name: navigate into app directory
-          command: |
-            cd app
-            ls
+          command: cd app
       - run:
           name: list directories
           command: ls
