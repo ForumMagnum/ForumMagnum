@@ -60,15 +60,15 @@ class CommentsItem extends Component {
 
   showReport = (event) => {
     const { openDialog, comment, currentUser } = this.props;
-    openDialog(
-      "ReportForm",
-      {
+    openDialog({
+      componentName: "ReportForm",
+      componentProps: {
         commentId: comment._id,
         postId: comment.postId,
         link: "/posts/" + comment.postId + "/a/" + comment._id,
         userId: currentUser._id,
       }
-    );
+    });
   }
 
   showReply = (event) => {

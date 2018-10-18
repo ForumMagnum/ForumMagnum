@@ -1,26 +1,17 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import Reports from '../../lib/collections/reports/collection.js'
 import Dialog from 'material-ui/Dialog';
 
-class ReportForm extends Component {
-
-  constructor(props) {
-    super(props);
-  }
-
-  handleClose = () => {
-    this.props.onRequestClose();
-  };
-
+class ReportForm extends PureComponent {
   render() {
     return (
       <Dialog
         title={this.props.title}
         modal={false}
         open={true}
-        onRequestClose={this.handleClose}
+        onRequestClose={this.props.onRequestClose}
       >
         <Components.SmartForm
           collection={Reports}
@@ -31,7 +22,7 @@ class ReportForm extends Component {
             commentId: this.props.commentId,
             link: this.props.link
           }}
-          successCallback={this.handleClose}
+          successCallback={this.props.onRequestClose}
         />
       </Dialog>
     )

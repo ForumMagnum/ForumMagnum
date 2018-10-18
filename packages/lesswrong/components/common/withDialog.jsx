@@ -5,14 +5,10 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 export const OpenDialogContext = React.createContext('openDialog');
 
 export class DialogManager extends PureComponent {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      currentDialog: null,
-      componentProps: null
-    };
-  }
+  state = {
+    currentDialog: null,
+    componentProps: null
+  };
   
   closeDialog = () => {
     this.setState({
@@ -27,11 +23,11 @@ export class DialogManager extends PureComponent {
     
     return (
       <OpenDialogContext.Provider value={{
-        openDialog: (componentName, componentProps) => this.setState({
+        openDialog: ({componentName, componentProps}) => this.setState({
           componentName: componentName,
           componentProps: componentProps
         }),
-        closeDialog: () => this.closeDialog()
+        closeDialog: this.closeDialog
       }}>
         {children}
         
