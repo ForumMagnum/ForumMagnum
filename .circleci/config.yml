@@ -112,7 +112,7 @@ jobs:
           command: cd app
       - run:
           name: list directories again!
-          command: cd app
+          command: ls
       - run:
           name: code linting
           command: meteor yarn lint
