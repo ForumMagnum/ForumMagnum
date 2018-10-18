@@ -219,6 +219,15 @@ jobs:
 
 workflows:
   version: 2
-  test_and_deploy:
+  build-test-and-deploy:
     jobs:
       - build
+      - test:
+          requires:
+            - build
+      - cache:
+          requires:
+            - test
+      - deploy:
+          requires:
+            - test
