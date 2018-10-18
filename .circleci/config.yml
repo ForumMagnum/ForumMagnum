@@ -161,7 +161,7 @@ jobs:
           name: testing
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOLD_NODE_FLAGS: --max_old_space_size=3072
+            TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor yarn test
   deploy:
     docker:
@@ -218,7 +218,7 @@ jobs:
       - deploy:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOLD_NODE_FLAGS: --max_old_space_size=3072
+            TOOL_NODE_FLAGS: --max_old_space_size=3072
             METEOR_SESSION_FILE: token.json
             DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
           command: meteor deploy www.lessestwrong.com --settings settings.json
