@@ -45,7 +45,6 @@ ReportForm.propTypes = {
   title: PropTypes.string,
   postId: PropTypes.string,
   commentId: PropTypes.string,
-  link: PropTypes.string,
 }
 
 registerComponent('ReportForm', ReportForm);
