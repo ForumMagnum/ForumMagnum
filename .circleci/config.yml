@@ -103,8 +103,7 @@ jobs:
       - run:
           name: show build-temp directories
           command: |
-            cd ..
-            cd ..
+            cd ~/
             ls
       - run:
           name: show build-temp directories content
