@@ -74,6 +74,29 @@ jobs:
       - run:
           name: install npm packages
           command: meteor yarn
+      - run:
+          name: copy meteor bin to build cache
+          command: |
+            mkdir -p ~/build-temp
+            cp /usr/local/bin/meteor ~/build-temp/meteor-bin
+      # cache meteor& npm packages
+      - save_cache:
+          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - ~/build-temp
+      - save_cache:
+          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - ~/.meteor
+      - save_cache:
+          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - .meteor/
+      - save_cache:
+          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - ./node_modules/
+            - ~/.npm/
       # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
@@ -135,49 +158,7 @@ jobs:
           command: meteor yarn lint
       - run:
           name: testing
-          command: |
-            printenv
-            METEOR_PACKAGE_DIRS="../Vulcan/packages" TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
-  cache:
-    docker:
-      - image: circleci/openjdk:8-jdk-browsers
-        environment:
-          # lang settings required for Meteor's Mongo
-          LANG: C.UTF-8
-          LANGUAGE: C.UTF-8
-          LC_ALL: C.UTF-8
-          LC_NUMERIC: en_US.UTF-8
-          METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
-          METEOR_BIN_TMP_FILE: meteor-bin-temp
-
-    working_directory: ~/app/lesswrong
-    steps:
-      # move meteor bin so it can be properly cached
-      - attach_workspace:
-         at: ~/
-      - run:
-          name: copy meteor bin to build cache
-          command: |
-            mkdir -p ~/build-temp
-            cp /usr/local/bin/meteor ~/build-temp/meteor-bin
-      # cache meteor& npm packages
-      - save_cache:
-          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-          paths:
-            - ~/build-temp
-      - save_cache:
-          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-          paths:
-            - ~/.meteor
-      - save_cache:
-          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
-          paths:
-            - .meteor/
-      - save_cache:
-          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
-          paths:
-            - ./node_modules/
-            - ~/.npm/
+          command: METEOR_PACKAGE_DIRS="../Vulcan/packages" TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
   deploy:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -194,6 +175,37 @@ jobs:
     steps:
       - attach_workspace:
          at: ~/
+      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
+      - restore_cache:
+          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+      - run:
+          name: restore cached meteor bin
+          command: |
+            if [ -e ~/build-temp/meteor-bin ]
+            then
+                echo "Cached Meteor bin found, restoring it"
+                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
+            else
+                echo "No cached Meteor bin found."
+            fi
+      # if there is no cached meteor version, install it
+      - run:
+          name: install Meteor
+          command: |
+            # only install meteor if bin isn't found
+            command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
+      - run:
+          name: install yarn
+          command: meteor npm i -g yarn
+      - run:
+          name: install npm packages
+          command: meteor yarn
       - run:
           name: convert environment variables into files
           command: |
@@ -210,9 +222,6 @@ workflows:
       - test:
           requires:
             - build
-      - cache:
-          requires:
-            - test
       - deploy:
           requires:
-            - test
+            - build
