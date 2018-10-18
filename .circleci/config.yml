@@ -82,7 +82,6 @@ jobs:
           paths:
             - app
             - build-temp
-            - usr/local/bin/meteor
   test:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -100,18 +99,15 @@ jobs:
     steps:
       - attach_workspace:
          at: ~/
-      - run:
-          name: show build-temp directories
-          command: |
-            cd ~/
-            ls
-      - run:
-          name: show build-temp directories content
-          command: |
-            cd ..
-            cd ..
-            cd build-temp
-            ls
+      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
+      - restore_cache:
+          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
       - run:
           name: restore cached meteor bin
           command: |
@@ -128,6 +124,12 @@ jobs:
           command: |
             # only install meteor if bin isn't found
             command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
+      - run:
+          name: install yarn
+          command: meteor npm i -g yarn
+      - run:
+          name: install npm packages
+          command: meteor yarn
       - run:
           name: code linting
           command: meteor yarn lint
@@ -197,10 +199,8 @@ jobs:
           command: |
             echo "$settings" > settings.json
             echo "$meteor_token" > token.json
-      - run:
-          name: deploy to Meteor Galaxy
-          command: |
-            METEOR_SESSION_FILE=token.json DEPLOY_HOSTNAME=us-east-1.galaxy-deploy.meteor.com meteor deploy www.lessestwrong.com --settings settings.json
+      - deploy:
+          command: METEOR_SESSION_FILE=token.json DEPLOY_HOSTNAME=us-east-1.galaxy-deploy.meteor.com meteor deploy www.lessestwrong.com --settings settings.json
 
 workflows:
   version: 2
