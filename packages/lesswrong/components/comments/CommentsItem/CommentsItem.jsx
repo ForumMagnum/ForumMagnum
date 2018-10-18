@@ -59,15 +59,15 @@ class CommentsItem extends Component {
   }
 
   showReport = (event) => {
-    const { openDialog, closeDialog, comment, currentUser } = this.props;
+    const { openDialog, comment, currentUser } = this.props;
     openDialog(
-      <Components.ReportForm
-        commentId={comment._id}
-        postId={comment.postId}
-        link={"/posts/" + comment.postId + "/a/" + comment._id}
-        userId={currentUser._id}
-        onRequestClose={closeDialog}
-      />
+      "ReportForm",
+      {
+        commentId: comment._id,
+        postId: comment.postId,
+        link: "/posts/" + comment.postId + "/a/" + comment._id,
+        userId: currentUser._id,
+      }
     );
   }
 
