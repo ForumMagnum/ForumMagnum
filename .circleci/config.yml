@@ -83,8 +83,6 @@ jobs:
           paths:
             - build
   test:
-     - attach_workspace:
-        at: /app
     docker:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
@@ -96,9 +94,11 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/app/build
+    working_directory: ~/app
 
     steps:
+      - attach_workspace:
+         at: /build
       - run:
           name: list directories
           command: ls
