@@ -16,7 +16,7 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/app
+    working_directory: ~/app/build
 
     steps:
       # chackout the code from github
@@ -75,7 +75,17 @@ jobs:
       - run:
           name: install npm packages
           command: meteor yarn
+      # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          root: ~/app
+          # Must be relative path from root
+          paths:
+            - build
   test:
+     - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: ~/
     docker:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
@@ -90,6 +100,9 @@ jobs:
     working_directory: ~/app
 
     steps:
+      - run:
+          name: list directories
+          command: ls
       - run:
           name: code linting
           command: meteor yarn lint
