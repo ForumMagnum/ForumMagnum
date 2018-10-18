@@ -228,12 +228,12 @@ workflows:
   test_and_deploy:
     jobs:
       - build
-      - test
+      - test:
         requires:
           - build
-      - cache
+      - cache:
         requires:
           - test
-      - deploy
+      - deploy:
         requires:
           - test
