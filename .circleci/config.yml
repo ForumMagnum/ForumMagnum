@@ -81,6 +81,7 @@ jobs:
           # Must be relative path from root
           paths:
             - app
+            - build-temp
   test:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -99,8 +100,21 @@ jobs:
       - attach_workspace:
          at: ~/
       - run:
-          name: list directories
-          command: ls
+          name: restore cached meteor bin
+          command: |
+            if [ -e ~/build-temp/meteor-bin ]
+            then
+                echo "Cached Meteor bin found, restoring it"
+                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
+            else
+                echo "No cached Meteor bin found."
+            fi
+      # if there is no cached meteor version, install it
+      - run:
+          name: install Meteor
+          command: |
+            # only install meteor if bin isn't found
+            command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
       - run:
           name: code linting
           command: meteor yarn lint
