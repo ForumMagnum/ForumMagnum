@@ -102,18 +102,6 @@ jobs:
           name: list directories
           command: ls
       - run:
-          name: navigate into app directory
-          command: cd app
-      - run:
-          name: list directories
-          command: ls
-      - run:
-          name: navigate into app again
-          command: cd app
-      - run:
-          name: list directories again!
-          command: ls
-      - run:
           name: code linting
           command: meteor yarn lint
       - run:
