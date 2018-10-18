@@ -8,48 +8,44 @@ class ReportForm extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      open: props.open,
-    };
   }
 
-  handleOpen = () => {
-    this.setState({open: true});
-  };
-
   handleClose = () => {
-    this.setState({open: false});
+    this.props.onRequestClose();
   };
 
   render() {
     return (
-        <Dialog
-          title={this.props.title}
-          modal={false}
-          open={this.state.open}
-          onRequestClose={this.handleClose}
-        >
-          <Components.SmartForm
-            collection={Reports}
-            mutationFragment={getFragment('unclaimedReportsList')}
-            prefilledProps={{
-              userId: this.props.userId,
-              postId: this.props.postId,
-              commentId: this.props.commentId,
-              link: this.props.link
-            }}
-            successCallback={this.handleClose}
-          />
-        </Dialog>
-      )
+      <Dialog
+        title={this.props.title}
+        modal={false}
+        open={true}
+        onRequestClose={this.handleClose}
+      >
+        <Components.SmartForm
+          collection={Reports}
+          mutationFragment={getFragment('unclaimedReportsList')}
+          prefilledProps={{
+            userId: this.props.userId,
+            postId: this.props.postId,
+            commentId: this.props.commentId,
+            link: this.props.link
+          }}
+          successCallback={this.handleClose}
+        />
+      </Dialog>
+    )
   }
 }
 
 ReportForm.propTypes = {
-    userId: PropTypes.string.isRequired,
-    documentId: PropTypes.string.isRequired,
-    documentType: PropTypes.string.isRequired,
-    link: PropTypes.string.isRequired
+  userId: PropTypes.string.isRequired,
+  link: PropTypes.string.isRequired,
+  onRequestClose: PropTypes.func,
+  title: PropTypes.string,
+  postId: PropTypes.string,
+  commentId: PropTypes.string,
+  link: PropTypes.string,
 }
 
 registerComponent('ReportForm', ReportForm);
