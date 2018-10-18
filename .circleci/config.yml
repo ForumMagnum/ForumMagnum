@@ -16,18 +16,18 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/app/build
+    working_directory: ~/app/lesswrong
 
     steps:
       # chackout the code from github
+      - checkout
       - run:
           name: clone Vulcan
           command: |
+            cd ..
             git clone https://github.com/LessWrong2/Vulcan.git Vulcan
-            mkdir lesswrong
             cd lesswrong
             export METEOR_PACKAGE_DIRS="../Vulcan/packages"
-      - checkout
       # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
       - restore_cache:
           key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
