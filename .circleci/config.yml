@@ -82,6 +82,7 @@ jobs:
           paths:
             - app
             - build-temp
+            - usr/local/bin/meteor
   test:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -135,9 +136,11 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/app
+    working_directory: ~/app/lesswrong
     steps:
       # move meteor bin so it can be properly cached
+      - attach_workspace:
+         at: ~/
       - run:
           name: copy meteor bin to build cache
           command: |
@@ -173,65 +176,10 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/app
+    working_directory: ~/app/lesswrong
     steps:
-      # chackout the code from github
-      # chackout the code from github
-      - checkout
-      - run:
-          name: clone Vulcan
-          command: |
-            cd ..
-            git clone https://github.com/LessWrong2/Vulcan.git Vulcan
-            ls
-            cd app
-            export METEOR_PACKAGE_DIRS="../Vulcan/packages"
-      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
-      - restore_cache:
-          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
-      - run:
-          name: install build essentials
-          command: sudo apt-get install -y build-essential
-      - run:
-          name: restore cached meteor bin
-          command: |
-            if [ -e ~/build-temp/meteor-bin ]
-            then
-                echo "Cached Meteor bin found, restoring it"
-                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
-            else
-                echo "No cached Meteor bin found."
-            fi
-      # if there is no cached meteor version, install it
-      - run:
-          name: install Meteor
-          command: |
-            # only install meteor if bin isn't found
-            command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
-      - run:
-          name: check versions
-          command: |
-            echo "Meteor version:"
-            meteor --version
-            which meteor
-            echo "Meteor node version:"
-            meteor node -v
-            echo "Meteor npm version:"
-            meteor npm -v
-            echo "Java version:"
-            java -version
-      - run:
-          name: install yarn
-          command: meteor npm i -g yarn
-      - run:
-          name: install npm packages
-          command: meteor yarn
+      - attach_workspace:
+         at: ~/
       - run:
           name: convert environment variables into files
           command: |
