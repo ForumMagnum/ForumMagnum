@@ -76,8 +76,6 @@ jobs:
           name: install npm packages
           command: meteor yarn
   test:
-    requires:
-      - build
     docker:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
@@ -101,8 +99,6 @@ jobs:
             printenv
             METEOR_PACKAGE_DIRS="../Vulcan/packages" TOOL_NODE_FLAGS="--max_old_space_size=3072" meteor yarn test
   cache:
-    requires:
-      - test
     docker:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
@@ -141,8 +137,6 @@ jobs:
             - ./node_modules/
             - ~/.npm/
   deploy:
-    requires:
-      - test
     docker:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
