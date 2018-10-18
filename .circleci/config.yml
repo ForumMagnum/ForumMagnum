@@ -20,15 +20,14 @@ jobs:
 
     steps:
       # chackout the code from github
-      - checkout
       - run:
           name: clone Vulcan
           command: |
-            cd ..
             git clone https://github.com/LessWrong2/Vulcan.git Vulcan
-            ls
-            cd app
+            mkdir lesswrong
+            cd lesswrong
             export METEOR_PACKAGE_DIRS="../Vulcan/packages"
+      - checkout
       # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
       - restore_cache:
           key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
@@ -78,10 +77,10 @@ jobs:
       # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
-          root: ~/app
+          root: ~/
           # Must be relative path from root
           paths:
-            - build
+            - app
   test:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -94,14 +93,14 @@ jobs:
           METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
           METEOR_BIN_TMP_FILE: meteor-bin-temp
 
-    working_directory: ~/app
+    working_directory: ~/
 
     steps:
       - attach_workspace:
-         at: /build
+         at: ~/app
       - run:
-          name: list directories
-          command: ls
+          name: navigate into correct directory
+          command: cd app/lesswrong
       - run:
           name: code linting
           command: meteor yarn lint
