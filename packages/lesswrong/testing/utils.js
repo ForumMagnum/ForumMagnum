@@ -132,14 +132,13 @@ export function addTestToCallbackOnce(callbackHook, test, done) {
   addCallback(callbackHook, testCallback);
 }
 
-export const userUpdateFieldFails = async ({user, document, fieldName, newValue}) => {
+export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType}) => {
   if (!newValue) {
     newValue = Random.id()
   }
-
   const query = `
     mutation {
-      updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:"${newValue}"}) {
+      update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:"${newValue}"}) {
         data {
           ${fieldName}
         }
@@ -159,9 +158,9 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
     newValue = `"${comparedValue}"`
   }
 
-  const query = ` 
+  const query = `
       mutation {
-        updateUser(selector: {_id:"${user._id}"},data:{${fieldName}:${newValue}}) {
+        update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValue}}) {
           data {
             ${fieldName}
           }
