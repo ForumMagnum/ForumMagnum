@@ -16,6 +16,7 @@ import { withStyles, withTheme } from '@material-ui/core/styles';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
+import { DialogManager } from './common/withDialog';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -97,6 +98,7 @@ class Layout extends PureComponent {
       <TimezoneContext.Provider value={this.state.timezone}>
       <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
         <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
+          <DialogManager>
           <div>
             <CssBaseline />
             <Helmet>
@@ -131,6 +133,7 @@ class Layout extends PureComponent {
             </div>
             {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
           </div>
+          </DialogManager>
         </V0MuiThemeProvider>
       </div>
       </TimezoneContext.Provider>

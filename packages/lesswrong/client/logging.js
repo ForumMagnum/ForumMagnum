@@ -7,12 +7,6 @@ const sentryRelease = getSetting('sentry.release')
 
 Sentry.init({
   dsn: sentryUrl,
-  beforeBreadcrumb(breadcrumb, hint) {
-    if (breadcrumb.level === "error" && breadcrumb.message) {
-      Sentry.captureException(breadcrumb.message)
-    }
-    return breadcrumb
-  },
   environment: sentryEnvironment,
   release: sentryRelease,
 });
