@@ -7,37 +7,29 @@ import FlatButton from 'material-ui/FlatButton';
 class MultiSelectButtons extends Component {
   constructor(props, context) {
     super(props,context);
-    this.state = {
-      options: this.props.document[this.props.name] || [],
-    }
-  }
-
-  componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({options: []}))
-    this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || []
-    })
   }
 
   handleClick = (option) => {
-    if (this.state.options && this.state.options.includes(option)) {
+    const { value } = this.props;
+    
+    if (value && value.includes(option)) {
       this.context.updateCurrentValues({
-        [this.props.name]: _.without(this.state.options, option)
+        [this.props.path]: _.without(value, option)
       })
-      this.setState({options: _.without(this.state.options, option)})
     } else {
       this.context.updateCurrentValues({
-        [this.props.name]: [...this.state.options, option]
+        [this.props.path]: [...value, option]
       })
-      this.setState({options: [...this.state.options, option]})
     }
   }
 
   render() {
+    const { value } = this.props;
+    
     return <div className="multi-select-buttons">
       {this.props.label && <label className="multi-select-buttons-label">{this.props.label}</label>}
       {this.props.options.map((option) => {
-        const selected = this.state.options && this.state.options.includes(option.value);
+        const selected = value && value.includes(option.value);
         return <FlatButton
           className="multi-select-buttons-button"
           primary={selected}
@@ -58,13 +50,10 @@ class MultiSelectButtons extends Component {
 
 MultiSelectButtons.contextTypes = {
   updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 MultiSelectButtons.defaultProps = {
 
 }
 
-// TODO: Does not work in nested contexts because it doesn't use the
-// vulcan-forms APIs correctly.
 registerComponent("MultiSelectButtons", MultiSelectButtons);
