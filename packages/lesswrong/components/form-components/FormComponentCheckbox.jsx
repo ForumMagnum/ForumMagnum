@@ -47,7 +47,6 @@ class FormComponentCheckbox extends Component {
 
 FormComponentCheckbox.contextTypes = {
   updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 // Replaces FormComponentCheckbox from vulcan-ui-bootstrap
