@@ -161,7 +161,7 @@ class PostsPage extends Component {
           titleUrl={ titleUrl }
           nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
           prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-          
+
           nextPostSlug={post.canonicalNextPostSlug}
           prevPostSlug={post.canonicalPrevPostSlug}
         />
@@ -252,7 +252,7 @@ class PostsPage extends Component {
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
-      const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
+      const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>
