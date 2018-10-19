@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import TextField from '@material-ui/core/TextField';
@@ -21,15 +21,9 @@ const styles = theme => ({
   }
 })
 
-class MuiTextField extends Component {
+class MuiTextField extends PureComponent {
   constructor(props, context) {
     super(props,context);
-  }
-
-  componentDidMount() {
-    this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
-    })
   }
 
   onChange = (event) => {
@@ -68,9 +62,6 @@ class MuiTextField extends Component {
 
 MuiTextField.contextTypes = {
   updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
-// TODO: Does not work in nested contexts because it doesn't use the
-// vulcan-forms APIs correctly.
 registerComponent("MuiTextField", MuiTextField, withStyles(styles, { name: "MuiTextField" }));

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
@@ -12,25 +12,14 @@ const styles = theme => ({
   // },
 })
 
-class MuiInput extends Component {
+class MuiInput extends PureComponent {
   constructor(props, context) {
     super(props,context);
-    this.state = {
-      content: props.document && props.document[props.name] || ""
-    }
-  }
-
-  componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({content: ""}))
-    this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
-    })
   }
 
   onChange = (event) => {
-    this.setState({content: event.target.value})
     this.context.updateCurrentValues({
-      [this.props.name]: event.target.value
+      [this.props.path]: event.target.value
     })
   }
 
@@ -38,7 +27,7 @@ class MuiInput extends Component {
     return <div className="mui-text-field">
       <Input
         className={this.props.className}
-        value={this.state.content}
+        value={this.props.value}
         label={this.props.label}
         onChange={this.onChange}
         multiline={this.props.multiLine}
@@ -57,6 +46,4 @@ MuiInput.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-// TODO: Does not work in nested contexts because it doesn't use the
-// vulcan-forms APIs correctly.
 registerComponent("MuiInput", MuiInput, withStyles(styles, { name: "MuiInput" }));
