@@ -287,13 +287,26 @@ deploy_prod:
         command: |
           echo "$settings_prod" > settings.json
           echo "$meteor_token" > token.json
+    - run:
+        name: Install sentry-cli
+        command: meteor npm i -g @sentry/cli
+    - run:
+        name: Install json utility
+        command: meteor npm i -g json
+    - run:
+        name: Set sentry version and modify settings.json
+        command: |
+          export SENTRY_VERSION=$(meteor sentry-cli releases propose-version)
+          meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
+          meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
+          meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
     - deploy:
         environment:
           METEOR_PACKAGE_DIRS: ../Vulcan/packages
           TOOL_NODE_FLAGS: --max_old_space_size=3072
           METEOR_SESSION_FILE: token.json
           DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-        command: meteor deploy www.lesswrong.com --settings settings.json
+        command: meteor deploy www.lessestwrong.com --settings settings.json
 deploy_af:
   docker:
     - image: circleci/openjdk:8-jdk-browsers
@@ -346,13 +359,26 @@ deploy_af:
         command: |
           echo "$settings_af" > settings.json
           echo "$meteor_token" > token.json
+    - run:
+        name: Install sentry-cli
+        command: meteor npm i -g @sentry/cli
+    - run:
+        name: Install json utility
+        command: meteor npm i -g json
+    - run:
+        name: Set sentry version and modify settings.json
+        command: |
+          export SENTRY_VERSION=$(meteor sentry-cli releases propose-version)
+          meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
+          meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
+          meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
     - deploy:
         environment:
           METEOR_PACKAGE_DIRS: ../Vulcan/packages
           TOOL_NODE_FLAGS: --max_old_space_size=3072
           METEOR_SESSION_FILE: token.json
           DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-        command: meteor deploy www.alignmentforum.org --settings settings.json
+        command: meteor deploy www.lessestwrong.com --settings settings.json
 
 workflows:
   version: 2
