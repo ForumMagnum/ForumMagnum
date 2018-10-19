@@ -1,5 +1,4 @@
 import { Components } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
 const schema = {
