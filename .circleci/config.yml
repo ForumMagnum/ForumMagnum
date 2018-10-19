@@ -306,7 +306,7 @@ deploy_prod:
           TOOL_NODE_FLAGS: --max_old_space_size=3072
           METEOR_SESSION_FILE: token.json
           DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-        command: meteor deploy www.lessestwrong.com --settings settings.json
+        command: meteor deploy www.lesswrong.com --settings settings.json
 deploy_af:
   docker:
     - image: circleci/openjdk:8-jdk-browsers
@@ -378,7 +378,7 @@ deploy_af:
           TOOL_NODE_FLAGS: --max_old_space_size=3072
           METEOR_SESSION_FILE: token.json
           DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-        command: meteor deploy www.lessestwrong.com --settings settings.json
+        command: meteor deploy www.alignmentforum.org --settings settings.json
 
 workflows:
   version: 2
