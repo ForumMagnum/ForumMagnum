@@ -215,6 +215,19 @@ jobs:
           command: |
             echo "$settings_dev_live" > settings.json
             echo "$meteor_token" > token.json
+      - run:
+          name: Install sentry-cli
+          command: meteor npm i -g @sentry/cli
+      - run:
+          name: Install json utility
+          command: meteor npm i -g json
+      - run:
+          name: Set sentry version and modify settings.json
+          command: |
+            export SENTRY_VERSION=$(meteor sentry-cli releases propose-version)
+            meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
+            meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
+            meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
