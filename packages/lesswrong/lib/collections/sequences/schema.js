@@ -27,7 +27,7 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['admin'],
-    hidden: Users.canDo('sequences.edit.all'),
+    hidden:  true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
@@ -172,6 +172,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    hidden: true,
     control: "checkbox"
   },
 
