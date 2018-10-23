@@ -431,9 +431,12 @@ Posts.addField([
         fieldName: 'canonicalCollection',
         addOriginalField: true,
         type: "Collection",
-        resolver: generateIdResolverSingle(
-          {collectionName: 'Users', fieldName: 'userId'}
-        ),
+        // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
+        // work out of the box with the id-resolver generators
+        resolver: (post, args, context) => {
+          if (!post.canonicalCollectionSlug) return null;
+          return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        }
       }
     }
   },
@@ -644,7 +647,7 @@ Posts.addField([
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
-      viewableBy: ['members'],
+      viewableBy: ['guests'],
       group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),

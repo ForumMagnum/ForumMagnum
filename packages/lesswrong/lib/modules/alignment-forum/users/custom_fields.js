@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import { formGroups } from "../../../collections/users/custom_fields.js"
 
 Users.addField([
   {
@@ -7,7 +8,7 @@ Users.addField([
       type: Number,
       optional: true,
       label: "Alignment Base Score",
-      viewableBy: ['guests'],
+      canRead: ['guests'],
     }
   },
 
@@ -16,7 +17,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -26,7 +27,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -36,7 +37,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
@@ -46,8 +47,36 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
-      viewableBy: ['guests'],
+      canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
     }
   },
+
+  {
+    fieldName: 'reviewForAlignmentForumUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: ['guests'],
+      canUpdate: ['alignmentForumAdmins', 'admins'],
+      canCreate: ['alignmentForumAdmins', 'admins'],
+      group: formGroups.adminOptions,
+      label: "AF Review UserId"
+    }
+  },
+
+  {
+    fieldName: 'groups',
+    fieldSchema: {
+      canUpdate: ['alignmentForumAdmins', 'admins'],
+    }
+  },
+  {
+    fieldName: 'groups.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
+
 ]);

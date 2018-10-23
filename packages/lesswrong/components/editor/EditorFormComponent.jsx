@@ -8,15 +8,32 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import DraftJSEditor from '../async/EditorFormContainer'
 
+const postEditorHeight = 250;
+const commentEditorHeight = 100;
+
 const styles = theme => ({
   postEditor: {
-    minHeight:250,
-    ...editorStyles(theme, postBodyStyles)
+    "&, & textarea": {
+      minHeight: postEditorHeight,
+      ...editorStyles(theme, postBodyStyles)
+    },
   },
   commentEditor: {
-    minHeight: 100,
-    ...editorStyles(theme, commentBodyStyles)
+    "&, & textarea": {
+      minHeight: commentEditorHeight,
+      ...editorStyles(theme, commentBodyStyles)
+    },
   },
+  
+  postEditorHeight: {
+    minHeight: postEditorHeight,
+    cursor: "text"
+  },
+  commentEditorHeight: {
+    minHeight: commentEditorHeight,
+    cursor: "text"
+  },
+  
   markdownEditor: {
     fontSize: '1.4rem',
   },
@@ -98,17 +115,35 @@ class EditorFormComponent extends Component {
     const { document, currentUser, formType } = this.props
     const commentStyles = this.props.form && this.props.form.commentStyles
     const { classes, ...passedDownProps } = this.props
+    
+    // The class which determines clickable height (as tall as a comment editor,
+    // or as tall as a post editor) needs to be applied deeper in the tree, for
+    // the draft-js editor; if we apply it to our wrapper div, it'll look right
+    // but most of it won't be clickable.
+    const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
+    
     return (
       <div className={commentStyles ? classes.commentEditor : classes.postEditor}>
         {!editorOverride && formType !== "new" && document && document.lastEditedAs && document.lastEditedAs !== this.getUserDefaultEditor(currentUser) && this.renderEditorWarning()}
         { this.getCurrentEditorType() === "markdown" &&
-          <Components.MuiInput {...passedDownProps} className={classes.markdownEditor} name="body" />
+            <Components.MuiInput
+              {...passedDownProps}
+              className={classes.markdownEditor}
+              name="body"
+            />
         }
         { this.getCurrentEditorType() === "html" &&
-          <Components.MuiInput {...passedDownProps} className={classes.markdownEditor} name="htmlBody" />
+            <Components.MuiInput
+              {...passedDownProps}
+              className={classes.markdownEditor}
+              name="htmlBody"
+            />
         }
         { this.getCurrentEditorType() === "draft-js" &&
-          <div> <AsyncEditor {...passedDownProps}/> </div>
+            <AsyncEditor
+              {...passedDownProps}
+              className={heightClass}
+            />
         }
       </div>
 

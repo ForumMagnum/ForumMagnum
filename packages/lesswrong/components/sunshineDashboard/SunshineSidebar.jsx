@@ -6,6 +6,7 @@ import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -14,12 +15,14 @@ const styles = theme => ({
     right:0,
     width:250,
     marginTop:63,
-    background: "white",
     zIndex: 1000,
     display:"none",
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
+  },
+  showSidebar: {
+    background: "white",
   },
   toggle: {
     position:"relative",
@@ -50,7 +53,7 @@ class SunshineSidebar extends Component {
 
     if (this.shouldRenderSidebar()) {
       return (
-        <div className={classes.root}>
+        <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
           { showSidebar ? <KeyboardArrowDownIcon
             className={classes.toggle}
             onClick={this.toggleSidebar}/>
@@ -59,15 +62,16 @@ class SunshineSidebar extends Component {
               className={classes.toggle}
               onClick={this.toggleSidebar}
             />}
-          { Users.canDo(currentUser, 'posts.moderate.all') && <div>
+          { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
             <Components.SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
             <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
             <Components.SunshineReportedCommentsList terms={{view:"sunshineSidebarReports"}}/>
             <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
             <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
           </div>}
-          { Users.canDo(currentUser, 'alignment.sidebar') && <div>
-            <Components.SuggestAlignmentList terms={{view:"alignmentSuggestions"}}/>
+          { showSidebar && Users.canDo(currentUser, 'alignment.sidebar') && <div>
+            <Components.AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
+            <Components.AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
           </div>}
         </div>
       )

@@ -3,13 +3,12 @@ import withUser from '../common/withUser';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
-import Alert from 'react-bootstrap/lib/Alert'
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 
-const Error = ({error}) => <Alert className="flash-message" bsStyle="danger">
-<FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
-</Alert>
+const Error = ({error}) => <div>
+  <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
+</div>;
 
 const UsersPostsList = ({className, results, loading, count, totalCount, loadMore,
   showHeader = true, showLoadMore = true, networkStatus, currentUser, error,
@@ -41,7 +40,7 @@ const UsersPostsList = ({className, results, loading, count, totalCount, loadMor
   )
 };
 
-UsersPostsList.displayName = "PostsList";
+UsersPostsList.displayName = "UsersPostsList";
 
 UsersPostsList.propTypes = {
   results: PropTypes.array,

@@ -1,5 +1,4 @@
 import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
-// import moment from 'moment';
 import { Posts } from '../../lib/collections/posts';
 
 SyncedCron.options = {
