@@ -23,6 +23,7 @@ import {
   UnderlineButton,
   BlockquoteButton,
 } from 'draft-js-buttons';
+import NoSsr from '@material-ui/core/NoSsr';
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
@@ -128,6 +129,7 @@ class EditorForm extends Component {
 
     return (
       <div>
+        <NoSsr>
         <div
           className={classNames(
             { "content-editor-is-empty": !editorState.getCurrentContent().hasText() },
@@ -147,6 +149,7 @@ class EditorForm extends Component {
         </div>
         <InlineToolbar />
         <AlignmentTool />
+        </NoSsr>
       </div>
     )
   }

@@ -3,7 +3,7 @@ import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 
-import { createDummyUser, createDummyPost, createDummyComment } from '../utils.js'
+import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails } from '../utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -443,40 +443,30 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
 
 describe('Comments deleted permissions --', async function() {
   this.timeout(10000)
-  it("CommentsEdit Deleted should succeed if user in sunshineRegiment", async function() {
+  it("updateComment – Deleted should succeed if user in sunshineRegiment", async function() {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
-    const comment = await createDummyComment(commentAuthor, {postId:post._id})
-    const query = `
-      mutation CommentsEdit {
-        updateComment(selector: {_id:"${comment._id}"}, data:{deleted:true}) {
-          data {
-            deleted
-          }
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { updateComment: { data: {deleted: true} } } }
-    return response.should.eventually.deep.equal(expectedOutput);
+    const comment = await createDummyComment(commentAuthor, {postId: post._id})
+    return userUpdateFieldSucceeds({ user:user, document:comment,
+      fieldName:'deleted', newValue: true, collectionType: "Comment"
+    })
   })
   it("CommentsEdit set Deleted should fail if user is trustLevel1 and has set moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
-    const query = `
-      mutation CommentsEdit {
-        updateComment(selector: {_id:"${comment._id}"}, data:{deleted:true}) {
-          data {
-            deleted
-          }
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    return userUpdateFieldFails({ user:user, document:comment,
+      fieldName:'deleted', newValue: true, collectionType: "Comment"
+    })
+  })
+  it("CommentsEdit set Deleted should fail if user is alignmentForum", async () => {
+    const user = await createDummyUser({groups:["alignmentForum"]})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(user)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    return userUpdateFieldFails({ user:user, document:comment, fieldName:'deleted', newValue: true, collectionType: "Comment"})
   })
   it("moderateComment set deleted should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
@@ -637,5 +627,5 @@ describe('CommentLock permissions --', async ()=> {
     const response = runQuery(query, {}, {currentUser:user})
     return response.should.be.rejected;
   });
-  
+
 })

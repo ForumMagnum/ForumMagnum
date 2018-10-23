@@ -43,9 +43,10 @@ class CommentsNode extends PureComponent {
   }
 
   componentDidMount() {
-    let commentHash = this.props.router.location.hash;
+    const { router, comment, post } = this.props
+    let commentHash = router.location.hash;
     const self = this;
-    if (commentHash === "#" + this.props.comment._id) {
+    if (comment && commentHash === ("#" + comment._id) && post) {
       setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
         self.scrollIntoView()
       }, 0);

@@ -102,6 +102,8 @@ The best way to get familiar with our stack is to read the Vulcan and GraphQL do
 4. Understand [Vulcan's data layer](http://docs.vulcanjs.org/schemas.html)
 5. Complete the [GraphQL tutorial](https://graphql.org/learn/)
 
+You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
+
 ### Understanding the codebase
 
 LessWrong 2 is built on VulcanJS, a generic framework for online forums. VulcanJS is in turn built on technologies including:
