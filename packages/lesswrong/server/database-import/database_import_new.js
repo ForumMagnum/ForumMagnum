@@ -3,6 +3,7 @@ import Users from 'meteor/vulcan:users';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';
+import { batchUpdateScore } from 'meteor/vulcan:voting';
 import moment from 'moment';
 import marked from 'marked';
 import pgp from 'pg-promise';
@@ -25,7 +26,6 @@ Vulcan.postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
   let database = postgresConnector(postgresImportDetails);
-
 
   /*
     USER DATA IMPORT
@@ -88,9 +88,10 @@ Vulcan.postgresImport = async () => {
   let legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
 
   // Upsert Posts
-  await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
+  // await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
   // Construct post lookup table to avoid repeated querying
   legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
+  await batchUpdateScore(Posts, false, true)
 
   // /*
   //   COMMENT DATA IMPORT
@@ -130,6 +131,7 @@ Vulcan.postgresImport = async () => {
   // // construct comment lookup table to avoid repeated querying
   // legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
   //
+  // await batchUpdateScore(Comments, false, true)
   // //eslint-disable-next-line no-console
   console.log("Finished data import");
 }
