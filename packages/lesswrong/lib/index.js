@@ -2,6 +2,7 @@
 
 // ## Accounts
 import './modules/accounts/modify_accounts_ui.js';
+import './modules/accounts/configuration.js';
 
 // ## Voting
 import './modules/voting/new_vote_types.js';
@@ -149,6 +150,7 @@ import './search/utils.js';
 import './search/callbacks.js';
 
 import './components.js';
+
 //
 export {
   Conversations,
