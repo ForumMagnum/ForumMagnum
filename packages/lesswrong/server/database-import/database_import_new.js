@@ -9,7 +9,9 @@ import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
+import pickBy from 'lodash/pickBy';
 import htmlToText from 'html-to-text';
+import cheerio from 'cheerio'
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -43,7 +45,11 @@ Vulcan.postgresImport = async () => {
   // Merge data
   const mergedGroupedUserData = deepObjectExtend(flattenedUserData, flattenedUserMetaData)
   // Convert to LW2 user format
-  const processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
+  console.log('first grouped users data', mergedGroupedUserData[0])
+  let processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
+  // processedUsers = processedUsers.filter(user => user.email === 'joshhjacobson@gmail.com')
+  // console.log('processed users', processedUsers)
+  processedUsers = processedUsers.slice(30)
 
   // Construct user lookup table to avoid repeated querying
   let legacyIdToUserMap = await new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
@@ -71,9 +77,12 @@ Vulcan.postgresImport = async () => {
   const groupedPostMetaData = groupBy(rawPostMetaData, (row) => row.thing_id);
   const flattenedPostMetaData = mapValues(groupedPostMetaData, (v) => _.pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'descendant_karma', 'date'));
   // Merge data
-  const mergedGroupedPostData = deepObjectExtend(flattenedPostData, flattenedPostMetaData);
+  let mergedGroupedPostData = deepObjectExtend(flattenedPostData, flattenedPostMetaData);
+  // mergedGroupedPostData = pickBy(mergedGroupedPostData, post => post.url === '/ea/1cl/an_argument_for_why_the_future_may_be_good/')
+  console.log('mergedGPD keys length', Object.keys(mergedGroupedPostData).length)
   // Convert to LW2 post format
   const processedPosts = mapValues(mergedGroupedPostData, (post, id) => legacyPostToNewPost(post, id, legacyIdToUserMap.get(post.author_id)));
+  // processedPosts = processedPosts.filter(post => post.slug === 'an-argument-for-why-the-future-may-be-good')
 
   // Construct post lookup table to avoid repeated querying
   let legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
@@ -83,46 +92,46 @@ Vulcan.postgresImport = async () => {
   // Construct post lookup table to avoid repeated querying
   legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
 
-  /*
-    COMMENT DATA IMPORT
-  */
-
-  //eslint-disable-next-line no-console
-  console.log("Starting the comment data import");
-
-  // Query for comment data
-  let rawCommentData = await database.any('SELECT thing_id, key, value from reddit_data_comment', [true]);
-  let rawCommentMetadata = await database.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true]);
-  // Process comment data
-  let commentData = groupBy(rawCommentData, (row) => row.thing_id);
-  commentData = mapValues(commentData, keyValueArraytoObject);
-  // Process post metadata
-  let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
-  commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
-  // Merge data
-  commentData = deepObjectExtend(commentData, commentMetaData);
-  // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
-  commentData = mapValues(commentData,
-    (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
-  );
-
-  let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
-
-  commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
-
-  //eslint-disable-next-line no-console
-  console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
-
-  await upsertProcessedComments(commentData, legacyIdToCommentMap);
-
-  //eslint-disable-next-line no-console
-  console.log("Finished Upserting comments");
-
-  // construct comment lookup table to avoid repeated querying
-  legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
-
-  //eslint-disable-next-line no-console
-  console.log("Finished comment data import");
+  // /*
+  //   COMMENT DATA IMPORT
+  // */
+  //
+  // //eslint-disable-next-line no-console
+  // console.log("Starting the comment data import");
+  //
+  // // Query for comment data
+  // let rawCommentData = await database.any('SELECT thing_id, key, value from reddit_data_comment', [true]);
+  // let rawCommentMetadata = await database.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true]);
+  // // Process comment data
+  // let commentData = groupBy(rawCommentData, (row) => row.thing_id);
+  // commentData = mapValues(commentData, keyValueArraytoObject);
+  // // Process post metadata
+  // let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
+  // commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
+  // // Merge data
+  // commentData = deepObjectExtend(commentData, commentMetaData);
+  // // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
+  // commentData = mapValues(commentData,
+  //   (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
+  // );
+  //
+  // let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
+  //
+  // commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
+  //
+  // //eslint-disable-next-line no-console
+  // console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
+  //
+  // await upsertProcessedComments(commentData, legacyIdToCommentMap);
+  //
+  // //eslint-disable-next-line no-console
+  // console.log("Finished Upserting comments");
+  //
+  // // construct comment lookup table to avoid repeated querying
+  // legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
+  //
+  // //eslint-disable-next-line no-console
+  console.log("Finished data import");
 }
 
 const addParentCommentId = (comment, parentComment) => {
@@ -165,7 +174,8 @@ const upsertProcessedPosts = async (posts, postMap) => {
   const postUpdates = _.map(posts, (post) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
-      let set = {draft: post.draft, legacyData: post.legacyData};
+      // TODO; We changed htmlbody, probably fine
+      let set = {htmlBody: post.htmlBody, draft: post.draft, legacyData: post.legacyData};
       if (post.deleted || post.spam) {
         set.status = 3;
       }
@@ -192,10 +202,10 @@ const upsertProcessedUsers = async (users, userMap) => {
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
+  console.log("Updating N users: ", _.size(usersToUpdate));
   const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
+  console.log("Inserting N users: ", _.size(usersToInsert));
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
   if (usersToInsert && _.size(usersToInsert)) {
     for(let key in usersToInsert) {
@@ -243,6 +253,8 @@ const insertUser = async (user) => {
     })
   } catch(err) {
     if (err.code == 11000) {
+      console.log('err', err)
+      console.log("duplicate", user);
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
         newMutation({
@@ -357,7 +369,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     legacyData: post,
     title: post.title,
     userId: user && user._id,
-    htmlBody: post.article,
+    htmlBody: cleanHtml(post.article),
     userIP: post.ip,
     status: post.deleted || post.spam ? 3 : 2,
     legacySpam: post.spam,
@@ -370,6 +382,123 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
+}
+
+// TODO; look at list of allowed tags in markdown, unsafe tags, bbcode?
+// / what tags do we get
+const BANNED_TAGS = [
+  'meta',
+  'head',
+  'title',
+  'style',
+  'script',
+  'form'
+]
+
+
+const BANNED_ATTRS = [
+  'style',
+  'target',
+  'class',
+  'width',
+  'height',
+  'id',
+  'name',
+  'size',
+  'clear',
+  'align',
+  'dir',
+  'lang',
+  'border',
+  'rel',
+  'rev',
+  'onclick',
+  'type',
+  'datetime',
+  'cite',
+  'cellspacing',
+  'cellpadding',
+  'valign',
+  'value',
+  'tabindex',
+  'action',
+  'span',
+  'bgcolor',
+  'data-params',
+  'frameborder',
+  'allowfullscreen',
+  'draggable',
+  'data-image-id',
+  'data-width',
+  'data-height',
+  'data-href',
+  'data-saferedirecturl',
+  'data-surl',
+  'sizes',
+  'srcset',
+  'data-sizes',
+  'data-srcset',
+  'data-sheets-value',
+  'data-sheets-numberformat',
+  'data-sheets-formula',
+  'start',
+  'data-sheets-userformat',
+  'data-ft',
+  'data-cke-saved-href',
+  'data-wpmedia-src',
+  'data-orcid',
+  'data-t',
+  'data-fn',
+  'data-ln',
+  'data-pos',
+  'data-tb',
+  'data-etype',
+  'data-mathml',
+  'data-original-height',
+  'data-original-width',
+  'data-block',
+  'data-editor',
+  'data-offset-key',
+  'hspace',
+  'vspace',
+  'data-lynx-mode',
+  'scrolling',
+  'seamless',
+  'data-file-id',
+  'data-xf-p',
+  'data-external',
+  'data-artdeco-is-focused',
+  'data-text',
+  'data-lynx-uri',
+  'contenteditable'
+]
+
+const cleanHtml = (htmlBody) => {
+  const $ = cheerio.load(htmlBody)
+  // console.log('htmlBody start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+  // console.log($.html())
+  // console.log('htmlBody end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+
+  let needsRemoving = []
+  BANNED_TAGS.forEach(tag => {
+    if ($(tag).length > 0 && !needsRemoving.includes(tag)) needsRemoving.push(tag)
+    $(tag).remove()
+  })
+  if (needsRemoving.length > 0) {
+    // console.log('found banned tags', needsRemoving)
+    // console.log('html', $.html())
+  } else console.log('no banned tags founds')
+
+  $('*').each(function () {
+    const el = $(this)
+    BANNED_ATTRS.forEach(attr => el.removeAttr(attr))
+  })
+
+  const result = $.html()
+  // console.log('result start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+  // console.log(result)
+  // console.log('result end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+  return result
 }
 
 const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
