@@ -10,6 +10,7 @@ import './modules/headtags.js'
 
 // ## Accounts
 import './modules/accounts/modify_accounts_ui.js';
+import './modules/accounts/configuration.js';
 
 // ## Voting
 import './modules/voting/new_vote_types.js';
