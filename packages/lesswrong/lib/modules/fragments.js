@@ -180,6 +180,8 @@ registerFragment(`
     website
     contactInfo
     content
+    htmlBody
+    body
     types
   }
 `);

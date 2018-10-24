@@ -2,6 +2,7 @@ import Users from 'meteor/vulcan:users';
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import './permissions.js';
+import { makeEditable } from '../../editor/make_editable.js'
 
 const options = {
      newCheck: (user, document) => {
@@ -23,7 +24,7 @@ const options = {
      },
  }
 
-const Localgroups = createCollection({
+export const Localgroups = createCollection({
 
   collectionName: 'Localgroups',
 
@@ -36,5 +37,23 @@ const Localgroups = createCollection({
   mutations: getDefaultMutations('Localgroups', options)
 
 });
+
+export const makeEditableOptions = {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    order: 25,
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members']
+    },
+  }
+
+makeEditable({
+  collection: Localgroups,
+  options: makeEditableOptions
+})
 
 export default Localgroups;

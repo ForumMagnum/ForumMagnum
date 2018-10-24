@@ -25,7 +25,7 @@ class LocalEventMarker extends PureComponent {
         strokeColor: "#FFFFFF"
     };
 
-
+    const htmlBody = {__html: event.htmlBody};
     return(
       <Marker
         onClick={() => handleMarkerClick(event._id)}
@@ -38,7 +38,7 @@ class LocalEventMarker extends PureComponent {
             <div className={classes.mapInfoWindow}>
               <a><CloseIcon className={classes.closeIcon} onClick={() => handleInfoWindowClose(event._id)}/></a>
               <Link to={Posts.getPageUrl(event)}><h5 className={classes.groupMarkerName}> [Event] {event.title} </h5></Link>
-              <div className={classes.markerBody}><Components.DraftJSRenderer content={event.content} /></div>
+              <div dangerouslySetInnerHTML={htmlBody} className={classes.markerBody}></div>
               {event.contactInfo && <div className={classes.contactInfo}>{event.contactInfo}</div>}
               <Link className={classes.markerPageLink} to={Posts.getPageUrl(event)}> Full link </Link>
               <div className={classes.linksWrapper}><Components.GroupLinks document={event}/></div>

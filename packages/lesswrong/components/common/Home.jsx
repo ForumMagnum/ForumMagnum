@@ -2,9 +2,19 @@ import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:cor
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+
+const styles = theme => ({
+  frontpageSequencesGridList: {
+    [legacyBreakpoints.maxSmall]: {
+      marginTop: 40,
+    }
+  }
+});
 
 const Home = (props, context) => {
-  const { currentUser, router } = props;
+  const { currentUser, router, classes } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || ("frontpage");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -40,4 +50,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withUser);
+registerComponent('Home', Home, withUser, withStyles(styles, {name: "Home"}));

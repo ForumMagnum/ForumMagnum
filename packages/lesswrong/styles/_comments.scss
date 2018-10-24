@@ -84,15 +84,6 @@ New CSS File
 .comments-item {
   padding:2px 12px 3px 12px;
   position: relative;
-  .comments-more-actions-menu {
-    opacity: .35;
-    position: absolute;
-    top: 12px;
-    right: 20px;
-  }
-  &:hover .comments-more-actions-menu {
-    opacity: 1;
-  }
 }
 .comments-item.deleted {
   background-color: #ffefef;
@@ -121,9 +112,6 @@ New CSS File
     .users-name {
       color: rgba(0,0,0,0.87);
     }
-  }
-  .comments-more-actions-menu {
-    top: 10px;
   }
 }
 
@@ -163,10 +151,6 @@ New CSS File
     margin-right: 5px;
   }
 
-
-  .avatar{
-    margin-right: 5px;
-  }
   .users-name{
     margin-right: $hmargin;
   }

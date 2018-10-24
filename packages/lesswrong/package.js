@@ -16,7 +16,6 @@ Package.onUse( function(api) {
     'vulcan:core',
 
     // vulcan packages
-    'vulcan:ui-bootstrap',
     'vulcan:voting',
     'vulcan:accounts',
     'vulcan:email',

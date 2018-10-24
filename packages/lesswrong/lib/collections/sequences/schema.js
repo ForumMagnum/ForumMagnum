@@ -1,5 +1,4 @@
 import { Components } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
 const schema = {
@@ -27,7 +26,7 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['admin'],
-    hidden: Users.canDo('sequences.edit.all'),
+    hidden:  true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
@@ -172,6 +171,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    hidden: true,
     control: "checkbox"
   },
 

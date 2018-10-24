@@ -15,6 +15,7 @@ const CommentsEditForm = (props, context) => {
         showRemove={false}
         queryFragment={getFragment('CommentsList')}
         mutationFragment={getFragment('CommentsList')}
+        submitLabel="Save"
       />
     </div>
   )
