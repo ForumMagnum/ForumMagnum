@@ -177,6 +177,8 @@ class RecentDiscussionThread extends PureComponent {
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <Components.CommentsNode
+                  startThreadCollapsed={true}
+                  nestingLevel={1}
                   currentUser={currentUser}
                   comment={comment.item}
                   //eslint-disable-next-line react/no-children-prop
