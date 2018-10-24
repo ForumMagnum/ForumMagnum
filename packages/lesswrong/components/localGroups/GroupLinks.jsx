@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from '@material-ui/core/SvgIcon';
-import IconButton from 'material-ui/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
@@ -19,12 +19,6 @@ const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props
 const GroupTypeIcon = (props) => <FontIcon style={{fontSize: '14px'}}>
   {props.type}
 </FontIcon>
-
-const buttonStyles = {
-  padding: '0px',
-  width: '18px',
-  height: '18px'
-}
 
 const styles = theme => ({
   groupTypes: {
@@ -59,6 +53,13 @@ const styles = theme => ({
     paddingTop: "2px",
     transform: "translateY(3px) rotate(-45deg)",
   },
+  
+  iconButton: {
+    padding: '0px',
+    width: '18px',
+    height: '18px',
+    verticalAlign: "baseline",
+  }
 });
 
 class GroupLinks extends PureComponent {
@@ -87,7 +88,7 @@ class GroupLinks extends PureComponent {
               title="Facebook Group"
               placement="top-end"
             >
-              <a href={document.facebookLink}><IconButton style={buttonStyles}>
+              <a href={document.facebookLink}><IconButton className={classes.iconButton} color="inherit">
                 <FacebookIcon className={classes.facebookIcon}/>
               </IconButton></a>
             </Tooltip>}
@@ -96,7 +97,7 @@ class GroupLinks extends PureComponent {
               title="Group Website"
               placement="top-end"
             >
-              <a href={document.website}><IconButton style={buttonStyles}>
+              <a href={document.website}><IconButton className={classes.iconButton} color="inherit">
                 <LinkIcon className={classes.linkIcon}/>
               </IconButton></a>
             </Tooltip>}
