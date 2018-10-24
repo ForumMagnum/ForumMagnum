@@ -46,9 +46,9 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const { comment, post, showTitle, level=1 } = this.props;
+    const { comment, showTitle, level=1 } = this.props;
 
-    if (comment && post) {
+    if (comment && comment.post) {
       return (
         <div
           className={classNames(

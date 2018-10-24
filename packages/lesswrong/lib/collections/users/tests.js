@@ -12,7 +12,8 @@ describe('updateUser – ', async () => {
     return userUpdateFieldFails({
       user:user,
       document:user,
-      fieldName:'displayName'
+      fieldName:'displayName',
+      collectionType:'User',
     })
   });
   it("fails when user updates their createdAt", async () => {
@@ -20,7 +21,8 @@ describe('updateUser – ', async () => {
     return userUpdateFieldFails({
       user:user,
       document:user,
-      fieldName:'createdAt'
+      fieldName:'createdAt',
+      collectionType:'User',
     })
   });
   it("fails when sunshineUser updates a user's createdAt", async () => {
@@ -29,7 +31,8 @@ describe('updateUser – ', async () => {
     return userUpdateFieldFails({
       user:sunshineUser,
       document:user,
-      fieldName:'createdAt'
+      fieldName:'createdAt',
+      collectionType:'User',
     })
   });
   it("fails when user updates their nullifyVotes", async () => {
@@ -37,7 +40,8 @@ describe('updateUser – ', async () => {
     return userUpdateFieldFails({
       user:user,
       document:user,
-      fieldName:'nullifyVotes'
+      fieldName:'nullifyVotes',
+      collectionType:'User',
     })
   });
   it("fails when user updates their voteBanned", async () => {
@@ -47,6 +51,7 @@ describe('updateUser – ', async () => {
       document:user,
       fieldName:'voteBanned',
       newValue: true,
+      collectionType:'User',
     })
   });
   it("fails when user updates their deleteContent", async () => {
@@ -56,6 +61,7 @@ describe('updateUser – ', async () => {
       document:user,
       fieldName:'deleteContent',
       newValue: true,
+      collectionType:'User',
     })
   });
   it("fails when user updates their banned", async () => {
@@ -65,6 +71,7 @@ describe('updateUser – ', async () => {
       document:user,
       fieldName:'banned',
       newValue: true,
+      collectionType:'User',
     })
   });
 })

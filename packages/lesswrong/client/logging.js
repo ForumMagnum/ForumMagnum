@@ -3,16 +3,12 @@ import { getSetting, addCallback } from 'meteor/vulcan:core'
 
 const sentryUrl = getSetting('sentry.url');
 const sentryEnvironment = getSetting('sentry.environment');
+const sentryRelease = getSetting('sentry.release')
 
 Sentry.init({
   dsn: sentryUrl,
-  beforeBreadcrumb(breadcrumb, hint) {
-    if (breadcrumb.level === "error" && breadcrumb.message) {
-      Sentry.captureException(breadcrumb.message)
-    }
-    return breadcrumb
-  },
-  environment: sentryEnvironment
+  environment: sentryEnvironment,
+  release: sentryRelease,
 });
 // Initializing sentry on the client browser
 

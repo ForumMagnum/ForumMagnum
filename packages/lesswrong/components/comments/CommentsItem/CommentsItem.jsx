@@ -14,6 +14,7 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
+import withDialog from '../../common/withDialog'
 
 const styles = theme => ({
   root: {
@@ -45,7 +46,6 @@ class CommentsItem extends Component {
     this.state = {
       showReply: false,
       showEdit: false,
-      showReport: false,
       showParent: false
     };
   }
@@ -59,8 +59,16 @@ class CommentsItem extends Component {
   }
 
   showReport = (event) => {
-    event.preventDefault();
-    this.setState({showReport: true});
+    const { openDialog, comment, currentUser } = this.props;
+    openDialog({
+      componentName: "ReportForm",
+      componentProps: {
+        commentId: comment._id,
+        postId: comment.postId,
+        link: "/posts/" + comment.postId + "/a/" + comment._id,
+        userId: currentUser._id,
+      }
+    });
   }
 
   showReply = (event) => {
@@ -276,15 +284,6 @@ class CommentsItem extends Component {
                   />
                 ]}
               />}
-              { this.state.showReport &&
-                <Components.ReportForm
-                  commentId={comment._id}
-                  postId={comment.postId}
-                  link={"/posts/" + comment.postId + "/a/" + comment._id}
-                  userId={currentUser._id}
-                  open={true}
-                />
-              }
             </Components.CommentsMenu>
         </span>
       )
@@ -386,6 +385,7 @@ CommentsItem.propTypes = {
 registerComponent('CommentsItem', CommentsItem,
   withRouter, withMessages,
   withStyles(styles, { name: "CommentsItem" }),
+  withDialog,
   withErrorBoundary
 );
 export default CommentsItem;
