@@ -121,7 +121,7 @@ class Header extends Component {
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
                     <Link to="/" className={classes.titleLink}>
-                      {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
+                      {getSetting('forumSettings.headerTitle', 'The Art of Currency')}
                     </Link>
                     {subtitleLink && <span className={classes.subtitle}>
                       <Link to={subtitleLink} className={classes.titleLink}>

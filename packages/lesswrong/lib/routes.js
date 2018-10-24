@@ -39,13 +39,6 @@ addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex', title: "The Co
 addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'PostsSingleSlugWrapper'})
 
 
-addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
-addRoute({ name: 'EventsDaily', path: '/pastEvents', componentName: 'EventsDaily', title: "Past Events by Day"})
-addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
-addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
-addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome', title: "Community"})
-addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome', title: "Community"})
-
 //Route for testing the editor. Useful for debugging
 addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})

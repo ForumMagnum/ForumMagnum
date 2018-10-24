@@ -79,39 +79,7 @@ const Home = (props, context) => {
   return (
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
-      { !currentUser ?
-        <Components.Section
-          contentStyle={{marginTop: '-20px'}}
-          title="Recommended Reading"
-          titleLink="/library"
-          titleComponent= {<Components.SectionSubtitle>
-            <Link to="/library">Sequence Library</Link>
-          </Components.SectionSubtitle>}
-        >
-          <Components.CollectionsCardContainer>
-            <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
-            <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
-            <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
-          </Components.CollectionsCardContainer>
-        </Components.Section> :
-        <div>
-          <Components.Section
-            title="Recommended Sequences"
-            titleLink="/library"
-            titleComponent= {<Components.SectionSubtitle to="/library">
-              <Link to="/library">Sequence Library</Link>
-            </Components.SectionSubtitle>}
-          >
-            <Components.SequencesGridWrapper
-              terms={{view:"curatedSequences", limit:3}}
-              showAuthor={true}
-              showLoadMore={false}
-            className="frontpage-sequences-grid-list" />
-          </Components.Section>
-          <Components.Section title="Curated Content">
-            <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
-          </Components.Section>
-        </div>}
+
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
@@ -119,20 +87,6 @@ const Home = (props, context) => {
         subscribeLinks={<Components.SubscribeWidget view={recentPostsTerms.view} />}
       >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
-      </Components.Section>
-      <Components.Section
-        title="Community"
-        titleLink="/community"
-        titleComponent={<div>
-          <Components.SectionSubtitle>
-          <Link to="/community">Find Events Nearby</Link>
-          </Components.SectionSubtitle>
-        </div>}
-      >
-        <Components.PostsList
-          terms={eventsListTerms}
-          showLoadMore={false}
-          showHeader={false} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments">
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
