@@ -1,4 +1,4 @@
-import { Posts } from 'meteor/example-forum';
+import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
 import { getSetting } from 'meteor/vulcan:core';
 import moment from 'moment';
@@ -399,10 +399,10 @@ Posts.addView("sunshineCuratedSuggestions", function () {
   }
 })
 
-Posts.addView("alignmentSuggestions", function () {
+Posts.addView("alignmentSuggestedPosts", function () {
   return {
     selector: {
-      af: false,
+      af: {$ne: true},
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
       reviewForAlignmentUserId: {$exists:false}
     },

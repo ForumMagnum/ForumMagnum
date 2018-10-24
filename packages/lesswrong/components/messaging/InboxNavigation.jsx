@@ -8,7 +8,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
-import moment from 'moment';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
 import { Link } from 'react-router';
@@ -89,7 +88,7 @@ class InboxNavigation extends Component {
                 <Typography variant="body2" className={classes.conversationItem}>
                   { Conversations.getTitle(conversation, currentUser) }
                   <span className={classes.conversationItemLatestActivity}>
-                    {conversation.latestActivity && moment(new Date(conversation.latestActivity)).fromNow()}
+                    {conversation.latestActivity && <Components.FromNowDate date={conversation.latestActivity}/>}
                   </span>
                 </Typography>
             </Link>)
@@ -108,7 +107,7 @@ const conversationOptions = {
   queryName: 'conversationsListQuery',
   fragmentName: 'conversationsListFragment',
   limit: 20,
-  totalResolver: false,
+  enableTotal: false,
 };
 
 registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions], withUser, withRouter, withStyles(styles, { name: "InboxNavigation" }));

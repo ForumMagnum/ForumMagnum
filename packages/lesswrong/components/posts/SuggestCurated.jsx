@@ -1,7 +1,7 @@
 import { Components , registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 
@@ -42,18 +42,16 @@ class SuggestCurated extends Component {
         Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return <div className="posts-page-suggest-curated">
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-            <span
-              className="posts-page-suggest-curated-button"
-              onClick={this.handleSuggestCurated}
-              >
-              Suggest Curation
-            </span> :
-            <span
-              className="posts-page-suggest-curated-button suggested"
-              onClick={this.handleUnsuggestCurated}
-              >
-              Unsuggest Curation
-            </span>
+            <div>
+              <a onClick={this.handleSuggestCurated}>
+                Suggest Curation
+              </a>
+            </div> :
+            <div>
+              <a onClick={this.handleUnsuggestCurated}>
+                Unsuggest Curation
+              </a>
+            </div>
           }
         </div>
     } else {

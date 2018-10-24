@@ -71,7 +71,7 @@ class SunshineNewUsersItem extends Component {
               { user.email }
             </C.MetaInfo>
             <C.MetaInfo>
-              { moment(new Date(user.createdAt)).fromNow() }
+              <C.FromNowDate date={user.createdAt}/>
             </C.MetaInfo>
           </div>
 

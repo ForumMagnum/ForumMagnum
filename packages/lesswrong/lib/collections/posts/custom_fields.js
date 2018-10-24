@@ -1,9 +1,11 @@
-import { Posts } from "meteor/example-forum";
+import { Posts } from './collection';
 import ReactDOMServer from 'react-dom/server';
-import { Components, Connectors } from 'meteor/vulcan:core';
+import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 
 export const formGroups = {
   adminOptions: {
@@ -59,7 +61,8 @@ Posts.addField([
       order: 12,
       control: 'EditUrl',
       placeholder: 'Add a linkpost URL',
-      group: formGroups.options
+      group: formGroups.options,
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins']
     }
   },
   /**
@@ -71,17 +74,8 @@ Posts.addField([
       order: 10,
       placeholder: "Title",
       control: 'EditTitle',
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins']
     },
-  },
-
-  /**
-    categoriesIds: Change original Vulcan field to hidden
-  */
-  {
-    fieldName: "categoriesIds",
-    fieldSchema: {
-      hidden: true,
-    }
   },
 
   /**
@@ -150,7 +144,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'feed',
         type: 'RSSFeed',
-        resolver: (post, args, context) => context.RSSFeeds.findOne({_id: post.feedId}, {fields: context.getViewableFields(context.currentUser, context.RSSFeeds)}),
+        resolver: generateIdResolverSingle(
+          {collectionName: 'RSSFeeds', fieldName: 'feedId'}
+        ),
         addOriginalField: true,
       },
       group: formGroups.adminOptions,
@@ -209,10 +205,10 @@ Posts.addField([
         type: 'Date',
         resolver: async (post, args, { LWEvents, currentUser }) => {
           if(currentUser){
-            const event = await Connectors.get(LWEvents, {name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+            const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
             return event && event.createdAt
           } else {
-            return post.lastVisitDateDefault;
+            return post.lastVisitDateDefault
           }
         }
       }
@@ -360,12 +356,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'user',
         type: 'User',
-        resolver: async (post, args, context) => {
-          if (!post.userId || post.hideAuthor) return null;
-          const user = await context.Users.loader.load(post.userId);
-          if (user.deleted) return null;
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'userId'}
+        ),
         addOriginalField: true
       },
     }
@@ -376,7 +369,7 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       optional: true,
       label: "Co-Authors",
@@ -386,11 +379,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'coauthors',
         type: '[User]',
-        resolver: (post, args, context) => {
-          return _.map(post.coauthorUserIds,
-            (coauthorId => {return context.Users.findOne({ _id: coauthorId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-          )
-        },
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'coauthorUserIds'}
+        ),
         addOriginalField: true
       },
     }
@@ -416,11 +407,9 @@ Posts.addField([
         fieldName: 'canonicalSequence',
         addOriginalField: true,
         type: "Sequence",
-        resolver: (post, args, context) => {
-          if (!post.canonicalSequenceId) return null;
-          const sequence = context.Sequences.findOne({_id: post.canonicalSequenceId});
-          return Users.restrictViewableFields(context.currentUser, context.Sequences, sequence);
-        }
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Sequences', fieldName: 'canonicalSequenceId'}
+        ),
       },
       hidden: false,
       control: "text"
@@ -442,10 +431,11 @@ Posts.addField([
         fieldName: 'canonicalCollection',
         addOriginalField: true,
         type: "Collection",
+        // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
+        // work out of the box with the id-resolver generators
         resolver: (post, args, context) => {
           if (!post.canonicalCollectionSlug) return null;
-          const collection = context.Collections.findOne({slug: post.canonicalCollectionSlug})
-          return Users.restrictViewableFields(context.currentUser, context.Collections, collection);
+          return context.Collections.findOne({slug: post.canonicalCollectionSlug})
         }
       }
     }
@@ -466,11 +456,9 @@ Posts.addField([
         fieldName: 'canonicalBook',
         addOriginalField: true,
         type: "Book",
-        resolver: (post, args, context) => {
-          if (!post.canonicalBookId) return null;
-          const book = context.Books.findOne({_id: post.canonicalBookId});
-          return Users.restrictViewableFields(context.currentUser, context.Books, book);
-        }
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Books', fieldName: 'canonicalBookId'}
+        ),
       }
     }
   },
@@ -546,7 +534,7 @@ Posts.addField([
       defaultValue: false,
       viewableBy: ['members'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -562,7 +550,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       hidden: true,
       label: "Publish to meta",
@@ -659,7 +647,7 @@ Posts.addField([
     fieldName: 'bannedUserIds',
     fieldSchema: {
       type: Array,
-      viewableBy: ['members'],
+      viewableBy: ['guests'],
       group: formGroups.moderationGroup,
       insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
       editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
@@ -688,27 +676,6 @@ Posts.addField([
     }
   },
 
-  {
-    fieldName: 'groupId',
-    fieldSchema: {
-      type: String,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment'],
-      insertableBy: ['members'],
-      hidden: true,
-      optional: true,
-      resolveAs: {
-        fieldName: 'group',
-        addOriginalField: true,
-        type: "Localgroup",
-        resolver: (post, args, context) => {
-          const group = context.Localgroups.findOne({_id: post.groupId});
-          return Users.restrictViewableFields(context.currentUser, context.Localgroups, group);
-        }
-      }
-    }
-  },
-
   /*
     Event specific fields:
   */
@@ -719,18 +686,16 @@ Posts.addField([
       type: Array,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       optional: true,
       hidden: true,
       control: "UsersListEditor",
       resolveAs: {
         fieldName: 'organizers',
         type: '[User]',
-        resolver: (localEvent, args, context) => {
-          return _.map(localEvent.organizerIds,
-            (organizerId => {return context.Users.findOne({ _id: organizerId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users) })})
-          )
-        },
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'organizerIds'}
+        ),
         addOriginalField: true
       },
       group: formGroups.event,
@@ -750,7 +715,7 @@ Posts.addField([
     fieldSchema: {
       type: String,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       optional: true,
       hidden: true,
@@ -758,9 +723,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'group',
         type: ['Localgroup'],
-        resolver: (localEvent, args, context) => {
-          return context.Localgroups.findOne({_id: localEvent.groupId}, {fields: context.Users.getViewableFields(context.currentUser, context.Localgroups)});
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Localgroups', fieldName: 'groupId'}
+        ),
         addOriginalField: true,
       }
     }
@@ -791,11 +756,9 @@ Posts.addField([
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
-        resolver: async (post, args, context) => {
-          if (!post.reviewedByUserId) return null;
-          const user = await context.Users.loader.load(post.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'reviewedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -820,7 +783,7 @@ Posts.addField([
       type: Date,
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       control: 'datetime',
       label: "Start Time",
@@ -835,7 +798,7 @@ Posts.addField([
       type: Date,
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       control: 'datetime',
       label: "End Time",
@@ -850,7 +813,7 @@ Posts.addField([
       type: Object,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
       blackbox: true,
       optional: true
@@ -864,7 +827,7 @@ Posts.addField([
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       label: "Group Location",
       control: 'LocationFormComponent',
       blackbox: true,
@@ -879,7 +842,7 @@ Posts.addField([
       type: String,
       searchable: true,
       viewableBy: ['guests'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
       hidden: true,
       optional: true
@@ -908,7 +871,7 @@ Posts.addField([
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       label: "Facebook Event",
       control: "MuiInput",
       optional: true,
@@ -923,7 +886,7 @@ Posts.addField([
       hidden: (props) => !props.eventForm,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "MuiInput",
       optional: true,
       group: formGroups.event,
@@ -936,23 +899,14 @@ Posts.addField([
       type: Array,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: (props) => !props.eventForm,
       control: 'MultiSelectButtons',
       label: "Group Type:",
       group: formGroups.event,
       optional: true,
       form: {
-        options: [
-          {value: "LW", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-          {value: "SSC", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-          {value: "EA", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"},
-          {value: "MIRIx", color: "rgba(100, 169, 105, 0.9)", hoverColor: "rgba(100, 169, 105, 0.5)"}
-          // Alternative colorization, keep around for now
-          // {value: "SSC", color: "rgba(136, 172, 184, 0.9)", hoverColor: "rgba(136, 172, 184, 0.5)"},
-          // {value: "EA", color: "rgba(29, 135, 156,0.5)", hoverColor: "rgba(29, 135, 156,0.5)"},
-          // {value: "MIRIx", color: "rgba(225, 96, 1,0.6)", hoverColor: "rgba(225, 96, 1,0.3)"}
-        ]
+        options: localGroupTypeFormOptions
       },
     }
   },
@@ -1020,7 +974,7 @@ Posts.addField([
       order: 15,
       viewableBy: ['guests'],
       insertableBy: ['members'],
-      editableBy: ['members'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       optional: true,
       control: "UsersListEditor",
       label: "Share draft with users",
@@ -1076,3 +1030,90 @@ makeEditable({
   collection: Posts,
   options: makeEditableOptions
 })
+
+
+/*
+
+Custom fields on Users collection
+
+*/
+
+Users.addField([
+  /**
+    Count of the user's posts
+  */
+  {
+    fieldName: 'postCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      viewableBy: ['guests'],
+    }
+  },
+  /**
+    The user's associated posts (GraphQL only)
+  */
+  {
+    fieldName: 'posts',
+    fieldSchema: {
+      type: Object,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        arguments: 'limit: Int = 5',
+        type: '[Post]',
+        resolver: (user, { limit }, { currentUser, Users, Posts }) => {
+          const posts = Posts.find({ userId: user._id }, { limit }).fetch();
+
+          // restrict documents fields
+          const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
+          const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
+          return restrictedPosts
+        }
+      }
+    }
+  },
+  /**
+    User's bio (Markdown version)
+  */
+  {
+    fieldName: 'bio',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      control: "textarea",
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      viewableBy: ['guests'],
+      order: 30,
+      searchable: true,
+    }
+  },
+  /**
+    User's bio (Markdown version)
+  */
+  {
+    fieldName: 'htmlBio',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+    }
+  },
+  /**
+    A link to the user's homepage
+  */
+  {
+    fieldName: 'website',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      control: "text",
+      insertableBy: ['members'],
+      editableBy: ['members'],
+      viewableBy: ['guests'],
+      order: 50,
+    }
+  }
+]);

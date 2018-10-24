@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -19,7 +18,7 @@ const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
         {document.karma} points
       </Components.MetaInfo>
       <Components.MetaInfo>
-        {moment(new Date(document.createdAt)).fromNow()}
+        <Components.FromNowDate date={document.createdAt}/>
       </Components.MetaInfo>
     </div>
   } else {

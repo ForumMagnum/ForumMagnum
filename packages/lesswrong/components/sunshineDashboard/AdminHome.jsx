@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Components, AdminColumns, registerComponent } from 'meteor/vulcan:core';
-import { Bans, LWEvents } from 'meteor/lesswrong';
+import { Bans } from '../../lib/collections/bans';
+import { LWEvents } from '../../lib/collections/lwevents';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
-import moment from 'moment';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import withUser from '../common/withUser';
@@ -19,7 +19,7 @@ const UserIPsDisplay = ({column, document}) => {
 }
 
 const DateDisplay = ({column, document}) => {
-  return <div>{document[column.name] && moment(document[column.name]).fromNow()}</div>
+  return <div>{document[column.name] && <Components.FromNowDate date={document[column.name]}/>}</div>
 }
 
 const EventPropertiesDisplay = ({column, document}) => {

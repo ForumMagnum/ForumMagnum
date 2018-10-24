@@ -1,8 +1,9 @@
 /* global Vulcan */
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils.js';
 import { performSubscriptionAction } from '../../lib/subscriptions/mutations.js';
+import moment from 'moment';
 
 Vulcan.populateNotifications = async ({username,
   messageNotifications = 3,
@@ -237,7 +238,8 @@ Vulcan.createBulkyTestPost = async ({
   commentParagraphCount = 2,
   commentParagraphLength = 800,
   numRootComments = 100,
-  commentDepth = 1 }) =>
+  commentDepth = 1,
+  backDate = null}) =>
 {
   var user;
   if(username)
@@ -249,10 +251,15 @@ Vulcan.createBulkyTestPost = async ({
   const body = "<p>This is a programmatically generated test post.</p>" +
     makeLoremIpsumBody(postParagraphCount, postParagraphLength);
 
-  const post = await createDummyPost(user, {
+  let dummyPostFields = {
     title: postTitle,
     body: body
-  })
+  };
+  if (backDate) {
+    dummyPostFields.createdAt = backDate;
+    dummyPostFields.postedAt = backDate;
+  }
+  const post = await createDummyPost(user, dummyPostFields)
 
   // Create some comments
   for(var ii=0; ii<numRootComments; ii++)
@@ -274,4 +281,24 @@ Vulcan.createBulkyTestPost = async ({
       parentCommentId = childComment._id
     }
   }
+}
+
+// Create a set of test posts that are back-dated, one per hour for the past
+// ten days. Primarily for testing time-zone handling on /daily.
+Vulcan.createBackdatedPosts = async () =>
+{
+  //eslint-disable-next-line no-console
+  console.log("Creating back-dated test post set");
+  
+  for(let i=0; i<24*10; i++) {
+    const backdateTime = moment().subtract(i, 'hours').toDate();
+    await Vulcan.createBulkyTestPost({
+      postTitle: "Test post backdated by "+i+" hours",
+      numRootComments: 0,
+      backDate: backdateTime,
+    });
+  }
+  
+  //eslint-disable-next-line no-console
+  console.log("Done");
 }

@@ -1,6 +1,6 @@
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Users from 'meteor/vulcan:users';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../collections/posts';
 import Sequences from '../../collections/sequences/collection'
 import { getSetting } from 'meteor/vulcan:core';
 
@@ -119,5 +119,20 @@ export const customizeTheme = (router, userAgent, params, store) => {
     muiTheme.palette.accent1Color = "rgba(105,201,192,.5)"
     muiTheme.palette.accent2Color = "rgba(105,201,192,1)"
   }
+  
   return muiTheme
 }
+
+// Legacy LW breakpoints
+// We are migrating away from these, towards material-UI's breakpoints. Also
+// defined as a set of SCSS mixin in _breakpoints.scss.
+const lwTiny = "400px";
+const lwSmall = "715px";
+const lwMedium = "950px";
+export const legacyBreakpoints = {
+  maxTiny: "@media screen and (max-width: "+lwTiny+")",
+  maxSmall: "@media screen and (max-width: "+lwSmall+")",
+  minSmall: "@media screen and (min-width: "+lwSmall+")",
+  maxMedium: "@media screen and (max-width: "+lwMedium+")",
+  minMedium: "@media screen and (min-width: "+lwMedium+")",
+};

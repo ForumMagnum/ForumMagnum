@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../../lib/collections/posts';
 import PropTypes from 'prop-types';
 
 class BanUserFromPostMenuItem extends PureComponent {
@@ -22,7 +22,7 @@ class BanUserFromPostMenuItem extends PureComponent {
         documentId: this.props.comment.postId,
         set: {bannedUserIds:bannedUserIds},
         unset: {}
-      }).then(()=>this.props.flash(`User ${this.props.comment.user.displayName} is now banned from commenting on ${this.props.post.title}`))
+      }).then(()=>this.props.flash({messageString: `User ${this.props.comment.user.displayName} is now banned from commenting on ${this.props.post.title}`}))
     }
   }
 

@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Comments } from "meteor/example-forum";
+import { Comments } from "../../lib/collections/comments";
 
 const CommentsEditForm = (props, context) => {
   return (
@@ -15,6 +15,7 @@ const CommentsEditForm = (props, context) => {
         showRemove={false}
         queryFragment={getFragment('CommentsList')}
         mutationFragment={getFragment('CommentsList')}
+        submitLabel="Save"
       />
     </div>
   )

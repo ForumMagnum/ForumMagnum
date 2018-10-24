@@ -5,7 +5,6 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -171,4 +170,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

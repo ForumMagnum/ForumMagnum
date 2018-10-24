@@ -1,3 +1,4 @@
+// Used in the vulcan-accounts package
 .accounts-ui{
   .field{
     margin-bottom: $vmargin/2;
@@ -13,39 +14,6 @@
     color:red;
     word-wrap: break-word;
     max-width:210px;
-  }
-}
-
-.users-menu{
-  .avatar{
-    margin-right: 5px;
-  }
-}
-
-.avatar-initials{
-  background: $light-grey;
-  color: $dark-grey;
-  text-align: center;
-  border-radius: 100%;
-  text-decoration: none;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  span{
-    display: block;
-    line-height: 1;
-  }
-}
-
-.users-newsletter-settings {
-  @include flex-center;
-  margin-top: $vmargin;
-}
-
-.log-in-message{
-  h3{
-    text-align: center;
   }
 }
 
@@ -176,20 +144,4 @@
   .form-group.row {
     display:block;
   }
-}
-
-.user-profile-posts-title {
-  padding-left:1em;
-  padding-bottom:1.5em;
-  font-size:18px;
-  font-style:italic;
-
-  span.wing {
-    width:100px;
-    border-bottom:solid 1px $light-grey;
-  }
-}
-
-.single-users-item-name {
-  font-family: $comments-font;
 }

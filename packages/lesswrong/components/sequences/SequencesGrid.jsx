@@ -20,8 +20,9 @@ const options = {
   collection: Sequences,
   queryName: 'SequencesGridQuery',
   fragmentName: 'SequencesPageFragment',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
+  ssr: true,
 }
 
 

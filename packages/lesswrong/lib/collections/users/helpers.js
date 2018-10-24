@@ -2,6 +2,11 @@ import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
 import { getSetting } from 'meteor/vulcan:core';
 
+Users.ownsAndInGroup = (group) => {
+  return (user, document) => {
+    return Users.owns(user, document) && Users.isMemberOf(user, group)
+  }
+}
 
 Users.isSharedOn = (currentUser, document) => {
   return (currentUser && document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
@@ -175,4 +180,8 @@ Users.canMakeAlignmentPost = (user, post) => {
     Users.canDo(user,"posts.alignment.move") &&
     Users.owns(user, post)
   )
+}
+
+Users.canEdit = (currentUser, user) => {
+  return Users.owns(currentUser, user) || Users.canDo(currentUser, 'users.edit.all')
 }

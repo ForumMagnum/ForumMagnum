@@ -6,43 +6,19 @@
 @import "global";
 @import "layout";
 @import "accounts";
-@import "categories";
 @import "comments";
 @import "editor";
 @import "header";
-@import "newsletter";
 @import "other";
 @import "forms";
 @import "posts";
 @import "users";
 @import "collections";
 @import "sequences";
-@import "stats";
 @import "localgroups";
 @import "admin";
 @import "sunshine-sidebar";
 @import "alignment-forum";
-@import "modal";
-
-.new-post-button{
-  margin-bottom: 15px;
-}
-
-.avatar{
-  height: 20px;
-  width: 20px;
-  display: block;
-  a, span, img{
-    display: block;
-    border-radius: 100%;
-    height: 100%;
-    widows: 100%;
-  }
-}
-
-.sr-only{
-  display: none;
-}
 
 .upvoted .upvote{
   opacity: 0.3;
@@ -92,12 +68,6 @@ then moved to more specific files as it becomes necessary.
   // With Bootstrap's default hover effect for <a> links, this would look like
   // it's grayed out.
   opacity: 1 !important;
-}
-
-// CSS modifications for notifications page
-
-.notification-filters{
-  margin-bottom: 20px;
 }
 
 // CSS modifications for comments

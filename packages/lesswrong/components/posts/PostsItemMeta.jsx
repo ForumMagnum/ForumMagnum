@@ -1,15 +1,15 @@
 import { Components as C, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
-import moment from 'moment';
 
 const PostsItemMeta = ({currentUser, post}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
+  const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
 
   return <span>
-      { Posts.options.mutations.edit.check(currentUser, post) && <C.MetaInfo>
-        <C.PostsEdit post={post} />
+      { Posts.canEdit(currentUser,post) && <C.MetaInfo>
+        <C.PostsEdit post={post}/>
       </C.MetaInfo>}
       { post.user && <C.MetaInfo>
         <C.UsersName user={post.user}/>
@@ -23,11 +23,14 @@ const PostsItemMeta = ({currentUser, post}) => {
       <C.MetaInfo>
         { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
       </C.MetaInfo>
+      { afBaseScore && <C.MetaInfo>
+        Ω { afBaseScore || 0 }
+      </C.MetaInfo>}
       {post.wordCount && !post.isEvent && <C.MetaInfo>
         {parseInt(post.wordCount/300) || 1 } min read
       </C.MetaInfo>}
       { post.isEvent && post.startTime && <C.MetaInfo>
-        {moment(post.startTime).calendar()}
+        <C.EventTime post={post} dense={true} />
       </C.MetaInfo>}
       { post.isEvent && post.location && <C.MetaInfo>
         {post.location}

@@ -3,6 +3,8 @@ import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const testCollections = [
   {
@@ -34,8 +36,16 @@ const testCollections = [
   }
 ]
 
+const styles = theme => ({
+  frontpageSequencesGridList: {
+    [legacyBreakpoints.maxSmall]: {
+      marginTop: 40,
+    }
+  }
+});
+
 const Home = (props, context) => {
-  const { currentUser, router } = props;
+  const { currentUser, router, classes } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -79,7 +89,6 @@ const Home = (props, context) => {
   return (
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
-
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
           <Components.PostsViews />
@@ -95,4 +104,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withUser);
+registerComponent('Home', Home, withUser, withStyles(styles, {name: "Home"}));

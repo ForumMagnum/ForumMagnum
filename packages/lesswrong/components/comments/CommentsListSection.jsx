@@ -9,7 +9,7 @@ import {
 } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
-import { Comments } from "meteor/example-forum";
+import { Comments } from "../../lib/collections/comments";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
@@ -97,7 +97,7 @@ class CommentsListSection extends Component {
         className={this.props.classes.inline}
       >
         Highlighting new comments since <a className={classes.link} onClick={this.handleClick}>
-          {moment(highlightDate).calendar()}
+          <Components.CalendarDate date={highlightDate}/>
         </a>
         <Menu
           anchorEl={anchorEl}
@@ -136,12 +136,9 @@ class CommentsListSection extends Component {
         />
         {!currentUser &&
           <div>
-            <Components.ModalTrigger
-              component={<a href="#">
-                <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-              </a>} size="small">
-              <Components.AccountsLoginForm/>
-            </Components.ModalTrigger>
+            <Components.LoginPopupLink>
+              <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
+            </Components.LoginPopupLink>
           </div>
         }
         {currentUser && Users.isAllowedToComment(currentUser, post) &&

@@ -2,6 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import * as Sentry from '@sentry/browser';
 
 const styles = theme => ({
   errorText: {
@@ -18,6 +19,12 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     this.setState({ error: error.toString() });
+    Sentry.configureScope(scope => {
+      Object.keys(info).forEach(key => {
+        scope.setExtra(key, info[key]);
+      });
+    });
+    Sentry.captureException(error);
   }
 
   render() {

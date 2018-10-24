@@ -47,7 +47,7 @@ const styles = theme => ({
 class SearchBarResults extends Component {
 
   render() {
-    const { classes } = this.props
+    const { classes, closeSearch } = this.props
 
     return <div className={classes.root}>
       <Grid container className={classes.searchResults}>
@@ -60,7 +60,7 @@ class SearchBarResults extends Component {
               </div>
 
               <Configure hitsPerPage={7} />
-              <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={this.closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </Grid>
         </Components.ErrorBoundary>
@@ -72,7 +72,7 @@ class SearchBarResults extends Component {
                 <Components.SearchPagination />
               </div>
               <Configure hitsPerPage={8} />
-              <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={this.closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </Grid>
         </Components.ErrorBoundary>
@@ -84,7 +84,7 @@ class SearchBarResults extends Component {
                 <Components.SearchPagination />
               </div>
               <Configure hitsPerPage={10} />
-              <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={this.closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </Grid>
         </Components.ErrorBoundary>

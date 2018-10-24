@@ -22,7 +22,7 @@ class NewConversationButton extends Component {
       currentUser: currentUser,
       validate: false,
     })
-    router.push({pathname: '/inbox', query: {select: response.data.ConversationsNew._id}})
+    router.push({pathname: '/inbox', query: {select: response.data.createConversation.data._id}})
   }
 
   render() {

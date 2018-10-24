@@ -5,8 +5,7 @@ addRoute([
   {name:'posts.daily',      path:'daily',                 componentName: 'PostsDaily', title: "Posts by Day" },
   {name:'users.single',     path:'users/:slug',           componentName: 'UsersSingle'},
   {name:'users.account',    path:'account',               componentName: 'UsersAccount'},
-  {name:'users.edit',       path:'users/:slug/edit',      componentName: 'UsersAccount'},
-  {name:'admin.categories', path:'admin/categories',      componentName: 'CategoriesDashboard'},
+  {name:'users.edit',       path:'users/:slug/edit',      componentName: 'UsersAccount'}
 ]);
 
 // Miscellaneous LW2 routes
@@ -59,4 +58,3 @@ if(getSetting('AlignmentForum', false)) {
 } else {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
 }
-

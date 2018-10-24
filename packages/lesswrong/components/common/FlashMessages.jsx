@@ -35,7 +35,7 @@ class FlashMessages extends Component {
 
   render() {
     let messages = this.props.messages.filter(message => message.show);
-    let messageObject = messages.length > 0 && messages[0].id && this.getProperties(messages[0]);
+    let messageObject = messages.length > 0 && (messages[0].id || messages[0].messageString) && this.getProperties(messages[0]);
     return (
       <div className="flash-messages">
         <Snackbar
