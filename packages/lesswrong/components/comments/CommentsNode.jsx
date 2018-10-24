@@ -30,16 +30,37 @@ const styles = theme => ({
   new: {},
   newHover: {},
   deleted: {},
+  numberOfChildren: {
+    color: theme.palette.grey[600],
+    textAlign: "right",
+    padding: "0 15px 8px 0",
+  }
 })
 
 class CommentsNode extends PureComponent {
   constructor(props) {
     super(props);
+
     this.state = {
       hover: false,
-      collapsed: props && props.comment && (props.comment.baseScore < KARMA_COLLAPSE_THRESHOLD || props.comment.deleted),
+      collapsed: this.isCollapsed(),
+      softCollapsed: this.beginSoftCollapsed(),
+      softCollapsedStateSet: false,
       finishedScroll: false,
     };
+  }
+
+  isCollapsed = () => {
+    const { comment } = this.props
+    return (
+      comment.deleted ||
+      comment.baseScore < KARMA_COLLAPSE_THRESHOLD
+    )
+  }
+
+  beginSoftCollapsed = () => {
+    const { nestingLevel, startThreadCollapsed } = this.props
+    return startThreadCollapsed && nestingLevel === 1
   }
 
   componentDidMount() {
@@ -63,26 +84,22 @@ class CommentsNode extends PureComponent {
     this.setState({collapsed: !this.state.collapsed});
   }
 
+  unSoftCollapse = (event) => {
+    event.stopPropagation()
+    this.setState({softCollapsed: false, softCollapsedStateSet: true});
+  }
+
   toggleHover = () => {
     this.setState({hover: !this.state.hover});
   }
 
   render() {
-    const {
-      comment,
-      children,
-      nestingLevel=1,
-      currentUser,
-      highlightDate,
-      editMutation,
-      post,
-      router,
-      postPage,
-      classes,
-      child,
-      showPostTitle
-    } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments } = this.props;
+
     const { hover, collapsed, finishedScroll } = this.state
+
+    const softCollapsed = this.state.softCollapsed || (this.props.softCollapsed && this.state.softCollapsedStateSet === false)
+
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const nodeClass = classNames(
       "comments-node",
@@ -108,7 +125,6 @@ class CommentsNode extends PureComponent {
         [classes.deleted]: comment.deleted,
       }
     )
-
     if (comment && post) {
       return (
         <div className={newComment ? "comment-new" : "comment-old"}>
@@ -120,6 +136,7 @@ class CommentsNode extends PureComponent {
             <div ref="comment">
               <Components.CommentsItem
                 collapsed={collapsed}
+                softCollapsed={softCollapsed}
                 toggleCollapse={this.toggleCollapse}
                 currentUser={currentUser}
                 comment={comment}
@@ -132,28 +149,28 @@ class CommentsNode extends PureComponent {
                 showPostTitle={showPostTitle}
               />
             </div>
-            {!collapsed && children && children.length>0 ?
-              <div className="comments-children">
-                <div className="comments-parent-scroll" onClick={this.scrollIntoView}></div>
-                {children.map(child =>
-                  <Components.CommentsNode child
-                    currentUser={currentUser}
-                    comment={child.item}
-                    nestingLevel={nestingLevel+1}
-                    //eslint-disable-next-line react/no-children-prop
-                    children={child.children}
-                    key={child.item._id}
-                    highlightDate={highlightDate}
-                    editMutation={editMutation}
-                    post={post}
-                    postPage={postPage}
-                  />)}
-                </div>
-                : null
-              }
+            {!collapsed && <div className="comments-children">
+              <div className="comments-parent-scroll" onClick={this.scrollIntoView}></div>
+              {children.map(child =>
+                <Components.CommentsNode child
+                  currentUser={currentUser}
+                  comment={child.item}
+                  nestingLevel={nestingLevel+1}
+                  softCollapsed={softCollapsed}
+                  unreadComments={unreadComments}
+                  //eslint-disable-next-line react/no-children-prop
+                  children={child.children}
+                  key={child.item._id}
+                  muiTheme={muiTheme}
+                  highlightDate={highlightDate}
+                  editMutation={editMutation}
+                  post={post}
+                  postPage={postPage}
+                />)}
+            </div>}
           </div>
         </div>
-      )
+        )
     } else {
       return null
     }
