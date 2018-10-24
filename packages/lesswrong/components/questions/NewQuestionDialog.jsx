@@ -7,11 +7,11 @@ import withUser from '../common/withUser';
 
 class NewQuestionDialog extends PureComponent {
   render() {
-    const { onRequestClose, currentUser } = this.props
+    const { onClose, currentUser } = this.props
     return (
       <Dialog
         open={true}
-        onClose={onRequestClose}
+        onClose={onClose}
       >
         <Components.SmartForm
           collection={Posts}
@@ -20,18 +20,16 @@ class NewQuestionDialog extends PureComponent {
             userId: currentUser._id,
             question: true
           }}
-          successCallback={onRequestClose}
+          successCallback={onClose}
         />
       </Dialog>
     )
   }
 }
 
-// .then(() => flash({messageString: "Successfully restored comment", type: "success"})).catch(/* error */);
-
 NewQuestionDialog.propTypes = {
   currentUser: PropTypes.object.isRequired,
-  onRequestClose: PropTypes.func,
+  onClose: PropTypes.func.isRequired,
 }
 
 registerComponent('NewQuestionDialog', NewQuestionDialog, withUser);
