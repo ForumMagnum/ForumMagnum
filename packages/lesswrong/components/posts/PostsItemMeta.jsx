@@ -2,12 +2,20 @@ import { Components as C, registerComponent, getSetting } from 'meteor/vulcan:co
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
-const PostsItemMeta = ({currentUser, post}) => {
+const styles = theme => ({
+  read: {
+    opacity: ".8"
+  }
+})
+
+const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
 
-  return <span>
+  return <span className={classNames({[classes.read]:read})}>
       { Posts.canEdit(currentUser,post) && <C.MetaInfo>
         <C.PostsEdit post={post}/>
       </C.MetaInfo>}
@@ -17,14 +25,14 @@ const PostsItemMeta = ({currentUser, post}) => {
       { post.feed && post.feed.user && <C.MetaInfo>
         {post.feed.nickname}
       </C.MetaInfo>}
-      {post.postedAt && !post.isEvent && <C.MetaInfo>
-        <C.FromNowDate date={post.postedAt}/>
-      </C.MetaInfo>}
       <C.MetaInfo>
         { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
       </C.MetaInfo>
       { afBaseScore && <C.MetaInfo>
         Ω { afBaseScore || 0 }
+      </C.MetaInfo>}
+      {post.postedAt && !post.isEvent && <C.MetaInfo>
+        <C.FromNowDate date={post.postedAt}/>
       </C.MetaInfo>}
       {post.wordCount && !post.isEvent && <C.MetaInfo>
         {parseInt(post.wordCount/300) || 1 } min read
@@ -41,4 +49,4 @@ const PostsItemMeta = ({currentUser, post}) => {
     </span>
 };
 
-registerComponent('PostsItemMeta', PostsItemMeta, withUser)
+registerComponent('PostsItemMeta', PostsItemMeta, withUser, withStyles(styles, {name: "PostsItemMeta"}))
