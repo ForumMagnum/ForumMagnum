@@ -15,6 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import withDialog from '../../common/withDialog'
+import { renderExcerpt } from '../../../lib/editor/ellipsize';
 
 const styles = theme => ({
   root: {
@@ -111,29 +112,6 @@ class CommentsItem extends Component {
     this.props.router.replace({...router.location, hash: "#" + comment._id})
     this.props.scrollIntoView(event);
     return false;
-  }
-
-  renderExcerpt() {
-    const { comment, classes } = this.props
-
-    if (comment.body) {
-      // Replace Markdown Links with just their display text
-      let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
-
-      let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
-
-      const lastElement = commentExcerpt.slice(-1)[0];
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
-        (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)}>
-        {commentExcerpt}
-        <p>{lastElement + "..."}
-          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
-        </p>
-      </div>
-    } else {
-      return null
-    }
   }
 
   render() {
