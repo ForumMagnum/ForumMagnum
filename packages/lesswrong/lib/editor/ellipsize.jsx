@@ -22,7 +22,7 @@ export const excerptFromHTML = (html) => {
   return Utils.sanitize(truncatise(html, {
     TruncateLength: excerptMaxChars,
     TruncateBy: "characters",
-    Suffix: '... <a className="read-more" href="#">(Read More)</a>',
+    Suffix: '... <a className="read-more">(Read More)</a>',
   }));
 };
 
@@ -34,7 +34,7 @@ export const excerptFromMarkdown = (body, mdi) => {
 export const renderExcerpt = ({key, body, htmlBody, classes, onReadMore}) => {
   if (!htmlBody)
     return null;
-  
+
   const truncatedBody = excerptFromHTML(htmlBody);
   return <div
     className={classes.commentStyling}

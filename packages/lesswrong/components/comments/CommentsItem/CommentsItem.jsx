@@ -205,7 +205,13 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { this.shouldRenderExcerpt() ? renderExcerpt() : this.renderCommentBody()}
+            { this.shouldRenderExcerpt() ? renderExcerpt({
+              key: comment._id,
+              body: comment.body,
+              htmlBody: comment.htmlBody,
+              classes: classes,
+              onReadMore: () => this.setState({expanded: true}),
+            }) : this.renderCommentBody()}
           </div>
           {this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
