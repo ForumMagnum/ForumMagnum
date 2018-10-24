@@ -14,6 +14,8 @@ const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props
   c0-7.984,2.208-13.425,13.67-13.425l14.595-0.006V1.08C115.325,0.752,106.661,0,96.577,0C75.52,0,61.104,12.853,61.104,36.452 v20.341H37.29v27.585h23.814v70.761H89.584z"/>
 </SvgIcon>
 
+// TODO: This is, in fact, a wildly inappropriate use of FontIcon; the string
+// inside is just having its typography modified, it's not an icon at all.
 const GroupTypeIcon = (props) => <FontIcon style={{fontSize: '14px'}}>
   {props.type}
 </FontIcon>

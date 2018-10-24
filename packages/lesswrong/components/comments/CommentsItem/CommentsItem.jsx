@@ -7,7 +7,7 @@ import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import ArrowRight from '@material-ui/icons/ArrowRight';
 import MenuItem from 'material-ui/MenuItem';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
@@ -170,12 +170,12 @@ class CommentsItem extends Component {
           <div className="comments-item-body">
             <div className="comments-item-meta">
               {(comment.parentCommentId && (nestingLevel === 1)) &&
-                <FontIcon
+                <Icon
                   onClick={this.toggleShowParent}
                   className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                 >
                   subdirectory_arrow_left
-                </FontIcon>}
+                </Icon>}
               { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
@@ -188,15 +188,15 @@ class CommentsItem extends Component {
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
                     <Components.FromNowDate date={comment.postedAt}/>
-                    <FontIcon className="material-icons comments-item-permalink"> link
-                    </FontIcon>
+                    <Icon className="material-icons comments-item-permalink"> link
+                    </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   <Components.FromNowDate date={comment.postedAt}/>
-                  <FontIcon className="material-icons comments-item-permalink"> link
-                  </FontIcon>
+                  <Icon className="material-icons comments-item-permalink"> link
+                  </Icon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
