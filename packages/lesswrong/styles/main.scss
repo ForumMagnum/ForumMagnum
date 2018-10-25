@@ -134,9 +134,10 @@ div#mocha {
   z-index: 10000000;
 }
 
-// Maximum width for LaTeX, to prevent causing horizontal scroll or otherwise
-// breaking the layout.
-.mjx-chtml {
+// Maximum width for LaTeX blocks, to prevent causing horizontal scroll or
+// otherwise breaking the layout. We don't do this for inline styles, because
+// it messes up vertical alignment.
+.mjx-chtml.MJXc-display {
   overflow-x: auto;
   overflow-y: hidden;
   
