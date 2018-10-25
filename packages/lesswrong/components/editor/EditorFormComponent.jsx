@@ -9,8 +9,10 @@ import withUser from '../common/withUser';
 import DraftJSEditor from '../async/EditorFormContainer'
 import classnames from 'classnames';
 
-const postEditorHeightPx = 250;
-const commentEditorHeightPx = 100;
+const postEditorHeight = 250;
+const commentEditorHeight = 100;
+const postEditorHeightRows = 15;
+const commentEditorHeightRows = 5;
 
 const styles = theme => ({
   postBodyStyles: {
@@ -27,21 +29,10 @@ const styles = theme => ({
   },
   
   postEditorHeight: {
-    minHeight: postEditorHeightPx,
+    minHeight: postEditorHeight,
   },
   commentEditorHeight: {
-    minHeight: commentEditorHeightPx,
-  },
-  
-  postEditorHeightMarkdown: {
-    "& textarea": {
-      minHeight: postEditorHeightPx,
-    }
-  },
-  commentEditorHeightMarkdown: {
-    "& textarea": {
-      minHeight: commentEditorHeightPx,
-    }
+    minHeight: commentEditorHeight,
   },
   
   errorTextColor: {
@@ -150,12 +141,13 @@ class EditorFormComponent extends Component {
       const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
       
       return (
-        <div className={heightClass}>
+        <div>
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}
-            className={classnames(classes.markdownEditor, bodyStyles,
-              commentStyles ? classes.commentEditorHeightMarkdown : classes.postEditorHeightMarkdown)}
+            className={classnames(classes.markdownEditor, bodyStyles)}
+            rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
+            rowsMax={99999}
             name={name}
           />
         </div>
