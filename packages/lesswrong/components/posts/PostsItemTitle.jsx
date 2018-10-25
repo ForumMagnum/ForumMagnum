@@ -10,8 +10,7 @@ const styles = theme => ({
     whiteSpace:"nowrap",
     overflow:"hidden",
     textOverflow:"ellipsis",
-    // Make the text bolder (discussion: http://lesswrong.com/posts/PfgHiMZ3jF2fifssH/changing-main-content-font-to-valkyrie#aEuSFxadATbc4FQJJ)
-    textShadow: "0px 0px 0px rgba(0,0,0,.87)",
+    color: "rgba(0,0,0,.95)",
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
