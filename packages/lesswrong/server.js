@@ -26,7 +26,7 @@ import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 // EA Forum Invites
 import './server/scripts/eafIBetaInvites.js';
-import './server/scripts/configuration.js';
+import './lib/modules/accounts/configuration.js';
 
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/legacy-redirects/routes.js';

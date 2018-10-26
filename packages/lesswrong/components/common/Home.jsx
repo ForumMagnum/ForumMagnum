@@ -14,7 +14,7 @@ const styles = theme => ({
 });
 
 const Home = (props, context) => {
-  const { currentUser, router, classes } = props;
+  const { currentUser, router } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || ("frontpage");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
