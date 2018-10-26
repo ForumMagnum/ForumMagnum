@@ -24,6 +24,7 @@ const getLessWrongAccount = async () => {
       document: userData,
       validate: false,
     })
+    return account.data
   }
   return account;
 }
@@ -216,13 +217,13 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
     const firstMessageData = {
       userId: lwAccount._id,
       content: convertToRaw(ContentState.createFromText(firstMessageContent)),
-      conversationId: conversation._id
+      conversationId: conversation.data._id
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
       content: newComment.content,
-      conversationId: conversation._id
+      conversationId: conversation.data._id
     }
 
     newMutation({
