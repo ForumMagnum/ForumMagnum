@@ -83,7 +83,7 @@ Posts.addView("daily", terms => ({
 
 Posts.addView("frontpage", terms => ({
   selector: {
-    frontpageDate: {$exists: true},
+    frontpageDate: {$ne: null},
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -92,7 +92,7 @@ Posts.addView("frontpage", terms => ({
 
 Posts.addView("frontpage-rss", terms => ({
   selector: {
-    frontpageDate: {$exists: true},
+    frontpageDate: {$ne: null},
   },
   options: {
     sort: {frontpageDate: -1, postedAt: -1}
@@ -101,7 +101,7 @@ Posts.addView("frontpage-rss", terms => ({
 
 Posts.addView("curated", terms => ({
   selector: {
-    curatedDate: {$exists: true},
+    curatedDate: {$ne: null},
   },
   options: {
     sort: {sticky: -1, curatedDate: -1, postedAt: -1}
@@ -110,7 +110,7 @@ Posts.addView("curated", terms => ({
 
 Posts.addView("curated-rss", terms => ({
   selector: {
-    curatedDate: {$exists: true},
+    curatedDate: {$ne: null},
   },
   options: {
     sort: {curatedDate: -1, postedAt: -1}

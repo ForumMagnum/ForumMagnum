@@ -3,7 +3,7 @@ import { Posts } from "../posts";
 import { Comments } from './collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { convertFromRaw, ContentState, convertToRaw } from 'draft-js';
+import { convertFromRaw } from 'draft-js';
 import { performVoteServer } from 'meteor/vulcan:voting';
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
@@ -24,6 +24,7 @@ const getLessWrongAccount = async () => {
       document: userData,
       validate: false,
     })
+    return account.data
   }
   return account;
 }
@@ -190,7 +191,7 @@ function NewCommentsEmptyCheck (comment, user) {
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment, oldComment, context) {
-  if (newComment.deleted && !oldComment.deleted && newComment.content) {
+  if (newComment.deleted && !oldComment.deleted && newComment.htmlBody) {
     const originalPost = Posts.findOne(newComment.postId);
     const moderatingUser = Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
@@ -215,14 +216,14 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
 
     const firstMessageData = {
       userId: lwAccount._id,
-      content: convertToRaw(ContentState.createFromText(firstMessageContent)),
-      conversationId: conversation._id
+      htmlBody: firstMessageContent,
+      conversationId: conversation.data._id
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
-      content: newComment.content,
-      conversationId: conversation._id
+      htmlBody: newComment.htmlBody,
+      conversationId: conversation.data._id
     }
 
     newMutation({

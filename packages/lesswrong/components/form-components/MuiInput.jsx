@@ -43,6 +43,7 @@ class MuiInput extends Component {
         onChange={this.onChange}
         multiline={this.props.multiLine}
         rows={this.props.rows}
+        rowsMax={this.props.rowsMax}
         placeholder={this.props.hintText || this.props.placeholder || this.props.label}
         fullWidth={this.props.fullWidth}
         disableUnderline={this.props.disableUnderline}
