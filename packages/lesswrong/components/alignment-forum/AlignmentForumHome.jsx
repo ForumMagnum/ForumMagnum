@@ -5,7 +5,7 @@ import Users from "meteor/vulcan:users";
 import withUser from '../common/withUser';
 
 const AlignmentForumHome = ({currentUser}) => {
-  let recentPostsTerms = {view: 'new', limit: 10, forum: true}
+  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
 
   const renderRecentPostsTitle = () => <div className="recent-posts-title-component">
     { currentUser && Users.canDo(currentUser, "posts.alignment.new") &&
