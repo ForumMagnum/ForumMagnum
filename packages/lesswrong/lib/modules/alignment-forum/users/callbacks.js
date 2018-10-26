@@ -1,7 +1,6 @@
 import React from 'react';
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { ContentState, convertToRaw } from 'draft-js';
 import Messages from '../../../collections/messages/collection.js';
 import Conversations from '../../../collections/conversations/collection.js';
 
@@ -13,18 +12,21 @@ const getAlignmentForumAccount = async () => {
       displayName: "AI Alignment Forum",
       email: "aialignmentforum@lesswrong.com",
     }
-    account = await newMutation({
+    const response = await newMutation({
       collection: Users,
       document: userData,
       validate: false,
     })
-    return account.data
+    account = response.data
   }
   return account;
 }
 
 export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
-  if (newUser.groups.includes('alignmentForum') && !(oldUser.groups.includes('alignmentForum'))) {
+  if (newUser.groups &&
+      newUser.groups.includes('alignmentForum') &&
+      (!oldUser.groups ||
+       !(oldUser.groups.includes('alignmentForum')))) {
 
     const lwAccount = await getAlignmentForumAccount();
     const conversationData = {
@@ -40,17 +42,21 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
     });
 
     let firstMessageContent =
-        `You've been approved for posting on http://alignment-forum.com. You can now:
-        – create alignment posts
-        – suggest other posts for the alignment forum
-        – move comments to the alignment forum`
+        `<div>
+            <p>You've been approved for posting on http://alignment-forum.com.</p>
+            <p>You can now:</p>
+            <ul>
+              <li> Create alignment posts</li>
+              <li> Suggest other posts for the alignment forum</li>
+              <li> Move comments to the alignment forum</li>
+            </ul>
+        </div>`
 
     const firstMessageData = {
       userId: lwAccount._id,
-      content: convertToRaw(ContentState.createFromText(firstMessageContent)),
+      htmlBody: firstMessageContent,
       conversationId: conversation.data._id
     }
-
     newMutation({
       collection: Messages,
       document: firstMessageData,
