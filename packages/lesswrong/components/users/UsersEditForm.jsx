@@ -8,6 +8,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { withRouter } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
+import { withApollo } from 'react-apollo'
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -26,7 +27,7 @@ const styles = theme => ({
 
 const UsersEditForm = (props) => {
 
-  const { classes, terms, currentUser } = props
+  const { classes, terms, currentUser, client } = props
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -55,6 +56,7 @@ const UsersEditForm = (props) => {
         {...terms}
         successCallback={user => {
           props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
+          client.resetStore()
           props.router.push(Users.getProfileUrl(user));
         }}
         mutationFragment={getFragment('UsersProfile')}
@@ -76,6 +78,6 @@ UsersEditForm.contextTypes = {
 UsersEditForm.displayName = 'UsersEditForm';
 
 registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withUser, withRouter,
+  withMessages, withUser, withApollo, withRouter,
   withStyles(styles, { name: "UsersEditForm" })
 );
