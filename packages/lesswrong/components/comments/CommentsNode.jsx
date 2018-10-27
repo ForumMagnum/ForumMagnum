@@ -30,11 +30,6 @@ const styles = theme => ({
   new: {},
   newHover: {},
   deleted: {},
-  numberOfChildren: {
-    color: theme.palette.grey[600],
-    textAlign: "right",
-    padding: "0 15px 8px 0",
-  }
 })
 
 class CommentsNode extends PureComponent {
