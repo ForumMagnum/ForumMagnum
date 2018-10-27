@@ -71,6 +71,11 @@ const theme = createLWTheme({
       tooltip: {
         fontSize: "1rem"
       }
+    },
+    PostsVote: {
+      voteScores: {
+        fontVariantNumeric: "lining-nums",
+      }
     }
   }
 });
