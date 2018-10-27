@@ -2,6 +2,7 @@ import { Comments } from "../../../collections/comments";
 import { moderationOptionsGroup } from "../../../collections/comments/custom_fields";
 import { generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
 
+
 Comments.addField([
   {
     fieldName: 'af',
@@ -13,6 +14,19 @@ Comments.addField([
       viewableBy: ['guests'],
       editableBy: ['alignmentVoters'],
       insertableBy: ['alignmentVoters'],
+    }
+  },
+
+  {
+    fieldName: 'afDate',
+    fieldSchema: {
+      type: Date,
+      optional: true,
+      hidden: true,
+      defaultValue: false,
+      viewableBy: ['guests'],
+      insertableBy: ['alignmentForum'],
+      editableBy: ['alignmentForum'],
     }
   },
 

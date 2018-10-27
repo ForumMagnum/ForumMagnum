@@ -19,7 +19,7 @@ class AFSuggestPostsList extends Component {
       return (
         <div>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> AF Suggested Posts
+            <Components.OmegaIcon className={classes.icon}/> Suggested Posts
           </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >

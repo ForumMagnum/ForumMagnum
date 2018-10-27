@@ -1,6 +1,6 @@
 import { Comments } from '../../../collections/comments';
 
-Comments.suggestForAlignment = ({ currentUser, comment, updateComment }) => {
+Comments.suggestForAlignment = async ({ currentUser, comment, updateComment }) => {
   const suggestUserIds = comment.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
   updateComment({
@@ -9,10 +9,10 @@ Comments.suggestForAlignment = ({ currentUser, comment, updateComment }) => {
   })
 }
 
-Comments.unSuggestForAlignment = ({ currentUser, comment, updateComment }) => {
+Comments.unSuggestForAlignment = async ({ currentUser, comment, updateComment }) => {
   const suggestUserIds = comment.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
-  updateComment({
+  await updateComment({
     selector: { _id: comment._id},
     data: {suggestForAlignmentUserIds: newSuggestUserIds},
   })

@@ -8,6 +8,7 @@ registerFragment(`
       _id
       slug
     }
+    suggestForAlignmentUserIds
     suggestForAlignmentUsers {
       _id
       displayName

@@ -14,27 +14,25 @@ import withErrorBoundary from '../common/withErrorBoundary'
 
 class AFSuggestCommentsItem extends Component {
 
-  handleMoveToAlignment = () => {
+  handleMoveToAlignment = async () => {
     const { currentUser, comment, updateComment } = this.props
-    updateComment({
-      documentId: comment._id,
-      set: {
+    await updateComment({
+      selector: { _id: comment._id},
+      data: {
         reviewForAlignmentUserId: currentUser._id,
         afDate: new Date(),
         af: true,
       },
-      unset: {}
     })
   }
 
-  handleDisregardForAlignment = () => {
+  handleDisregardForAlignment = async () => {
     const { currentUser, comment, updateComment } = this.props
-    updateComment({
-      documentId: comment._id,
-      set: {
+    await updateComment({
+      selector: { _id: comment._id},
+      data: {
         reviewForAlignmentUserId: currentUser._id,
-      },
-      unset: {}
+      }
     })
   }
 

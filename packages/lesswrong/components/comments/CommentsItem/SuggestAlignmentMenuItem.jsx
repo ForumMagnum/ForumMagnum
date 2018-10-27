@@ -1,29 +1,26 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, Components, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import PropTypes from 'prop-types';
-// import { withApollo } from 'react-apollo'
 import { Comments } from '../../../lib/collections/comments'
 
 class SuggestAlignmentMenuItem extends PureComponent {
 
   render() {
-    const { currentUser, comment, post, updateComment } = this.props
+    const { currentUser, comment, updateComment } = this.props
 
     const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
 
     if (!userHasSuggested) {
       return (
-        <MenuItem
-          onClick={() => Comments.suggestForAlignment({ currentUser, comment, updateComment })}
-          primaryText="Suggest for Alignment"
-        />
+        <MenuItem onClick={() => Comments.suggestForAlignment({ currentUser, comment, updateComment })}>
+          Suggest for Alignment
+        </MenuItem>
       )
     } else {
-      return <MenuItem
-        onClick={() => Comments.unSuggestForAlignment({ currentUser, comment, updateComment })}
-        primaryText="Unsuggest for Alignment"
-      />
+      return <MenuItem onClick={() => Comments.unSuggestForAlignment({ currentUser, comment, updateComment })}>
+          Unsuggest for Alignment
+        </MenuItem>
     }
   }
 }
@@ -37,7 +34,5 @@ registerComponent(
   'SuggestAlignmentMenuItem',
    SuggestAlignmentMenuItem,
    [withUpdate, withUpdateOptions],
-   withMessages,
-   // withApollo,
 );
 export default SuggestAlignmentMenuItem;
