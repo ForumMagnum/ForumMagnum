@@ -11,12 +11,6 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
-  deleteWithoutTrace: {
-    marginRight:"auto"
-  }
-})
-
 class AFApplicationForm extends PureComponent {
   state = { applicationText: "" }
 
@@ -55,7 +49,7 @@ class AFApplicationForm extends PureComponent {
             label="Write application text here"
             className="comments-delete-modal-textfield"
             value={this.state.applicationText}
-            onChange={((event)=> {this.setState({applicationText:event.target.value})})}
+            onChange={e => this.setState({applicationText:e.target.value})}
             fullWidth
             multiline
             rows={4}
@@ -77,7 +71,7 @@ class AFApplicationForm extends PureComponent {
 
 const withUpdateOptions = {
   collection: Users,
-  fragmentName: 'UsersCurrent',
+  fragmentName: 'SuggestAlignmentUser',
 };
 
-registerComponent('AFApplicationForm', AFApplicationForm, withMessages, withStyles(styles, {name:"AFApplicationForm"}), [withUpdate, withUpdateOptions], withUser);
+registerComponent('AFApplicationForm', AFApplicationForm, withMessages, [withUpdate, withUpdateOptions], withUser);
