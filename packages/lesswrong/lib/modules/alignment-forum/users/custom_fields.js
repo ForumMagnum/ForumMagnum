@@ -79,4 +79,27 @@ Users.addField([
     }
   },
 
+  {
+    fieldName: 'afApplicationText',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: [Users.owns, 'alignmentForumAdmins', 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      hidden: true,
+    }
+  },
+
+  {
+    fieldName: 'afSubmittedApplication',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: [Users.owns, 'alignmentForumAdmins', 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canCreate: ['admins'],
+      hidden: true,
+    }
+  }
+
 ]);
