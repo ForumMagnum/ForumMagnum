@@ -1,21 +1,19 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment, withMessages, getSetting, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, withDocument } from 'meteor/vulcan:core';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router'
-import Helmet from 'react-helmet';
 import withUser from '../common/withUser';
 
 class PostsEditForm extends PureComponent {
 
   render() {
     const { documentId, document, eventForm } = this.props;
-    const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+    const isDraft = document && document.draft;
     
     return (
       <div className="posts-edit-form">
-        {eventForm && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
         <Components.SmartForm
           collection={Posts}
           documentId={documentId}
@@ -37,7 +35,7 @@ class PostsEditForm extends PureComponent {
             // this.context.events.track("post deleted", {_id: documentId});
           }}
           showRemove={true}
-          submitLabel={document.draft ? "Publish" : "Publish Changes"}
+          submitLabel={isDraft ? "Publish" : "Publish Changes"}
           repeatErrors
         />
       </div>
