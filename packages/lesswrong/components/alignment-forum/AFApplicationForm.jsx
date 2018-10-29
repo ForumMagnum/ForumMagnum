@@ -9,7 +9,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { withStyles } from '@material-ui/core/styles'
 
 class AFApplicationForm extends PureComponent {
   state = { applicationText: "" }
@@ -38,10 +37,13 @@ class AFApplicationForm extends PureComponent {
         </DialogTitle>
         <DialogContent>
           <p>
-            Most applications to the AI Alignment Forum are rejected, and we instead recommend that you participate in technical AI Alignment Discussion on LessWrong.com. If your content there meets the quality standards of the forum, it will be promoted to the AI Alignment Forum, and we will naturally evaluate every user whose content has been upvoted by existing AI Alignment Forum members, and will give them membership when we think they have demonstrated the relevant knowledge and skill.
+            We accept very few new members to the AI Alignment Forum. Instead, our usual suggestion is that visitors post to LessWrong.com, a large and vibrant intellectual community with a strong interest in alignment research, along with rationality, philosophy, and a wide variety of other topics.
           </p>
           <p>
-            However, if you have contributed to technical AI Alignment research outside of LessWrong and think that those contributions will be sufficient to gain membership to the AI Alignment Forum, then you can provide us with links to those below and we will review them in the following days. Links to papers, blog posts and comments are going to be most useful.
+            Posts and comments on LessWrong frequently get promoted to the AI Alignment Forum, where they'll automatically be visible to contributors here. We also use LessWrong as one of the main sources of new Alignment Forum members.
+          </p>
+          <p>
+            If you have produced technical work on AI alignment, on LessWrong or elsewhere -- e.g., papers, blog posts, or comments -- you're welcome to link to it here so we can take it into account in any future decisions to expand the ranks of the AI Alignment Forum.
           </p>
           <br/>
           <TextField
