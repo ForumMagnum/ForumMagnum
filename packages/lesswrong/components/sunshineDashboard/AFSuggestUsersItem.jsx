@@ -50,6 +50,10 @@ class AFSuggestUsersItem extends Component {
                   <div>Alignment Posts: { user.afPostCount || 0 }</div>
                   <div>Alignment Comments: { user.afCommentCount || 0 }</div>
                 </C.MetaInfo>
+                {user.afApplicationText && <p>
+                  Application: 
+                  {user.afApplicationText}
+                </p>}
               </Typography>
             </C.SidebarHoverOver>
             <div>
@@ -64,9 +68,8 @@ class AFSuggestUsersItem extends Component {
               <C.MetaInfo>
                 Ω { user.afKarma || 0 }
               </C.MetaInfo>
-              { user.reviewForAlignmentForumUserId}
+              { user.reviewForAlignmentForumUserId }
             </div>
-
             { hover && <C.SidebarActionMenu>
               <C.SidebarAction title="Approve for AF" onClick={this.handleReview}>
                 done
