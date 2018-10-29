@@ -130,7 +130,6 @@ import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
 import '../components/comments/CommentsItem/MoveToAlignmentMenuItem.jsx';
-import '../components/comments/CommentsItem/SuggestAlignmentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
@@ -154,6 +153,7 @@ import '../components/comments/ModerationGuidelinesContent.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
+
 import '../components/icons/OmegaIcon.jsx';
 
 import '../components/search/PostsListEditorSearchHit.jsx';
@@ -176,8 +176,6 @@ import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
-import '../components/sunshineDashboard/AFSuggestCommentsItem.jsx';
-import '../components/sunshineDashboard/AFSuggestCommentsList.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsItem.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsList.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersItem.jsx';

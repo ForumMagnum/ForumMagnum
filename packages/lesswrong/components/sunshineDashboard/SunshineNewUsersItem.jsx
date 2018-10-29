@@ -8,7 +8,6 @@ import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
-import withErrorBoundary from '../common/withErrorBoundary'
 
 class SunshineNewUsersItem extends Component {
 
@@ -101,4 +100,4 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover);
