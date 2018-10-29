@@ -12,7 +12,7 @@ addRoute([
 addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', title: "New Post" });
-addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditForm' });
+addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditPage' });
 addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
 
 // Sequences

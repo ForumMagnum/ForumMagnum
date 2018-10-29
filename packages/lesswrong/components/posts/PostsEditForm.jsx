@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, getSetting, withDocument } from 'meteor/vulcan:core';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router'
@@ -10,15 +10,15 @@ import withUser from '../common/withUser';
 class PostsEditForm extends PureComponent {
 
   render() {
-    const postId = this.props.location.query.postId;
-    const eventForm = this.props.router.location.query && this.props.router.location.query.eventForm;
+    const { documentId, document, eventForm } = this.props;
     const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+    
     return (
       <div className="posts-edit-form">
         {eventForm && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
         <Components.SmartForm
           collection={Posts}
-          documentId={postId}
+          documentId={documentId}
           mutationFragment={getFragment('LWPostsPage')}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
@@ -37,7 +37,7 @@ class PostsEditForm extends PureComponent {
             // this.context.events.track("post deleted", {_id: documentId});
           }}
           showRemove={true}
-          submitLabel="Save"
+          submitLabel={document.draft ? "Publish" : "Publish Changes"}
           repeatErrors
         />
       </div>
@@ -55,4 +55,13 @@ PostsEditForm.contextTypes = {
   intl: intlShape
 }
 
-registerComponent('PostsEditForm', PostsEditForm, withMessages, withRouter, withUser);
+const documentQuery = {
+  collection: Posts,
+  queryName: 'PostsEditFormQuery',
+  fragmentName: 'LWPostsPage',
+  ssr: true
+};
+
+registerComponent('PostsEditForm', PostsEditForm,
+  [withDocument, documentQuery],
+  withMessages, withRouter, withUser);
