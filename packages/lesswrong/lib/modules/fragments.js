@@ -482,6 +482,7 @@ registerFragment(`
     slug
     username
     displayName
+    fullName
     emailHash
     karma
     afKarma
