@@ -261,6 +261,7 @@ import '../components/form-components/FormComponentDateTime.jsx';
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
+import '../components/alignment-forum/AFApplicationForm.jsx';
 if(getSetting('AlignmentForum', false)) {
     import '../components/alignment-forum/AlignmentForumHome.jsx';
 }

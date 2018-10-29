@@ -8,4 +8,6 @@ registerFragment(`
     afCommentCount
     reviewForAlignmentForumUserId
     groups
+    afApplicationText
+    afSubmittedApplication
   }`)
