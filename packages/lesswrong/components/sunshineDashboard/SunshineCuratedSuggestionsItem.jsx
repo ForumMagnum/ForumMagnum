@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
-import withErrorBoundary from '../common/withErrorBoundary'
 
 class SunshineCuratedSuggestionsItem extends Component {
 
@@ -133,6 +132,5 @@ registerComponent(
   SunshineCuratedSuggestionsItem,
   [withEdit, withEditOptions],
   withUser,
-  withHover,
-  withErrorBoundary
+  withHover
 );

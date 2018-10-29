@@ -399,6 +399,21 @@ Posts.addView("sunshineCuratedSuggestions", function () {
   }
 })
 
+Posts.addView("alignmentSuggestedPosts", function () {
+  return {
+    selector: {
+      af: {$ne: true},
+      suggestForAlignmentUserIds: {$exists:true, $ne: []},
+      reviewForAlignmentUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
+  }
+})
+
 Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
     selector: {

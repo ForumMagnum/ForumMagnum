@@ -6,7 +6,7 @@ import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
-export const moderationOptionsGroup = {
+const moderationOptionsGroup = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",

@@ -7,7 +7,6 @@ import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
-import withErrorBoundary from '../common/withErrorBoundary'
 
 class SunshineReportsItem extends Component {
 
@@ -122,6 +121,5 @@ registerComponent(
   'SunshineReportsItem',
   SunshineReportsItem,
   [withEdit, withEditOptions],
-  withUser,
-  withErrorBoundary
+  withUser
 );

@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
-import withErrorBoundary from '../common/withErrorBoundary'
 
 class AFSuggestPostsItem extends Component {
 
@@ -106,7 +105,7 @@ AFSuggestPostsItem.propTypes = {
 
 const withEditOptions = {
   collection: Posts,
-  fragmentName: 'SuggestAlignmentPost',
+  fragmentName: 'PostsList',
 }
 
 registerComponent(
@@ -114,6 +113,5 @@ registerComponent(
   AFSuggestPostsItem,
   [withEdit, withEditOptions],
   withUser,
-  withHover,
-  withErrorBoundary
+  withHover
 );

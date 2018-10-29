@@ -202,7 +202,6 @@ const commentsOptions = {
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,
-  fetchPolicy: 'cache-and-network',
   limit: 3,
 };
 

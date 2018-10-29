@@ -345,9 +345,7 @@ registerFragment(`
     score
     voteCount
     af
-    afDate
     afBaseScore
-    suggestForAlignmentUserIds
     needsReview
   }
 `);
