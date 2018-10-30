@@ -5,6 +5,8 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
+import Users from 'meteor/vulcan:users';
+import moment from 'moment-timezone';
 
 const styles = theme => ({
   vote: {
@@ -29,6 +31,10 @@ const styles = theme => ({
   },
   tooltip: {
     fontSize: '1rem',
+  },
+  tooltipHelp: {
+    fontSize: '1rem',
+    fontStyle: "italic"
   }
 })
 
@@ -37,6 +43,12 @@ class CommentsVote extends PureComponent {
     const { comment, classes, currentUser } = this.props
     const voteCount = comment ? comment.voteCount : 0;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
+
+    const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUser && (
+      <div className={classes.tooltipHelp}>
+        Moved to AF by <Components.UsersName user={comment.moveToAlignmentUser}/> on { comment.afDate && moment(new Date(comment.afDate)).format('YYYY-MM-DD') }
+      </div>
+    )
 
     return (
       <div className={classNames("comments-item-vote"), classes.vote}>
@@ -74,7 +86,12 @@ class CommentsVote extends PureComponent {
           </span>
         }
         {!!comment.af && !getSetting('AlignmentForum', false) &&
-          <Tooltip title="Alignment Forum Karma" placement="bottom" className={{tooltip: classes.tooltip}}>
+          <Tooltip disableTouchListener placement="bottom" className={{tooltip: classes.tooltip}} title={
+            <div>
+              <p>Alignment Forum Karma</p>
+              { moveToAfInfo }
+            </div>
+          }>
             <span className={classes.secondaryScore}>
               <span className={classes.secondarySymbol}>Ω</span>
               <span className={classes.secondaryScoreNumber}>{comment.afBaseScore || 0}</span>

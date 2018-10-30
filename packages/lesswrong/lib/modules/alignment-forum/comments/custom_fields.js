@@ -1,7 +1,6 @@
 import { Comments } from "../../../collections/comments";
-import { moderationOptionsGroup } from "../../../collections/comments/custom_fields";
-import { generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
-
+import { moderationOptionsGroup } from "../../../collections/posts/custom_fields.js"
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
 
 Comments.addField([
   {
@@ -12,8 +11,8 @@ Comments.addField([
       label: "Alignment Forum",
       defaultValue: false,
       viewableBy: ['guests'],
-      editableBy: ['alignmentVoters'],
-      insertableBy: ['alignmentVoters'],
+      editableBy: ['alignmentForum', 'alignmentVoters', 'admins'],
+      insertableBy: ['alignmentForum', 'alignmentVoters', 'admins'],
     }
   },
 
@@ -84,4 +83,41 @@ Comments.addField([
       }
     },
 
+      {
+        fieldName: 'afDate',
+        fieldSchema: {
+          order:10,
+          type: Date,
+          optional: true,
+          label: "Alignment Forum",
+          defaultValue: false,
+          hidden: true,
+          viewableBy: ['guests'],
+          editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          group: moderationOptionsGroup,
+        }
+      },
+
+      {
+        fieldName: 'moveToAlignmentUserId',
+        fieldSchema: {
+          type: String,
+          optional: true,
+          hidden: true,
+          viewableBy: ['guests'],
+          editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          group: moderationOptionsGroup,
+          label: "Move to Alignment UserId",
+          resolveAs: {
+            fieldName: 'moveToAlignmentUser',
+            type: 'User',
+            resolver: generateIdResolverSingle(
+              {collectionName: 'Users', fieldName: 'moveToAlignmentUserId'}
+            ),
+            addOriginalField: true
+          },
+        }
+      },
 ])
