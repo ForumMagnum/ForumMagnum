@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class SunshineCommentsItem extends Component {
 
@@ -91,4 +92,4 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withUser);
+registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withUser, withErrorBoundary);

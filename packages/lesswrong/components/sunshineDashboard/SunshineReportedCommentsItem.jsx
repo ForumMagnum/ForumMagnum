@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types'
-
+import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
 
 class SunshineReportedCommentsItem extends Component {
@@ -103,5 +103,6 @@ registerComponent(
   SunshineReportedCommentsItem,
   [withEdit, withEditOptions],
   withUser,
-  withHover
+  withHover,
+  withErrorBoundary
 );

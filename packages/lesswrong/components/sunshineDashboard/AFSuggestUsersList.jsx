@@ -19,7 +19,7 @@ class AFSuggestUsersList extends Component {
       return (
         <div>
           <C.SunshineListTitle>
-            <C.OmegaIcon className={classes.icon}/> AF Suggested Users
+            <C.OmegaIcon className={classes.icon}/> Suggested Users
           </C.SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
@@ -43,6 +43,7 @@ const withListOptions = {
   collection: Users,
   queryName: 'SuggestionAlignmentUserQuery',
   fragmentName: 'SuggestAlignmentUser',
+  fetchPolicy: 'cache-and-network',
 };
 
 registerComponent(
