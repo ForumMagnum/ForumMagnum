@@ -1,6 +1,6 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
@@ -12,18 +12,18 @@ const styles = theme => ({
 })
 
 
-class AFSuggestPostsList extends Component {
+class AFSuggestCommentsList extends Component {
   render () {
     const { results, classes } = this.props
     if (results && results.length) {
       return (
         <div>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> Suggested Posts
+            <Components.OmegaIcon className={classes.icon}/> Suggested Comments
           </Components.SunshineListTitle>
-          {this.props.results.map(post =>
-            <div key={post._id} >
-              <Components.AFSuggestPostsItem post={post}/>
+          {this.props.results.map(comment =>
+            <div key={comment._id} >
+              <Components.AFSuggestCommentsItem comment={comment}/>
             </div>
           )}
         </div>
@@ -34,23 +34,23 @@ class AFSuggestPostsList extends Component {
   }
 }
 
-AFSuggestPostsList.propTypes = {
+AFSuggestCommentsList.propTypes = {
   results: PropTypes.array,
   classes: PropTypes.object.isRequired
 };
 
 const withListOptions = {
-  collection: Posts,
+  collection: Comments,
   queryName: 'SuggestionAlignmentListQuery',
-  fragmentName: 'SuggestAlignmentPost',
+  fragmentName: 'SuggestAlignmentComment',
   enableCache: true,
   fetchPolicy: 'cache-and-network',
 };
 
 registerComponent(
-  'AFSuggestPostsList',
-  AFSuggestPostsList,
+  'AFSuggestCommentsList',
+  AFSuggestCommentsList,
   [withList, withListOptions],
   withUser,
-  withStyles(styles, {name: "AFSuggestPostsList"})
+  withStyles(styles, {name: "AFSuggestCommentsList"})
 );
