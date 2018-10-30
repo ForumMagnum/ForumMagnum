@@ -7,6 +7,7 @@ import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
+import withHover from '../common/withHover';
 
 const styles = theme => ({
   vote: {
@@ -40,13 +41,13 @@ const styles = theme => ({
 
 class CommentsVote extends PureComponent {
   render() {
-    const { comment, classes, currentUser } = this.props
+    const { comment, classes, currentUser, hover } = this.props
     const voteCount = comment ? comment.voteCount : 0;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
-    const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUser && (
+    const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
       <div className={classes.tooltipHelp}>
-        Moved to AF by <Components.UsersName user={comment.moveToAlignmentUser}/> on { comment.afDate && moment(new Date(comment.afDate)).format('YYYY-MM-DD') }
+        {hover && <span>Moved to AF by <Components.UsersName documentId={comment.moveToAlignmentUserId }/> on { comment.afDate && moment(new Date(comment.afDate)).format('YYYY-MM-DD') }</span>}
       </div>
     )
 
@@ -86,7 +87,7 @@ class CommentsVote extends PureComponent {
           </span>
         }
         {!!comment.af && !getSetting('AlignmentForum', false) &&
-          <Tooltip disableTouchListener placement="bottom" className={{tooltip: classes.tooltip}} title={
+          <Tooltip placement="bottom" className={{tooltip: classes.tooltip}} title={
             <div>
               <p>Alignment Forum Karma</p>
               { moveToAfInfo }
@@ -117,5 +118,5 @@ CommentsVote.propTypes = {
 };
 
 registerComponent('CommentsVote', CommentsVote,
-  withStyles(styles, { name: "CommentsVote" })
+  withStyles(styles, { name: "CommentsVote" }), withHover
 );

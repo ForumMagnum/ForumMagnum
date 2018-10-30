@@ -347,10 +347,6 @@ registerFragment(`
     af
     afDate
     moveToAlignmentUserId
-    moveToAlignmentUser {
-      _id
-      displayName
-    }
     afBaseScore
     suggestForAlignmentUserIds
     needsReview
