@@ -3,6 +3,9 @@ import { registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 
+const scrollIndicatorColor = "#ddd";
+const scrollIndicatorHoverColor = "#888";
+
 const styles = theme => ({
   scrollIndicatorWrapper: {
     display: "block",
@@ -20,6 +23,7 @@ const styles = theme => ({
     position: "absolute",
     top: "50%",
     marginTop: -28,
+    cursor: "pointer",
     
     // Scroll arrows use the CSS Triangle hack - see
     // https://css-tricks.com/snippets/css/css-triangle/ for a full explanation
@@ -29,12 +33,20 @@ const styles = theme => ({
   
   scrollIndicatorLeft: {
     left: 0,
-    borderRight: "10px solid #ddd",
+    borderRight: "10px solid "+scrollIndicatorColor,
+    
+    "&:hover": {
+      borderRight: "10px solid "+scrollIndicatorHoverColor,
+    },
   },
   
   scrollIndicatorRight: {
     right: 0,
-    borderLeft: "10px solid #ddd",
+    borderLeft: "10px solid "+scrollIndicatorColor,
+    
+    "&:hover": {
+      borderLeft: "10px solid "+scrollIndicatorHoverColor,
+    },
   },
   
   scrollableLaTeX: {
@@ -43,10 +55,16 @@ const styles = theme => ({
     // target.
     // !important to take precedence over .mjx-chtml
     marginTop: "-1em !important",
-    marginBottom: "-1em !important",
     
     paddingTop: "2em !important",
     paddingBottom: "2em !important",
+    
+    // Hide the scrollbar (on browsers that support it) because our scroll
+    // indicator is better
+    "-ms-overflow-style": "-ms-autohiding-scrollbar",
+    "&::-webkit-scrollbar": {
+      display: "none",
+    },
   }
 });
 
@@ -148,6 +166,13 @@ class ContentItemBody extends Component {
         classes.scrollIndicator, classes.scrollIndicatorRight,
         { [classes.hidden]: block.scrollLeft+block.clientWidth+1 > block.scrollWidth });
     }
+    
+    scrollIndicatorLeft.onclick = (ev) => {
+      block.scrollLeft = Math.max(block.scrollLeft-block.clientWidth, 0);
+    };
+    scrollIndicatorRight.onclick = (ev) => {
+      block.scrollLeft += Math.min(block.scrollLeft+block.clientWidth, block.scrollWidth-block.clientWidth);
+    };
     
     updateScrollIndicatorClasses();
     block.onscroll = (ev) => updateScrollIndicatorClasses();
