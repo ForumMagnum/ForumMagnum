@@ -19,10 +19,10 @@ class HeadTags extends PureComponent {
     const appTitle = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = this.props.title ? `${this.props.title} - ${appTitle}` : appTitle;
     const description = this.props.description || getSetting('tagline') || getSetting('description');
-
+    
     return (
       <div>
-        <Helmet>
+        <Helmet key={window.location.href}>
 
           <title>{title}</title>
 
