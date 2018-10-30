@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { registerComponent, Utils, getSetting, registerSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';
+import { withRouter } from 'react-router';
 
 registerSetting('logoUrl', null, 'Absolute URL for the logo image');
 registerSetting('title', 'My App', 'App title');
@@ -22,7 +23,7 @@ class HeadTags extends PureComponent {
     
     return (
       <div>
-        <Helmet key={window.location.href}>
+        <Helmet key={this.props.location.href}>
 
           <title>{title}</title>
 
@@ -75,6 +76,6 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-registerComponent('HeadTags', HeadTags);
+registerComponent('HeadTags', HeadTags, withRouter);
 
 export default HeadTags;
