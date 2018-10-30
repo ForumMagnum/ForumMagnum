@@ -254,7 +254,6 @@ Comments.addField([
       group: moderationOptionsGroup,
       canRead: ['guests'],
       canUpdate: ['sunshineRegiment', 'admins'],
-      canCreate: ['sunshineRegiment', 'admins'],
       control: 'datetime'
     }
   },
@@ -304,7 +303,6 @@ Comments.addField([
       optional: true,
       canRead: ['guests'],
       canUpdate: ['admins'],
-      canCreate: ['admins'],
     }
   },
 ]);

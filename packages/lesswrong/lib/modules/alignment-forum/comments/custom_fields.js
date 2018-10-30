@@ -1,6 +1,13 @@
 import { Comments } from "../../../collections/comments";
-import { moderationOptionsGroup } from "../../../collections/posts/custom_fields.js"
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
+
+export const alignmentOptionsGroup = {
+  order: 50,
+  name: "alignment",
+  label: "Alignment Options",
+  startCollapsed: true
+};
+
 
 Comments.addField([
   {
@@ -45,12 +52,11 @@ Comments.addField([
       fieldSchema: {
         type: Array,
         viewableBy: ['members'],
-        insertableBy: ['sunshineRegiment', 'admins'],
         editableBy: ['alignmentForum', 'alignmentForumAdmins'],
         optional: true,
         label: "Suggested for Alignment by",
         control: "UsersListEditor",
-        group: moderationOptionsGroup,
+        group: alignmentOptionsGroup,
         resolveAs: {
           fieldName: 'suggestForAlignmentUsers',
           type: '[User]',
@@ -75,10 +81,9 @@ Comments.addField([
       fieldSchema: {
         type: String,
         optional: true,
-        group: moderationOptionsGroup,
+        group: alignmentOptionsGroup,
         viewableBy: ['guests'],
         editableBy: ['alignmentForumAdmins', 'admins'],
-        insertableBy: ['alignmentForumAdmins', 'admins'],
         label: "AF Review UserId"
       }
     },
@@ -95,7 +100,7 @@ Comments.addField([
           viewableBy: ['guests'],
           editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
           insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
-          group: moderationOptionsGroup,
+          group: alignmentOptionsGroup,
         }
       },
 
@@ -107,8 +112,7 @@ Comments.addField([
           hidden: true,
           viewableBy: ['guests'],
           editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
-          insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
-          group: moderationOptionsGroup,
+          group: alignmentOptionsGroup,
           label: "Move to Alignment UserId",
           resolveAs: {
             fieldName: 'moveToAlignmentUser',
