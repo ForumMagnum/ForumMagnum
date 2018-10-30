@@ -5,13 +5,13 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 
 const UsersName = ({user, document, documentId, loading}) => {
-  if (documentId && loading) {
-    return <Components.Loading/>
+  if (documentId) {
+    return <Components.UsersNameWrapper documentId={documentId} />
+  } else {
+    return <Link className="users-name" to={Users.getProfileUrl(user)}>
+      {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
+    </Link>
   }
-  const userInfo = document || user
-  return <Link className="users-name" to={Users.getProfileUrl(userInfo)}>
-    {getSetting('AlignmentForum', false) ? (userInfo.fullName || Users.getDisplayName(userInfo)) : Users.getDisplayName(userInfo)}
-  </Link>
 }
 UsersName.propTypes = {
   user: PropTypes.object.isRequired,
