@@ -23,7 +23,7 @@ class HeadTags extends PureComponent {
     
     return (
       <div>
-        <Helmet key={this.props.location.href}>
+        <Helmet key={this.props.location.pathname}>
 
           <title>{title}</title>
 
