@@ -24,6 +24,22 @@ const styles = theme => ({
   },
 });
 
+const headingTags = {
+  h1: 1,
+  h2: 2,
+  h3: 3,
+  h4: 4,
+  h5: 5,
+  h6: 6,
+}
+
+const headingIfWholeParagraph = {
+  strong: 7,
+  b: 8,
+};
+
+const headingSelector = _.keys(headingTags).concat(_.keys(headingIfWholeParagraph)).join(",");
+
 // Given an HTML document, extract a list of sections for a table of contents
 // from it, and add anchors. The result is modified HTML with added anchors,
 // plus a JSON array of sections, where each section has a
@@ -46,9 +62,14 @@ export function extractListOfSections(postHTML)
   
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
-  let headingTags = postBody('h1,h2,h3,h4,h5,h6');
-  for(let i=0; i<headingTags.length; i++) {
+  let headingTags = postBody(headingSelector);
+  for (let i=0; i<headingTags.length; i++) {
     let tag = headingTags[i];
+    
+    if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
+      continue;
+    }
+    
     let title = cheerio(tag).text();
     let anchor = titleToAnchor(title, usedAnchors);
     cheerio(tag).attr("id", anchor);
@@ -100,17 +121,34 @@ function titleToAnchor(title, usedAnchors)
   return anchor+anchorSuffix;
 }
 
+// `<b>` and `<strong>` tags are headings iff they are the only thing in their
+// paragraph.
+function tagIsHeadingIfWholeParagraph(tagName)
+{
+  return tagName.toLowerCase() in headingIfWholeParagraph;
+}
+
+function tagIsWholeParagraph(tag) {
+  if (!tag) return false;
+  let parents = cheerio(tag).parent();
+  if (!parents || !parents.length) return false;
+  let parent = parents[0];
+  if (parent.tagName.toLowerCase() !== 'p') return false;
+  let siblings = cheerio(tag).siblings();
+  if (siblings.length > 0) return false;
+  
+  return true;
+}
+
 function tagToHeadingLevel(tagName)
 {
-  switch(tagName) {
-    case "h1": return 1;
-    case "h2": return 2;
-    case "h3": return 3;
-    case "h4": return 4;
-    case "h5": return 5;
-    case "h6": return 6;
-    default: return 0;
-  }
+  let lowerCaseTagName = tagName.toLowerCase();
+  if (lowerCaseTagName in headingTags)
+    return headingTags[lowerCaseTagName];
+  else if (lowerCaseTagName in headingIfWholeParagraph)
+    return headingIfWholeParagraph[lowerCaseTagName];
+  else
+    return 0;
 }
 
 class TableOfContents extends Component
