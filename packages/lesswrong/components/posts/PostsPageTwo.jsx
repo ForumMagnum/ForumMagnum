@@ -287,11 +287,6 @@ class PostsPage extends Component {
               </div>
             </div>
             <div className={classes.postFooter}>
-              <div className={classes.voteBottom}>
-                <Components.ErrorBoundary>
-                  <Components.HorizontalPostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                </Components.ErrorBoundary>
-              </div>
               <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
                 {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
               </Typography>
@@ -396,7 +391,7 @@ const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsView
 
 registerComponent(
   // component name used by Vulcan
-  'PostsPageTwo',
+  'PostsPage',
   // React component
   PostsPage,
   // HOC to give access to the current user
@@ -412,5 +407,5 @@ registerComponent(
   // HOC to give access to the redux store & related actions
   connect(mapStateToProps, mapDispatchToProps),
   // HOC to add JSS styles to component
-  withStyles(styles, { name: "PostsPageTwo" })
+  withStyles(styles, { name: "PostsPage" })
 );
