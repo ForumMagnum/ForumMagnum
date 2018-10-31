@@ -48,6 +48,7 @@ import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 import '../components/common/Logo.jsx';
 import '../components/common/SearchForm.jsx';
+import '../components/common/ContentItemBody.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
