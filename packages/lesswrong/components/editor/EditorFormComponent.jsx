@@ -27,7 +27,9 @@ const styles = theme => ({
     margin: 0,
     padding: 0,
   },
-  
+  editorWidth: {
+    width: 540,
+  },
   postEditorHeight: {
     minHeight: postEditorHeight,
   },
@@ -134,7 +136,7 @@ class EditorFormComponent extends Component {
           { editorWarning }
           <AsyncEditor
             {...passedDownProps}
-            className={classnames(bodyStyles, heightClass)}
+            className={classnames(bodyStyles, heightClass, classes.editorWidth)}
           />
         </div>);
     } else {
@@ -145,7 +147,7 @@ class EditorFormComponent extends Component {
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}
-            className={classnames(classes.markdownEditor, bodyStyles)}
+            className={classnames(classes.markdownEditor, bodyStyles, classes.editorWidth)}
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}
             name={name}
