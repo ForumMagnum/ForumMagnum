@@ -256,8 +256,8 @@ class PostsPage extends Component {
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
       
       const sectionData = extractListOfSections(post.htmlBody);
-      const htmlWithAnchors = sectionData.html;
-      const sections = sectionData.sections;
+      const htmlWithAnchors = sectionData ? sectionData.html : post.htmlBody;
+      const sections = sectionData ? sectionData.sections : null;
 
       return (
         <Components.ErrorBoundary>
@@ -286,7 +286,7 @@ class PostsPage extends Component {
                 </span>)}
               </Typography>
             </div>
-            <Components.TableOfContents sections={sections} document={document}/>
+            { sections && <Components.TableOfContents sections={sections} document={document}/> }
             <div className={classes.mainContent}>
               <Components.ErrorBoundary>
                 {this.renderPostMetadata()}
