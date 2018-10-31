@@ -209,7 +209,7 @@ class TableOfContents extends Component
     // The current section is whichever section a spot 1/3 of the way down the
     // window is inside. So the selected section is the section whose heading's
     // Y is as close to the 1/3 mark as possible without going over.
-    let currentSectionMark = window.scrollY + window.innerHeight/3;
+    let currentSectionMark = window.innerHeight/3;
     
     function getSectionY(section) {
       let anchorName = section.anchor;
