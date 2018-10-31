@@ -16,7 +16,7 @@ const CommentBody = ({comment, classes}) => {
   const htmlBody = {__html: comment.htmlBody};
   return (
     <div className={classes.commentStyling}>
-      {!comment.deleted && <div className="comment-body" dangerouslySetInnerHTML={htmlBody}></div>}
+      {!comment.deleted && <Components.ContentItemBody className="comment-body" dangerouslySetInnerHTML={htmlBody}/>}
       {comment.deleted && <div className="comment-body"><Components.CommentDeletedMetadata documentId={comment._id}/></div>}
     </div>
   )

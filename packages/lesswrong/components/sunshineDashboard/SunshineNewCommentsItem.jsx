@@ -8,6 +8,7 @@ import withHover from '../common/withHover'
 import Users from 'meteor/vulcan:users';
 import PropTypes from 'prop-types';
 import withUser from '../common/withUser'
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class SunshineNewCommentsItem extends Component {
 
@@ -75,4 +76,4 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, [withEdit, withEditOptions], withUser, withHover);
+registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary);

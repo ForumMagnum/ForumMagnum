@@ -2,6 +2,10 @@ import createLWTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 
+import { createMuiTheme } from '@material-ui/core/styles';
+
+const defaultTheme = createMuiTheme()
+
 const sansSerifStack = [
   '"freight-sans-pro"',
   'Frutiger',
@@ -75,6 +79,13 @@ const theme = createLWTheme({
     PostsVote: {
       voteScores: {
         fontVariantNumeric: "lining-nums",
+      }
+    },
+    Section: {
+      sectionTitle: {
+        [defaultTheme.breakpoints.up('md')]: {
+          top: 8,
+        }
       }
     }
   }
