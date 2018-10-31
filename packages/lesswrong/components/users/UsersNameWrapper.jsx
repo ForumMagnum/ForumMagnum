@@ -8,7 +8,7 @@ const UsersNameWrapper = ({document, documentId, loading}) => {
     return <Components.Loading />
   }
   if (document) {
-    return <Components.UsersName user={document} />
+    return <Components.UsersNameDisplay user={document} />
   }
 };
 
