@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from 'material-ui/Drawer';
+import classnames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -17,6 +18,24 @@ const styles = theme => ({
   
   currentSection: {
     fontWeight: "bold",
+  },
+  
+  section: {
+  },
+  
+  level1: {
+  },
+  level2: {
+    marginLeft: 8,
+  },
+  level3: {
+    marginLeft: 16,
+  },
+  level4: {
+    marginLeft: 24,
+  },
+  level5: {
+    marginLeft: 32,
   },
 });
 
@@ -38,6 +57,16 @@ class TableOfContents extends Component
     window.removeEventListener('scroll', this.handleScroll);
   }
   
+  levelToClassName(level) {
+    const { classes } = this.props;
+    switch(level) {
+      case 1: return classes.level1;
+      case 2: return classes.level2;
+      case 3: return classes.level3;
+      case 4: return classes.level4;
+      default: return classes.level5;
+    }
+  }
   render() {
     const { classes, sections, document } = this.props;
     const { currentSection } = this.state;
@@ -50,12 +79,18 @@ class TableOfContents extends Component
       <div className={classes.postTitle}>
         {document.title}
       </div>
-      <ul className={classes.chaptersList}>
+      <div className={classes.chaptersList}>
         {sections && sections.map((section, index) =>
-          <li key={index} className={section.anchor === currentSection ? classes.currentSection : undefined}>
+          <div key={index}
+            className={classnames(
+              classes.section,
+              this.levelToClassName(section.level),
+              { [classes.currentSection]: section.anchor === currentSection }
+            )}
+          >
             <a onClick={(ev) => this.jumpToSection(section)}>{section.title}</a>
-          </li>)}
-      </ul>
+          </div>)}
+      </div>
       <div className={classes.comments}>Comments</div>
     </Drawer>
   }

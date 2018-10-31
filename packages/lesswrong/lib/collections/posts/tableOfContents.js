@@ -64,8 +64,23 @@ export function extractTableOfContents(postHTML)
     return null;
   
   // Filter out unused heading levels, mapping the heading levels to consecutive
-  // numbers starting from 1.
-  // TODO
+  // numbers starting from 1. So if a post uses <h1>, <h3> and <strong>, those
+  // will be levels 1, 2, and 3 (not 1, 3 and 7).
+  
+  // Get a list of heading levels used
+  let headingLevelsUsedDict = {};
+  for(let i=0; i<headings.length; i++)
+    headingLevelsUsedDict[headings[i].level] = true;
+  
+  // Generate a mapping from raw heading levels to compressed heading levels
+  let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
+  let headingLevelMap = {};
+  for(let i=0; i<headingLevelsUsed.length; i++)
+    headingLevelMap[ headingLevelsUsed[i] ] = i+1;
+  
+  // Mark sections with compressed heading levels
+  for(let i=0; i<headings.length; i++)
+    headings[i].level = headingLevelMap[headings[i].level];
   
   return {
     html: postBody.html(),
