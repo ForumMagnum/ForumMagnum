@@ -19,6 +19,7 @@ import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import withUser from '../common/withUser';
+import { extractListOfSections } from './TableOfContents';
 
 const styles = theme => ({
     header: {
@@ -253,6 +254,10 @@ class PostsPage extends Component {
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
+      
+      const sectionData = extractListOfSections(post.htmlBody);
+      const htmlWithAnchors = sectionData.html;
+      const sections = sectionData.sections;
 
       return (
         <Components.ErrorBoundary>
@@ -281,6 +286,7 @@ class PostsPage extends Component {
                 </span>)}
               </Typography>
             </div>
+            <Components.TableOfContents sections={sections} document={document}/>
             <div className={classes.mainContent}>
               <Components.ErrorBoundary>
                 {this.renderPostMetadata()}
@@ -290,7 +296,7 @@ class PostsPage extends Component {
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
                 <Components.LinkPostMessage post={post} />
-                { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+                { htmlWithAnchors && <div dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
               </div>
             </div>
             <div className={classes.postFooter}>
