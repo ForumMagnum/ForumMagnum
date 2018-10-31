@@ -192,6 +192,7 @@ registerFragment(`
     lastEditedAs
     body
     htmlBody
+    tableOfContents
     content
     plaintextExcerpt
     draft

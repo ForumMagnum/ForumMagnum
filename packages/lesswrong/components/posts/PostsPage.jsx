@@ -19,7 +19,6 @@ import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import { extractListOfSections } from './TableOfContents';
 
 const styles = theme => ({
     header: {
@@ -255,7 +254,7 @@ class PostsPage extends Component {
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
       
-      const sectionData = extractListOfSections(post.htmlBody);
+      const sectionData = post.tableOfContents;
       const htmlWithAnchors = sectionData ? sectionData.html : post.htmlBody;
       const sections = sectionData ? sectionData.sections : null;
 

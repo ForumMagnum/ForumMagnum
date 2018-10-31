@@ -44,6 +44,7 @@ import './lib/collections/users/validate_login.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/lwevents/indexes.js';
 import './lib/collections/posts/indexes.js';
+import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/indexes.js';
 import './lib/collections/localgroups/callbacks.js';
 
