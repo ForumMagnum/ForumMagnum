@@ -346,6 +346,7 @@ registerFragment(`
     voteCount
     af
     afDate
+    moveToAlignmentUserId
     afBaseScore
     suggestForAlignmentUserIds
     needsReview

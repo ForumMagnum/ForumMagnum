@@ -1,6 +1,12 @@
 import { Comments } from "../../../collections/comments";
-import { moderationOptionsGroup } from "../../../collections/comments/custom_fields";
-import { generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
+
+export const alignmentOptionsGroup = {
+  order: 50,
+  name: "alignment",
+  label: "Alignment Options",
+  startCollapsed: true
+};
 
 
 Comments.addField([
@@ -12,8 +18,8 @@ Comments.addField([
       label: "Alignment Forum",
       defaultValue: false,
       viewableBy: ['guests'],
-      editableBy: ['alignmentVoters'],
-      insertableBy: ['alignmentVoters'],
+      editableBy: ['alignmentForum', 'alignmentVoters', 'admins'],
+      insertableBy: ['alignmentForum', 'alignmentVoters', 'admins'],
     }
   },
 
@@ -46,12 +52,11 @@ Comments.addField([
       fieldSchema: {
         type: Array,
         viewableBy: ['members'],
-        insertableBy: ['sunshineRegiment', 'admins'],
         editableBy: ['alignmentForum', 'alignmentForumAdmins'],
         optional: true,
         label: "Suggested for Alignment by",
         control: "UsersListEditor",
-        group: moderationOptionsGroup,
+        group: alignmentOptionsGroup,
         resolveAs: {
           fieldName: 'suggestForAlignmentUsers',
           type: '[User]',
@@ -76,12 +81,47 @@ Comments.addField([
       fieldSchema: {
         type: String,
         optional: true,
-        group: moderationOptionsGroup,
+        group: alignmentOptionsGroup,
         viewableBy: ['guests'],
         editableBy: ['alignmentForumAdmins', 'admins'],
-        insertableBy: ['alignmentForumAdmins', 'admins'],
         label: "AF Review UserId"
       }
     },
 
+      {
+        fieldName: 'afDate',
+        fieldSchema: {
+          order:10,
+          type: Date,
+          optional: true,
+          label: "Alignment Forum",
+          defaultValue: false,
+          hidden: true,
+          viewableBy: ['guests'],
+          editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          group: alignmentOptionsGroup,
+        }
+      },
+
+      {
+        fieldName: 'moveToAlignmentUserId',
+        fieldSchema: {
+          type: String,
+          optional: true,
+          hidden: true,
+          viewableBy: ['guests'],
+          editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+          group: alignmentOptionsGroup,
+          label: "Move to Alignment UserId",
+          resolveAs: {
+            fieldName: 'moveToAlignmentUser',
+            type: 'User',
+            resolver: generateIdResolverSingle(
+              {collectionName: 'Users', fieldName: 'moveToAlignmentUserId'}
+            ),
+            addOriginalField: true
+          },
+        }
+      },
 ])
