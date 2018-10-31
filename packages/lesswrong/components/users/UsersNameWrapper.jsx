@@ -1,6 +1,7 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const UsersNameWrapper = ({document, documentId, loading}) => {
   if (!document && loading) {
@@ -12,6 +13,12 @@ const UsersNameWrapper = ({document, documentId, loading}) => {
 };
 
 UsersNameWrapper.displayName = "UsersNameWrapper";
+
+UsersNameWrapper.propTypes = {
+  documentId: PropTypes.string.isRequired,
+  document: PropTypes.object,
+  loading: PropTypes.bool
+}
 
 const options = {
   collection: Users,
