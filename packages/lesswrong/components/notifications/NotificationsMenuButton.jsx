@@ -56,7 +56,7 @@ const NotificationsMenuButton = (props) => {
     >
       <IconButton
           classes={{
-            root: classnames("notifications-menu-button", classes.buttonClass)
+            root: classnames("notifications-menu-button", buttonClass)
           }}
           onClick={toggle}
           style={ notificationIconStyle }

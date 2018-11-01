@@ -57,12 +57,11 @@ class CommunityMapFilter extends Component {
     return <Paper className={classes.root} elevation={1}>
       <div className={classes.filters}>
         {availableFilters.map(value => {
-          return <React.Fragment>
+          return <React.Fragment key={value}>
             <Checkbox
               checked={this.state.filters.includes(value)}
               onChange={(event, checked) => this.handleCheck(value)}
               className={classes.checkbox}
-              key={value}
             />
             <span className={classes.checkboxLabel}>
               {value}

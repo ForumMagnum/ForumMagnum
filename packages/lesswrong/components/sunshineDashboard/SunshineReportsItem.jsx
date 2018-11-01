@@ -130,6 +130,6 @@ registerComponent(
   SunshineReportsItem,
   [withEdit, withEditOptions],
   withStyles(styles, {name: "SunshineReportsItem"}),
-  withUser
+  withUser,
   withErrorBoundary
 );
