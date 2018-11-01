@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
-import withUser from '../common/withUser';
+import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -42,7 +42,7 @@ class SunshineCommentsItemOverview extends Component {
           <Components.SidebarInfo>
             <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
               <Components.FromNowDate date={comment.postedAt}/>
-              <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
+              <Icon className={"material-icons comments-item-permalink"}> link </Icon>
             </Link>
           </Components.SidebarInfo>
         </div>

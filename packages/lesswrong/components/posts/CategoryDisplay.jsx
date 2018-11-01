@@ -1,8 +1,9 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
-import FontIcon from 'material-ui/FontIcon';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import Icon from '@material-ui/core/Icon';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 const categoryTooltips = {
   "brightness_1": <div className="post-category-tooltip"><div>Read Status</div></div>,
@@ -17,7 +18,17 @@ const styles = theme => ({
     // Make the tooltip transparent to the mouse cursor, because otherwise it
     // would mess up the cursor style when you move the mouse down
     pointerEvents: "none"
-  }
+  },
+  icon: {
+    fontSize: "20px",
+    verticalAlign: "middle",
+  },
+  read: {
+    color: "rgba(0,0,0,0.2)",
+  },
+  unread: {
+    color: theme.palette.secondary.light,
+  },
 });
 
 class CategoryDisplay extends PureComponent {
@@ -29,10 +40,9 @@ class CategoryDisplay extends PureComponent {
   }
 
   render() {
-    const { post, read, theme, classes } = this.props;
+    const { post, read, classes } = this.props;
 
     const categoryIcon = (getSetting('AlignmentForum', false) && "brightness_1") || (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
-    const iconColor = read ? "rgba(0,0,0,.2)" : theme.palette.secondary.light;
 
     if (categoryIcon) {
       return (
@@ -45,9 +55,9 @@ class CategoryDisplay extends PureComponent {
         >
           <div className="post-category-display-container" onClick={this.props.onClick}>
             <span className="posts-item-category-display">
-              <FontIcon style={{fontSize: "20px", color: iconColor, verticalAlign: "middle"}} className="material-icons">
+              <Icon className={classNames("material-icons", classes.icon, read ? classes.read : classes.unread)}>
                 {categoryIcon}
-              </FontIcon>
+              </Icon>
             </span>
           </div>
         </Tooltip>
@@ -58,4 +68,4 @@ class CategoryDisplay extends PureComponent {
   }
 }
 
-registerComponent('CategoryDisplay', CategoryDisplay, withTheme(), withStyles(styles, {name: "CategoryDisplay"}));
+registerComponent('CategoryDisplay', CategoryDisplay, withStyles(styles, {name: "CategoryDisplay"}));

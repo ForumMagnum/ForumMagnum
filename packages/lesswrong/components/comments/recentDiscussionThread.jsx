@@ -18,7 +18,7 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
@@ -136,16 +136,16 @@ class RecentDiscussionThread extends PureComponent {
               { this.state.showExcerpt ?
                 <Components.MetaInfo>
                   Hide Highlight
-                  <FontIcon className={classNames("material-icons","hide-highlight-button")}>
+                  <Icon className={classNames("material-icons","hide-highlight-button")}>
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                 </Components.MetaInfo>
               :
               <Components.MetaInfo>
                 Show Highlight
-                <FontIcon className={classNames("material-icons","show-highlight-button")}>
+                <Icon className={classNames("material-icons","show-highlight-button")}>
                   subdirectory_arrow_left
-                </FontIcon>
+                </Icon>
               </Components.MetaInfo> }
             </span>
           </div>

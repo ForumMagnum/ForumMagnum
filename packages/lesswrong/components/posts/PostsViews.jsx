@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter, Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
+import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 import postViewSections from '../../lib/sections.js'
@@ -11,6 +12,25 @@ import withUser from '../common/withUser';
 
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
+
+const styles = theme => ({
+  categoryIcon: {
+    position: "relative",
+    fontSize: "14px",
+    color: "white",
+    verticalAlign: "middle",
+    bottom: 1,
+    marginRight: 2
+  },
+  
+  helpIcon: {
+    position: "relative",
+    fontSize: "14px",
+    color: "white",
+    top: 2,
+    marginRight: 1,
+  },
+});
 
 
 class PostsViews extends Component {
@@ -44,19 +64,21 @@ class PostsViews extends Component {
   }
 
   renderMenu = (viewData, view) => {
+    const { classes } = this.props;
     return (
       <div className="view-chip-menu-wrapper">
         <div className="view-chip-menu">
           <div className="view-chip-menu-item description">
-            <FontIcon style={{fontSize: "14px", color: "white", verticalAlign: "middle", bottom: "1px", marginRight:"2px"}} className="material-icons">
+            <Icon className={classnames("material-icons", classes.categoryIcon)}>
               {viewData.categoryIcon}
-            </FontIcon>
+            </Icon>
             {viewData.description}
           </div>
           { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}
           { viewData.learnMoreLink && <div className="view-chip-menu-item learn-more">
             <Link to={viewData.learnMoreLink}>
-              <FontIcon className="material-icons" style={{fontSize: "14px", color: "white", top: "2px", marginRight:"1px"}}>help</FontIcon><span style={{color:"white"}}> Learn More</span>
+              <Icon className={classnames("material-icons", classes.helpIcon)}>help</Icon>
+              <span style={{color:"white"}}> Learn More</span>
             </Link>
           </div>}
         </div>
@@ -147,4 +169,5 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('PostsViews', PostsViews, withRouter, withUser, [withEdit, withEditOptions]);
+registerComponent('PostsViews', PostsViews, withRouter, withUser, [withEdit, withEditOptions],
+  withStyles(styles, { name: "PostsViews" }));

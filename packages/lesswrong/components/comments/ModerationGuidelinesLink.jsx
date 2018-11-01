@@ -1,6 +1,6 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import classNames from 'classnames'
@@ -35,9 +35,9 @@ class ModerationGuidelinesLink extends PureComponent {
           Moderation Guidelines{canModerate && <span>:
             <FormattedMessage id={"short-moderation-" + moderationStyle} />
           </span> }
-          <FontIcon className="material-icons moderation-guidelines-link-expand">
+          <Icon className="material-icons moderation-guidelines-link-expand">
             {this.state.open ? "expand_less" : "expand_more"}
-          </FontIcon>
+          </Icon>
         </a>
         {this.state.open && <Components.ModerationGuidelinesContent showFrontpageGuidelines={post && post.frontpageDate} user={user} />}
       </span>

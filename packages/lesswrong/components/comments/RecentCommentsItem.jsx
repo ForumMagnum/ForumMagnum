@@ -2,7 +2,7 @@ import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:co
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 
@@ -77,12 +77,12 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId ? (
-                  <FontIcon
+                  <Icon
                     onClick={this.toggleShowParent}
                     className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                   >
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                 ) : level != 1 && <div className="recent-comment-username-spacing">○</div>}
                 <Components.UsersName user={comment.user}/>
                 { comment.post && (
@@ -90,7 +90,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                     <div className="comments-item-origin">
                       <div className="comments-item-date">
                         <Components.FromNowDate date={comment.postedAt}/>
-                        <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
+                        <Icon className="material-icons comments-item-permalink"> link </Icon>
                       </div>
                       { showTitle && comment.post && comment.post.title}
                     </div>
