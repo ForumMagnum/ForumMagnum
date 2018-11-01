@@ -107,6 +107,10 @@ class ContentItemBody extends Component {
       let latexBlocks = this.bodyRef.current.getElementsByClassName("mjx-chtml");
       for(let i=0; i<latexBlocks.length; i++) {
         let latexBlock = latexBlocks[i];
+        if (!latexBlock.classList.contains("MJXc-display")) {
+          // Skip inline LaTeX
+          continue;
+        }
         latexBlock.className += " " + classes.scrollableLaTeX;
         if(latexBlock.scrollWidth > latexBlock.clientWidth) {
           this.addHorizontalScrollIndicators(latexBlock);

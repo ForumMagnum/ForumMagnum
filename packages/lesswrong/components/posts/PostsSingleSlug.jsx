@@ -19,6 +19,7 @@ const options = {
   fragmentName: 'LWPostsPage',
   limit: 1,
   enableTotal: false,
+  ssr: true,
 };
 
 registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);

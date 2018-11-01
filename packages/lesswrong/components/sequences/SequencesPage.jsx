@@ -43,7 +43,7 @@ const styles = theme => ({
   },
   banner: {
     position: "absolute",
-    left: 0,
+    right: 0,
     top: 60,
     width: "100vw",
     height: 380,
