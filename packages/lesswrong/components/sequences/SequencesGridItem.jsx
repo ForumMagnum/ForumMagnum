@@ -5,7 +5,6 @@ import {
 } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import React, { PureComponent } from 'react';
-import Users from 'meteor/vulcan:users';
 import { Link, withRouter } from 'react-router';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
@@ -43,7 +42,7 @@ class SequencesGridItem extends PureComponent {
         </Link>
         { showAuthor &&
           <div className="sequences-grid-item-author">
-            by <Link to={Users.getProfileUrl(sequence.user)}>{Users.getDisplayName(sequence.user)}</Link>
+            by <Components.UsersName user={sequence.user} />
           </div>}
       </div>
       <div className="sequences-grid-item-bottom">
