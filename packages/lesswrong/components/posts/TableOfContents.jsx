@@ -13,7 +13,7 @@ const styles = theme => ({
   },
   
   chaptersList: {
-    paddingLeft: 15,
+    paddingLeft: 10,
   },
   
   currentSection: {
@@ -21,21 +21,23 @@ const styles = theme => ({
   },
   
   section: {
+    marginTop: 4,
+    marginBottom: 4,
   },
   
   level1: {
   },
   level2: {
-    marginLeft: 8,
+    marginLeft: 10,
   },
   level3: {
-    marginLeft: 16,
+    marginLeft: 20,
   },
   level4: {
-    marginLeft: 24,
+    marginLeft: 30,
   },
   level5: {
-    marginLeft: 32,
+    marginLeft: 40,
   },
 });
 
