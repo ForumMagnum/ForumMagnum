@@ -18,8 +18,8 @@ Comments.addField([
       label: "Alignment Forum",
       defaultValue: false,
       viewableBy: ['guests'],
-      editableBy: ['alignmentForum', 'alignmentVoters', 'admins'],
-      insertableBy: ['alignmentForum', 'alignmentVoters', 'admins'],
+      editableBy: ['alignmentForum', 'admins'],
+      insertableBy: ['alignmentForum', 'admins'],
     }
   },
 
