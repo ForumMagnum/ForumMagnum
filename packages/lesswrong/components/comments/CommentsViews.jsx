@@ -45,7 +45,7 @@ class CommentsViews extends Component {
     const { router, post } = this.props
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
     this.setState({ anchorEl: null })
-    router.replace({...router.location, query: {...currentQuery, view: view, postId: post._id}})
+    router.replace({...router.location, query: {...currentQuery, view: view, postId: post ? post._id : undefined}})
   };
 
   handleClose = () => {

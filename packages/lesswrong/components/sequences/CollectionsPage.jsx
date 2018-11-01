@@ -61,6 +61,7 @@ const options = {
   queryName: "CollectionsPageQuery",
   fragmentName: 'CollectionsPageFragment',
   enableTotal: false,
+  ssr: true,
 };
 
 registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withUser);

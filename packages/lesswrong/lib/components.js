@@ -72,7 +72,6 @@ import '../components/users/LoginPopupLink.jsx';
 // posts
 
 import '../components/posts/PostsEdit.jsx';
-import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
