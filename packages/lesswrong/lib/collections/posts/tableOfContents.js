@@ -9,8 +9,8 @@ const headingTags = {
   h2: 2,
   h3: 3,
   h4: 4,
-  h5: 5,
-  h6: 6,
+  //h5: 5,
+  //h6: 6,
 }
 
 const headingIfWholeParagraph = {
@@ -52,6 +52,7 @@ export function extractTableOfContents(postHTML)
     
     let title = cheerio(tag).text();
     let anchor = titleToAnchor(title, usedAnchors);
+    usedAnchors[anchor] = true;
     cheerio(tag).attr("id", anchor);
     headings.push({
       title: title,
@@ -89,9 +90,8 @@ export function extractTableOfContents(postHTML)
 }
 
 // Given the text in a heading block and a dict of anchors that have been used
-// in the post so far, generate an anchor, add that anchor to usedAnchors, and
-// return it. An anchor is a URL-safe string that can be used for
-// within-document links.
+// in the post so far, generate an anchor, and return it. An anchor is a
+// URL-safe string that can be used for within-document links.
 function titleToAnchor(title, usedAnchors)
 {
   let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
@@ -129,8 +129,8 @@ function tagIsWholeParagraph(tag) {
   if (!parents || !parents.length) return false;
   let parent = parents[0];
   if (parent.tagName.toLowerCase() !== 'p') return false;
-  let siblings = cheerio(tag).siblings();
-  if (siblings.length > 0) return false;
+  let selfAndSiblings = cheerio(parent).contents();
+  if (selfAndSiblings.length != 1) return false;
   
   return true;
 }
