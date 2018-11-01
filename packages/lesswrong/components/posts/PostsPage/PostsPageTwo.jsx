@@ -46,7 +46,8 @@ const styles = theme => ({
     voteBottom: {
       position: 'relative',
       fontSize: 42,
-      textAlign: 'center'
+      textAlign: 'center',
+      display: 'inline-block'
     },
     postFooter: {
       marginBottom: 30,
@@ -60,6 +61,13 @@ const styles = theme => ({
       [theme.breakpoints.down('sm')]: {
         width:'100%'
       }
+    },
+    moderationGuidelinesWrapper: {
+      width: 'calc(100% - 50px)',
+      verticalAlign: 'top',
+      marginTop: 15,
+      display: 'inline-block',
+      fontSize: 16
     }
 })
 
@@ -112,6 +120,8 @@ class PostsPage extends Component {
           <div className={classes.postFooter}>
             <div className={classes.voteBottom}>
               <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+            </div>
+            <div className={classes.moderationGuidelinesWrapper}>
               <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
             </div>
           </div>
