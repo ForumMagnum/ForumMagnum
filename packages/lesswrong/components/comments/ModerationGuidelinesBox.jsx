@@ -31,6 +31,9 @@ class ModerationGuidelinesBox extends PureComponent {
         <div className={commentClasses}>
           <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
             <span>Moderation Guidelines</span>
+            <Components.ModerationGuidelinesContent
+              showFrontpageGuidelines={post && post.frontpageDate}
+              user={user} />}
             {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
             <Icon
               classes={{root: "material-icons moderation-guidelines-header-expand"}}
