@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary'
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -130,4 +131,5 @@ registerComponent(
   [withEdit, withEditOptions],
   withStyles(styles, {name: "SunshineReportsItem"}),
   withUser
+  withErrorBoundary
 );

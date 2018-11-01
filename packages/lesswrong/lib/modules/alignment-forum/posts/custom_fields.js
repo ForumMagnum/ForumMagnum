@@ -26,7 +26,6 @@ Posts.addField([
       type: Date,
       optional: true,
       label: "Alignment Forum",
-      defaultValue: false,
       hidden: true,
       viewableBy: ['guests'],
       editableBy: ['alignmentForum'],

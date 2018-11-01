@@ -212,10 +212,10 @@ class PostsItem extends PureComponent {
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
-                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
+                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
               </Link>
               <div onClick={this.toggleHighlight} className="posts-item-meta">
-                <Components.PostsItemMeta post={post}/>
+                <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
                 <span className="posts-item-show-highlight-button">
                   { this.state.showHighlight ?
                     <Components.MetaInfo>

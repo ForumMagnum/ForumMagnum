@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const styles = theme => ({
   icon: {
@@ -98,5 +99,5 @@ const withEditOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withUser,
+registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withUser, withErrorBoundary,
   withStyles(styles, { name: "SunshineCommentsItem" }));

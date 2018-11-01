@@ -105,7 +105,23 @@ class EditorForm extends Component {
     ];
 
     if (isClient) {
-      const mathjaxPlugin = createMathjaxPlugin({completion: 'manual'})
+      const mathjaxPlugin = createMathjaxPlugin(
+        {
+          completion: 'manual',
+          mathjaxConfig: {
+            jax: ['input/TeX', 'output/CommonHTML'],
+            TeX: {
+              extensions: ['autoload-all.js'],
+            },
+            messageStyle: 'none',
+            showProcessingMessages: false,
+            showMathMenu: false,
+            showMathMenuMSIE: false,
+            preview: 'none',
+            delayStartupTypeset: true,
+          }
+        }
+      )
       plugins.push(mathjaxPlugin);
     }
 

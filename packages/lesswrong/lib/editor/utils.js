@@ -71,7 +71,10 @@ export const draftToHTML = convertToHTML({
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
     if (entity.type === 'LINK') {
-      return `<a href="${entity.data.url || entity.data.href}">${originalText}</a>`;
+      return {
+        start: `<a href="${entity.data.url || entity.data.href}">`,
+        end: '</a>',
+      };
     }
     if (entity.type === 'IMG') {
       const className = 'draft-inline-image';

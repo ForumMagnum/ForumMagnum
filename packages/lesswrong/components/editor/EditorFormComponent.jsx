@@ -7,36 +7,34 @@ import { editorStyles, postBodyStyles, commentBodyStyles } from '../../themes/st
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import DraftJSEditor from '../async/EditorFormContainer'
+import classnames from 'classnames';
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
+const postEditorHeightRows = 15;
+const commentEditorHeightRows = 5;
 
 const styles = theme => ({
-  postEditor: {
-    "&, & textarea": {
-      minHeight: postEditorHeight,
-      ...editorStyles(theme, postBodyStyles)
-    },
+  postBodyStyles: {
+    ...editorStyles(theme, postBodyStyles),
+    cursor: "text",
   },
-  commentEditor: {
-    "&, & textarea": {
-      minHeight: commentEditorHeight,
-      ...editorStyles(theme, commentBodyStyles)
-    },
+  
+  commentBodyStyles: {
+    ...editorStyles(theme, commentBodyStyles),
+    cursor: "text",
+    
+    margin: 0,
+    padding: 0,
   },
   
   postEditorHeight: {
     minHeight: postEditorHeight,
-    cursor: "text"
   },
   commentEditorHeight: {
     minHeight: commentEditorHeight,
-    cursor: "text"
   },
   
-  markdownEditor: {
-    fontSize: '1.4rem',
-  },
   errorTextColor: {
     color: theme.palette.error.main
   }
@@ -121,33 +119,40 @@ class EditorFormComponent extends Component {
     // the draft-js editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
     const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
+    const bodyStyles = commentStyles ? classes.commentBodyStyles : classes.postBodyStyles;
     
-    return (
-      <div className={commentStyles ? classes.commentEditor : classes.postEditor}>
-        {!editorOverride && formType !== "new" && document && document.lastEditedAs && document.lastEditedAs !== this.getUserDefaultEditor(currentUser) && this.renderEditorWarning()}
-        { this.getCurrentEditorType() === "markdown" &&
-            <Components.MuiInput
-              {...passedDownProps}
-              className={classes.markdownEditor}
-              name="body"
-            />
-        }
-        { this.getCurrentEditorType() === "html" &&
-            <Components.MuiInput
-              {...passedDownProps}
-              className={classes.markdownEditor}
-              name="htmlBody"
-            />
-        }
-        { this.getCurrentEditorType() === "draft-js" &&
-            <AsyncEditor
-              {...passedDownProps}
-              className={heightClass}
-            />
-        }
-      </div>
-
-    )
+    const editorWarning =
+      !editorOverride
+      && formType !== "new"
+      && document && document.lastEditedAs
+      && document.lastEditedAs !== this.getUserDefaultEditor(currentUser)
+      && this.renderEditorWarning()
+    
+    if (this.getCurrentEditorType() === "draft-js") {
+      return (
+        <div className={heightClass}>
+          { editorWarning }
+          <AsyncEditor
+            {...passedDownProps}
+            className={classnames(bodyStyles, heightClass)}
+          />
+        </div>);
+    } else {
+      const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
+      
+      return (
+        <div>
+          { editorWarning }
+          <Components.MuiInput
+            {...passedDownProps}
+            className={classnames(classes.markdownEditor, bodyStyles)}
+            rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
+            rowsMax={99999}
+            name={name}
+          />
+        </div>
+      );
+    }
   }
 }
 

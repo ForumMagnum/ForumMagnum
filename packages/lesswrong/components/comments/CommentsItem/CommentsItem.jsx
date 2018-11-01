@@ -263,6 +263,7 @@ class CommentsItem extends Component {
             { this.renderReportMenuItem() }
             { this.renderDeleteMenuItem() }
             { this.renderMoveToAlignmentMenuItem() }
+            { this.renderSuggestForAlignmentMenuItem() }
             { Users.canModeratePost(currentUser, post) &&
               post.user && Users.canModeratePost(post.user, post) &&
               <MenuItem
@@ -333,6 +334,19 @@ class CommentsItem extends Component {
         <Components.MoveToAlignmentMenuItem
           currentUser={currentUser}
           comment={comment}
+        />
+      )
+    }
+  }
+
+  renderSuggestForAlignmentMenuItem = () =>  {
+    const { currentUser, comment, post } = this.props
+    if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+      return (
+        <Components.SuggestAlignmentMenuItem
+          currentUser={currentUser}
+          comment={comment}
+          post={post}
         />
       )
     }

@@ -9,13 +9,13 @@ const styles = theme => ({
   root: {
     position: "relative"
   },
-  
+
   post: {
     width: 300,
     display: "inline-block",
     marginTop: -15,
     paddingBottom: 55,
-  
+
     [legacyBreakpoints.maxSmall]: {
       width: "100%",
       textAlign: "left",
@@ -26,18 +26,18 @@ const styles = theme => ({
       paddingLeft: 5,
     }
   },
-  
+
   prevPost: {
   },
-  
+
   nextPost: {
     float: "right",
-    
+
     [legacyBreakpoints.maxSmall]: {
       paddingBottom: 50
     }
   },
-  
+
   divider: {
     position: "absolute",
     height: "110px",
@@ -51,42 +51,46 @@ const styles = theme => ({
     left: 0,
     right: 0,
     top: 0,
-    
+
     [legacyBreakpoints.maxSmall]: {
       display: "none"
     }
   },
-  
+
   nextSequenceDirection: {
     fontWeight: 600,
     fontSize: "1.2rem",
   },
-  
+
   clear: {
     clear: "both"
   }
 })
 
 const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle, classes}) => {
-  return <div className={classes.root}>
-    {(previousPost && sequence) ? <div className={classnames(classes.post, classes.prevPost)}>
-      <Components.RecommendedReadingItem direction="Previous" post={previousPost} sequence={sequence}/>
-    </div> : null}
-    <div className={classes.divider}></div>
-    {/* TODO: This is currently unreachable (nextTitle is never passed). Hook it up, test the styles, then JSS-ify them. */}
-    { nextTitle ?
-      <div className="sequences-navigation-bottom-next-sequence">
-        <Link className="sequences-navigation-next-sequence" to={nextLink || post.nextPageLink}>
-          <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle || post.nextPageTitle}
-        </Link>
-      </div>
-    : (
-      (nextPost && sequence) ? <div className={classnames(classes.post, classes.nextPost)}>
-        <Components.RecommendedReadingItem direction="Next" post={nextPost} sequence={sequence}/>
-      </div> : null
-    ) }
-    <div className={classes.clear}></div>
-  </div>
+  if (nextPost || previousPost) {
+    return <div className={classes.root}>
+      {(previousPost && sequence) ? <div className={classnames(classes.post, classes.prevPost)}>
+        <Components.RecommendedReadingItem direction="Previous" post={previousPost} sequence={sequence}/>
+      </div> : null}
+      <div className={classes.divider}></div>
+      {/* TODO: This is currently unreachable (nextTitle is never passed). Hook it up, test the styles, then JSS-ify them. */}
+      { nextTitle ?
+        <div className="sequences-navigation-bottom-next-sequence">
+          <Link className="sequences-navigation-next-sequence" to={nextLink || post.nextPageLink}>
+            <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle || post.nextPageTitle}
+          </Link>
+        </div>
+      : (
+        (nextPost && sequence) ? <div className={classnames(classes.post, classes.nextPost)}>
+          <Components.RecommendedReadingItem direction="Next" post={nextPost} sequence={sequence}/>
+        </div> : null
+      ) }
+      <div className={classes.clear}></div>
+    </div>
+  } else {
+    return null
+  }
 };
 
 

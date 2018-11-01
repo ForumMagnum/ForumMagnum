@@ -27,15 +27,8 @@ const styles = theme => ({
     color: "white",
     marginLeft:theme.spacing.unit*1.5,
   },
-  usersName: {
-    marginBottom: theme.spacing.unit/2,
-  },
   meta: {
-    opacity:.75,
-    marginBottom:theme.spacing.unit
-  },
-  createdAt: {
-    marginLeft: theme.spacing.unit
+    marginBottom:theme.spacing.unit*1.5
   },
   messageBody: {
     '& a': {
@@ -57,12 +50,12 @@ class MessageItem extends Component {
         <Components.ErrorBoundary>
           <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
             <div className={classes.meta}>
-              {message.user && <span className={classes.usersName}>
+              {message.user && <Components.MetaInfo>
                 <Components.UsersName user={message.user}/>
-              </span>}
-              {message.createdAt && <span className={classes.createdAt}>
+              </Components.MetaInfo>}
+              {message.createdAt && <Components.MetaInfo>
                 <Components.FromNowDate date={message.createdAt}/>
-              </span>}
+              </Components.MetaInfo>}
             </div>
             <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
           </Typography>

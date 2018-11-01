@@ -1,4 +1,5 @@
-import { Picker } from 'meteor/meteorhacks:picker';
+import { getSetting } from 'meteor/vulcan:core'
+import { Picker } from 'meteor/meteorhacks:picker'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
@@ -19,6 +20,9 @@ import Users from 'meteor/vulcan:users';
 // old drafts via legacy routes; I'm not sure whether we support getting them
 // through other UI).
 const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
+
+// Because the EA Forum was identical except for the change from /lw/ to /ea/
+const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
 
 function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
@@ -47,9 +51,8 @@ function findCommentByLegacyAFId(legacyId) {
 //Route for redirecting LessWrong legacy posts
 // addRoute({ name: 'lessWrongLegacy', path: 'lw/:id/:slug/:commentId', componentName: 'LegacyPostRedirect'});
 
-
 // Route for old post links
-Picker.route(subredditPrefixRoute+'/lw/:id/:slug?', (params, req, res, next) => {
+Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -76,7 +79,7 @@ Picker.route(subredditPrefixRoute+'/lw/:id/:slug?', (params, req, res, next) => 
 });
 
 // Route for old comment links
-Picker.route(subredditPrefixRoute+'/lw/:id/:slug/:commentId', (params, req, res, next) => {
+Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -179,7 +182,7 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
 // Legacy RSS Routes
 
 // Route for old comment rss feeds
-Picker.route(subredditPrefixRoute+'/lw/:id/:slug/:commentId/.rss', (params, req, res, next) => {
+Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, (params, req, res, next) => {
   if(params.id){
     try {
       const post = findPostByLegacyId(params.id);
