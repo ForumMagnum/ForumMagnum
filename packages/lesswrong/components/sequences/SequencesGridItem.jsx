@@ -5,7 +5,6 @@ import {
 } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import React, { PureComponent } from 'react';
-import Users from 'meteor/vulcan:users';
 import { Link, withRouter } from 'react-router';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
