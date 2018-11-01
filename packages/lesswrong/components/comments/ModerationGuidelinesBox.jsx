@@ -30,11 +30,8 @@ class ModerationGuidelinesBox extends PureComponent {
       return(
         <div className={commentClasses}>
           <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
-            <span>Moderation Guidelines</span>
-            <Components.ModerationGuidelinesContent
-              showFrontpageGuidelines={post && post.frontpageDate}
-              user={user} />}
-            {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
+            <ShortModerationGuidelines />
+             {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
             <FontIcon
               className="material-icons moderation-guidelines-header-expand"
             >
@@ -52,6 +49,14 @@ class ModerationGuidelinesBox extends PureComponent {
     }
   }
 }
+
+const ShortModerationGuidelines = () => (
+  <div>
+    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something, as
+     opposed to the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
+     models, make predictions, and note what would change your mind (Read More)
+  </div>
+)
 
 const queryOptions = {
   collection: Posts,

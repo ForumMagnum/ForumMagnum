@@ -14,7 +14,7 @@ const styles = theme => ({
 })
 
 const PostsPageTitle = ({classes, post}) =>
-  <Typography variant="display3" className={classes.title}>
+  <Typography variant="display3" className={classes.root}>
     {post.draft && <span className={classes.draft}>[Draft] </span>}
     {post.title}
   </Typography>
