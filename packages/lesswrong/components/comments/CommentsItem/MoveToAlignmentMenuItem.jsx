@@ -1,38 +1,38 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
+import { registerComponent, withMessages, withUpdate, Components } from 'meteor/vulcan:core';
 import MenuItem from 'material-ui/MenuItem';
 import PropTypes from 'prop-types';
-import withSetAlignmentComment from '../../alignment-forum/withSetAlignmentComment.jsx'
 import { withApollo } from 'react-apollo'
+import { Comments } from "../../../lib/collections/comments";
 
 class MoveToAlignmentMenuItem extends PureComponent {
 
   handleMoveToAlignmentForum = async () => {
-    const {
-      comment,
-      setAlignmentCommentMutation,
-      client,
-      flash
-    } = this.props
-    await setAlignmentCommentMutation({
-      commentId: comment._id,
-      af: true,
+    const { comment, updateComment, client, flash, currentUser, } = this.props
+    await updateComment({
+      selector: { _id: comment._id},
+      data: {
+        af: true,
+        afDate: new Date(),
+        moveToAlignmentUserId: currentUser._id
+      },
     })
     client.resetStore()
     flash({id:"alignment.move_comment"})
   }
 
   handleRemoveFromAlignmentForum = async () => {
-    const {
-      comment,
-      setAlignmentCommentMutation,
-      client,
-      flash
-    } = this.props
-    await setAlignmentCommentMutation({
-      commentId: comment._id,
-      af: false,
+    const { comment, updateComment, client, flash } = this.props
+
+    await updateComment({
+      selector: { _id: comment._id},
+      data: {
+        af: false,
+        afDate: null,
+        moveToAlignmentUserId: null
+      },
     })
+
     client.resetStore()
     flash({id:"alignment.remove_comment"})
   }
@@ -58,14 +58,15 @@ class MoveToAlignmentMenuItem extends PureComponent {
   }
 }
 
-const mutationOptions = {
-  fragmentName: "CommentsList"
-};
+const withUpdateOptions = {
+  collection: Comments,
+  fragmentName: 'CommentsList',
+}
 
 registerComponent(
   'MoveToAlignmentMenuItem',
    MoveToAlignmentMenuItem,
-   [withSetAlignmentComment, mutationOptions],
+   [withUpdate, withUpdateOptions],
    withMessages,
    withApollo,
 );

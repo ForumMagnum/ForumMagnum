@@ -58,10 +58,10 @@ addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'Post
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Admin" });
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog', title: "Moderation Log" });
 
-addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
-
 if(getSetting('AlignmentForum', false)) {
     addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
+    addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"FoiiRDC3EhjHx7ayY"});
 } else {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
+    addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
 }

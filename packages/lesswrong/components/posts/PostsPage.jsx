@@ -290,7 +290,9 @@ class PostsPage extends Component {
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
                 <Components.LinkPostMessage post={post} />
-                { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+                { post.htmlBody && <Components.ContentItemBody
+                    dangerouslySetInnerHTML={{__html: post.htmlBody}}
+                 /> }
               </div>
             </div>
             <div className={classes.postFooter}>

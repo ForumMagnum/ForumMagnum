@@ -20,6 +20,7 @@ class AFSuggestPostsItem extends Component {
       documentId: post._id,
       set: {
         reviewForAlignmentUserId: currentUser._id,
+        moveToAlignmentUserId: currentUser._id,
         afDate: new Date(),
         af: true,
       },
