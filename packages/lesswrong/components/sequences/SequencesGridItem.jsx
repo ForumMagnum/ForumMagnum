@@ -43,7 +43,7 @@ class SequencesGridItem extends PureComponent {
         </Link>
         { showAuthor &&
           <div className="sequences-grid-item-author">
-            by <Link to={Users.getProfileUrl(sequence.user)}>{Users.getDisplayName(sequence.user)}</Link>
+            by <Components.UsersName user={sequence.user} />
           </div>}
       </div>
       <div className="sequences-grid-item-bottom">
