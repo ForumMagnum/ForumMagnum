@@ -19,14 +19,14 @@ class ModerationGuidelinesBox extends PureComponent {
     const post = document;
     const user = document && document.user;
     const canModerate = Users.canModeratePost(user, post)
+    const moderationStyle = user.moderationStyle || "no-moderation";
+    const commentClasses = classNames(
+      "comments-item-text",
+      "moderation-guidelines-box",
+      {[moderationStyle]: canModerate,
+      "open": this.state.open}
+    )
     if (post && user && (canModerate || document.frontpageDate)) {
-      const moderationStyle = user.moderationStyle || "no-moderation";
-      const commentClasses = classNames(
-        "comments-item-text",
-        "moderation-guidelines-box",
-        {[moderationStyle]: canModerate,
-        "open": this.state.open}
-      )
       return(
         <div className={commentClasses}>
           <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
@@ -45,10 +45,27 @@ class ModerationGuidelinesBox extends PureComponent {
         </div>
       )
     } else {
-      return null
+      return <div className={commentClasses}>
+        <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
+          <PersonalBlogGuidelines />
+           {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
+        </div>
+        {this.state.open &&
+          <Components.ModerationGuidelinesContent
+            showFrontpageGuidelines={post && post.frontpageDate}
+            user={user} />}
+      </div>
     }
   }
 }
+
+const PersonalBlogGuidelines = () => (
+  <div>
+    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something, as
+     opposed to the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
+     models, make predictions, and note what would change your mind (Read More)
+  </div>
+)
 
 const ShortModerationGuidelines = () => (
   <div>
