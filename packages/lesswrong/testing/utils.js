@@ -1,4 +1,4 @@
-import { newMutation, removeCallback, addCallback } from 'meteor/vulcan:core';
+import { newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
