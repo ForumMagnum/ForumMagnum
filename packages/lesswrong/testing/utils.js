@@ -113,25 +113,6 @@ export const clearDatabase = async () => {
   })
 }
 
-export function addTestToCallbackOnce(callbackHook, test, done) {
-  if (!done) {
-    throw new Error('Need to provide `done()` function to test callback');
-  }
-  const callbackFunctionName = test.name + "testCallbackOnceInside"
-  const testCallback = async function(...args) {
-    removeCallback(callbackHook, callbackFunctionName)
-    try {
-      await test(...args)
-    } catch(err) {
-      done(err)
-      return;
-    }
-    done()
-  }
-  Object.defineProperty(testCallback, "name", { value: callbackFunctionName });
-  addCallback(callbackHook, testCallback);
-}
-
 export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType}) => {
   if (!newValue) {
     newValue = Random.id()
