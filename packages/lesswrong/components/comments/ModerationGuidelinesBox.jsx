@@ -56,16 +56,16 @@ class ModerationGuidelinesBox extends PureComponent {
 
 const PersonalBlogGuidelines = () => (
   <div>
-    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something, as
-     opposed to the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
+    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something,
+     not the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
      models, make predictions, and note what would change your mind (Read More)
   </div>
 )
 
 const ShortModerationGuidelines = () => (
   <div>
-    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something, as
-     opposed to the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
+    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something, not
+      the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
      models, make predictions, and note what would change your mind (Read More)
   </div>
 )

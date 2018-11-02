@@ -15,7 +15,7 @@ import { withRouter } from 'react-router'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../../themes/stylePiping'
+import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
@@ -39,6 +39,9 @@ const styles = theme => ({
       top: -6,
       textAlign: 'center',
     },
+    postBody: {
+      marginBottom: 50,
+    },
     postContent: postBodyStyles(theme),
     subtitle: {
       ...theme.typography.subtitle,
@@ -47,7 +50,9 @@ const styles = theme => ({
       position: 'relative',
       fontSize: 42,
       textAlign: 'center',
-      display: 'inline-block'
+      display: 'inline-block',
+      marginLeft: -4,
+      marginRight: 15,
     },
     postFooter: {
       marginBottom: 30,
@@ -63,11 +68,10 @@ const styles = theme => ({
       }
     },
     moderationGuidelinesWrapper: {
-      width: 'calc(100% - 50px)',
+      width: 'calc(100% - 61px)',
       verticalAlign: 'top',
-      marginTop: 15,
       display: 'inline-block',
-      fontSize: 16
+      ...commentBodyStyles(theme)
     }
 })
 
@@ -107,7 +111,7 @@ class PostsPage extends Component {
           </div>
 
           {/* Body */}
-          <div>
+          <div className={classes.postBody}>
             <PostsPageMetadata post={post} />
             { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
             <div className={classes.postContent}>
