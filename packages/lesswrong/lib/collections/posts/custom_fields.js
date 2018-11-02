@@ -369,12 +369,11 @@ Posts.addField([
     fieldSchema: {
       type: Array,
       viewableBy: ['guests'],
-      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-      insertableBy: ['members'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
       optional: true,
       label: "Co-Authors",
       control: "UsersListEditor",
-      hidden: true,
       group: formGroups.advancedOptions,
       resolveAs: {
         fieldName: 'coauthors',
