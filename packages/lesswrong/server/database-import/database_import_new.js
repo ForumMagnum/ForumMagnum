@@ -45,11 +45,7 @@ Vulcan.postgresImport = async () => {
   // Merge data
   const mergedGroupedUserData = deepObjectExtend(flattenedUserData, flattenedUserMetaData)
   // Convert to LW2 user format
-  console.log('first grouped users data', mergedGroupedUserData[0])
-  let processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
-  // processedUsers = processedUsers.filter(user => user.email === 'joshhjacobson@gmail.com')
-  // console.log('processed users', processedUsers)
-  processedUsers = processedUsers.slice(30)
+  const processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
 
   // Construct user lookup table to avoid repeated querying
   let legacyIdToUserMap = await new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
@@ -77,9 +73,7 @@ Vulcan.postgresImport = async () => {
   const groupedPostMetaData = groupBy(rawPostMetaData, (row) => row.thing_id);
   const flattenedPostMetaData = mapValues(groupedPostMetaData, (v) => _.pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'descendant_karma', 'date'));
   // Merge data
-  let mergedGroupedPostData = deepObjectExtend(flattenedPostData, flattenedPostMetaData);
-  // mergedGroupedPostData = pickBy(mergedGroupedPostData, post => post.url === '/ea/1cl/an_argument_for_why_the_future_may_be_good/')
-  console.log('mergedGPD keys length', Object.keys(mergedGroupedPostData).length)
+  const mergedGroupedPostData = deepObjectExtend(flattenedPostData, flattenedPostMetaData);
   // Convert to LW2 post format
   const processedPosts = mapValues(mergedGroupedPostData, (post, id) => legacyPostToNewPost(post, id, legacyIdToUserMap.get(post.author_id)));
   // processedPosts = processedPosts.filter(post => post.slug === 'an-argument-for-why-the-future-may-be-good')
@@ -88,51 +82,51 @@ Vulcan.postgresImport = async () => {
   let legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
 
   // Upsert Posts
-  // await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
+  await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
   // Construct post lookup table to avoid repeated querying
   legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
-  await batchUpdateScore(Posts, false, true)
+  await batchUpdateScore({collection: Posts, forceUpdate: true})
 
-  // /*
-  //   COMMENT DATA IMPORT
-  // */
-  //
-  // //eslint-disable-next-line no-console
-  // console.log("Starting the comment data import");
-  //
-  // // Query for comment data
-  // let rawCommentData = await database.any('SELECT thing_id, key, value from reddit_data_comment', [true]);
-  // let rawCommentMetadata = await database.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true]);
-  // // Process comment data
-  // let commentData = groupBy(rawCommentData, (row) => row.thing_id);
-  // commentData = mapValues(commentData, keyValueArraytoObject);
-  // // Process post metadata
-  // let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
-  // commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
-  // // Merge data
-  // commentData = deepObjectExtend(commentData, commentMetaData);
-  // // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
-  // commentData = mapValues(commentData,
-  //   (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
-  // );
-  //
-  // let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
-  //
-  // commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
-  //
-  // //eslint-disable-next-line no-console
-  // console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
-  //
-  // await upsertProcessedComments(commentData, legacyIdToCommentMap);
-  //
-  // //eslint-disable-next-line no-console
-  // console.log("Finished Upserting comments");
-  //
-  // // construct comment lookup table to avoid repeated querying
-  // legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
-  //
-  // await batchUpdateScore(Comments, false, true)
-  // //eslint-disable-next-line no-console
+  /*
+    COMMENT DATA IMPORT
+  */
+
+  //eslint-disable-next-line no-console
+  console.log("Starting the comment data import");
+
+  // Query for comment data
+  let rawCommentData = await database.any('SELECT thing_id, key, value from reddit_data_comment', [true]);
+  let rawCommentMetadata = await database.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true]);
+  // Process comment data
+  let commentData = groupBy(rawCommentData, (row) => row.thing_id);
+  commentData = mapValues(commentData, keyValueArraytoObject);
+  // Process post metadata
+  let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
+  commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
+  // Merge data
+  commentData = deepObjectExtend(commentData, commentMetaData);
+  // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
+  commentData = mapValues(commentData,
+    (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
+  );
+
+  let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
+
+  commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
+
+  //eslint-disable-next-line no-console
+  console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
+
+  await upsertProcessedComments(commentData, legacyIdToCommentMap);
+
+  //eslint-disable-next-line no-console
+  console.log("Finished Upserting comments");
+
+  // construct comment lookup table to avoid repeated querying
+  legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
+
+  await batchUpdateScore({collection: Comments, forceUpdate: true})
+  //eslint-disable-next-line no-console
   console.log("Finished data import");
 }
 
