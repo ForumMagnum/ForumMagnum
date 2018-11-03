@@ -3,13 +3,16 @@ import Users from 'meteor/vulcan:users';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';
+import { batchUpdateScore } from 'meteor/vulcan:voting';
 import moment from 'moment';
 import marked from 'marked';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
+import pickBy from 'lodash/pickBy';
 import htmlToText from 'html-to-text';
+import cheerio from 'cheerio'
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -23,7 +26,6 @@ Vulcan.postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
   let database = postgresConnector(postgresImportDetails);
-
 
   /*
     USER DATA IMPORT
@@ -82,6 +84,7 @@ Vulcan.postgresImport = async () => {
   await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
   // Construct post lookup table to avoid repeated querying
   legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
+  await batchUpdateScore({collection: Posts, forceUpdate: true})
 
   /*
     COMMENT DATA IMPORT
@@ -121,8 +124,9 @@ Vulcan.postgresImport = async () => {
   // construct comment lookup table to avoid repeated querying
   legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
+  await batchUpdateScore({collection: Comments, forceUpdate: true})
   //eslint-disable-next-line no-console
-  console.log("Finished comment data import");
+  console.log("Finished data import");
 }
 
 const addParentCommentId = (comment, parentComment) => {
@@ -165,7 +169,8 @@ const upsertProcessedPosts = async (posts, postMap) => {
   const postUpdates = _.map(posts, (post) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
-      let set = {draft: post.draft, legacyData: post.legacyData};
+      // TODO; We changed htmlbody, probably fine
+      let set = {htmlBody: post.htmlBody, draft: post.draft, legacyData: post.legacyData};
       if (post.deleted || post.spam) {
         set.status = 3;
       }
@@ -192,10 +197,10 @@ const upsertProcessedUsers = async (users, userMap) => {
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
+  console.log("Updating N users: ", _.size(usersToUpdate));
   const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
+  console.log("Inserting N users: ", _.size(usersToInsert));
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
   if (usersToInsert && _.size(usersToInsert)) {
     for(let key in usersToInsert) {
@@ -358,7 +363,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     legacyData: post,
     title: post.title,
     userId: user && user._id,
-    htmlBody: post.article,
+    htmlBody: cleanHtml(post.article),
     userIP: post.ip,
     status: post.deleted || post.spam ? 3 : 2,
     legacySpam: post.spam,
@@ -371,6 +376,124 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
+}
+
+// TODO; look at list of allowed tags in markdown, unsafe tags, bbcode?
+// / what tags do we get
+const BANNED_TAGS = [
+  'meta',
+  'head',
+  'title',
+  'style',
+  'script',
+  'form'
+]
+
+
+const BANNED_ATTRS = [
+  'style',
+  'target',
+  'class',
+  'width',
+  'height',
+  'id',
+  'name',
+  'size',
+  'clear',
+  'align',
+  'dir',
+  'lang',
+  'border',
+  'rel',
+  'rev',
+  'onclick',
+  'type',
+  'datetime',
+  'cite',
+  'cellspacing',
+  'cellpadding',
+  'valign',
+  'value',
+  'tabindex',
+  'action',
+  'span',
+  'bgcolor',
+  'data-params',
+  'frameborder',
+  'allowfullscreen',
+  'draggable',
+  'data-image-id',
+  'data-width',
+  'data-height',
+  'data-href',
+  'data-saferedirecturl',
+  'data-surl',
+  'sizes',
+  'srcset',
+  'data-sizes',
+  'data-srcset',
+  'data-sheets-value',
+  'data-sheets-numberformat',
+  'data-sheets-formula',
+  'start',
+  'data-sheets-userformat',
+  'data-ft',
+  'data-cke-saved-href',
+  'data-wpmedia-src',
+  'data-orcid',
+  'data-t',
+  'data-fn',
+  'data-ln',
+  'data-pos',
+  'data-tb',
+  'data-etype',
+  'data-mathml',
+  'data-original-height',
+  'data-original-width',
+  'data-block',
+  'data-editor',
+  'data-offset-key',
+  'hspace',
+  'vspace',
+  'data-lynx-mode',
+  'scrolling',
+  'seamless',
+  'data-file-id',
+  'data-xf-p',
+  'data-external',
+  'data-artdeco-is-focused',
+  'data-text',
+  'data-lynx-uri',
+  'contenteditable'
+]
+
+const cleanHtml = (htmlBody) => {
+  const $ = cheerio.load(htmlBody)
+  // Useful for debugging, but too much for every day
+  // console.log('htmlBody start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+  // console.log($.html())
+  // console.log('htmlBody end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+
+  let needsRemoving = []
+  BANNED_TAGS.forEach(tag => {
+    if ($(tag).length > 0 && !needsRemoving.includes(tag)) needsRemoving.push(tag)
+    $(tag).remove()
+  })
+  if (needsRemoving.length > 0) {
+    // console.log('found banned tags', needsRemoving)
+    // console.log('html', $.html())
+  } else console.log('no banned tags founds')
+
+  $('*').each(function () {
+    const el = $(this)
+    BANNED_ATTRS.forEach(attr => el.removeAttr(attr))
+  })
+
+  const result = $.html()
+  // console.log('result start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+  // console.log(result)
+  // console.log('result end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+  return result
 }
 
 const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
