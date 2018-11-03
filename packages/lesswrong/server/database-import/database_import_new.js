@@ -268,7 +268,8 @@ const upsertProcessedComments = async (comments, commentMap) => {
   _.map(comments, (comment) => {
     const existingComment = commentMap.get(comment.legacyId);
     if (existingComment) {
-      let set = {legacyData: comment.legacyData, parentCommentId: comment.parentCommentId, topLevelCommentId: comment.topLevelCommentId};
+      const {legacyData, parentCommentId, topLevelCommentId, deleted, isDeleted} = comment
+      let set = {legacyData, parentCommentId, topLevelCommentId, deleted, isDeleted};
       if (comment.retracted) {
         set.retracted = true;
       }
@@ -388,8 +389,9 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
     baseScore: comment.ups - comment.downs,
     body: comment.body,
     retracted: comment.retracted,
-    deleted: comment.deleted,
-    isDeleted: comment.isDeleted,
+    // TODO why are there two here
+    deleted: author && parentPost && comment.deleted,
+    isDeleted: author && parentPost && comment.isDeleted,
     createdAt: moment(comment.date).toDate(),
     postedAt: moment(comment.date).toDate(),
     htmlBody: comment.body && Utils.sanitize(marked(comment.body)),
