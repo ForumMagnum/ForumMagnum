@@ -30,6 +30,7 @@ const PostsNewForm = (props, context) => {
           props.flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
         eventForm={props.router.location.query && props.router.location.query.eventForm}
+        submitLabel="Publish"
         repeatErrors
       />
     </div>

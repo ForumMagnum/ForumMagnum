@@ -48,6 +48,7 @@ import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 import '../components/common/Logo.jsx';
 import '../components/common/SearchForm.jsx';
+import '../components/common/ContentItemBody.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -61,6 +62,7 @@ import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
+import '../components/users/UsersNameDisplay.jsx';
 import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
@@ -70,7 +72,6 @@ import '../components/users/LoginPopupLink.jsx';
 // posts
 
 import '../components/posts/PostsEdit.jsx';
-import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
@@ -102,6 +103,7 @@ import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
+import '../components/posts/PostsEditPage.jsx';
 import '../components/posts/PostsListHeader.jsx';
 import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
@@ -130,6 +132,7 @@ import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
 import '../components/comments/CommentsItem/MoveToAlignmentMenuItem.jsx';
+import '../components/comments/CommentsItem/SuggestAlignmentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
@@ -153,7 +156,6 @@ import '../components/comments/ModerationGuidelinesContent.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
-
 import '../components/icons/OmegaIcon.jsx';
 
 import '../components/search/PostsListEditorSearchHit.jsx';
@@ -176,6 +178,8 @@ import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
+import '../components/sunshineDashboard/AFSuggestCommentsItem.jsx';
+import '../components/sunshineDashboard/AFSuggestCommentsList.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsItem.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsList.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersItem.jsx';
@@ -260,6 +264,7 @@ import '../components/form-components/FormComponentDateTime.jsx';
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
+import '../components/alignment-forum/AFApplicationForm.jsx';
 if(getSetting('AlignmentForum', false)) {
     import '../components/alignment-forum/AlignmentForumHome.jsx';
 }

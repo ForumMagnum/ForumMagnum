@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import withUser from '../common/withUser';
-
+import withDialog from '../common/withDialog'
 import { Meteor } from 'meteor/meteor';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
@@ -20,6 +20,10 @@ const styles = theme => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
+  },
+  notAMember: {
+    marginLeft: 5,
+    opacity: 0.9,
   }
 })
 
@@ -46,13 +50,15 @@ class UsersMenu extends PureComponent {
   }
 
   render() {
-    let { currentUser, client, classes, color } = this.props;
+    const { currentUser, client, classes, color, openDialog } = this.props;
+    const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
     return (
       <div className="users-menu">
         <Button onClick={this.handleClick}>
           <span className={classes.userButton} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
+            {getSetting('AlignmentForum', false) && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
           </span>
         </Button>
         <Popover
@@ -63,12 +69,16 @@ class UsersMenu extends PureComponent {
           onRequestClose={this.handleRequestClose}
         >
           <Menu className="users-menu-contents">
-            { !getSetting('AlignmentForum')
+            { !getSetting('AlignmentForum', false)
                 ? <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
                 : Users.canDo(currentUser, 'posts.alignment.new')
                   ? <MenuItem primaryText="New Post" containerElement={<Link to={`/newPost`}/>} />
                   : null
             }
+            { getSetting('AlignmentForum', false) && !isAfMember && <MenuItem
+                primaryText="Apply for Membership"
+                onClick={() => openDialog({componentName: "AFApplicationForm"})}
+              /> }
             <MenuItem primaryText="Profile" containerElement={<Link to={`/users/${currentUser.slug}`}/>} />
             <MenuItem primaryText="Edit Account" containerElement={<Link to={`/account`}/>} />
             <MenuItem primaryText="Private Messages" containerElement={<Link to={`/inbox`}/>} />
@@ -90,5 +100,6 @@ UsersMenu.defaultProps = {
 
 registerComponent('UsersMenu', UsersMenu,
   withUser, withApollo,
-  withStyles(styles, { name: "UsersMenu" })
+  withStyles(styles, { name: "UsersMenu" }),
+  withDialog
 );
