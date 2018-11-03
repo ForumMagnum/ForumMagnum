@@ -19,27 +19,6 @@
 @import "admin";
 @import "sunshine-sidebar";
 @import "alignment-forum";
-@import "modal";
-
-.new-post-button{
-  margin-bottom: 15px;
-}
-
-.avatar{
-  height: 20px;
-  width: 20px;
-  display: block;
-  a, span, img{
-    display: block;
-    border-radius: 100%;
-    height: 100%;
-    widows: 100%;
-  }
-}
-
-.sr-only{
-  display: none;
-}
 
 .upvoted .upvote{
   opacity: 0.3;
@@ -155,9 +134,10 @@ div#mocha {
   z-index: 10000000;
 }
 
-// Maximum width for LaTeX, to prevent causing horizontal scroll or otherwise
-// breaking the layout.
-.mjx-chtml {
+// Maximum width for LaTeX blocks, to prevent causing horizontal scroll or
+// otherwise breaking the layout. We don't do this for inline styles, because
+// it messes up vertical alignment.
+.mjx-chtml.MJXc-display {
   overflow-x: auto;
   overflow-y: hidden;
 

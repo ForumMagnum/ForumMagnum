@@ -3,11 +3,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
-import moment from 'moment';
 import { Link } from 'react-router'
 
 const DateDisplay = ({column, document}) => {
-  return <div>{document[column.name] && moment(document[column.name]).fromNow()}</div>
+  return <div>{document[column.name] && <Components.FromNowDate date={document[column.name]}/>}</div>
 }
 
 const PostDisplay = ({column, document}) => {

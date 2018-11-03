@@ -4,10 +4,10 @@ import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
 import FontIcon from 'material-ui/FontIcon';
-import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class SunshineReportsItem extends Component {
 
@@ -74,7 +74,7 @@ class SunshineReportsItem extends Component {
 
               <Typography variant="caption">
                 <div>
-                  Reported by {report.user.displayName} { moment(new Date(report.createdAt)).fromNow() }
+                  Reported by {report.user.displayName} <Components.FromNowDate date={report.createdAt}/>
                 </div>
                 <div>"{ report.description }"</div>
               </Typography>
@@ -122,5 +122,6 @@ registerComponent(
   'SunshineReportsItem',
   SunshineReportsItem,
   [withEdit, withEditOptions],
-  withUser
+  withUser,
+  withErrorBoundary
 );

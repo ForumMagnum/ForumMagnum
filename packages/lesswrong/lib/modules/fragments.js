@@ -180,6 +180,8 @@ registerFragment(`
     website
     contactInfo
     content
+    htmlBody
+    body
     types
   }
 `);
@@ -343,7 +345,10 @@ registerFragment(`
     score
     voteCount
     af
+    afDate
+    moveToAlignmentUserId
     afBaseScore
+    suggestForAlignmentUserIds
     needsReview
   }
 `);
@@ -480,6 +485,7 @@ registerFragment(`
     slug
     username
     displayName
+    fullName
     emailHash
     karma
     afKarma

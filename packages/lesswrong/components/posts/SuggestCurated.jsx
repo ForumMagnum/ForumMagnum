@@ -1,4 +1,4 @@
-import { Components , registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components , registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
@@ -39,15 +39,20 @@ class SuggestCurated extends Component {
         post.frontpageDate &&
         !post.curatedDate &&
         !post.reviewForCuratedUserId &&
+        !getSetting('AlignmentForum', false) &&
         Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return <div className="posts-page-suggest-curated">
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-            <a onClick={this.handleSuggestCurated}>
-              Suggest Curation
-            </a> :
-            <a onClick={this.handleUnsuggestCurated}>
-              Unsuggest Curation
-            </a>
+            <div>
+              <a onClick={this.handleSuggestCurated}>
+                Suggest Curation
+              </a>
+            </div> :
+            <div>
+              <a onClick={this.handleUnsuggestCurated}>
+                Unsuggest Curation
+              </a>
+            </div>
           }
         </div>
     } else {

@@ -26,7 +26,7 @@ describe('Voting', async function() {
       const dates = [tomorrow, in_ten_minutes, in_half_an_hour, tomorrow, in_a_month];
       dates.forEach(async date => {
         const post = await createDummyPost(user, {postedAt: date});
-        await batchUpdateScore(Posts, false, false);
+        await batchUpdateScore({collection: Posts});
         const updatedPost = await Posts.find({_id: post._id}).fetch();
 
         updatedPost[0].score.should.equal(0);
@@ -39,7 +39,7 @@ describe('Voting', async function() {
       const post = await createDummyPost(user, {postedAt: yesterday})
       await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await batchUpdateScore(Posts, false, false);
+      await batchUpdateScore({collection: Posts});
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       updatedPost[0].score.should.be.closeTo(preUpdatePost[0].score, 0.001);
@@ -60,7 +60,7 @@ describe('Voting', async function() {
       const normalPost = await createDummyPost(user, {baseScore: 10});
       const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
       const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
-      await batchUpdateScore(Posts, false, false);
+      await batchUpdateScore({collection: Posts});
       const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
@@ -73,7 +73,7 @@ describe('Voting', async function() {
       const normalPost = await createDummyPost(user, {baseScore: 10});
       const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
       const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
-      await batchUpdateScore(Posts, false, false);
+      await batchUpdateScore({collection: Posts});
       const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();

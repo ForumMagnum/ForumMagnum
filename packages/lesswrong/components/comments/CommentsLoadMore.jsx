@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import classNames from 'classnames';
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -10,7 +9,7 @@ const styles = theme => ({
   }
 })
 
-const CommentsLoadMore = ({loading, loadMore, count, totalCount, muiTheme, classes}) => {
+const CommentsLoadMore = ({loading, loadMore, count, totalCount, classes}) => {
   return (
     <div className={classNames('comments-load-more', {'comments-load-more-loading': loading})}>
       <a className={classNames("comments-load-more-link"), classes.link}
@@ -28,6 +27,5 @@ const CommentsLoadMore = ({loading, loadMore, count, totalCount, muiTheme, class
 CommentsLoadMore.displayName = "CommentsLoadMore";
 
 registerComponent('CommentsLoadMore', CommentsLoadMore,
-  muiThemeable(),
   withStyles(styles, { name: "CommentsLoadMore" })
 );

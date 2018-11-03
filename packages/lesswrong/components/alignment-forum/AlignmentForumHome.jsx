@@ -3,9 +3,19 @@ import React from 'react';
 import { Link } from 'react-router';
 import Users from "meteor/vulcan:users";
 import withUser from '../common/withUser';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { withStyles } from '@material-ui/core/styles';
 
-const AlignmentForumHome = ({currentUser}) => {
-  let recentPostsTerms = {view: 'new', limit: 10, forum: true}
+const styles = theme => ({
+  frontpageSequencesGridList: {
+    [legacyBreakpoints.maxSmall]: {
+      marginTop: 40,
+    }
+  }
+});
+
+const AlignmentForumHome = ({currentUser, classes}) => {
+  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
 
   const renderRecentPostsTitle = () => <div className="recent-posts-title-component">
     { currentUser && Users.canDo(currentUser, "posts.alignment.new") &&
@@ -19,6 +29,16 @@ const AlignmentForumHome = ({currentUser}) => {
 
   return (
     <div className="alignment-forum-home">
+      <Components.Section
+        title="Recommended Sequences"
+      >
+        <Components.SequencesGridWrapper
+          terms={{view:"curatedSequences", limit:3}}
+          showAuthor={true}
+          showLoadMore={false}
+          className={classes.frontpageSequencesGridList}
+        />
+      </Components.Section>
       <Components.Section title="AI Alignment Posts"
         titleComponent={renderRecentPostsTitle()}>
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
@@ -33,4 +53,4 @@ const AlignmentForumHome = ({currentUser}) => {
   )
 };
 
-registerComponent('AlignmentForumHome', AlignmentForumHome, withUser);
+registerComponent('AlignmentForumHome', AlignmentForumHome, withUser, withStyles(styles, {name: "AlignmentForumHome"}));

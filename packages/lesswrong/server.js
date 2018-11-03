@@ -8,6 +8,7 @@ import './server/rss-integration/callbacks.js';
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
+import './server/scripts/brokenLinksReport.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
 import './server/scripts/fixEmailField.js';
@@ -19,12 +20,13 @@ import './server/scripts/importOldPasswords.js';
 import './server/scripts/postsEditCallbacks.js';
 import './server/scripts/rerunAFvotes.js';
 import './server/scripts/messagesEditCallbacks.js';
+import './server/scripts/localgroupsEditCallbacks.js';
 import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 // EA Forum Invites
 import './server/scripts/eafIBetaInvites.js';
-import './server/scripts/configuration.js';
+import './lib/modules/accounts/configuration.js';
 
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/legacy-redirects/routes.js';
@@ -49,6 +51,7 @@ import './lib/collections/bans/callbacks.js';
 import './lib/collections/lwevents/indexes.js';
 import './lib/collections/posts/indexes.js';
 import './lib/collections/localgroups/indexes.js';
+import './lib/collections/localgroups/callbacks.js';
 
 import './lib/events/server.js';
 

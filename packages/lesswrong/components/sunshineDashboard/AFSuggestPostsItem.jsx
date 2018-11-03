@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
@@ -11,8 +10,9 @@ import PropTypes from 'prop-types';
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
+import withErrorBoundary from '../common/withErrorBoundary'
 
-class SuggestAlignmentItem extends Component {
+class AFSuggestPostsItem extends Component {
 
   handleMoveToAlignment = () => {
     const { currentUser, post, editMutation } = this.props
@@ -20,6 +20,7 @@ class SuggestAlignmentItem extends Component {
       documentId: post._id,
       set: {
         reviewForAlignmentUserId: currentUser._id,
+        moveToAlignmentUserId: currentUser._id,
         afDate: new Date(),
         af: true,
       },
@@ -68,7 +69,7 @@ class SuggestAlignmentItem extends Component {
             </Link>
           </Components.SidebarInfo>
           {post.postedAt && <Components.SidebarInfo>
-            {moment(new Date(post.postedAt)).fromNow()}
+            <Components.FromNowDate date={post.postedAt}/>
           </Components.SidebarInfo>}
         </div>
         <Components.SidebarInfo>
@@ -96,7 +97,7 @@ class SuggestAlignmentItem extends Component {
   }
 }
 
-SuggestAlignmentItem.propTypes = {
+AFSuggestPostsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
   editMutation: PropTypes.func.isRequired,
   post: PropTypes.object.isRequired,
@@ -106,13 +107,14 @@ SuggestAlignmentItem.propTypes = {
 
 const withEditOptions = {
   collection: Posts,
-  fragmentName: 'PostsList',
+  fragmentName: 'SuggestAlignmentPost',
 }
 
 registerComponent(
-  'SuggestAlignmentItem',
-  SuggestAlignmentItem,
+  'AFSuggestPostsItem',
+  AFSuggestPostsItem,
   [withEdit, withEditOptions],
   withUser,
-  withHover
+  withHover,
+  withErrorBoundary
 );

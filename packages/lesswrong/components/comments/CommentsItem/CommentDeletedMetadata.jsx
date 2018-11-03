@@ -1,6 +1,5 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
 import { Comments } from '../../../lib/collections/comments';
 
 const CommentDeletedMetadata = ({document}) => {
@@ -15,7 +14,9 @@ const CommentDeletedMetadata = ({document}) => {
         }
         <span className="comments-item-deleted-info-meta">
           {deletedByUsername && <span> by {deletedByUsername}</span>}
-          {document.deletedDate && <span> {moment(new Date(document.deletedDate)).calendar()}</span>}
+          {document.deletedDate && <span>
+            <Components.CalendarDate date={document.deletedDate}/>
+          </span>}
         </span>
       </p>
     )

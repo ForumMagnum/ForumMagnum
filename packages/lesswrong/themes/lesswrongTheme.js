@@ -88,6 +88,13 @@ const theme = createLWTheme({
       tooltip: {
         fontSize: "1rem"
       }
+    },
+    MuiDialogContent: {
+      root: {
+        fontFamily: sansSerifStack,
+        fontSize: "1.16rem",
+        lineHeight: "1.5em"
+      }
     }
   }
 });

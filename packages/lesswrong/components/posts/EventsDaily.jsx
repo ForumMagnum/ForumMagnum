@@ -18,7 +18,8 @@ class EventsDaily extends Component {
     return <div className="posts-daily-wrapper">
       <Components.Section title="Past Events by Day">
         <div className="posts-daily-content-wrapper">
-          <Components.PostsDailyList title="Past Events by Day" terms={terms}/>
+          <Components.PostsDailyList title="Past Events by Day"
+            terms={terms} days={numberOfDays}/>
         </div>
       </Components.Section>
     </div>
