@@ -18,7 +18,7 @@ const NavigationMenu = ({open, handleClose, handleToggle}) => {
     <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
     <Divider />
     {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>}
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> POSTS BY DATE </MenuItem>
     {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT  </MenuItem>}
     {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
   </Drawer>;

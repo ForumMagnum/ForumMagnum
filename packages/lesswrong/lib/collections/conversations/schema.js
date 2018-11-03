@@ -58,6 +58,13 @@ const schema = {
       return new Date(); // if this is an insert, set createdAt to current timestamp
     },
     optional: true,
+  },
+  af: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['admins'],
+    optional: true,
   }
 };
 

@@ -1,13 +1,17 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router';
 
-const UsersName = ({user}) => <Link className="users-name" to={Users.getProfileUrl(user)}>{Users.getDisplayName(user)}</Link>
-
+const UsersName = ({user, documentId}) => {
+  if (documentId) {
+    return <Components.UsersNameWrapper documentId={documentId} />
+  } else {
+    return <Components.UsersNameDisplay user={user}/>
+  }
+}
 UsersName.propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
+  documentId: PropTypes.string,
 }
 
 UsersName.displayName = 'UsersName';

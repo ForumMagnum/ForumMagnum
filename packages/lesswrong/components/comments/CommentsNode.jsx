@@ -54,9 +54,14 @@ class CommentsNode extends PureComponent {
   }
 
   scrollIntoView = (event) => {
+    // TODO: This is a legacy React API; migrate to the new type of refs.
+    // https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
     //eslint-disable-next-line react/no-string-refs
-    this.refs.comment.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-    this.setState({finishedScroll: true});
+    if (this.refs && this.refs.comment) {
+      //eslint-disable-next-line react/no-string-refs
+      this.refs.comment.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+      this.setState({finishedScroll: true});
+    }
   }
 
   toggleCollapse = () => {

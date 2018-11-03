@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Popover from 'material-ui/Popover';
+import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 
