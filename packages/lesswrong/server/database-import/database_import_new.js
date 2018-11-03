@@ -76,7 +76,6 @@ Vulcan.postgresImport = async () => {
   const mergedGroupedPostData = deepObjectExtend(flattenedPostData, flattenedPostMetaData);
   // Convert to LW2 post format
   const processedPosts = mapValues(mergedGroupedPostData, (post, id) => legacyPostToNewPost(post, id, legacyIdToUserMap.get(post.author_id)));
-  // processedPosts = processedPosts.filter(post => post.slug === 'an-argument-for-why-the-future-may-be-good')
 
   // Construct post lookup table to avoid repeated querying
   let legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
@@ -249,8 +248,6 @@ const insertUser = async (user) => {
     })
   } catch(err) {
     if (err.code == 11000) {
-      console.log('err', err)
-      console.log("duplicate", user);
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
         newMutation({
@@ -471,6 +468,7 @@ const BANNED_ATTRS = [
 
 const cleanHtml = (htmlBody) => {
   const $ = cheerio.load(htmlBody)
+  // Useful for debugging, but too much for every day
   // console.log('htmlBody start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
   // console.log($.html())
   // console.log('htmlBody end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
