@@ -80,8 +80,9 @@ class Header extends Component {
     };
   }
 
-  handleNavigationToggle = (muiState) => this.setState({navigationOpen: !this.state.navigationOpen})
-  handleNavigationClose = () => this.setState({navigationOpen: false})
+  setNavigationOpen = (open) => {
+    this.setState({navigationOpen: open})
+  }
 
   handleNotificationToggle = (muiState) => {
     if(!this.state.notificationOpen) {
@@ -114,7 +115,7 @@ class Header extends Component {
           <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
-                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
+                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={()=>this.setNavigationOpen(true)}>
                   <MenuIcon />
                 </IconButton>
                 <Typography className={classes.title} variant="title" color="textSecondary">
@@ -143,7 +144,7 @@ class Header extends Component {
                 </div>
               </Toolbar>
             </AppBar>
-            <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
+            <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} />
           </Headroom>
           <Components.ErrorBoundary>
             <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
