@@ -89,7 +89,7 @@ class CommentsVote extends PureComponent {
         {!!comment.af && !getSetting('AlignmentForum', false) &&
           <Tooltip placement="bottom" className={{tooltip: classes.tooltip}} title={
             <div>
-              <p>Alignment Forum Karma</p>
+              <p>AI Alignment Forum Karma</p>
               { moveToAfInfo }
             </div>
           }>
