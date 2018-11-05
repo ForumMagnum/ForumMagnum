@@ -285,7 +285,6 @@ class PostsPage extends Component {
                 </span>)}
               </Typography>
             </div>
-            { sections && <Components.TableOfContents sections={sections} document={document}/> }
             <div className={classes.mainContent}>
               <Components.ErrorBoundary>
                 {this.renderPostMetadata()}
@@ -294,6 +293,7 @@ class PostsPage extends Component {
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
+                { sections && <Components.TableOfContents sections={sections} document={document}/> }
                 <Components.LinkPostMessage post={post} />
                 { htmlWithAnchors && <Components.ContentItemBody
                     dangerouslySetInnerHTML={{__html: htmlWithAnchors}}

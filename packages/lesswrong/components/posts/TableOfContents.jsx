@@ -3,10 +3,27 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from 'material-ui/Drawer';
 import classnames from 'classnames';
+import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
   root: {
     padding: 15,
+  },
+  
+  stickyContainer: {
+    position: "absolute",
+    right: "100%",
+    marginRight: 20,
+    top: 70,
+    width: 250,
+    height: "100%",
+  },
+  
+  stickyBlock: {
+    position: "sticky",
+    fontSize: 12,
+    top: 100,
+    lineHeight: 1.0,
   },
   
   postTitle: {
@@ -48,6 +65,7 @@ class TableOfContents extends Component
     
     this.state = {
       currentSection: null,
+      drawerOpen: false,
     };
   }
   
@@ -69,15 +87,12 @@ class TableOfContents extends Component
       default: return classes.level5;
     }
   }
+  
   render() {
     const { classes, sections, document } = this.props;
     const { currentSection } = this.state;
     
-    return <Drawer
-      open={true}
-      width={250}
-      containerClassName={classes.root}
-    >
+    let tocBody = <React.Fragment>
       <div className={classes.postTitle}>
         {document.title}
       </div>
@@ -94,7 +109,28 @@ class TableOfContents extends Component
           </div>)}
       </div>
       <div className={classes.comments}>Comments</div>
-    </Drawer>
+    </React.Fragment>;
+    
+    return (<React.Fragment>
+      <Hidden lgUp implementation="js">
+        <Drawer
+          docked={false}
+          open={this.state.drawerOpen}
+          onRequestChange={(open)=>this.setState({drawerOpen: open})}
+          width={250}
+          containerClassName={classes.root}
+        >
+          {tocBody}
+        </Drawer>
+      </Hidden>
+      <Hidden mdDown implementation="js">
+        <div className={classes.stickyContainer}>
+          <div className={classes.stickyBlock}>
+            {tocBody}
+          </div>
+        </div>
+      </Hidden>
+    </React.Fragment>);
   }
   
 
