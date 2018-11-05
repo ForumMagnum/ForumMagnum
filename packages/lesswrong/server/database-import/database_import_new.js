@@ -18,8 +18,8 @@ const postgresImportDetails = {
   host: 'localhost',
   port: 5432,
   database: 'oldforum',
-  user: 'migration_admin',
-  password: '' // Ommitted for obvious reasons
+  user: 'jpaddison', // If this is the logged-in user on localhost, no need for password
+  password: ''       // Ommitted for obvious reasons
 }
 
 Vulcan.postgresImport = async () => {
@@ -84,8 +84,12 @@ Vulcan.postgresImport = async () => {
   await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
   // Construct post lookup table to avoid repeated querying
   legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
-  await batchUpdateScore({collection: Posts, forceUpdate: true})
 
+  // Update posts scores
+  const nActivePostsUpdated = await batchUpdateScore({collection: Posts, forceUpdate: true})
+  console.log('nActivePostsUpdated', nActivePostsUpdated)
+  const nInactivePostsUpdated = await batchUpdateScore({collection: Posts, inactive: true, forceUpdate: true})
+  console.log('nInactivePostsUpdated', nInactivePostsUpdated)
   /*
     COMMENT DATA IMPORT
   */
@@ -114,7 +118,7 @@ Vulcan.postgresImport = async () => {
   commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
 
   //eslint-disable-next-line no-console
-  console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
+  console.log("Finished Comment Data Processing") //, commentData[25], commentData[213]);
 
   await upsertProcessedComments(commentData, legacyIdToCommentMap);
 
@@ -124,7 +128,12 @@ Vulcan.postgresImport = async () => {
   // construct comment lookup table to avoid repeated querying
   legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
-  await batchUpdateScore({collection: Comments, forceUpdate: true})
+  // Update comment scores
+  const nActiveCommentsUpdated = await batchUpdateScore({collection: Comments, forceUpdate: true})
+  console.log('nActiveCommentsUpdated', nActiveCommentsUpdated)
+  const nInactiveCommentsUpdated = await batchUpdateScore({collection: Comments, inactive: true, forceUpdate: true})
+  console.log('nInactiveCommentsUpdated', nInactiveCommentsUpdated)
+
   //eslint-disable-next-line no-console
   console.log("Finished data import");
 }
@@ -153,7 +162,7 @@ Vulcan.syncUserPostCount = async () => {
   }))
   const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false})
   //eslint-disable-next-line no-console
-  console.log("Finished updating users:", userUpdateCursor);
+  console.log("Finished updating users:", loggableCursor(userUpdateCursor));
 }
 
 const deepObjectExtend = (target, source) => {
@@ -188,8 +197,8 @@ const upsertProcessedPosts = async (posts, postMap) => {
       }
     }
   })
-  await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
-  // console.log("Upserted posts: ", postUpdateCursor);
+  const postUpsertCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
+  console.log("Upserted posts: ", loggableCursor(postUpsertCursor));
 }
 
 const upsertProcessedUsers = async (users, userMap) => {
@@ -235,7 +244,7 @@ const bulkUpdateUsers = async (users, userMap) => {
   })
   const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
   //eslint-disable-next-line no-console
-  console.log("userUpdateCursor: ", userUpdateCursor);
+  console.log("userUpdateCursor: ", loggableCursor(userUpdateCursor));
 }
 
 const insertUser = async (user) => {
@@ -270,7 +279,7 @@ const upsertProcessedComments = async (comments, commentMap) => {
   let postUpdates = [];
   let userUpdates = [];
   let commentUpdates = [];
-  _.map(comments, (comment) => {
+  _.map(comments, comment => {
     const existingComment = commentMap.get(comment.legacyId);
     if (existingComment) {
       const {legacyData, parentCommentId, topLevelCommentId, deleted, isDeleted} = comment
@@ -312,21 +321,33 @@ const upsertProcessedComments = async (comments, commentMap) => {
       })
     }
   })
+
   if (postUpdates && _.size(postUpdates)) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
-    console.log("postUpdateCursor", postUpdateCursor);
+    console.log("postUpdateCursor", loggableCursor(postUpdateCursor));
   }
   if (userUpdates && _.size(userUpdates)) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
-    console.log("userUpdateCursor", userUpdateCursor);
+    console.log("userUpdateCursor", loggableCursor(userUpdateCursor));
   }
   if (commentUpdates && _.size(commentUpdates)) {
-    const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
-    //eslint-disable-next-line no-console
-    console.log("commentUpdateCursor", commentUpdateCursor);
+    // updates are too big, let's splice them
+    while (commentUpdates.length > 0) {
+      const updateChunk = commentUpdates.splice(0, 1000)
+      const commentUpdateCursor = await Comments.rawCollection().bulkWrite(updateChunk, {ordered: false});
+      //eslint-disable-next-line no-console
+      console.log("commentUpdateCursor", loggableCursor(commentUpdateCursor));
+    }
   }
+}
+
+const loggableCursor = (updateCursor) => {
+  return _.pick(updateCursor.result, [
+    'writeErrors', 'writeConcernErrors', 'nInserted',
+    'nUpserted', 'nMatched', 'nModified', 'nRemoved'
+  ])
 }
 
 const keyValueArraytoObject = (keyValueArray) => {
@@ -479,10 +500,6 @@ const cleanHtml = (htmlBody) => {
     if ($(tag).length > 0 && !needsRemoving.includes(tag)) needsRemoving.push(tag)
     $(tag).remove()
   })
-  if (needsRemoving.length > 0) {
-    // console.log('found banned tags', needsRemoving)
-    // console.log('html', $.html())
-  } else console.log('no banned tags founds')
 
   $('*').each(function () {
     const el = $(this)
@@ -513,8 +530,8 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
     body: comment.body,
     retracted: comment.retracted,
     // TODO why are there two here
-    deleted: author && parentPost && comment.deleted,
-    isDeleted: author && parentPost && comment.isDeleted,
+    deleted: !author || !parentPost || comment.deleted,
+    isDeleted: !author || !parentPost || comment.isDeleted,
     createdAt: moment(comment.date).toDate(),
     postedAt: moment(comment.date).toDate(),
     htmlBody: comment.body && Utils.sanitize(marked(comment.body)),
