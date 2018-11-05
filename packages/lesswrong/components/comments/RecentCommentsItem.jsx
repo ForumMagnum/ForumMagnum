@@ -1,10 +1,10 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
-import { Posts } from "meteor/example-forum";
+import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
   constructor(props) {
@@ -48,7 +48,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   render() {
     const { comment, showTitle, level=1 } = this.props;
 
-    if (comment) {
+    if (comment && comment.post) {
       return (
         <div
           className={classNames(
@@ -77,20 +77,20 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId ? (
-                  <FontIcon
+                  <Icon
                     onClick={this.toggleShowParent}
                     className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                   >
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                 ) : level != 1 && <div className="recent-comment-username-spacing">○</div>}
                 <Components.UsersName user={comment.user}/>
                 { comment.post && (
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
                       <div className="comments-item-date">
-                        {moment(new Date(comment.postedAt)).fromNow()}
-                        <FontIcon className="material-icons comments-item-permalink"> link </FontIcon>
+                        <Components.FromNowDate date={comment.postedAt}/>
+                        <Icon className="material-icons comments-item-permalink"> link </Icon>
                       </div>
                       { showTitle && comment.post && comment.post.title}
                     </div>
@@ -113,4 +113,4 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-registerComponent('RecentCommentsItem', RecentCommentsItem);
+registerComponent('RecentCommentsItem', RecentCommentsItem, withErrorBoundary);

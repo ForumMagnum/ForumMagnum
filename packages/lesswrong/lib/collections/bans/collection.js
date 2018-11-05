@@ -26,7 +26,7 @@ const options = {
 }
 
 
-const Bans = createCollection({
+export const Bans = createCollection({
 
   // collection: Meteor.notifications,
 
@@ -41,5 +41,3 @@ const Bans = createCollection({
   mutations: getDefaultMutations('Bans', options),
 
 });
-
-export default Bans;

@@ -1,17 +1,17 @@
 import {
   Components,
   registerComponent,
-  getFragment,
   withMessages,
   withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Localgroups } from '../../lib/index.js';
-import Dialog from 'material-ui/Dialog';
 import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+
+const placeholderLat = 37.871853;
+const placeholderLng = -122.258423;
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -19,31 +19,53 @@ class CommunityHome extends Component {
     this.state = {
       newGroupFormOpen: false,
       newEventFormOpen: false,
-      currentUserLocation: {lat: 37.871853, lng: -122.258423},
+      currentUserLocation: this.getUserLocation(),
     }
   }
 
   componentDidMount() {
+    const newLocation = this.getUserLocation();
+    if (!_.isEqual(this.state.currentUserLocation, newLocation)) {
+      this.setState({ currentUserLocation: this.getUserLocation() });
+    }
+  }
+
+  // Return the current user's location, as a latitude-longitude pair, plus
+  // boolean fields `loading` and `known`. If `known` is false, the lat/lng are
+  // invalid placeholders. If `loading` is true, then `known` is false, but the
+  // state might be updated with a location later.
+  //
+  // If the user is logged in, the location specified in their account settings
+  // is used first. If the user is not logged in, then no location is available
+  // for server-side rendering, but we can try to get a location client-side
+  // using the browser geolocation API. (This won't necessarily work, since not
+  // all browsers and devices support it, and it requires user permission.)
+  getUserLocation() {
     const currentUser = this.props.currentUser;
     const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
     const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
     if (currentUserLat && currentUserLng) {
-      this.setState({
-        currentUserLocation: {lat: currentUserLat, lng: currentUserLng}
-      })
+      // First return a location from the user profile, if set
+      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
+    } else if (Meteor.isServer) {
+      // If there's no location in the user profile, we may still be able to get
+      // a location from the browser--but not in SSR.
+      return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};
     } else {
+      // If we're on the browser, try to get a location using the browser
+      // geolocation API. This is not always available.
       if (typeof window !== 'undefined' && typeof navigator !== 'undefined'
           && navigator && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           if(position && position.coords) {
             const navigatorLat = position.coords.latitude
             const navigatorLng = position.coords.longitude
-            this.setState({
-              currentUserLocation: {lat: navigatorLat, lng: navigatorLng}
-            })
+            return {lat: navigatorLat, lng: navigatorLng, loading: false, known: true}
           }
         });
       }
+
+      return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};
     }
   }
 
@@ -69,34 +91,6 @@ class CommunityHome extends Component {
     this.setState({
       newEventFormOpen: false,
     })
-  }
-
-  renderNewGroupForm = () => {
-    if (this.props.currentUser) {
-      return (<div>
-        <a onClick={this.handleOpenNewGroupForm}>Create new group</a>
-        <Dialog
-          contentStyle={{maxWidth:"400px"}}
-          title="New Local Group Form"
-          open={this.state.newGroupFormOpen}
-          onRequestClose={this.handleCloseNewGroupForm}
-          className="comments-item-text local-group-new-form"
-          bodyClassName="local-group-new-form-body"
-          autoScrollBodyContent
-        >
-          <Components.SmartForm
-            collection={Localgroups}
-            mutationFragment={getFragment('localGroupsHomeFragment')}
-            prefilledProps={{organizerIds: [this.props.currentUser._id]}}
-            successCallback={localGroup => {
-              this.handleCloseNewGroupForm();
-              this.props.flash("Successfully created new local group " + localGroup.name);
-              this.props.router.push({pathname: '/groups/' + localGroup._id});
-            }}
-          />
-        </Dialog>
-      </div>)
-    }
   }
 
   render() {
@@ -139,9 +133,11 @@ class CommunityHome extends Component {
         </div>}>
           {this.state.currentUserLocation &&
             <div>
-              <Components.LocalGroupsList
-                terms={groupsListTerms}
-                showHeader={false} />
+              { this.state.currentUserLocation.loading
+                ? <Components.Loading />
+                : <Components.LocalGroupsList
+                    terms={groupsListTerms}
+                    showHeader={false} />}
               <hr className="community-home-list-divider"/>
               <Components.PostsList
                 terms={postsListTerms}
@@ -149,7 +145,7 @@ class CommunityHome extends Component {
             </div>}
         </Components.Section>
         <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} />
+          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />
         </Components.Section>
       </div>
     )

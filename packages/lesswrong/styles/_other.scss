@@ -9,53 +9,11 @@
   }
 }
 
-.modal-form-title{
-  border-bottom: $border;
-  padding-bottom: $vmargin;
-  margin-bottom: $vmargin;
-  line-height: 1;
-}
-
-.input-categories{
-  .col-sm-9{
-    display: flex;
-    flex-wrap: wrap;
-    .checkbox{
-      width: 50%;
-    }
-  }
-}
-
-.private{
-  text-transform: uppercase;
-  font-size: $smaller-font;
-  color: $red;
-}
-
+// TODO: Possibly unused
 .dropdown-item.active{
   a{
     color: $white;
   }
-}
-
-.editor-form-component-description {
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-.rss-out-linkbuilder-content {
-  display: inline-block;
-  vertical-align: top;
-  padding: 10px;
-  text-align: center;
-}
-
-.rss-out-linkbuilder-header {
-  display: block;
-}
-.rss-out-linkbuilder-button {
-  cursor: pointer;
-  color:rgba(255,255,255,.75);
 }
 
 .email-link {
@@ -63,49 +21,5 @@
 
   &:hover {
     color:rgba(0,0,0,.5);
-  }
-}
-
-@mixin frontpage-subtitle-link() {
-  color: rgba(0, 0, 0, .45) !important;
-  font-size:16px;
-  text-decoration: none !important;
-  font-style:italic;
-  position:relative;
-  top:12px;
-  &:focus, &:active, a, a:focus, a:active {
-    color: rgba(0, 0, 0, .5) !important;
-    text-decoration: none !important;
-  }
-  &:hover, a:hover {
-    color:rgba(0, 0, 0, .3) !important;
-  }
-
-  @include max-small() {
-    top:0px;
-    margin-left:10px;
-  }
-}
-
-.lw-tooltip-wrapper {
-  position:relative;
-
-  .lw-tooltip {
-    position:absolute;
-    top:0;
-    left:0;
-    font-size:13px;
-    transition:.25s;
-  }
-
-  .lw-default-tooltip {
-    background: white;
-    border:solid 1px rgba(0,0,0,.1);
-    box-shadow:0 0 5px 0 rgba(0,0,0,.1);
-    padding:10px;
-    min-width:200px;
-    position:relative;
-    top:25px;
-    border-radius:2px;
   }
 }

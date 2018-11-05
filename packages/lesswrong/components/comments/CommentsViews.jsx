@@ -5,7 +5,7 @@ import { withRouter } from 'react-router'
 import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Comments } from 'meteor/example-forum'
+import { Comments } from '../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 
@@ -45,7 +45,7 @@ class CommentsViews extends Component {
     const { router, post } = this.props
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
     this.setState({ anchorEl: null })
-    router.replace({...router.location, query: {...currentQuery, view: view, postId: post._id}})
+    router.replace({...router.location, query: {...currentQuery, view: view, postId: post ? post._id : undefined}})
   };
 
   handleClose = () => {

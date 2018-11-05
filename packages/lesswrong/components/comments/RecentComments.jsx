@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
-import { Comments } from 'meteor/example-forum';
+import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 
-const RecentComments = ({results, currentUser, loading, fontSize, loadMore, networkStatus, editMutation}) => {
+const RecentComments = ({results, currentUser, loading, loadMore, networkStatus, editMutation}) => {
   const loadingMore = networkStatus === 2;
   if (!loading && results && !results.length) {
     return (<div>No comments found</div>)
@@ -12,7 +12,7 @@ const RecentComments = ({results, currentUser, loading, fontSize, loadMore, netw
     <div>
       <div className="comments-list recent-comments-list">
         {loading || !results ? <Loading /> :
-        <div className={"comments-items" + (fontSize == "small" ? " smalltext" : "")}>
+        <div className={"comments-items"}>
           {results.map(comment =>
             <div key={comment._id}>
               <Components.CommentsNode
@@ -34,7 +34,7 @@ const commentsOptions = {
   collection: Comments,
   queryName: 'selectCommentsListQuery',
   fragmentName: 'SelectCommentsList',
-  totalResolver: false,
+  enableTotal: false,
   pollInterval: 0,
   enableCache: true,
 };

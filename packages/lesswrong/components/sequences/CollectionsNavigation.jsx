@@ -3,31 +3,45 @@ import { Link } from 'react-router';
 import React from 'react';
 
 const CollectionsNavigation = ({
-    nextPostSlug,
-    prevPostSlug,
-    nextPostUrl,
-    prevPostUrl,
-    title,
-    titleUrl
-  }) => {
+  nextPostUrl,
+  prevPostUrl,
+  title,
+  titleUrl,
+  loading,
+  
+  // Two different ways of identifying the prev/next post for SequencesNavigation,
+  // depending on whether this is a collection or a sequence.
+  nextPostId, prevPostId,
+  nextPostSlug, prevPostSlug,
+}) => {
 
-    return (
-      <div className="sequences-navigation-top">
-        <Components.SequencesNavigationLink
-          slug={prevPostSlug}
-          documentUrl={prevPostUrl}
-        direction="left" />
-
+  return (
+    <div className="sequences-navigation-top">
+      {loading ? <Components.Loading/> : <React.Fragment>
+        {prevPostUrl
+          ? <Components.SequencesNavigationLink
+              documentUrl={prevPostUrl}
+              direction="left"
+              documentId={prevPostId}
+              slug={prevPostSlug} />
+          : <Components.SequencesNavigationLinkDisabled
+              direction="left" />}
+  
         <div className="sequences-navigation-title">
           {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
         </div>
-
-        <Components.SequencesNavigationLink
-          slug={nextPostSlug}
-          documentUrl={nextPostUrl}
-        direction="right" />
-      </div>
-    )
-  }
+  
+        {nextPostUrl
+          ? <Components.SequencesNavigationLink
+              documentUrl={nextPostUrl}
+              direction="right"
+              documentId={nextPostUrl && nextPostId}
+              slug={nextPostUrl && nextPostSlug} />
+          : <Components.SequencesNavigationLinkDisabled
+              direction="right" />}
+      </React.Fragment>}
+    </div>
+  )
+}
 
 registerComponent('CollectionsNavigation', CollectionsNavigation);

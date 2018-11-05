@@ -1,8 +1,17 @@
 import React from 'react'
 import { Components } from "meteor/vulcan:core";
-import { Comments } from "meteor/example-forum";
+import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
+import { Posts } from '../posts';
+import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+
+export const moderationOptionsGroup = {
+  order: 50,
+  name: "moderation",
+  label: "Moderator Options",
+  startCollapsed: true
+};
 
 Comments.addField([
 
@@ -14,19 +23,15 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
       hidden: true,
       resolveAs: {
         fieldName: 'user',
         type: 'User',
-        resolver: async (comment, args, {currentUser, Users}) => {
-          if (!comment.userId || comment.hideAuthor) return null;
-          const user = await Users.loader.load(comment.userId);
-          if (!user) return null;
-          if (user.deleted) return null;
-          return Users.restrictViewableFields(currentUser, Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'userId'}
+        ),
         addOriginalField: true
       },
     }
@@ -42,9 +47,9 @@ Comments.addField([
       optional: true,
       hidden: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -57,9 +62,9 @@ Comments.addField([
       type: String,
       hidden: true,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -73,9 +78,9 @@ Comments.addField([
       optional: true,
       hidden: true,
       defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -88,9 +93,9 @@ Comments.addField([
       type: String,
       hidden: true,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
     }
   },
 
@@ -106,9 +111,9 @@ Comments.addField([
     fieldSchema: {
       type: Object,
       optional: true,
-      viewableBy: ['admins'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['admins'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
       hidden: true,
       blackbox: true,
     }
@@ -124,9 +129,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: Users.owns,
-      editableBy: Users.owns,
+      canRead: ['guests'],
+      canCreate: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
     }
@@ -142,9 +147,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
     }
@@ -155,9 +160,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -167,9 +172,9 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -179,9 +184,9 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['members'],
-      editableBy: ['members'],
+      canRead: ['guests'],
+      canCreate: ['members'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -191,18 +196,16 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members'],
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
       hidden: true,
       resolveAs: {
         fieldName: 'deletedByUser',
         type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!comment.deletedByUserId) return null;
-          const user = await context.Users.loader.load(comment.deletedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'deletedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -218,9 +221,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
       control: "checkbox",
       hidden: true,
     }
@@ -235,7 +238,7 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests']
+      canRead: ['guests']
     }
   },
 
@@ -248,9 +251,9 @@ Comments.addField([
     fieldSchema: {
       type: Date,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      group: moderationOptionsGroup,
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
       control: 'datetime'
     }
   },
@@ -260,9 +263,9 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
       hidden: true,
     }
   },
@@ -272,18 +275,16 @@ Comments.addField([
     fieldSchema: {
       type: String,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
       hidden: true,
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
-        resolver: async (comment, args, context) => {
-          if (!comment.reviewedByUserId) return null;
-          const user = await context.Users.loader.load(comment.reviewedByUserId);
-          return context.Users.restrictViewableFields(context.currentUser, context.Users, user);
-        },
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Users', fieldName: 'reviewedByUserId'}
+        ),
         addOriginalField: true
       },
     }
@@ -298,10 +299,10 @@ Comments.addField([
     fieldName: 'hideAuthor',
     fieldSchema: {
       type: Boolean,
+      group: moderationOptionsGroup,
       optional: true,
-      viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      canRead: ['guests'],
+      canUpdate: ['admins'],
     }
   },
 ]);
@@ -324,3 +325,58 @@ makeEditable({
   collection: Comments,
   options: makeEditableOptions
 })
+
+Users.addField([
+  /**
+    Count of the user's comments
+  */
+  {
+    fieldName: 'commentCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      canRead: ['guests'],
+    }
+  }
+]);
+
+Posts.addField([
+  /**
+    Count of the post's comments
+  */
+  {
+    fieldName: 'commentCount',
+    fieldSchema: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      canRead: ['guests'],
+    }
+  },
+  /**
+    An array containing the `_id`s of commenters
+  */
+  {
+    fieldName: 'commenterIds',
+    fieldSchema: {
+      type: Array,
+      optional: true,
+      resolveAs: {
+        fieldName: 'commenters',
+        type: '[User]',
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'commenterIds'}
+        ),
+      },
+      canRead: ['guests'],
+    }
+  },
+  {
+    fieldName: 'commenterIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  }
+]);

@@ -3,40 +3,25 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Comments, Posts } from "meteor/example-forum";
-import moment from 'moment';
+import { Posts } from "../../../lib/collections/posts";
+import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
-import FontIcon from 'material-ui/FontIcon';
-import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Icon from '@material-ui/core/Icon';
+import ArrowRight from '@material-ui/icons/ArrowRight';
 import MenuItem from 'material-ui/MenuItem';
-import IconMenu from 'material-ui/IconMenu';
-import IconButton from 'material-ui/IconButton';
-import FlatButton from 'material-ui/FlatButton';
-import Dialog from 'material-ui/Dialog';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
-
-const moreActionsMenuStyle = {
-  position: 'inherit',
-}
-
-const moreActionsMenuButtonStyle = {
-  padding: '0px',
-  width: 'auto',
-  height: 'auto',
-}
-
-const moreActionsMenuIconStyle = {
-  padding: '0px',
-  width: '16px',
-  height: '16px',
-  color: 'rgba(0,0,0,0.5)',
-}
+import withErrorBoundary from '../../common/withErrorBoundary'
+import withDialog from '../../common/withDialog'
 
 const styles = theme => ({
+  root: {
+    "&:hover $menu": {
+      opacity:1
+    }
+  },
   commentStyling: {
     ...commentBodyStyles(theme)
   },
@@ -47,6 +32,11 @@ const styles = theme => ({
   },
   postTitle: {
     marginRight: 5,
+  },
+  menu: {
+    float:"right",
+    opacity:.35,
+    marginRight:-5
   }
 })
 
@@ -56,8 +46,6 @@ class CommentsItem extends Component {
     this.state = {
       showReply: false,
       showEdit: false,
-      showReport: false,
-      showStats: false,
       showParent: false
     };
   }
@@ -71,16 +59,16 @@ class CommentsItem extends Component {
   }
 
   showReport = (event) => {
-    event.preventDefault();
-    this.setState({showReport: true});
-  }
-
-  showStats = (event) => {
-    event.preventDefault();
-    this.setState({showStats: true});
-  }
-  hideStats = (event) => {
-    this.setState({showStats: false});
+    const { openDialog, comment, currentUser } = this.props;
+    openDialog({
+      componentName: "ReportForm",
+      componentProps: {
+        commentId: comment._id,
+        postId: comment.postId,
+        link: "/posts/" + comment.postId + "/a/" + comment._id,
+        userId: currentUser._id,
+      }
+    });
   }
 
   showReply = (event) => {
@@ -110,7 +98,7 @@ class CommentsItem extends Component {
   }
 
   removeSuccessCallback = ({documentId}) => {
-    this.props.flash("Successfully deleted comment", "success");
+    this.props.flash({messageString: "Successfully deleted comment", type: "success"});
   }
 
   toggleShowParent = () => {
@@ -129,7 +117,11 @@ class CommentsItem extends Component {
     const { comment, classes } = this.props
 
     if (comment.body) {
-      let commentExcerpt = comment.body.substring(0,300).split("\n\n");
+      // Replace Markdown Links with just their display text
+      let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
+
+      let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
+
       const lastElement = commentExcerpt.slice(-1)[0];
       commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
         (text, i) => <p key={ comment._id + i}>{text}</p>);
@@ -146,6 +138,7 @@ class CommentsItem extends Component {
 
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
+
     const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
 
     const commentBody = this.props.collapsed ? "" : (
@@ -155,10 +148,11 @@ class CommentsItem extends Component {
       </div>
     )
 
-    if (comment) {
+    if (comment && post) {
       return (
         <div className={
           classNames(
+            classes.root,
             "comments-item",
             "recent-comments-node",
             {
@@ -184,12 +178,12 @@ class CommentsItem extends Component {
           <div className="comments-item-body">
             <div className="comments-item-meta">
               {(comment.parentCommentId && (nestingLevel === 1)) &&
-                <FontIcon
+                <Icon
                   onClick={this.toggleShowParent}
                   className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                 >
                   subdirectory_arrow_left
-                </FontIcon>}
+                </Icon>}
               { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
@@ -201,16 +195,16 @@ class CommentsItem extends Component {
               <div className="comments-item-date">
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    {moment(new Date(comment.postedAt)).fromNow()}
-                    <FontIcon className="material-icons comments-item-permalink"> link
-                    </FontIcon>
+                    <Components.FromNowDate date={comment.postedAt}/>
+                    <Icon className="material-icons comments-item-permalink"> link
+                    </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  {moment(new Date(comment.postedAt)).fromNow()}
-                  <FontIcon className="material-icons comments-item-permalink"> link
-                  </FontIcon>
+                  <Components.FromNowDate date={comment.postedAt}/>
+                  <Icon className="material-icons comments-item-permalink"> link
+                  </Icon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
@@ -243,7 +237,7 @@ class CommentsItem extends Component {
       <div className="comments-item-bottom">
         { blockedReplies &&
           <div className="comment-blocked-replies">
-            A moderator has deactivated replies on this comment until {moment(new Date(comment.repliesBlockedUntil)).calendar()}
+            A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
           </div>
         }
         <div>
@@ -258,74 +252,42 @@ class CommentsItem extends Component {
   }
 
   renderMenu = () => {
-    const { comment, currentUser } = this.props;
+    const { comment, currentUser, classes } = this.props;
     const post = this.props.post || comment.post;
     if (comment && post) {
       return (
-        <div className="comments-more-actions-menu">
-            <IconMenu
-              iconButtonElement={<IconButton style={moreActionsMenuButtonStyle}><MoreVertIcon /></IconButton>}
-              anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-              targetOrigin={{horizontal: 'right', vertical: 'top'}}
-              style={moreActionsMenuStyle}
-              iconStyle={moreActionsMenuIconStyle}
-              useLayerForClickAway={true}
-            >
-              { this.renderEditMenuItem() }
-              { this.renderSubscribeMenuItem() }
-              { this.renderReportMenuItem() }
-              { this.renderStatsMenuItem() }
-              { this.renderDeleteMenuItem() }
-              { this.renderMoveToAlignmentMenuItem() }
-              { Users.canModeratePost(currentUser, post) &&
-                post.user && Users.canModeratePost(post.user, post) &&
-                <MenuItem
-                  className="comment-menu-item-ban-user-submenu"
-                  primaryText="Ban User"
-                  rightIcon={<ArrowDropRight />}
-                  menuItems={[
-                    <Components.BanUserFromPostMenuItem
-                      key='banUserFromPost'
-                      comment={comment}
-                      post={post}
-                      currentUser={currentUser}
-                    />,
-                    <Components.BanUserFromAllPostsMenuItem
-                      key='banUserFromAllPosts'
-                      comment={comment}
-                      post={post}
-                      currentUser={currentUser}
-                    />
-                  ]}
-                />}
-            </IconMenu>
-            { this.state.showReport &&
-              <Components.ReportForm
-                commentId={comment._id}
-                postId={comment.postId}
-                link={"/posts/" + comment.postId + "/a/" + comment._id}
-                userId={currentUser._id}
-                open={true}
-              />
-            }
-            { this.state.showStats &&
-              <Dialog title="Comment Stats"
-                modal={false}
-                actions={<FlatButton label="Close" primary={true} onClick={ this.hideStats }/>}
-                open={this.state.showStats}
-                onRequestClose={this.hideStats}
-              >
-                <Components.CommentVotesInfo documentId={comment._id} />
-              </Dialog>
-            }
-        </div>
+        <span className={classes.menu}>
+          <Components.CommentsMenu>
+            { this.renderSubscribeMenuItem() }
+            { this.renderEditMenuItem() }
+            { this.renderReportMenuItem() }
+            { this.renderDeleteMenuItem() }
+            { this.renderMoveToAlignmentMenuItem() }
+            { this.renderSuggestForAlignmentMenuItem() }
+            { Users.canModeratePost(currentUser, post) &&
+              post.user && Users.canModeratePost(post.user, post) &&
+              <MenuItem
+                className="comment-menu-item-ban-user-submenu"
+                primaryText="Ban User"
+                rightIcon={<ArrowRight />}
+                menuItems={[
+                  <Components.BanUserFromPostMenuItem
+                    key='banUserFromPost'
+                    comment={comment}
+                    post={post}
+                    currentUser={currentUser}
+                  />,
+                  <Components.BanUserFromAllPostsMenuItem
+                    key='banUserFromAllPosts'
+                    comment={comment}
+                    post={post}
+                    currentUser={currentUser}
+                  />
+                ]}
+              />}
+            </Components.CommentsMenu>
+        </span>
       )
-    }
-  }
-
-  renderStatsMenuItem = () => {
-    if (Users.canDo(this.props.currentUser, "comments.edit.all")) {
-      return <MenuItem primaryText="Stats" onClick={this.showStats} />
     }
   }
 
@@ -377,6 +339,19 @@ class CommentsItem extends Component {
     }
   }
 
+  renderSuggestForAlignmentMenuItem = () =>  {
+    const { currentUser, comment, post } = this.props
+    if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+      return (
+        <Components.SuggestAlignmentMenuItem
+          currentUser={currentUser}
+          comment={comment}
+          post={post}
+        />
+      )
+    }
+  }
+
   renderDeleteMenuItem = () =>  {
     if (Users.canModeratePost(this.props.currentUser, this.props.post)) {
       return (
@@ -415,8 +390,16 @@ class CommentsItem extends Component {
       />
 }
 
+CommentsItem.propTypes = {
+  currentUser: PropTypes.object,
+  post: PropTypes.object.isRequired,
+  comment: PropTypes.object.isRequired
+}
+
 registerComponent('CommentsItem', CommentsItem,
   withRouter, withMessages,
-  withStyles(styles, { name: "CommentsItem" })
+  withStyles(styles, { name: "CommentsItem" }),
+  withDialog,
+  withErrorBoundary
 );
 export default CommentsItem;

@@ -3,13 +3,11 @@ import {
   registerComponent,
   withMutation,
   getActions,
-  getSetting,
 } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
-import { Posts } from "meteor/example-forum";
-import moment from 'moment';
+import { Posts } from "../../lib/collections/posts";
 import classNames from 'classnames';
 
 import { bindActionCreators } from 'redux';
@@ -17,9 +15,7 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from '@material-ui/core/Paper';
-import muiThemeable from 'material-ui/styles/muiThemeable';
-import Users from "meteor/vulcan:users";
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
@@ -89,24 +85,8 @@ class PostsItem extends PureComponent {
     this.state = {
       categoryHover: false,
       showNewComments: false,
-      lastVisitedAt: props.post.lastVisitedAt,
-      lastCommentedAt: Posts.getLastCommentedAt(props.post),
       readStatus: false,
     }
-  }
-  renderActions() {
-    return (
-      <div className="posts-actions">
-        <Link to={{pathname:'/editPost', query:{postId: this.props.post._id, eventForm: this.props.post.isEvent}}}>
-          Edit
-        </Link>
-      </div>
-    )
-  }
-
-  renderPostFeeds() {
-    const feed = this.props.post.feed
-    return (feed && feed.user ? <span className="post-feed-nickname"> {feed.nickname} </span> : null);
   }
 
   toggleNewComments = () => {
@@ -158,24 +138,13 @@ class PostsItem extends PureComponent {
     // }
   }
 
-  renderEventDetails = () => {
-    const post = this.props.post;
-    const isEvent = post.isEvent;
-    if (isEvent) {
-      return <div className="posts-item-event-details">
-        {post.startTime && <span> {moment(post.startTime).calendar()} </span>}
-        {post.location && <span> {post.location} </span>}
-      </div>
-    }
-  }
-
   renderHighlightMenu = () => {
     return (
       <div className="posts-item-highlight-footer" >
         <span className="posts-item-hide-highlight" onClick={this.toggleHighlight}>
-          <FontIcon className={classNames("material-icons")}>
+          <Icon className={classNames("material-icons")}>
             subdirectory_arrow_left
-          </FontIcon>
+          </Icon>
           Collapse
         </span>
         <Link to={this.getPostLink()}>
@@ -194,17 +163,18 @@ class PostsItem extends PureComponent {
 
   render() {
 
-    const { post, inlineCommentCount, currentUser, terms, classes } = this.props;
+    const { post, currentUser, terms, classes } = this.props;
+    const { lastVisitedAt } = post
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
 
     let commentCount = Posts.getCommentCount(post)
 
     let postClass = "posts-item";
     if (this.state.showHighlight) postClass += " show-highlight";
-    const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
 
     const renderCommentsButton = () => {
-      const read = this.state.lastVisitedAt;
-      const newComments = this.state.lastVisitedAt < this.state.lastCommentedAt;
+      const read = lastVisitedAt;
+      const newComments = lastVisitedAt < lastCommentedAt;
       const commentsButtonClassnames = classNames(
         "posts-item-comments",
         {
@@ -242,48 +212,31 @@ class PostsItem extends PureComponent {
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
-                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)}/>
+                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
               </Link>
-              <div onClick={this.toggleHighlight}>
-                <Components.MetaInfo className="posts-item-meta">
-
-                  {Posts.options.mutations.edit.check(this.props.currentUser, post) && this.renderActions()}
-                  {post.user && <div className="posts-item-user">
-                    <Link to={ Users.getProfileUrl(post.user) }>{post.user.displayName}</Link>
-                  </div>}
-                  {this.renderPostFeeds()}
-                  {post.postedAt && !post.isEvent && <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div>}
-                  <div className="posts-item-points">
-                    { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
-                  </div>
-                  {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
-                  {post.wordCount && !post.isEvent && <div>{parseInt(post.wordCount/300) || 1 } min read</div>}
-                  {this.renderEventDetails()}
-                  <div className="posts-item-show-highlight-button">
-                    {currentUser && currentUser.isAdmin &&
-                      <Components.PostsStats post={post} />
-                    }
-                    { this.state.showHighlight ?
-                      <span>
-                        Hide Highlight
-                        <FontIcon className={classNames("material-icons","hide-highlight-button")}>
-                          subdirectory_arrow_left
-                        </FontIcon>
-                      </span>
-                    :
-                    <span>
-                      Show Highlight
-                      <FontIcon className={classNames("material-icons","show-highlight-button")}>
+              <div onClick={this.toggleHighlight} className="posts-item-meta">
+                <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
+                <span className="posts-item-show-highlight-button">
+                  { this.state.showHighlight ?
+                    <Components.MetaInfo>
+                      Hide Highlight
+                      <Icon className={classNames("material-icons","hide-highlight-button")}>
                         subdirectory_arrow_left
-                      </FontIcon>
-                    </span>  }
-                  </div>
-                </Components.MetaInfo>
+                      </Icon>
+                    </Components.MetaInfo>
+                  :
+                  <Components.MetaInfo>
+                    Show Highlight
+                    <Icon className={classNames("material-icons","show-highlight-button")}>
+                      subdirectory_arrow_left
+                    </Icon>
+                  </Components.MetaInfo>  }
+                </span>
               </div>
             </div>
-            <div className="post-category-display-container" onClick={this.toggleHighlight}>
-              <Components.CategoryDisplay post={post} read={this.state.lastVisitedAt || this.state.readStatus}/>
-            </div>
+            <Components.CategoryDisplay
+              onClick={this.toggleHighlight}
+              post={post} read={lastVisitedAt || this.state.readStatus}/>
 
             { renderCommentsButton() }
 
@@ -299,9 +252,9 @@ class PostsItem extends PureComponent {
             <div className="posts-item-new-comments-section">
               <div className="post-item-new-comments-header">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <FontIcon className={classNames("material-icons")}>
+                  <Icon className={classNames("material-icons")}>
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                   Collapse
                 </span>
                 <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
@@ -311,15 +264,15 @@ class PostsItem extends PureComponent {
               <div className="posts-item-recent-comments-title">Recent Comments</div>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
-                highlightDate={this.state.lastVisitedAt}
+                highlightDate={lastVisitedAt}
                 terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
               <div className="post-item-new-comments-footer">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <FontIcon className={classNames("material-icons")}>
+                  <Icon className={classNames("material-icons")}>
                     subdirectory_arrow_left
-                  </FontIcon>
+                  </Icon>
                   Collapse
                 </span>
                 <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
@@ -354,7 +307,6 @@ registerComponent(
   'PostsItem',
   PostsItem,
   withMutation(mutationOptions),
-  muiThemeable(),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem" })

@@ -1,5 +1,6 @@
-import { Posts } from "meteor/example-forum";
+import { Posts } from "../../../collections/posts";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
+import { generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
 
 Posts.addField([
   {
@@ -14,6 +15,21 @@ Posts.addField([
       editableBy: ['alignmentForum'],
       insertableBy: ['alignmentForum'],
       control: 'checkbox',
+      group: formGroups.options,
+    }
+  },
+
+  {
+    fieldName: 'afDate',
+    fieldSchema: {
+      order:10,
+      type: Date,
+      optional: true,
+      label: "Alignment Forum",
+      hidden: true,
+      viewableBy: ['guests'],
+      editableBy: ['alignmentForum'],
+      insertableBy: ['alignmentForum'],
       group: formGroups.options,
     }
   },
@@ -39,8 +55,6 @@ Posts.addField([
       viewableBy: ['guests'],
     }
   },
-
-
 
   {
     fieldName: 'afLastCommentedAt',
@@ -78,6 +92,49 @@ Posts.addField([
           return false;
         }
       }
+    }
+  },
+
+  {
+    fieldName: 'suggestForAlignmentUserIds',
+    fieldSchema: {
+      type: Array,
+      viewableBy: ['members'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: ['alignmentForum', 'alignmentForumAdmins'],
+      optional: true,
+      label: "Suggested for Alignment by",
+      control: "UsersListEditor",
+      group: formGroups.adminOptions,
+      resolveAs: {
+        fieldName: 'suggestForAlignmentUsers',
+        type: '[User]',
+        resolver: generateIdResolverMulti(
+          {collectionName: 'Users', fieldName: 'suggestForAlignmentUserIds'}
+        ),
+        addOriginalField: true
+      },
+    }
+  },
+
+  {
+    fieldName: 'suggestForAlignmentUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
+
+  {
+    fieldName: 'reviewForAlignmentUserId',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      editableBy: ['alignmentForumAdmins', 'admins'],
+      insertableBy: ['alignmentForumAdmins', 'admins'],
+      group: formGroups.adminOptions,
+      label: "AF Review UserId"
     }
   },
 

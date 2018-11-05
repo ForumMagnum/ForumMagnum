@@ -13,7 +13,7 @@ const SequencesNewForm = (props, context) => {
           collection={Sequences}
           successCallback={(sequence) => {
             props.router.push({pathname: props.redirect || '/s/' + sequence._id });
-            props.flash("successfully creates Sequence", "success");
+            props.flash({messageString: "Successfully created Sequence", type: "success"});
           }}
           cancelCallback={props.cancelCallback}
           removeSuccessCallback={props.removeSuccessCallback}

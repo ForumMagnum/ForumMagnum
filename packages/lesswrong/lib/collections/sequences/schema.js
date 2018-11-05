@@ -1,5 +1,5 @@
 import { Components } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
 const schema = {
 
@@ -26,13 +26,13 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['admin'],
-    hidden: Users.canDo('sequences.edit.all'),
+    hidden:  true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
-      resolver: (sequence, args, context) => {
-        return context.Users.findOne({ _id: sequence.userId }, { fields: context.Users.getViewableFields(context.currentUser, context.Users)})
-      },
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Users', fieldName: 'userId'}
+      ),
       addOriginalField: true,
     }
   },
@@ -171,6 +171,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    hidden: true,
     control: "checkbox"
   },
 
@@ -194,6 +195,8 @@ const schema = {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
       type: "Collection",
+      // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
+      // work out of the box with the id-resolver generators
       resolver: (sequence, args, context) => {
         if (!sequence.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})

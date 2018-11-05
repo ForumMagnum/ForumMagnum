@@ -3,10 +3,11 @@ import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
 import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../collections/localgroups/collection.js';
-import Bans from '../collections/bans/collection.js';
+import { Bans } from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
-import { Posts, Categories, Comments } from 'meteor/example-forum';
+import { Posts } from '../collections/posts';
+import { Comments } from '../collections/comments'
 import VulcanEmail from 'meteor/vulcan:email'
 import {
   addCallback,
@@ -197,15 +198,7 @@ addCallback("posts.undraft.async", PostsUndraftNotification);
  * @summary Add new post notification callback on post submit
  */
 function postsNewNotifications (post) {
-  if (post.status === Posts.config.STATUS_PENDING || post.draft) {
-    // if post is pending or saved to draft, only notify admins
-    let adminIds = _.pluck(Users.find({isAdmin: true}).fetch(), '_id');
-
-    // remove this post's author
-    adminIds = _.without(adminIds, post.userId);
-
-    createNotifications(adminIds, 'newPendingPost', 'post', post._id);
-  } else {
+  if (!post.draft && post.status !== Posts.config.STATUS_PENDING) {
     // add users who get notifications for all new posts
     let usersToNotify = _.pluck(Users.find({'notifications_posts': true}, {fields: {_id:1}}).fetch(), '_id');
 
@@ -213,16 +206,6 @@ function postsNewNotifications (post) {
     const postAuthor = Users.findOne(post.userId);
     if (!!postAuthor.subscribers) {
       usersToNotify = _.union(usersToNotify, postAuthor.subscribers);
-    }
-
-    // add users who are subscribed to this post's categories
-    if (!!post.categories) {
-      post.categories.forEach(cid => {
-        let c = Categories.findOne(cid);
-        if (!!c.subscribers) {
-          usersToNotify = _.union(usersToNotify, c.subscribers);
-        }
-      });
     }
 
     // add users who are subscribed to this post's groups
@@ -251,13 +234,18 @@ function findUsersToEmail(filter) {
   let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
 
   let usersToEmail = usersMatchingFilter.filter(u => {
-    let primaryAddress = u.email;
-    for(let i=0; i<u.emails.length; i++)
-    {
-      if(u.emails[i].address === primaryAddress && u.emails[i].verified)
-        return true;
+    if (u.email && u.emails && u.emails.length) {
+      let primaryAddress = u.email;
+
+      for(let i=0; i<u.emails.length; i++)
+      {
+        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+          return true;
+      }
+      return false;
+    } else {
+      return true
     }
-    return false;
   });
   return usersToEmail
 }

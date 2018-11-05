@@ -1,5 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core';
-import { Posts } from 'meteor/example-forum';
+import { Posts } from '../../collections/posts';
 import Sequences from '../../collections/sequences/collection';
 import Users from 'meteor/vulcan:users';
 

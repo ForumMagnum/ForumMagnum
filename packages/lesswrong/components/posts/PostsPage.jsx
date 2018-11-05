@@ -11,13 +11,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link, withRouter } from 'react-router'
-import { LinkContainer } from 'react-router-bootstrap';
-import DropdownButton from 'react-bootstrap/lib/DropdownButton';
-import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { Posts, Comments } from 'meteor/example-forum';
-import moment from 'moment';
+import { withRouter } from 'react-router'
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
@@ -51,10 +47,8 @@ const styles = theme => ({
     voteDivider: {
       borderTopColor: theme.palette.grey[600],
       width: 80,
-      WebkitMarginBefore: 0,
-      WebkitMarginAfter: 0,
-      WebkitMarginStart: 0,
-      WebkitMarginEnd: 0
+      marginLeft: 0,
+      marginRight: 0,
     },
     author: {
       marginTop: 18,
@@ -90,35 +84,31 @@ const styles = theme => ({
     },
     draft: {
       color: theme.palette.secondary.light
-    }
+    },
+
+    eventTimes: {
+      marginTop: "5px",
+      fontSize: "14px",
+      lineHeight: 1.25,
+      fontWeight: 600,
+    },
+    eventLocation: {
+      fontSize: "14px",
+      fontWeight: 400,
+      lineHeight: 1.25,
+    },
+    eventContact: {
+      fontSize: "14px",
+      fontWeight: 400,
+      lineHeight: 1.25,
+      marginBottom: "5px",
+    },
+    eventLinks: {
+      fontWeight: 400,
+    },
 })
 
 class PostsPage extends Component {
-  renderCommentViewSelector() {
-
-    let views = ["top", "new"];
-    const query = _.clone(this.props.router.location.query);
-
-    return (
-      <DropdownButton
-        bsStyle="default"
-        className="views btn-secondary"
-        title={this.context.intl.formatMessage({id: "posts.view"})}
-        id="views-dropdown"
-      >
-        {views.map(view =>
-          <LinkContainer key={view} to={{pathname: this.props.router.location.pathname, query: {...query, view: view}}} className="dropdown-item">
-            <MenuItem>
-              { /* borrow the text from post views */ }
-              <FormattedMessage id={"posts."+view}/>
-            </MenuItem>
-          </LinkContainer>
-        )}
-      </DropdownButton>
-    )
-
-  }
-
   getCommentCountStr = (post) => {
     let count = Posts.getCommentCount(post)
 
@@ -167,13 +157,14 @@ class PostsPage extends Component {
     } else if (canonicalCollectionSlug && title && titleUrl) {
       return (
         <Components.CollectionsNavigation
-                  title={ title }
-                  titleUrl={ titleUrl }
-                  nextPostSlug={ post.canonicalNextPostSlug }
-                  prevPostSlug={ post.canonicalPrevPostSlug }
-                  nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
-                  prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-                />
+          title={ title }
+          titleUrl={ titleUrl }
+          nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
+          prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
+
+          nextPostSlug={post.canonicalNextPostSlug}
+          prevPostSlug={post.canonicalPrevPostSlug}
+        />
       )
     }
   }
@@ -181,43 +172,42 @@ class PostsPage extends Component {
   renderPostDate = () => {
     const post = this.props.document;
     const { classes } = this.props
-    const calendarFormat = {sameElse : 'MMMM Do YY, HH:mm'}
     if (post.isEvent) {
-      return <div>
-        <div className="posts-page-event-times">
-          <span className="posts-page-event-times-start"> From: {post.startTime ? moment(post.startTime).calendar({}, calendarFormat): "TBD"} </span>
-          {post.endTime && <span className="posts-page-event-times-start"> To: {moment(post.endTime).calendar({}, calendarFormat)} </span>}
-        </div>
+      return <div className={classes.eventTimes}>
+        <Components.EventTime post={post} dense={false} />
       </div>
     } else {
       return <div className={classes.subtitle}>
-        {moment(post.postedAt).format('MMM D, YYYY')}
+        <Components.SimpleDate date={post.postedAt}/>
       </div>
     }
   }
 
   renderEventLocation = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent && post.location) {
-      return <div className="posts-page-event-location">
+      return <div className={classes.eventLocation}>
         {post.location}
       </div>
     }
   }
 
   renderEventLinks = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent) {
-      return <div className="posts-page-event-links">
+      return <div className={classes.eventLinks}>
         <Components.GroupLinks document={post} />
       </div>
     }
   }
 
   renderContactInfo = () => {
+    const { classes } = this.props;
     const post = this.props.document;
     if (post.isEvent && post.contactInfo) {
-      return <div className="posts-page-event-contact">
+      return <div className={classes.eventContact}>
         Contact: {post.contactInfo}
       </div>
     }
@@ -225,7 +215,7 @@ class PostsPage extends Component {
 
   renderPostMetadata = () => {
     const post = this.props.document;
-    const { classes } = this.props
+    const { classes, currentUser } = this.props
     return <div className={classNames("posts-page-content-body-metadata", classes.metadata)}>
       <div className="posts-page-content-body-metadata-date">
         {this.renderPostDate()}
@@ -237,13 +227,7 @@ class PostsPage extends Component {
         <a href="#comments">{ this.getCommentCountStr(post) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
-        {Posts.options.mutations.edit.check(this.props.currentUser, post) &&
-          <div className="posts-page-content-body-metadata-action">
-            <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-              Edit
-            </Link>
-          </div>
-        }
+        { Posts.canEdit(currentUser,post) && <Components.PostsEdit post={post}/>}
         <Components.PostsPageAdminActions post={post} />
         {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
           <div className="posts-page-content-body-metadata-action">
@@ -261,14 +245,14 @@ class PostsPage extends Component {
     if (loading) {
       return <div><Components.Loading/></div>
     } else if (!document) {
-      return <div><FormattedMessage id="app.404"/></div>
+      return <Components.Error404/>
     } else {
 
       const post = document
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
-      const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
+      const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>
@@ -306,7 +290,9 @@ class PostsPage extends Component {
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
                 <Components.LinkPostMessage post={post} />
-                { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+                { post.htmlBody && <Components.ContentItemBody
+                    dangerouslySetInnerHTML={{__html: post.htmlBody}}
+                 /> }
               </div>
             </div>
             <div className={classes.postFooter}>
@@ -404,7 +390,7 @@ const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
   fragmentName: 'LWPostsPage',
-  totalResolver: false,
+  enableTotal: false,
   enableCache: true,
   ssr: true
 };

@@ -5,7 +5,6 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -81,8 +80,9 @@ class Header extends Component {
     };
   }
 
-  handleNavigationToggle = (muiState) => this.setState({navigationOpen: !this.state.navigationOpen})
-  handleNavigationClose = () => this.setState({navigationOpen: false})
+  setNavigationOpen = (open) => {
+    this.setState({navigationOpen: open})
+  }
 
   handleNotificationToggle = (muiState) => {
     if(!this.state.notificationOpen) {
@@ -115,7 +115,7 @@ class Header extends Component {
           <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
-                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={this.handleNavigationToggle}>
+                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={()=>this.setNavigationOpen(true)}>
                   <MenuIcon />
                 </IconButton>
                 <Typography className={classes.title} variant="title" color="textSecondary">
@@ -137,14 +137,14 @@ class Header extends Component {
                 </Typography>
                 <div className={classes.rightHeaderItems}>
                   <NoSSR><Components.ErrorBoundary>
-                    <Components.SearchBar />
+                    <Components.SearchBar/>
                   </Components.ErrorBoundary></NoSSR>
                   {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
                   {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>
             </AppBar>
-            <Components.NavigationMenu open={navigationOpen} handleClose={this.handleNavigationClose} handleToggle={this.handleNavigationToggle}/>
+            <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} />
           </Headroom>
           <Components.ErrorBoundary>
             <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
@@ -171,4 +171,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, muiThemeable(), withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

@@ -26,7 +26,7 @@ const options = {
 }
 
 
-const LWEvents = createCollection({
+export const LWEvents = createCollection({
 
   // collection: Meteor.notifications,
 

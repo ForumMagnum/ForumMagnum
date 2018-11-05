@@ -15,14 +15,16 @@ describe('PostsEdit', async () => {
     const newTitle = "New Test Title"
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{title:"${newTitle}"}) {
-          title
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"}, data:{title:"${newTitle}"}) {
+          data {
+            title
+          }
         }
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { PostsEdit: { title: `${newTitle}` } } }
+    const expectedOutput = { data: { updatePost: { data: { title: `${newTitle}`} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("fails when non-owner edits title", async () => {
@@ -33,9 +35,11 @@ describe('PostsEdit', async () => {
     const newTitle = "New Test Title"
 
     const query = `
-      mutation  {
-        PostsEdit(documentId:"${post._id}",set:{title:"${newTitle}"}) {
-          title
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"}, data:{title:"${newTitle}"}) {
+          data {
+            title
+          }
         }
       }
     `;
@@ -57,19 +61,21 @@ describe('Posts RSS Views', async () => {
 
     const query = `
       query {
-        PostsList(terms: {view: "curated-rss"}) {
-          _id
+        posts(input:{terms:{view: "curated-rss"}}) {
+          results {
+            _id
+          }
         }
       }
     `;
 
-    const { data: { PostsList } } = await runQuery(query,{},user)
-    _.pluck(PostsList, '_id').should.not.include(frontpagePost1._id)
-    _.pluck(PostsList, '_id').should.not.include(frontpagePost2._id)
-    _.pluck(PostsList, '_id').should.not.include(frontpagePost3._id)
-    _.pluck(PostsList, '_id').should.include(curatedPost1._id)
-    _.pluck(PostsList, '_id').should.include(curatedPost2._id)
-    _.pluck(PostsList, '_id').should.include(curatedPost3._id)
+    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    _.pluck(posts, '_id').should.not.include(frontpagePost1._id)
+    _.pluck(posts, '_id').should.not.include(frontpagePost2._id)
+    _.pluck(posts, '_id').should.not.include(frontpagePost3._id)
+    _.pluck(posts, '_id').should.include(curatedPost1._id)
+    _.pluck(posts, '_id').should.include(curatedPost2._id)
+    _.pluck(posts, '_id').should.include(curatedPost3._id)
   });it("returns curated posts in descending order of them being curated", async () => {
     const user = await createDummyUser();
     const now = new Date();
@@ -81,14 +87,16 @@ describe('Posts RSS Views', async () => {
 
     const query = `
       query {
-        PostsList(terms: {view: "curated-rss"}) {
-          _id
+        posts(input:{terms:{view: "curated-rss"}}) {
+          results {
+            _id
+          }
         }
       }
     `;
 
-    const { data: { PostsList } } = await runQuery(query,{},user)
-    const idList = _.pluck(PostsList, '_id');
+    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const idList = _.pluck(posts, '_id');
     idList.indexOf(curatedPost1._id).should.be.below(idList.indexOf(curatedPost2._id));
     idList.indexOf(curatedPost2._id).should.be.below(idList.indexOf(curatedPost3._id));
   });
@@ -103,18 +111,20 @@ describe('Posts RSS Views', async () => {
 
     const query = `
       query {
-        PostsList(terms: {view: "frontpage-rss"}) {
-          _id
+        posts(input:{terms:{view: "frontpage-rss"}}) {
+          results {
+            _id
+          }
         }
       }
     `;
 
-    const { data: { PostsList } } = await runQuery(query,{},user)
-    _.pluck(PostsList, '_id').should.include(frontpagePost1._id)
-    _.pluck(PostsList, '_id').should.include(frontpagePost2._id)
-    _.pluck(PostsList, '_id').should.include(frontpagePost3._id)
-    _.pluck(PostsList, '_id').should.not.include(personalPost1._id)
-    _.pluck(PostsList, '_id').should.not.include(personalPost2._id)
-    _.pluck(PostsList, '_id').should.not.include(personalPost3._id)
+    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    _.pluck(posts, '_id').should.include(frontpagePost1._id)
+    _.pluck(posts, '_id').should.include(frontpagePost2._id)
+    _.pluck(posts, '_id').should.include(frontpagePost3._id)
+    _.pluck(posts, '_id').should.not.include(personalPost1._id)
+    _.pluck(posts, '_id').should.not.include(personalPost2._id)
+    _.pluck(posts, '_id').should.not.include(personalPost3._id)
   });
 })

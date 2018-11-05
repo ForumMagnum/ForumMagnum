@@ -1,32 +1,25 @@
 // # Vulcan Modifications
 
+// schema utils
+import { generateIdResolverMulti, generateIdResolverSingle } from './modules/utils/schemaUtils.js'
+// Permissions
+import './modules/permissions.js';
+
+// Head tags
+import './modules/headtags.js'
+
 // ## Accounts
 import './modules/accounts/modify_accounts_ui.js';
+import './modules/accounts/configuration.js';
 
 // ## Voting
 import './modules/voting/new_vote_types.js';
 import './modules/voting/callbacks.js';
 
-// Alignment Forum
-import './modules/alignment-forum/callbacks.js';
-import './modules/alignment-forum/permissions.js';
-import './modules/alignment-forum/graphql.js';
-import './modules/alignment-forum/users/custom_fields.js';
-import './modules/alignment-forum/posts/custom_fields.js';
-import './modules/alignment-forum/posts/callbacks.js';
-import './modules/alignment-forum/comments/custom_fields.js';
-import './modules/alignment-forum/comments/callbacks.js';
-import './modules/alignment-forum/sequences/custom_fields.js'
-import './modules/alignment-forum/sequences/callbacks.js';
-
-
 // Subscriptions
 import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
-
-// Permissions
-import './modules/permissions.js';
 
 // Notifications
 import Notifications from './collections/notifications/collection.js';
@@ -38,14 +31,6 @@ import './collections/notifications/seed.js';
 import Messages from './collections/messages/collection.js'
 import './collections/messages/views.js';
 import './collections/messages/permissions.js';
-
-import UserSequenceRels from './collections/usersequencerels/collection.js'
-import './collections/usersequencerels/views.js';
-import './collections/usersequencerels/permissions.js';
-
-import UserCollectionRels from './collections/usercollectionrels/collection.js'
-import './collections/usercollectionrels/views.js';
-import './collections/usercollectionrels/permissions.js';
 
 import Conversations from './collections/conversations/collection.js'
 import './collections/conversations/views.js';
@@ -62,16 +47,10 @@ import './collections/reports/views.js'
 import './collections/reports/permissions.js'
 
 // LWEvents
-import LWEvents from './collections/lwevents/collection.js';
-import './collections/lwevents/permissions.js';
-import './collections/lwevents/fragments.js';
-import './collections/lwevents/views.js';
+import { LWEvents } from './collections/lwevents/index.js';
 
 // Bans
-import Bans from './collections/bans/collection.js';
-import './collections/bans/permissions.js';
-import './collections/bans/fragments.js';
-import './collections/bans/admin.js';
+import { Bans } from './collections/bans/index.js'
 // Chapters
 import Sequences from './collections/sequences/collection.js';
 import './collections/sequences/views.js';
@@ -86,13 +65,14 @@ import Localgroups from './collections/localgroups/collection.js'
 import './collections/localgroups/views.js';
 import './collections/localgroups/permissions.js';
 import './collections/localgroups/fragments.js';
-import './collections/localgroups/callbacks.js';
 
 import './modules/fragments.js';
 import './collections/chapters/fragments.js';
 import './collections/sequences/fragments.js';
 import './collections/books/fragments.js';
 import './collections/collections/fragments.js';
+import './modules/alignment-forum/posts/fragments.js';
+import './modules/alignment-forum/users/fragments.js';
 
 import './collections/chapters/views.js';
 
@@ -113,17 +93,14 @@ import './collections/posts/permissions.js';
 import './collections/posts/helpers.js';
 //
 // Users
-import './collections/users/custom_fields.js';
 import './collections/users/helpers.js';
+import './collections/users/custom_fields.js';
 import './collections/users/callbacks.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
 
 // Comments
-import './collections/comments/custom_fields.js';
-import './collections/comments/permissions.js';
-import './collections/comments/views.js';
-import './collections/comments/helpers.js';
+import { Comments } from './collections/comments'
 
 // Votes
 import './collections/votes/custom_fields.js';
@@ -147,6 +124,33 @@ import './search/utils.js';
 import './search/callbacks.js';
 
 import './components.js';
+
+// Alignment Forum
+import './modules/alignment-forum/callbacks.js';
+import './modules/alignment-forum/permissions.js';
+import './modules/alignment-forum/graphql.js';
+
+import './modules/alignment-forum/posts/custom_fields.js';
+import './modules/alignment-forum/posts/callbacks.js';
+import './modules/alignment-forum/posts/helpers.js';
+import './modules/alignment-forum/posts/views.js';
+
+import './modules/alignment-forum/comments/custom_fields.js';
+import './modules/alignment-forum/comments/callbacks.js';
+import './modules/alignment-forum/comments/helpers.js';
+import './modules/alignment-forum/comments/views.js';
+import './modules/alignment-forum/comments/fragments.js';
+
+import './modules/alignment-forum/sequences/custom_fields.js'
+import './modules/alignment-forum/sequences/callbacks.js';
+
+import './modules/alignment-forum/users/callbacks.js';
+import './modules/alignment-forum/users/custom_fields.js';
+import './modules/alignment-forum/users/helpers.js';
+import './modules/alignment-forum/users/views.js';
+
+
+
 //
 export {
   Conversations,
@@ -160,7 +164,8 @@ export {
   Reports,
   Books,
   Bans,
-  UserSequenceRels,
-  UserCollectionRels,
-  Localgroups
+  Localgroups,
+  generateIdResolverMulti,
+  generateIdResolverSingle,
+  Comments
 }

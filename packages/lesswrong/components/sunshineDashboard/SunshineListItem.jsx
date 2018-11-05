@@ -25,9 +25,9 @@ const styles = theme => ({
 
 const SunshineListItem = ({children, classes, hover}) => {
   return <div className={classNames(classes.root, {[classes.hover]:hover})}>
-        <Components.ErrorBoundary>
-          <div className={classes.content}>{ children }</div>
-        </Components.ErrorBoundary>
+          <div className={classes.content}>
+              { children }
+          </div>
       </div>
 };
 

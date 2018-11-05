@@ -83,6 +83,18 @@ const theme = createLWTheme({
       voteScores: {
         margin: "25% 15% 15% 15%"
       }
+    },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem"
+      }
+    },
+    MuiDialogContent: {
+      root: {
+        fontFamily: sansSerifStack,
+        fontSize: "1.16rem",
+        lineHeight: "1.5em"
+      }
     }
   }
 });

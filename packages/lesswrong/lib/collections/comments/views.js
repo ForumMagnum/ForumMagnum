@@ -1,5 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core'
-import { Comments } from 'meteor/example-forum';
+import { Comments } from './index';
 import moment from 'moment';
 
 Comments.addDefaultView(terms => {
@@ -14,6 +14,19 @@ Comments.addDefaultView(terms => {
     }
   });
 })
+
+/*
+
+Comments views
+
+*/
+
+Comments.addView('postComments', function (terms) {
+  return {
+    selector: {postId: terms.postId},
+    options: {sort: {postedAt: -1}}
+  };
+});
 
 Comments.addView('userComments', function (terms) {
   return {

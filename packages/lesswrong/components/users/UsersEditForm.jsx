@@ -8,6 +8,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { withRouter } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
+import { withApollo } from 'react-apollo'
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -26,8 +27,8 @@ const styles = theme => ({
 
 const UsersEditForm = (props) => {
 
-  const { classes, terms, currentUser } = props
-  
+  const { classes, terms, currentUser, client } = props
+
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
     return (
@@ -36,33 +37,26 @@ const UsersEditForm = (props) => {
       </div>
     );
   }
-  if(!Users.options.mutations.edit.check(currentUser,
-      terms.documentId ? {_id: terms.documentId} : {slug: terms.slug}))
-  {
-    // No permission to edit this user (ie, you tried to edit a user other than
-    // yourself but aren't an admin).
+  if (!Users.canEdit(currentUser,
+    terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
     return <FormattedMessage id="app.noPermission"/>;
   }
-  
+
   return (
     <div className="page users-edit-form">
       <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
       <Button color="secondary" variant="outlined" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
-          (error) => props.flash(error ? error.reason : "Sent password reset email to " + props.currentUser.email))
+          (error) => props.flash({ messageString: error ? error.reason : "Sent password reset email to " + props.currentUser.email }))
         }>
         Reset Password
       </Button>
-      {/* <div className="change-password-link">
-        <Components.ModalTrigger size="small" component={<a href="#"><FormattedMessage id="accounts.change_password" /></a>}>
-          <Components.AccountsLoginForm formState={STATES.PASSWORD_CHANGE} />
-        </Components.ModalTrigger>
-      </div> */}
 
       <Components.SmartForm
         collection={Users}
         {...terms}
         successCallback={user => {
           props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
+          client.resetStore()
           props.router.push(Users.getProfileUrl(user));
         }}
         mutationFragment={getFragment('UsersProfile')}
@@ -84,6 +78,6 @@ UsersEditForm.contextTypes = {
 UsersEditForm.displayName = 'UsersEditForm';
 
 registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withUser, withRouter,
+  withMessages, withUser, withApollo, withRouter,
   withStyles(styles, { name: "UsersEditForm" })
 );
