@@ -15,7 +15,7 @@ Comments.addField([
     fieldSchema: {
       type: Boolean,
       optional: true,
-      label: "Alignment Forum",
+      label: "AI Alignment Forum",
       defaultValue: false,
       viewableBy: ['guests'],
       editableBy: ['alignmentForum', 'admins'],
