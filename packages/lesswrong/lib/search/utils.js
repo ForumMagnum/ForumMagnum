@@ -263,7 +263,9 @@ export function algoliaDocumentExport(documents, Collection, indexName, exportFu
     });
     // console.log("Encountered the following errors: ", totalErrors)
   } else {
-    //eslint-disable-next-line no-console
-    console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+    if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+      //eslint-disable-next-line no-console
+      console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+    }
   }
 }
