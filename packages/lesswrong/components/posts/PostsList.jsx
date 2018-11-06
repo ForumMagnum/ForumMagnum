@@ -25,7 +25,13 @@ const PostsList = ({
   error,
   terms}) => {
 
-  const loadingMore = networkStatus === 2;
+  // TODO-Q: Is there a composable way to check whether this is the second
+  //         time that networkStatus === 1, in order to prevent the loading
+  //         indicator showing up on initial pageload?
+  //
+  //         Alternatively, is there a better way of checking that this is
+  //         in fact the best way of checking loading status?
+  const loadingMore = networkStatus === 2 || networkStatus === 1;
   const renderContent = () => {
     if (results && results.length) {
       return <div>
