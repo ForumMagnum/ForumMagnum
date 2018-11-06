@@ -10,6 +10,11 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
     color: theme.palette.text.primary,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '2.5rem',
+      marginBottom: 10,
+      maxWidth: 'calc(100% - 60px)'
+    }
   },
 })
 

@@ -7,8 +7,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 
 const styles = theme => ({
+  voteBlock: {
+    display: 'flex',
+    alignItems: 'center'
+  },
   voteScores: {
-    margin: 5,
+    margin: '0px 10px',
   },
   voteScore: {
     display: 'inline',
