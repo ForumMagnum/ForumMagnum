@@ -7,6 +7,77 @@ import Messages from '../lib/collections/messages/collection.js';
 import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
 import { runQuery } from 'meteor/vulcan:core';
+import { setOnGraphQLError } from 'meteor/vulcan:lib';
+
+
+// Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
+// would dump errors to stderr; instead, we want to (a) suppress that output,
+// (b) assert that particular errors are present in unit tests, and (c) if no
+// error was asserted to be present, assert that there were no errors.
+//
+// This should be called in unit tests from inside describe() but outside of
+// it(). For example:
+//
+//   describe('Thing that uses GraphQL', async () => {
+//     let graphQLErrorCatcher = catchGraphQLErrors();
+//
+//     it('produces a permission-denied error', async () => {
+//       // Do a thing that produces an error
+//
+//       graphQLErrorCatcher.getErrors().should.equal(["app.mutation_not_allowed"]);
+//     })
+//
+//     it('does not produce errors', async () => {
+//       // Do a thing that should not produce errors
+//       // Because this test does not interact with graphQLErrorCatcher, when
+//       // it returns, it will implicitly assert that there were no errors.
+//     })
+//   });
+export const catchGraphQLErrors = () => {
+  class ErrorCatcher {
+    constructor() {
+      this.errors = [];
+      this.errorsRetrieved = false;
+    }
+    
+    getErrors() {
+      this.errorsRetrieved = true;
+      return this.errors;
+    }
+    cleanup() {
+      if (!this.errorsRetrieved && this.errors.length>0) {
+        //eslint-disable-next-line no-console
+        console.error("Unexpected GraphQL errors in test:");
+        //eslint-disable-next-line no-console
+        console.error(this.errors);
+        throw new Error(this.errors);
+      }
+      this.errors = [];
+      this.errorsRetrieved = false;
+    }
+    addErrors(errors) {
+      if (errors) {
+        for (let i=0; i<errors.length; i++)
+          errorCatcher.errors.push(errors[i]);
+      }
+    }
+  }
+  
+  let errorCatcher = new ErrorCatcher();
+  
+  beforeEach(() => {
+    setOnGraphQLError((errors) => {
+      errorCatcher.addErrors(errors);
+    });
+  });
+  afterEach(() => {
+    errorCatcher.cleanup();
+    setOnGraphQLError(null);
+  });
+  
+  return errorCatcher;
+};
+
 
 export const createDefaultUser = async() => {
   // Creates defaultUser if they don't already exist
