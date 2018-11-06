@@ -10,7 +10,6 @@ import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
-import pickBy from 'lodash/pickBy';
 import htmlToText from 'html-to-text';
 import cheerio from 'cheerio'
 

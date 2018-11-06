@@ -1,8 +1,4 @@
 accounts-base@1.4.3
-accounts-facebook@1.3.2
-accounts-github@1.4.2
-accounts-google@1.3.2
-accounts-oauth@1.1.16
 accounts-password@1.5.1
 allow-deny@1.1.0
 autoupdate@1.5.0
@@ -32,12 +28,9 @@ ecmascript-runtime-server@0.7.1
 ejson@1.1.0
 email@1.2.3
 es5-shim@4.8.0
-facebook-oauth@1.5.0
 fetch@0.1.0
 fourseven:scss@4.9.0
 geojson-utils@1.0.10
-github-oauth@1.2.2
-google-oauth@1.2.6
 hot-code-push@1.0.4
 html-tools@1.0.11
 htmljs@1.0.11
@@ -63,8 +56,6 @@ mongo-dev-server@1.1.0
 mongo-id@1.0.7
 npm-bcrypt@0.9.3
 npm-mongo@3.1.1
-oauth@1.2.3
-oauth2@1.2.1
 ordered-dict@1.1.0
 percolatestudio:synced-cron@1.1.0
 practicalmeteor:mocha-core@1.0.1
