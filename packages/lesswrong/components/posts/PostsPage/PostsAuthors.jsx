@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 const styles = theme => ({
   root: {
     textAlign: 'left',
+    display: 'inline',
     ...theme.typography.postStyle
   },
   authorName: {

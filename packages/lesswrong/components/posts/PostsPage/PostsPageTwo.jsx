@@ -18,6 +18,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
+import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
     root: {
@@ -27,10 +28,21 @@ const styles = theme => ({
       fontSize: 20,
       marginLeft: 'auto',
       marginRight: 'auto',
+      marginTop: 80,
+      [theme.breakpoints.down('sm')]: {
+        marginTop: 40
+      }
     },
     header: {
       position: 'relative',
-      marginBottom: 40,
+      marginBottom: 80,
+      [theme.breakpoints.down('sm')]: {
+        marginBottom: 30
+      }
+    },
+    secondaryInfo: {
+      fontSize: '1.4rem',
+      width: 'calc(100% - 60px)',
     },
     voteTop: {
       position: 'absolute',
@@ -38,6 +50,30 @@ const styles = theme => ({
       left: -72,
       top: -6,
       textAlign: 'center',
+    },
+    mobileVote: {
+      position: 'absolute',
+      top: -14,
+      right: 0,
+      fontSize: '2em',
+      display: 'inline-block',
+      textAlign: 'center',
+    },
+    mobileDate: {
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600]
+    },
+    mobileActions: {
+      display: 'inline-block',
+      marginLeft: 15,
+      color: theme.palette.grey[600],
+    },
+    mobileDivider: {
+      width: '60%',
+      marginTop: 20,
+      marginLeft: 0,
+      borderColor: theme.palette.grey[100]
     },
     postBody: {
       marginBottom: 50,
@@ -72,7 +108,11 @@ const styles = theme => ({
       verticalAlign: 'top',
       display: 'inline-block',
       ...commentBodyStyles(theme)
-    }
+    },
+    inline: {
+      display: 'inline-block'
+    },
+
 })
 
 class PostsPage extends Component {
@@ -81,7 +121,8 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox } = Components
+      PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, HorizontalPostsVote, FromNowDate,
+      PostsPageMobileActions } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -101,18 +142,42 @@ class PostsPage extends Component {
 
           {/* Header/Title */}
           <div className={classes.header}>
-            <PostsPageTitle post={post} />
-            <div className={classes.voteTop}>
-              <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-            </div>
-            {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
             <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-            <PostsAuthors post={post}/>
+            <PostsPageTitle post={post} />
+            <span className={classes.mobileVote}>
+              <Hidden mdUp implementation="css">
+                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              </Hidden>
+            </span>
+            <Hidden smDown implementation="css">
+              <div className={classes.voteTop}>
+                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              </div>
+            </Hidden>
+            {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+            <div className={classes.secondaryInfo}>
+              <span className={classes.inline}><PostsAuthors post={post}/></span>
+              <span className={classes.mobileDate}>
+                <Hidden mdUp implementation="css">
+                  <FromNowDate date={post.postedAt}/>
+                </Hidden>
+              </span>
+              <span className={classes.mobileActions}>
+                <Hidden mdUp implementation="css">
+                  <PostsPageMobileActions post={post} />
+                </Hidden>
+              </span>
+              <Hidden mdUp implementation="css">
+                <hr className={classes.mobileDivider} />
+              </Hidden>
+            </div>
           </div>
 
           {/* Body */}
           <div className={classes.postBody}>
-            <PostsPageMetadata post={post} />
+            <Hidden smDown implementation="css">
+              <PostsPageMetadata post={post} />
+            </Hidden>
             { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
             <div className={classes.postContent}>
               <LinkPostMessage post={post} />

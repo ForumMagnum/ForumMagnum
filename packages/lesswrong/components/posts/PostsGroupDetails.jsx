@@ -3,15 +3,32 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import { Localgroups } from '../../lib/index.js';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  title: {
+    display: 'inline-block',
+    fontSize: 22,
+    verticalAlign: '-webkit-baseline-middle',
+    fontVariant: 'small-caps',
+    lineHeight: '24px',
+    color: 'rgba(0,0,0,0.5)',
+    marginTop: -10,
+  },
+  root: {
+    position: 'absolute',
+    top: -40,
+    left: -20,
+  }
+})
 
 class PostsGroupDetails extends Component {
   render() {
-    const post = this.props.post;
-    if (this.props.document) {
-      return <div className="posts-page-group-details">
-        <div className="posts-page-group-title">
-          {post && post.groupId && <Link to={'/groups/' + post.groupId }>{ this.props.document.name }</Link>}
+    const { post, classes, document } = this.props
+    if (document) {
+      return <div className={classes.root}>
+        <div className={classes.title}>
+          {post && post.groupId && <Link to={'/groups/' + post.groupId }>{ document.name }</Link>}
         </div>
       </div>
     } else {
@@ -29,4 +46,4 @@ const options = {
   ssr: true,
 }
 
-registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withDocument, options]);
+registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withDocument, options], withStyles(styles, {name: "PostsGroupDetails"}));

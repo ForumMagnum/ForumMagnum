@@ -1,6 +1,5 @@
 import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import classNames from 'classnames';
 import { Posts } from '../../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles'
 import withUser from '../../common/withUser'
@@ -8,6 +7,34 @@ import withUser from '../../common/withUser'
 const styles = theme => ({
   metadata: {
     ...theme.typography.postStyle,
+    position: 'absolute',
+    right: '100%',
+    width: 200,
+    paddingRight: 30,
+    textAlign: 'right',
+    color: 'rgba(0,0,0,0.5)',
+  },
+  date: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'rgba(0,0,0,0.5)',
+    marginBottom: -5
+  },
+  comments: {
+    fontSize: 14,
+  },
+  actions: {
+    display: 'inline',
+    padding: '0 5px',
+    lineHeight: '20px',
+    fontSize: 14,
+    "@media print": {
+      display: 'none'
+    },
+    [theme.breakpoints.up('lg')]: {
+      display: 'block',
+      padding: 0
+    }
   },
   eventTimes: {
     marginTop: "5px",
@@ -34,8 +61,8 @@ const styles = theme => ({
 const PostsPageMetadata = ({classes, post, currentUser}) => {
   const { PostsEdit, PostsPageAdminActions } = Components
   const { isEvent, location, contactInfo, postedAt } = post
-  return <div className={classNames("posts-page-content-body-metadata", classes.metadata)}>
-    <div className="posts-page-content-body-metadata-date">
+  return <div className={classes.metadata}>
+    <div className={classes.date}>
       { isEvent ?
         <span>
           <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
@@ -49,19 +76,12 @@ const PostsPageMetadata = ({classes, post, currentUser}) => {
         </div>
       }
     </div>
-    <div className="posts-page-content-body-metadata-comments">
+    <div className={classes.comments}>
       <a href="#comments">{ getCommentCountStr(post) }</a>
     </div>
-    <div className="posts-page-content-body-metadata-actions">
+    <div className={classes.actions}>
       { Posts.canEdit(currentUser,post) && <PostsEdit post={post}/>}
       <PostsPageAdminActions post={post} />
-      {/* {Users.canDo(this.props.currentUser, "posts.edit.all") ?
-        <div className="posts-page-content-body-metadata-action">
-          <Components.DialogGroup title="Stats" trigger={<Link>Stats</Link>}>
-        <Components.PostVotesInfo documentId={ post._id } />
-          </Components.DialogGroup>
-        </div> : null
-      } */}
     </div>
   </div>
 }
