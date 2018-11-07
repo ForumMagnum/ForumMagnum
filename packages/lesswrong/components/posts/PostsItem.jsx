@@ -66,7 +66,39 @@ const styles = theme => ({
   },
   unreadComments: {
     color: theme.palette.secondary.light,
-  }
+  },
+  
+  recentCommentsTitle: {
+    padding: "10px 0",
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // Used in renderHighlightMenu
+  ////////////////////////////////////////////////////////////////////////////
+  highlightFooter: {
+    padding: "35px 0 0px",
+    textAlign: "center",
+    clear: "both",
+    overflow: "auto",
+  },
+  
+  highlightFooterButton: {
+    color: "rgba(0,0,0,.6)",
+    fontSize: "12px",
+    cursor: "pointer",
+    position: "absolute",
+    padding: "10px 0",
+    bottom: 0,
+    height: 35,
+    background: "white",
+    borderTop: "solid 1px rgba(0,0,0,.05)",
+
+    "&:hover": {
+      backgroundColor: "rgb(240,240,240)",
+    }
+  },
 })
 
 const isSticky = (post, terms) => {
@@ -139,16 +171,17 @@ class PostsItem extends PureComponent {
   }
 
   renderHighlightMenu = () => {
+    let { classes } = this.props;
     return (
-      <div className="posts-item-highlight-footer" >
-        <span className="posts-item-hide-highlight" onClick={this.toggleHighlight}>
+      <div className={classes.highlightFooter}>
+        <span className={classNames(classes.highlightFooterButton, "posts-item-hide-highlight")} onClick={this.toggleHighlight}>
           <Icon className={classNames("material-icons")}>
             subdirectory_arrow_left
           </Icon>
           Collapse
         </span>
         <Link to={this.getPostLink()}>
-          <span className="posts-item-view-full-post">
+          <span className={classNames(classes.highlightFooterButton, "posts-item-view-full-post")}>
             Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
           </span>
         </Link>
@@ -168,9 +201,6 @@ class PostsItem extends PureComponent {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
 
     let commentCount = Posts.getCommentCount(post)
-
-    let postClass = "posts-item";
-    if (this.state.showHighlight) postClass += " show-highlight";
 
     const renderCommentsButton = () => {
       const read = lastVisitedAt;
@@ -195,14 +225,15 @@ class PostsItem extends PureComponent {
       )
     }
 
-    let paperStyle =
-      (this.state.showNewComments || this.state.showHighlight)
-      ? classes.paperExpanded
-      : classes.paperNotExpanded
-
     return (
         <Paper
-          className={classNames(postClass, paperStyle)}
+          className={classNames(
+            "posts-item",
+            (this.state.showNewComments || this.state.showHighlight)
+              ? classes.paperExpanded
+              : classes.paperNotExpanded,
+            { "show-highlight": this.state.showHighlight }
+          )}
           elevation={0}
           square={true}
         >
@@ -261,7 +292,7 @@ class PostsItem extends PureComponent {
                   View All Comments
                 </Link>
               </div>
-              <div className="posts-item-recent-comments-title">Recent Comments</div>
+              <div className={classes.recentCommentsTitle}>Recent Comments</div>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={lastVisitedAt}
