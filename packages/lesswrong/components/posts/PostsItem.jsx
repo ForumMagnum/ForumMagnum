@@ -74,8 +74,17 @@ const styles = theme => ({
     fontWeight: 600,
   },
   
+  collapseIcon: {
+    fontSize: "12px !important",
+    height: 12,
+    transform: "rotate(90deg)",
+    marginRight: 5,
+    top: 1,
+    color: "rgba(0,0,0,.4) !important",
+  },
+  
   ////////////////////////////////////////////////////////////////////////////
-  // Used in renderHighlightMenu
+  // Used in renderHighlightMenu (when you click Show Highlight)
   ////////////////////////////////////////////////////////////////////////////
   highlightFooter: {
     padding: "35px 0 0px",
@@ -98,6 +107,28 @@ const styles = theme => ({
     "&:hover": {
       backgroundColor: "rgb(240,240,240)",
     }
+  },
+  hideHighlight: {
+    position: "absolute",
+    left: 0,
+    textAlign: "center",
+    width: "50%",
+    borderRight: "solid 1px rgba(0,0,0,.05)",
+  },
+  viewFullPost: {
+    right: 0,
+    textAlign: "center",
+    width: "50%",
+  },
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // Used in the New Comments view (when you click the comments icon)
+  ////////////////////////////////////////////////////////////////////////////
+  newCommentsFooter: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    left: 0,
   },
 })
 
@@ -170,18 +201,19 @@ class PostsItem extends PureComponent {
     // }
   }
 
+  // Render the thing that appears when you click "Show Highlight"
   renderHighlightMenu = () => {
     let { classes } = this.props;
     return (
       <div className={classes.highlightFooter}>
-        <span className={classNames(classes.highlightFooterButton, "posts-item-hide-highlight")} onClick={this.toggleHighlight}>
-          <Icon className={classNames("material-icons")}>
+        <span className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
+          <Icon className={classes.collapseIcon}>
             subdirectory_arrow_left
           </Icon>
           Collapse
         </span>
         <Link to={this.getPostLink()}>
-          <span className={classNames(classes.highlightFooterButton, "posts-item-view-full-post")}>
+          <span className={classNames(classes.highlightFooterButton, classes.viewFullPost)}>
             Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
           </span>
         </Link>
@@ -283,7 +315,7 @@ class PostsItem extends PureComponent {
             <div className="posts-item-new-comments-section">
               <div className="post-item-new-comments-header">
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <Icon className={classNames("material-icons")}>
+                  <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
@@ -299,9 +331,9 @@ class PostsItem extends PureComponent {
                 terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
-              <div className="post-item-new-comments-footer">
+              <div className={classes.newCommentsFooter}>
                 <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <Icon className={classNames("material-icons")}>
+                  <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
