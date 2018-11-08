@@ -199,50 +199,6 @@
 }
 
 //////////////////////////////////////////////////////
-// Post Item                                        //
-//////////////////////////////////////////////////////
-
-.posts-item {
-  .posts-item-content {
-    display: flex;
-    align-items: stretch;
-    cursor:pointer;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.03) !important;
-    }
-  }
-
-  .posts-item-meta {
-    display: block;
-    color: rgba(0,0,0,0.55);
-    width:100%;
-    max-width: 570px;
-    padding-bottom:5px;
-
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    @include max-tiny() {
-      width:320px;
-      padding-left:3px;
-    }
-    .posts-item-show-highlight-button {
-      opacity:0;
-      margin-left:4px;
-    }
-    &:hover {
-      @include mui-breakpoint-up-md {
-        cursor: pointer;
-        .posts-item-show-highlight-button {
-          opacity:.7;
-          margin-left:4px;
-        }
-      }
-    }
-  }
-}
-
-//////////////////////////////////////////////////////
 // Post Page                                        //
 //////////////////////////////////////////////////////
 

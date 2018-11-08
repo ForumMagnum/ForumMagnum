@@ -18,10 +18,17 @@ import Paper from '@material-ui/core/Paper';
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    display: "flex",
+    alignAtems: "stretch",
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.03) !important",
+    },
   },
   postsItem: {
     position: "relative",
@@ -50,6 +57,33 @@ const styles = theme => ({
     padding:theme.spacing.unit*2,
     ...postHighlightStyles(theme),
   },
+  
+  meta: {
+    display: "block",
+    color: "rgba(0,0,0,0.55)",
+    width: "100%",
+    maxWidth: 570,
+    paddingBottom: 5,
+
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    
+    [legacyBreakpoints.maxTiny]: {
+      width: 320,
+      paddingLeft: 3,
+    },
+    "&:hover": {
+      [theme.breakpoints.up('md')]: {
+        cursor: "pointer",
+        "$showHighlightButton": {
+          opacity: 0.7,
+          marginLeft: 4,
+        }
+      }
+    }
+  },
+  
   content: {
     paddingLeft:10,
     paddingTop:10,
@@ -106,8 +140,12 @@ const styles = theme => ({
   },
   
   ////////////////////////////////////////////////////////////////////////////
-  // Used in renderHighlightMenu (when you click Show Highlight)
+  // Used for the highlight (in renderHighlightMenu, and the button)
   ////////////////////////////////////////////////////////////////////////////
+  showHighlightButton: {
+    opacity: 0,
+    marginLeft: 4,
+  },
   highlightFooter: {
     padding: "35px 0 0px",
     textAlign: "center",
@@ -345,7 +383,6 @@ class PostsItem extends PureComponent {
         >
           <div className={classNames(
             classes.root,
-            "posts-item-content",
             { [classes.contentShowHighlight]: this.state.showHighlight }
           )}>
 
@@ -353,10 +390,10 @@ class PostsItem extends PureComponent {
               <Link to={this.getPostLink()}>
                 <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
               </Link>
-              <div onClick={this.toggleHighlight} className="posts-item-meta">
+              <div onClick={this.toggleHighlight} className={classes.meta}>
                 <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
                 <Components.ShowOrHideHighlightButton
-                  className={"posts-item-show-highlight-button"}
+                  className={classes.showHighlightButton}
                   open={this.state.showHighlight}/>
               </div>
             </div>
