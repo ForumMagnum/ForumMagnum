@@ -167,7 +167,6 @@ const styles = theme => ({
   },
   newCommentsActions: {
     color: "rgba(0,0,0,.5)",
-    padding: "0 15px",
     fontSize: "12px",
     cursor: "pointer",
     padding: 10,
@@ -339,22 +338,9 @@ class PostsItem extends PureComponent {
               </Link>
               <div onClick={this.toggleHighlight} className="posts-item-meta">
                 <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
-                <span className="posts-item-show-highlight-button">
-                  { this.state.showHighlight ?
-                    <Components.MetaInfo>
-                      Hide Highlight
-                      <Icon className={classNames("material-icons","hide-highlight-button")}>
-                        subdirectory_arrow_left
-                      </Icon>
-                    </Components.MetaInfo>
-                  :
-                  <Components.MetaInfo>
-                    Show Highlight
-                    <Icon className={classNames("material-icons","show-highlight-button")}>
-                      subdirectory_arrow_left
-                    </Icon>
-                  </Components.MetaInfo>  }
-                </span>
+                <Components.ShowOrHideHighlightButton
+                  className={"posts-item-show-highlight-button"}
+                  open={this.state.showHighlight}/>
               </div>
             </div>
             <Components.CategoryDisplay
