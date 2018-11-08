@@ -36,6 +36,15 @@ const styles = theme => ({
     },
   },
   
+  paperShowHighlight: {
+    "&:hover": {
+      backgroundColor: "white !important",
+    }
+  },
+  contentShowHighlight: {
+    background: "white !important",
+  },
+  
   highlight: {
     maxWidth:570,
     padding:theme.spacing.unit*2,
@@ -159,6 +168,12 @@ const styles = theme => ({
   ////////////////////////////////////////////////////////////////////////////
   // Used in the New Comments view (when you click the comments icon)
   ////////////////////////////////////////////////////////////////////////////
+  newCommentsSection: {
+    backgroundColor: "rgba(0,0,0,.05)",
+    padding: "7px 9px 25px 9px",
+  },
+  newCommentsHeader: {
+  },
   newCommentsFooter: {
     position: "absolute",
     bottom: 0,
@@ -323,14 +338,16 @@ class PostsItem extends PureComponent {
             (this.state.showNewComments || this.state.showHighlight)
               ? classes.paperExpanded
               : classes.paperNotExpanded,
-            { "show-highlight": this.state.showHighlight }
+            { [classes.paperShowHighlight]: this.state.showHighlight }
           )}
           elevation={0}
           square={true}
         >
-          <div
-            className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
-          >
+          <div className={classNames(
+            classes.root,
+            "posts-item-content",
+            { [classes.contentShowHighlight]: this.state.showHighlight }
+          )}>
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
@@ -358,8 +375,8 @@ class PostsItem extends PureComponent {
           }
 
           { this.state.showNewComments &&
-            <div className="posts-item-new-comments-section">
-              <div className="post-item-new-comments-header">
+            <div className={classes.newCommentsSection}>
+              <div className={classes.newCommentsHeader}>
                 <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
