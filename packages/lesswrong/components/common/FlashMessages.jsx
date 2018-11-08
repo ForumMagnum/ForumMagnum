@@ -1,6 +1,6 @@
 import { Components, replaceComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import Snackbar from 'material-ui/Snackbar';
+import Snackbar from '@material-ui/core/Snackbar';
 import { intlShape } from 'meteor/vulcan:i18n';
 
 class FlashMessages extends Component {
@@ -42,7 +42,7 @@ class FlashMessages extends Component {
           open={!!messageObject}
           message={messageObject && messageObject.message}
           autoHideDuration = {4000}
-          onRequestClose={this.handleRequestClose}
+          onClose={this.handleRequestClose}
         />
       </div>
     );

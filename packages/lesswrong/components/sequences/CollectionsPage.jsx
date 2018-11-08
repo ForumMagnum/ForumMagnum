@@ -3,9 +3,22 @@ import PropTypes from 'prop-types'
 import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  startReadingButton: {
+    background: "rgba(0,0,0, 0.05)",
+    
+    // TODO: Pick typography for this button. (This is just the typography that
+    // Material UI v0 happened to use.)
+    fontWeight: 500,
+    fontSize: "14px",
+    fontFamily: "Roboto, sans-serif",
+  },
+});
 
 class CollectionsPage extends Component {
   constructor(props) {
@@ -24,7 +37,7 @@ class CollectionsPage extends Component {
   }
 
   render() {
-    const {document, currentUser, loading} = this.props;
+    const {document, currentUser, loading, classes} = this.props;
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {
@@ -43,7 +56,12 @@ class CollectionsPage extends Component {
             <div className="collections-description">
               {collection.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: collection.htmlDescription}}/>}
             </div>
-            <FlatButton backgroundColor="rgba(0,0,0,0.05)" label={startedReading ? "Continue Reading" : "Start Reading"} containerElement={<Link to={document.firstPageLink} />}/>
+            <Button
+              className={classes.startReadingButton}
+              component={Link} to={document.firstPageLink}
+            >
+              {startedReading ? "Continue Reading" : "Start Reading"}
+            </Button>
           </div>
         </Components.Section>
         <div className="collections-page-content">
@@ -64,4 +82,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withUser);
+registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withUser, withStyles(styles, {name: "CollectionsPage"}));

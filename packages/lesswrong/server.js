@@ -51,3 +51,6 @@ import './lib/events/server.js';
 
 import './lib/modules/indexes.js';
 import './lib/modules/connection_logs.js';
+
+//eslint-disable-next-line no-console
+console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));

@@ -5,6 +5,7 @@ import { InstantSearch, SearchBox } from 'react-instantsearch/dom';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
+import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 
 const styles = theme => ({
   root: {
@@ -63,14 +64,21 @@ class SearchBar extends Component {
       currentQuery: "",
     }
   }
-
-  openSearchInput = () => {
-    this.setState({inputOpen: true});
+  
+  componentDidMount() {
+    this.routerUpdateCallback = () => {
+      this.closeSearch();
+    };
+    addCallback('router.onUpdate', this.routerUpdateCallback);
   }
-
-  closeSearchInput = () => {
-    this.setState({inputOpen: false});
+  
+  componentWillUmount() {
+    if (this.routerUpdateCallback) {
+      removeCallback('router.onUpdate', this.routerUpdateCallback);
+      this.routerUpdateCallback = null;
+    }
   }
+  
 
   openSearchResults = () => {
     this.setState({searchOpen: true});
