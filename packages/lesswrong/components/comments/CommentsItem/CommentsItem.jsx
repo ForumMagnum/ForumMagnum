@@ -121,9 +121,9 @@ class CommentsItem extends Component {
   }
 
   shouldRenderExcerpt = () => {
-    const { truncated, comment } = this.props
+    const { truncated, comment, collapsed } = this.props
     const { expanded } = this.state
-    return truncated && comment.body.length > 300 && !expanded
+    return truncated && comment.body.length > 300 && !expanded && !collapsed
   }
 
   renderCommentBody = () => {
