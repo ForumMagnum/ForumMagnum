@@ -23,6 +23,19 @@ const styles = theme => ({
   root: {
     ...theme.typography.postStyle
   },
+  postsItem: {
+    position: "relative",
+    
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,.025) !important",
+    },
+    
+    "& a:hover, & a:active, & a:focus": {
+      textDecoration: "none",
+      color: "rgba(0,0,0,0.3)",
+    },
+  },
+  
   highlight: {
     maxWidth:570,
     padding:theme.spacing.unit*2,
@@ -122,6 +135,28 @@ const styles = theme => ({
   },
   
   ////////////////////////////////////////////////////////////////////////////
+  // Used on the comments speech-bubble icon/button
+  ////////////////////////////////////////////////////////////////////////////
+  commentsSpeechBubble: {
+    width: 50,
+    cursor: "pointer",
+    position: "relative",
+    flexShrink: 0,
+
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.03) !important",
+    }
+  },
+  newCommentsShown: {
+    backgroundColor: "rgba(0,0,0,.05)",
+  },
+  highlightSelected: {
+    borderLeft: "solid 1px rgba(0,0,0,.05)",
+    backgroundColor: "rgba(0,0,0,.02)",
+  },
+  
+  
+  ////////////////////////////////////////////////////////////////////////////
   // Used in the New Comments view (when you click the comments icon)
   ////////////////////////////////////////////////////////////////////////////
   newCommentsFooter: {
@@ -129,6 +164,30 @@ const styles = theme => ({
     bottom: 0,
     width: "100%",
     left: 0,
+  },
+  newCommentsActions: {
+    color: "rgba(0,0,0,.5)",
+    padding: "0 15px",
+    fontSize: "12px",
+    cursor: "pointer",
+    padding: 10,
+    height: 35,
+    "&:hover": {
+      color: "rgba(0,0,0,.35)",
+      backgroundColor: "rgba(0,0,0,.1)",
+    }
+  },
+  hideComments: {
+    float: "left",
+    textAlign: "center",
+    width: "50%",
+    borderRight: "solid 1px rgba(0,0,0,.05)",
+  },
+  viewAllComments: {
+    float: "right",
+    right: 0,
+    textAlign: "center",
+    width: "50%",
   },
 })
 
@@ -238,10 +297,10 @@ class PostsItem extends PureComponent {
       const read = lastVisitedAt;
       const newComments = lastVisitedAt < lastCommentedAt;
       const commentsButtonClassnames = classNames(
-        "posts-item-comments",
+        classes.commentsSpeechBubble,
         {
-          "selected":this.state.showNewComments,
-          "highlight-selected":this.state.showHighlight
+          [classes.newCommentsShown]: this.state.showNewComments,
+          [classes.highlightSelected]: this.state.showHighlight
         }
       )
 
@@ -261,6 +320,7 @@ class PostsItem extends PureComponent {
         <Paper
           className={classNames(
             "posts-item",
+            classes.postsItem,
             (this.state.showNewComments || this.state.showHighlight)
               ? classes.paperExpanded
               : classes.paperNotExpanded,
@@ -314,13 +374,13 @@ class PostsItem extends PureComponent {
           { this.state.showNewComments &&
             <div className="posts-item-new-comments-section">
               <div className="post-item-new-comments-header">
-                <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
+                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
                 </span>
-                <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
+                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
                   View All Comments
                 </Link>
               </div>
@@ -332,13 +392,13 @@ class PostsItem extends PureComponent {
                 post={post}
               />
               <div className={classes.newCommentsFooter}>
-                <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
+                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
                 </span>
-                <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
+                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
                   View All Comments
                 </Link>
               </div>
