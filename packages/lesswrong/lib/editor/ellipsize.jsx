@@ -19,10 +19,13 @@ export const highlightFromHTML = (html) => {
 };
 
 export const excerptFromHTML = (html) => {
-  return Utils.sanitize(truncatise(html, {
+  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+
+  return Utils.sanitize(truncatise(htmlRemovedStyles, {
     TruncateLength: excerptMaxChars,
     TruncateBy: "characters",
-    Suffix: '... <a className="read-more">(Read More)</a>',
+    Suffix: `... <a className="read-more">(Read More)</a>${styles}`,
   }));
 };
 
