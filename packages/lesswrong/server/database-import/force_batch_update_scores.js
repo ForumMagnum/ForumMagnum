@@ -1,4 +1,4 @@
-/* global Vulcan, Meteor */
+/* global Vulcan */
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 
