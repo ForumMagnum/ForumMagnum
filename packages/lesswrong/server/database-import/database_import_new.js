@@ -16,7 +16,7 @@ import cheerio from 'cheerio'
 const postgresImportDetails = {
   host: 'localhost',
   port: 5432,
-  database: 'oldforum',
+  database: 'oldforum4',
   user: 'jpaddison', // If this is the logged-in user on localhost, no need for password
   password: ''       // Ommitted for obvious reasons
 }

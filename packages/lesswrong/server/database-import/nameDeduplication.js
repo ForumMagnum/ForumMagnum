@@ -1,7 +1,7 @@
 // To be run by copy and pasting into mongodb
-var bulk = db.users.initializeOrderedBulkOp()
-var count = 0
-var aggUsers = db.users.aggregate([
+bulk = db.users.initializeOrderedBulkOp(); count = 0
+errs = []
+aggUsers = db.users.aggregate([
   {$match: {username: /_duplicate/}},
   {
     "$project": {
@@ -11,20 +11,33 @@ var aggUsers = db.users.aggregate([
 ])
 aggUsers.forEach(function(doc) {
   printjson(doc)
+  if (doc.newDisplayname.includes('Davidman') || doc.newDisplayname.includes('Michael_Town')) return
   newDisplayname = doc.newDisplayname.replace(/_duplicate.*/, '')
-  bulk.find({'_id': doc._id}).updateOne({
-    "$set": {
-      "displayName": newDisplayname,
-      "username": newDisplayname,
-      "slug": newDisplayname,
-    }
-  })
-  count++
-  if(count % 200 === 0) {
-    const result = bulk.execute()
-    if (result.writeErrors.length) console.log('writeerrors', result.writeErrors)
-    bulk = db.users.initializeOrderedBulkOp()
+  try {
+    db.users.updateOne({'_id': doc._id}, {
+      "$set": {
+        "displayName": newDisplayname,
+        "username": newDisplayname,
+        "slug": newDisplayname,
+      }
+    })
+  } catch (err) {
+    errs.push(err)
   }
 })
+result = bulk.execute()
+if (result.writeErrors.length) console.log('writeerrors', result.writeErrors)
+
+// if(count > 0) {
+//   const result = bulk.execute()
+//   console.log('result', result)
+//   if (result.writeErrors.length) console.log('writeerrors', result.writeErrors)
+// }
+
 // Clean up queues
-if(count > 0) bulk.execute()
+// count++
+// if(count % 200 === 0) {
+//   const result = bulk.execute()
+//   if (result.writeErrors.length) console.log('writeerrors', result.writeErrors)
+//   bulk = db.users.initializeOrderedBulkOp()
+// }
