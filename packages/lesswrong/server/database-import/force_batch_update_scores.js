@@ -1,4 +1,4 @@
-/* global Vulcan, Meteor */
+/* global Vulcan */
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 
@@ -29,15 +29,19 @@ const executeBulkGetErrors = async bulk => {
 const anyBulkUpdate = async ({collection, documents, update, batchSize=200}) => {
   console.log('any bulk update')
   console.log('collection name', collection.collectionName)
-  let bulk = collection.rawCollection().initializeOrderedBulkOp()
+  // let bulk = collection.rawCollection().initializeUnorderedBulkOp()
   let count = 0
   let totalWriteErrors = []
   for (const document of documents) {
     const updateOperation = update(document)
-    bulk.find({_id: document._id}).updateOne(updateOperation)
-    if (count % batchSize === 0) {
-      const writeErrors = await executeBulkGetErrors(bulk)
+    try {
+      collection.updateOne({_id: document._id}, updateOperation)
+    } catch (err) {
+
     }
+    // if (count % batchSize === 0) {
+      // const writeErrors = await executeBulkGetErrors(bulk)
+    // }
   }
   console.log('fmlman bulk', bulk)
   // update
@@ -60,7 +64,7 @@ const updateBaseScoresCollection = async collection => {
 
 // TODO; wrap vulcan async script
 
-Vulcan.updateBaseScores = async () => {
+Vulcan.updateBaseScores2 = async () => {
   try {
     await updateBaseScoresCollection(Posts)
     // await updateBaseScoresCollection(Comments)
@@ -72,7 +76,7 @@ Vulcan.updateBaseScores = async () => {
 }
 
 import Users from 'meteor/vulcan:users'
-Vulcan.renameDuplicateUsernames = async () => {
+Vulcan.renameDuplicateUsernames2 = async () => {
   const duplicateUsersCursor = Users.find({username: /_duplicate/}, {limit: 1})
   const usersList = duplicateUsersCursor.fetch()
   console.log('usersList', usersList)
