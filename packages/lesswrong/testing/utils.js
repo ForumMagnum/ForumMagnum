@@ -33,7 +33,7 @@ import { setOnGraphQLError } from 'meteor/vulcan:lib';
 //       // it returns, it will implicitly assert that there were no errors.
 //     })
 //   });
-export const catchGraphQLErrors = () => {
+export const catchGraphQLErrors = function() {
   class ErrorCatcher {
     constructor() {
       this.errors = [];
@@ -50,6 +50,8 @@ export const catchGraphQLErrors = () => {
         console.error("Unexpected GraphQL errors in test:");
         //eslint-disable-next-line no-console
         console.error(this.errors);
+        this.errors = [];
+        this.errorsRetrieved = false;
         throw new Error(this.errors);
       }
       this.errors = [];
@@ -57,8 +59,15 @@ export const catchGraphQLErrors = () => {
     }
     addErrors(errors) {
       if (errors) {
-        for (let i=0; i<errors.length; i++)
-          errorCatcher.errors.push(errors[i]);
+        for (let i=0; i<errors.length; i++) {
+          if(errors[i].id) {
+            this.errors.push(errors[i].id);
+          } else if(errors[i].message) {
+            this.errors.push(JSON.parse(errors[i].message).id);
+          } else {
+            this.errors.push(errors[i]);
+          }
+        }
       }
     }
   }
@@ -66,11 +75,13 @@ export const catchGraphQLErrors = () => {
   let errorCatcher = new ErrorCatcher();
   
   beforeEach(() => {
+    console.log("beforeEach");
     setOnGraphQLError((errors) => {
       errorCatcher.addErrors(errors);
     });
   });
   afterEach(() => {
+    console.log("afterEach");
     errorCatcher.cleanup();
     setOnGraphQLError(null);
   });

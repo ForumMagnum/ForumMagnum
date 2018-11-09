@@ -2,12 +2,14 @@ import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
-import { createDummyUser, createDummyPost } from '../../../testing/utils.js'
+import { createDummyUser, createDummyPost, catchGraphQLErrors } from '../../../testing/utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('PostsEdit', async () => {
+  let graphQLerrors = catchGraphQLErrors();
+  
   it("succeeds when owner of post edits title", async () => {
     const user = await createDummyUser()
     const post = await createDummyPost(user)
@@ -45,7 +47,8 @@ describe('PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user2})
     const expectedError = '{"id":"app.operation_not_allowed","value":"check"}'
-    return response.should.be.rejectedWith(expectedError);
+    await response.should.be.rejectedWith(expectedError);
+    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
   });
 });
 
@@ -69,7 +72,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const { data: { posts: {results: posts} } } = runQuery(query,{},user)
     _.pluck(posts, '_id').should.not.include(frontpagePost1._id)
     _.pluck(posts, '_id').should.not.include(frontpagePost2._id)
     _.pluck(posts, '_id').should.not.include(frontpagePost3._id)
@@ -95,7 +98,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const { data: { posts: {results: posts} } } = runQuery(query,{},user)
     const idList = _.pluck(posts, '_id');
     idList.indexOf(curatedPost1._id).should.be.below(idList.indexOf(curatedPost2._id));
     idList.indexOf(curatedPost2._id).should.be.below(idList.indexOf(curatedPost3._id));
@@ -119,7 +122,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const { data: { posts: {results: posts} } } = runQuery(query,{},user)
     _.pluck(posts, '_id').should.include(frontpagePost1._id)
     _.pluck(posts, '_id').should.include(frontpagePost2._id)
     _.pluck(posts, '_id').should.include(frontpagePost3._id)

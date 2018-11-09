@@ -3,7 +3,7 @@ import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails } from '../utils.js'
+import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors } from '../utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -96,7 +96,9 @@ describe('Users.isAllowedToComment --', async () => {
 })
 
 describe('Posts Moderation --', async function() {
+  let graphQLerrors = catchGraphQLErrors();
   this.timeout(10000)
+  
   it('CommentsNew should succeed if user is not in bannedUserIds list', async function() {
     const user = await createDummyUser()
     const post = await createDummyPost()
@@ -128,7 +130,8 @@ describe('Posts Moderation --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
   });
   it('new comment on a post should fail if user in User.bannedUserIds list and post.user is in trustLevel1', async () => {
     const secondUser = await createDummyUser()
@@ -145,7 +148,8 @@ describe('Posts Moderation --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
   });
   it('new comment on a post should succeed if user in User.bannedUserIds list but post.user is NOT in trustLevel1', async () => {
     const secondUser = await createDummyUser()
@@ -168,6 +172,8 @@ describe('Posts Moderation --', async function() {
 });
 
 describe('User moderation fields --', async () => {
+  let graphQLerrors = catchGraphQLErrors();
+  
   it("new trusted users do not have a moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     expect(user.moderationStyle).to.equal(undefined)
@@ -184,7 +190,8 @@ describe('User moderation fields --', async () => {
     }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
   });
   it("non-trusted users cannot set their moderationGuidelines", async () => {
     const user = await createDummyUser()
@@ -198,13 +205,14 @@ describe('User moderation fields --', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
   });
   it("non-trusted users cannot set their moderatorAssistance", async () => {
     const user = await createDummyUser()
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance:"foo"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance:true}) {
           data {
             moderatorAssistance
           }
@@ -212,7 +220,8 @@ describe('User moderation fields --', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
   });
   it("trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
@@ -277,6 +286,8 @@ describe('User moderation fields --', async () => {
 })
 
 describe('PostsEdit bannedUserIds permissions --', async ()=> {
+  let graphQLerrors = catchGraphQLErrors();
+  
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post, and has set moderationStyle", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
     const post = await createDummyPost(user)
@@ -308,7 +319,8 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
   })
   it("PostsEdit bannedUserIds should fail if user in TrustLevel1, has set moderationStyle, and does NOT own post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -325,7 +337,8 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected
+    await response.should.be.rejected
+    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
   })
   it("PostsEdit bannedUserIds should fail if user in trustLevel1, owns post, but has NOT set moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
