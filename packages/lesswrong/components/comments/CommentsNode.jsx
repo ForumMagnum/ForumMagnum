@@ -131,6 +131,7 @@ class CommentsNode extends PureComponent {
           <div className={nodeClass}
             onMouseEnter={this.toggleHover}
             onMouseLeave={this.toggleHover}
+            onDoubleClick={(event) => this.unTruncate(event)}
             id={comment._id}>
             {/*eslint-disable-next-line react/no-string-refs*/}
             <div ref="comment">
@@ -151,7 +152,7 @@ class CommentsNode extends PureComponent {
             </div>
             {!collapsed && <div className="comments-children">
               <div className="comments-parent-scroll" onClick={this.scrollIntoView}></div>
-              {children.map(child =>
+              {children && children.map(child =>
                 <Components.CommentsNode child
                   currentUser={currentUser}
                   comment={child.item}

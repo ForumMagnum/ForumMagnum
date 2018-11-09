@@ -23,18 +23,14 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
   renderRecentComment() {
     const comment = this.props.comment || this.props.document
-    const plaintext = comment.body;
 
-    const expanded = !(!this.state.expanded && plaintext && plaintext.length > 300) || this.props.expanded
-    if (!expanded && plaintext) {
+    if (this.shouldRenderExcerpt) {
       // Add ellipsis to last element of commentExcerpt
-      let commentExcerpt = plaintext.substring(0,300).split("\n\n");
-      const lastElement = commentExcerpt.slice(-1)[0];
-      let paragraphCounter = 0;
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p key={ comment._id + paragraphCounter++}>{text}</p>);
       return <div className="comments-item-text content-body">
-        {commentExcerpt}
-        <p>{lastElement + "..."}<a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> </p>
+        <Components.CommentExcerpt
+          htmlBody={comment.htmlBody}
+          onReadMore={() => this.setState({expanded: true})}
+        />
       </div>
     } else {
       return (

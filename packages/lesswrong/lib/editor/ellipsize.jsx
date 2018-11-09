@@ -25,7 +25,7 @@ export const excerptFromHTML = (html) => {
   return Utils.sanitize(truncatise(htmlRemovedStyles, {
     TruncateLength: excerptMaxChars,
     TruncateBy: "characters",
-    Suffix: `... <a className="read-more">(Read More)</a>${styles}`,
+    Suffix: `... <a>(Read more)</a>${styles}`,
   }));
 };
 
@@ -33,15 +33,3 @@ export const excerptFromMarkdown = (body, mdi) => {
   const htmlBody = mdi.render(body);
   return excerptFromHTML(htmlBody);
 }
-
-export const renderExcerpt = ({key, body, htmlBody, classes, onReadMore}) => {
-  if (!htmlBody)
-    return null;
-
-  const truncatedBody = excerptFromHTML(htmlBody);
-  return <div
-    className={classes.commentStyling}
-    onClick={() => onReadMore()}
-    dangerouslySetInnerHTML={{__html: truncatedBody}}
-  />
-};

@@ -15,7 +15,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import withDialog from '../../common/withDialog'
-import { renderExcerpt } from '../../../lib/editor/ellipsize';
 
 const styles = theme => ({
   root: {
@@ -38,7 +37,7 @@ const styles = theme => ({
     float:"right",
     opacity:.35,
     marginRight:-5
-  }
+  },
 })
 
 class CommentsItem extends Component {
@@ -205,15 +204,14 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { this.shouldRenderExcerpt() ? renderExcerpt({
-              key: comment._id,
-              body: comment.body,
-              htmlBody: comment.htmlBody,
-              classes: classes,
-              onReadMore: () => this.setState({expanded: true}),
-            }) : this.renderCommentBody()}
+            { this.shouldRenderExcerpt() ? (
+              <Components.CommentExcerpt
+                  htmlBody={comment.htmlBody}
+                  onReadMore={() => this.setState({expanded: true})}
+                />
+              ) : this.renderCommentBody()}
           </div>
-          {this.state.showReply && !this.props.collapsed && this.renderReply() }
+          { this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
       )
     } else {
