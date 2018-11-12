@@ -91,6 +91,9 @@ const styles = theme => ({
       marginRight: 15,
     },
     postFooter: {
+      padding: '10px 0px',
+      borderTop: '1px solid rgba(0,0,0,0.2)',
+      borderBottom: '1px solid rgba(0,0,0,0.2)',
       marginBottom: 30,
     },
     draft: {
@@ -121,7 +124,7 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, HorizontalPostsVote, FromNowDate,
+      PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, FromNowDate,
       PostsPageMobileActions } = Components
 
     if (loading) {
