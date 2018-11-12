@@ -14,7 +14,7 @@ const styles = theme => ({
 const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
-  const { MetaInfo, PostsEdit, UsersName, FromNowDate, EventTime, PostsStats, PostsUserAndCoauthors } = Components;
+  const { MetaInfo, PostsEdit, FromNowDate, EventTime, PostsStats, PostsUserAndCoauthors } = Components;
 
   return <span className={classNames({[classes.read]:read})}>
       { Posts.canEdit(currentUser,post) && <MetaInfo>
