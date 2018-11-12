@@ -88,6 +88,7 @@ export const catchGraphQLErrors = function(before, after) {
 // given an array of errors, asserts that all of them are permissions flavored.
 export const assertIsPermissionsFlavoredError = (error) => {
   if (!isPermissionsFlavoredError(error)) {
+    //eslint-disable-next-line no-console
     console.error(JSON.stringify(error));
     throw new Error("Error is not permissions-flavored");
   }
@@ -111,7 +112,6 @@ const isPermissionsFlavoredError = (error) => {
     return true;
   }
   
-  let message = error.message;
   if (!error.message) return false;
   let errorData = null;
   try {
