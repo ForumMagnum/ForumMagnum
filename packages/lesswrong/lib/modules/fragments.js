@@ -165,6 +165,7 @@ registerFragment(`
     afLastCommentedAt
     afSticky
     voteCount
+    question
   }
 `);
 

@@ -6,23 +6,25 @@ import Dialog from 'material-ui/Dialog';
 
 class ReportForm extends PureComponent {
   render() {
+    const { userId, postId, commentId, onClose, title, link } = this.props
+
     return (
       <Dialog
-        title={this.props.title}
+        title={title}
         modal={false}
         open={true}
-        onRequestClose={this.props.onRequestClose}
+        onRequestClose={onClose}
       >
         <Components.SmartForm
           collection={Reports}
           mutationFragment={getFragment('unclaimedReportsList')}
           prefilledProps={{
-            userId: this.props.userId,
-            postId: this.props.postId,
-            commentId: this.props.commentId,
-            link: this.props.link
+            userId: userId,
+            postId: postId,
+            commentId: commentId,
+            link: link
           }}
-          successCallback={this.props.onRequestClose}
+          successCallback={onClose}
         />
       </Dialog>
     )
