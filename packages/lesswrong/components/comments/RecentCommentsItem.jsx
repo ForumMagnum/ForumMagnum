@@ -21,28 +21,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     this.setState({showParent:!this.state.showParent})
   }
 
-  renderRecentComment() {
-    const comment = this.props.comment || this.props.document
-
-    if (this.shouldRenderExcerpt) {
-      // Add ellipsis to last element of commentExcerpt
-      return <div className="comments-item-text content-body">
-        <Components.CommentExcerpt
-          htmlBody={comment.htmlBody}
-          onReadMore={() => this.setState({expanded: true})}
-        />
-      </div>
-    } else {
-      return (
-        <div className="comments-item-text content-body" >
-          <Components.CommentBody comment={comment}/>
-        </div>
-      )
-    }
-  }
-
   render() {
-    const { comment, showTitle, level=1 } = this.props;
+    const { comment, showTitle, level=1, truncated, collapsed } = this.props;
 
     if (comment && comment.post) {
       return (
@@ -95,7 +75,15 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
               </div>
-              {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
+              {this.state.showEdit ?
+                this.renderEdit()
+                :
+                <Components.CommentBody
+                  truncated={truncated}
+                  collapsed={collapsed}
+                  comment={comment}
+                />
+              }
             </div>
           </div>
           {this.state.showReply ? this.renderReply() : null}

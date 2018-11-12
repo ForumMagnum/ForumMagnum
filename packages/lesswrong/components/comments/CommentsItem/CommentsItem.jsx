@@ -112,33 +112,9 @@ class CommentsItem extends Component {
     this.props.scrollIntoView(event);
     return false;
   }
-
-  expand = (event) => {
-    event.preventDefault()
-    event.stopPropagation();
-    this.setState({truncated: false, collapsed: false, expanded: true})
-  }
-
-  shouldRenderExcerpt = () => {
-    const { truncated, comment, collapsed } = this.props
-    const { expanded } = this.state
-    return truncated && comment.body.length > 300 && !expanded && !collapsed
-  }
-
-  renderCommentBody = () => {
-    const { collapsed, comment } = this.props
-    if (collapsed) {
-      return ""
-    } else {
-      return <div>
-        {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
-        {!comment.deleted && this.renderCommentBottom()}
-      </div>
-    }
-  }
-
+  
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
     if (comment && post) {
       return (
@@ -204,12 +180,12 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { this.shouldRenderExcerpt() ? (
-              <Components.CommentExcerpt
-                  htmlBody={comment.htmlBody}
-                  onReadMore={() => this.setState({expanded: true})}
-                />
-              ) : this.renderCommentBody()}
+            <Components.CommentBody
+              truncated={truncated}
+              collapsed={collapsed}
+              comment={comment}
+            />
+            {!comment.deleted && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
