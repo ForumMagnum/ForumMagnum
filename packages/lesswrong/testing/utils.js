@@ -33,7 +33,7 @@ import { setOnGraphQLError } from 'meteor/vulcan:lib';
 //       // it returns, it will implicitly assert that there were no errors.
 //     })
 //   });
-export const catchGraphQLErrors = function() {
+export const catchGraphQLErrors = function(before, after) {
   class ErrorCatcher {
     constructor() {
       this.errors = [];
@@ -57,36 +57,81 @@ export const catchGraphQLErrors = function() {
       this.errors = [];
       this.errorsRetrieved = false;
     }
-    addErrors(errors) {
-      if (errors) {
-        for (let i=0; i<errors.length; i++) {
-          if(errors[i].id) {
-            this.errors.push(errors[i].id);
-          } else if(errors[i].message) {
-            this.errors.push(JSON.parse(errors[i].message).id);
-          } else {
-            this.errors.push(errors[i]);
-          }
+    addError(error) {
+      if (Array.isArray(error)) {
+        for (let i=0; i<error.length; i++) {
+          this.errors.push(error);
         }
+      } else {
+        this.errors.push(error);
       }
     }
   }
   
   let errorCatcher = new ErrorCatcher();
   
-  beforeEach(() => {
-    console.log("beforeEach");
+  (before ? before : beforeEach)(() => {
     setOnGraphQLError((errors) => {
-      errorCatcher.addErrors(errors);
+      errorCatcher.addError(errors);
     });
   });
-  afterEach(() => {
-    console.log("afterEach");
+  (after ? after : afterEach)(() => {
     errorCatcher.cleanup();
     setOnGraphQLError(null);
   });
   
   return errorCatcher;
+};
+
+// Given an error thrown from GraphQL, assert that it is permissions-flavored
+// (as opposed to a type error, syntax error, or random unrecognized thing). If
+// given an array of errors, asserts that all of them are permissions flavored.
+export const assertIsPermissionsFlavoredError = (error) => {
+  if (!isPermissionsFlavoredError(error)) {
+    console.error(JSON.stringify(error));
+    throw new Error("Error is not permissions-flavored");
+  }
+}
+
+const isPermissionsFlavoredError = (error) => {
+  if (Array.isArray(error)) {
+    if (error.length === 0)
+      return false;
+    for(let i=0; i<error.length; i++) {
+      if (!isPermissionsFlavoredError(error[i]))
+        return false;
+    }
+    return true;
+  }
+  if (!error) {
+    return false;
+  }
+  
+  if ("app.validation_error" in error) {
+    return true;
+  }
+  
+  let message = error.message;
+  if (!error.message) return false;
+  let errorData = null;
+  try {
+    errorData = JSON.parse(error.message);
+  } catch(e) {
+    return false;
+  }
+  if (!errorData) return false;
+  if (Array.isArray(errorData)) errorData = errorData[0];
+  let id = errorData.id;
+  switch (id)
+  {
+  case 'errors.disallowed_property_detected':
+  case 'app.operation_not_allowed':
+  case 'app.mutation_not_allowed':
+  case 'app.user_cannot_moderate_post':
+    return true;
+  default:
+    return false;
+  }
 };
 
 
@@ -196,12 +241,14 @@ export const clearDatabase = async () => {
 }
 
 export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType}) => {
-  if (!newValue) {
+  if (newValue === undefined) {
     newValue = Random.id()
   }
+  const newValueJson = JSON.stringify(newValue);
+  
   const query = `
     mutation {
-      update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:"${newValue}"}) {
+      update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueJson}}) {
         data {
           ${fieldName}
         }
@@ -209,21 +256,22 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
     }
   `;
   const response = runQuery(query,{},{currentUser:user})
-  return response.should.be.rejected;
+  await response.should.be.rejected;
 }
 
 export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue}) => {
 
   let comparedValue = newValue
 
-  if (!newValue) {
+  if (newValue === undefined) {
     comparedValue = Random.id()
-    newValue = `"${comparedValue}"`
+    newValue = comparedValue;
   }
+  const newValueJson = JSON.stringify(newValue);
 
   const query = `
       mutation {
-        update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValue}}) {
+        update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueJson}}) {
           data {
             ${fieldName}
           }

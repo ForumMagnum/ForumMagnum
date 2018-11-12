@@ -3,7 +3,7 @@ import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors } from '../utils.js'
+import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -131,7 +131,7 @@ describe('Posts Moderation --', async function() {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     await response.should.be.rejected;
-    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it('new comment on a post should fail if user in User.bannedUserIds list and post.user is in trustLevel1', async () => {
     const secondUser = await createDummyUser()
@@ -149,7 +149,7 @@ describe('Posts Moderation --', async function() {
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
     await response.should.be.rejected;
-    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it('new comment on a post should succeed if user in User.bannedUserIds list but post.user is NOT in trustLevel1', async () => {
     const secondUser = await createDummyUser()
@@ -191,7 +191,7 @@ describe('User moderation fields --', async () => {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     await response.should.be.rejected;
-    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("non-trusted users cannot set their moderationGuidelines", async () => {
     const user = await createDummyUser()
@@ -206,7 +206,7 @@ describe('User moderation fields --', async () => {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     await response.should.be.rejected;
-    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("non-trusted users cannot set their moderatorAssistance", async () => {
     const user = await createDummyUser()
@@ -221,7 +221,7 @@ describe('User moderation fields --', async () => {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     await response.should.be.rejected;
-    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
@@ -281,12 +281,13 @@ describe('User moderation fields --', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user2})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 })
 
 describe('PostsEdit bannedUserIds permissions --', async ()=> {
-  let graphQLerrors = catchGraphQLErrors();
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post, and has set moderationStyle", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -320,7 +321,7 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     await response.should.be.rejected;
-    graphQLerrors.getErrors().should.deep.equal(["errors.disallowed_property_detected"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit bannedUserIds should fail if user in TrustLevel1, has set moderationStyle, and does NOT own post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -338,7 +339,7 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     await response.should.be.rejected
-    graphQLerrors.getErrors().should.deep.equal(["app.operation_not_allowed"]);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit bannedUserIds should fail if user in trustLevel1, owns post, but has NOT set moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
@@ -354,11 +355,14 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
 })
 
 describe('UsersEdit bannedUserIds permissions --', async ()=> {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
+  
   it("usersEdit bannedUserIds should succeed if user in trustLevel1", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const testBannedUserIds = "test"
@@ -389,7 +393,8 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user2})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
 })
 
@@ -455,6 +460,7 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
 })
 
 describe('Comments deleted permissions --', async function() {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   this.timeout(10000)
   it("updateComment – Deleted should succeed if user in sunshineRegiment", async function() {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
@@ -470,16 +476,18 @@ describe('Comments deleted permissions --', async function() {
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
-    return userUpdateFieldFails({ user:user, document:comment,
+    await userUpdateFieldFails({ user:user, document:comment,
       fieldName:'deleted', newValue: true, collectionType: "Comment"
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("CommentsEdit set Deleted should fail if user is alignmentForum", async () => {
     const user = await createDummyUser({groups:["alignmentForum"]})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
-    return userUpdateFieldFails({ user:user, document:comment, fieldName:'deleted', newValue: true, collectionType: "Comment"})
+    await userUpdateFieldFails({ user:user, document:comment, fieldName:'deleted', newValue: true, collectionType: "Comment"})
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("moderateComment set deleted should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
@@ -526,7 +534,8 @@ describe('Comments deleted permissions --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("set deleted should fail if user in trustLevel1, has set moderationStyle but does NOT own post", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
@@ -541,7 +550,8 @@ describe('Comments deleted permissions --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("set deleted should fail if user has set moderationStyle, owns post but is NOT in trustLevel1", async () => {
     const user = await createDummyUser({moderationStyle:"easy"})
@@ -556,11 +566,13 @@ describe('Comments deleted permissions --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
 })
 
 describe('CommentLock permissions --', async ()=> {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit.commentLock should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
     const author = await createDummyUser()
@@ -592,7 +604,8 @@ describe('CommentLock permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit.commentLock should fail if author not in canCommentLock", async () => {
     const author = await createDummyUser()
@@ -607,9 +620,11 @@ describe('CommentLock permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:author})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit.commentLock should fail if author in canCommentLock", async () => {
+    // FIXME: Description says "should fail", but test body says it succeeds?
     const author = await createDummyUser({groups:["canCommentLock"]})
     const post = await createDummyPost(author)
     const query = `
@@ -638,7 +653,8 @@ describe('CommentLock permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 
 })

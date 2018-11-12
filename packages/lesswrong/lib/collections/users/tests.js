@@ -1,78 +1,90 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails } from '../../../testing/utils.js'
+import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('updateUser – ', async () => {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("fails when user updates their displayName", async () => {
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'displayName',
       collectionType:'User',
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when user updates their createdAt", async () => {
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'createdAt',
       collectionType:'User',
+      newValue: new Date(),
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when sunshineUser updates a user's createdAt", async () => {
     const sunshineUser = await createDummyUser({groups:['sunshineRegiment']})
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:sunshineUser,
       document:user,
       fieldName:'createdAt',
       collectionType:'User',
+      newValue: new Date(),
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when user updates their nullifyVotes", async () => {
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'nullifyVotes',
       collectionType:'User',
+      newValue: false,
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when user updates their voteBanned", async () => {
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'voteBanned',
       newValue: true,
       collectionType:'User',
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when user updates their deleteContent", async () => {
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'deleteContent',
       newValue: true,
       collectionType:'User',
+      newValue: false,
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when user updates their banned", async () => {
     const user = await createDummyUser()
-    return userUpdateFieldFails({
+    await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'banned',
-      newValue: true,
+      newValue: new Date(),
       collectionType:'User',
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 })
 
