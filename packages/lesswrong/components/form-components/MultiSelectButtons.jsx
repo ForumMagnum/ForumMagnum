@@ -1,7 +1,40 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
+import { withStyles } from '@material-ui/core/styles';
+import classnames from 'classnames';
+
+const styles = theme => ({
+  button: {
+    
+    // TODO: Pick typography for this button. (This is just the typography that
+    // Material UI v0 happened to use.)
+    fontWeight: 500,
+    fontSize: "16px",
+    fontFamily: "Roboto, sans-serif",
+  },
+  
+  selected: {
+    color: "white",
+    textTransform: "none",
+    backgroundColor: "rgba(100,169,105, 0.9)",
+    
+    "&:hover": {
+      backgroundColor: "rgba(100,169,105, 0.5)",
+    },
+  },
+  
+  notSelected: {
+    textTransform: "none",
+    color: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0, 0)",
+    
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0, 0.1)",
+    },
+  },
+});
 
 
 class MultiSelectButtons extends Component {
@@ -24,25 +57,27 @@ class MultiSelectButtons extends Component {
   }
 
   render() {
-    const { value } = this.props;
+    const { value, classes } = this.props;
     
     return <div className="multi-select-buttons">
       {this.props.label && <label className="multi-select-buttons-label">{this.props.label}</label>}
       {this.props.options.map((option) => {
         const selected = value && value.includes(option.value);
-        return <FlatButton
-          className="multi-select-buttons-button"
+        return <Button
+          className={classnames(
+            "multi-select-buttons-button",
+            classes.button,
+            {
+              [classes.selected]: selected,
+              [classes.notSelected]: !selected,
+            }
+          )}
           primary={selected}
-          labelStyle={ selected ?
-            {color: "white", fontSize: "16px", textTransform: "none"}
-          : {fontSize: "16px", textTransform: "none", color: "rgba(0,0,0,0.6)"}
-          }
-          backgroundColor={selected ? (option.color || "rgba(100, 169, 105, 0.9)") : "rgba(0,0,0,0)"}
-          hoverColor={selected ? (option.hoverColor || "rgba(100, 169, 105, 0.5)") : "rgba(0,0,0,0.1)"}
-          label={option.label || option.value}
           onClick={() => this.handleClick(option.value)}
           key={option.value}
-               />
+        >
+          {option.label || option.value}
+        </Button>
       })}
     </div>
   }
@@ -56,4 +91,5 @@ MultiSelectButtons.defaultProps = {
 
 }
 
-registerComponent("MultiSelectButtons", MultiSelectButtons);
+registerComponent("MultiSelectButtons", MultiSelectButtons,
+  withStyles(styles, { name: "MultiSelectButtons" }));

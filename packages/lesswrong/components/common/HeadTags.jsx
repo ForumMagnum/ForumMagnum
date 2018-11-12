@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { registerComponent, Utils, getSetting, registerSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';
+import { withRouter } from 'react-router';
 
 registerSetting('logoUrl', null, 'Absolute URL for the logo image');
 registerSetting('title', 'My App', 'App title');
@@ -19,10 +20,10 @@ class HeadTags extends PureComponent {
     const appTitle = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = this.props.title ? `${this.props.title} - ${appTitle}` : appTitle;
     const description = this.props.description || getSetting('tagline') || getSetting('description');
-
+    
     return (
       <div>
-        <Helmet>
+        <Helmet key={this.props.location.pathname}>
 
           <title>{title}</title>
 
@@ -75,6 +76,6 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-registerComponent('HeadTags', HeadTags);
+registerComponent('HeadTags', HeadTags, withRouter);
 
 export default HeadTags;

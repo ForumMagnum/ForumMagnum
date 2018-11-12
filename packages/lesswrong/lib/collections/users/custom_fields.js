@@ -770,4 +770,15 @@ Users.addField([
       canRead: ['guests'],
     }
   },
+
+  // Full Name field to display full name for alignment forum users
+  {
+    fieldName: 'fullName',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment']
+    }
+  }
 ]);

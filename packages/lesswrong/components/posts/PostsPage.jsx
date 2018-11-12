@@ -82,10 +82,9 @@ const styles = theme => ({
     postFooter: {
       marginBottom: 30,
     },
-    draft: {
-      color: theme.palette.secondary.light
+    titleTag: {
+      color: theme.palette.grey[400]
     },
-
     eventTimes: {
       marginTop: "5px",
       fontSize: "14px",
@@ -161,7 +160,7 @@ class PostsPage extends Component {
           titleUrl={ titleUrl }
           nextPostUrl={ post.canonicalNextPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalNextPostSlug }
           prevPostUrl={ post.canonicalPrevPostSlug && "/" + post.canonicalCollectionSlug + "/" + post.canonicalPrevPostSlug }
-          
+
           nextPostSlug={post.canonicalNextPostSlug}
           prevPostSlug={post.canonicalPrevPostSlug}
         />
@@ -252,7 +251,7 @@ class PostsPage extends Component {
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
-      const commentTerms = _.isEmpty(query) ? {view: view, limit: 500} : {...query, limit:500}
+      const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
 
       return (
         <Components.ErrorBoundary>
@@ -260,7 +259,8 @@ class PostsPage extends Component {
           <div>
             <div className={classes.header}>
               <Typography variant="display3" className={classes.title}>
-                {post.draft && <span className={classes.draft}>[Draft] </span>}
+                {post.question && <span className={classes.titleTag}>[Question] </span>}
+                {post.draft && <span className={classes.titleTag}>[Draft] </span>}
                 {post.title}
               </Typography>
               {post.groupId && <Components.PostsGroupDetails post={post} documentId={post.groupId} />}
@@ -290,7 +290,9 @@ class PostsPage extends Component {
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
                 <Components.LinkPostMessage post={post} />
-                { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+                { post.htmlBody && <Components.ContentItemBody
+                    dangerouslySetInnerHTML={{__html: post.htmlBody}}
+                 /> }
               </div>
             </div>
             <div className={classes.postFooter}>

@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Popover from 'material-ui/Popover';
+import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -51,7 +51,7 @@ class UsersAccountMenu extends PureComponent {
           anchorEl={this.state.anchorEl}
           anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
           targetOrigin={{horizontal: 'left', vertical: 'top'}}
-          onRequestClose={this.handleRequestClose}
+          onClose={this.handleRequestClose}
         >
           <Components.AccountsLoginForm />
         </Popover>

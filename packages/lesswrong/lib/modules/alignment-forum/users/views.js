@@ -14,7 +14,10 @@ Users.addView("alignmentSuggestedUsers", function () {
   return {
     selector: {
       groups: {$nin: ['alignmentForum']},
-      afKarma: {$gte:10},
+      $or: [
+        {afKarma: {$gte:10}},
+        {afSubmittedApplication: true},
+      ],
       reviewForAlignmentForumUserId: {$exists:false}
     },
     options: {

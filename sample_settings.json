@@ -29,7 +29,6 @@
       "appId": "CR43JFSDAS"
     }
   },
-
   "defaultEmail": "no-reply@lesserwrong.com",
   "scoreUpdateInterval": "30",
   "forwardedWhitelist": ["outgoing-addresses.greaterwrong.com"],

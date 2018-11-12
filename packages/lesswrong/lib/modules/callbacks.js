@@ -234,13 +234,18 @@ function findUsersToEmail(filter) {
   let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
 
   let usersToEmail = usersMatchingFilter.filter(u => {
-    let primaryAddress = u.email;
-    for(let i=0; i<u.emails.length; i++)
-    {
-      if(u.emails[i].address === primaryAddress && u.emails[i].verified)
-        return true;
+    if (u.email && u.emails && u.emails.length) {
+      let primaryAddress = u.email;
+
+      for(let i=0; i<u.emails.length; i++)
+      {
+        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+          return true;
+      }
+      return false;
+    } else {
+      return true
     }
-    return false;
   });
   return usersToEmail
 }
@@ -403,14 +408,16 @@ function userDeleteContent(user) {
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
   comments.forEach((comment) => {
-    editMutation({
-      collection: Comments,
-      documentId: comment._id,
-      set: {deleted: true},
-      unset: {},
-      currentUser: user,
-      validate: false,
-    })
+    if (!comment.deleted) {
+      editMutation({
+        collection: Comments,
+        documentId: comment._id,
+        set: {deleted: true, deletedDate: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
+      })
+    }
 
     const notifications = Notifications.find({documentId: comment._id}).fetch();
     //eslint-disable-next-line no-console

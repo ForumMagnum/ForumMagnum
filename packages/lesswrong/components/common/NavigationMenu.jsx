@@ -1,20 +1,27 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import Drawer from 'material-ui/Drawer';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 import { Link } from 'react-router';
+import { withStyles } from '@material-ui/core/styles';
 
-const NavigationMenu = ({open, handleClose, handleToggle}) => {
+const styles = theme => ({
+  drawerPaper: {
+    width: 225,
+  },
+});
+
+const NavigationMenu = ({open, handleOpen, handleClose, classes}) => {
   const af = getSetting('AlignmentForum', false);
-  return <Drawer docked={false}
-    width={225}
+  return <SwipeableDrawer
     open={open}
-    onRequestChange={(open) => handleToggle(open)}
-    containerClassName="menu-drawer"
-    containerStyle={{height: "100vh"}}
-    overlayStyle={{height: "100vh"}}
-         >
+    onClose={(event) => handleClose()}
+    onOpen={(event) => handleOpen()}
+    classes={{
+      paper: classes.drawerPaper
+    }}
+  >
     <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
     <Divider />
     {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>}
@@ -38,12 +45,12 @@ const NavigationMenu = ({open, handleClose, handleToggle}) => {
     </MenuItem>}
     <Divider />
     {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>}
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> ALL POSTS </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> POSTS BY DATE </MenuItem>
     <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT  </MenuItem>}
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT  </MenuItem>
     {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
-  </Drawer>;
+  </SwipeableDrawer>;
 }
 
 
-registerComponent('NavigationMenu', NavigationMenu);
+registerComponent('NavigationMenu', NavigationMenu, withStyles(styles, { name: "NavigationMenu" }));

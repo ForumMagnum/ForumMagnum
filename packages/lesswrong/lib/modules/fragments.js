@@ -165,6 +165,7 @@ registerFragment(`
     afLastCommentedAt
     afSticky
     voteCount
+    question
   }
 `);
 
@@ -345,7 +346,10 @@ registerFragment(`
     score
     voteCount
     af
+    afDate
+    moveToAlignmentUserId
     afBaseScore
+    suggestForAlignmentUserIds
     needsReview
   }
 `);
@@ -482,6 +486,7 @@ registerFragment(`
     slug
     username
     displayName
+    fullName
     emailHash
     karma
     afKarma

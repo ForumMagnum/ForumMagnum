@@ -128,6 +128,8 @@ addStrings('en', {
 
 addStrings('en', {
   "alignment.comments.please_log_in": "Please log in to comment. (New users must be approved by admins)",
-  "alignment.remove_comment": "Comment and its children removed from Alignment Forum",
-  "alignment.move_comment": "Comment and its parents moved to Alignment Forum",
+  "alignment.remove_comment": "Comment and its children removed from AI Alignment Forum",
+  "alignment.move_comment": "Comment and its parents moved to AI Alignment Forum",
+  "alignment.suggest_comment": "Comment has been suggested for the AI Alignment Forum",
+  "alignment.unsuggest_comment": "You are no longer suggesting this comment for AI Alignment Forum",
 })

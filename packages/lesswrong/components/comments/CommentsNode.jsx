@@ -43,9 +43,10 @@ class CommentsNode extends PureComponent {
   }
 
   componentDidMount() {
-    let commentHash = this.props.router.location.hash;
+    const { router, comment, post } = this.props
+    let commentHash = router.location.hash;
     const self = this;
-    if (commentHash === "#" + this.props.comment._id) {
+    if (comment && commentHash === ("#" + comment._id) && post) {
       setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
         self.scrollIntoView()
       }, 0);
@@ -53,9 +54,14 @@ class CommentsNode extends PureComponent {
   }
 
   scrollIntoView = (event) => {
+    // TODO: This is a legacy React API; migrate to the new type of refs.
+    // https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
     //eslint-disable-next-line react/no-string-refs
-    this.refs.comment.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-    this.setState({finishedScroll: true});
+    if (this.refs && this.refs.comment) {
+      //eslint-disable-next-line react/no-string-refs
+      this.refs.comment.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+      this.setState({finishedScroll: true});
+    }
   }
 
   toggleCollapse = () => {

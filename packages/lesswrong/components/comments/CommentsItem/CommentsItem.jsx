@@ -7,8 +7,8 @@ import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
-import FontIcon from 'material-ui/FontIcon';
-import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
+import Icon from '@material-ui/core/Icon';
+import ArrowRight from '@material-ui/icons/ArrowRight';
 import MenuItem from 'material-ui/MenuItem';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
@@ -178,12 +178,12 @@ class CommentsItem extends Component {
           <div className="comments-item-body">
             <div className="comments-item-meta">
               {(comment.parentCommentId && (nestingLevel === 1)) &&
-                <FontIcon
+                <Icon
                   onClick={this.toggleShowParent}
                   className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                 >
                   subdirectory_arrow_left
-                </FontIcon>}
+                </Icon>}
               { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
@@ -196,15 +196,15 @@ class CommentsItem extends Component {
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
                     <Components.FromNowDate date={comment.postedAt}/>
-                    <FontIcon className="material-icons comments-item-permalink"> link
-                    </FontIcon>
+                    <Icon className="material-icons comments-item-permalink"> link
+                    </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   <Components.FromNowDate date={comment.postedAt}/>
-                  <FontIcon className="material-icons comments-item-permalink"> link
-                  </FontIcon>
+                  <Icon className="material-icons comments-item-permalink"> link
+                  </Icon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
@@ -263,12 +263,13 @@ class CommentsItem extends Component {
             { this.renderReportMenuItem() }
             { this.renderDeleteMenuItem() }
             { this.renderMoveToAlignmentMenuItem() }
+            { this.renderSuggestForAlignmentMenuItem() }
             { Users.canModeratePost(currentUser, post) &&
               post.user && Users.canModeratePost(post.user, post) &&
               <MenuItem
                 className="comment-menu-item-ban-user-submenu"
                 primaryText="Ban User"
-                rightIcon={<ArrowDropRight />}
+                rightIcon={<ArrowRight />}
                 menuItems={[
                   <Components.BanUserFromPostMenuItem
                     key='banUserFromPost'
@@ -333,6 +334,19 @@ class CommentsItem extends Component {
         <Components.MoveToAlignmentMenuItem
           currentUser={currentUser}
           comment={comment}
+        />
+      )
+    }
+  }
+
+  renderSuggestForAlignmentMenuItem = () =>  {
+    const { currentUser, comment, post } = this.props
+    if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+      return (
+        <Components.SuggestAlignmentMenuItem
+          currentUser={currentUser}
+          comment={comment}
+          post={post}
         />
       )
     }

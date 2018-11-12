@@ -27,6 +27,10 @@ import { Posts } from '../posts';
 
    editCheck: (user, document) => {
      if (!user || !document) return false;
+     if (Users.canDo(user, 'comments.alignment.move.all') ||
+         Users.canDo(user, 'comments.alignment.suggest')) {
+       return true
+     }
      return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
    },
 
