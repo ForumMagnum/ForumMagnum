@@ -110,6 +110,7 @@ import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsVote.jsx';
 import '../components/posts/PostsStats.jsx';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
+import '../components/posts/PostsUserAndCoauthors.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';

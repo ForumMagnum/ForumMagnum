@@ -14,14 +14,14 @@ const styles = theme => ({
 const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
-  const { MetaInfo, PostsEdit, UsersName, FromNowDate, EventTime, PostsStats } = Components;
+  const { MetaInfo, PostsEdit, UsersName, FromNowDate, EventTime, PostsStats, PostsUserAndCoauthors } = Components;
 
   return <span className={classNames({[classes.read]:read})}>
       { Posts.canEdit(currentUser,post) && <MetaInfo>
         <PostsEdit post={post}/>
       </MetaInfo>}
       { post.user && <MetaInfo>
-        <UsersName user={post.user}/>
+        <PostsUserAndCoauthors post={post}/>
       </MetaInfo>}
       { post.feed && post.feed.user && <MetaInfo>
         {post.feed.nickname}
