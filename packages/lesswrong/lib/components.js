@@ -109,6 +109,8 @@ import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsVote.jsx';
 import '../components/posts/PostsStats.jsx';
+import '../components/posts/ShowOrHideHighlightButton.jsx';
+import '../components/posts/PostsUserAndCoauthors.jsx';
 
 import '../components/questions/NewQuestionDialog.jsx';
 

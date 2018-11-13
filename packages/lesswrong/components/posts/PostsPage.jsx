@@ -275,10 +275,7 @@ class PostsPage extends Component {
                 <hr className={classes.voteDivider}/>
               </div>
               <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
-                {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
-                { post.coauthors.map(coauthor=><span key={coauthor._id} >
-                  , <Components.UsersName user={coauthor} />
-                </span>)}
+                <Components.PostsUserAndCoauthors post={post}/>
               </Typography>
             </div>
             <div className={classes.mainContent}>
@@ -302,7 +299,7 @@ class PostsPage extends Component {
                 </Components.ErrorBoundary>
               </div>
               <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
-                {!post.user || post.hideAuthor ? '[deleted]' : <Components.UsersName user={post.user} />}
+                <Components.PostsUserAndCoauthors post={post}/>
               </Typography>
             </div>
           </div>
