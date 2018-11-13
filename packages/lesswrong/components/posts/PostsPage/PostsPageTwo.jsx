@@ -125,7 +125,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
       PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, FromNowDate,
-      PostsPageMobileActions } = Components
+      PostsPageMobileActions, ContentItemBody } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -184,7 +184,7 @@ class PostsPage extends Component {
             { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
             <div className={classes.postContent}>
               <LinkPostMessage post={post} />
-              { post.htmlBody && <div dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+              { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
             </div>
           </div>
 
