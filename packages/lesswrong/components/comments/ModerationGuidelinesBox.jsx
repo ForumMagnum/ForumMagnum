@@ -14,6 +14,7 @@ const styles = theme => ({
     cursor: 'pointer',
     padding: '8px 14px',
     fontWeight: 400,
+    whiteSpace: 'pre-line',
     '&:hover': {
       backgroundColor: 'rgba(0,0,0,0.02)'
     }
@@ -26,13 +27,13 @@ const styles = theme => ({
     backgroundColor: 'transparent',
     marginTop: 0,
   },
-  easyGoing: {
+  'easy-going': {
     color: 'rgba(100, 169, 105, 0.9)',
   },
-  normEnforcing: {
+  'norm-enforcing': {
     color: '#2B6A99'
   },
-  reignOfTerror: {
+  'reign-of-terror': {
     color: 'rgba(179,90,49,.8)'
   }
 })
@@ -53,12 +54,18 @@ class ModerationGuidelinesBox extends PureComponent {
     const moderationStyle = user.moderationStyle || "no-moderation";
     const { ModerationGuidelinesContent } = Components
 
-    if (post && user && (canModerate || document.frontpageDate)) {
+    if (post && user && (canModerate || document.frontpageDate) && !user.moderationGuidelines) {
       return(
-        <div className={classNames(classes.root, {[moderationStyle]: canModerate})}>
+        <div className={classes.root}>
           <div className={classes.header} onClick={() => this.setState({open: !this.state.open})}>
-            <ShortModerationGuidelines />
-             {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
+            {canModerate && <span className={classes[moderationStyle]}>
+              <FormattedMessage id={"moderation-" + moderationStyle} />
+              </span>}
+            <ModerationGuidelinesContent
+              showFrontpageGuidelines={post && post.frontpageDate}
+              user={user}
+             />
+
           </div>
           {this.state.open &&
             <ModerationGuidelinesContent
@@ -69,8 +76,9 @@ class ModerationGuidelinesBox extends PureComponent {
     } else {
       return <div className={classNames(classes.root, {[moderationStyle]: canModerate})}>
         <div className={classes.header} onClick={() => this.setState({open: !this.state.open})}>
-          <PersonalBlogGuidelines />
-           {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
+
+          <PersonalBlogGuidelines user={user} classes={classes} canModerate={canModerate} moderationStyle={moderationStyle}/>
+           {/*canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>*/}
         </div>
         {this.state.open &&
           <ModerationGuidelinesContent
@@ -81,13 +89,19 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 }
 
-const PersonalBlogGuidelines = () => (
-  <div>
-    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something,
-     not the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
-     models, make predictions, and note what would change your mind (Read More)
-  </div>
-)
+const PersonalBlogGuidelines = ({user, classes, canModerate, moderationStyle}) => {
+  return(user && user.moderationGuidelines &&
+    <div>
+      <p>
+        <b>{user.displayName + "'s moderation guidelines:"}</b> <br/>
+        {canModerate && <span className={classes[moderationStyle]}>
+          <FormattedMessage id={"moderation-" + moderationStyle} />
+        </span>}
+      </p>
+      <p>{user.moderationGuidelines}</p>
+    </div>)
+}
+
 
 const ShortModerationGuidelines = () => (
   <div>
