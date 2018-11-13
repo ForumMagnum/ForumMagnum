@@ -6,14 +6,6 @@ $header-mobile: 43px !important;
   margin-top: 5px;
 
   color: rgba(0,0,0,0.5) !important;
-  .dropdown-toggle{
-    @include flex-center;
-    padding: 0;
-    background: none;
-    img{
-      margin-right: 5px;
-    }
-  }
 }
 
 // Used in vulcan-accounts
