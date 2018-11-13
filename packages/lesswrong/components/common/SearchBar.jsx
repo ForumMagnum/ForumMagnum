@@ -66,8 +66,9 @@ class SearchBar extends Component {
   }
   
   componentDidMount() {
-    this.routerUpdateCallback = () => {
-      this.closeSearch();
+    let _this = this;
+    this.routerUpdateCallback = function closeSearchOnNavigate() {
+      _this.closeSearch();
     };
     addCallback('router.onUpdate', this.routerUpdateCallback);
   }
