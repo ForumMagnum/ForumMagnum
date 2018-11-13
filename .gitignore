@@ -30,8 +30,7 @@ scratch
 ### Meteor template
 .meteor/local
 .meteor/meteorite
-mup.json
-mup*.js
+mup*
 
 packages_update.py
 
