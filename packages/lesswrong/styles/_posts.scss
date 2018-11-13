@@ -746,14 +746,3 @@ svg.drag-handle {
     }
   }
 }
-
-.posts-daily-wrapper {
-  @include mui-breakpoint-up-md {
-    margin-left:-100px;
-  }
-}
-
-.posts-daily-content-wrapper {
-  margin-top:-12px;
-  margin-left:15px;
-}
