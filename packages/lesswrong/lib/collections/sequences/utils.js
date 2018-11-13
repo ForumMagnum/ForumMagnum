@@ -14,8 +14,8 @@ Utils.getSequencePostLinks = (sequence, post) => {
       }
       if (postIndex > 0) {
         prevPost = currentChapter.posts[postIndex - 1]
-      } else if (chapterIndex > 1) {
-        prevPost = sequence.chapters[chapterIndex - 1].posts[sequence.chapters[chapterIndex-1].length - 1]
+      } else if (chapterIndex > 0) {
+        prevPost = sequence.chapters[chapterIndex - 1].posts[sequence.chapters[chapterIndex-1].posts.length - 1]
       }
     }
     return {nextPost: nextPost, prevPost: prevPost, currentChapter: currentChapter, postIndex: postIndex, chapterIndex: chapterIndex}
