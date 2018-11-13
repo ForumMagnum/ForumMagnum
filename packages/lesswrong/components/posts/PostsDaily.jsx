@@ -40,6 +40,10 @@ export const styles = theme => ({
   dailyContentWrapper: {
     marginTop: -12,
     marginLeft: 15,
+    
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 2,
+    },
   },
 });
 
