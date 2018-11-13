@@ -73,15 +73,11 @@ const styles = theme => ({
       width: 320,
       paddingLeft: 3,
     },
-    "&:hover": {
+    "&:hover $showHighlightButton": {
       [theme.breakpoints.up('md')]: {
-        cursor: "pointer",
-        "$showHighlightButton": {
-          opacity: 0.7,
-          marginLeft: 4,
-        }
+        opacity: 0.7,
       }
-    }
+    },
   },
   
   content: {

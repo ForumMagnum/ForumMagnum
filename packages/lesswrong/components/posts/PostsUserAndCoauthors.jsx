@@ -11,6 +11,7 @@ const styles = theme => ({
     whiteSpace: "nowrap"
   },
   lengthUnlimited: {
+    display: "inline",
   },
 });
 
