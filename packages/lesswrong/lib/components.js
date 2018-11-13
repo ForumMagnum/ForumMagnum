@@ -261,6 +261,7 @@ import '../components/form-components/FormComponentDefault.jsx';
 import '../components/form-components/FormComponentSelect.jsx';
 import '../components/form-components/FormComponentDate.jsx';
 import '../components/form-components/FormComponentDateTime.jsx';
+import '../components/form-components/FormComponentNumber.jsx';
 
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
