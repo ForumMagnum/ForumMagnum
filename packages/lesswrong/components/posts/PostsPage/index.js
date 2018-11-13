@@ -1,4 +1,4 @@
-import './PostsPageTwo.jsx'
+import './PostsPage.jsx'
 import './PostsAuthors.jsx'
 import './PostsPageTitle.jsx'
 import './PostsTopSequencesNav.jsx'
