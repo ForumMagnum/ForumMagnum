@@ -40,6 +40,7 @@ Comments.toAlgolia = (comment) => {
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
+    af: comment.af
   };
   const commentAuthor = Users.findOne({_id: comment.userId});
   if (commentAuthor) {
@@ -76,6 +77,7 @@ Sequences.toAlgolia = (sequence) => {
     createdAt: sequence.createdAt,
     postedAt: sequence.postedAt,
     algoliaIndexAt: sequence.algoliaIndexAt,
+    af: sequence.af
   };
   const sequenceAuthor = Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
@@ -107,6 +109,7 @@ Users.toAlgolia = (user) => {
     slug: user.slug,
     website: user.website,
     groups: user.groups,
+    af: user.groups && user.groups.contains('alignmentForum')
   }
   return [algoliaUser];
 }
@@ -131,11 +134,13 @@ Posts.toAlgolia = (post) => {
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
+    af: post.af
   };
   const postAuthor = Users.findOne({_id: post.userId});
   if (postAuthor) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
+    algoliaMetaInfo.authorFullName = postAuthor.fullName;
     algoliaMetaInfo.authorUserName = postAuthor.username;
   }
   const postFeed = RSSFeeds.findOne({_id: post.feedId});
