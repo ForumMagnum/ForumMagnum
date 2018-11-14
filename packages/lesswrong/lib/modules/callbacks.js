@@ -408,14 +408,16 @@ function userDeleteContent(user) {
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
   comments.forEach((comment) => {
-    editMutation({
-      collection: Comments,
-      documentId: comment._id,
-      set: {deleted: true},
-      unset: {},
-      currentUser: user,
-      validate: false,
-    })
+    if (!comment.deleted) {
+      editMutation({
+        collection: Comments,
+        documentId: comment._id,
+        set: {deleted: true, deletedDate: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
+      })
+    }
 
     const notifications = Notifications.find({documentId: comment._id}).fetch();
     //eslint-disable-next-line no-console

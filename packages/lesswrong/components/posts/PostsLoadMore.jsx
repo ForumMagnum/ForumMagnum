@@ -9,16 +9,21 @@ const styles = theme => ({
   }
 })
 
+
 const PostsLoadMore = ({loading, loadMore, count, totalCount, classes}) => {
+  const handleClickLoadMore = event => {
+    event.preventDefault();
+    loadMore();
+  }
   return (
     <div className={classNames('posts-load-more', {'posts-load-more-loading': loading})}>
-      <a className={classNames("posts-load-more-link", classes.link)}
+      {!loading && <a className={classNames("posts-load-more-link", classes.link)}
         href="#"
-        onClick={e => {e.preventDefault(); loadMore();}}>
+        onClick={handleClickLoadMore}>
         Load More...
         &nbsp;
         {totalCount ? <span className="load-more-count">{`(${count}/${totalCount})`}</span> : null}
-      </a>
+      </a>}
       {loading ? <div className="posts-load-more-loader"><Components.Loading/></div> : null}
     </div>
   )

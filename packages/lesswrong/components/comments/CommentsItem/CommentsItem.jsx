@@ -7,8 +7,8 @@ import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
-import FontIcon from 'material-ui/FontIcon';
-import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
+import Icon from '@material-ui/core/Icon';
+import ArrowRight from '@material-ui/icons/ArrowRight';
 import MenuItem from 'material-ui/MenuItem';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
@@ -37,7 +37,7 @@ const styles = theme => ({
     float:"right",
     opacity:.35,
     marginRight:-5
-  }
+  },
 })
 
 class CommentsItem extends Component {
@@ -112,41 +112,9 @@ class CommentsItem extends Component {
     this.props.scrollIntoView(event);
     return false;
   }
-
-  renderExcerpt() {
-    const { comment, classes } = this.props
-
-    if (comment.body) {
-      // Replace Markdown Links with just their display text
-      let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
-
-      let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
-
-      const lastElement = commentExcerpt.slice(-1)[0];
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
-        (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)}>
-        {commentExcerpt}
-        <p>{lastElement + "..."}
-          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
-        </p>
-      </div>
-    } else {
-      return null
-    }
-  }
-
+  
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
-
-    const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
-
-    const commentBody = this.props.collapsed ? "" : (
-      <div>
-        {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
-        {!comment.deleted && this.renderCommentBottom()}
-      </div>
-    )
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
     if (comment && post) {
       return (
@@ -169,7 +137,7 @@ class CommentsItem extends Component {
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
                 level={nestingLevel + 1}
-                expanded={true}
+                truncated={false}
                 key={comment.parentCommentId}
               />
             </div>
@@ -178,12 +146,12 @@ class CommentsItem extends Component {
           <div className="comments-item-body">
             <div className="comments-item-meta">
               {(comment.parentCommentId && (nestingLevel === 1)) &&
-                <FontIcon
+                <Icon
                   onClick={this.toggleShowParent}
                   className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
                 >
                   subdirectory_arrow_left
-                </FontIcon>}
+                </Icon>}
               { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
@@ -196,15 +164,15 @@ class CommentsItem extends Component {
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
                     <Components.FromNowDate date={comment.postedAt}/>
-                    <FontIcon className="material-icons comments-item-permalink"> link
-                    </FontIcon>
+                    <Icon className="material-icons comments-item-permalink"> link
+                    </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   <Components.FromNowDate date={comment.postedAt}/>
-                  <FontIcon className="material-icons comments-item-permalink"> link
-                  </FontIcon>
+                  <Icon className="material-icons comments-item-permalink"> link
+                  </Icon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
@@ -212,9 +180,14 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { (!postPage && !expanded) ? this.renderExcerpt() : commentBody}
+            <Components.CommentBody
+              truncated={truncated}
+              collapsed={collapsed}
+              comment={comment}
+            />
+            {!comment.deleted && this.renderCommentBottom()}
           </div>
-          {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
+          { this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
       )
     } else {
@@ -269,7 +242,7 @@ class CommentsItem extends Component {
               <MenuItem
                 className="comment-menu-item-ban-user-submenu"
                 primaryText="Ban User"
-                rightIcon={<ArrowDropRight />}
+                rightIcon={<ArrowRight />}
                 menuItems={[
                   <Components.BanUserFromPostMenuItem
                     key='banUserFromPost'

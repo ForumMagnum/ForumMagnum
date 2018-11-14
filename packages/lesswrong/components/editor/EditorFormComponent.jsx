@@ -19,22 +19,24 @@ const styles = theme => ({
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
   },
-  
+
   commentBodyStyles: {
     ...editorStyles(theme, commentBodyStyles),
     cursor: "text",
-    
+
     margin: 0,
     padding: 0,
   },
-  
+  questionWidth: {
+    width: 540,
+  },
   postEditorHeight: {
     minHeight: postEditorHeight,
   },
   commentEditorHeight: {
     minHeight: commentEditorHeight,
   },
-  
+
   errorTextColor: {
     color: theme.palette.error.main
   }
@@ -113,39 +115,39 @@ class EditorFormComponent extends Component {
     const { document, currentUser, formType } = this.props
     const commentStyles = this.props.form && this.props.form.commentStyles
     const { classes, ...passedDownProps } = this.props
-    
+
     // The class which determines clickable height (as tall as a comment editor,
     // or as tall as a post editor) needs to be applied deeper in the tree, for
     // the draft-js editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
     const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
     const bodyStyles = commentStyles ? classes.commentBodyStyles : classes.postBodyStyles;
-    
+
     const editorWarning =
       !editorOverride
       && formType !== "new"
       && document && document.lastEditedAs
       && document.lastEditedAs !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
-    
+
     if (this.getCurrentEditorType() === "draft-js") {
       return (
         <div className={heightClass}>
           { editorWarning }
           <AsyncEditor
             {...passedDownProps}
-            className={classnames(bodyStyles, heightClass)}
+            className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
         </div>);
     } else {
       const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
-      
+
       return (
         <div>
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}
-            className={classnames(classes.markdownEditor, bodyStyles)}
+            className={classnames(classes.markdownEditor, bodyStyles, {[classes.questionWidth]: document.question})}
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}
             name={name}

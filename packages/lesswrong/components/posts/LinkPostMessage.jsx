@@ -11,6 +11,9 @@ const styles = theme => ({
     color: grey[600],
     marginBottom: theme.spacing.unit*2,
     fontSize:".9em",
+    maxWidth: "100%",
+    overflowX: "hidden",
+    textOverflow: "ellipsis",
     ...theme.typography.postStyle,
   },
 })

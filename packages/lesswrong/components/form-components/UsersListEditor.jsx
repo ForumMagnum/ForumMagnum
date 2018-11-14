@@ -47,45 +47,17 @@ const usersListEditorStyles = theme => ({
 })
 
 class UsersListEditor extends Component {
-  constructor(props, context) {
-    super(props, context);
-    const fieldName = props.name;
-    let userIds = [];
-    if (props.document[fieldName]) {
-      userIds = JSON.parse(JSON.stringify(props.document[fieldName]));
-    }
-    this.state = {
-      userIds: userIds,
-    }
-    const addValues = this.context.updateCurrentValues;
-    addValues({[fieldName]: userIds});
-  }
   onSortEnd = ({oldIndex, newIndex}) => {
-    const fieldName = this.props.name;
-    const addValues = this.context.updateCurrentValues;
-    const newIds = arrayMove(this.state.userIds, oldIndex, newIndex);
-    this.setState({
-      userIds: newIds,
-    });
-    addValues({[fieldName]: newIds});
+    const newIds = arrayMove(this.props.value, oldIndex, newIndex);
+    this.context.updateCurrentValues({[this.props.path]: newIds});
   };
   addUserId = (userId) => {
-    const newIds = [...this.state.userIds, userId];
-    this.setState({
-      userIds: newIds,
-    })
-    const fieldName = this.props.name;
-    const addValues = this.context.updateCurrentValues;
-    addValues({[fieldName]: newIds});
+    const newIds = [...this.props.value, userId];
+    this.context.updateCurrentValues({[this.props.path]: newIds});
   }
   removeUserId = (userId) => {
-    const newIds = _.without(this.state.userIds, userId);
-    this.setState({
-      userIds: newIds,
-    })
-    const fieldName = this.props.name;
-    const addValues = this.context.updateCurrentValues;
-    addValues({[fieldName]: newIds});
+    const newIds = _.without(this.props.value, userId);
+    this.context.updateCurrentValues({[this.props.path]: newIds});
   }
   shouldCancelStart = (e) => {
     // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
@@ -116,7 +88,7 @@ class UsersListEditor extends Component {
         </Components.ErrorBoundary>
         <SortableList
           axis="xy"
-          items={this.state.userIds}
+          items={this.props.value}
           onSortEnd={this.onSortEnd}
           currentUser={currentUser}
           removeItem={this.removeUserId}
@@ -127,11 +99,8 @@ class UsersListEditor extends Component {
   }
 }
 
-//
-
 UsersListEditor.contextTypes = {
   updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 registerComponent("UsersListEditor", UsersListEditor,

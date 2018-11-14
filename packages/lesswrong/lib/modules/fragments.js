@@ -165,6 +165,7 @@ registerFragment(`
     afLastCommentedAt
     afSticky
     voteCount
+    question
   }
 `);
 
@@ -347,6 +348,7 @@ registerFragment(`
     voteCount
     af
     afDate
+    moveToAlignmentUserId
     afBaseScore
     suggestForAlignmentUserIds
     needsReview

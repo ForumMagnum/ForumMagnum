@@ -513,19 +513,20 @@ Users.addField([
   */
 
   {
-    fieldName: 'IPDummy',
+    fieldName: 'IPs',
     fieldSchema: {
       type: Array,
       optional: true,
       group: formGroups.banUser,
       canRead: ['sunshineRegiment', 'admins'],
       resolveAs: {
-        fieldName: 'IPs',
         type: '[String]',
         resolver: (user, args, context) => {
-          const IPs = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch().map(event => event.properties && event.properties.ip);
+          const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
+          const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
+          const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
           const uniqueIPs = _.uniq(IPs);
-          return uniqueIPs;
+          return uniqueIPs
         },
         addOriginalField: false,
       },
@@ -533,7 +534,7 @@ Users.addField([
   },
 
   {
-    fieldName: 'IPDummy.$',
+    fieldName: 'IPs.$',
     fieldSchema: {
       type: String,
       optional: true,

@@ -21,7 +21,7 @@ class DeleteCommentDialog extends PureComponent {
   state = { deletedReason: "" }
 
   handleDelete = (event) => {
-    const { moderateCommentMutation, onRequestClose, comment, flash } = this.props
+    const { moderateCommentMutation, onClose, comment, flash } = this.props
     event.preventDefault();
     moderateCommentMutation({
       commentId: comment._id,
@@ -30,12 +30,12 @@ class DeleteCommentDialog extends PureComponent {
       deletedReason: this.state.deletedReason,
     }).then(()=>{
       flash({messageString: "Successfully deleted comment", type: "success"})
-      onRequestClose()
+      onClose()
     }).catch(/* error */);
   }
 
   handleDeletePublic = (event) => {
-    const { moderateCommentMutation, onRequestClose, comment, flash } = this.props
+    const { moderateCommentMutation, onClose, comment, flash } = this.props
 
     event.preventDefault();
     moderateCommentMutation({
@@ -45,14 +45,14 @@ class DeleteCommentDialog extends PureComponent {
       deletedReason: this.state.deletedReason,
     }).then(()=>{
       flash({messageString: "Successfully deleted comment", type: "success"})
-      onRequestClose()
+      onClose()
     }).catch(/* error */);
   }
 
   render() {
-    const { onRequestClose, classes } = this.props
+    const { onClose, classes } = this.props
     return (
-      <Dialog open={true} onClose={onRequestClose}>
+      <Dialog open={true} onClose={onClose}>
         <DialogTitle>
           What is your reason for deleting this comment?
         </DialogTitle>
@@ -74,7 +74,7 @@ class DeleteCommentDialog extends PureComponent {
           <Button onClick={this.handleDelete} className={classes.deleteWithoutTrace}>
             Delete Without Trace
           </Button>
-          <Button onClick={onRequestClose}>
+          <Button onClick={onClose}>
             Cancel
           </Button>
           <Button color="primary" onClick={this.handleDeletePublic}>

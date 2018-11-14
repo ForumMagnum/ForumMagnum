@@ -62,6 +62,7 @@ import '../components/users/UsersProfile.jsx';
 import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
+import '../components/users/UsersNameDisplay.jsx';
 import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
@@ -71,7 +72,6 @@ import '../components/users/LoginPopupLink.jsx';
 // posts
 
 import '../components/posts/PostsEdit.jsx';
-import '../components/posts/PostsBody/PostsBody.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
@@ -110,6 +110,10 @@ import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsVote.jsx';
 import '../components/posts/PostsStats.jsx';
 import '../components/posts/TableOfContents.jsx';
+import '../components/posts/ShowOrHideHighlightButton.jsx';
+import '../components/posts/PostsUserAndCoauthors.jsx';
+
+import '../components/questions/NewQuestionDialog.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
@@ -260,6 +264,7 @@ import '../components/form-components/FormComponentDefault.jsx';
 import '../components/form-components/FormComponentSelect.jsx';
 import '../components/form-components/FormComponentDate.jsx';
 import '../components/form-components/FormComponentDateTime.jsx';
+import '../components/form-components/FormComponentNumber.jsx';
 
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
