@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
-import { styles } from './PostsDaily';
+import { styles } from './EventsPast';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 
-class EventsDaily extends Component {
+class EventsPast extends Component {
   render() {
     const { classes } = this.props;
     const numberOfDays = getSetting('forum.numberOfDays', 5);
@@ -29,5 +29,5 @@ class EventsDaily extends Component {
   }
 }
 
-EventsDaily.displayName = 'EventsDaily';
-registerComponent('EventsDaily', EventsDaily, withStyles(styles, {name: "EventsDaily"}));
+EventsPast.displayName = 'EventsPast';
+registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));
