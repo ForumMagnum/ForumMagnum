@@ -68,3 +68,15 @@ Vulcan.runAlgoliaExport = () => {
   algoliaExport(Users, 'test_users')
   algoliaExport(Sequences, 'test_sequences')
 }
+
+Vulcan.runAlgoliaExportForCollection = (collectionName) => {
+  if (collectionName === "Posts") {
+    algoliaExport(Posts, 'test_posts', {baseScore: {$gt: 0}})
+  } else if (collectionName === "Comments") {
+    algoliaExport(Comments, 'test_comments', {baseScore: {$gt: 0}})
+  } else if (collectionName === "Users") {
+    algoliaExport(Users, 'test_users')
+  } else if (collectionName === "Sequences") {
+    algoliaExport(Sequences, 'test_sequences')
+  }
+}

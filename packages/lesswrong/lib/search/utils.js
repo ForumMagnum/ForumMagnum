@@ -55,12 +55,15 @@ Comments.toAlgolia = (comment) => {
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
-  if (comment.content) {
-    const html = contentToHtml(comment.content)
-    const plaintextBody = htmlToText.fromString(html);
+  if (comment.htmlBody) {
+    const plaintextBody = htmlToText.fromString(comment.htmlBody);
     algoliaComment.body = plaintextBody.slice(0, 2000);
   } else if (comment.body) {
     algoliaComment.body = comment.body.slice(0,2000);
+  } else if (comment.content) {
+    const html = contentToHtml(comment.content)
+    const plaintextBody = htmlToText.fromString(html);
+    algoliaComment.body = plaintextBody.slice(0, 2000);
   }
   return [algoliaComment]
 }
@@ -109,7 +112,7 @@ Users.toAlgolia = (user) => {
     slug: user.slug,
     website: user.website,
     groups: user.groups,
-    af: user.groups && user.groups.contains('alignmentForum')
+    af: user.groups && user.groups.includes('alignmentForum')
   }
   return [algoliaUser];
 }
@@ -151,7 +154,11 @@ Posts.toAlgolia = (post) => {
   let postBatch = [];
   let paragraphCounter =  0;
   let algoliaPost = {};
-  const body = (post.content ? htmlToText.fromString(contentToHtml(post.content)) : (post.htmlBody ? htmlToText.fromString(post.htmlBody) : post.body))
+  const body = post.htmlBody ?
+    htmlToText.fromString(post.htmlBody) :
+    post.body
+      ? post.body :
+        post.content && htmlToText.fromString(contentToHtml(post.content))
   if (body) {
     body.split("\n\n").forEach((paragraph) => {
       algoliaPost = {
