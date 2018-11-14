@@ -112,7 +112,7 @@ Users.toAlgolia = (user) => {
     slug: user.slug,
     website: user.website,
     groups: user.groups,
-    af: user.groups && user.groups.contains('alignmentForum')
+    af: user.groups && user.groups.includes('alignmentForum')
   }
   return [algoliaUser];
 }
