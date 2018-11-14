@@ -133,6 +133,7 @@ class SearchBar extends Component {
   render() {
     const algoliaAppId = getSetting('algolia.appId')
     const algoliaSearchKey = getSetting('algolia.searchKey')
+    const alignmentForum = getSetting('AlignmentForum', false);
 
     const { classes } = this.props
     const { searchOpen } = this.state
@@ -150,7 +151,7 @@ class SearchBar extends Component {
           onSearchStateChange={this.queryStateControl}
         >
           <div className={classNames(classes.root, {"open":this.state.inputOpen})}>
-            {/*<VirtualMenu attribute="af" defaultRefinement="true" />*/}
+            {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             <div onClick={this.handleSearchTap}>
               <Icon className={classes.searchIcon}>search</Icon>
               <SearchBox reset={null} focusShortcuts={[]} />
