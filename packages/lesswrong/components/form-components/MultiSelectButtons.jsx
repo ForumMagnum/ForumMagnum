@@ -72,7 +72,6 @@ class MultiSelectButtons extends Component {
               [classes.notSelected]: !selected,
             }
           )}
-          primary={selected}
           onClick={() => this.handleClick(option.value)}
           key={option.value}
         >
