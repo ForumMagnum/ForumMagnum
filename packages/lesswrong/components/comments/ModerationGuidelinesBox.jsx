@@ -61,7 +61,7 @@ class ModerationGuidelinesBox extends PureComponent {
     const user = document && document.user;
     const moderationStyle = user.moderationStyle || "no-moderation";
     const truncatiseOptions = {
-      TruncateLength: 300,
+      TruncateLength: 270,
       TruncateBy: "characters",
       Suffix: "... (Read More)",
       Strict: false

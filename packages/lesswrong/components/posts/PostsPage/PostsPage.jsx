@@ -87,8 +87,8 @@ const styles = theme => ({
       fontSize: 42,
       textAlign: 'center',
       display: 'inline-block',
-      marginLeft: -4,
-      marginRight: 15,
+      marginLeft: 8,
+      marginRight: 8,
     },
     postFooter: {
       padding: '10px 0px',
@@ -107,7 +107,7 @@ const styles = theme => ({
       }
     },
     moderationGuidelinesWrapper: {
-      width: 'calc(100% - 61px)',
+      width: 'calc(100% - 70px)',
       verticalAlign: 'top',
       display: 'inline-block',
       ...commentBodyStyles(theme)
