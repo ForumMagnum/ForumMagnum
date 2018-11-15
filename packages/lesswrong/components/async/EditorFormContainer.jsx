@@ -19,7 +19,7 @@ class EditorFormContainer extends Component {
 
   initializeContent = () => {
     let state = {};
-    const { document, name } = this.props;
+    const { document, name, defaultValue } = this.props;
     // Check whether we have a state from a previous session saved (in localstorage)
     const savedState = this.getStorageHandlers().get({doc: document, name})
     if (savedState) {
@@ -45,10 +45,13 @@ class EditorFormContainer extends Component {
     }
     if (document && document.htmlBody && Meteor.isClient) {
       const rawDraft = htmlToDraft(document.htmlBody, {flat: true})
-      return EditorState.createWithContent(rawDraft);
+      return EditorState.createWithContent(rawDraft)
     } else if (document && document.htmlDescription && Meteor.isClient) {
       const rawDraft = htmlToDraft(document.htmlDescription, {flat: true})
-      return EditorState.createWithContent(rawDraft);
+      return EditorState.createWithContent(rawDraft)
+    } else if (defaultValue) {
+      const rawDraft = htmlToDraft(defaultValue, {flat: true})
+      return EditorState.createWithContent(rawDraft)
     } else {
       return EditorState.createEmpty();
     }

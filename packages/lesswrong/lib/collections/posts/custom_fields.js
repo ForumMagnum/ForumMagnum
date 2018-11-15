@@ -22,7 +22,8 @@ export const formGroups = {
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: "Moderation",
+    label: "Moderation Guidelines",
+    helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
   options: {
@@ -50,6 +51,10 @@ export const formGroups = {
     flexStyle: true
   },
 };
+
+const userHasModerationGuidelines = (currentUser) => {
+  return !!currentUser.moderationGuidelines
+}
 
 Posts.addField([
   /**
@@ -1066,10 +1071,19 @@ makeEditable({
 })
 
 export const makeEditableOptionsModeration = {
+  // Determines whether to use the comment editor configuration (e.g. Toolbars)
+  commentEditor: true,
+  // Determines whether to use the comment editor styles (e.g. Fonts)
+  commentStyles: true,
   formGroup: formGroups.moderationGroup,
   adminFormGroup: formGroups.adminOptions,
   order: 50,
-  fieldName: "moderationGuidelines"
+  fieldName: "moderationGuidelines",
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: [userHasModerationGuidelines]
+  },
 }
 
 makeEditable({

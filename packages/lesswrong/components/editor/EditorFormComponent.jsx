@@ -112,7 +112,7 @@ class EditorFormComponent extends Component {
   render() {
     const AsyncEditor = this.state.editor
     const { editorOverride } = this.state
-    const { document, currentUser, formType } = this.props
+    const { document, currentUser, formType, name } = this.props
     const commentStyles = this.props.form && this.props.form.commentStyles
     const { classes, ...passedDownProps } = this.props
 
@@ -130,12 +130,15 @@ class EditorFormComponent extends Component {
       && document.lastEditedAs !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
+    const defaultValue = name.includes("moderationGuidelines") ? currentUser.moderationGuidelines : ""
+
     if (this.getCurrentEditorType() === "draft-js") {
       return (
         <div className={heightClass}>
           { editorWarning }
           <AsyncEditor
             {...passedDownProps}
+            defaultValue={defaultValue}
             className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
         </div>);
@@ -143,18 +146,21 @@ class EditorFormComponent extends Component {
       // HACK FIXME: If not using the draft-JS editor, change the field name.
       // (This will break horribly with nested form fields, as well as with
       // multiple editable fields on the same object.)
-      const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
-      const path = name;
+      const newName = (this.getCurrentEditorType() === "html") ?
+        name.replace("content", "htmlBody").replace("Content", "htmlBody") :
+        name.replace("content", "body").replace("Content", "body")
+      const path = newName;
 
       return (
         <div>
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}
+            defaultValue={defaultValue}
             className={classnames(classes.markdownEditor, bodyStyles, {[classes.questionWidth]: document.question})}
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}
-            name={name}
+            name={newName}
             path={path}
           />
         </div>

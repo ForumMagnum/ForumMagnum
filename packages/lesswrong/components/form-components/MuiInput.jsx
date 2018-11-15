@@ -16,7 +16,7 @@ class MuiInput extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: props.document && props.document[props.path] || ""
+      content: props.document && props.document[props.path] || props.defaultValue || ""
     }
   }
 
