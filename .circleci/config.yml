@@ -215,12 +215,16 @@ jobs:
           command: |
             echo "$settings_prod" > settings.json
             echo "$meteor_token" > token.json
+            echo "$mup_settings_prod" > mup.js
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
       - run:
           name: Install json utility
           command: meteor npm i -g json
+      - run:
+          name: Install mup and mup-aws-beanstalk
+          command: meteor npm i -g mup mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -232,9 +236,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            METEOR_SESSION_FILE: token.json
-            DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-          command: meteor deploy www.lesswrong.com --settings settings.json
+          command: meteor mup deploy
   deploy_af:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -287,12 +289,16 @@ jobs:
           command: |
             echo "$settings_af" > settings.json
             echo "$meteor_token" > token.json
+            echo "$mup_settings_af" > mup.js
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
       - run:
           name: Install json utility
           command: meteor npm i -g json
+      - run:
+          name: Install mup and mup-aws-beanstalk
+          command: meteor npm i -g mup mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -304,9 +310,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            METEOR_SESSION_FILE: token.json
-            DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-          command: meteor deploy www.alignmentforum.org --settings settings.json
+          command: meteor mup deploy
   deploy_baserates:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
