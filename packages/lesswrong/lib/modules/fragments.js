@@ -222,6 +222,7 @@ registerFragment(`
     }
     collectionTitle
     types
+    showModerationGuidelines
   }
 `);
 

@@ -1017,6 +1017,41 @@ Posts.addField([
       group: formGroups.adminOptions,
     }
   },
+
+  /**
+    GraphQL only field that resolves based on whether the current user has closed
+    this posts author's moderation guidelines in the past
+  */
+  {
+    fieldName: 'showModerationGuidelines',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: ['guests'],
+      resolveAs: {
+        type: 'Boolean',
+        resolver: async (post, args, { LWEvents, currentUser }) => {
+          if(currentUser){
+            const query = {
+              name:'toggled-user-moderation-guidelines',
+              documentId: post.userId,
+              userId: currentUser._id
+            }
+            const sort = {sort:{createdAt:-1}}
+            const event = await LWEvents.findOne(query, sort);
+            if (event) {
+              return event && event.properties && event.properties.targetState
+            } else {
+              return true
+            }
+          } else {
+            return false
+          }
+        },
+        addOriginalField: false
+      }
+    }
+  }
 ]);
 
 export const makeEditableOptions = {
@@ -1114,5 +1149,5 @@ Users.addField([
       viewableBy: ['guests'],
       order: 50,
     }
-  }
+  },
 ]);
