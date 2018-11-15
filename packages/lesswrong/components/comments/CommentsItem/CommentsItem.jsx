@@ -112,9 +112,11 @@ class CommentsItem extends Component {
     this.props.scrollIntoView(event);
     return false;
   }
-  
+
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
+
+    const { showEdit } = this.state
 
     if (comment && post) {
       return (
@@ -180,11 +182,20 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            <Components.CommentBody
-              truncated={truncated}
-              collapsed={collapsed}
-              comment={comment}
-            />
+            { showEdit ? (
+              <Components.CommentsEditForm
+                  comment={this.props.comment}
+                  successCallback={this.editSuccessCallback}
+                  cancelCallback={this.editCancelCallback}
+                />
+            ) : (
+              <Components.CommentBody
+                truncated={truncated}
+                collapsed={collapsed}
+                comment={comment}
+              />
+            ) }
+
             {!comment.deleted && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
@@ -354,13 +365,6 @@ class CommentsItem extends Component {
       </div>
     )
   }
-
-  renderEdit = () =>
-      <Components.CommentsEditForm
-        comment={this.props.comment}
-        successCallback={this.editSuccessCallback}
-        cancelCallback={this.editCancelCallback}
-      />
 }
 
 CommentsItem.propTypes = {
