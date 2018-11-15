@@ -140,7 +140,11 @@ class EditorFormComponent extends Component {
           />
         </div>);
     } else {
+      // HACK FIXME: If not using the draft-JS editor, change the field name.
+      // (This will break horribly with nested form fields, as well as with
+      // multiple editable fields on the same object.)
       const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
+      const path = name;
 
       return (
         <div>
@@ -151,6 +155,7 @@ class EditorFormComponent extends Component {
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}
             name={name}
+            path={path}
           />
         </div>
       );
