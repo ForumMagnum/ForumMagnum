@@ -1,9 +1,6 @@
-import { Components, registerComponent, withDocument, Utils} from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
-import classNames from 'classnames'
-import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import withUser from '../common/withUser';
@@ -61,9 +58,7 @@ class ModerationGuidelinesBox extends PureComponent {
 
   render() {
     const { document, classes } = this.props;
-    const post = document;
     const user = document && document.user;
-    const canModerate = Users.canModeratePost(user, post)
     const moderationStyle = user.moderationStyle || "no-moderation";
     const truncatiseOptions = {
       TruncateLength: 300,
@@ -97,28 +92,6 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 }
 
-const PersonalBlogGuidelines = ({user, classes, canModerate, moderationStyle}) => {
-  return(user && user.moderationGuidelines &&
-    <div>
-      <p>
-
-        <span className={classes[moderationStyle]}>
-          <FormattedMessage id={"moderation-" + moderationStyle} />
-        </span>
-      </p>
-      <p>{user.moderationGuidelines}</p>
-    </div>)
-}
-
-
-const ShortModerationGuidelines = () => (
-  <div>
-    <b>Moderation Guidelines:</b> Aim to explain, not persuade. Write your true reasons for believing something, not
-      the reasons you think are most likely to persuade readers of your comments. Try to offer concrete
-     models, make predictions, and note what would change your mind (Read More)
-  </div>
-)
-
 const frontpageGuidelines = `
   <p><em>Frontpage commenting guidelines:</em></p>
   <p>
@@ -136,27 +109,6 @@ const truncatedFrontpageGuidelines = `
   <p>
     <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind. <a>...(Read More)</a>
   </p>`
-
-const ModerationGuidelinesContent = ({ user, showFrontpageGuidelines = true, showModeratorAssistance = true }) => (
-  <div className="moderation-guidelines-box-content comments-item-text">
-    {showFrontpageGuidelines && <div>
-      <p><em>Frontpage commenting guidelines:</em></p>
-      <p>
-        <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, as opposed to the reasons you think are most likely to persuade readers of your comments. Try to offer concrete models, make predictions, and note what would change your mind.
-      </p>
-      <p>
-        <b>Avoid identity politics.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
-      </p>
-      <p>
-        <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
-      </p>
-
-    </div>}
-    {user && user.moderatorAssistance && showModeratorAssistance &&
-      <p className="moderation-guidelines-box-assistance">
-        <em>LW2 moderators are assisting in the moderation of this post</em>
-      </p> }
-</div>)
 
 const moderationStyleLookup = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
