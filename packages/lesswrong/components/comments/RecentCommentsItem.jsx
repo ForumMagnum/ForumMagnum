@@ -23,7 +23,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
   render() {
     const { comment, showTitle, level=1, truncated, collapsed } = this.props;
-
+    const { showEdit } = this.state
+    
     if (comment && comment.post) {
       return (
         <div
@@ -75,8 +76,12 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
               </div>
-              {this.state.showEdit ?
-                this.renderEdit()
+              { showEdit ?
+                <Components.CommentsEditForm
+                  comment={this.props.comment}
+                  successCallback={this.editSuccessCallback}
+                  cancelCallback={this.editCancelCallback}
+                />
                 :
                 <Components.CommentBody
                   truncated={truncated}
