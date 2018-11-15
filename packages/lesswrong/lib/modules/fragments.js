@@ -223,6 +223,8 @@ registerFragment(`
     collectionTitle
     types
     showModerationGuidelines
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
   }
 `);
 

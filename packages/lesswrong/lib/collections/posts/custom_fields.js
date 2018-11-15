@@ -1065,6 +1065,18 @@ makeEditable({
   options: makeEditableOptions
 })
 
+export const makeEditableOptionsModeration = {
+  formGroup: formGroups.moderationGroup,
+  adminFormGroup: formGroups.adminOptions,
+  order: 50,
+  fieldName: "moderationGuidelines"
+}
+
+makeEditable({
+  collection: Posts,
+  options: makeEditableOptionsModeration
+})
+
 
 /*
 
