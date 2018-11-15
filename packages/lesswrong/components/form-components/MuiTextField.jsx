@@ -37,7 +37,7 @@ class MuiTextField extends PureComponent {
 
     return <TextField
         select={select}
-        value={value}
+        value={value||""}
         defaultValue={defaultValue}
         label={label}
         onChange={this.onChange}
