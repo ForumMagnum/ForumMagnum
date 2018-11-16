@@ -2,10 +2,43 @@ import { linkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
+const spoilerStyles = theme => ({
+  '& p.spoiler': {
+    margin: 0,
+  },
+  '& .spoiler': {
+    backgroundColor: 'black',
+    padding: 8,
+    color: 'black',
+    pointerEvents: 'auto',
+    minHeight: theme.typography.commentStyle.fontSize,
+    '& .public-DraftStyleDefault-block': {
+      margin: 0,
+    },
+  },
+  '& .spoiler:before': {
+    content: '"spoiler (hover/select to reveal)"',
+    color: 'white',
+    position: 'absolute',
+    left: 20
+  },
+  '& .spoiler:after': {
+    content: '"\\00a0"',
+  },
+  '&:hover .spoiler': {
+    color: 'white',
+  },
+  '&:hover .spoiler:before': {
+    color: 'black',
+    content: '""'
+  },
+})
+
 export const postBodyStyles = (theme, fontSize) => {
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
+    ...spoilerStyles(theme),
     '& pre': {
       ...theme.typography.codeblock
     },
@@ -65,6 +98,7 @@ export const commentBodyStyles = theme => {
     marginBottom: ".5em",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    ...spoilerStyles(theme),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -84,35 +118,6 @@ export const commentBodyStyles = theme => {
     pointerEvents: 'none',
     '& *': {
       pointerEvents: 'auto'
-    },
-    '& p.spoiler': {
-      margin: 0,
-    },
-    '& .spoiler': {
-      backgroundColor: 'black',
-      padding: 8,
-      color: 'black',
-      pointerEvents: 'auto',
-      minHeight: theme.typography.commentStyle.fontSize,
-      '& .public-DraftStyleDefault-block': {
-        margin: 0,
-      },
-    },
-    '& .spoiler:before': {
-      content: '"spoiler (hover/select to reveal)"',
-      color: 'white',
-      position: 'absolute',
-      left: 20
-    },
-    '& .spoiler:after': {
-      content: '"\\00a0"',
-    },
-    '&:hover .spoiler': {
-      color: 'white',
-    },
-    '&:hover .spoiler:before': {
-      color: 'black',
-      content: '""'
     },
     '& > *:hover ~ .spoiler': {
       color: 'black'
