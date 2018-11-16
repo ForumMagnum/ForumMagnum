@@ -86,13 +86,14 @@ export const commentBodyStyles = theme => {
       pointerEvents: 'auto'
     },
     '& p.spoiler': {
-      margin: 0
+      margin: 0,
     },
     '& .spoiler': {
       backgroundColor: 'black',
       padding: 8,
       color: 'black',
       pointerEvents: 'auto',
+      minHeight: theme.typography.commentStyle.fontSize,
       '& .public-DraftStyleDefault-block': {
         margin: 0,
       },
@@ -102,6 +103,9 @@ export const commentBodyStyles = theme => {
       color: 'white',
       position: 'absolute',
       left: 20
+    },
+    '& .spoiler:after': {
+      content: '"\\00a0"',
     },
     '&:hover .spoiler': {
       color: 'white',
