@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { Posts } from '../../lib/collections/posts';
 
 class CommentsList extends Component {
   constructor(props, context) {
@@ -45,13 +46,23 @@ class CommentsList extends Component {
       editMutation,
       post,
       postPage,
+      totalComments,
+      startThreadCollapsed,
     } = this.props;
+
+
+    const { lastVisitedAt } = post
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const unreadComments = lastVisitedAt < lastCommentedAt;
+
     if (comments) {
       return (
         <Components.ErrorBoundary>
           <div className="comments-list">
             {comments.map(comment =>
               <Components.CommentsNode
+                startThreadCollapsed={startThreadCollapsed || totalComments >= 25}
+                unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
                 nestingLevel={1}

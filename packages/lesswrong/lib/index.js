@@ -21,6 +21,9 @@ import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
 
+import './collections/posts/fragments.js';
+
+
 // Notifications
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/custom_fields.js';
