@@ -10,62 +10,21 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 
-const placeholderLat = 37.871853;
-const placeholderLng = -122.258423;
-
 class CommunityHome extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
       newGroupFormOpen: false,
       newEventFormOpen: false,
-      currentUserLocation: this.getUserLocation(),
+      currentUserLocation: Users.getLocation(props.currentUser),
     }
   }
 
   componentDidMount() {
-    const newLocation = this.getUserLocation();
+    const { currentUser } = this.props
+    const newLocation = Users.getLocation(currentUser);
     if (!_.isEqual(this.state.currentUserLocation, newLocation)) {
-      this.setState({ currentUserLocation: this.getUserLocation() });
-    }
-  }
-
-  // Return the current user's location, as a latitude-longitude pair, plus
-  // boolean fields `loading` and `known`. If `known` is false, the lat/lng are
-  // invalid placeholders. If `loading` is true, then `known` is false, but the
-  // state might be updated with a location later.
-  //
-  // If the user is logged in, the location specified in their account settings
-  // is used first. If the user is not logged in, then no location is available
-  // for server-side rendering, but we can try to get a location client-side
-  // using the browser geolocation API. (This won't necessarily work, since not
-  // all browsers and devices support it, and it requires user permission.)
-  getUserLocation() {
-    const currentUser = this.props.currentUser;
-    const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
-    const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
-    if (currentUserLat && currentUserLng) {
-      // First return a location from the user profile, if set
-      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
-    } else if (Meteor.isServer) {
-      // If there's no location in the user profile, we may still be able to get
-      // a location from the browser--but not in SSR.
-      return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};
-    } else {
-      // If we're on the browser, try to get a location using the browser
-      // geolocation API. This is not always available.
-      if (typeof window !== 'undefined' && typeof navigator !== 'undefined'
-          && navigator && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          if(position && position.coords) {
-            const navigatorLat = position.coords.latitude
-            const navigatorLng = position.coords.longitude
-            return {lat: navigatorLat, lng: navigatorLng, loading: false, known: true}
-          }
-        });
-      }
-
-      return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};
+      this.setState({ currentUserLocation: Users.getLocation(currentUser) });
     }
   }
 
@@ -129,6 +88,9 @@ class CommunityHome extends Component {
           </Components.SectionSubtitle>}
           <Components.SectionSubtitle>
             <Link to="/pastEvents">See past events</Link>
+          </Components.SectionSubtitle>
+          <Components.SectionSubtitle>
+            <Link to="/upcomingEvents">See upcoming events</Link>
           </Components.SectionSubtitle>
         </div>}>
           {this.state.currentUserLocation &&

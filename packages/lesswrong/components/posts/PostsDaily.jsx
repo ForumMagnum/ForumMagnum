@@ -7,7 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 
-const styles = theme => ({
+export const styles = theme => ({
   titleSettings: {
     marginTop: 10,
     width: 150,
@@ -30,6 +30,20 @@ const styles = theme => ({
   checkboxLabel: {
     ...theme.typography.subheading,
     marginLeft: 5
+  },
+  
+  dailyWrapper: {
+    [theme.breakpoints.up('md')]: {
+      marginLeft: -100,
+    },
+  },
+  dailyContentWrapper: {
+    marginTop: -12,
+    marginLeft: 15,
+    
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 2,
+    },
   },
 });
 
@@ -57,6 +71,7 @@ class PostsDaily extends Component {
   }
 
   render() {
+    const { classes } = this.props;
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const terms = {
       view: 'daily',
@@ -66,9 +81,9 @@ class PostsDaily extends Component {
       karmaThreshold: this.state.hideLowKarma ? -10 : -100
     };
 
-    return <div className="posts-daily-wrapper">
+    return <div className={classes.dailyWrapper}>
       <Components.Section title="Posts by Day" titleComponent={this.renderTitle()}>
-        <div className="posts-daily-content-wrapper">
+        <div className={classes.dailyContentWrapper}>
           <Components.PostsDailyList title="Posts by Day"
             terms={terms} days={numberOfDays}/>
         </div>

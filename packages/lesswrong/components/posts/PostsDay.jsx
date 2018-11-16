@@ -2,12 +2,15 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
+import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   dayTitle: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit,
+    whiteSpace: "pre",
+    textOverflow: "ellipsis",
     ...theme.typography.postStyle
   },
   noPosts: {
@@ -24,7 +27,14 @@ class PostsDay extends PureComponent {
 
     return (
       <div className="posts-day">
-        <Typography variant="display2" className={classes.dayTitle} >{date.format('dddd, MMMM Do YYYY')}</Typography>
+        <Typography variant="display2" className={classes.dayTitle}>
+          <Hidden xsDown implementation="css">
+            {date.format('dddd, MMMM Do YYYY')}
+          </Hidden>
+          <Hidden smUp implementation="css">
+            {date.format('ddd, MMM Do YYYY')}
+          </Hidden>
+        </Typography>
         { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
           <div className="posts-list">
             <div className="posts-list-content">

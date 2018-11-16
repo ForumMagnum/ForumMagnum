@@ -1,5 +1,5 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-// import { InstantSearch} from 'react-instantsearch/dom';
+// import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
@@ -51,7 +51,7 @@ class Layout extends PureComponent {
       timezone: null
     };
   }
-  
+
   componentDidMount() {
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
@@ -60,7 +60,7 @@ class Layout extends PureComponent {
       });
     }
   }
-  
+
   render () {
     const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
     const {userAgent} = this.context;
@@ -104,7 +104,7 @@ class Layout extends PureComponent {
             <Helmet>
               <title>{title}</title>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-              <link name="react-instantsearch" rel="stylesheet" type="text/css" href="https://unpkg.com/react-instantsearch-theme-algolia@4.0.0/style.min.css"/>
+              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
               <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
               { theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
@@ -116,12 +116,12 @@ class Layout extends PureComponent {
             </Helmet>
             {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
             {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
-  
+
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
             <Components.Header {...this.props}/>
-  
+
             <div className={classes.main}>
               <Components.ErrorBoundary>
                 <Components.FlashMessages />

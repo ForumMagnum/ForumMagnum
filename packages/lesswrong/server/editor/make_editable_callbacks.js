@@ -1,6 +1,7 @@
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
+import { highlightFromHTML, excerptFromHTML } from '../../lib/editor/ellipsize.jsx';
 
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
@@ -24,30 +25,30 @@ function mjPagePromise(html, beforeSerializationCallback) {
   })
 }
 
-const createHtmlHighlight = (body) => {
-  if (body.length > 2400) {
-    // drop the last paragraph
-    const highlight2400Shortened = body.slice(0,2400).split("\n").slice(0,-1).join("\n")
-    const highlightnewlineShortened = body.split("\n\n").slice(0,5).join("\n\n")
-    if (highlightnewlineShortened.length > highlight2400Shortened.length) {
-      return mdi.render(highlight2400Shortened)
-    } else {
-      return mdi.render(highlightnewlineShortened)
-    }
-  } else {
-    return mdi.render(body)
+export const getExcerptFieldsFromMarkdown = (markdownBody, fieldName = "") => {
+  const htmlBody = mdi.render(markdownBody);
+  return getExcerptFieldsFromHTML(htmlBody, fieldName);
+}
+
+export const getExcerptFieldsFromHTML = (html, fieldName = "") => {
+  const markdownBody = htmlToMarkdown(html);
+  const wordCount = wordcountFromMarkdown(markdownBody);
+  const htmlHighlight = highlightFromHTML(html);
+  const excerpt = excerptFromHTML(html);
+  const plaintextExcerpt = htmlToText.fromString(excerpt);
+  return {
+    [`${fieldName}wordCount`]: wordCount,
+    [`${fieldName}htmlHighlight`]: htmlHighlight,
+    [`${fieldName}excerpt`]: excerpt,
+    [`${fieldName}plaintextExcerpt`]: plaintextExcerpt,
   }
 }
 
-const createExcerpt = (body) => {
-  const excerpt = body.slice(0,400)
-  if (excerpt.includes("[")) {
-    const excerptTrimLink = excerpt.split("[").slice(0, -1).join('[')
-    return mdi.render(excerptTrimLink + "... (Read More)")
-  } else {
-    return mdi.render(excerpt + "... (Read More)")
-  }
+const wordcountFromMarkdown = (markdownBody) => {
+  return markdownBody.split(" ").length;
 }
+
+
 
 const convertFromContent = (content, fieldName = "") => {
   const contentState = convertFromRaw(content);
@@ -56,7 +57,7 @@ const convertFromContent = (content, fieldName = "") => {
   return {
     [`${fieldName}htmlBody`]: htmlBody,
     [`${fieldName}body`]: body,
-    ...getExcerptFields(body, fieldName),
+    ...getExcerptFieldsFromHTML(htmlBody, fieldName),
     [`${fieldName}lastEditedAs`]: 'draft-js'
   }
 }
@@ -66,20 +67,7 @@ const convertFromContentAsync = async function(content, fieldName = "") {
   return convertFromContent(newContent, fieldName)
 }
 
-const getExcerptFields = (body, fieldName = "") => {
-  const wordCount = body.split(" ").length
-  const htmlHighlight = createHtmlHighlight(body)
-  const excerpt = createExcerpt(body)
-  const plaintextExcerpt = htmlToText.fromString(excerpt)
-  return {
-    [`${fieldName}wordCount`]: wordCount,
-    [`${fieldName}htmlHighlight`]:htmlHighlight,
-    [`${fieldName}excerpt`]:excerpt,
-    [`${fieldName}plaintextExcerpt`]:plaintextExcerpt,
-  }
-}
-
-const htmlToMarkdown = (html) => {
+export const htmlToMarkdown = (html) => {
   return turndownService.turndown(html)
 }
 
@@ -89,7 +77,7 @@ const convertFromHTML = (html, sanitize, fieldName = "") => {
   return {
     [`${fieldName}htmlBody`]: htmlBody,
     [`${fieldName}body`]: body,
-    ...getExcerptFields(body, fieldName),
+    ...getExcerptFieldsFromHTML(html, fieldName),
     [`${fieldName}lastEditedAs`]: "html",
   }
 }
@@ -98,7 +86,7 @@ const convertFromMarkdown = (body, fieldName = "") => {
   return {
     [`${fieldName}htmlBody`]: mdi.render(body),
     [`${fieldName}body`]: body,
-    ...getExcerptFields(body, fieldName),
+    ...getExcerptFieldsFromMarkdown(body, fieldName),
     [`${fieldName}lastEditedAs`]: "markdown"
   }
 }
@@ -126,7 +114,7 @@ export function addEditableCallbacks({collection, options = {}}) {
       newFields = await convertFromMarkdownAsync(doc.body, fieldName)
       newDoc = {...doc, ...newFields}
     } else if (doc.htmlBody) {
-      newFields = convertFromHTML(doc.htmlBody, !author.isAdmin, fieldName);
+      newFields = convertFromHTML(doc.htmlBody, !(author && author.isAdmin), fieldName);
       newDoc = {...doc, ...newFields}
     }
     return newDoc
@@ -145,7 +133,7 @@ export function addEditableCallbacks({collection, options = {}}) {
       newModifier.$set = {...modifier.$set, ...newFields}
       if (modifier.$unset) {delete modifier.$unset.htmlBody}
     } else if (modifier.$set && modifier.$set.htmlBody) {
-      newFields = convertFromHTML(modifier.$set.htmlBody, !author.isAdmin, fieldName);
+      newFields = convertFromHTML(modifier.$set.htmlBody, !(author && author.isAdmin), fieldName);
       newModifier.$set = {...modifier.$set, ...newFields}
     }
     return newModifier

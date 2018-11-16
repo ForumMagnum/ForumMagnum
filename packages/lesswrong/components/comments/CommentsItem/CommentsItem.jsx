@@ -37,7 +37,7 @@ const styles = theme => ({
     float:"right",
     opacity:.35,
     marginRight:-5
-  }
+  },
 })
 
 class CommentsItem extends Component {
@@ -113,40 +113,10 @@ class CommentsItem extends Component {
     return false;
   }
 
-  renderExcerpt() {
-    const { comment, classes } = this.props
-
-    if (comment.body) {
-      // Replace Markdown Links with just their display text
-      let bodyReplaceLinks = comment.body.replace(/(?:__|[*#])|\[(.*?)\]\(.*?\)/gm, '$1');
-
-      let commentExcerpt = bodyReplaceLinks.substring(0,300).split("\n\n");
-
-      const lastElement = commentExcerpt.slice(-1)[0];
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map(
-        (text, i) => <p key={ comment._id + i}>{text}</p>);
-      return <div className={classNames("comments-item-text", "content-body", classes.commentStyling)}>
-        {commentExcerpt}
-        <p>{lastElement + "..."}
-          <a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a>
-        </p>
-      </div>
-    } else {
-      return null
-    }
-  }
-
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
-    const expanded = !(!this.state.expanded && comment.body && comment.body.length > 300) || this.props.expanded
-
-    const commentBody = this.props.collapsed ? "" : (
-      <div>
-        {this.state.showEdit ? this.renderEdit() : <Components.CommentBody comment={comment}/>}
-        {!comment.deleted && this.renderCommentBottom()}
-      </div>
-    )
+    const { showEdit } = this.state
 
     if (comment && post) {
       return (
@@ -169,7 +139,7 @@ class CommentsItem extends Component {
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
                 level={nestingLevel + 1}
-                expanded={true}
+                truncated={false}
                 key={comment.parentCommentId}
               />
             </div>
@@ -212,9 +182,23 @@ class CommentsItem extends Component {
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               {this.renderMenu()}
             </div>
-            { (!postPage && !expanded) ? this.renderExcerpt() : commentBody}
+            { showEdit ? (
+              <Components.CommentsEditForm
+                  comment={this.props.comment}
+                  successCallback={this.editSuccessCallback}
+                  cancelCallback={this.editCancelCallback}
+                />
+            ) : (
+              <Components.CommentBody
+                truncated={truncated}
+                collapsed={collapsed}
+                comment={comment}
+              />
+            ) }
+
+            {!comment.deleted && this.renderCommentBottom()}
           </div>
-          {this.state.showReply && !this.props.collapsed ? this.renderReply() : null}
+          { this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
       )
     } else {
@@ -381,13 +365,6 @@ class CommentsItem extends Component {
       </div>
     )
   }
-
-  renderEdit = () =>
-      <Components.CommentsEditForm
-        comment={this.props.comment}
-        successCallback={this.editSuccessCallback}
-        cancelCallback={this.editCancelCallback}
-      />
 }
 
 CommentsItem.propTypes = {

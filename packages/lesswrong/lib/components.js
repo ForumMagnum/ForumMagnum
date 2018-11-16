@@ -98,7 +98,8 @@ import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsDay.jsx';
-import '../components/posts/EventsDaily.jsx';
+import '../components/posts/EventsPast.jsx';
+import '../components/posts/EventsUpcoming.jsx';
 import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
@@ -109,12 +110,17 @@ import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsVote.jsx';
 import '../components/posts/PostsStats.jsx';
+import '../components/posts/ShowOrHideHighlightButton.jsx';
+import '../components/posts/PostsUserAndCoauthors.jsx';
+
+import '../components/questions/NewQuestionDialog.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
 import '../components/localGroups/CommunityMapFilter.jsx';
 import '../components/localGroups/CommunityMapWrapper.jsx';
 import '../components/localGroups/EventTime.jsx';
+import '../components/localGroups/EventVicinity.jsx';
 import '../components/localGroups/LocalGroupMarker.jsx';
 import '../components/localGroups/LocalEventMarker.jsx';
 import '../components/localGroups/LocalGroupPage.jsx';
@@ -259,6 +265,7 @@ import '../components/form-components/FormComponentDefault.jsx';
 import '../components/form-components/FormComponentSelect.jsx';
 import '../components/form-components/FormComponentDate.jsx';
 import '../components/form-components/FormComponentDateTime.jsx';
+import '../components/form-components/FormComponentNumber.jsx';
 
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';

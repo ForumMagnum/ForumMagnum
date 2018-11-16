@@ -58,7 +58,7 @@ const styles = (theme) => ({
   },
   subscribeWidget: {
   },
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('sm')]: {
     heading: {
       display: "inline"
     },

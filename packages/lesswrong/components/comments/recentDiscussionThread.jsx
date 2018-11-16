@@ -18,7 +18,6 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 
-import Icon from '@material-ui/core/Icon';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
@@ -132,22 +131,9 @@ class RecentDiscussionThread extends PureComponent {
               <span title="Unread" className={classes.unreadDot}>•</span>
             }
             <Components.PostsItemMeta post={post}/>
-            <span className="recent-discussion-show-highlight">
-              { this.state.showExcerpt ?
-                <Components.MetaInfo>
-                  Hide Highlight
-                  <Icon className={classNames("material-icons","hide-highlight-button")}>
-                    subdirectory_arrow_left
-                  </Icon>
-                </Components.MetaInfo>
-              :
-              <Components.MetaInfo>
-                Show Highlight
-                <Icon className={classNames("material-icons","show-highlight-button")}>
-                  subdirectory_arrow_left
-                </Icon>
-              </Components.MetaInfo> }
-            </span>
+            <Components.ShowOrHideHighlightButton
+              className={"recent-discussion-show-highlight"}
+              open={this.state.showExcerpt}/>
           </div>
         </div>
 
@@ -177,6 +163,8 @@ class RecentDiscussionThread extends PureComponent {
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <Components.CommentsNode
+                  startThreadCollapsed={true}
+                  nestingLevel={1}
                   currentUser={currentUser}
                   comment={comment.item}
                   //eslint-disable-next-line react/no-children-prop

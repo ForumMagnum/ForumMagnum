@@ -69,9 +69,9 @@ class PostsViews extends Component {
       <div className="view-chip-menu-wrapper">
         <div className="view-chip-menu">
           <div className="view-chip-menu-item description">
-            <Icon className={classnames("material-icons", classes.categoryIcon)}>
+            {viewData.categoryIcon && <Icon className={classnames("material-icons", classes.categoryIcon)}>
               {viewData.categoryIcon}
-            </Icon>
+            </Icon>}
             {viewData.description}
           </div>
           { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}

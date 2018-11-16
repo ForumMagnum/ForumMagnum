@@ -11,14 +11,23 @@ const styles = theme => ({
     color: grey[600],
     marginBottom: theme.spacing.unit*2,
     fontSize:".9em",
+    maxWidth: "100%",
+    overflowX: "hidden",
+    textOverflow: "ellipsis",
     ...theme.typography.postStyle,
   },
 })
 
 const LinkPostMessage = ({post, classes}) => {
-  return <div className={classes.root}>
-          { post.url && <span>This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link></span>}
-        </div>
+  if (!post.url)
+    return null;
+  
+  return (
+    <div className={classes.root}>
+      This is a linkpost for
+      <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+    </div>
+  );
 }
 
 LinkPostMessage.displayName = "LinkPostMessage";

@@ -21,33 +21,10 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     this.setState({showParent:!this.state.showParent})
   }
 
-  renderRecentComment() {
-    const comment = this.props.comment || this.props.document
-    const plaintext = comment.body;
-
-    const expanded = !(!this.state.expanded && plaintext && plaintext.length > 300) || this.props.expanded
-    if (!expanded && plaintext) {
-      // Add ellipsis to last element of commentExcerpt
-      let commentExcerpt = plaintext.substring(0,300).split("\n\n");
-      const lastElement = commentExcerpt.slice(-1)[0];
-      let paragraphCounter = 0;
-      commentExcerpt = commentExcerpt.slice(0, commentExcerpt.length - 1).map((text) => <p key={ comment._id + paragraphCounter++}>{text}</p>);
-      return <div className="comments-item-text content-body">
-        {commentExcerpt}
-        <p>{lastElement + "..."}<a className="read-more" onClick={() => this.setState({expanded: true})}>(read more)</a> </p>
-      </div>
-    } else {
-      return (
-        <div className="comments-item-text content-body" >
-          <Components.CommentBody comment={comment}/>
-        </div>
-      )
-    }
-  }
-
   render() {
-    const { comment, showTitle, level=1 } = this.props;
-
+    const { comment, showTitle, level=1, truncated, collapsed } = this.props;
+    const { showEdit } = this.state
+    
     if (comment && comment.post) {
       return (
         <div
@@ -99,7 +76,19 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
               </div>
-              {this.state.showEdit ? this.renderEdit() : this.renderRecentComment()}
+              { showEdit ?
+                <Components.CommentsEditForm
+                  comment={this.props.comment}
+                  successCallback={this.editSuccessCallback}
+                  cancelCallback={this.editCancelCallback}
+                />
+                :
+                <Components.CommentBody
+                  truncated={truncated}
+                  collapsed={collapsed}
+                  comment={comment}
+                />
+              }
             </div>
           </div>
           {this.state.showReply ? this.renderReply() : null}

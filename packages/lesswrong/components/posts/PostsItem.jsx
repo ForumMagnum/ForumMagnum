@@ -18,16 +18,68 @@ import Paper from '@material-ui/core/Paper';
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    display: "flex",
+    alignAtems: "stretch",
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.03) !important",
+    },
   },
+  postsItem: {
+    position: "relative",
+    
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,.025) !important",
+    },
+    
+    "& a:hover, & a:active, & a:focus": {
+      textDecoration: "none",
+      color: "rgba(0,0,0,0.3)",
+    },
+  },
+  
+  paperShowHighlight: {
+    "&:hover": {
+      backgroundColor: "white !important",
+    }
+  },
+  contentShowHighlight: {
+    background: "white !important",
+  },
+  
   highlight: {
     maxWidth:570,
     padding:theme.spacing.unit*2,
     ...postHighlightStyles(theme),
   },
+  
+  meta: {
+    display: "block",
+    color: "rgba(0,0,0,0.55)",
+    width: "100%",
+    maxWidth: 570,
+    paddingBottom: 5,
+
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    
+    [legacyBreakpoints.maxTiny]: {
+      width: 320,
+      paddingLeft: 3,
+    },
+    "&:hover $showHighlightButton": {
+      [theme.breakpoints.up('md')]: {
+        opacity: 0.7,
+      }
+    },
+  },
+  
   content: {
     paddingLeft:10,
     paddingTop:10,
@@ -66,7 +118,125 @@ const styles = theme => ({
   },
   unreadComments: {
     color: theme.palette.secondary.light,
-  }
+  },
+  
+  recentCommentsTitle: {
+    padding: "10px 0",
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  
+  collapseIcon: {
+    fontSize: "12px !important",
+    height: 12,
+    transform: "rotate(90deg)",
+    marginRight: 5,
+    top: 1,
+    color: "rgba(0,0,0,.4) !important",
+  },
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // Used for the highlight (in renderHighlightMenu, and the button)
+  ////////////////////////////////////////////////////////////////////////////
+  showHighlightButton: {
+    opacity: 0,
+    marginLeft: 4,
+  },
+  highlightFooter: {
+    padding: "35px 0 0px",
+    textAlign: "center",
+    clear: "both",
+    overflow: "auto",
+  },
+  
+  highlightFooterButton: {
+    color: "rgba(0,0,0,.6)",
+    fontSize: "12px",
+    cursor: "pointer",
+    position: "absolute",
+    padding: "10px 0",
+    bottom: 0,
+    height: 35,
+    background: "white",
+    borderTop: "solid 1px rgba(0,0,0,.05)",
+
+    "&:hover": {
+      backgroundColor: "rgb(240,240,240)",
+    }
+  },
+  hideHighlight: {
+    position: "absolute",
+    left: 0,
+    textAlign: "center",
+    width: "50%",
+    borderRight: "solid 1px rgba(0,0,0,.05)",
+  },
+  viewFullPost: {
+    right: 0,
+    textAlign: "center",
+    width: "50%",
+  },
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // Used on the comments speech-bubble icon/button
+  ////////////////////////////////////////////////////////////////////////////
+  commentsSpeechBubble: {
+    width: 50,
+    cursor: "pointer",
+    position: "relative",
+    flexShrink: 0,
+
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.03) !important",
+    }
+  },
+  newCommentsShown: {
+    backgroundColor: "rgba(0,0,0,.05)",
+  },
+  highlightSelected: {
+    borderLeft: "solid 1px rgba(0,0,0,.05)",
+    backgroundColor: "rgba(0,0,0,.02)",
+  },
+  
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // Used in the New Comments view (when you click the comments icon)
+  ////////////////////////////////////////////////////////////////////////////
+  newCommentsSection: {
+    backgroundColor: "rgba(0,0,0,.05)",
+    padding: "7px 9px 25px 9px",
+  },
+  newCommentsHeader: {
+  },
+  newCommentsFooter: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    left: 0,
+  },
+  newCommentsActions: {
+    color: "rgba(0,0,0,.5)",
+    fontSize: "12px",
+    cursor: "pointer",
+    padding: 10,
+    height: 35,
+    "&:hover": {
+      color: "rgba(0,0,0,.35)",
+      backgroundColor: "rgba(0,0,0,.1)",
+    }
+  },
+  hideComments: {
+    float: "left",
+    textAlign: "center",
+    width: "50%",
+    borderRight: "solid 1px rgba(0,0,0,.05)",
+  },
+  viewAllComments: {
+    float: "right",
+    right: 0,
+    textAlign: "center",
+    width: "50%",
+  },
 })
 
 const isSticky = (post, terms) => {
@@ -138,17 +308,19 @@ class PostsItem extends PureComponent {
     // }
   }
 
+  // Render the thing that appears when you click "Show Highlight"
   renderHighlightMenu = () => {
+    let { classes } = this.props;
     return (
-      <div className="posts-item-highlight-footer" >
-        <span className="posts-item-hide-highlight" onClick={this.toggleHighlight}>
-          <Icon className={classNames("material-icons")}>
+      <div className={classes.highlightFooter}>
+        <span className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
+          <Icon className={classes.collapseIcon}>
             subdirectory_arrow_left
           </Icon>
           Collapse
         </span>
         <Link to={this.getPostLink()}>
-          <span className="posts-item-view-full-post">
+          <span className={classNames(classes.highlightFooterButton, classes.viewFullPost)}>
             Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
           </span>
         </Link>
@@ -169,17 +341,14 @@ class PostsItem extends PureComponent {
 
     let commentCount = Posts.getCommentCount(post)
 
-    let postClass = "posts-item";
-    if (this.state.showHighlight) postClass += " show-highlight";
-
     const renderCommentsButton = () => {
       const read = lastVisitedAt;
       const newComments = lastVisitedAt < lastCommentedAt;
       const commentsButtonClassnames = classNames(
-        "posts-item-comments",
+        classes.commentsSpeechBubble,
         {
-          "selected":this.state.showNewComments,
-          "highlight-selected":this.state.showHighlight
+          [classes.newCommentsShown]: this.state.showNewComments,
+          [classes.highlightSelected]: this.state.showHighlight
         }
       )
 
@@ -195,43 +364,33 @@ class PostsItem extends PureComponent {
       )
     }
 
-    let paperStyle =
-      (this.state.showNewComments || this.state.showHighlight)
-      ? classes.paperExpanded
-      : classes.paperNotExpanded
-
     return (
         <Paper
-          className={classNames(postClass, paperStyle)}
+          className={classNames(
+            "posts-item",
+            classes.postsItem,
+            (this.state.showNewComments || this.state.showHighlight)
+              ? classes.paperExpanded
+              : classes.paperNotExpanded,
+            { [classes.paperShowHighlight]: this.state.showHighlight }
+          )}
           elevation={0}
           square={true}
         >
-          <div
-            className={classNames(classes.root, "posts-item-content", {"selected":this.state.showHighlight})}
-          >
+          <div className={classNames(
+            classes.root,
+            { [classes.contentShowHighlight]: this.state.showHighlight }
+          )}>
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
                 <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
               </Link>
-              <div onClick={this.toggleHighlight} className="posts-item-meta">
+              <div onClick={this.toggleHighlight} className={classes.meta}>
                 <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
-                <span className="posts-item-show-highlight-button">
-                  { this.state.showHighlight ?
-                    <Components.MetaInfo>
-                      Hide Highlight
-                      <Icon className={classNames("material-icons","hide-highlight-button")}>
-                        subdirectory_arrow_left
-                      </Icon>
-                    </Components.MetaInfo>
-                  :
-                  <Components.MetaInfo>
-                    Show Highlight
-                    <Icon className={classNames("material-icons","show-highlight-button")}>
-                      subdirectory_arrow_left
-                    </Icon>
-                  </Components.MetaInfo>  }
-                </span>
+                <Components.ShowOrHideHighlightButton
+                  className={classes.showHighlightButton}
+                  open={this.state.showHighlight}/>
               </div>
             </div>
             <Components.CategoryDisplay
@@ -249,33 +408,33 @@ class PostsItem extends PureComponent {
           }
 
           { this.state.showNewComments &&
-            <div className="posts-item-new-comments-section">
-              <div className="post-item-new-comments-header">
-                <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <Icon className={classNames("material-icons")}>
+            <div className={classes.newCommentsSection}>
+              <div className={classes.newCommentsHeader}>
+                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
+                  <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
                 </span>
-                <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
+                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
                   View All Comments
                 </Link>
               </div>
-              <div className="posts-item-recent-comments-title">Recent Comments</div>
+              <div className={classes.recentCommentsTitle}>Recent Comments</div>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={lastVisitedAt}
                 terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
                 post={post}
               />
-              <div className="post-item-new-comments-footer">
-                <span className="posts-item-hide-comments" onClick={this.toggleNewComments}>
-                  <Icon className={classNames("material-icons")}>
+              <div className={classes.newCommentsFooter}>
+                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
+                  <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
                 </span>
-                <Link className="posts-item-view-all-comments" to={this.getPostLink() + "#comments"}>
+                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
                   View All Comments
                 </Link>
               </div>
