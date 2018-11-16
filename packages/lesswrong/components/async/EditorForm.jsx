@@ -16,6 +16,7 @@ import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-p
 import { withTheme } from '@material-ui/core/styles';
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
+import { Map } from 'immutable';
 import {
   createBlockStyleButton,
   ItalicButton,
@@ -46,6 +47,13 @@ const HeadlineTwoButton = createBlockStyleButton({
 const styleMap = theme => ({
   'CODE': theme.typography.code
 })
+
+function customBlockStyleFn(contentBlock) {
+  const type = contentBlock.getType();
+  if (type === 'spoiler') {
+    return 'spoiler';
+  }
+}
 
 class EditorForm extends Component {
   constructor(props) {
@@ -160,6 +168,8 @@ class EditorForm extends Component {
             plugins={this.plugins}
             keyBindingFn={myKeyBindingFn}
             customStyleMap={styleMap(theme)}
+            blockStyleFn={customBlockStyleFn}
+            blockRenderMap={blockRenderMap}
             ref={(ref) => { this._ref = ref }}
           />
         </div>
@@ -170,6 +180,15 @@ class EditorForm extends Component {
     )
   }
 }
+
+const blockRenderMap = Map({
+  'blockquote': {
+    element: 'h2'
+  },
+  'spoiler': {
+    element: 'div'
+  }
+});
 
 EditorForm.propTypes = {
   isClient: PropTypes.bool,

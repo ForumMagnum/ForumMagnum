@@ -78,15 +78,42 @@ export const commentBodyStyles = theme => {
       ...theme.typography.commentHeader,
       ...theme.typography.commentStyle
     },
+    '& p.spoiler': {
+      margin: 0
+    },
+    '& .spoiler': {
+      backgroundColor: 'black',
+      padding: 8,
+      color: 'black',
+      '& .public-DraftStyleDefault-block': {
+        margin: 0,
+      },
+    },
+    '&:hover .spoiler': {
+      color: 'white',
+    },
+    '& *:hover ~ .spoiler': {
+      color: 'black'
+    },
+    '&:hover .spoiler': {
+      color: 'black'
+    },
+    '& .spoiler:before': {
+      content: "spoiler",
+      color: 'white'
+    },
+    '&:hover .spoiler:before': {
+      content: ""
+    },
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundImage: "none",
       textShadow: "none",
       textDecoration: "none",
     },
     '& pre code a, & pre code a:hover, & pre code a:focus, & pre code a:active, & pre code a:visited': {
-        backgroundImage: "none",
-        textShadow: "none",
-        textDecoration: "none",
+      backgroundImage: "none",
+      textShadow: "none",
+      textDecoration: "none",
     }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
