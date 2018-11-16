@@ -9,7 +9,7 @@ describe('handleLink', () => {
   let selection;
   let fakeInsertLink;
 
-  after(() => {
+  after(() => { // eslint-disable-line no-undef
     handleLink.__ResetDependency__('../insertLink'); // eslint-disable-line no-underscore-dangle
   });
 

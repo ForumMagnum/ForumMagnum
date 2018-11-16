@@ -25,6 +25,7 @@ const styles = theme => ({
     cursor: "text",
     margin: 0,
     padding: 0,
+    pointerEvents: 'auto'
   },
   questionWidth: {
     width: 540,

@@ -89,6 +89,7 @@
     "local-storage": "^1.4.2",
     "mailchimp": "^1.1.6",
     "markdown-it": "^8.4.2",
+    "markdown-it-container": "^2.0.0",
     "marked": "^0.3.19",
     "material-ui": "^0.19.0",
     "mathjax-node": "^2.1.1",

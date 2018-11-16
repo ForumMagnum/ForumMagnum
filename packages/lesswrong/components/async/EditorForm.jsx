@@ -182,9 +182,6 @@ class EditorForm extends Component {
 }
 
 const blockRenderMap = Map({
-  'blockquote': {
-    element: 'h2'
-  },
   'spoiler': {
     element: 'div'
   }

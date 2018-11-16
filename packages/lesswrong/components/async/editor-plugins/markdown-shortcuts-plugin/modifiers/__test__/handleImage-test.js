@@ -9,7 +9,7 @@ describe('handleImage', () => {
   let selection;
   let fakeInsertImage;
 
-  after(() => {
+  after(() => {// eslint-disable-line no-undef
     handleImage.__ResetDependency__('insertImage'); // eslint-disable-line no-underscore-dangle
   });
 

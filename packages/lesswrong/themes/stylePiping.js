@@ -78,6 +78,13 @@ export const commentBodyStyles = theme => {
       ...theme.typography.commentHeader,
       ...theme.typography.commentStyle
     },
+    // spoiler styles
+    // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
+    // but it's the only way I was able to make this weird stuff work.
+    pointerEvents: 'none',
+    '& *': {
+      pointerEvents: 'auto'
+    },
     '& p.spoiler': {
       margin: 0
     },
@@ -85,25 +92,30 @@ export const commentBodyStyles = theme => {
       backgroundColor: 'black',
       padding: 8,
       color: 'black',
+      pointerEvents: 'auto',
       '& .public-DraftStyleDefault-block': {
         margin: 0,
       },
     },
+    '& .spoiler:before': {
+      content: '"spoiler (hover/select to reveal)"',
+      color: 'white',
+      position: 'absolute',
+      left: 20
+    },
     '&:hover .spoiler': {
       color: 'white',
     },
-    '& *:hover ~ .spoiler': {
-      color: 'black'
-    },
-    '&:hover .spoiler': {
-      color: 'black'
-    },
-    '& .spoiler:before': {
-      content: "spoiler",
-      color: 'white'
-    },
     '&:hover .spoiler:before': {
-      content: ""
+      color: 'black',
+      content: '""'
+    },
+    '& > *:hover ~ .spoiler': {
+      color: 'black'
+    },
+    '& > *:hover ~ .spoiler:before': {
+      content: '"spoiler (hover/select to reveal)"',
+      color: 'white',
     },
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundImage: "none",
