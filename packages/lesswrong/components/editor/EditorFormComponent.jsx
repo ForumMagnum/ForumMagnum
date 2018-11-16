@@ -23,9 +23,9 @@ const styles = theme => ({
   commentBodyStyles: {
     ...editorStyles(theme, commentBodyStyles),
     cursor: "text",
-
     margin: 0,
     padding: 0,
+    pointerEvents: 'auto'
   },
   questionWidth: {
     width: 540,
@@ -36,7 +36,6 @@ const styles = theme => ({
   commentEditorHeight: {
     minHeight: commentEditorHeight,
   },
-
   errorTextColor: {
     color: theme.palette.error.main
   }
