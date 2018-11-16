@@ -3,6 +3,9 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
+import Divider from '@material-ui/core/Divider';
+import withUser from '../../common/withUser';
+import Users from 'meteor/vulcan:users';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -31,10 +34,11 @@ class CommentsMenu extends PureComponent {
   }
 
   render() {
-    const { children, classes } = this.props
+    const { currentUser, children, classes, className, comment, post, showEdit } = this.props
     const { anchorEl } = this.state
+    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem } = Components
     return (
-      <span>
+      <span className={className}>
         <MoreVertIcon
           className={classes.icon}
           onClick={this.handleClick}
@@ -44,6 +48,23 @@ class CommentsMenu extends PureComponent {
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
         >
+          <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
+          <ReportCommentMenuItem comment={comment}/>
+          <Components.MoveToAlignmentMenuItem comment={comment} post={post}/>
+          { Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post) && <Divider />}
+          <DeleteCommentMenuItem comment={comment} post={post}/>
+          <BanUserFromPostMenuItem
+            key='banUserFromPost'
+            comment={comment}
+            post={post}
+            currentUser={currentUser}
+          />,
+          <BanUserFromAllPostsMenuItem
+            key='banUserFromAllPosts'
+            comment={comment}
+            post={post}
+            currentUser={currentUser}
+          />
           {children}
         </Menu>
       </span>
@@ -51,4 +72,4 @@ class CommentsMenu extends PureComponent {
   }
 }
 
-registerComponent('CommentsMenu', CommentsMenu, withStyles(styles))
+registerComponent('CommentsMenu', CommentsMenu, withStyles(styles, {name:"CommentsMenu"}), withUser)

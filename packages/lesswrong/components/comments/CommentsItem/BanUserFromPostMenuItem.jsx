@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
-import MenuItem from 'material-ui/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts';
 import PropTypes from 'prop-types';
+import Users from 'meteor/vulcan:users';
 
 class BanUserFromPostMenuItem extends PureComponent {
 
@@ -27,11 +28,14 @@ class BanUserFromPostMenuItem extends PureComponent {
   }
 
   render() {
-    return <MenuItem
-      className="comment-menu-item-ban-from-post"
-      onClick={ this.handleBanUserFromPost }
-      primaryText="From This Post"
-    />
+    const { currentUser, post} = this.props
+    if (Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post)) {
+        return <MenuItem onClick={ this.handleBanUserFromPost }>
+          Ban user from this post
+        </MenuItem>
+      } else {
+        return null
+      }
   }
 }
 

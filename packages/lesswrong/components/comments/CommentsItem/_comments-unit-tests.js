@@ -26,8 +26,4 @@ describe('CommentsItem', () => {
     const commentsItem = shallow(<CommentsItem currentUser={{}} {...commentMockProps} />)
     expect(commentsItem.find(".comment-menu-item-subscribe")).to.have.length(1);
   });
-  it('renders Report menu item by default', () => {
-    const commentsItem = shallow(<CommentsItem currentUser={{}} {...commentMockProps} />)
-    expect(commentsItem.find(".comment-menu-item-report")).to.have.length(1);
-  });
 });
