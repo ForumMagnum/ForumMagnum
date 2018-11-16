@@ -34,7 +34,6 @@
   "forwardedWhitelist": ["outgoing-addresses.greaterwrong.com"],
   "newsletterExcerptLength": 20,
   "postExcerptLength": 30,
-
   "oAuth": {
      "twitter": {
        "consumerKey": "foo",
