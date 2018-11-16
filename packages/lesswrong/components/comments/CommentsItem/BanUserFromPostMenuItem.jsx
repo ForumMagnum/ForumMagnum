@@ -4,6 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
+import withUser from '../../common/withUser';
 
 class BanUserFromPostMenuItem extends PureComponent {
 
@@ -51,5 +52,5 @@ const withEditOptions = {
   fragmentName: 'LWPostsPage',
 };
 
-registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withEdit, withEditOptions]);
+registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withEdit, withEditOptions], withUser);
 export default BanUserFromPostMenuItem;
