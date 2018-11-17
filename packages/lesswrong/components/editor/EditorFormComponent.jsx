@@ -121,7 +121,7 @@ class EditorFormComponent extends Component {
     // the draft-js editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
     const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
-    const bodyStyles = commentStyles ? classes.commentBodyStyles : classes.postBodyStyles;
+    const bodyStyles = commentStyles && !document.answer ? classes.commentBodyStyles : classes.postBodyStyles;
 
     const editorWarning =
       !editorOverride
