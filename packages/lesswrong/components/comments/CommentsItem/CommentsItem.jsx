@@ -8,13 +8,10 @@ import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
-import ArrowRight from '@material-ui/icons/ArrowRight';
-import MenuItem from 'material-ui/MenuItem';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
-import withDialog from '../../common/withDialog'
 
 const styles = theme => ({
   root: {
@@ -58,19 +55,6 @@ class CommentsItem extends Component {
     return false;
   }
 
-  showReport = (event) => {
-    const { openDialog, comment, currentUser } = this.props;
-    openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        commentId: comment._id,
-        postId: comment.postId,
-        link: "/posts/" + comment.postId + "/a/" + comment._id,
-        userId: currentUser._id,
-      }
-    });
-  }
-
   showReply = (event) => {
     event.preventDefault();
     this.setState({showReply: true});
@@ -84,8 +68,7 @@ class CommentsItem extends Component {
     this.setState({showReply: false});
   }
 
-  showEdit = (event) => {
-    event.preventDefault();
+  showEdit = () => {
     this.setState({showEdit: true});
   }
 
@@ -112,9 +95,12 @@ class CommentsItem extends Component {
     this.props.scrollIntoView(event);
     return false;
   }
-  
+
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
+
+    const { showEdit } = this.state
+    const { CommentsMenu } = Components
 
     if (comment && post) {
       return (
@@ -178,13 +164,28 @@ class CommentsItem extends Component {
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
-              {this.renderMenu()}
+              <span className={classes.menu}>
+                <CommentsMenu
+                  comment={comment}
+                  post={post}
+                  showEdit={this.showEdit}
+                />
+              </span>
             </div>
-            <Components.CommentBody
-              truncated={truncated}
-              collapsed={collapsed}
-              comment={comment}
-            />
+            { showEdit ? (
+              <Components.CommentsEditForm
+                  comment={this.props.comment}
+                  successCallback={this.editSuccessCallback}
+                  cancelCallback={this.editCancelCallback}
+                />
+            ) : (
+              <Components.CommentBody
+                truncated={truncated}
+                collapsed={collapsed}
+                comment={comment}
+              />
+            ) }
+
             {!comment.deleted && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
@@ -224,118 +225,6 @@ class CommentsItem extends Component {
     )
   }
 
-  renderMenu = () => {
-    const { comment, currentUser, classes } = this.props;
-    const post = this.props.post || comment.post;
-    if (comment && post) {
-      return (
-        <span className={classes.menu}>
-          <Components.CommentsMenu>
-            { this.renderSubscribeMenuItem() }
-            { this.renderEditMenuItem() }
-            { this.renderReportMenuItem() }
-            { this.renderDeleteMenuItem() }
-            { this.renderMoveToAlignmentMenuItem() }
-            { this.renderSuggestForAlignmentMenuItem() }
-            { Users.canModeratePost(currentUser, post) &&
-              post.user && Users.canModeratePost(post.user, post) &&
-              <MenuItem
-                className="comment-menu-item-ban-user-submenu"
-                primaryText="Ban User"
-                rightIcon={<ArrowRight />}
-                menuItems={[
-                  <Components.BanUserFromPostMenuItem
-                    key='banUserFromPost'
-                    comment={comment}
-                    post={post}
-                    currentUser={currentUser}
-                  />,
-                  <Components.BanUserFromAllPostsMenuItem
-                    key='banUserFromAllPosts'
-                    comment={comment}
-                    post={post}
-                    currentUser={currentUser}
-                  />
-                ]}
-              />}
-            </Components.CommentsMenu>
-        </span>
-      )
-    }
-  }
-
-  renderSubscribeMenuItem = () => {
-    return(
-      <MenuItem
-             className="comment-menu-item-subscribe"
-             primaryText="Subscribe"
-             disabled={!this.props.currentUser}>
-      {this.props.currentUser && <Components.SubscribeTo className="comments-subscribe" document={this.props.comment} />}
-      </MenuItem>
-    )
-  }
-
-  renderReportMenuItem = () => {
-    if (Users.canDo(this.props.currentUser, "reports.new")) {
-      return (
-        <MenuItem
-          className="comment-menu-item-report"
-          onClick={this.showReport}
-          primaryText="Report"
-        />
-      )
-    }
-  }
-
-  renderEditMenuItem = () => {
-    if (Users.canDo(this.props.currentUser, "comments.edit.all") ||
-        Users.owns(this.props.currentUser, this.props.comment)) {
-          return (
-            <MenuItem
-              className="comment-menu-item-edit"
-              onClick={this.showEdit}
-              primaryText="Edit"
-            />
-          )
-    }
-  }
-
-  renderMoveToAlignmentMenuItem = () =>  {
-    const { currentUser, comment, post } = this.props
-    if (post.af && Users.canDo(currentUser, 'comments.alignment.move.all')) {
-      return (
-        <Components.MoveToAlignmentMenuItem
-          currentUser={currentUser}
-          comment={comment}
-        />
-      )
-    }
-  }
-
-  renderSuggestForAlignmentMenuItem = () =>  {
-    const { currentUser, comment, post } = this.props
-    if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
-      return (
-        <Components.SuggestAlignmentMenuItem
-          currentUser={currentUser}
-          comment={comment}
-          post={post}
-        />
-      )
-    }
-  }
-
-  renderDeleteMenuItem = () =>  {
-    if (Users.canModeratePost(this.props.currentUser, this.props.post)) {
-      return (
-        <Components.DeleteCommentMenuItem
-          currentUser={this.props.currentUser}
-          comment={this.props.comment}
-        />
-      )
-    }
-  }
-
   renderReply = () => {
     const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
@@ -354,13 +243,6 @@ class CommentsItem extends Component {
       </div>
     )
   }
-
-  renderEdit = () =>
-      <Components.CommentsEditForm
-        comment={this.props.comment}
-        successCallback={this.editSuccessCallback}
-        cancelCallback={this.editCancelCallback}
-      />
 }
 
 CommentsItem.propTypes = {
@@ -372,7 +254,6 @@ CommentsItem.propTypes = {
 registerComponent('CommentsItem', CommentsItem,
   withRouter, withMessages,
   withStyles(styles, { name: "CommentsItem" }),
-  withDialog,
   withErrorBoundary
 );
 export default CommentsItem;

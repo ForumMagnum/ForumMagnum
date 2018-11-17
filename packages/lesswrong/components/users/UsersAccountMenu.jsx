@@ -50,7 +50,6 @@ class UsersAccountMenu extends PureComponent {
           open={this.state.open}
           anchorEl={this.state.anchorEl}
           anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-          targetOrigin={{horizontal: 'left', vertical: 'top'}}
           onClose={this.handleRequestClose}
         >
           <Components.AccountsLoginForm />

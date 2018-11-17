@@ -63,11 +63,10 @@ class DeleteCommentDialog extends PureComponent {
             id="comment-menu-item-delete-reason"
             label="Reason for deleting (optional)"
             className="comments-delete-modal-textfield"
-            underlineShow={false}
             value={this.state.deletedReason}
             onChange={((event)=> {this.setState({deletedReason:event.target.value})})}
             fullWidth
-            multiLine
+            multiline
           />
         </DialogContent>
         <DialogActions>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
-import { InstantSearch, Configure } from 'react-instantsearch/dom';
+import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
 

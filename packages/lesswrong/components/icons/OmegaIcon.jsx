@@ -14,7 +14,9 @@ const styles = (theme) => ({
       'Georgia',
       'serif'].join(','),
     position:"relative",
-    top:2
+    top:2,
+    width: 24,
+    textAlign:"center"
   }
 })
 

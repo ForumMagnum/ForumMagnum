@@ -91,26 +91,29 @@ export const draftToHTML = convertToHTML({
   },
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
-     const type = block.type;
+    const type = block.type;
 
-     if (type === 'atomic') {
-       if (block.data && block.data.mathjax && block.data.html) {
-         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
-       } else if (block.data && block.data.mathjax) {
-         return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
-       } else {
-         return {start: '<span>', end: '</span>'};
-       }
-     }
-     if (type === 'blockquote') {
-       return <blockquote />
-     }
+    if (type === 'atomic') {
+      if (block.data && block.data.mathjax && block.data.html) {
+        return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
+      } else if (block.data && block.data.mathjax) {
+        return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
+      } else {
+        return {start: '<span>', end: '</span>'};
+      }
+    }
+    if (type === 'blockquote') {
+      return <blockquote />
+    }
     if (type === 'code-block') {
       return {start: '<pre><code>', end: '</code></pre>'};
     }
-     if (type === 'divider') {
-       return <hr className="dividerBlock" />
-     }
+    if (type === 'divider') {
+     return <hr className="dividerBlock" />
+    }
+    if (type === 'spoiler') {
+     return <p className="spoiler" />
+    }
     //  return <span/>;
    },
 });

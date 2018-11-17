@@ -22,12 +22,4 @@ describe('CommentsItem', () => {
     const commentsItem = shallow(<CommentsItem {...commentMockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
   });
-  it('renders Subscribe menu item by default', () => {
-    const commentsItem = shallow(<CommentsItem currentUser={{}} {...commentMockProps} />)
-    expect(commentsItem.find(".comment-menu-item-subscribe")).to.have.length(1);
-  });
-  it('renders Report menu item by default', () => {
-    const commentsItem = shallow(<CommentsItem currentUser={{}} {...commentMockProps} />)
-    expect(commentsItem.find(".comment-menu-item-report")).to.have.length(1);
-  });
 });

@@ -23,9 +23,9 @@ const styles = theme => ({
   commentBodyStyles: {
     ...editorStyles(theme, commentBodyStyles),
     cursor: "text",
-
     margin: 0,
     padding: 0,
+    pointerEvents: 'auto'
   },
   questionWidth: {
     width: 540,
@@ -36,7 +36,6 @@ const styles = theme => ({
   commentEditorHeight: {
     minHeight: commentEditorHeight,
   },
-
   errorTextColor: {
     color: theme.palette.error.main
   }
@@ -140,7 +139,11 @@ class EditorFormComponent extends Component {
           />
         </div>);
     } else {
+      // HACK FIXME: If not using the draft-JS editor, change the field name.
+      // (This will break horribly with nested form fields, as well as with
+      // multiple editable fields on the same object.)
       const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
+      const path = name;
 
       return (
         <div>
@@ -151,6 +154,7 @@ class EditorFormComponent extends Component {
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}
             name={name}
+            path={path}
           />
         </div>
       );
