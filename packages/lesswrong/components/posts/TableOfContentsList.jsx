@@ -117,6 +117,10 @@ class TableOfContentsList extends Component
     
     let sectionYdocumentSpace = this.getSectionY(section) + window.scrollY;
     
+    if (this.props.onClickSection) {
+      this.props.onClickSection();
+    }
+    
     window.scrollTo({
       top: sectionYdocumentSpace - this.getCurrentSectionMark() + 1,
       behavior: "smooth"

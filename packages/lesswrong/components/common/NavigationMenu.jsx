@@ -30,6 +30,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       <Components.TableOfContentsList
         document={toc.document}
         sections={toc.sections}
+        onClickSection={() => handleClose()}
       />
       <Divider />
     </React.Fragment>}

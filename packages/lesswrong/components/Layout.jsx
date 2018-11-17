@@ -46,14 +46,10 @@ const styles = theme => ({
 })
 
 class Layout extends PureComponent {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      timezone: null,
-      toc: null,
-    };
-  }
+  state = {
+    timezone: null,
+    toc: null,
+  };
   
   setToC = (document, sections) => {
     this.setState({
