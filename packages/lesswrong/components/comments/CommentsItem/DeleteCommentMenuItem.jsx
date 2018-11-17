@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
-import MenuItem from 'material-ui/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
+import Users from 'meteor/vulcan:users';
 import withModerateComment from './withModerateComment.js'
 import withDialog from '../../common/withDialog'
+import withUser from '../../common/withUser';
 
 class DeleteCommentMenuItem extends PureComponent {
 
@@ -28,17 +30,21 @@ class DeleteCommentMenuItem extends PureComponent {
   }
 
   render() {
-    const { comment } = this.props
-    if (!comment.deleted) {
-      return (
-        <MenuItem onClick={ this.showDeleteDialog}>
-          Delete
+    const { currentUser, comment, post } = this.props
+    if (Users.canModeratePost(currentUser, post)) {
+      if (!comment.deleted) {
+        return (
+          <MenuItem onClick={ this.showDeleteDialog}>
+            Delete
+          </MenuItem>
+        )
+      } else {
+        return <MenuItem onClick={ this.handleUndoDelete }>
+          Undo Delete
         </MenuItem>
-      )
+      }
     } else {
-      return <MenuItem onClick={ this.handleUndoDelete }>
-        Undo Delete
-      </MenuItem>
+      return null
     }
   }
 }
@@ -47,4 +53,4 @@ const mutationOptions = {
   fragmentName: "CommentsList"
 };
 
-registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem, [withModerateComment, mutationOptions], withDialog, withMessages);
+registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem, [withModerateComment, mutationOptions], withDialog, withMessages, withUser);

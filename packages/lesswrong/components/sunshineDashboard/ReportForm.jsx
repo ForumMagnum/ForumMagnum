@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import Reports from '../../lib/collections/reports/collection.js'
-import Dialog from 'material-ui/Dialog';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
 
 class ReportForm extends PureComponent {
   render() {
@@ -13,19 +14,21 @@ class ReportForm extends PureComponent {
         title={title}
         modal={false}
         open={true}
-        onRequestClose={onClose}
+        onClose={onClose}
       >
-        <Components.SmartForm
-          collection={Reports}
-          mutationFragment={getFragment('unclaimedReportsList')}
-          prefilledProps={{
-            userId: userId,
-            postId: postId,
-            commentId: commentId,
-            link: link
-          }}
-          successCallback={onClose}
-        />
+        <DialogContent>
+          <Components.SmartForm
+            collection={Reports}
+            mutationFragment={getFragment('unclaimedReportsList')}
+            prefilledProps={{
+              userId: userId,
+              postId: postId,
+              commentId: commentId,
+              link: link
+            }}
+            successCallback={onClose}
+          />
+        </DialogContent>
       </Dialog>
     )
   }
