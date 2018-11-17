@@ -312,7 +312,8 @@ class PostsPage extends Component {
             </div>
           </div>
           {this.renderRecommendedReading()}
-          <div id="comments">
+          <div>
+            <div id="comments"/>
             <Components.ErrorBoundary>
               <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
             </Components.ErrorBoundary>

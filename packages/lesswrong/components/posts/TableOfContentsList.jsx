@@ -77,7 +77,7 @@ class TableOfContentsList extends Component
     
     return <div className={classes.root}>
       <div className={classes.postTitle}>
-        {document.title}
+        <a href="#" onClick={ev => this.jumpToY(0, ev)}>{document.title}</a>
       </div>
       <div className={classes.chaptersList}>
         {sections && sections.map((section, index) =>
@@ -88,10 +88,12 @@ class TableOfContentsList extends Component
               { [classes.currentSection]: section.anchor === currentSection }
             )}
           >
-            <a onClick={(ev) => this.jumpToSection(section)}>{section.title}</a>
+            <a href={"#"+section.anchor} onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}>{section.title}</a>
           </div>)}
       </div>
-      <div className={classes.comments}>Comments</div>
+      <div className={classes.comments}>
+        <a href="#comments" onClick={(ev) => this.jumpToAnchor("comments", ev)}>Comments</a>
+      </div>
     </div>;
   }
   
@@ -102,29 +104,39 @@ class TableOfContentsList extends Component
     return Math.min(150, window.innerHeight/4);
   }
   
-  // Return the screen-space Y coordinate of a section. (Screen-space meaning
+  // Return the screen-space Y coordinate of an anchor. (Screen-space meaning
   // if you've scrolled, the scroll is subtracted from the effective Y
   // position.)
-  getSectionY(section) {
-    let anchorName = section.anchor;
+  getAnchorY(anchorName) {
     let anchor = document.getElementById(anchorName);
     let anchorBounds = anchor.getBoundingClientRect();
     return anchorBounds.top + anchorBounds.height/2;
   }
   
-  jumpToSection(section) {
+  jumpToAnchor(anchor, ev) {
     if (Meteor.isServer) return;
     
-    let sectionYdocumentSpace = this.getSectionY(section) + window.scrollY;
+    let sectionYdocumentSpace = this.getAnchorY(anchor) + window.scrollY;
+    this.jumpToY(sectionYdocumentSpace, ev);
+  }
+  
+  jumpToY(y, ev) {
+    if (Meteor.isServer) return;
+    
+    if (ev && (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey))
+      return;
     
     if (this.props.onClickSection) {
       this.props.onClickSection();
     }
     
     window.scrollTo({
-      top: sectionYdocumentSpace - this.getCurrentSectionMark() + 1,
+      top: y - this.getCurrentSectionMark() + 1,
       behavior: "smooth"
     });
+    
+    if (ev)
+      ev.preventDefault();
   }
   
   updateHighlightedSection = () => {
@@ -150,7 +162,7 @@ class TableOfContentsList extends Component
     let currentSection = null;
     for(let i=0; i<sections.length; i++)
     {
-      let sectionY = this.getSectionY(sections[i]);
+      let sectionY = this.getAnchorY(sections[i].anchor);
       
       if(sectionY < currentSectionMark)
         currentSection = sections[i].anchor;
