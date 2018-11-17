@@ -12,7 +12,7 @@ const styles = theme => ({
   },
 });
 
-const NavigationMenu = ({open, handleOpen, handleClose, classes}) => {
+const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
   const af = getSetting('AlignmentForum', false);
   return <SwipeableDrawer
     open={open}
@@ -22,33 +22,52 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes}) => {
       paper: classes.drawerPaper
     }}
   >
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> HOME </MenuItem>
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> Home </MenuItem>
+    
     <Divider />
-    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/library"}/>}> LIBRARY </MenuItem>}
+    
+    {toc && <React.Fragment>
+      <Components.TableOfContentsList
+        document={toc.document}
+        sections={toc.sections}
+      />
+      <Divider />
+    </React.Fragment>}
+    
+    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/library"}/>}> Library </MenuItem>}
+    
     {!af && <MenuItem
       onClick={handleClose}
       innerDivStyle={{paddingLeft:"35px" }}
       containerElement={<Link to={"/rationality"}/>}>
-      RATIONALITY: A-Z
+      Rationality: A-Z
     </MenuItem>}
+    
     {!af && <MenuItem
       onClick={handleClose}
       innerDivStyle={{paddingLeft:"35px" }}
       containerElement={<Link to={"/codex"}/>}>
-      THE CODEX
+      The Codex
     </MenuItem>}
+    
     {!af && <MenuItem
       onClick={handleClose}
       innerDivStyle={{paddingLeft:"35px" }}
       containerElement={<Link to={"/hpmor"}/>}>
       HPMOR
     </MenuItem>}
+    
     <Divider />
-    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> COMMUNITY </MenuItem>}
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> POSTS BY DATE </MenuItem>
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> META </MenuItem>
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> ABOUT  </MenuItem>
-    {/*<MenuItem containerElement={<Link to={"/library"}/>}> THE LIBRARY </MenuItem>*/}
+    
+    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> Community </MenuItem>}
+    
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> Posts by Date </MenuItem>
+    
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> Meta </MenuItem>
+    
+    <Divider />
+    
+    <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> About  </MenuItem>
   </SwipeableDrawer>;
 }
 

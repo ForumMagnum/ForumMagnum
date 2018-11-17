@@ -19,6 +19,7 @@ import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import withUser from '../common/withUser';
+import { tableOfContentsContext } from '../posts/TableOfContents';
 
 const styles = theme => ({
     header: {
@@ -290,7 +291,9 @@ class PostsPage extends Component {
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
-                { sections && <Components.TableOfContents sections={sections} document={document}/> }
+                <tableOfContentsContext.Consumer>
+                  { setToC => <Components.TableOfContents sections={sections} document={document} setToC={setToC}/> }
+                </tableOfContentsContext.Consumer>
                 <Components.LinkPostMessage post={post} />
                 { htmlWithAnchors && <Components.ContentItemBody
                     dangerouslySetInnerHTML={{__html: htmlWithAnchors}}

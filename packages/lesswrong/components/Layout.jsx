@@ -17,6 +17,7 @@ import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
+import { tableOfContentsContext } from './posts/TableOfContents';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -47,9 +48,20 @@ const styles = theme => ({
 class Layout extends PureComponent {
   constructor(props) {
     super(props);
+    
     this.state = {
-      timezone: null
+      timezone: null,
+      toc: null,
     };
+  }
+  
+  setToC = (document, sections) => {
+    this.setState({
+      toc: {
+        document: document,
+        sections: sections
+      }
+    })
   }
   
   componentDidMount() {
@@ -96,6 +108,7 @@ class Layout extends PureComponent {
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <tableOfContentsContext.Provider value={this.setToC}>
       <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
         <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
           <DialogManager>
@@ -120,7 +133,7 @@ class Layout extends PureComponent {
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
-            <Components.Header {...this.props}/>
+            <Components.Header {...this.props} toc={this.state.toc} />
   
             <div className={classes.main}>
               <Components.ErrorBoundary>
@@ -136,6 +149,7 @@ class Layout extends PureComponent {
           </DialogManager>
         </V0MuiThemeProvider>
       </div>
+      </tableOfContentsContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
