@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
+import { withRouter } from 'react-router'
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -142,6 +143,11 @@ class SearchBar extends Component {
       return <div className={classes.root}>Search is disabled (Algolia App ID not configured on server)</div>
     }
 
+    let userRefinement
+    if(location && location.pathname && location.pathname.includes("/users/")){
+      userRefinement = location.pathname.split('/')[2]
+    }
+
     return <div onKeyDown={this.handleKeyDown}>
       <Components.ErrorBoundary>
         <InstantSearch
@@ -152,6 +158,7 @@ class SearchBar extends Component {
         >
           <div className={classNames(classes.root, {"open":this.state.inputOpen})}>
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+            {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
             <div onClick={this.handleSearchTap}>
               <Icon className={classes.searchIcon}>search</Icon>
               <SearchBox reset={null} focusShortcuts={[]} />
@@ -175,4 +182,4 @@ SearchBar.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}));
+registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withRouter);

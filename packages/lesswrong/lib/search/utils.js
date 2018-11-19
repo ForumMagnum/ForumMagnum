@@ -46,6 +46,7 @@ Comments.toAlgolia = (comment) => {
   if (commentAuthor) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
     algoliaComment.authorUserName = commentAuthor.username;
+    algoliaComment.authorSlug = commentAuthor.slug;
   }
   const parentPost = Posts.findOne({_id: comment.postId});
   if (parentPost) {
