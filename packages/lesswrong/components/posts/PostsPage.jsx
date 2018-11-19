@@ -292,7 +292,7 @@ class PostsPage extends Component {
                  /> }
               </div>
             </div>
-            <div className={classes.postFooter}>
+            { !post.question && <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
                 <Components.ErrorBoundary>
                   <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
@@ -301,9 +301,10 @@ class PostsPage extends Component {
               <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
                 <Components.PostsUserAndCoauthors post={post}/>
               </Typography>
-            </div>
+            </div>}
           </div>
           {this.renderRecommendedReading()}
+          { post.question && <Components.AnswersSection post={post}/> }
           <div id="comments">
             <Components.ErrorBoundary>
               <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
