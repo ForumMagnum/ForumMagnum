@@ -59,7 +59,7 @@ const styles = theme => ({
 class SearchBarResults extends Component {
 
   render() {
-    const { classes, closeSearch, location } = this.props
+    const { classes, closeSearch } = this.props
 
     return <div className={classes.root}>
       <Grid container className={classes.searchResults}>
