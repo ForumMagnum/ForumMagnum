@@ -290,10 +290,10 @@ class PostsPage extends Component {
               <Components.ErrorBoundary>
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>
+              <tableOfContentsContext.Consumer>
+                { setToC => <Components.TableOfContents sections={sections} document={document} setToC={setToC}/> }
+              </tableOfContentsContext.Consumer>
               <div className={classes.postContent}>
-                <tableOfContentsContext.Consumer>
-                  { setToC => <Components.TableOfContents sections={sections} document={document} setToC={setToC}/> }
-                </tableOfContentsContext.Consumer>
                 <Components.LinkPostMessage post={post} />
                 { htmlWithAnchors && <Components.ContentItemBody
                     dangerouslySetInnerHTML={{__html: htmlWithAnchors}}
@@ -313,7 +313,7 @@ class PostsPage extends Component {
           </div>
           {this.renderRecommendedReading()}
           <div>
-            <div id="comments"/>
+            <div id="comments"/> {/* For anchor links (lesswrong.com/foo#comments */}
             <Components.ErrorBoundary>
               <Components.PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
             </Components.ErrorBoundary>
