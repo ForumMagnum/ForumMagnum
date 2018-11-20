@@ -288,7 +288,7 @@ class PostsPage extends Component {
                   /> }
               </div>
             </div>
-            <div className={classes.postFooter}>
+            { !post.question && <div className={classes.postFooter}>
               <div className={classes.voteBottom}>
                 <Components.ErrorBoundary>
                   <Components.PostsVote collection={Posts} post={post} currentUser={currentUser}/>
@@ -297,9 +297,10 @@ class PostsPage extends Component {
               <Typography variant="body1" component="span" color="textSecondary" className={classes.author}>
                 <Components.PostsUserAndCoauthors post={post}/>
               </Typography>
-            </div>
+            </div>}
           </div>
           {this.renderRecommendedReading()}
+          { post.question && <Components.AnswersSection post={post}/> }
           <div>
             <div id="comments"/> {/* For anchor links (lesswrong.com/foo#comments */}
             <Components.ErrorBoundary>
