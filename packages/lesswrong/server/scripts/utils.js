@@ -2,6 +2,7 @@
 
 export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, updateFunction}) => {
   const documents = collection.find(query, queryOptions)
+  console.log('docs', documents)
   const updates = documents.map(document => ({
     updateOne: {
       filter: {
@@ -10,7 +11,9 @@ export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, u
       update: updateFunction(document)
     }
   }))
-  await collection.rawCollection().bulkWrite(updates)
+  console.log('updates', updates)
+  const result = await collection.rawCollection().bulkWrite(updates)
+  console.log('result', result)
 }
 
-// TODO export const wrapVulcanAsyncScript = async
+// export const wrapVulcanAsyncScript = async
