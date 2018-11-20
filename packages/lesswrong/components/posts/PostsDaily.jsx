@@ -7,6 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 
+// Shared with EventsPast, EventsUpcoming
 export const styles = theme => ({
   titleSettings: {
     marginTop: 10,
