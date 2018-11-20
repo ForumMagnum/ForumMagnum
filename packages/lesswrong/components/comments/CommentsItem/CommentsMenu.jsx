@@ -36,7 +36,7 @@ class CommentsMenu extends PureComponent {
   render() {
     const { currentUser, children, classes, className, comment, post, showEdit, icon } = this.props
     const { anchorEl } = this.state
-    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem } = Components
+    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem } = Components
     return (
       <span className={className}>
         <span onClick={this.handleClick}>
@@ -50,7 +50,8 @@ class CommentsMenu extends PureComponent {
         >
           <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
           <ReportCommentMenuItem comment={comment}/>
-          <Components.MoveToAlignmentMenuItem comment={comment} post={post}/>
+          <MoveToAlignmentMenuItem comment={comment} post={post}/>
+          <SuggestAlignmentMenuItem comment={comment} post={post}/>
           { Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post) && <Divider />}
           <DeleteCommentMenuItem comment={comment} post={post}/>
           <BanUserFromPostMenuItem comment={comment} post={post}/>
