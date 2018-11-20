@@ -33,6 +33,8 @@ const styles = theme => ({
   
   level0: {
     paddingLeft: 0,
+    paddingTop: 15,
+    paddingBottom: 15,
   },
   level1: {
     paddingLeft: 0,
