@@ -8,9 +8,9 @@ const styles = theme => ({
   stickyContainer: {
     position: "absolute",
     right: "100%",
-    marginRight: 20,
-    top: 70,
-    width: 250,
+    marginRight: 60,
+    top: 120,
+    width: 240,
     height: "100%",
   },
   

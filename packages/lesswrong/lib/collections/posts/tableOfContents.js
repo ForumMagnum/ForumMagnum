@@ -77,11 +77,11 @@ export function extractTableOfContents(postHTML)
   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
   let headingLevelMap = {};
   for(let i=0; i<headingLevelsUsed.length; i++)
-    headingLevelMap[ headingLevelsUsed[i] ] = i+1;
+    headingLevelMap[ headingLevelsUsed[i] ] = i;
   
   // Mark sections with compressed heading levels
   for(let i=0; i<headings.length; i++)
-    headings[i].level = headingLevelMap[headings[i].level];
+    headings[i].level = headingLevelMap[headings[i].level]+1;
   
   return {
     html: postBody.html(),
@@ -89,9 +89,12 @@ export function extractTableOfContents(postHTML)
   }
 }
 
+const reservedAnchorNames = ["top", "comments"];
+
 // Given the text in a heading block and a dict of anchors that have been used
 // in the post so far, generate an anchor, and return it. An anchor is a
-// URL-safe string that can be used for within-document links.
+// URL-safe string that can be used for within-document links, and which is
+// not one of a few reserved anchor names.
 function titleToAnchor(title, usedAnchors)
 {
   let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
@@ -107,7 +110,7 @@ function titleToAnchor(title, usedAnchors)
   }
   
   let anchor = sb.join('');
-  if(!usedAnchors[anchor])
+  if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
     return anchor;
   
   let anchorSuffix = 1;

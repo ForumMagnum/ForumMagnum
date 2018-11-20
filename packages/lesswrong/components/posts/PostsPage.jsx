@@ -109,18 +109,6 @@ const styles = theme => ({
 })
 
 class PostsPage extends Component {
-  getCommentCountStr = (post) => {
-    let count = Posts.getCommentCount(post)
-
-    if (!count) {
-        return "No comments"
-    } else if (count == 1) {
-        return "1 comment"
-    } else {
-        return count + " comments"
-    }
-  }
-
   getNavTitle = () => {
     const post = this.props.document
     if (post && post.canonicalSequence && post.canonicalSequence.title) {
@@ -224,7 +212,7 @@ class PostsPage extends Component {
         {this.renderContactInfo()}
       </div>
       <div className="posts-page-content-body-metadata-comments">
-        <a href="#comments">{ this.getCommentCountStr(post) }</a>
+        <a href="#comments">{ Posts.getCommentCountStr(post) }</a>
       </div>
       <div className="posts-page-content-body-metadata-actions">
         { Posts.canEdit(currentUser,post) && <Components.PostsEdit post={post}/>}
@@ -287,12 +275,12 @@ class PostsPage extends Component {
               <Components.ErrorBoundary>
                 {this.renderPostMetadata()}
               </Components.ErrorBoundary>
-              <Components.ErrorBoundary>
-                { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
-              </Components.ErrorBoundary>
               <tableOfContentsContext.Consumer>
                 { setToC => <Components.TableOfContents sections={sections} document={document} setToC={setToC}/> }
               </tableOfContentsContext.Consumer>
+              <Components.ErrorBoundary>
+                { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
+              </Components.ErrorBoundary>
               <div className={classes.postContent}>
                 <Components.LinkPostMessage post={post} />
                 { htmlWithAnchors && <Components.ContentItemBody

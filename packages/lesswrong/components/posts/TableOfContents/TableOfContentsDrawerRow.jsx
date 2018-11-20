@@ -49,10 +49,12 @@ class TableOfContentsDrawerRow extends PureComponent
       className={classNames(
         classes.root,
         this.levelToClassName(indentLevel),
-        { [classes.highlighted]: highlighted }
       )}
     >
-      <a href={href} onClick={onClick} className={classes.ellipses}>
+      <a href={href} onClick={onClick} className={classNames(
+        classes.ellipses,
+        { [classes.highlighted]: highlighted }
+      )}>
         {children}
       </a>
     </MenuItem>

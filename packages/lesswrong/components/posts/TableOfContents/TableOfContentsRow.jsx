@@ -1,16 +1,24 @@
 import React, { PureComponent, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import MenuItem from 'material-ui/MenuItem';
 import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
+    ...theme.typography.body2,
     ...theme.typography.postStyle,
   },
   
+  // For the highlighted section only, disable the half-opacity-on-hover effect
+  // that's otherwise globally applied to <a> tags. 
   highlighted: {
     fontWeight: "bold",
+    
+    "& a:focus, & a:hover": {
+      opacity: "initial",
+    }
   },
   
   link: {
@@ -27,16 +35,16 @@ const styles = theme => ({
     paddingLeft: 0,
   },
   level1: {
-    paddingLeft: 24,
+    paddingLeft: 0,
   },
   level2: {
-    paddingLeft: 48,
+    paddingLeft: 24,
   },
   level3: {
-    paddingLeft: 72,
+    paddingLeft: 48,
   },
   level4: {
-    paddingLeft: 96,
+    paddingLeft: 72,
   },
 });
 
@@ -45,7 +53,7 @@ class TableOfContentsRow extends PureComponent
   render() {
     const {indentLevel=0, highlighted=false, href, onClick, children, classes} = this.props;
     
-    return <div
+    return <Typography variant="body2"
       className={classNames(
         classes.root,
         this.levelToClassName(indentLevel),
@@ -55,7 +63,7 @@ class TableOfContentsRow extends PureComponent
       <a href={href} onClick={onClick} className={classes.link}>
         {children}
       </a>
-    </div>
+    </Typography>
   }
   
   levelToClassName(level) {

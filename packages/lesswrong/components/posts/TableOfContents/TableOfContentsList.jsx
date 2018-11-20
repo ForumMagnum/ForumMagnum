@@ -1,7 +1,10 @@
 import React, { PureComponent, Component } from 'react';
+import { Posts } from '../../../lib/collections/posts';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary'
+
+const topSection = "top";
 
 const styles = theme => ({
   root: {
@@ -17,7 +20,7 @@ class TableOfContentsList extends Component
     super(props);
     
     this.state = {
-      currentSection: null,
+      currentSection: {anchor: topSection},
       drawerOpen: false,
     };
   }
@@ -44,6 +47,7 @@ class TableOfContentsList extends Component
       <Row key="postTitle"
         href="#"
         onClick={ev => this.jumpToY(0, ev)}
+        highlighted={currentSection && currentSection.anchor === topSection}
       >
         {document.title}
       </Row>
@@ -64,7 +68,7 @@ class TableOfContentsList extends Component
         href="#comments"
         onClick={(ev) => this.jumpToAnchor("comments", ev)}
       >
-        Comments
+        {Posts.getCommentCountStr(document)}
       </Row>
     </div>;
   }
@@ -138,6 +142,11 @@ class TableOfContentsList extends Component
       
       if(sectionY < currentSectionMark)
         currentSection = sections[i].anchor;
+    }
+    
+    if (currentSection === null) {
+      // Was above all the section headers, so return the special "top" section
+      return { anchor: topSection}
     }
     
     return currentSection;
