@@ -21,11 +21,10 @@ const styles = theme => ({
 const LinkPostMessage = ({post, classes}) => {
   if (!post.url)
     return null;
-  
+
   return (
     <div className={classes.root}>
-      This is a linkpost for
-      <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+      This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
     </div>
   );
 }
