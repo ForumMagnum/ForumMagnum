@@ -7,8 +7,6 @@ import Notifications from '../../lib/collections/notifications/collection.js';
 import withUser from '../common/withUser';
 
 const styles = theme => ({
-  listItem: {
-  },
   empty: {
     padding: 10
   },
@@ -29,11 +27,11 @@ class NotificationsList extends Component {
       return (
         <List style={{width: '270px', overflowY: 'auto', padding: '0px'}}>
           {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} key={notification._id} />)}
-          {results.length >= 20 && <ListItem className={classes.listItem} onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
+          {results.length >= 20 && <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
         </List>
       )
     } else {
-      return <div className={classes.empty}> You don{"'"}t have any notifications yet!</div>
+      return <div className={classes.empty}> You don't have any notifications yet!</div>
     }
   }
 }

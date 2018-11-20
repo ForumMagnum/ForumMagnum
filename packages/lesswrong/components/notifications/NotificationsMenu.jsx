@@ -12,7 +12,6 @@ import MessagesIcon from '@material-ui/icons/Forum';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import classNames from 'classnames';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection.js'
@@ -47,10 +46,6 @@ const styles = theme => ({
     // !important because material-UI defines an (incorrect)
     // overflow
     overflowX: "hidden !important",
-    
-    [legacyBreakpoints.maxTiny]: {
-      top: "43px !important",
-    }
   },
   icon: {
     color: "rgba(0,0,0,0.8)",
