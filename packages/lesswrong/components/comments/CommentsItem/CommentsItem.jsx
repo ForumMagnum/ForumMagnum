@@ -186,7 +186,7 @@ class CommentsItem extends Component {
               />
             ) }
 
-            {!comment.deleted && this.renderCommentBottom()}
+            {!comment.deleted && !collapsed && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>
