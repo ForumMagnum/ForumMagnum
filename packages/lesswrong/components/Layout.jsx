@@ -17,7 +17,7 @@ import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { tableOfContentsContext } from './posts/TableOfContents';
+import { tableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 

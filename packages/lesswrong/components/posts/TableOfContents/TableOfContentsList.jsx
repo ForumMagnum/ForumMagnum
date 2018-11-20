@@ -1,42 +1,13 @@
 import React, { PureComponent, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import classnames from 'classnames';
+import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
   root: {
-    padding: 15,
-  },
-  
-  postTitle: {
   },
   
   chaptersList: {
-    paddingLeft: 10,
-  },
-  
-  currentSection: {
-    fontWeight: "bold",
-  },
-  
-  section: {
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  
-  level1: {
-  },
-  level2: {
-    marginLeft: 10,
-  },
-  level3: {
-    marginLeft: 20,
-  },
-  level4: {
-    marginLeft: 30,
-  },
-  level5: {
-    marginLeft: 40,
   },
 });
 
@@ -60,40 +31,41 @@ class TableOfContentsList extends Component
     window.removeEventListener('scroll', this.updateHighlightedSection);
   }
   
-  levelToClassName(level) {
-    const { classes } = this.props;
-    switch(level) {
-      case 1: return classes.level1;
-      case 2: return classes.level2;
-      case 3: return classes.level3;
-      case 4: return classes.level4;
-      default: return classes.level5;
-    }
-  }
-  
   render() {
-    const { classes, sections, document } = this.props;
+    const { classes, sections, document, drawerStyle } = this.props;
     const { currentSection } = this.state;
+    const { TableOfContentsRow, TableOfContentsDrawerRow } = Components;
+    const Row = drawerStyle ? TableOfContentsDrawerRow : TableOfContentsRow;
+    
+    if (!sections || !document)
+      return <div/>
     
     return <div className={classes.root}>
-      <div className={classes.postTitle}>
-        <a href="#" onClick={ev => this.jumpToY(0, ev)}>{document.title}</a>
-      </div>
+      <Row key="postTitle"
+        href="#"
+        onClick={ev => this.jumpToY(0, ev)}
+      >
+        {document.title}
+      </Row>
       <div className={classes.chaptersList}>
         {sections && sections.map((section, index) =>
-          <div key={index}
-            className={classnames(
-              classes.section,
-              this.levelToClassName(section.level),
-              { [classes.currentSection]: section.anchor === currentSection }
-            )}
+          <Row
+            key={section.anchor}
+            indentLevel={section.level}
+            highlighted={section.anchor === currentSection}
+            href={"#"+section.anchor}
+            onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
           >
-            <a href={"#"+section.anchor} onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}>{section.title}</a>
-          </div>)}
+            {section.title}
+          </Row>
+        )}
       </div>
-      <div className={classes.comments}>
-        <a href="#comments" onClick={(ev) => this.jumpToAnchor("comments", ev)}>Comments</a>
-      </div>
+      <Row key="comments"
+        href="#comments"
+        onClick={(ev) => this.jumpToAnchor("comments", ev)}
+      >
+        Comments
+      </Row>
     </div>;
   }
   
@@ -173,5 +145,5 @@ class TableOfContentsList extends Component
 }
 
 registerComponent("TableOfContentsList", TableOfContentsList,
-  withStyles(styles, { name: "TableOfContentsList" }));
+  withErrorBoundary, withStyles(styles, { name: "TableOfContentsList" }));
 

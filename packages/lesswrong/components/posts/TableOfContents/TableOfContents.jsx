@@ -2,12 +2,9 @@ import React, { PureComponent, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Hidden from '@material-ui/core/Hidden';
+import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
-  drawerPaper: {
-    width: 250,
-  },
-  
   stickyContainer: {
     position: "absolute",
     right: "100%",
@@ -59,6 +56,7 @@ class TableOfContents extends Component
       sections={sections}
       document={document}
       context={context}
+      drawerStyle={false}
     />;
     
     return (<React.Fragment>
@@ -74,4 +72,4 @@ class TableOfContents extends Component
 }
 
 registerComponent("TableOfContents", TableOfContents,
-  withStyles(styles, { name: "TableOfContents" }));
+  withErrorBoundary, withStyles(styles, { name: "TableOfContents" }));

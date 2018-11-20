@@ -7,8 +7,15 @@ import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  drawerPaper: {
+  drawerPaperWithoutToC: {
     width: 225,
+  },
+  
+  // If there's a table of contents, make the drawer wider than if there isn't
+  // one (because post section titles tend to be longer than top-level
+  // navigation options).
+  drawerPaperWithToC: {
+    width: 300,
   },
 });
 
@@ -19,7 +26,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
     onClose={(event) => handleClose()}
     onOpen={(event) => handleOpen()}
     classes={{
-      paper: classes.drawerPaper
+      paper: toc ? classes.drawerPaperWithToC : classes.drawerPaperWithoutToC
     }}
   >
     <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> Home </MenuItem>
@@ -31,6 +38,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
         document={toc.document}
         sections={toc.sections}
         onClickSection={() => handleClose()}
+        drawerStyle={true}
       />
       <Divider />
     </React.Fragment>}
