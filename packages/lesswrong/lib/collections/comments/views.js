@@ -8,6 +8,7 @@ Comments.addDefaultView(terms => {
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$ne: true}}],
+      answer: { $ne: true },
       hideAuthor: terms.userId ? {$ne: true} : undefined,
       ...validFields,
       ...alignmentForum,
@@ -175,5 +176,12 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
       postedAt: {$gt: twoDaysAgo},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+  };
+});
+
+Comments.addView('questionAnswers', function (terms) {
+  return {
+    selector: {postId: terms.postId, answer: true},
+    options: {sort: {chosenAnswer: 1, baseScore: -1, postedAt: -1}}
   };
 });

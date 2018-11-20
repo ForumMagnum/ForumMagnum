@@ -34,15 +34,15 @@ class CommentsMenu extends PureComponent {
   }
 
   render() {
-    const { currentUser, children, classes, className, comment, post, showEdit } = this.props
+    const { currentUser, children, classes, className, comment, post, showEdit, icon } = this.props
     const { anchorEl } = this.state
     const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem } = Components
     return (
       <span className={className}>
-        <MoreVertIcon
-          className={classes.icon}
-          onClick={this.handleClick}
-        />
+        <span onClick={this.handleClick}>
+          {icon ? icon : <MoreVertIcon
+            className={classes.icon}/>}
+        </span>
         <Menu
           onClick={this.handleClose}
           open={Boolean(anchorEl)}

@@ -203,6 +203,24 @@ const schema = {
       },
     }
   },
+
+  answer: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
+
+  chosenAnswer: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
 };
 
 export default schema;
