@@ -30,7 +30,10 @@ const AnswerMeta = ({classes, comment, post, showEdit}) => {
 };
 
 AnswerMeta.propTypes = {
-  // postId: PropTypes.string.isRequired,
+  classes: PropTypes.object.isRequired,
+  post: PropTypes.object.isRequired,
+  comment: PropTypes.object.isRequired,
+  showEdit: PropTypes.func,
 };
 
 registerComponent('AnswerMeta', AnswerMeta, withStyles(styles, {name: "AnswerMeta"}));

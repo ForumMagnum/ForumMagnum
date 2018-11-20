@@ -45,7 +45,10 @@ const AnswersList = ({results, loading, classes, post}) => {
 };
 
 AnswersList.propTypes = {
-  // postId: PropTypes.string.isRequired,
+  classes: PropTypes.object.isRequired,
+  post: PropTypes.object.isRequired,
+  loading: PropTypes.bool,
+  results: PropTypes.array,
 };
 
 const listOptions = {
