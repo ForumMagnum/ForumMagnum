@@ -209,7 +209,6 @@ registerFragment(`
       groups
       moderationStyle
       bannedUserIds
-      moderationGuidelines
       moderatorAssistance
     }
     canonicalSequence {
