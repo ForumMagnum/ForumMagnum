@@ -53,7 +53,8 @@ export const formGroups = {
 };
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!currentUser.moderationGuidelines
+  console.log("currentUser: ", currentUser)
+  return !!currentUser.moderationGuidelinesHtmlBody
 }
 
 Posts.addField([
@@ -1056,7 +1057,33 @@ Posts.addField([
         addOriginalField: false
       }
     }
-  }
+  },
+
+  {
+    fieldName: 'moderationStyle',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      control: "select",
+      group: formGroups.moderationGroup,
+      label: "Style",
+      viewableBy: ['guests'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines],
+      blackbox: true,
+      order: 55,
+      form: {
+        options: function () { // options for the select form control
+          return [
+            {value: "", label: "No Moderation"},
+            {value: "easy-going", label: "Easy Going - I just delete obvious spam and trolling."},
+            {value: "norm-enforcing", label: "Norm Enforcing - I try to enforce particular rules (see below)"},
+            {value: "reign-of-terror", label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive"},
+          ];
+        }
+      },
+    }
+  },
 ]);
 
 export const makeEditableOptions = {

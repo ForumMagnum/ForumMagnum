@@ -98,7 +98,6 @@ import './collections/posts/helpers.js';
 // Users
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
-import './collections/users/callbacks.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
 

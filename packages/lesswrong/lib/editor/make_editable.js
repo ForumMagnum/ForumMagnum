@@ -51,6 +51,7 @@ export const makeEditable = ({collection, options = {}}) => {
           multiLine:true,
           fullWidth:true,
           disableUnderline:true,
+          fieldName: fieldName,
           commentEditor,
           commentStyles,
           getLocalStorageId,

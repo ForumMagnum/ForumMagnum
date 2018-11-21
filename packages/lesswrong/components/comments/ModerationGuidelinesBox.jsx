@@ -68,19 +68,17 @@ class ModerationGuidelinesBox extends PureComponent {
     }
     const userGuidelines = `<b>${user.displayName + "'s moderation guidelines" } </b>: <br>
     <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>
-    <span style="white-space: pre-line">
-      ${user.moderationGuidelines}
-    </span> <br>`
-    const truncatedUserGuidelines = truncatise(userGuidelines, truncatiseOptions)
-    const combinedGuidelines = `<span>
-      ${user.moderationGuidelines ? userGuidelines : ""}
-      ${(document.frontpage || !user.moderationGuidelines) ? frontpageGuidelines : ""}
-    </span>`
+    ${document.moderationGuidelinesHtmlBody}`
+    const combinedGuidelines = `
+      ${document.moderationGuidelinesHtmlBody ? userGuidelines : ""}
+      ${(document.frontpageDate || !document.moderationGuidelinesHtmlBody) ? frontpageGuidelines : ""}
+    `
+    const truncatedGuidelines = truncatise(combinedGuidelines, truncatiseOptions)
     return (
       <div className={classes.root} onClick={this.handleClick}>
         {!this.state.open ?
           <div className={classes.truncated}>
-            {<div dangerouslySetInnerHTML={{__html: user.moderationGuidelines ? truncatedUserGuidelines : truncatedFrontpageGuidelines}}/>}
+            {<div dangerouslySetInnerHTML={{__html: document.moderationGuidelinesHtmlBody ? truncatedGuidelines : truncatedFrontpageGuidelines}}/>}
           </div>
           :
           <div>

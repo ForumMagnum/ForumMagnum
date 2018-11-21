@@ -1,12 +1,13 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { makeEditable } from '../../editor/make_editable.js'
 
 export const formGroups = {
   moderationGroup: {
     order:60,
     name: "moderation",
-    label: "Moderation",
+    label: "Moderation & Moderation Guidelines",
   },
   banUser: {
     order:50,
@@ -293,28 +294,6 @@ Users.addField([
             {value: "reign-of-terror", label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive"},
           ];
         }
-      },
-    }
-  },
-
-  {
-    fieldName: 'moderationGuidelines',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      group: formGroups.moderationGroup,
-      label: "Default Moderation Guidelines",
-      placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
-      canRead: ['guests'],
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
-      canCreate: ['members', 'sunshineRegiment', 'admins'],
-      control: 'MuiInput',
-      blackbox: true,
-      order: 55,
-      form: {
-        rows:4,
-        multiLine:true,
-        fullWidth:true,
       },
     }
   },
@@ -782,3 +761,24 @@ Users.addField([
     }
   }
 ]);
+
+export const makeEditableOptionsModeration = {
+  // Determines whether to use the comment editor configuration (e.g. Toolbars)
+  commentEditor: true,
+  // Determines whether to use the comment editor styles (e.g. Fonts)
+  commentStyles: true,
+  formGroup: formGroups.moderationGroup,
+  adminFormGroup: formGroups.adminOptions,
+  order: 50,
+  fieldName: "moderationGuidelines",
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
+  },
+}
+
+makeEditable({
+  collection: Users,
+  options: makeEditableOptionsModeration
+})

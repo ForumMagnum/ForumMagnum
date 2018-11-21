@@ -130,15 +130,12 @@ class EditorFormComponent extends Component {
       && document.lastEditedAs !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    const defaultValue = name.includes("moderationGuidelines") ? currentUser.moderationGuidelines : ""
-
     if (this.getCurrentEditorType() === "draft-js") {
       return (
         <div className={heightClass}>
           { editorWarning }
           <AsyncEditor
             {...passedDownProps}
-            defaultValue={defaultValue}
             className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
         </div>);
@@ -156,7 +153,6 @@ class EditorFormComponent extends Component {
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}
-            defaultValue={defaultValue}
             className={classnames(classes.markdownEditor, bodyStyles, {[classes.questionWidth]: document.question})}
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}

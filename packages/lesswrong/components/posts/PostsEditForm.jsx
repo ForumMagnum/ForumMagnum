@@ -9,9 +9,9 @@ import withUser from '../common/withUser';
 class PostsEditForm extends PureComponent {
 
   render() {
-    const { documentId, document, eventForm } = this.props;
+    const { documentId, document, eventForm, currentUser } = this.props;
     const isDraft = document && document.draft;
-    
+
     return (
       <div className="posts-edit-form">
         <Components.SmartForm
@@ -35,6 +35,10 @@ class PostsEditForm extends PureComponent {
             // this.context.events.track("post deleted", {_id: documentId});
           }}
           showRemove={true}
+          prefilledProps={{
+            moderationStyle: currentUser && currentUser.moderationStyle,
+            moderationGuidelinesHtmlBody: currentUser && currentUser.moderationGuidelines 
+          }}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
           repeatErrors
         />

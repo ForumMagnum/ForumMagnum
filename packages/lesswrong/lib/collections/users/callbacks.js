@@ -2,6 +2,8 @@ import Users from "meteor/vulcan:users";
 import { addCallback } from 'meteor/vulcan:core';
 
 const TRUSTLEVEL1_THRESHOLD = 2000
+import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
+import { makeEditableOptionsModeration } from './custom_fields.js'
 
 function updateTrustedStatus ({newDocument, vote}) {
 
@@ -29,3 +31,5 @@ function maybeSendVerificationEmail (modifier, user)
 }
 
 addCallback("users.edit.sync", maybeSendVerificationEmail);
+
+addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
