@@ -21,13 +21,11 @@ export const highlightFromHTML = (html) => {
 export const excerptFromHTML = (html) => {
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
-  console.log("htmlRemovedStyles", htmlRemovedStyles)
   const truncatize = truncatise(htmlRemovedStyles, {
     TruncateLength: excerptMaxChars,
     TruncateBy: "characters",
     Suffix: `... <a>(Read more)</a>${styles}`,
   });
-  console.log("truncatize: ", truncatize)
   return Utils.sanitize(truncatize)
 };
 

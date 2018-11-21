@@ -53,7 +53,6 @@ export const formGroups = {
 };
 
 const userHasModerationGuidelines = (currentUser) => {
-  console.log("currentUser: ", currentUser)
   return !!currentUser.moderationGuidelinesHtmlBody
 }
 
