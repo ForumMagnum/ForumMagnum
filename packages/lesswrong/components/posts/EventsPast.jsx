@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
-import { styles } from './EventsPast';
+import { styles } from './PostsDaily';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 

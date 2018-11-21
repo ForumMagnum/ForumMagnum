@@ -113,8 +113,6 @@ import '../components/posts/PostsStats.jsx';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
 
-import '../components/questions/NewQuestionDialog.jsx';
-
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
 import '../components/localGroups/CommunityMapFilter.jsx';
@@ -137,8 +135,11 @@ import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
+import '../components/comments/CommentsItem/EditCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/ReportCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/MoveToAlignmentMenuItem.jsx';
 import '../components/comments/CommentsItem/SuggestAlignmentMenuItem.jsx';
+import '../components/comments/CommentsItem/SubscribeToCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
@@ -275,3 +276,11 @@ import '../components/alignment-forum/AFApplicationForm.jsx';
 if(getSetting('AlignmentForum', false)) {
     import '../components/alignment-forum/AlignmentForumHome.jsx';
 }
+
+
+import '../components/questions/NewQuestionDialog.jsx';
+import '../components/questions/NewAnswerForm.jsx';
+import '../components/questions/AnswersSection.jsx';
+import '../components/questions/AnswersList.jsx';
+import '../components/questions/Answer.jsx';
+import '../components/questions/AnswerMeta.jsx';

@@ -25,7 +25,7 @@ class CommentBody extends Component {
   }
 
   render () {
-    const { comment, classes } = this.props
+    const { comment, classes, collapsed } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
 
     if (comment.deleted) {
@@ -41,8 +41,10 @@ class CommentBody extends Component {
           </div>
         </Tooltip>
       )
-    } else {
+    } else if (!collapsed) {
       return <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: comment.htmlBody}}/>
+    } else {
+      return null
     }
   }
 }
