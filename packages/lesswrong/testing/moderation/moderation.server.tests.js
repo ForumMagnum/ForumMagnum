@@ -172,11 +172,11 @@ describe('User moderation fields --', async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     expect(user.moderationStyle).to.equal(undefined)
   });
-  it("non-trusted users cannot set their moderationStyle", async () => {
+  it("non-trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser()
     const query = `
     mutation UsersUpdate {
-      updateUser(selector: {_id: "${user._id}"}, data: {moderationStyle:"0"}) {
+      updateUser(selector: {_id: "${user._id}"}, data: {moderationStyle:"easy-going"}) {
         data {
           moderationStyle
         }
@@ -184,13 +184,14 @@ describe('User moderation fields --', async () => {
     }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    const expectedOutput = { data: { updateUser: {data: { moderationStyle: "easy-going" } } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
-  it("non-trusted users cannot set their moderationGuidelines", async () => {
+  it("non-trusted users can set their moderationGuidelines", async () => {
     const user = await createDummyUser()
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesHtmlBody:"foo"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesHtmlBody:"blah"}) {
           data {
             moderationGuidelinesHtmlBody
           }
@@ -198,13 +199,14 @@ describe('User moderation fields --', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    const expectedOutput = { data: { updateUser: { data: {moderationGuidelinesHtmlBody: "blah"} } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
-  it("non-trusted users cannot set their moderatorAssistance", async () => {
+  it("non-trusted users can set their moderatorAssistance", async () => {
     const user = await createDummyUser()
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance:"foo"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance: true}) {
           data {
             moderatorAssistance
           }
@@ -212,7 +214,8 @@ describe('User moderation fields --', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    const expectedOutput = { data: { updateUser: { data: {moderatorAssistance: true} } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
