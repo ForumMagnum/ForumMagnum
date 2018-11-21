@@ -183,20 +183,6 @@ Posts.addView("drafts", terms => {
 }});
 
 /**
- * @summary Unlisted view
- */
-Posts.addView("unlisted", terms => {
-  return {
-    selector: {
-      userId: terms.userId,
-      unlisted: true
-    },
-    options: {
-      sort: {createdAt: -1}
-    }
-}});
-
-/**
  * @summary All drafts view
  */
 Posts.addView("all_drafts", terms => ({
@@ -360,15 +346,6 @@ Posts.addView("communityResourcePosts", function () {
   }
 })
 
-Posts.addView("communityFrontpagePosts", function () {
-
-  return {
-    selector: {
-      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'YdcF6WbBmJhaaDqoD']}
-    },
-  }
-})
-
 Posts.addView("sunshineNewPosts", function () {
   const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
@@ -415,10 +392,3 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
     }
   }
 })
-
-Posts.addView("legacyPostUrl", function (terms) {
-  return {
-    selector: {"legacyData.url": {$regex: "/lw/"+terms.legacyUrlId+"/.*"}},
-    options: {limit: 1},
-  };
-});

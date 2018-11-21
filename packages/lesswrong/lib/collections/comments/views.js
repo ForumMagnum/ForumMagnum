@@ -22,20 +22,6 @@ Comments views
 
 */
 
-Comments.addView('postComments', function (terms) {
-  return {
-    selector: {postId: terms.postId},
-    options: {sort: {postedAt: -1}}
-  };
-});
-
-Comments.addView('userComments', function (terms) {
-  return {
-    selector: {userId: terms.userId, hideAuthor: {$ne: true}},
-    options: {sort: {postedAt: -1}}
-  };
-});
-
 Comments.addView("commentReplies", function (terms) {
   return {
     selector: {
@@ -143,13 +129,6 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };
 })
-
-Comments.addView("topRecentComments", function (terms) {
-  return {
-    selector: { score:{$gt:0}, postId:terms.postId},
-    options: {sort: {baseScore: -1}, limit: terms.limit || 3},
-  };
-});
 
 Comments.addView("postCommentsUnread", function (terms) {
   return {
