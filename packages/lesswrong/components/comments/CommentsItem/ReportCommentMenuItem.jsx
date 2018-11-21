@@ -8,10 +8,15 @@ import withDialog from '../../common/withDialog'
 import Report from '@material-ui/icons/Report';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { withStyles } from '@material-ui/core/styles'
+import classNames from 'classnames'
 
 const styles = theme => ({
   icon: {
     color: theme.palette.grey[600]
+  },
+  disabled: {
+    color: theme.palette.grey[400],
+    cursor: "default",
   }
 })
 
@@ -19,30 +24,28 @@ class ReportCommentMenuItem extends PureComponent {
 
   showReport = (event) => {
     const { openDialog, comment, currentUser } = this.props;
-    openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        commentId: comment._id,
-        postId: comment.postId,
-        link: "/posts/" + comment.postId + "/a/" + comment._id,
-        userId: currentUser._id,
-      }
-    });
+    if (Users.canDo(currentUser, "reports.new")) {
+      openDialog({
+        componentName: "ReportForm",
+        componentProps: {
+          commentId: comment._id,
+          postId: comment.postId,
+          link: "/posts/" + comment.postId + "/a/" + comment._id,
+          userId: currentUser._id,
+        }
+      });
+    }
   }
 
   render() {
     const { currentUser, classes} = this.props
 
-    if (Users.canDo(currentUser, "reports.new")) {
-      return <MenuItem onClick={this.showReport}>
-        <ListItemIcon>
-          <Report className={classes.icon}/>
-        </ListItemIcon>
-        Report
-      </MenuItem>
-    } else {
-      return null
-    }
+    return <MenuItem onClick={this.showReport} className={classNames({[classes.disabled]: !Users.canDo(currentUser, "reports.new")})}>
+      <ListItemIcon>
+        <Report className={classNames(classes.icon, {[classes.disabled]: !Users.canDo(currentUser, "reports.new")})}/>
+      </ListItemIcon>
+      Report
+    </MenuItem>
   }
 }
 
