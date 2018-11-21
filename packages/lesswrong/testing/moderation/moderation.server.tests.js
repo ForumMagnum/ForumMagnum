@@ -190,9 +190,9 @@ describe('User moderation fields --', async () => {
     const user = await createDummyUser()
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines:"foo"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesHtmlBody:"foo"}) {
           data {
-            moderationGuidelines
+            moderationGuidelinesHtmlBody
           }
         }
       }
@@ -233,15 +233,15 @@ describe('User moderation fields --', async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines:"blah"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesHtmlBody:"blah"}) {
           data {
-            moderationGuidelines
+            moderationGuidelinesHtmlBody
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: "blah"} } } }
+    const expectedOutput = { data: { updateUser: { data: {moderationGuidelinesHtmlBody: "blah"} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can set their moderatorAssistance", async () => {
@@ -264,9 +264,9 @@ describe('User moderation fields --', async () => {
     const user2 = await createDummyUser({groups:["trustLevel1"]})
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: "blah"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesHtmlBody: "blah"}) {
           data {
-            moderationGuidelines
+            moderationGuidelinesHtmlBody
           }
         }
       }
