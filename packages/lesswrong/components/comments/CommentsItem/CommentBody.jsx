@@ -22,7 +22,7 @@ const styles = theme => ({
       display:"none",
     },
     "&:hover .read-more-tooltip": {
-      display:"inline-block"
+      display:"inline"
     },
     '&:hover .read-more-default': {
       display:"none"
@@ -59,7 +59,8 @@ class CommentBody extends Component {
 
 CommentBody.propTypes = {
   comment: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  truncationCharCount: PropTypes.number.isRequired
 };
 
 
