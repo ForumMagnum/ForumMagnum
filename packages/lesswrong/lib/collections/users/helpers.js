@@ -33,10 +33,16 @@ Users.canModeratePost = (user, post) => {
     return false
   }
   return !!(
-    user._id === post.userId &&
-    user.moderationStyle &&
+    (user._id === post.userId &&
     Users.canDo(user,"posts.moderate.own") &&
-    Users.owns(user, post)
+    Users.owns(user, post) &&
+    post.moderationGuidelinesHtmlBody)
+    ||
+    user._id === post.userId &&
+    Users.canDo(user, "posts.moderate.own.personal") &&
+    Users.owns(user, post) &&
+    post.moderationGuidelinesHtmlBody &&
+    !post.frontpageDate
   )
 }
 
@@ -59,7 +65,6 @@ Users.userIsBannedFromPost = (user, post) => {
     post &&
     post.bannedUserIds &&
     post.bannedUserIds.includes(user._id) &&
-    Users.canDo(postAuthor, 'posts.moderate.own') &&
     Users.owns(postAuthor, post)
   )
 }
@@ -71,6 +76,17 @@ Users.userIsBannedFromAllPosts = (user, post) => {
     postAuthor.bannedUserIds &&
     postAuthor.bannedUserIds.includes(user._id) &&
     Users.canDo(postAuthor, 'posts.moderate.own') &&
+    Users.owns(postAuthor, post)
+  )
+}
+
+Users.userIsBannedFromAllPersonalPosts = (user, post) => {
+  const postAuthor = post.user || Users.findOne(post.userId)
+  return !!(
+    postAuthor &&
+    postAuthor.bannedPersonalUserIds &&
+    postAuthor.bannedPersonalUserIds.includes(user._id) &&
+    Users.canDo(postAuthor, 'posts.moderate.own.personal') &&
     Users.owns(postAuthor, post)
   )
 }
@@ -91,6 +107,11 @@ Users.isAllowedToComment = (user, post) => {
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return false
   }
+
+  if (Users.userIsBannedFromAllPersonalPosts(user, post) && !post.frontpageDate) {
+    return false
+  }
+
   if (post.commentsLocked) {
     return false
   }
@@ -112,6 +133,7 @@ Users.blockedCommentingReason = (user, post) => {
   if (Users.userIsBannedFromPost(user, post)) {
     return "This post's author has blocked you from commenting."
   }
+
   if (getSetting('AlignmentForum', false)) {
     if (!Users.canDo(user, 'comments.alignment.new')) {
       return "You must be approved by an admin to comment on Alignment Forum"
@@ -120,6 +142,11 @@ Users.blockedCommentingReason = (user, post) => {
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return "This post's author has blocked you from commenting."
   }
+
+  if (Users.userIsBannedFromAllPersonalPosts(user, post)) {
+    return "This post's author has blocked you from commenting on any of their personal blog posts."
+  }
+
   if (post.commentsLocked) {
     return "Comments on this post are disabled."
   }

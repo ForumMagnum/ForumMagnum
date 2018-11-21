@@ -348,6 +348,31 @@ Users.addField([
   },
 
   /**
+    bannedUserIds: users who are not allowed to comment on this user's personal blog posts
+  */
+
+  {
+    fieldName: 'bannedPersonalUserIds',
+    fieldSchema: {
+      type: Array,
+      group: formGroups.moderationGroup,
+      canRead: ['guests'],
+      canUpdate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+      optional: true,
+      label: "Banned Users from Personal Blog Posts",
+      control: 'UsersListEditor'
+    }
+  },
+  {
+    fieldName: 'bannedPersonalUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
+
+  /**
     Legacy ID: ID used in the original LessWrong database
   */
   {

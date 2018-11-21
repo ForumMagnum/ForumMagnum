@@ -133,6 +133,7 @@ import '../components/localGroups/LocalGroupsItem.jsx';
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
+import '../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
 import '../components/comments/CommentsItem/EditCommentMenuItem.jsx';

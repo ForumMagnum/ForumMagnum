@@ -52,8 +52,9 @@ export const formGroups = {
   },
 };
 
+
 const userHasModerationGuidelines = (currentUser) => {
-  return !!currentUser.moderationGuidelinesHtmlBody
+  return !!(currentUser.moderationGuidelinesHtmlBody)
 }
 
 Posts.addField([
