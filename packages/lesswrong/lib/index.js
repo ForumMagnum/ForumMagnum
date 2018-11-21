@@ -107,7 +107,7 @@ import './collections/users/permissions.js';
 import { Comments } from './collections/comments'
 
 // Votes
-import './collections/votes/custom_fields.js';
+import './collections/votes';
 //
 //
 //
@@ -120,7 +120,6 @@ import './modules/callbacks.js';
 // // Misc.
 import './helpers.js'
 import './routes.js';
-import './views.js';
 import './scrollRestoration.js';
 
 // Algolia Search Integration

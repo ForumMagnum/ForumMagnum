@@ -1,4 +1,5 @@
 import Localgroups from "./collection.js"
+import { ensureIndex } from '../../collectionUtils';
 
 Localgroups.addDefaultView(terms => {
   let selector = {};
@@ -38,6 +39,7 @@ Localgroups.addView("nearby", function (terms) {
     }
   };
 });
+ensureIndex(Localgroups, { mongoLocation : "2dsphere" });
 
 Localgroups.addView("single", function (terms) {
   return {

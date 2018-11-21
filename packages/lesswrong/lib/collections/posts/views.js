@@ -1,7 +1,44 @@
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
 import { getSetting } from 'meteor/vulcan:core';
+import { ensureIndex } from '../../collectionUtils';
 import moment from 'moment';
+
+// Manually added indexes
+ensureIndex(Posts, {'slug': 1});
+ensureIndex(Posts, {'curatedDate': 1});
+ensureIndex(Posts, {'frontpageDate': 1});
+// Example-Forum indexes
+ensureIndex(Posts, { mongoLocation : "2dsphere" });
+ensureIndex(Posts, {"status": 1, "isFuture": 1});
+ensureIndex(Posts, {"status": 1, "isFuture": 1, "postedAt": 1});
+// Top Posts query index
+ensureIndex(Posts, {'status': -1, 'draft': -1, 'isFuture': -1, 'sticky': -1, 'score': -1, '_id': -1});
+
+// Auto-generated indexes from production
+ensureIndex(Posts, {_id:1,score:1,status:1,draft:1,isFuture:1,sticky:1}, {background:true});
+ensureIndex(Posts, {status:1,sticky:-1,score:-1,_id:-1,draft:1,isFuture:1}, {background:true});
+ensureIndex(Posts, {status:1,userId:1,postedAt:-1,_id:-1,draft:1,isFuture:1}, {background:true});
+ensureIndex(Posts, {isFuture:1}, {background:true});
+ensureIndex(Posts, {status:1,userId:1,draft:1,isFuture:1}, {background:true});
+ensureIndex(Posts, {userId:1,createdAt:-1}, {background:true});
+ensureIndex(Posts, {inactive:1}, {background:true});
+ensureIndex(Posts, {postedAt:-1,createdAt:-1,url:1}, {background:true});
+ensureIndex(Posts, {status:1,meta:1,score:-1,_id:-1,draft:1,isFuture:1,unlisted:1}, {background:true});
+ensureIndex(Posts, {status:1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1}, {background:true});
+ensureIndex(Posts, {slug:1}, {background:true});
+ensureIndex(Posts, {inactive:1,postedAt:1}, {background:true});
+ensureIndex(Posts, {status:1,sticky:-1,curatedDate:-1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1}, {background:true});
+ensureIndex(Posts, {mongoLocation:"2dsphere"}, {"2dsphereIndexVersion":3});
+ensureIndex(Posts, {status:1,groupId:1,sticky:-1,createdAt:-1,draft:1,isFuture:1,unlisted:1,meta:1}, {background:true});
+ensureIndex(Posts, {status:1,groupId:1,isEvent:1,draft:1,isFuture:1,unlisted:1,meta:1,startTime:1}, {background:true});
+ensureIndex(Posts, {createdAt:-1});
+ensureIndex(Posts, {legacyId:1}, {background:true});
+
+ensureIndex(Posts, {status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1}, {background:true, name:"posts_complexSort_1"});
+ensureIndex(Posts, {status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1}, {background:true, name:"posts_complexSort_2"});
+ensureIndex(Posts, {status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1}, {background:true, name:"posts_complexSort_3"});
+
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
@@ -46,6 +83,7 @@ Posts.addView("userPosts", terms => ({
     }
   }
 }));
+ensureIndex(Posts, { draft: 1, userId: 1, score: -1 });
 
 const setStickies = (sortOptions, terms) => {
   if (terms.af && terms.forum) {

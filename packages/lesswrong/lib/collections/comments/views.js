@@ -1,6 +1,20 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { Comments } from './index';
 import moment from 'moment';
+import { ensureIndex } from '../../collectionUtils';
+
+// Recent Comments query index
+ensureIndex(Comments, {'postedAt': -1, '_id': -1});
+
+// Auto-generated indexes from production
+ensureIndex(Comments, {postId:1}, {background:true});
+ensureIndex(Comments, {inactive:1}, {background:true});
+ensureIndex(Comments, {postId:1,postedAt:-1,_id:-1}, {background:true});
+ensureIndex(Comments, {userId:1,postedAt:-1,_id:-1,deleted:1}, {background:true});
+ensureIndex(Comments, {legacyId:1}, {background:true});
+ensureIndex(Comments, {postId:1,baseScore:-1,postedAt:-1,_id:-1,deleted:1}, {background:true});
+ensureIndex(Comments, {postedAt:-1,_id:-1,deleted:1}, {background:true});
+ensureIndex(Comments, {inactive:1,postedAt:1}, {background:true});
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');

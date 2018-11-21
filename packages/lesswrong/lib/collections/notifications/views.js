@@ -1,5 +1,10 @@
 import { getSetting } from 'meteor/vulcan:core';
 import Notifications from './collection.js';
+import { ensureIndex } from '../../collectionUtils';
+
+// Auto-generated indexes from production
+ensureIndex(Notifications, {userId:1,createdAt:-1,_id:-1}, {background:true});
+
 
 // will be common to all other view unless specific properties are overwritten
 Notifications.addDefaultView(function (terms) {

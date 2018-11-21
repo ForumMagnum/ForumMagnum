@@ -1,4 +1,14 @@
 import { LWEvents } from "./collection.js"
+import { ensureIndex } from '../../collectionUtils';
+
+ensureIndex(LWEvents, {name:1, createdAt:-1});
+ensureIndex(LWEvents, {documentId:1, userId:1, deleted:1, name:1, createdAt:-1});
+
+// Auto-generated indexes from production
+ensureIndex(LWEvents, {name:1, documentId:1, userId:1}, {background:true})
+ensureIndex(LWEvents, {name:1, createdAt:-1, _id:-1}, {background: true})
+ensureIndex(LWEvents, {documentId:1, name:1, createdAt:-1, _id:-1, deleted:1}, {background:true})
+
 
 LWEvents.addView("adminView", function (terms) {
   return {
