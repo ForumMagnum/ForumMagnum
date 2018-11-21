@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   upvote: {
@@ -112,6 +113,6 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote,
+registerComponent('PostsVote', PostsVote, withUser,
   withStyles(styles, { name: "PostsVote" })
 );

@@ -39,7 +39,10 @@ addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'Pos
 
 
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
-addRoute({ name: 'EventsDaily', path: '/pastEvents', componentName: 'EventsDaily', title: "Past Events by Day"})
+
+addRoute({ name: 'EventsPast', path: '/pastEvents', componentName: 'EventsPast', title: "Past Events by Day"})
+addRoute({ name: 'EventsUpcoming', path: '/upcomingEvents', componentName: 'EventsUpcoming', title: "Upcoming Events by Day"})
+
 addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
 addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome', title: "Community"})

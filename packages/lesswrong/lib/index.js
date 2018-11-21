@@ -22,6 +22,7 @@ import './collections/subscription_fields.js';
 import '../components/momentjs.js';
 
 import './collections/posts/fragments.js';
+import './collections/comments/fragments.js';
 
 
 // Notifications

@@ -38,7 +38,7 @@ class MuiInput extends Component {
     return <div className="mui-text-field">
       <Input
         className={this.props.className}
-        value={this.state.content}
+        value={this.state.content || ""}
         label={this.props.label}
         onChange={this.onChange}
         multiline={this.props.multiLine}

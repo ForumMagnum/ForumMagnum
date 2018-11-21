@@ -100,8 +100,14 @@ const theme = createLWTheme({
       root: {
         fontFamily: sansSerifStack,
         color: grey[800],
-        fontSize: "1.16rem",
-        lineHeight: "1.5em"
+        fontSize: "1.1rem",
+        lineHeight: "1em"
+      }
+    },
+    MuiListItem: {
+      root: {
+        paddingTop: 8,
+        paddingBottom: 8
       }
     }
   }
