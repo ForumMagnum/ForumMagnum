@@ -95,7 +95,7 @@ export const postBodyStyles = (theme, fontSize) => {
 export const commentBodyStyles = theme => {
   const commentBodyStyles = {
     marginTop: ".5em",
-    marginBottom: ".5em",
+    marginBottom: ".25em",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     ...spoilerStyles(theme),
