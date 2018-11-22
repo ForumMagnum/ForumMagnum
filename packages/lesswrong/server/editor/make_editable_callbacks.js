@@ -103,12 +103,15 @@ const convertFromMarkdownAsync = async (body, fieldName = "") => {
 }
 
 export function addEditableCallbacks({collection, options = {}}) {
-  const { fieldName } = options
+  const {
+    fieldName,
+    deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
+    // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
+  } = options
   const contentFieldName = camel(`${fieldName}Content`)
   const bodyFieldName = camel(`${fieldName}Body`)
   const htmlFieldName = camel(`${fieldName}HtmlBody`)
 
-  // Promisified version of mjpage
 
   async function editorSerializationNew(doc, author) {
     let newFields = {}
@@ -125,7 +128,9 @@ export function addEditableCallbacks({collection, options = {}}) {
     }
     return newDoc
   }
-  addCallback(`${collection.options.collectionName.toLowerCase()}.new.sync`, editorSerializationNew);
+  if (!deactivateNewCallback) {
+    addCallback(`${collection.options.collectionName.toLowerCase()}.new.sync`, editorSerializationNew);
+  }
 
   async function editorSerializationEdit (modifier, doc, author) {
     let newFields = {}
