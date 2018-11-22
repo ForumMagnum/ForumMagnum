@@ -1,4 +1,5 @@
 import Reports from "./collection.js"
+import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation
 Reports.addView("allReports", function (terms) {
@@ -6,6 +7,7 @@ Reports.addView("allReports", function (terms) {
     options: {sort: {createdAt: 1}}
   };
 });
+ensureIndex(Reports, {createdAt: 1});
 
 Reports.addView("unclaimedReports", function (terms) {
   return {
@@ -13,6 +15,7 @@ Reports.addView("unclaimedReports", function (terms) {
     options: {sort: {createdAt: 1}}
   };
 });
+ensureIndex(Reports, {claimedUserId:1, createdAt: 1});
 
 Reports.addView("claimedReports", function (terms) {
   return {
@@ -36,6 +39,7 @@ Reports.addView("sunshineSidebarReports", function (terms) {
     options: {sort: {createdAt: 1}}
   };
 });
+ensureIndex(Reports, {closedAt:1, createdAt: 1});
 
 Reports.addView("closedReports", function (terms) {
   return {

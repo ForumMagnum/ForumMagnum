@@ -1,14 +1,5 @@
 import { LWEvents } from "./collection.js"
-import { ensureIndex } from '../../collectionUtils';
-
-ensureIndex(LWEvents, {name:1, createdAt:-1});
-ensureIndex(LWEvents, {documentId:1, userId:1, deleted:1, name:1, createdAt:-1});
-
-// Auto-generated indexes from production
-ensureIndex(LWEvents, {name:1, documentId:1, userId:1}, {background:true})
-ensureIndex(LWEvents, {name:1, createdAt:-1, _id:-1}, {background: true})
-ensureIndex(LWEvents, {documentId:1, name:1, createdAt:-1, _id:-1, deleted:1}, {background:true})
-
+import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
 
 LWEvents.addView("adminView", function (terms) {
   return {
@@ -16,6 +7,7 @@ LWEvents.addView("adminView", function (terms) {
     options: {sort: {createdAt: -1}}
   };
 });
+ensureIndex(LWEvents, {name:1, createdAt:-1});
 
 LWEvents.addView("postVisits", function (terms) {
   return {
@@ -28,3 +20,12 @@ LWEvents.addView("postVisits", function (terms) {
     options: {sort: {createdAt: -1}, limit: terms.limit || 1},
   };
 });
+// Index also supports the LWEvents.findOne in the `lastVisitedAt` resolver
+// (very speed critical)
+ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
+
+removeObsoleteIndexes(LWEvents, [
+  {name:1, createdAt:-1, _id:-1},
+  {documentId:1, name:1, createdAt:-1, _id:-1, deleted:1},
+  {documentId:1, userId:1, deleted:1, name:1, createdAt:-1},
+]);
