@@ -27,7 +27,7 @@ export const makeEditable = ({collection, options = {}}) => {
     formGroup,
     adminFormGroup,
     permissions,
-    fieldName,
+    fieldName = "",
     order,
     enableMarkDownEditor
   } = options

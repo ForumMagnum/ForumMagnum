@@ -20,7 +20,7 @@ class EditorFormContainer extends Component {
 
   initializeContent = () => {
     let state = {};
-    const { document, name, defaultValue, fieldName } = this.props;
+    const { document, name, defaultValue, fieldName = "" } = this.props;
     // Check whether we have a state from a previous session saved (in localstorage)
     const savedState = this.getStorageHandlers().get({doc: document, name})
     if (savedState) {

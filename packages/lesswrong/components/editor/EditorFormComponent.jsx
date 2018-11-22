@@ -55,6 +55,7 @@ class EditorFormComponent extends Component {
 
     const removeUnusedFields = (data) => {
       let { content, body, htmlBody, ...newData } = data
+      console.log("data: ", data)
       switch(this.getCurrentEditorType()) {
         case "draft-js":
           return {...newData, content}
