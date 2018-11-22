@@ -10,7 +10,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import FormatListNumbered from '@material-ui/icons/FormatListNumbered';
+import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withApollo } from 'react-apollo';
@@ -125,7 +125,7 @@ class Header extends Component {
                   aria-label="Menu"
                   onClick={()=>this.setNavigationOpen(true)}
                 >
-                  {toc ? <FormatListNumbered /> : <MenuIcon />}
+                  {toc ? <TocIcon /> : <MenuIcon />}
                 </IconButton>
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
