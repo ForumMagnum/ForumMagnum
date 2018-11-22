@@ -1,50 +1,17 @@
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
 import { getSetting } from 'meteor/vulcan:core';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
 import moment from 'moment';
-
-// Manually added indexes
-ensureIndex(Posts, {'slug': 1});
-ensureIndex(Posts, {'curatedDate': 1});
-ensureIndex(Posts, {'frontpageDate': 1});
-// Example-Forum indexes
-ensureIndex(Posts, { mongoLocation : "2dsphere" });
-ensureIndex(Posts, {"status": 1, "isFuture": 1});
-ensureIndex(Posts, {"status": 1, "isFuture": 1, "postedAt": 1});
-// Top Posts query index
-ensureIndex(Posts, {'status': -1, 'draft': -1, 'isFuture': -1, 'sticky': -1, 'score': -1, '_id': -1});
-
-// Auto-generated indexes from production
-ensureIndex(Posts, {_id:1,score:1,status:1,draft:1,isFuture:1,sticky:1}, {background:true});
-ensureIndex(Posts, {status:1,sticky:-1,score:-1,_id:-1,draft:1,isFuture:1}, {background:true});
-ensureIndex(Posts, {status:1,userId:1,postedAt:-1,_id:-1,draft:1,isFuture:1}, {background:true});
-ensureIndex(Posts, {isFuture:1}, {background:true});
-ensureIndex(Posts, {status:1,userId:1,draft:1,isFuture:1}, {background:true});
-ensureIndex(Posts, {userId:1,createdAt:-1}, {background:true});
-ensureIndex(Posts, {inactive:1}, {background:true});
-ensureIndex(Posts, {postedAt:-1,createdAt:-1,url:1}, {background:true});
-ensureIndex(Posts, {status:1,meta:1,score:-1,_id:-1,draft:1,isFuture:1,unlisted:1}, {background:true});
-ensureIndex(Posts, {status:1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1}, {background:true});
-ensureIndex(Posts, {slug:1}, {background:true});
-ensureIndex(Posts, {inactive:1,postedAt:1}, {background:true});
-ensureIndex(Posts, {status:1,sticky:-1,curatedDate:-1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1}, {background:true});
-ensureIndex(Posts, {mongoLocation:"2dsphere"}, {"2dsphereIndexVersion":3});
-ensureIndex(Posts, {status:1,groupId:1,sticky:-1,createdAt:-1,draft:1,isFuture:1,unlisted:1,meta:1}, {background:true});
-ensureIndex(Posts, {status:1,groupId:1,isEvent:1,draft:1,isFuture:1,unlisted:1,meta:1,startTime:1}, {background:true});
-ensureIndex(Posts, {createdAt:-1});
-ensureIndex(Posts, {legacyId:1}, {background:true});
-
-ensureIndex(Posts, {status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1}, {background:true, name:"posts_complexSort_1"});
-ensureIndex(Posts, {status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1}, {background:true, name:"posts_complexSort_2"});
-ensureIndex(Posts, {status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1}, {background:true, name:"posts_complexSort_3"});
 
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'frontpage', 'userId', 'meta', 'groupId', 'af');
+  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af');
+  // Also valid fields: before, after, karmaThreshold, timeField
+  
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
@@ -68,6 +35,12 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
+const commonIndexPrefix = {
+  isFuture:1, status:1, draft:1, meta:1, groupId:1, af:1
+};
+const commonPartialFilterExpression = {
+};
+
 
 /**
  * @summary User posts view
@@ -83,7 +56,10 @@ Posts.addView("userPosts", terms => ({
     }
   }
 }));
-ensureIndex(Posts, { draft: 1, userId: 1, score: -1 });
+ensureIndex(Posts,
+  { ...commonIndexPrefix, userId: 1, score: -1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
 
 const setStickies = (sortOptions, terms) => {
   if (terms.af && terms.forum) {
@@ -94,21 +70,54 @@ const setStickies = (sortOptions, terms) => {
   return sortOptions
 }
 
+const stickiesIndexPrefix = {
+  afSticky: -1, metaSticky: -1
+};
+
+
 Posts.addView("magicalSorting", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
+ensureIndex(Posts,
+  { ...commonIndexPrefix, ...stickiesIndexPrefix, score:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
+ensureIndex(Posts,
+  { ...commonIndexPrefix, userId: 1, ...stickiesIndexPrefix, score:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
+
 
 Posts.addView("top", terms => ({
   options: {sort: setStickies({baseScore: -1}, terms)}
 }))
+ensureIndex(Posts,
+  { ...commonIndexPrefix, ...stickiesIndexPrefix, baseScore:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
+ensureIndex(Posts,
+  { ...commonIndexPrefix, userId: 1, ...stickiesIndexPrefix, baseScore:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
+
 
 Posts.addView("new", terms => ({
   options: {sort: setStickies({postedAt: -1}, terms)}
 }))
+ensureIndex(Posts,
+  { ...commonIndexPrefix, ...stickiesIndexPrefix, postedAt:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
+ensureIndex(Posts,
+  { ...commonIndexPrefix, userId: 1, ...stickiesIndexPrefix, postedAt:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
+
 
 Posts.addView("old", terms => ({
   options: {sort: setStickies({postedAt: 1}, terms)}
 }))
+// Covered by the same index as `new`
 
 Posts.addView("daily", terms => ({
   selector: {
@@ -118,6 +127,10 @@ Posts.addView("daily", terms => ({
     sort: {score: -1}
   }
 }));
+ensureIndex(Posts,
+  { ...commonIndexPrefix, postedAt:1, },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
 
 Posts.addView("frontpage", terms => ({
   selector: {
@@ -127,6 +140,15 @@ Posts.addView("frontpage", terms => ({
     sort: {sticky: -1, score: -1}
   }
 }));
+ensureIndex(Posts,
+  { ...commonIndexPrefix, sticky: -1, score: -1 },
+  {
+    partialFilterExpression: {
+      ...commonPartialFilterExpression,
+      frontpageDate: {$exists: true}
+    }
+  }
+);
 
 Posts.addView("frontpage-rss", terms => ({
   selector: {
@@ -136,6 +158,7 @@ Posts.addView("frontpage-rss", terms => ({
     sort: {frontpageDate: -1, postedAt: -1}
   }
 }));
+// Covered by the same index as `frontpage`
 
 Posts.addView("curated", terms => ({
   selector: {
@@ -145,6 +168,15 @@ Posts.addView("curated", terms => ({
     sort: {sticky: -1, curatedDate: -1, postedAt: -1}
   }
 }));
+ensureIndex(Posts,
+  { ...commonIndexPrefix, sticky: -1, curatedDate:-1 },
+  {
+    partialFilterExpression: {
+      ...commonPartialFilterExpression,
+      curatedDate: {$exists: true}
+    }
+  }
+);
 
 Posts.addView("curated-rss", terms => ({
   selector: {
@@ -154,6 +186,7 @@ Posts.addView("curated-rss", terms => ({
     sort: {curatedDate: -1, postedAt: -1}
   }
 }));
+// Covered by the same index as `curated`
 
 Posts.addView("community", terms => ({
   selector: {
@@ -164,6 +197,12 @@ Posts.addView("community", terms => ({
     sort: {sticky: -1, score: -1}
   }
 }));
+// Can't usefully index `community` beyond sorting by sticky and score, because
+// of liminations on partialFilterExpression.
+ensureIndex(Posts,
+  { ...commonIndexPrefix, sticky: -1, score: -1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression, } }
+);
 
 Posts.addView("community-rss", terms => ({
   selector: {
@@ -174,6 +213,7 @@ Posts.addView("community-rss", terms => ({
     sort: {postedAt: -1}
   }
 }));
+// Covered by the same index as `new`
 
 Posts.addView("meta-rss", terms => ({
   selector: {
@@ -185,6 +225,7 @@ Posts.addView("meta-rss", terms => ({
     }
   }
 }))
+// Covered by commonIndexPrefix and the same index as `new`
 
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
@@ -201,6 +242,7 @@ Posts.addView("scheduled", terms => ({
     sort: {postedAt: -1}
   }
 }));
+// Covered by commonIndexPrefix and the same index as `new`
 
 
 /**
@@ -219,6 +261,14 @@ Posts.addView("drafts", terms => {
       sort: {createdAt: -1}
     }
 }});
+ensureIndex(Posts,
+  { ...commonIndexPrefix, userId: 1, createdAt: -1 },
+  {
+    partialFilterExpression: {
+      draft: true
+    }
+  }
+);
 
 /**
  * @summary All drafts view
@@ -231,11 +281,13 @@ Posts.addView("all_drafts", terms => ({
     sort: {createdAt: -1}
   }
 }));
+// Possibly unused view?
 
 /**
  * @summary User upvoted posts view
  */
 Posts.addView("userUpvotedPosts", (terms, apolloClient) => {
+  // TODO: Delete, unused and broken. (Broken because user.upvotedPosts is no longer a field that exists).
   var user = apolloClient ? Users.findOneInStore(apolloClient.store, terms.userId) : Users.findOne(terms.userId);
 
   var postsIds = _.pluck(user.upvotedPosts, "itemId");
@@ -249,6 +301,7 @@ Posts.addView("userUpvotedPosts", (terms, apolloClient) => {
  * @summary User downvoted posts view
  */
 Posts.addView("userDownvotedPosts", (terms, apolloClient) => {
+  // TODO: Delete, unused and broken. (Broken because user.downvotedPosts is no longer a field that exists).
   var user = apolloClient ? Users.findOneInStore(apolloClient.store, terms.userId) : Users.findOne(terms.userId);
 
   var postsIds = _.pluck(user.downvotedPosts, "itemId");
@@ -267,6 +320,10 @@ Posts.addView("slugPost", terms => ({
     limit: 1,
   }
 }));
+ensureIndex(Posts,
+  {"slug": "hashed"},
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
 
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
@@ -283,6 +340,10 @@ Posts.addView("recentDiscussionThreadsList", terms => {
     }
   }
 })
+ensureIndex(Posts,
+  { ...commonIndexPrefix, lastCommentedAt:-1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
 
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
@@ -315,6 +376,16 @@ Posts.addView("nearbyEvents", function (terms) {
   }
   return query;
 });
+ensureIndex(Posts,
+  { ...commonIndexPrefix, mongoLocation:"2dsphere" },
+  {
+    partialFilterExpression: {
+      location: {$exists: true},
+      ...commonPartialFilterExpression,
+      isEvent: true,
+    }
+  }
+);
 
 Posts.addView("events", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
@@ -335,6 +406,15 @@ Posts.addView("events", function (terms) {
     }
   }
 })
+ensureIndex(Posts,
+  { ...commonIndexPrefix, startTime:1 },
+  {
+    partialFilterExpression: {
+      ...commonPartialFilterExpression,
+      isEvent: true,
+    }
+  }
+);
 
 Posts.addView("pastEvents", function (terms) {
   return {
@@ -351,6 +431,15 @@ Posts.addView("pastEvents", function (terms) {
     }
   }
 })
+ensureIndex(Posts,
+  { ...commonIndexPrefix, startTime:-1 },
+  {
+    partialFilterExpression: {
+      ...commonPartialFilterExpression,
+      isEvent: true
+    }
+  }
+);
 
 Posts.addView("groupPosts", function (terms) {
   return {
@@ -366,6 +455,10 @@ Posts.addView("groupPosts", function (terms) {
     }
   }
 })
+ensureIndex(Posts,
+  { ...commonIndexPrefix, groupId: 1, sticky: -1, createdAt: -1 },
+  { partialFilterExpression: { ...commonPartialFilterExpression } }
+);
 
 Posts.addView("postsWithBannedUsers", function () {
   return {
@@ -374,15 +467,24 @@ Posts.addView("postsWithBannedUsers", function () {
     },
   }
 })
+ensureIndex(Posts,
+  { ...commonIndexPrefix },
+  {
+    partialFilterExpression: {
+      ...commonPartialFilterExpression,
+      bannedUserIds: {$exists: true}
+    }
+  }
+);
 
 Posts.addView("communityResourcePosts", function () {
-
   return {
     selector: {
       _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'YdcF6WbBmJhaaDqoD']}
     },
   }
 })
+// No index needed
 
 Posts.addView("sunshineNewPosts", function () {
   const twoDaysAgo = moment().subtract(2, 'days').toDate();
@@ -399,6 +501,7 @@ Posts.addView("sunshineNewPosts", function () {
     }
   }
 })
+// Covered by the same index as `new`
 
 Posts.addView("sunshineCuratedSuggestions", function () {
   return {
@@ -413,6 +516,15 @@ Posts.addView("sunshineCuratedSuggestions", function () {
     }
   }
 })
+ensureIndex(Posts,
+  { ...commonIndexPrefix, createdAt: 1 },
+  {
+    partialFilterExpression: {
+      ...commonPartialFilterExpression,
+      suggestForCuratedUserIds: {$exists:true}, // Can't do no-empty-list filter :(
+    }
+  }
+);
 
 Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
@@ -430,3 +542,46 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
     }
   }
 })
+// Covered by the same index as `recentDiscussionThreadsList`
+
+// Used in Posts.find() in various places
+ensureIndex(Posts, {userId:1, createdAt:-1});
+
+// Used in routes
+ensureIndex(Posts, {legacyId: "hashed"});
+ensureIndex(Posts, {agentFoundationsId: "hashed"});
+
+// Used in checkScheduledPosts cronjob
+ensureIndex(Posts, {isFuture:1, postedAt:1});
+
+// Used in scoring aggregate query
+ensureIndex(Posts, {inactive:1,postedAt:1});
+
+// Old indexes, generated through the mLab UI, which we don't want anymore
+removeObsoleteIndexes(Posts, [
+  {slug: 1}, //Replaced by hashed
+  {curatedDate: 1}, //Replaced by version with prefix, sticky
+  {frontpageDate: 1}, //Replaced by more complex index with partialFilterExpression
+  
+  {mongoLocation: "2dsphere"}, //Replaced by version with prefix
+  {status: 1, isFuture: 1},
+  {status: 1, isFuture: 1, postedAt: 1},
+  {status: -1, draft: -1, isFuture: -1, sticky: -1, score: -1, _id: -1},
+  {inactive:1}, //Replaced by {inactive:1,postedAt:1}
+  
+  {_id:1,score:1,status:1,draft:1,isFuture:1,sticky:1},
+  {status:1,meta:1,score:-1,_id:-1,draft:1,isFuture:1,unlisted:1}, //Dumb index
+  {status:1,sticky:-1,score:-1,_id:-1,draft:1,isFuture:1},
+  {status:1,userId:1,postedAt:-1,_id:-1,draft:1,isFuture:1},
+  {status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1},
+  {status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1},
+  {postedAt:-1,createdAt:-1,url:1},
+  {createdAt:-1},
+  
+  {status:1,userId:1,draft:1,isFuture:1},
+  {status:1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1},
+  {status:1,sticky:-1,curatedDate:-1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1},
+  {status:1,groupId:1,sticky:-1,createdAt:-1,draft:1,isFuture:1,unlisted:1,meta:1},
+  {status:1,groupId:1,isEvent:1,draft:1,isFuture:1,unlisted:1,meta:1,startTime:1},
+  {status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1},
+]);

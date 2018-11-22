@@ -1,20 +1,9 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { Comments } from './index';
 import moment from 'moment';
-import { ensureIndex } from '../../collectionUtils';
-
-// Recent Comments query index
-ensureIndex(Comments, {'postedAt': -1, '_id': -1});
+import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
 
 // Auto-generated indexes from production
-ensureIndex(Comments, {postId:1}, {background:true});
-ensureIndex(Comments, {inactive:1}, {background:true});
-ensureIndex(Comments, {postId:1,postedAt:-1,_id:-1}, {background:true});
-ensureIndex(Comments, {userId:1,postedAt:-1,_id:-1,deleted:1}, {background:true});
-ensureIndex(Comments, {legacyId:1}, {background:true});
-ensureIndex(Comments, {postId:1,baseScore:-1,postedAt:-1,_id:-1,deleted:1}, {background:true});
-ensureIndex(Comments, {postedAt:-1,_id:-1,deleted:1}, {background:true});
-ensureIndex(Comments, {inactive:1,postedAt:1}, {background:true});
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
@@ -30,11 +19,9 @@ Comments.addDefaultView(terms => {
   });
 })
 
-/*
-
-Comments views
-
-*/
+// Most common case: want to get all the comments on a post, filter fields and
+// `limit` affects it only minimally. Best handled by a hash index on `postId`.
+ensureIndex(Comments, { postId: "hashed" });
 
 Comments.addView("commentReplies", function (terms) {
   return {
@@ -46,6 +33,7 @@ Comments.addView("commentReplies", function (terms) {
     }
   }
 })
+ensureIndex(Comments, { parentCommentId: "hashed" });
 
 Comments.addView("postCommentsDeleted", function (terms) {
   return {
@@ -74,6 +62,7 @@ Comments.addView("postCommentsTop", function (terms) {
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
   };
 });
+ensureIndex(Comments, { postId:1, deleted:1, answer:1, baseScore:-1, postedAt:-1 });
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
@@ -81,6 +70,7 @@ Comments.addView("postCommentsOld", function (terms) {
     options: {sort: {deleted: 1, postedAt: 1}}
   };
 });
+// Uses same index as postCommentsNew
 
 Comments.addView("postCommentsNew", function (terms) {
   return {
@@ -88,6 +78,7 @@ Comments.addView("postCommentsNew", function (terms) {
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
+ensureIndex(Comments, { postId:1, deleted:1, answer:1, postedAt:-1 });
 
 Comments.addView("postCommentsBest", function (terms) {
   return {
@@ -95,6 +86,7 @@ Comments.addView("postCommentsBest", function (terms) {
     options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
   };
 });
+// Same as postCommentsTop
 
 Comments.addView("postLWComments", function (terms) {
   return {
@@ -116,6 +108,7 @@ Comments.addView("recentComments", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
+ensureIndex(Comments, { postedAt: -1 });
 
 Comments.addView("recentDiscussionThread", function (terms) {
   const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
@@ -129,6 +122,7 @@ Comments.addView("recentDiscussionThread", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };
 })
+// Uses same index as postCommentsNew
 
 Comments.addView("afRecentDiscussionThread", function (terms) {
   const sevenDaysAgo = moment().subtract(7, 'days').toDate();
@@ -178,3 +172,20 @@ Comments.addView('questionAnswers', function (terms) {
     options: {sort: {chosenAnswer: 1, baseScore: -1, postedAt: -1}}
   };
 });
+
+// Used in legacy routes
+ensureIndex(Comments, {legacyId: "hashed"});
+
+// Used in scoring cron job
+ensureIndex(Comments, {inactive:1,postedAt:1});
+
+removeObsoleteIndexes(Comments, [
+  {postId:1}, //Replaced with hashed
+  {legacyId:1}, //Replaced with hashed
+  {inactive:1},
+  {postId:1,postedAt:-1,_id:-1},
+  {userId:1,postedAt:-1,_id:-1,deleted:1},
+  {postId:1,baseScore:-1,postedAt:-1,_id:-1,deleted:1},
+  {postedAt:-1,_id:-1,deleted:1},
+  {postedAt: -1,_id:-1},
+]);
