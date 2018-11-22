@@ -17,10 +17,10 @@ class CollectionsNavigation extends PureComponent
   }
   
   handleKey = (ev) => {
-    // Only if Ctrl and no other modifiers
-    if (ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {
+    // Only if Shift and no other modifiers
+    if (ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       // Check the targe of the event; we don't want to navigate if you're
-      // trying to use Ctrl+Left/Right to move the cursor inside eg a comment
+      // trying to use Shift+Left/Right to move the cursor inside eg a comment
       // box. Apply the hotkey if the target is either document.body (nothing
       // selected) or is an <a> tag (a spurious selection because you opened
       // a link in a new tab, usually).
