@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import withUser from '../common/withUser';
 import truncatise from 'truncatise';
+import classNames from 'classnames'
 
 const styles = theme => ({
   root: {
@@ -14,9 +15,6 @@ const styles = theme => ({
     '&:hover': {
       backgroundColor: 'rgba(0,0,0,0.02)'
     }
-  },
-  truncated: {
-
   },
   assistance: {
     color: 'rgba(0,0,0,0.6)',
@@ -58,6 +56,7 @@ class ModerationGuidelinesBox extends PureComponent {
 
   render() {
     const { document, classes } = this.props;
+    const { open } = this.state
     const user = document && document.user;
     const moderationStyle = user.moderationStyle || "no-moderation";
     const truncatiseOptions = {
@@ -71,20 +70,20 @@ class ModerationGuidelinesBox extends PureComponent {
     ${document.moderationGuidelinesHtmlBody}`
     const combinedGuidelines = `
       ${document.moderationGuidelinesHtmlBody ? userGuidelines : ""}
-      ${(document.frontpageDate || !document.moderationGuidelinesHtmlBody) ? frontpageGuidelines : ""}
+      ${document.frontpageDate ?
+          frontpageGuidelines :
+            (
+              document.moderationGuidelinesHtmlBody ||
+              defaultGuidelines
+            )
+       }
     `
     const truncatedGuidelines = truncatise(combinedGuidelines, truncatiseOptions)
     return (
       <div className={classes.root} onClick={this.handleClick}>
-        {!this.state.open ?
-          <div className={classes.truncated}>
-            {<div dangerouslySetInnerHTML={{__html: document.moderationGuidelinesHtmlBody ? truncatedGuidelines : truncatedFrontpageGuidelines}}/>}
-          </div>
-          :
-          <div>
-            {<div dangerouslySetInnerHTML={{__html: combinedGuidelines}}/>}
-          </div>
-        }
+        <div className={classNames({[classes.truncated]: !open})}>
+          <div dangerouslySetInnerHTML={{__html: open ? combinedGuidelines : truncatedGuidelines}}/>
+        </div>
       </div>
     )
   }
@@ -102,11 +101,18 @@ const frontpageGuidelines = `
     <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
   </p>`
 
-const truncatedFrontpageGuidelines = `
-  <p><em>Frontpage commenting guidelines:</em></p>
+const defaultGuidelines = `
+  <p><em>Default commenting guidelines:</em></p>
   <p>
-    <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind. <a>...(Read More)</a>
-  </p>`
+    <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
+  </p>
+  <p>
+    <b>Avoid identity politics.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
+  </p>
+  <p>
+    <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
+  </p>
+`
 
 const moderationStyleLookup = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
