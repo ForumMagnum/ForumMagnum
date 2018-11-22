@@ -1,8 +1,11 @@
 import React, { PureComponent, Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import MenuItem from 'material-ui/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem';
 import classNames from 'classnames';
+import grey from '@material-ui/core/colors/grey';
+
+const paddingPerIndent = 19;
 
 const styles = theme => ({
   root: {
@@ -11,6 +14,9 @@ const styles = theme => ({
     "& a:hover": {
       opacity: "inherit",
     },
+    fontSize: 16,
+    ...theme.typography.postStyle,
+    color: "rgba(0,0,0, 0.87)",
   },
   
   highlighted: {
@@ -27,16 +33,16 @@ const styles = theme => ({
   level0: {
   },
   level1: {
-    paddingLeft: "24px !important",
+    paddingLeft: 16 + paddingPerIndent*1,
   },
   level2: {
-    paddingLeft: "48px !important",
+    paddingLeft: 16 + paddingPerIndent*2,
   },
   level3: {
-    paddingLeft: "72px !important",
+    paddingLeft: 16 + paddingPerIndent*3,
   },
   level4: {
-    paddingLeft: "96px !important",
+    paddingLeft: 16 + paddingPerIndent*4,
   },
 });
 

@@ -1,8 +1,9 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import MenuItem from 'material-ui/MenuItem';
-import Divider from 'material-ui/Divider';
+import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
+import classNames from 'classnames';
 import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -17,10 +18,32 @@ const styles = theme => ({
   drawerPaperWithToC: {
     width: 300,
   },
+  
+  menuItem: {
+    fontSize: 16,
+    ...theme.typography.postStyle,
+    color: "rgba(0,0,0, 0.87)",
+  },
+  indented: {
+    paddingLeft: 35,
+  },
 });
 
 const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
   const af = getSetting('AlignmentForum', false);
+  
+  const NavigationMenuLink = ({to, label, indent=false}) => (
+    <MenuItem
+      onClick={handleClose}
+      component="Link" to={to}
+      classes={{
+        root: classNames(classes.menuItem, {[classes.indented]: indent})
+      }}
+    >
+      {label}
+    </MenuItem>
+  )
+  
   return <SwipeableDrawer
     open={open}
     onClose={(event) => handleClose()}
@@ -29,7 +52,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       paper: toc ? classes.drawerPaperWithToC : classes.drawerPaperWithoutToC
     }}
   >
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/"}/>}> Home </MenuItem>
+    <NavigationMenuLink to="/" label="Home"/>
     
     <Divider />
     
@@ -43,40 +66,20 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       <Divider />
     </React.Fragment>}
     
-    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/library"}/>}> Library </MenuItem>}
-    
-    {!af && <MenuItem
-      onClick={handleClose}
-      innerDivStyle={{paddingLeft:"35px" }}
-      containerElement={<Link to={"/rationality"}/>}>
-      Rationality: A-Z
-    </MenuItem>}
-    
-    {!af && <MenuItem
-      onClick={handleClose}
-      innerDivStyle={{paddingLeft:"35px" }}
-      containerElement={<Link to={"/codex"}/>}>
-      The Codex
-    </MenuItem>}
-    
-    {!af && <MenuItem
-      onClick={handleClose}
-      innerDivStyle={{paddingLeft:"35px" }}
-      containerElement={<Link to={"/hpmor"}/>}>
-      HPMOR
-    </MenuItem>}
+    {!af && <NavigationMenuLink to="/library" label="Library"/>}
+    {!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
+    {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
+    {!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
     
     <Divider />
     
-    {!af && <MenuItem onClick={handleClose} containerElement={<Link to={"/community"}/>}> Community </MenuItem>}
-    
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/daily"}/>}> Posts by Date </MenuItem>
-    
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/meta"}/>}> Meta </MenuItem>
+    {!af && <NavigationMenuLink to={"/community"} label="Community"/>}
+    <NavigationMenuLink to={"/daily"} label="Posts by Date"/>
+    <NavigationMenuLink to={"/meta"} label="Meta"/>
     
     <Divider />
     
-    <MenuItem onClick={handleClose} containerElement={<Link to={"/about"}/>}> About  </MenuItem>
+    <NavigationMenuLink to={"/about"} label="About"/>
   </SwipeableDrawer>;
 }
 
