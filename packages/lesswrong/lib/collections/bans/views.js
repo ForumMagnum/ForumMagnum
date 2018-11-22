@@ -1,4 +1,4 @@
-import { Bans } from './collections'
+import { Bans } from './collection'
 import { ensureIndex } from '../../collectionUtils';
 
 // Used in bans/callbacks.js
