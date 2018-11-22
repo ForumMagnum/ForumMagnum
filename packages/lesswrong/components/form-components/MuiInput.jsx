@@ -48,6 +48,7 @@ class MuiInput extends Component {
         fullWidth={this.props.fullWidth}
         disableUnderline={this.props.disableUnderline}
         classes={{input: this.props.classes.input}}
+        startAdornment={this.props.startAdornment}
       /><br />
     </div>
   }
