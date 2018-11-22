@@ -74,7 +74,9 @@ import './modules/fragments.js';
 import './collections/chapters/fragments.js';
 import './collections/sequences/fragments.js';
 import './collections/books/fragments.js';
+import './collections/books/views.js';
 import './collections/collections/fragments.js';
+import './collections/collections/views.js';
 import './modules/alignment-forum/posts/fragments.js';
 import './modules/alignment-forum/users/fragments.js';
 
