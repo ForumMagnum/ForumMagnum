@@ -4,6 +4,35 @@ import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
 import moment from 'moment';
 
+// Old indexes, generated through the mLab UI, which we don't want anymore
+removeObsoleteIndexes(Posts, [
+  {slug: 1}, //Replaced by hashed
+  {curatedDate: 1}, //Replaced by version with prefix, sticky
+  {frontpageDate: 1}, //Replaced by more complex index with partialFilterExpression
+  
+  {mongoLocation: "2dsphere"}, //Replaced by version with prefix
+  {status: 1, isFuture: 1},
+  {status: 1, isFuture: 1, postedAt: 1},
+  {status: -1, draft: -1, isFuture: -1, sticky: -1, score: -1, _id: -1},
+  {inactive:1}, //Superceded by {inactive:1,postedAt:1}
+  
+  {_id:1,score:1,status:1,draft:1,isFuture:1,sticky:1},
+  {status:1,meta:1,score:-1,_id:-1,draft:1,isFuture:1,unlisted:1}, //Dumb index
+  {status:1,sticky:-1,score:-1,_id:-1,draft:1,isFuture:1},
+  {status:1,userId:1,postedAt:-1,_id:-1,draft:1,isFuture:1},
+  {status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1},
+  {status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1},
+  {postedAt:-1,createdAt:-1,url:1},
+  {createdAt:-1},
+  
+  {status:1,userId:1,draft:1,isFuture:1},
+  {status:1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1},
+  {status:1,sticky:-1,curatedDate:-1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1},
+  {status:1,groupId:1,sticky:-1,createdAt:-1,draft:1,isFuture:1,unlisted:1,meta:1},
+  {status:1,groupId:1,isEvent:1,draft:1,isFuture:1,unlisted:1,meta:1,startTime:1},
+  {status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1},
+]);
+
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
@@ -556,32 +585,3 @@ ensureIndex(Posts, {isFuture:1, postedAt:1});
 
 // Used in scoring aggregate query
 ensureIndex(Posts, {inactive:1,postedAt:1});
-
-// Old indexes, generated through the mLab UI, which we don't want anymore
-removeObsoleteIndexes(Posts, [
-  {slug: 1}, //Replaced by hashed
-  {curatedDate: 1}, //Replaced by version with prefix, sticky
-  {frontpageDate: 1}, //Replaced by more complex index with partialFilterExpression
-  
-  {mongoLocation: "2dsphere"}, //Replaced by version with prefix
-  {status: 1, isFuture: 1},
-  {status: 1, isFuture: 1, postedAt: 1},
-  {status: -1, draft: -1, isFuture: -1, sticky: -1, score: -1, _id: -1},
-  {inactive:1}, //Replaced by {inactive:1,postedAt:1}
-  
-  {_id:1,score:1,status:1,draft:1,isFuture:1,sticky:1},
-  {status:1,meta:1,score:-1,_id:-1,draft:1,isFuture:1,unlisted:1}, //Dumb index
-  {status:1,sticky:-1,score:-1,_id:-1,draft:1,isFuture:1},
-  {status:1,userId:1,postedAt:-1,_id:-1,draft:1,isFuture:1},
-  {status:1,createdAt:1,draft:1,isFuture:1,unlisted:1,meta:1,groupId:1,isEvent:1,suggestForCuratedUserIds:1,reviewForCuratedUserId:1},
-  {status:1,createdAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1,maxBaseScore:1},
-  {postedAt:-1,createdAt:-1,url:1},
-  {createdAt:-1},
-  
-  {status:1,userId:1,draft:1,isFuture:1},
-  {status:1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1},
-  {status:1,sticky:-1,curatedDate:-1,postedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,meta:1},
-  {status:1,groupId:1,sticky:-1,createdAt:-1,draft:1,isFuture:1,unlisted:1,meta:1},
-  {status:1,groupId:1,isEvent:1,draft:1,isFuture:1,unlisted:1,meta:1,startTime:1},
-  {status:1,lastCommentedAt:-1,_id:-1,draft:1,isFuture:1,unlisted:1,commentCount:1,baseScore:1,hideFrontpageComments:1},
-]);
