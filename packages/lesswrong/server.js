@@ -23,6 +23,7 @@ import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
+import './server/scripts/removeObsoleteIndexes.js';
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
