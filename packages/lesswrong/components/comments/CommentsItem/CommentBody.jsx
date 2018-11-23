@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import PropTypes from 'prop-types';
-import Tooltip from '@material-ui/core/Tooltip'
 import { excerptFromHTML } from '../../../lib/editor/ellipsize'
 
 const styles = theme => ({
@@ -12,44 +11,56 @@ const styles = theme => ({
     maxWidth: "100%",
     overflowX: "auto",
     overflowY: "hidden",
+    '& .read-more': {
+      minWidth:60,
+      fontSize: ".85em",
+    },
+    '& .read-more-default': {
+      color: "rgba(0,0,0,.4)",
+    },
+    '& .read-more-tooltip': {
+      display:"none",
+    },
+    "&:hover .read-more-tooltip": {
+      display:"inline"
+    },
+    '&:hover .read-more-default': {
+      display:"none"
+    }
   }
 })
 
 class CommentBody extends Component {
-  state = { expanded: false }
 
   shouldRenderExcerpt = () => {
-    const { truncated, comment, collapsed } = this.props
-    const { expanded } = this.state
-    return truncated && comment.body.length > 300 && !expanded && !collapsed
+    const { truncated, comment, collapsed, truncationCharCount } = this.props
+    return truncated && comment.body.length > truncationCharCount && !collapsed
   }
 
   render () {
-    const { comment, classes } = this.props
+    const { comment, classes, collapsed, truncationCharCount } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
 
     if (comment.deleted) {
       return <CommentDeletedMetadata documentId={comment._id}/>
     } else if (this.shouldRenderExcerpt()) {
       return (
-        <Tooltip
-          placement="right"
-          title={<div>Click to expand comment.<br/>Doubleclick to expand thread</div>}
-          enterDelay={1000}>
-          <div onClick={() => this.setState({expanded: true})}>
-            <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: excerptFromHTML(comment.htmlBody)}}/>
-          </div>
-        </Tooltip>
+        <div>
+          <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: excerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
+        </div>
       )
-    } else {
+    } else if (!collapsed) {
       return <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: comment.htmlBody}}/>
+    } else {
+      return null
     }
   }
 }
 
 CommentBody.propTypes = {
   comment: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  truncationCharCount: PropTypes.number.isRequired
 };
 
 
