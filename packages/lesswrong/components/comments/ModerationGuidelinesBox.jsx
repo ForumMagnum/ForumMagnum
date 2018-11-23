@@ -6,6 +6,9 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import withUser from '../common/withUser';
 import truncatise from 'truncatise';
 import classNames from 'classnames'
+import Edit from '@material-ui/icons/Edit';
+import Users from 'meteor/vulcan:users';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -30,6 +33,11 @@ const styles = theme => ({
   'reign-of-terror': {
     color: 'rgba(179,90,49,.8)',
     fontStyle: 'italic'
+  },
+  'editButton': {
+    position: 'absolute',
+    right: 16,
+    height: '0.8em'
   }
 })
 
@@ -54,18 +62,15 @@ class ModerationGuidelinesBox extends PureComponent {
     registerEvent('toggled-user-moderation-guidelines', eventProperties);
   }
 
-  render() {
-    const { document, classes } = this.props;
-    const { open } = this.state
-    const user = document && document.user;
-    const moderationStyle = user.moderationStyle || "no-moderation";
+  getModerationGuidelines = (document, classes) => {
+    const moderationStyle = document.moderationStyle || document.user.moderationStyle
     const truncatiseOptions = {
       TruncateLength: 270,
       TruncateBy: "characters",
       Suffix: "... (Read More)",
       Strict: false
     }
-    const userGuidelines = `<b>${user.displayName + "'s moderation guidelines" } </b>: <br>
+    const userGuidelines = `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
     <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>
     ${document.moderationGuidelinesHtmlBody}`
     const combinedGuidelines = `
@@ -73,14 +78,27 @@ class ModerationGuidelinesBox extends PureComponent {
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
-              document.moderationGuidelinesHtmlBody ||
-              defaultGuidelines
+              document.moderationGuidelinesHtmlBody ?
+                "" :
+                defaultGuidelines
             )
        }
     `
     const truncatedGuidelines = truncatise(combinedGuidelines, truncatiseOptions)
+    return { combinedGuidelines, truncatedGuidelines }
+  }
+
+  render() {
+    const { document, classes, currentUser } = this.props;
+    const { open } = this.state
+    const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
     return (
       <div className={classes.root} onClick={this.handleClick}>
+        {Users.canModeratePost(currentUser, document) &&
+          <Tooltip title="Edit moderation guidelines">
+            <Edit className={classes.editButton} />
+          </Tooltip>
+        }
         <div className={classNames({[classes.truncated]: !open})}>
           <div dangerouslySetInnerHTML={{__html: open ? combinedGuidelines : truncatedGuidelines}}/>
         </div>
