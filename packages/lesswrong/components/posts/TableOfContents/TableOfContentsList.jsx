@@ -26,7 +26,7 @@ class TableOfContentsList extends Component
   }
   
   render() {
-    const { classes, sections, document, drawerStyle } = this.props;
+    const { sections, document, drawerStyle } = this.props;
     const { currentSection } = this.state;
     const { TableOfContentsRow, TableOfContentsDrawerRow } = Components;
     const Row = drawerStyle ? TableOfContentsDrawerRow : TableOfContentsRow;

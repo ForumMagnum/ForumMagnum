@@ -4,7 +4,6 @@ import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import classNames from 'classnames';
-import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({

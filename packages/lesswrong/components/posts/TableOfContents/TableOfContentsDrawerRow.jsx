@@ -3,7 +3,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import classNames from 'classnames';
-import grey from '@material-ui/core/colors/grey';
 
 const firstLevelIndent = 16;
 const paddingPerIndent = 19;
