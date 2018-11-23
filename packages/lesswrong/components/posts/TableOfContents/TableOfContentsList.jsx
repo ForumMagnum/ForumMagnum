@@ -1,18 +1,9 @@
 import React, { PureComponent, Component } from 'react';
 import { Posts } from '../../../lib/collections/posts';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const topSection = "top";
-
-const styles = theme => ({
-  root: {
-  },
-  
-  chaptersList: {
-  },
-});
 
 class TableOfContentsList extends Component
 {
@@ -43,7 +34,7 @@ class TableOfContentsList extends Component
     if (!sections || !document)
       return <div/>
     
-    return <div className={classes.root}>
+    return <div>
       <Row key="postTitle"
         href="#"
         onClick={ev => this.jumpToY(0, ev)}
@@ -51,7 +42,7 @@ class TableOfContentsList extends Component
       >
         {document.title}
       </Row>
-      <div className={classes.chaptersList}>
+      <div>
         {sections && sections.map((section, index) =>
           <Row
             key={section.anchor}
@@ -70,7 +61,7 @@ class TableOfContentsList extends Component
       >
         {Posts.getCommentCountStr(document)}
       </Row>
-    </div>;
+    </div>
   }
   
 
@@ -154,5 +145,5 @@ class TableOfContentsList extends Component
 }
 
 registerComponent("TableOfContentsList", TableOfContentsList,
-  withErrorBoundary, withStyles(styles, { name: "TableOfContentsList" }));
+  withErrorBoundary);
 

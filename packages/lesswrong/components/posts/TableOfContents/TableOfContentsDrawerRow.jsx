@@ -5,6 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import classNames from 'classnames';
 import grey from '@material-ui/core/colors/grey';
 
+const firstLevelIndent = 16;
 const paddingPerIndent = 19;
 
 const styles = theme => ({
@@ -33,16 +34,16 @@ const styles = theme => ({
   level0: {
   },
   level1: {
-    paddingLeft: 16 + paddingPerIndent*1,
+    paddingLeft: firstLevelIndent + paddingPerIndent*1,
   },
   level2: {
-    paddingLeft: 16 + paddingPerIndent*2,
+    paddingLeft: firstLevelIndent + paddingPerIndent*2,
   },
   level3: {
-    paddingLeft: 16 + paddingPerIndent*3,
+    paddingLeft: firstLevelIndent + paddingPerIndent*3,
   },
   level4: {
-    paddingLeft: 16 + paddingPerIndent*4,
+    paddingLeft: firstLevelIndent + paddingPerIndent*4,
   },
 });
 
@@ -66,7 +67,7 @@ class TableOfContentsDrawerRow extends PureComponent
     </MenuItem>
   }
   
-  levelToClassName(level) {
+  levelToClassName = (level) => {
     const { classes } = this.props;
     switch(level) {
       case 0: return classes.level0;

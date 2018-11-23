@@ -4,21 +4,24 @@ import cheerio from 'cheerio';
 // Number of headings below which a table of contents won't be generated.
 const minHeadingsForToC = 3;
 
+// Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
+// <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
+// worthy heading.
 const headingTags = {
   h1: 1,
   h2: 2,
   h3: 3,
   h4: 4,
-  //h5: 5,
-  //h6: 6,
+  strong: 7,
+  b: 8,
 }
 
 const headingIfWholeParagraph = {
-  strong: 7,
-  b: 8,
+  strong: true,
+  b: true,
 };
 
-const headingSelector = _.keys(headingTags).concat(_.keys(headingIfWholeParagraph)).join(",");
+const headingSelector = _.keys(headingTags).join(",");
 
 // Given an HTML document, extract a list of sections for a table of contents
 // from it, and add anchors. The result is modified HTML with added anchors,
@@ -120,7 +123,8 @@ function titleToAnchor(title, usedAnchors)
 }
 
 // `<b>` and `<strong>` tags are headings iff they are the only thing in their
-// paragraph.
+// paragraph. Return whether the given tag name is a tag with that property
+// (ie, is `<strong>` or `<b>`).
 function tagIsHeadingIfWholeParagraph(tagName)
 {
   return tagName.toLowerCase() in headingIfWholeParagraph;

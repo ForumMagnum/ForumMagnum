@@ -22,13 +22,14 @@ const styles = theme => ({
   },
 });
 
-// Context used to share a ref used to share the table of contents between the
-// ToC itself, and the Header. The Header uses the ToC to change its icon (if
-// a ToC is present) and to put the ToC inside NavigationMenu; it needs this
-// Context because it doesn't have access to the post, which is on the wrong
-// side of a whole lot of plumbing.
+// Context used to share a reference used to share the table of contents
+// between the ToC itself, and the Header. The Header uses the ToC to change
+// its icon (if a ToC is present) and to put the ToC inside NavigationMenu; it
+// needs this Context because it doesn't have access to the post, which is on
+// the wrong side of a whole lot of plumbing.
 //
-// The ref is to a function setToC, which puts the ToC in the state of Layout.
+// The reference is to a function setToC, which puts the ToC in the state of
+// Layout.
 export const tableOfContentsContext = React.createContext('tableOfContentsRef');
 
 class TableOfContents extends Component
@@ -52,18 +53,19 @@ class TableOfContents extends Component
   render() {
     const { classes, sections, document, context } = this.props;
     
-    let tocBody = <Components.TableOfContentsList
-      sections={sections}
-      document={document}
-      context={context}
-      drawerStyle={false}
-    />;
+    if (!sections || !document)
+      return <div/>
     
     return (<React.Fragment>
       <Hidden mdDown implementation="js">
         <div className={classes.stickyContainer}>
           <div className={classes.stickyBlock}>
-            {tocBody}
+            <Components.TableOfContentsList
+              sections={sections}
+              document={document}
+              context={context}
+              drawerStyle={false}
+            />;
           </div>
         </div>
       </Hidden>

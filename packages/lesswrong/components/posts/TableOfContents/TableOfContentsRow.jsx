@@ -67,7 +67,7 @@ class TableOfContentsRow extends PureComponent
     </Typography>
   }
   
-  levelToClassName(level) {
+  levelToClassName = (level) => {
     const { classes } = this.props;
     switch(level) {
       case 0: return classes.level0;
