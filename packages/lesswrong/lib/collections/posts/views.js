@@ -460,15 +460,7 @@ Posts.addView("pastEvents", function (terms) {
     }
   }
 })
-ensureIndex(Posts,
-  { ...commonIndexPrefix, startTime:-1 },
-  {
-    partialFilterExpression: {
-      ...commonPartialFilterExpression,
-      isEvent: true
-    }
-  }
-);
+// Same index as events
 
 Posts.addView("groupPosts", function (terms) {
   return {
