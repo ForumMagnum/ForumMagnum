@@ -275,9 +275,7 @@ class PostsPage extends Component {
               <Components.ErrorBoundary>
                 {this.renderPostMetadata()}
               </Components.ErrorBoundary>
-              <tableOfContentsContext.Consumer>
-                { setToC => <Components.TableOfContents sections={sections} document={document} setToC={setToC}/> }
-              </tableOfContentsContext.Consumer>
+              <Components.TableOfContents sections={sections} document={document} />
               <Components.ErrorBoundary>
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>

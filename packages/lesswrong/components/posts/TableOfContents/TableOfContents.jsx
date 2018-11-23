@@ -32,6 +32,14 @@ const styles = theme => ({
 // Layout.
 export const tableOfContentsContext = React.createContext('tableOfContentsRef');
 
+function withToCContext(Component) {
+  return function WithToCContextComponent(props) {
+    return <tableOfContentsContext.Consumer>
+      { setToC => <Component {...props} setToC={setToC}/> }
+    </tableOfContentsContext.Consumer>
+  }
+}
+
 class TableOfContents extends Component
 {
   constructor(props) {
@@ -65,7 +73,7 @@ class TableOfContents extends Component
               document={document}
               context={context}
               drawerStyle={false}
-            />;
+            />
           </div>
         </div>
       </Hidden>
@@ -74,4 +82,5 @@ class TableOfContents extends Component
 }
 
 registerComponent("TableOfContents", TableOfContents,
-  withErrorBoundary, withStyles(styles, { name: "TableOfContents" }));
+  withErrorBoundary, withToCContext,
+  withStyles(styles, { name: "TableOfContents" }));
