@@ -15,15 +15,3 @@ export function ensureIndex(collection, index, options)
     });
   }
 }
-
-export function removeObsoleteIndexes(collection, indexes)
-{
-  if (Meteor.isServer) {
-    try {
-      for(let i=0; i<indexes.length; i++)
-        collection._dropIndex(indexes[i]);
-    } catch(e) {
-      // Swallow exception, to make this idempotent
-    }
-  }
-}

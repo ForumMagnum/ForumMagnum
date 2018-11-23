@@ -1,5 +1,5 @@
 import { LWEvents } from "./collection.js"
-import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionUtils';
 
 LWEvents.addView("adminView", function (terms) {
   return {
@@ -23,9 +23,3 @@ LWEvents.addView("postVisits", function (terms) {
 // Index also supports the LWEvents.findOne in the `lastVisitedAt` resolver
 // (very speed critical)
 ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
-
-removeObsoleteIndexes(LWEvents, [
-  {name:1, createdAt:-1, _id:-1},
-  {documentId:1, name:1, createdAt:-1, _id:-1, deleted:1},
-  {documentId:1, userId:1, deleted:1, name:1, createdAt:-1},
-]);

@@ -1,7 +1,7 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { Comments } from './index';
 import moment from 'moment';
-import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionUtils';
 
 // Auto-generated indexes from production
 
@@ -178,14 +178,3 @@ ensureIndex(Comments, {legacyId: "hashed"});
 
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
-
-removeObsoleteIndexes(Comments, [
-  {postId:1}, //Replaced with hashed
-  {legacyId:1}, //Replaced with hashed
-  {inactive:1},
-  {postId:1,postedAt:-1,_id:-1},
-  {userId:1,postedAt:-1,_id:-1,deleted:1},
-  {postId:1,baseScore:-1,postedAt:-1,_id:-1,deleted:1},
-  {postedAt:-1,_id:-1,deleted:1},
-  {postedAt: -1,_id:-1},
-]);

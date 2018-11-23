@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core';
 import Notifications from './collection.js';
-import { ensureIndex, removeObsoleteIndexes } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionUtils';
 
 
 // will be common to all other view unless specific properties are overwritten
@@ -38,7 +38,3 @@ Notifications.addView("unreadUserNotifications", (terms) => {
   }
 })
 ensureIndex(Notifications, {userId:1, type:1, createdAt:-1});
-
-removeObsoleteIndexes(Notifications, [
-  {userId:1,createdAt:-1,_id:-1}
-]);
