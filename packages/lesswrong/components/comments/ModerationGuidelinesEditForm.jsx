@@ -1,31 +1,25 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import Reports from '../../lib/collections/reports/collection.js'
+import { Posts } from '../../lib/collections/posts'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
-class ReportForm extends PureComponent {
+class ModerationGuidelinesEditForm extends PureComponent {
   render() {
-    const { userId, postId, commentId, onClose, title, link } = this.props
-
+    const { postId, onClose } = this.props
     return (
       <Dialog
-        title={title}
         modal={false}
         open={true}
         onClose={onClose}
       >
         <DialogContent>
           <Components.SmartForm
-            collection={Reports}
-            mutationFragment={getFragment('unclaimedReportsList')}
-            prefilledProps={{
-              userId: userId,
-              postId: postId,
-              commentId: commentId,
-              link: link
-            }}
+            collection={Posts}
+            documentId={postId}
+            fields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
+            mutationFragment={getFragment("EditModerationGuidelines")}
             successCallback={onClose}
           />
         </DialogContent>
@@ -34,13 +28,8 @@ class ReportForm extends PureComponent {
   }
 }
 
-ReportForm.propTypes = {
-  userId: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
-  onRequestClose: PropTypes.func,
-  title: PropTypes.string,
+ModerationGuidelinesEditForm.propTypes = {
   postId: PropTypes.string,
-  commentId: PropTypes.string,
 }
 
-registerComponent('ReportForm', ReportForm);
+registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm);

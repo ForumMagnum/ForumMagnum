@@ -120,6 +120,7 @@ class Layout extends PureComponent {
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
+            <Components.Header/>
             <div className={classes.main}>
               <Components.ErrorBoundary>
                 <Components.FlashMessages />
@@ -129,7 +130,6 @@ class Layout extends PureComponent {
                 <Components.SunshineSidebar />
               </Components.ErrorBoundary>
             </div>
-            <Components.Header/>
             {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
           </div>
           </DialogManager>

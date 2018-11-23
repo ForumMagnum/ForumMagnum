@@ -9,6 +9,7 @@ import classNames from 'classnames'
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
+import withDialog from '../common/withDialog'
 
 const styles = theme => ({
   root: {
@@ -88,6 +89,16 @@ class ModerationGuidelinesBox extends PureComponent {
     return { combinedGuidelines, truncatedGuidelines }
   }
 
+  openEditDialog = () => {
+    const { document, openDialog } = this.props;
+    openDialog({
+      componentName: "ModerationGuidelinesEditForm",
+      componentProps: {
+        postId: document._id
+      }
+    });
+  }
+
   render() {
     const { document, classes, currentUser } = this.props;
     const { open } = this.state
@@ -95,9 +106,11 @@ class ModerationGuidelinesBox extends PureComponent {
     return (
       <div className={classes.root} onClick={this.handleClick}>
         {Users.canModeratePost(currentUser, document) &&
-          <Tooltip title="Edit moderation guidelines">
-            <Edit className={classes.editButton} />
-          </Tooltip>
+          <span onClick={this.openEditDialog}>
+            <Tooltip title="Edit moderation guidelines">
+              <Edit className={classes.editButton} />
+            </Tooltip>
+          </span>
         }
         <div className={classNames({[classes.truncated]: !open})}>
           <div dangerouslySetInnerHTML={{__html: open ? combinedGuidelines : truncatedGuidelines}}/>
@@ -131,7 +144,6 @@ const defaultGuidelines = `
     <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
   </p>
 `
-
 const moderationStyleLookup = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
   'reign-of-terror': "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
@@ -148,5 +160,6 @@ const queryOptions = {
 
 registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, [withDocument, queryOptions], withStyles(styles, {name: 'ModerationGuidelinesBox'}),
   withNewEvents,
-  withUser
+  withUser,
+  withDialog
 );

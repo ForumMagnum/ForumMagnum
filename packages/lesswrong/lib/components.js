@@ -161,6 +161,7 @@ import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
+import '../components/comments/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
