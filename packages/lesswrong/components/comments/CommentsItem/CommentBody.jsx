@@ -12,17 +12,19 @@ const styles = theme => ({
     overflowX: "auto",
     overflowY: "hidden",
     '& .read-more': {
-      minWidth:60,
       fontSize: ".85em",
     },
     '& .read-more-default': {
+      display: "inline-block",
+      minWidth: 125,
       color: "rgba(0,0,0,.4)",
     },
     '& .read-more-tooltip': {
       display:"none",
     },
     "&:hover .read-more-tooltip": {
-      display:"inline"
+      display:"inline-block"
+
     },
     '&:hover .read-more-default': {
       display:"none"

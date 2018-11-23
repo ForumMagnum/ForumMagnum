@@ -105,11 +105,11 @@ class CommentsNode extends PureComponent {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads } = this.props;
 
-    const { hover, collapsed, finishedScroll } = this.state
+    const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
-    const truncated = this.state.truncated || (this.props.truncated && this.state.truncatedStateSet === false)
+    const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
 
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const nodeClass = classNames(

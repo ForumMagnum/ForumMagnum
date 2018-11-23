@@ -6,8 +6,19 @@ import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/compon
 import { Posts } from '../../lib/collections/posts';
 
 class CommentsList extends Component {
-  constructor(props, context) {
-    super(props)
+  state = { expandAllThreads: false }
+
+  handleKeyPress = (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.keyCode == 70) {
+      this.setState({expandAllThreads: true});
+    }
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyPress);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyPress);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -39,18 +50,9 @@ class CommentsList extends Component {
   }
 
   render() {
-    let {
-      comments,
-      currentUser,
-      highlightDate,
-      editMutation,
-      post,
-      postPage,
-      totalComments,
-      startThreadCollapsed,
-    } = this.props;
+    const { comments, currentUser, highlightDate, editMutation, post, postPage,  startThreadCollapsed, totalComments} = this.props;
 
-
+    const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     const unreadComments = lastVisitedAt < lastCommentedAt;
@@ -62,6 +64,7 @@ class CommentsList extends Component {
             {comments.map(comment =>
               <Components.CommentsNode
                 startThreadCollapsed={startThreadCollapsed || totalComments >= 25}
+                expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
