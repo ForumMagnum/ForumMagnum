@@ -107,6 +107,7 @@ class CommentsListSection extends Component {
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
+        <CommentsNewWrapper post={post} postId={postId} />
         <CommentsList
           currentUser={currentUser}
           totalComments={totalComments}
@@ -115,7 +116,6 @@ class CommentsListSection extends Component {
           post={post}
           postPage
         />
-        <CommentsNewWrapper post={post} postId={postId} />
       </div>
     );
   }
