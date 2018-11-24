@@ -19,7 +19,6 @@ import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import { tableOfContentsContext } from '../posts/TableOfContents/TableOfContents';
 
 const styles = theme => ({
     header: {
