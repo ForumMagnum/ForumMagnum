@@ -22,6 +22,10 @@ h1 {
 }
 
 // Global link styling
+a {
+  text-decoration: none;
+}
+
 a:hover, a:active, a:focus {
   text-decoration: none;
   opacity: 0.5;
