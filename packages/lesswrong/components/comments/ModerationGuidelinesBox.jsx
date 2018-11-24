@@ -17,7 +17,7 @@ const styles = theme => ({
     padding: '8px 14px 1px 14px',
     cursor: 'pointer',
     '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0.02)'
+      backgroundColor: 'rgba(0,0,0,0.05)'
     }
   },
   assistance: {
