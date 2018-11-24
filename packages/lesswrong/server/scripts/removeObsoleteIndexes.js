@@ -1,3 +1,4 @@
+/* global Vulcan */
 import { expectedIndexes } from '../../lib/collectionUtils';
 import { Collections } from 'meteor/vulcan:lib';
 
@@ -33,8 +34,10 @@ export async function getUnrecognizedIndexes()
         continue;
       }
       
+      //eslint-disable-next-line no-console
       console.log("Checking for unrecognized indexes on "+collection.collectionName);
       let indexes = await collection.rawCollection().indexes();
+      //eslint-disable-next-line no-console
       console.log("Checking "+indexes.length+" indexes");
       
       indexes.forEach(index => {
@@ -46,6 +49,7 @@ export async function getUnrecognizedIndexes()
         }
       })
     } catch(e) {
+      //eslint-disable-next-line no-console
       console.error(e)
     }
   }
@@ -57,6 +61,7 @@ Vulcan.printUnusedIndexes = async () =>
   let unrecognizedIndexes = await getUnrecognizedIndexes();
   for(let i=0; i<unrecognizedIndexes.length; i++) {
     let index = unrecognizedIndexes[i];
+    //eslint-disable-next-line no-console
     console.log(JSON.stringify(index));
   }
 }
@@ -67,10 +72,12 @@ Vulcan.removeObsoleteIndexes = async () =>
   for(let i=0; i<unrecognizedIndexes.length; i++) {
     let index = unrecognizedIndexes[i];
     let collection = _.find(Collections, c => c.collectionName === index.collectionName);
+    //eslint-disable-next-line no-console
     console.log(`Dropping index on ${index.collectionName}: ${JSON.stringify(index.index)}`);
     try {
       await collection.rawCollection().dropIndex(index.index.name);
     } catch(e) {
+      //eslint-disable-next-line no-console
       console.error(e);
     }
   }
