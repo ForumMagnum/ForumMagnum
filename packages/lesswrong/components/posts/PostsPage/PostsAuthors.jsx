@@ -17,7 +17,7 @@ const styles = theme => ({
 
 const PostsAuthors = ({classes, post}) => {
   const { UsersName } = Components
-  return <Typography variant="body1" component="span" color="textSecondary" className={classes.root}>
+  return <Typography variant="body1" component="span" className={classes.root}>
     by
     <span className={classes.authorName}>
       {!post.user || post.hideAuthor ? '[deleted]' : <UsersName user={post.user} />}
