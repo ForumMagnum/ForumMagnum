@@ -33,16 +33,18 @@ Users.canModeratePost = (user, post) => {
     return false
   }
   return !!(
-    (user._id === post.userId &&
-    Users.canDo(user,"posts.moderate.own") &&
-    Users.owns(user, post) &&
-    post.moderationGuidelinesHtmlBody)
+    (
+      Users.canDo(user,"posts.moderate.own") &&
+      Users.owns(user, post) &&
+      post.moderationGuidelinesHtmlBody
+    )
     ||
-    user._id === post.userId &&
-    Users.canDo(user, "posts.moderate.own.personal") &&
-    Users.owns(user, post) &&
-    post.moderationGuidelinesHtmlBody &&
-    !post.frontpageDate
+    (
+      Users.canDo(user, "posts.moderate.own.personal") &&
+      Users.owns(user, post) &&
+      post.moderationGuidelinesHtmlBody &&
+      !post.frontpageDate
+    )
   )
 }
 
