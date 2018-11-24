@@ -1,15 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
-import {
-  Components,
-  registerComponent,
-  getSetting
-} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import moment from 'moment';
-import Users from 'meteor/vulcan:users';
-import { Comments } from "../../lib/collections/comments";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
@@ -33,20 +26,6 @@ const styles = theme => ({
   link: {
     color: theme.palette.secondary.main,
   },
-  newComment: {
-    padding: '0 10px',
-    border: 'solid 1px rgba(0,0,0,.2)',
-    position: 'relative',
-    "@media print": {
-      display: "none"
-    }
-  },
-  newCommentLabel: {
-    ...theme.typography.commentStyle,
-    ...theme.typography.body2,
-    fontWeight: 600,
-    marginTop: theme.spacing.unit
-  }
 })
 
 class CommentsListSection extends Component {
@@ -119,15 +98,16 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments } = this.props;
+    const { currentUser, comments, postId, post, totalComments } = this.props;
+    const { ModerationGuidelinesBox, CommentsList, CommentsNewWrapper } = Components;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
-        <Components.CommentsList
+        <ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
+        <CommentsList
           currentUser={currentUser}
           totalComments={totalComments}
           comments={comments}
@@ -135,31 +115,7 @@ class CommentsListSection extends Component {
           post={post}
           postPage
         />
-        {!currentUser &&
-          <div>
-            <Components.LoginPopupLink>
-              <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-            </Components.LoginPopupLink>
-          </div>
-        }
-        {currentUser && Users.isAllowedToComment(currentUser, post) &&
-          <div id="posts-thread-new-comment" className={classes.newComment}>
-            <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
-            <Components.CommentsNewForm
-              postId={postId}
-              prefilledProps={{af: Comments.defaultToAlignment(currentUser, post)}}
-              type="comment"
-            />
-          </div>
-        }
-        {currentUser && !Users.isAllowedToComment(currentUser, post) && (
-          <div className="i18n-message author_has_banned_you">
-            { Users.blockedCommentingReason(currentUser, post)}
-            { !(getSetting('AlignmentForum', false)) && <span>
-              (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
-            </span> }
-          </div>
-        )}
+        <CommentsNewWrapper post={post} postId={postId} />
       </div>
     );
   }
