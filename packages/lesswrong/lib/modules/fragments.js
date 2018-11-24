@@ -225,6 +225,8 @@ registerFragment(`
     showModerationGuidelines
     moderationGuidelinesHtmlBody
     moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
   }
 `);
 

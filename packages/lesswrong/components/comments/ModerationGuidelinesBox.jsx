@@ -89,7 +89,9 @@ class ModerationGuidelinesBox extends PureComponent {
     return { combinedGuidelines, truncatedGuidelines }
   }
 
-  openEditDialog = () => {
+  openEditDialog = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     const { document, openDialog } = this.props;
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
