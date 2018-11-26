@@ -56,6 +56,7 @@ const listOptions = {
   queryName: 'AnswersListQuery',
   fragmentName: 'CommentsList',
   enableTotal: true,
+  ssr: true
 }
 
 registerComponent('AnswersList', AnswersList, [withList, listOptions], withStyles(styles, {name: "AnswersList"}));

@@ -18,6 +18,7 @@ const styles = theme => ({
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
+    maxWidth:640,
   },
 
   commentBodyStyles: {

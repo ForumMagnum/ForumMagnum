@@ -15,10 +15,10 @@ const NewAnswerForm = ({postId}) => {
       document={prefilledProps}
       failureComponent={<FormattedMessage id="users.cannot_comment"/>}
     >
-      <div>
+      <div style={{maxWidth:640}}>
         <Components.SmartForm
           collection={Comments}
-          mutationFragment={getFragment('NewAnswer')}
+          mutationFragment={getFragment('CommentsList')}
           prefilledProps={prefilledProps}
           layout="elementOnly"
         />

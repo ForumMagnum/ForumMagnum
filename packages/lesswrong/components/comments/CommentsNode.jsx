@@ -159,6 +159,7 @@ class CommentsNode extends PureComponent {
                 postPage={postPage}
                 nestingLevel={nestingLevel}
                 showPostTitle={showPostTitle}
+                answerId={answerId}
               />
             </div>
             {!collapsed && <div className="comments-children">
@@ -178,6 +179,7 @@ class CommentsNode extends PureComponent {
                   editMutation={editMutation}
                   post={post}
                   postPage={postPage}
+                  answerId={answerId}
                 />)}
             </div>}
           </div>
