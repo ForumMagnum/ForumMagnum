@@ -16,7 +16,7 @@
     justify-content: center;
   }
 
-  a:hover, a:active, a:focus {
+  a:hover, a:active {
     text-decoration: none;
     color: rgba(0,0,0,0.87);
   }
@@ -138,7 +138,7 @@
     color: rgba(0,0,0,0.5);
     font-size: 20px;
 
-    a:hover, a:focus, a:active {
+    a:hover, a:active {
       text-decoration: none;
       color: rgba(0,0,0,0.3);
     }

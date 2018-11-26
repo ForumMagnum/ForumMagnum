@@ -124,7 +124,7 @@ const createLWTheme = (theme) => {
         padding: '1rem',
         whiteSpace: 'pre-wrap',
         margin: "1em 0",
-        '& a, & a:hover, & a:focus, & a:active': {
+        '& a, & a:hover, & a:active': {
           ...linkStyle({
             theme,
             underlinePosition: (typography.codeblock && typography.codeblock.linkUnderlinePosition) || "97%",
