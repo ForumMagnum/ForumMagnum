@@ -1,5 +1,6 @@
 // TODO; really should have something to deal with write errors without blowing up
 
+// TODO; comment
 export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, updateFunction}) => {
   const documents = collection.find(query, queryOptions)
   console.log('docs', documents)
@@ -16,4 +17,16 @@ export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, u
   console.log('result', result)
 }
 
-// export const wrapVulcanAsyncScript = async
+// TODO; comment
+export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
+  try {
+    console.log(`================ ${name} ================`)
+    console.time(name)
+    await scriptFunc(...args)
+  } catch (err) {
+    console.error(`Failed to run ${name}, got error ${err}`)
+  } finally {
+    console.timeEnd(name)
+    console.log(`============ ${name} exiting ============`)
+  }
+}
