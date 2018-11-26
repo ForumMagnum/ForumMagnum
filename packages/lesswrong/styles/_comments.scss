@@ -250,16 +250,6 @@ New CSS File
   }
 }
 
-.comment-actions{
-  @include flex-center;
-  button{
-    margin-right: $hmargin;
-  }
-  a{
-    display: block;
-  }
-}
-
 .recent-comments-list {
   max-width: 700px;
   margin:-2px 10px;
