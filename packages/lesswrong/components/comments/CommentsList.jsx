@@ -6,8 +6,26 @@ import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/compon
 import { Posts } from '../../lib/collections/posts';
 
 class CommentsList extends Component {
-  constructor(props, context) {
-    super(props)
+  state = { expandAllThreads: false }
+
+  handleKeyDown = (event) => {
+    const F_Key = 70
+    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
+      this.setState({expandAllThreads: true});
+    }
+  }
+
+  // TODO – factor this out into a Higher Order Component
+  // to hide the non-react-paradigm complexity
+  componentDidMount() {
+    if (Meteor.isClient) {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
+  }
+  componentWillUnmount() {
+    if (Meteor.isClient) {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -39,18 +57,9 @@ class CommentsList extends Component {
   }
 
   render() {
-    let {
-      comments,
-      currentUser,
-      highlightDate,
-      editMutation,
-      post,
-      postPage,
-      totalComments,
-      startThreadCollapsed,
-    } = this.props;
+    const { comments, currentUser, highlightDate, editMutation, post, postPage,  startThreadCollapsed, totalComments} = this.props;
 
-
+    const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     const unreadComments = lastVisitedAt < lastCommentedAt;
@@ -62,6 +71,7 @@ class CommentsList extends Component {
             {comments.map(comment =>
               <Components.CommentsNode
                 startThreadCollapsed={startThreadCollapsed || totalComments >= 25}
+                expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}

@@ -1,7 +1,7 @@
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
-import { highlightFromHTML, excerptFromHTML } from '../../lib/editor/ellipsize.jsx';
+import { highlightFromHTML, postExcerptFromHTML } from '../../lib/editor/ellipsize.jsx';
 
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
@@ -36,7 +36,7 @@ export const getExcerptFieldsFromHTML = (html, fieldName = "") => {
   const markdownBody = htmlToMarkdown(html);
   const wordCount = wordcountFromMarkdown(markdownBody);
   const htmlHighlight = highlightFromHTML(html);
-  const excerpt = excerptFromHTML(html);
+  const excerpt = postExcerptFromHTML(html, 500);
   const plaintextExcerpt = htmlToText.fromString(excerpt);
   return {
     [`${fieldName}wordCount`]: wordCount,
