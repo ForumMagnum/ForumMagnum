@@ -37,7 +37,7 @@ const styles = theme => ({
       backgroundColor: "rgba(0,0,0,.025) !important",
     },
     
-    "& a:hover, & a:active, & a:focus": {
+    "& a:hover, & a:active": {
       textDecoration: "none",
       color: "rgba(0,0,0,0.3)",
     },

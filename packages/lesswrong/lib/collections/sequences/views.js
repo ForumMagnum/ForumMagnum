@@ -1,5 +1,6 @@
 import Sequences from './collection.js';
 import { getSetting } from 'meteor/vulcan:core';
+import { ensureIndex } from '../../collectionUtils';
 
 Sequences.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
@@ -11,6 +12,7 @@ Sequences.addDefaultView(terms => {
   }
   return params;
 })
+const commonIndexPrefix = { hidden:1, af:1, isDeleted:1 };
 
 Sequences.addView("userProfile", function (terms) {
   return {
@@ -26,6 +28,7 @@ Sequences.addView("userProfile", function (terms) {
     },
   };
 });
+ensureIndex(Sequences, { ...commonIndexPrefix, userId:1 });
 
 Sequences.addView("userProfileAll", function (terms) {
   return {
@@ -59,6 +62,7 @@ Sequences.addView("curatedSequences", function (terms) {
     },
   };
 });
+ensureIndex(Sequences, { ...commonIndexPrefix, curatedOrder:-1 });
 
 Sequences.addView("communitySequences", function (terms) {
   return {
