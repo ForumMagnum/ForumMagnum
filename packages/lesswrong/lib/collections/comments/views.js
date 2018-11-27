@@ -100,7 +100,7 @@ Comments.addView("postLWComments", function (terms) {
 
 Comments.addView("allRecentComments", function (terms) {
   return {
-    selector: {deletedPublic: {$in: [false,null]},
+    selector: {deletedPublic: {$in: [false,null]}},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
