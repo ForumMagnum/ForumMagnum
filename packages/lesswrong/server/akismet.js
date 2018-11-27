@@ -11,8 +11,8 @@ const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affect
 async function constructAkismetReport({document, type = "post"}) {
     const author = await Users.findOne(document.userId)
 
-    const link = (type === "post") ? 
-      Posts.getPageUrl(document, true) : 
+    const link = (type === "post") ?
+      Posts.getPageUrl(document, true) :
       (document.postId && Comments.getPageUrl(document, true)) // Don't get link if we create a comment without a post
     const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
     const ip = events && events[0] && events[0].properties && events[0].properties.ip
@@ -26,7 +26,7 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.htmlBody, 
+      comment_content : document.htmlBody,
       is_test: Meteor.isDevelopment
     }
 }
@@ -43,8 +43,8 @@ async function checkForAkismetSpam({document, type = "post"}) {
 const akismetKey = getSetting('akismet.apiKey', false)
 const akismetURL = getSetting('akismet.url', false)
 const client = akismet.client({
-  key  : akismetKey,                   
-  blog : akismetURL       
+  key  : akismetKey,
+  blog : akismetURL
 });
 
 client.verifyKey()
@@ -118,7 +118,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
           editMutation({
-            collection: Comments, 
+            collection: Comments,
             documentId: comment._id,
             set: {
               deleted: true,
@@ -134,7 +134,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     }
     return comment
   }
-  
+
 addCallback('comments.new.after', checkCommentForSpamWithAkismet);
 
 function runReportCloseCallbacks(newReport, oldReport) {
