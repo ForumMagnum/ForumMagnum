@@ -25,7 +25,7 @@ settings*
 .tern-project
 
 scratch
-
+.vscode
 .deploy
 .deploy/*
 ### Meteor template
