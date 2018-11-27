@@ -113,7 +113,7 @@ class CommentsItem extends Component {
             {
               deleted: comment.deleted && !comment.deletedPublic,
               "public-deleted": comment.deletedPublic,
-              "showParent": this.state.showParent
+              "showParent": this.state.showParent,
             },
           )}
         >

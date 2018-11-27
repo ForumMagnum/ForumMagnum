@@ -131,6 +131,7 @@ import '../components/localGroups/LocalGroupsList.jsx';
 import '../components/localGroups/LocalGroupsItem.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
+import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';

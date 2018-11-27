@@ -37,9 +37,24 @@ const specificResolvers = {
       } else {
         throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }
-    }
+    },
+    retractComment(root, { commentId, retracted }, context) {
+      const comment = context.Comments.findOne(commentId);
+      
+      if (Users.owns(context.currentUser, comment)) {
+        let set = {retracted: retracted};
+        // TODO: retractedDate field?
+        context.Comments.update({_id: commentId}, {$set: set});
+        
+        const updatedComment = context.Comments.findOne(commentId)
+        return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
+      } else {
+        throw new Error("You can't retract or un-retract a comment you didn't write");
+      }
+    },
   }
 };
 
 addGraphQLResolvers(specificResolvers);
 addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment');
+addGraphQLMutation('retractComment(commentId: String, retracted: Boolean): Comment');
