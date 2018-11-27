@@ -4,6 +4,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
+import withGlobalKeydown from '../common/withGlobalKeydown';
 
 class CommentsList extends Component {
   state = { expandAllThreads: false }
@@ -15,17 +16,9 @@ class CommentsList extends Component {
     }
   }
 
-  // TODO – factor this out into a Higher Order Component
-  // to hide the non-react-paradigm complexity
   componentDidMount() {
-    if (Meteor.isClient) {
-      document.addEventListener('keydown', this.handleKeyDown);
-    }
-  }
-  componentWillUnmount() {
-    if (Meteor.isClient) {
-      document.addEventListener('keydown', this.handleKeyDown);
-    }
+    const { addKeydownListener } = this.props
+    addKeydownListener(this.handleKeyDown);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -109,4 +102,4 @@ const withEditOptions = {
 };
 
 
-registerComponent('CommentsList', CommentsList, [withEdit, withEditOptions]);
+registerComponent('CommentsList', CommentsList, [withEdit, withEditOptions], withGlobalKeydown);
