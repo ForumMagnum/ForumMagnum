@@ -6,6 +6,7 @@
 // TODO: Make a slower version of this that handles errors better
 // Despite the presence of writeErrors in the result, the update appears to
 // crash and stop on some errors
+// TODO: Fails if nothing matches the query
 export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, updateFunction}) => {
   const documents = collection.find(query, queryOptions)
   const updates = documents.map(document => ({
