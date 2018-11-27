@@ -23,6 +23,9 @@ Comments.addDefaultView(terms => {
 // `limit` affects it only minimally. Best handled by a hash index on `postId`.
 ensureIndex(Comments, { postId: "hashed" });
 
+// For the user profile page
+ensureIndex(Comments, { userId:1, postedAt:-1 });
+
 Comments.addView("commentReplies", function (terms) {
   return {
     selector: {
