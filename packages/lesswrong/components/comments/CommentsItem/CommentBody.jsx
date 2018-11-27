@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import PropTypes from 'prop-types';
-import { excerptFromHTML } from '../../../lib/editor/ellipsize'
+import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 
 const styles = theme => ({
   commentStyling: {
@@ -48,7 +48,7 @@ class CommentBody extends Component {
     } else if (this.shouldRenderExcerpt()) {
       return (
         <div>
-          <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: excerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
+          <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
         </div>
       )
     } else if (!collapsed) {
