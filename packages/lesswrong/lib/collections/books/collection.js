@@ -2,7 +2,7 @@ import { createCollection, getDefaultResolvers, getDefaultMutations } from 'mete
 // import schema from './schema.js';
 import schema from './schema.js';
 
-const Books = createCollection({
+export const Books = createCollection({
   collectionName: 'Books',
 
   typeName: 'Book',

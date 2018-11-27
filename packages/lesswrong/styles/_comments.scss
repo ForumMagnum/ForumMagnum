@@ -18,9 +18,6 @@ $small-font: 1.1rem;
       overflow-wrap: break-word;
     }
   }
-  a {
-    font-weight: 400;
-  }
   .comments-item-meta {
     & > div {
       display: inline-block;
@@ -176,10 +173,6 @@ New CSS File
     font-size: $small-font;
     a {
       color: rgba(0,0,0,0.5);
-      .comments-item-permalink{
-          color: rgba(0,0,0,0.5);
-      }
-
     }
   }
   .comment-edit, .comment-delete {
@@ -201,7 +194,7 @@ New CSS File
     }
     color: rgba(0,0,0,0.3);
   }
-  a:hover, a:active, a:focus {
+  a:hover, a:active {
     text-decoration: none;
     color: rgba(0,0,0,0.3) !important;
     .comments-item-permalink {
@@ -250,16 +243,6 @@ New CSS File
   border:solid 1px rgba(0,0,0,.2);
   .comments-new-form, .comments-edit-form {
     padding-bottom: 0px;
-  }
-}
-
-.comment-actions{
-  @include flex-center;
-  button{
-    margin-right: $hmargin;
-  }
-  a{
-    display: block;
   }
 }
 
@@ -407,13 +390,6 @@ New CSS File
 
 .i18n-message.author_has_banned_you {
   padding:1em 0;
-}
-
-.comments-delete-modal-body {
-  padding-bottom: 10px !important;
-  p {
-    font-family: $comments-font !important;
-  }
 }
 
 .comments-delete-modal-textfield {

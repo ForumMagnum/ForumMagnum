@@ -6,6 +6,7 @@ GraphQL config
 
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
+import { Utils } from 'meteor/vulcan:core';
 
 const specificResolvers = {
   Mutation: {
@@ -34,7 +35,7 @@ const specificResolvers = {
         runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
         return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
       } else {
-        throw new Error({id: `app.user_cannot_moderate_post`});
+        throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }
     }
   }
