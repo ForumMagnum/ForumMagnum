@@ -27,14 +27,7 @@ const styles = theme => ({
 const CommentsNewWrapper = ({currentUser, postId, post, classes}) => {
   const { LoginPopupLink, CommentsNewForm } = Components;
   return <React.Fragment>
-    {!currentUser &&
-      <div>
-        <LoginPopupLink>
-          <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-        </LoginPopupLink>
-      </div>
-    }
-    {currentUser && Users.isAllowedToComment(currentUser, post) &&
+    {(!currentUser || (currentUser && Users.isAllowedToComment(currentUser, post))) &&
       <div id="posts-thread-new-comment" className={classes.newComment}>
         <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
         <CommentsNewForm

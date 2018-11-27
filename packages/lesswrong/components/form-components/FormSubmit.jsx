@@ -39,7 +39,6 @@ const FormSubmit = ({
                       collectionName,
                       classes,
                       currentUser,
-                      theme
                     },
                     {
                       updateCurrentValues,
@@ -128,7 +127,6 @@ FormSubmit.propTypes = {
   deleteDocument: PropTypes.func,
   collectionName: PropTypes.string,
   classes: PropTypes.object,
-  theme: PropTypes.object,
 };
 
 FormSubmit.contextTypes = {
@@ -141,6 +139,6 @@ FormSubmit.contextTypes = {
 
 // Replaces FormSubmit from vulcan-forms.
 replaceComponent('FormSubmit', FormSubmit,
-  withUser, withTheme(),
+  withUser,
   withStyles(styles, { name: "FormSubmit" })
 );

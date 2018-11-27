@@ -18,24 +18,18 @@ const CommentsNewForm = (props, context) => {
   }
 
   return (
-    <Components.ShowIf
-      check={Comments.options.mutations.new.check}
-      document={prefilledProps}
-      failureComponent={<FormattedMessage id="users.cannot_comment"/>}
-    >
-      <div className="comments-new-form">
-        <Components.SmartForm
-          collection={Comments}
-          mutationFragment={getFragment('CommentsList')}
-          successCallback={props.successCallback}
-          cancelCallback={props.type === "reply" ? props.cancelCallback : null}
-          prefilledProps={prefilledProps}
-          layout="elementOnly"
-        />
-      </div>
-    </Components.ShowIf>
+    <div className="comments-new-form">
+      <Components.SmartForm
+        collection={Comments}
+        mutationFragment={getFragment('CommentsList')}
+        successCallback={props.successCallback}
+        cancelCallback={props.type === "reply" ? props.cancelCallback : null}
+        prefilledProps={prefilledProps}
+        layout="elementOnly"
+        SubmitComponent={Components.SubmitOrLogin}
+      />
+    </div>
   )
-
 };
 
 CommentsNewForm.propTypes = {
