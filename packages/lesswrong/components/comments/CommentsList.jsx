@@ -8,17 +8,24 @@ import { Posts } from '../../lib/collections/posts';
 class CommentsList extends Component {
   state = { expandAllThreads: false }
 
-  handleKeyPress = (event) => {
-    if ((event.metaKey || event.ctrlKey) && event.keyCode == 70) {
+  handleKeyDown = (event) => {
+    const F_Key = 70
+    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       this.setState({expandAllThreads: true});
     }
   }
 
+  // TODO – factor this out into a Higher Order Component
+  // to hide the non-react-paradigm complexity
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyPress);
+    if (Meteor.isClient) {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyPress);
+    if (Meteor.isClient) {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
