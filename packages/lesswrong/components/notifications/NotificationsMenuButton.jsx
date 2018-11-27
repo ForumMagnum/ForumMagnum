@@ -8,7 +8,6 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import classnames from 'classnames';
 
 const styles = theme => ({
   badgeContainer: {
@@ -55,9 +54,7 @@ const NotificationsMenuButton = (props) => {
       badgeContent={(filteredResults && filteredResults.length) || ""}
     >
       <IconButton
-          classes={{
-            root: classnames("notifications-menu-button", buttonClass)
-          }}
+          classes={{ root: buttonClass }}
           onClick={toggle}
           style={ notificationIconStyle }
       >

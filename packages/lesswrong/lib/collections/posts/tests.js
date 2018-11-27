@@ -2,12 +2,14 @@ import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
-import { createDummyUser, createDummyPost } from '../../../testing/utils.js'
+import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('PostsEdit', async () => {
+  let graphQLerrors = catchGraphQLErrors();
+  
   it("succeeds when owner of post edits title", async () => {
     const user = await createDummyUser()
     const post = await createDummyPost(user)
@@ -45,7 +47,8 @@ describe('PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user2})
     const expectedError = '{"id":"app.operation_not_allowed","value":"check"}'
-    return response.should.be.rejectedWith(expectedError);
+    await response.should.be.rejectedWith(expectedError);
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 });
 
@@ -76,7 +79,8 @@ describe('Posts RSS Views', async () => {
     _.pluck(posts, '_id').should.include(curatedPost1._id)
     _.pluck(posts, '_id').should.include(curatedPost2._id)
     _.pluck(posts, '_id').should.include(curatedPost3._id)
-  });it("returns curated posts in descending order of them being curated", async () => {
+  });
+  it("returns curated posts in descending order of them being curated", async () => {
     const user = await createDummyUser();
     const now = new Date();
     const yesterday = new Date().getTime()-(1*24*60*60*1000);
