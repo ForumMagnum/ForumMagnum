@@ -42,9 +42,8 @@ Comments.toAlgolia = (comment) => {
     postedAt: comment.postedAt,
   };
   const commentAuthor = Users.findOne({_id: comment.userId});
-  if (commentAuthor) {
+  if (commentAuthor && !commentAuthor.deleted) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
-    algoliaComment.authorUserName = commentAuthor.username;
   }
   const parentPost = Posts.findOne({_id: comment.postId});
   if (parentPost) {
@@ -133,10 +132,9 @@ Posts.toAlgolia = (post) => {
     draft: post.draft,
   };
   const postAuthor = Users.findOne({_id: post.userId});
-  if (postAuthor) {
+  if (postAuthor && !postAuthor.deleted) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
-    algoliaMetaInfo.authorUserName = postAuthor.username;
   }
   const postFeed = RSSFeeds.findOne({_id: post.feedId});
   if (postFeed) {

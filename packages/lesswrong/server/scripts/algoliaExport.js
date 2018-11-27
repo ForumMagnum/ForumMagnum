@@ -9,6 +9,9 @@ import { wrapVulcanAsyncScript } from './utils'
 
 // Slightly gross function to turn these callback-accepting functions
 // into async ones
+// If waitForFinish is false, let algolia index the post on it's own time. This
+// takes forever, so it should usually be false. It tries to give you any errors
+// ahead of time.
 async function batchAdd (algoliaIndex, objects, waitForFinish) {
   const addObjectsPartialAsync = () => {
     return new Promise((resolve, reject) => {
@@ -38,11 +41,17 @@ async function batchAdd (algoliaIndex, objects, waitForFinish) {
       await awaitObjectInsert(content.taskID)
     } else {
       algoliaIndex.waitTask(content.taskID, (err) => {
-        if (err) console.error(
-          'Apparently algolia sometimes errors even after the first ack\n' +
-          'Please make a note of this error and then be frustrated about' +
-          'how to change the code to do a better job of catching it.'
-        )
+        // We really hope it's rare for it to error only after finishing
+        // indexing. If we have to wait for this error every time, it'll take
+        // possibly >24hr to export comments.
+        if (err) {
+          console.error(
+            'Apparently algolia sometimes errors even after the first ack\n' +
+            'Please make a note of this error and then be frustrated about' +
+            'how to change the code to do a better job of catching it.'
+          )
+          console.error(err)
+        }
       })
     }
   } catch (err) {
@@ -62,7 +71,7 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
   let importBatch = []
   let batchContainer
   const totalErrors = []
-  const documents = Collection.find(selector, {limit: 7}) // TODO; no limit
+  const documents = Collection.find(selector)
   const numItems = documents.count()
   console.log(`Beginning to import ${numItems} ${Collection._name}`)
   for (let item of documents) {
@@ -72,7 +81,7 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
     // console.log('batchContainer', batchContainer)
     importBatch = [...importBatch, ...batchContainer]
     importCount++
-    if (importCount % 3 == 0) {
+    if (importCount % 100 === 0) {
       // Could be more algolia objects than documents
       console.log(`Exporting ${importBatch.length} algolia objects`)
       console.log('Documents so far:', importCount)
@@ -89,7 +98,7 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
   if (err) {
     totalErrors.push(err)
   }
-  if (totalErrors) {
+  if (totalErrors.length) {
     console.log(`${Collection._name} indexing encountered the following errors:`, totalErrors)
   } else {
     console.log('No errors found when indexing', Collection._name)
@@ -98,7 +107,7 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
 
 Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', async () => {
   await algoliaExport(Posts, 'test_posts', {baseScore: {$gt: 0}, draft: {$ne: true}})
-  // algoliaExport(Comments, 'test_comments', {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
-  // algoliaExport(Users, 'test_users', {deleted: {$ne: true}})
+  await algoliaExport(Comments, 'test_comments', {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
+  await algoliaExport(Users, 'test_users', {deleted: {$ne: true}})
   // algoliaExport(Sequences, 'test_sequences')
 })
