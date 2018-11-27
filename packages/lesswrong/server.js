@@ -37,6 +37,7 @@ import './server/posts/index.js';
 
 import './server/logging.js';
 import './server/rss.js';
+import './server/akismet.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';

@@ -28,7 +28,7 @@ const schema = {
   },
   commentId: {
     type: String,
-    optional: false,
+    optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
