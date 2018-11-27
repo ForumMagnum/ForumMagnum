@@ -6,7 +6,6 @@ import Sequences from '../collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { draftToHTML } from '../editor/utils.js';

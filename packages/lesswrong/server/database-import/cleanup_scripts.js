@@ -25,13 +25,12 @@ Vulcan.renameDuplicateUsernames = wrapVulcanAsyncScript('renameDuplicateUsername
   })
 })
 
-// TODO; may have had a problem with this not updating something
 Vulcan.updateBaseScores = wrapVulcanAsyncScript('updateBaseScores', async () => {
   for (const collection of [Posts, Comments]) {
     await bulkUpdateWithJS({
       collection,
       updateFunction: document => {
-        const newBaseScore = recalculateBaseScore(document._id) // TODO; is this bogus?
+        const newBaseScore = recalculateBaseScore(document)
         return {$set: {baseScore: newBaseScore}}
       }
     })
