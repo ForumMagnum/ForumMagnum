@@ -2,7 +2,7 @@
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 
-import { batchUpdateScore, recalculateBaseScore } from 'meteor/vulcan:voting';
+import { batchUpdateScore } from 'meteor/vulcan:voting';
 
 Vulcan.forceBatchUpdateScores = async () => {
   console.log('==============| Updated the scores of all posts and comments')
@@ -18,4 +18,3 @@ Vulcan.forceBatchUpdateScores = async () => {
   const nInactiveCommentsUpdated = await batchUpdateScore({collection: Comments, inactive: true, forceUpdate: true})
   console.log('nInactiveCommentsUpdated', nInactiveCommentsUpdated)
 }
-
