@@ -44,13 +44,18 @@ export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, u
 // > Vulcan.fixAllTheThings('fee', 'bee')
 export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
   try {
+    // eslint-disable-next-line no-console
     console.log(`================ ${name} ================`)
+    // eslint-disable-next-line no-console
     console.time(name)
     await scriptFunc(...args)
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Failed to run ${name}, got error ${err}`)
   } finally {
+    // eslint-disable-next-line no-console
     console.timeEnd(name)
+    // eslint-disable-next-line no-console
     console.log(`============ ${name} exiting ============`)
   }
 }
