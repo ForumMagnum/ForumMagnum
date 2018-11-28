@@ -16,12 +16,12 @@ Posts.addDefaultView(terms => {
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
-      draft: {$ne: true},
-      isFuture: {$ne: true}, // match both false and undefined
-      unlisted: {$ne: true},
-      meta: {$ne: true},
+      draft: {$in: [false,null]},
+      isFuture: {$in: [false,null]}, // match both false and undefined
+      unlisted: {$in: [false,null]},
+      meta: {$in: [false,null]},
       groupId: {$exists: false},
-      isEvent: {$ne: true},
+      isEvent: {$in: [false,null]},
       ...validFields,
       ...alignmentForum
     }
@@ -30,7 +30,7 @@ Posts.addDefaultView(terms => {
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
   if (terms.userId) {
-    params.selector.hideAuthor = {$ne: true}
+    params.selector.hideAuthor = {$in: [false,null]}
   }
   return params;
 })
@@ -255,7 +255,7 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
-      hideAuthor: {$ne: true},
+      hideAuthor: {$in: [false,null]},
       unlisted: null,
       meta: null,
     },
@@ -331,7 +331,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
-      hideFrontpageComments: {$ne: true},
+      hideFrontpageComments: {$in: [false,null]},
       meta: null,
       groupId: null,
       isEvent: null,
@@ -485,7 +485,7 @@ Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
       reviewedByUserId: {$exists: false},
-      frontpageDate: {$ne: true },
+      frontpageDate: {$in: [false,null] },
       createdAt: {$gt: twoDaysAgo},
     },
     options: {
@@ -524,7 +524,7 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
-      hideFrontpageComments: {$ne: true},
+      hideFrontpageComments: {$in: [false,null]},
       af: true,
       meta: null,
       groupId: null,

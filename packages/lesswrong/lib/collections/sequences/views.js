@@ -6,7 +6,7 @@ Sequences.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
-      hidden: {$ne: true},
+      hidden: {$in: [false,null]},
       ...alignmentForum
     }
   }
@@ -22,8 +22,8 @@ Sequences.addView("userProfile", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: {$ne: true},
-      draft: {$ne: true},
+      isDeleted: {$in: [false,null]},
+      draft: {$in: [false,null]},
     },
     options: {
       sort: {
@@ -38,7 +38,7 @@ Sequences.addView("userProfileAll", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: {$ne: true},
+      isDeleted: {$in: [false,null]},
     },
     options: {
       sort: {
@@ -54,9 +54,9 @@ Sequences.addView("curatedSequences", function (terms) {
     selector: {
       userId: terms.userId,
       curatedOrder: {$exists: true},
-      isDeleted: {$ne: true},
+      isDeleted: {$in: [false,null]},
       gridImageId: {$ne: null },
-      draft: {$ne: true},
+      draft: {$in: [false,null]},
     },
     options: {
       sort: {
@@ -75,8 +75,8 @@ Sequences.addView("communitySequences", function (terms) {
       curatedOrder: {$exists: false},
       gridImageId: {$ne: null },
       canonicalCollectionSlug: { $in: [null, ""] },
-      isDeleted: {$ne: true},
-      draft: {$ne: true},
+      isDeleted: {$in: [false,null]},
+      draft: {$in: [false,null]},
     },
     options: {
       sort: {

@@ -10,9 +10,9 @@ Comments.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   return ({
     selector: {
-      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$ne: true}}],
-      answer: { $ne: true },
-      hideAuthor: terms.userId ? {$ne: true} : undefined,
+      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$in: [false,null]}}],
+      answer: { $in: [false,null] },
+      hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
       ...validFields,
       ...alignmentForum,
     }
@@ -100,14 +100,14 @@ Comments.addView("postLWComments", function (terms) {
 
 Comments.addView("allRecentComments", function (terms) {
   return {
-    selector: {deletedPublic: {$ne:true}},
+    selector: {deletedPublic: {$in: [false,null]}},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
 
 Comments.addView("recentComments", function (terms) {
   return {
-    selector: { score:{$gt:0}, deletedPublic: {$ne: true}},
+    selector: { score:{$gt:0}, deletedPublic: {$in: [false,null]}},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
@@ -119,7 +119,7 @@ Comments.addView("recentDiscussionThread", function (terms) {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
-      deletedPublic: {$ne: true},
+      deletedPublic: {$in: [false,null]},
       postedAt: {$gt: eighteenHoursAgo}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
@@ -133,7 +133,7 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
-      deletedPublic: {$ne: true},
+      deletedPublic: {$in: [false,null]},
       postedAt: {$gt: sevenDaysAgo},
       af: true,
     },
@@ -145,7 +145,7 @@ Comments.addView("postCommentsUnread", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      deleted: {$ne: true },
+      deleted: {$in: [false,null] },
       score: {$gt: 0}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
@@ -162,7 +162,7 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
         {baseScore: {$lte:0}}
       ],
       reviewedByUserId: {$exists:false},
-      deleted: {$ne: true},
+      deleted: {$in: [false,null]},
       postedAt: {$gt: twoDaysAgo},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
