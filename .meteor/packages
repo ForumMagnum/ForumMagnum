@@ -1,5 +1,8 @@
 # see http://docs.vulcanjs.org/packages
 
+# matb33:collection-hooks is at the top because it has to initialize before vulcan:lib
+matb33:collection-hooks
+
 ############ Core Packages ############
 
 vulcan:core                       # core components and wrappers
