@@ -3,7 +3,7 @@ import { Comments } from "../../../collections/comments";
 Comments.addView("alignmentSuggestedComments", function () {
   return {
     selector: {
-      af: {$ne: true},
+      af: {$in: [false,null]},
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
       reviewForAlignmentUserId: {$exists:false}
     },

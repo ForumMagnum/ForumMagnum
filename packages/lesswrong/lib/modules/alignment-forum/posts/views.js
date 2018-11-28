@@ -3,7 +3,7 @@ import { Posts } from '../../../collections/posts';
 Posts.addView("alignmentSuggestedPosts", function () {
   return {
     selector: {
-      af: {$ne: true},
+      af: {$in: [false,null]},
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
       reviewForAlignmentUserId: {$exists:false}
     },
