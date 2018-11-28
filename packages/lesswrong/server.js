@@ -2,6 +2,7 @@ export * from './lib/index.js';
 
 import './server/database-import/database_import_new.js';
 import './server/database-import/force_batch_update_scores.js';
+import './server/database-import/cleanup_scripts.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 
