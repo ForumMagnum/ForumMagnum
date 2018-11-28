@@ -167,10 +167,8 @@ $lw-green: #588f27;
       padding-left:0;
   }
 
-  a:hover, a:visited, a:focus {
-    text-decoration:none;
-  }
   a:hover {
+    text-decoration:none;
     color:rgba(0,0,0,.4);
   }
 }

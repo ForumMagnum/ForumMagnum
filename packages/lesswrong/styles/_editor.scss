@@ -237,8 +237,11 @@ figure:after {
 }
 
 .content-editor-is-empty:before {
-    content: "Write here. Select text for formatting options. We support LaTeX! (Ctrl-4 for inline equations, Ctrl-M for block-level equations). You can switch to a markdown editor in your user settings.";
-    max-width: 640px;
+    content: "Write here. Select text for formatting options.\A
+    You can switch to a markdown editor in your user settings.\A
+    We support LaTeX! (Ctrl-4 for inline, Ctrl-M for block-level).";
+    max-width: 540px;
+    white-space: pre;
     position: absolute;
     color: rgba(0,0,0,0.55);
     font-weight: 200;

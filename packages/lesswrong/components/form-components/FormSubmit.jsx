@@ -50,7 +50,7 @@ const FormSubmit = ({
     {collectionName === "posts" && <span className="post-submit-buttons">
       { !document.isEvent &&
         !document.meta &&
-        Users.canDo(currentUser, 'posts.curate.all') &&
+        Users.canDo(currentUser, 'posts.curate.all') && !document.question &&
           <Button
             type="submit"
             className={classNames(classes.formButton, classes.secondaryButton)}
@@ -74,7 +74,7 @@ const FormSubmit = ({
         Save as draft
       </Button>
 
-      {Users.canDo(currentUser, 'posts.curate.all') && !document.meta &&
+      {Users.canDo(currentUser, 'posts.curate.all') && !document.meta && !document.question &&
         <Button
           type="submit"
           className={classNames(classes.formButton, classes.secondaryButton)}
@@ -139,6 +139,7 @@ FormSubmit.contextTypes = {
 }
 
 
+// Replaces FormSubmit from vulcan-forms.
 replaceComponent('FormSubmit', FormSubmit,
   withUser, withTheme(),
   withStyles(styles, { name: "FormSubmit" })

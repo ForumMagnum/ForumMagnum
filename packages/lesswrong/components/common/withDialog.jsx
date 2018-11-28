@@ -9,18 +9,18 @@ export class DialogManager extends PureComponent {
     currentDialog: null,
     componentProps: null
   };
-  
+
   closeDialog = () => {
     this.setState({
       componentName: null,
       componentProps: null
     });
   }
-  
+
   render() {
     const { children } = this.props;
     const ModalComponent = Components[this.state.componentName];
-    
+
     return (
       <OpenDialogContext.Provider value={{
         openDialog: ({componentName, componentProps}) => this.setState({
@@ -30,12 +30,12 @@ export class DialogManager extends PureComponent {
         closeDialog: this.closeDialog
       }}>
         {children}
-        
+
         {this.state.componentName &&
           <ClickAwayListener onClickAway={() => this.closeDialog()}>
             <ModalComponent
               {...this.state.componentProps}
-              onRequestClose={this.closeDialog}
+              onClose={this.closeDialog}
             />
           </ClickAwayListener>
         }
@@ -59,4 +59,3 @@ export default function withDialog(Component) {
     );
   }
 }
-
