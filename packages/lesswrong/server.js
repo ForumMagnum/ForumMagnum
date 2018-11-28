@@ -5,8 +5,6 @@ import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 import './server/database-import/force_batch_update_scores.js';
 import './server/database-import/cleanup_scripts.js';
-import './server/rss-integration/cron.js';
-import './server/rss-integration/callbacks.js';
 
 // Scripts
 import './server/scripts/sscImport.js';
