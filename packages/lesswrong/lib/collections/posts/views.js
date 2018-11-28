@@ -35,9 +35,11 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-const commonIndexPrefix = {
-  isFuture:1, status:1, draft:1, meta:1, groupId:1, af:1
-};
+function augmentForDefaultView(indexFields)
+{
+  return { isFuture:1, status:1, draft:1, meta:1, groupId:1, af:1, ...indexFields };
+}
+
 const commonPartialFilterExpression = {
 };
 
@@ -57,7 +59,7 @@ Posts.addView("userPosts", terms => ({
   }
 }));
 ensureIndex(Posts,
-  { ...commonIndexPrefix, userId: 1, score: -1 },
+  augmentForDefaultView({ userId: 1, score: -1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -79,11 +81,11 @@ Posts.addView("magicalSorting", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
 ensureIndex(Posts,
-  { ...commonIndexPrefix, ...stickiesIndexPrefix, score:-1 },
+  augmentForDefaultView({ ...stickiesIndexPrefix, score:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 ensureIndex(Posts,
-  { ...commonIndexPrefix, userId: 1, ...stickiesIndexPrefix, score:-1 },
+  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, score:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -92,11 +94,11 @@ Posts.addView("top", terms => ({
   options: {sort: setStickies({baseScore: -1}, terms)}
 }))
 ensureIndex(Posts,
-  { ...commonIndexPrefix, ...stickiesIndexPrefix, baseScore:-1 },
+  augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 ensureIndex(Posts,
-  { ...commonIndexPrefix, userId: 1, ...stickiesIndexPrefix, baseScore:-1 },
+  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, baseScore:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -105,11 +107,11 @@ Posts.addView("new", terms => ({
   options: {sort: setStickies({postedAt: -1}, terms)}
 }))
 ensureIndex(Posts,
-  { ...commonIndexPrefix, ...stickiesIndexPrefix, postedAt:-1 },
+  augmentForDefaultView({ ...stickiesIndexPrefix, postedAt:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 ensureIndex(Posts,
-  { ...commonIndexPrefix, userId: 1, ...stickiesIndexPrefix, postedAt:-1 },
+  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, postedAt:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -128,7 +130,7 @@ Posts.addView("daily", terms => ({
   }
 }));
 ensureIndex(Posts,
-  { ...commonIndexPrefix, postedAt:1, },
+  augmentForDefaultView({ postedAt:1, }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -141,7 +143,7 @@ Posts.addView("frontpage", terms => ({
   }
 }));
 ensureIndex(Posts,
-  { ...commonIndexPrefix, sticky: -1, score: -1 },
+  augmentForDefaultView({ sticky: -1, score: -1 }),
   {
     partialFilterExpression: {
       ...commonPartialFilterExpression,
@@ -169,7 +171,7 @@ Posts.addView("curated", terms => ({
   }
 }));
 ensureIndex(Posts,
-  { ...commonIndexPrefix, sticky: -1, curatedDate:-1 },
+  augmentForDefaultView({ sticky: -1, curatedDate:-1 }),
   {
     partialFilterExpression: {
       ...commonPartialFilterExpression,
@@ -200,7 +202,7 @@ Posts.addView("community", terms => ({
 // Can't usefully index `community` beyond sorting by sticky and score, because
 // of liminations on partialFilterExpression.
 ensureIndex(Posts,
-  { ...commonIndexPrefix, sticky: -1, score: -1 },
+  augmentForDefaultView({ sticky: -1, score: -1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression, } }
 );
 
@@ -225,7 +227,7 @@ Posts.addView("meta-rss", terms => ({
     }
   }
 }))
-// Covered by commonIndexPrefix and the same index as `new`
+// Covered by the same index as `new`
 
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
@@ -242,7 +244,7 @@ Posts.addView("scheduled", terms => ({
     sort: {postedAt: -1}
   }
 }));
-// Covered by commonIndexPrefix and the same index as `new`
+// Covered by the same index as `new`
 
 
 /**
@@ -262,7 +264,7 @@ Posts.addView("drafts", terms => {
     }
 }});
 ensureIndex(Posts,
-  { ...commonIndexPrefix, userId: 1, createdAt: -1 },
+  augmentForDefaultView({ userId: 1, createdAt: -1 }),
   {
     partialFilterExpression: {
       draft: true
@@ -341,7 +343,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  { ...commonIndexPrefix, lastCommentedAt:-1 },
+  augmentForDefaultView({ lastCommentedAt:-1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -377,7 +379,7 @@ Posts.addView("nearbyEvents", function (terms) {
   return query;
 });
 ensureIndex(Posts,
-  { ...commonIndexPrefix, mongoLocation:"2dsphere" },
+  augmentForDefaultView({ mongoLocation:"2dsphere" }),
   {
     partialFilterExpression: {
       location: {$exists: true},
@@ -407,7 +409,7 @@ Posts.addView("events", function (terms) {
   }
 })
 ensureIndex(Posts,
-  { ...commonIndexPrefix, startTime:1 },
+  augmentForDefaultView({ startTime:1 }),
   {
     partialFilterExpression: {
       ...commonPartialFilterExpression,
@@ -448,7 +450,7 @@ Posts.addView("groupPosts", function (terms) {
   }
 })
 ensureIndex(Posts,
-  { ...commonIndexPrefix, groupId: 1, sticky: -1, createdAt: -1 },
+  augmentForDefaultView({ groupId: 1, sticky: -1, createdAt: -1 }),
   { partialFilterExpression: { ...commonPartialFilterExpression } }
 );
 
@@ -460,7 +462,7 @@ Posts.addView("postsWithBannedUsers", function () {
   }
 })
 ensureIndex(Posts,
-  { ...commonIndexPrefix },
+  augmentForDefaultView({}),
   {
     partialFilterExpression: {
       ...commonPartialFilterExpression,
@@ -509,7 +511,7 @@ Posts.addView("sunshineCuratedSuggestions", function () {
   }
 })
 ensureIndex(Posts,
-  { ...commonIndexPrefix, createdAt: 1 },
+  augmentForDefaultView({ createdAt: 1 }),
   {
     partialFilterExpression: {
       ...commonPartialFilterExpression,

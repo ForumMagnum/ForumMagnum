@@ -12,7 +12,11 @@ Sequences.addDefaultView(terms => {
   }
   return params;
 })
-const commonIndexPrefix = { hidden:1, af:1, isDeleted:1 };
+
+function augmentForDefaultView(indexFields)
+{
+  return { hidden:1, af:1, isDeleted:1, ...indexFields };
+}
 
 Sequences.addView("userProfile", function (terms) {
   return {
@@ -28,7 +32,7 @@ Sequences.addView("userProfile", function (terms) {
     },
   };
 });
-ensureIndex(Sequences, { ...commonIndexPrefix, userId:1 });
+ensureIndex(Sequences, augmentForDefaultView({ userId:1 }));
 
 Sequences.addView("userProfileAll", function (terms) {
   return {
@@ -62,7 +66,7 @@ Sequences.addView("curatedSequences", function (terms) {
     },
   };
 });
-ensureIndex(Sequences, { ...commonIndexPrefix, curatedOrder:-1 });
+ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
 
 Sequences.addView("communitySequences", function (terms) {
   return {
