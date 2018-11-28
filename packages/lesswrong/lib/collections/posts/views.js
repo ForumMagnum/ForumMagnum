@@ -10,7 +10,8 @@ import moment from 'moment';
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af');
-  // Also valid fields: before, after, karmaThreshold, timeField
+  // Also valid fields: before, after, timeField (select on postedAt), and
+  // karmaThreshold (selects on baseScore).
   
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
@@ -35,9 +36,9 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-function augmentForDefaultView(indexFields)
+export function augmentForDefaultView(indexFields)
 {
-  return { isFuture:1, status:1, draft:1, meta:1, groupId:1, af:1, ...indexFields };
+  return { isFuture:1, status:1, draft:1, meta:1, groupId:1, af:1, ...indexFields, _id:1, unlisted:1, postedAt:1, baseScore:1 };
 }
 
 const commonPartialFilterExpression = {
