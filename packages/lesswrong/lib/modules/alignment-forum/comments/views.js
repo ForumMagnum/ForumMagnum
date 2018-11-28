@@ -12,11 +12,15 @@ Comments.addView("alignmentSuggestedComments", function () {
     options: {
       sort: {
         createdAt: 1,
-      }
+      },
+      hint: "comments.alignmentSuggestedComments",
     }
   }
 })
 ensureIndex(Comments,
-  augmentForDefaultView({ af:1, suggestForAlignmentUserIds:1, reviewForAlignmentUserId:1, createdAt:1 }),
-  { name: "comments.alignmentSuggestedComments" }
+  augmentForDefaultView({ createdAt:1, af:1, suggestForAlignmentUserIds:1, reviewForAlignmentUserId:1 }),
+  {
+    name: "comments.alignmentSuggestedComments",
+    partialFilterExpression: { suggestForAlignmentUserIds: {$exists:true} },
+  }
 );

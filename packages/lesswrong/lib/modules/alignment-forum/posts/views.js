@@ -12,11 +12,15 @@ Posts.addView("alignmentSuggestedPosts", function () {
     options: {
       sort: {
         createdAt: 1,
-      }
+      },
+      hint: "posts.alignmentSuggestedPosts",
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ af:1, suggestForAlignmentUserIds:1, reviewForAlignmentUserId:1, createdAt:1 }),
-  { name: "posts.alignmentSuggestedPosts" }
+  augmentForDefaultView({ createdAt:1, suggestForAlignmentUserIds:1, reviewForAlignmentUserId:1, af:1 }),
+  {
+    name: "posts.alignmentSuggestedPosts",
+    partialFilterExpression: { suggestForAlignmentUserIds: {$exists:true} },
+  }
 );

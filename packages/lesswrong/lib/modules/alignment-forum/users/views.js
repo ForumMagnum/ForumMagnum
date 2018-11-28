@@ -14,11 +14,11 @@ Users.addView('LWSunshinesList', function(terms) {
 Users.addView("alignmentSuggestedUsers", function () {
   return {
     selector: {
-      groups: {$nin: ['alignmentForum']},
       $or: [
         {afKarma: {$gte:10}},
         {afSubmittedApplication: true},
       ],
+      groups: {$nin: ['alignmentForum']},
       reviewForAlignmentForumUserId: {$exists:false}
     },
     options: {
