@@ -62,7 +62,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
       })
     } else {
       //eslint-disable-next-line no-console
-      console.log('Post marked as not spam');
+      console.log('Post marked as not spam', post._id);
     }
   }
   return post
@@ -89,7 +89,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
         })
       } else {
         //eslint-disable-next-line no-console
-        console.log('Comment marked as not spam');
+        console.log('Comment marked as not spam', comment._id);
       }
     }
     return comment
