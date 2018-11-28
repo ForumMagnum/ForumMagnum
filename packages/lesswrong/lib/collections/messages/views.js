@@ -1,4 +1,5 @@
 import Messages from "./collection.js"
+import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation
 Messages.addView("messagesConversation", function (terms) {
@@ -7,3 +8,4 @@ Messages.addView("messagesConversation", function (terms) {
     options: {sort: {createdAt: 1}}
   };
 });
+ensureIndex(Messages, { conversationId:1, createdAt:1 });

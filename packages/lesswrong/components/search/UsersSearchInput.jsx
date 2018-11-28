@@ -14,14 +14,17 @@ const styles = theme => ({
   }
 })
 
-const UsersSearchInput = ({ inputProps, classes }) => <Input
-      { ...inputProps}
-      classes={{input: classes.input}}
-      startAdornment={
-        <InputAdornment position="start">
-          <Icon>person_add</Icon>
-        </InputAdornment>}
-      />
+const UsersSearchInput = ({ inputProps, classes }) => {
+  return <Input
+    inputProps={inputProps}
+    className={classes.input}
+    startAdornment={
+      <InputAdornment position="start">
+        <Icon>person_add</Icon>
+      </InputAdornment>
+    }
+  />
+};
 
 registerComponent("UsersSearchInput", UsersSearchInput,
   withStyles(styles, { name: "UsersSearchInput" })

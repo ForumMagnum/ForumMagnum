@@ -1,4 +1,5 @@
 import Chapters from './collection.js';
+import { ensureIndex } from '../../collectionUtils';
 
 Chapters.addView("SequenceChapters", function (terms) {
   return {
@@ -6,3 +7,4 @@ Chapters.addView("SequenceChapters", function (terms) {
     options: {sort: {number: 1}, limit: terms.limit || 20},
   };
 });
+ensureIndex(Chapters, { sequenceId: 1, number: 1 })

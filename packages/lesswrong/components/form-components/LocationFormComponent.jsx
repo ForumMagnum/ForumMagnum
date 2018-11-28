@@ -55,4 +55,6 @@ LocationFormComponent.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
+// TODO: This is not using the field name provided by the form. It definitely
+// doesn't work in nested contexts, and might be making a lie out of our schema.
 registerComponent("LocationFormComponent", LocationFormComponent, withUser);

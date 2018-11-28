@@ -18,20 +18,20 @@ function getDateFormat(dense, isThisYear) {
 const EventTime = ({post, timezone, dense}) => {
   const start = post.startTime ? moment(post.startTime).tz(timezone) : null;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : null;
-  
+
   const isThisYear = moment(new Date()).format("YYYY") === moment(start).format("YYYY");
-  
+
   // Date and time formats
   const timeFormat = 'h:mm A z'; // 11:30 AM PDT
   const dateFormat = getDateFormat(dense, isThisYear);
   const dateAndTimeFormat = dateFormat+', '+timeFormat;
   const calendarFormat = {sameElse : dateAndTimeFormat}
-  
+
   // Alternate formats omitting the timezone, for the start time in a
   // start-end range.
   const startTimeFormat = 'h:mm A'; // 11:30 AM
   const startCalendarFormat = {sameElse: dateFormat+', '+startTimeFormat};
-  
+
   // Neither start nor end time specified
   if (!start && !end) {
     return "TBD";

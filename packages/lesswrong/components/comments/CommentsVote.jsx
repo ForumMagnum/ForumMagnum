@@ -8,6 +8,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import withHover from '../common/withHover';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   vote: {
@@ -29,9 +30,6 @@ const styles = theme => ({
   },
   secondaryScoreNumber: {
     marginLeft: 3,
-  },
-  tooltip: {
-    fontSize: '1rem',
   },
   tooltipHelp: {
     fontSize: '1rem',
@@ -55,7 +53,10 @@ class CommentsVote extends PureComponent {
       <div className={classNames("comments-item-vote"), classes.vote}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
-            <Tooltip title={<div>Downvote<br /><em>(Click-and-hold for strong downvote)</em></div>} placement="bottom" classes={{tooltip: classes.tooltip}}>
+            <Tooltip
+              title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+              placement="bottom"
+              >
               <span>
                 <Components.VoteButton
                   orientation="left"
@@ -67,12 +68,14 @@ class CommentsVote extends PureComponent {
                 />
               </span>
             </Tooltip>
-            <Tooltip title={`${voteCount} ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom" classes={{tooltip: classes.tooltip}}>
+            <Tooltip title={`${voteCount} ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
               <span className={classes.voteScore}>
                 {baseScore || 0}
               </span>
             </Tooltip>
-            <Tooltip title={<div>Upvote<br /><em>(Click-and-hold for strong upvote)</em></div>} placement="bottom" classes={{tooltip: classes.tooltip}}>
+            <Tooltip
+              title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
+              placement="bottom">
               <span>
                 <Components.VoteButton
                   orientation="right"
@@ -87,9 +90,9 @@ class CommentsVote extends PureComponent {
           </span>
         }
         {!!comment.af && !getSetting('AlignmentForum', false) &&
-          <Tooltip placement="bottom" className={{tooltip: classes.tooltip}} title={
+          <Tooltip placement="bottom" title={
             <div>
-              <p>Alignment Forum Karma</p>
+              <p>AI Alignment Forum Karma</p>
               { moveToAfInfo }
             </div>
           }>
@@ -100,7 +103,7 @@ class CommentsVote extends PureComponent {
           </Tooltip>
         }
         {!comment.af && getSetting('AlignmentForum', false) &&
-          <Tooltip title="LessWrong Karma" placement="bottom" classes={{tooltip: classes.tooltip}}>
+          <Tooltip title="LessWrong Karma" placement="bottom">
             <span className={classes.secondaryScore}>
               <span className={classes.secondarySymbol}>LW</span>
               <span className={classes.secondaryScoreNumber}>{comment.baseScore || 0}</span>
@@ -118,5 +121,5 @@ CommentsVote.propTypes = {
 };
 
 registerComponent('CommentsVote', CommentsVote,
-  withStyles(styles, { name: "CommentsVote" }), withHover
+  withStyles(styles, { name: "CommentsVote" }), withHover, withUser
 );

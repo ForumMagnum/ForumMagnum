@@ -16,21 +16,21 @@ class MuiInput extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: props.document && props.document[props.name] || ""
+      content: props.document && props.document[props.path] || ""
     }
   }
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({content: ""}))
     this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
+      [this.props.path]: this.props.document && this.props.document[this.props.path] || ""
     })
   }
 
   onChange = (event) => {
     this.setState({content: event.target.value})
     this.context.updateCurrentValues({
-      [this.props.name]: event.target.value
+      [this.props.path]: event.target.value
     })
   }
 
@@ -38,13 +38,13 @@ class MuiInput extends Component {
     return <div className="mui-text-field">
       <Input
         className={this.props.className}
-        value={this.state.content}
+        value={this.state.content || ""}
         label={this.props.label}
         onChange={this.onChange}
         multiline={this.props.multiLine}
         rows={this.props.rows}
-        rowsMax={this.props.rowsMax}
         placeholder={this.props.hintText || this.props.placeholder || this.props.label}
+        rowsMax={this.props.rowsMax}
         fullWidth={this.props.fullWidth}
         disableUnderline={this.props.disableUnderline}
         classes={{input: this.props.classes.input}}
@@ -57,5 +57,4 @@ MuiInput.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
-
 registerComponent("MuiInput", MuiInput, withStyles(styles, { name: "MuiInput" }));

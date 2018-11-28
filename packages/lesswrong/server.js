@@ -29,6 +29,7 @@ import './server/scripts/eafIBetaInvites.js';
 import './lib/modules/accounts/configuration.js';
 
 import './server/scripts/legacyKarma_aggregate2.js';
+import './server/scripts/removeObsoleteIndexes.js';
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
@@ -48,12 +49,11 @@ import './lib/collections/collections/callbacks.js';
 import './lib/collections/messages/callbacks.js';
 import './lib/collections/users/validate_login.js';
 import './lib/collections/bans/callbacks.js';
-import './lib/collections/lwevents/indexes.js';
-import './lib/collections/posts/indexes.js';
-import './lib/collections/localgroups/indexes.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/events/server.js';
 
-import './lib/modules/indexes.js';
 import './lib/modules/connection_logs.js';
+
+//eslint-disable-next-line no-console
+console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));

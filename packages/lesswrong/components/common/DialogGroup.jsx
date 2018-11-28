@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import { registerComponent } from 'meteor/vulcan:core';
 
 /**
@@ -55,7 +55,7 @@ DialogGroup.propTypes = {
 }
 DialogGroup.defaultProps = {
   children: undefined,
-  actions: [ <FlatButton key='Okay' label="Okay" primary={true}/> ],
+  actions: [ <Button key='Okay' color="primary">Okay</Button> ],
   open: false,
 }
 

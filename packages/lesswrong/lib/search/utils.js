@@ -39,6 +39,7 @@ Comments.toAlgolia = (comment) => {
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
+    af: comment.af
   };
   const commentAuthor = Users.findOne({_id: comment.userId});
   if (commentAuthor && !commentAuthor.deleted) {
@@ -52,12 +53,15 @@ Comments.toAlgolia = (comment) => {
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
-  if (comment.content) {
-    const html = contentToHtml(comment.content)
-    const plaintextBody = htmlToText.fromString(html);
+  if (comment.htmlBody) {
+    const plaintextBody = htmlToText.fromString(comment.htmlBody);
     algoliaComment.body = plaintextBody.slice(0, 2000);
   } else if (comment.body) {
     algoliaComment.body = comment.body.slice(0,2000);
+  } else if (comment.content) {
+    const html = contentToHtml(comment.content)
+    const plaintextBody = htmlToText.fromString(html);
+    algoliaComment.body = plaintextBody.slice(0, 2000);
   }
   return [algoliaComment]
 }
@@ -74,6 +78,7 @@ Sequences.toAlgolia = (sequence) => {
     createdAt: sequence.createdAt,
     postedAt: sequence.postedAt,
     algoliaIndexAt: sequence.algoliaIndexAt,
+    af: sequence.af
   };
   const sequenceAuthor = Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
@@ -105,6 +110,7 @@ Users.toAlgolia = (user) => {
     slug: user.slug,
     website: user.website,
     groups: user.groups,
+    af: user.groups && user.groups.includes('alignmentForum')
   }
   return [algoliaUser];
 }
@@ -129,11 +135,13 @@ Posts.toAlgolia = (post) => {
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
+    af: post.af
   };
   const postAuthor = Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
+    algoliaMetaInfo.authorFullName = postAuthor.fullName;
   }
   const postFeed = RSSFeeds.findOne({_id: post.feedId});
   if (postFeed) {
@@ -143,7 +151,11 @@ Posts.toAlgolia = (post) => {
   let postBatch = [];
   let paragraphCounter =  0;
   let algoliaPost = {};
-  const body = (post.content ? htmlToText.fromString(contentToHtml(post.content)) : (post.htmlBody ? htmlToText.fromString(post.htmlBody) : post.body))
+  const body = post.htmlBody ?
+    htmlToText.fromString(post.htmlBody) :
+    post.body
+      ? post.body :
+        post.content && htmlToText.fromString(contentToHtml(post.content))
   if (body) {
     body.split("\n\n").forEach((paragraph) => {
       algoliaPost = {
@@ -260,7 +272,9 @@ export function algoliaDocumentExport(documents, Collection, indexName, exportFu
     });
     // console.log("Encountered the following errors: ", totalErrors)
   } else {
-    //eslint-disable-next-line no-console
-    console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+    if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+      //eslint-disable-next-line no-console
+      console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+    }
   }
 }

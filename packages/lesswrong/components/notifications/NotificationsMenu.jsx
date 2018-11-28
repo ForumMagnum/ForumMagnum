@@ -21,6 +21,10 @@ const tabLabelStyle = {
 }
 
 const styles = theme => ({
+  root: {
+    display: "inline-block",
+    verticalAlign: "top",
+  },
   badgeContainer: {
     padding: "none",
     verticalAlign: "inherit",
@@ -41,16 +45,24 @@ const styles = theme => ({
     
     // !important because material-UI defines an (incorrect)
     // overflow
-    overflowX: "hidden !important"
+    overflowX: "hidden !important",
   },
   icon: {
     color: "rgba(0,0,0,0.8)",
   },
+  hideButton: {
+    position: "absolute",
+    top: 0,
+    right: 5,
+  },
   cancel: {
     color: "rgba(0,0,0,0.3)",
     margin: "10px",
-    cursor: "pointer"
-  }
+    cursor: "pointer",
+  },
+  hiddenTab: {
+    pointerEvents: "none",
+  },
 });
 
 class NotificationsMenu extends Component {
@@ -73,12 +85,12 @@ class NotificationsMenu extends Component {
         const CommentsNotificationTerms = {view: 'userNotifications', type: "newComment"};
         const MessagesNotificationTerms = {view: 'userNotifications', type: "newMessage"};
         return (
-          <div className="notifications-menu">
+          <div className={classes.root}>
             <Components.ErrorBoundary>
               <Drawer
                 open={open}
                 width={270}
-                containerClassName={classNames("notifications-menu-container", classes.menuContainer)}
+                containerClassName={classes.menuContainer}
                 openSecondary={true}
                 onRequestChange={handleToggle}
               >
@@ -111,9 +123,9 @@ class NotificationsMenu extends Component {
                       style={tabLabelStyle}
                       onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
                     />
-                    <Tab className="notifications-menu-hidden-tab"/>
+                    <Tab className={classes.hiddenTab} />
                   </Tabs>
-                  <ClearIcon className={classNames("notifications-hide-button", classes.cancel)} onClick={handleToggle} />
+                  <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={handleToggle} />
                   <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
                 </div>}
               </Drawer>

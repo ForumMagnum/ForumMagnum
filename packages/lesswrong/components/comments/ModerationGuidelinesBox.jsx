@@ -1,6 +1,6 @@
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import classNames from 'classnames'
@@ -32,11 +32,11 @@ class ModerationGuidelinesBox extends PureComponent {
           <div className="moderation-guidelines-header" onClick={() => this.setState({open: !this.state.open})}>
             <span>Moderation Guidelines</span>
             {canModerate && <span>: <FormattedMessage id={"moderation-" + moderationStyle} /></span>}
-            <FontIcon
-              className="material-icons moderation-guidelines-header-expand"
+            <Icon
+              classes={{root: "material-icons moderation-guidelines-header-expand"}}
             >
               {this.state.open ? "expand_less" : "expand_more"}
-            </FontIcon>
+            </Icon>
           </div>
           {this.state.open &&
             <Components.ModerationGuidelinesContent
