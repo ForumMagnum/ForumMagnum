@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import { ensureIndex } from '../../../collectionUtils';
 
 Users.addView('LWSunshinesList', function(terms) {
   return {
@@ -27,3 +28,7 @@ Users.addView("alignmentSuggestedUsers", function () {
     }
   }
 })
+
+ensureIndex(Users,
+  { afSubmittedApplication:1, afKarma:-1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 }
+);

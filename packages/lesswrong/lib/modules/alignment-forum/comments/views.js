@@ -1,4 +1,6 @@
 import { Comments } from "../../../collections/comments";
+import { ensureIndex } from '../../../collectionUtils';
+import { augmentForDefaultView } from '../../../collections/comments/views';
 
 Comments.addView("alignmentSuggestedComments", function () {
   return {
@@ -14,3 +16,7 @@ Comments.addView("alignmentSuggestedComments", function () {
     }
   }
 })
+ensureIndex(Comments,
+  augmentForDefaultView({ af:1, suggestForAlignmentUserIds:1, reviewForAlignmentUserId:1, createdAt:1 }),
+  { name: "comments.alignmentSuggestedComments" }
+);
