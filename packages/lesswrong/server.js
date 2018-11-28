@@ -7,7 +7,6 @@ import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 
 // Scripts
-import './server/scripts/utils.js';
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
