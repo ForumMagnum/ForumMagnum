@@ -1,4 +1,5 @@
 import RSSFeeds from "./collection.js"
+import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation
 RSSFeeds.addView("usersFeed", function (terms) {
@@ -7,3 +8,4 @@ RSSFeeds.addView("usersFeed", function (terms) {
     options: {sort: {createdAt: 1}}
   };
 });
+ensureIndex(RSSFeeds, {userId: 1, createdAt: 1});

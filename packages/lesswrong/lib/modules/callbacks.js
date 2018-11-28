@@ -290,7 +290,7 @@ function CommentsNewNotifications(comment) {
     }
 
     // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
-    if (!!post.subscribers && !!post.subscribers.length) {
+    if (post && !!post.subscribers && !!post.subscribers.length) {
       // remove userIds of users that have already been notified
       // and of comment author (they could be replying in a thread they're subscribed to)
       let postSubscribersToNotify = _.difference(post.subscribers, notifiedUsers, [comment.userId]);
@@ -408,14 +408,16 @@ function userDeleteContent(user) {
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
   comments.forEach((comment) => {
-    editMutation({
-      collection: Comments,
-      documentId: comment._id,
-      set: {deleted: true},
-      unset: {},
-      currentUser: user,
-      validate: false,
-    })
+    if (!comment.deleted) {
+      editMutation({
+        collection: Comments,
+        documentId: comment._id,
+        set: {deleted: true, deletedDate: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
+      })
+    }
 
     const notifications = Notifications.find({documentId: comment._id}).fetch();
     //eslint-disable-next-line no-console

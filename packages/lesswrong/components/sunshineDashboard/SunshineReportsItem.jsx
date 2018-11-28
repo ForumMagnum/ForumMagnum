@@ -3,11 +3,20 @@ import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
-import FontIcon from 'material-ui/FontIcon';
+import Icon from '@material-ui/core/Icon';
+import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
+import classNames from 'classnames';
+
+const styles = theme => ({
+  icon: {
+    fontSize: "18px",
+    color:"rgba(0,0,0,.25)"
+  }
+});
 
 class SunshineReportsItem extends Component {
 
@@ -53,7 +62,7 @@ class SunshineReportsItem extends Component {
   }
 
   render () {
-    const { report } = this.props
+    const { report, classes } = this.props
     const comment = report.comment
 
     if (report) {
@@ -85,22 +94,20 @@ class SunshineReportsItem extends Component {
                   title="Spam/Eugin (delete immediately)"
                   to={Users.getProfileUrl(comment.user)}
                   onClick={this.handleDelete}>
-                    <FontIcon
-                      style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                      className="material-icons">
+                    <Icon
+                      className={classNames("material-icons", classes.icon)}>
                         clear
-                    </FontIcon>
+                    </Icon>
                     <div className="sunshine-sidebar-posts-item-delete-overlay"/>
                 </Link>
                 <span
                   className="sunshine-sidebar-posts-action new-comment review"
                   title="Mark as Reviewed"
                   onClick={this.handleReview}>
-                  <FontIcon
-                    style={{fontSize: "18px", color:"rgba(0,0,0,.25)"}}
-                    className="material-icons">
+                  <Icon
+                    className={classNames("material-icons", classes.icon)}>
                       done
-                  </FontIcon>
+                  </Icon>
                 </span>
               </div>
             </Components.SunshineListItem>
@@ -122,6 +129,7 @@ registerComponent(
   'SunshineReportsItem',
   SunshineReportsItem,
   [withEdit, withEditOptions],
+  withStyles(styles, {name: "SunshineReportsItem"}),
   withUser,
   withErrorBoundary
 );

@@ -45,9 +45,11 @@ const theme = createLWTheme({
     fontFamily: sansSerifStack,
     postStyle: {
       fontFamily: sansSerifStack,
+      fontVariantNumeric: "lining-nums",
     },
     commentStyle: {
-      fontFamily: sansSerifStack
+      fontFamily: sansSerifStack,
+      fontVariantNumeric: "lining-nums",
     },
     link: {
       underlinePosition: "72%",

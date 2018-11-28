@@ -161,7 +161,7 @@ addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 
 
 function ModerateCommentsPostUpdate (comment, oldComment) {
-  const comments = Comments.find({postId:comment.postId, deleted: {$ne: true}}).fetch()
+  const comments = Comments.find({postId:comment.postId, deleted: {$in: [false,null]}}).fetch()
 
   const lastComment = _.max(comments, (c) => c.postedAt)
   const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId}).postedAt
@@ -258,42 +258,6 @@ async function LWCommentsNewUpvoteOwnComment(comment) {
 }
 
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
-
-//TODO: Probably change these to take a boolean argument?
-const updateParentsSetAFtrue = (comment) => {
-  Comments.update({_id:comment.parentCommentId}, {$set: {af: true}});
-  const parent = Comments.findOne({_id: comment.parentCommentId});
-  if (parent) {
-    updateParentsSetAFtrue(parent)
-  }
-}
-
-const updateChildrenSetAFfalse = (comment) => {
-  const children = Comments.find({parentCommentId: comment._id}).fetch();
-  children.forEach((child)=> {
-    Comments.update({_id:child._id}, {$set: {af: false}});
-    updateChildrenSetAFfalse(child)
-  })
-}
-
-function CommentsAlignmentEdit (comment, oldComment) {
-  if (comment.af && !oldComment.af) {
-    updateParentsSetAFtrue(comment);
-  }
-  if (!comment.af && oldComment.af) {
-    updateChildrenSetAFfalse(comment);
-  }
-}
-addCallback("comments.edit.async", CommentsAlignmentEdit);
-addCallback("comments.alignment.async", CommentsAlignmentEdit);
-
-
-function CommentsAlignmentNew (comment) {
-  if (comment.af) {
-    updateParentsSetAFtrue(comment);
-  }
-}
-addCallback("comments.new.async", CommentsAlignmentNew);
 
 function NewCommentNeedsReview (comment) {
   const user = Users.findOne({_id:comment.userId})

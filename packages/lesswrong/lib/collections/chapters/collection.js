@@ -24,7 +24,7 @@ const options = {
 }
 
 
-const Chapters = createCollection({
+export const Chapters = createCollection({
 
   collectionName: 'Chapters',
 

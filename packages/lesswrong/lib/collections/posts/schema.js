@@ -453,6 +453,15 @@ const schema = {
     }
   },
 
+  question: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    hidden: true,
+  },
+
 };
 
 export default schema;
