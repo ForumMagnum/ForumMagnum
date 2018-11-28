@@ -61,7 +61,10 @@ Posts.addView("userPosts", terms => ({
 }));
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, score: -1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.userId_score",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 
 const setStickies = (sortOptions, terms) => {
@@ -83,11 +86,17 @@ Posts.addView("magicalSorting", terms => ({
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, score:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.stickies_score",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, score:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.userId_stickies_score",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 
 
@@ -96,11 +105,17 @@ Posts.addView("top", terms => ({
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.stickies_baseScore",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, baseScore:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.userId_stickies_baseScore",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 
 
@@ -109,11 +124,17 @@ Posts.addView("new", terms => ({
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, postedAt:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.stickies_postedAt",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, postedAt:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  {
+    name: "posts.userId_stickies_postedAt",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 
 
@@ -131,8 +152,11 @@ Posts.addView("daily", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  augmentForDefaultView({ postedAt:1, baseScore:1, }),
+  {
+    name: "posts.postedAt_baseScore",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 
 Posts.addView("frontpage", terms => ({
@@ -144,13 +168,8 @@ Posts.addView("frontpage", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1 }),
-  {
-    partialFilterExpression: {
-      ...commonPartialFilterExpression,
-      frontpageDate: {$exists: true}
-    }
-  }
+  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
+  { name: "posts.sticky_score_frontpageDate" }
 );
 
 Posts.addView("frontpage-rss", terms => ({
@@ -173,12 +192,7 @@ Posts.addView("curated", terms => ({
 }));
 ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, curatedDate:-1 }),
-  {
-    partialFilterExpression: {
-      ...commonPartialFilterExpression,
-      curatedDate: {$exists: true}
-    }
-  }
+  { name: "posts.sticky_curatedDate" }
 );
 
 Posts.addView("curated-rss", terms => ({
@@ -204,7 +218,10 @@ Posts.addView("community", terms => ({
 // of liminations on partialFilterExpression.
 ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, score: -1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression, } }
+  {
+    name: "posts.community",
+    partialFilterExpression: { ...commonPartialFilterExpression }
+  }
 );
 
 Posts.addView("community-rss", terms => ({
@@ -266,11 +283,7 @@ Posts.addView("drafts", terms => {
 }});
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, createdAt: -1 }),
-  {
-    partialFilterExpression: {
-      draft: true
-    }
-  }
+  { name: "posts.userId_createdAt" }
 );
 
 /**
@@ -284,7 +297,17 @@ Posts.addView("all_drafts", terms => ({
     sort: {createdAt: -1}
   }
 }));
-// Possibly unused view?
+
+Posts.addView("unlisted", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      unlisted: true
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+}});
 
 /**
  * @summary User upvoted posts view
@@ -323,10 +346,7 @@ Posts.addView("slugPost", terms => ({
     limit: 1,
   }
 }));
-ensureIndex(Posts,
-  {"slug": "hashed"},
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
-);
+ensureIndex(Posts, {"slug": "hashed"});
 
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
@@ -344,8 +364,8 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt:-1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  { name: "posts.recentDiscussionThreadsList", }
 );
 
 Posts.addView("nearbyEvents", function (terms) {
@@ -380,14 +400,8 @@ Posts.addView("nearbyEvents", function (terms) {
   return query;
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ mongoLocation:"2dsphere" }),
-  {
-    partialFilterExpression: {
-      location: {$exists: true},
-      ...commonPartialFilterExpression,
-      isEvent: true,
-    }
-  }
+  augmentForDefaultView({ mongoLocation:"2dsphere", location:1, startTime:1 }),
+  { name: "posts.2dsphere" }
 );
 
 Posts.addView("events", function (terms) {
@@ -410,13 +424,8 @@ Posts.addView("events", function (terms) {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ startTime:1 }),
-  {
-    partialFilterExpression: {
-      ...commonPartialFilterExpression,
-      isEvent: true,
-    }
-  }
+  augmentForDefaultView({ startTime:1, createdAt:1, baseScore:1 }),
+  { name: "posts.events" }
 );
 
 Posts.addView("pastEvents", function (terms) {
@@ -452,7 +461,7 @@ Posts.addView("groupPosts", function (terms) {
 })
 ensureIndex(Posts,
   augmentForDefaultView({ groupId: 1, sticky: -1, createdAt: -1 }),
-  { partialFilterExpression: { ...commonPartialFilterExpression } }
+  { name: "posts.groupPosts" }
 );
 
 Posts.addView("postsWithBannedUsers", function () {
@@ -463,13 +472,8 @@ Posts.addView("postsWithBannedUsers", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({}),
-  {
-    partialFilterExpression: {
-      ...commonPartialFilterExpression,
-      bannedUserIds: {$exists: true}
-    }
-  }
+  augmentForDefaultView({ bannedUserIds:1 }),
+  { name: "posts.postsWithBannedUsers" }
 );
 
 Posts.addView("communityResourcePosts", function () {
@@ -512,13 +516,8 @@ Posts.addView("sunshineCuratedSuggestions", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ createdAt: 1 }),
-  {
-    partialFilterExpression: {
-      ...commonPartialFilterExpression,
-      suggestForCuratedUserIds: {$exists:true}, // Can't do no-empty-list filter :(
-    }
-  }
+  augmentForDefaultView({ reviewForCuratedUserId:1, suggestForCuratedUserIds:1, createdAt: 1 }),
+  { name: "posts.sunshineCuratedSuggestions" }
 );
 
 Posts.addView("afRecentDiscussionThreadsList", terms => {
