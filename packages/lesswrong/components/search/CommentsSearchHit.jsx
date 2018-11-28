@@ -1,6 +1,6 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Link } from 'react-router';
-import { Snippet } from 'react-instantsearch/dom';
+import { Snippet } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import React, { PureComponent } from 'react';
 
@@ -30,7 +30,7 @@ const CommentsSearchHit = ({hit, clickAction, classes}) => {
         </Components.MetaInfo>
       </div>
       <div className={classes.snippet}>
-        <Snippet className={classes.snippet} attributeName="body" hit={hit} tagName="mark" />
+        <Snippet className={classes.snippet} attribute="body" hit={hit} tagName="mark" />
       </div>
     </Link>
   </div>

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link, withRouter } from 'react-router';
-import { Snippet} from 'react-instantsearch/dom';
+import { Snippet} from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 
@@ -39,7 +39,7 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
         {hit.postedAt && <Components.MetaInfo>
           <Components.FromNowDate date={hit.postedAt}/>
         </Components.MetaInfo>}
-        <div><Snippet attributeName="body" hit={hit} tagName="mark" /></div>
+        <div><Snippet attribute="body" hit={hit} tagName="mark" /></div>
     </Link>
   </div>
 }

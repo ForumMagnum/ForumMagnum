@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import TextField from '@material-ui/core/TextField';
@@ -21,34 +21,23 @@ const styles = theme => ({
   }
 })
 
-class MuiTextField extends Component {
+class MuiTextField extends PureComponent {
   constructor(props, context) {
     super(props,context);
-    this.state = {
-      content: props.document && props.document[props.name] || ""
-    }
-  }
-
-  componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({content: ""}))
-    this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || ""
-    })
   }
 
   onChange = (event) => {
-    this.setState({content: event.target.value})
     this.context.updateCurrentValues({
-      [this.props.name]: event.target.value
+      [this.props.path]: event.target.value
     })
   }
 
   render() {
-    const { classes, select, children, label, multiLine, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
+    const { classes, value, select, children, label, multiLine, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
 
     return <TextField
         select={select}
-        value={this.state.content}
+        value={value||""}
         defaultValue={defaultValue}
         label={label}
         onChange={this.onChange}
@@ -73,7 +62,6 @@ class MuiTextField extends Component {
 
 MuiTextField.contextTypes = {
   updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 registerComponent("MuiTextField", MuiTextField, withStyles(styles, { name: "MuiTextField" }));

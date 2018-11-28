@@ -35,9 +35,9 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 </svg>
 
 const PostsItemTitle = ({post, classes, sticky, read}) => {
-
   return (
     <Typography variant="title" className={classNames(classes.root, {[classes.read]:read})}>
+      {post.question && "[Question] " }
       {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
       {post.url && "[Link] "}{post.unlisted && "[Unlisted] "}{post.isEvent && "[Event] "}{post.title}
     </Typography>

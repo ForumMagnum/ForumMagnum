@@ -163,78 +163,6 @@ jobs:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor yarn test
-  deploy_staging:
-    docker:
-      - image: circleci/openjdk:8-jdk-browsers
-        environment:
-          # lang settings required for Meteor's Mongo
-          LANG: C.UTF-8
-          LANGUAGE: C.UTF-8
-          LC_ALL: C.UTF-8
-          LC_NUMERIC: en_US.UTF-8
-          METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
-          METEOR_BIN_TMP_FILE: meteor-bin-temp
-
-    working_directory: ~/app/lesswrong
-    steps:
-      - attach_workspace:
-         at: ~/
-      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
-      - restore_cache:
-          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
-      - run:
-          name: restore cached meteor bin
-          command: |
-            if [ -e ~/build-temp/meteor-bin ]
-            then
-                echo "Cached Meteor bin found, restoring it"
-                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
-            else
-                echo "No cached Meteor bin found."
-            fi
-      # if there is no cached meteor version, install it
-      - run:
-          name: install Meteor
-          command: |
-            # only install meteor if bin isn't found
-            command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
-      - run:
-          name: install yarn
-          command: meteor npm i -g yarn
-      - run:
-          name: install npm packages
-          command: meteor yarn
-      - run:
-          name: convert environment variables into files
-          command: |
-            echo "$settings_dev_live" > settings.json
-            echo "$meteor_token" > token.json
-      - run:
-          name: Install sentry-cli
-          command: meteor npm i -g @sentry/cli
-      - run:
-          name: Install json utility
-          command: meteor npm i -g json
-      - run:
-          name: Set sentry version and modify settings.json
-          command: |
-            export SENTRY_VERSION=$(meteor sentry-cli releases propose-version)
-            meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
-            meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
-            meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
-      - deploy:
-          environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-            METEOR_SESSION_FILE: token.json
-            DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-          command: meteor deploy www.lessestwrong.com --settings settings.json
   deploy_prod:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -287,12 +215,16 @@ jobs:
           command: |
             echo "$settings_prod" > settings.json
             echo "$meteor_token" > token.json
+            echo "$mup_settings_prod" > mup.js
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
       - run:
           name: Install json utility
           command: meteor npm i -g json
+      - run:
+          name: Install mup and mup-aws-beanstalk
+          command: meteor npm i -g mup mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -304,9 +236,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            METEOR_SESSION_FILE: token.json
-            DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-          command: meteor deploy www.lesswrong.com --settings settings.json
+          command: meteor mup deploy
   deploy_af:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -359,12 +289,16 @@ jobs:
           command: |
             echo "$settings_af" > settings.json
             echo "$meteor_token" > token.json
+            echo "$mup_settings_af" > mup.js
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
       - run:
           name: Install json utility
           command: meteor npm i -g json
+      - run:
+          name: Install mup and mup-aws-beanstalk
+          command: meteor npm i -g mup mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -376,9 +310,158 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            METEOR_SESSION_FILE: token.json
-            DEPLOY_HOSTNAME: us-east-1.galaxy-deploy.meteor.com
-          command: meteor deploy www.alignmentforum.org --settings settings.json
+          command: meteor mup deploy
+  deploy_baserates:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+        environment:
+          # lang settings required for Meteor's Mongo
+          LANG: C.UTF-8
+          LANGUAGE: C.UTF-8
+          LC_ALL: C.UTF-8
+          LC_NUMERIC: en_US.UTF-8
+          METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
+          METEOR_BIN_TMP_FILE: meteor-bin-temp
+
+    working_directory: ~/app/lesswrong
+    steps:
+      - attach_workspace:
+         at: ~/
+      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
+      - restore_cache:
+          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+      - run:
+          name: restore cached meteor bin
+          command: |
+            if [ -e ~/build-temp/meteor-bin ]
+            then
+                echo "Cached Meteor bin found, restoring it"
+                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
+            else
+                echo "No cached Meteor bin found."
+            fi
+      # if there is no cached meteor version, install it
+      - run:
+          name: install Meteor
+          command: |
+            # only install meteor if bin isn't found
+            command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
+      - run:
+          name: install yarn
+          command: meteor npm i -g yarn
+      - run:
+          name: install npm packages
+          command: meteor yarn
+      - run:
+          name: convert environment variables into files
+          command: |
+            echo "$settings_baserates_dev" > settings.json
+            echo "$meteor_token" > token.json
+            echo "$mup_settings_baserates_dev" > mup.js
+      - run:
+          name: Install sentry-cli
+          command: meteor npm i -g @sentry/cli
+      - run:
+          name: Install json utility
+          command: meteor npm i -g json
+      - run:
+          name: Install mup and mup-aws-beanstalk
+          command: meteor npm i -g mup mup-aws-beanstalk
+      - run:
+          name: Set sentry version and modify settings.json
+          command: |
+            export SENTRY_VERSION=$(meteor sentry-cli releases propose-version)
+            meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
+            meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
+            meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
+      - run:
+          name: Validate mup settings and print
+          command: meteor mup validate --scrub
+      - deploy:
+          environment:
+            METEOR_PACKAGE_DIRS: ../Vulcan/packages
+            TOOL_NODE_FLAGS: --max_old_space_size=3072
+          command: meteor mup deploy
+  deploy_staging:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+        environment:
+          # lang settings required for Meteor's Mongo
+          LANG: C.UTF-8
+          LANGUAGE: C.UTF-8
+          LC_ALL: C.UTF-8
+          LC_NUMERIC: en_US.UTF-8
+          METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
+          METEOR_BIN_TMP_FILE: meteor-bin-temp
+
+    working_directory: ~/app/lesswrong
+    steps:
+      - attach_workspace:
+         at: ~/
+      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
+      - restore_cache:
+          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+      - run:
+          name: restore cached meteor bin
+          command: |
+            if [ -e ~/build-temp/meteor-bin ]
+            then
+                echo "Cached Meteor bin found, restoring it"
+                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
+            else
+                echo "No cached Meteor bin found."
+            fi
+      # if there is no cached meteor version, install it
+      - run:
+          name: install Meteor
+          command: |
+            # only install meteor if bin isn't found
+            command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
+      - run:
+          name: install yarn
+          command: meteor npm i -g yarn
+      - run:
+          name: install npm packages
+          command: meteor yarn
+      - run:
+          name: convert environment variables into files
+          command: |
+            echo "$settings_dev_live" > settings.json
+            echo "$meteor_token" > token.json
+            echo "$mup_lessestwrong" > mup.js
+      - run:
+          name: Install sentry-cli
+          command: meteor npm i -g @sentry/cli
+      - run:
+          name: Install json utility
+          command: meteor npm i -g json
+      - run:
+          name: Install mup and mup-aws-beanstalk
+          command: meteor npm i -g mup mup-aws-beanstalk
+      - run:
+          name: Set sentry version and modify settings.json
+          command: |
+            export SENTRY_VERSION=$(meteor sentry-cli releases propose-version)
+            meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
+            meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
+            meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
+      - deploy:
+          environment:
+            METEOR_PACKAGE_DIRS: ../Vulcan/packages
+            TOOL_NODE_FLAGS: --max_old_space_size=3072
+          command: meteor mup deploy
 
 workflows:
   version: 2

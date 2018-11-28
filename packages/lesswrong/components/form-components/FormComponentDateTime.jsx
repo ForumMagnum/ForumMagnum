@@ -60,4 +60,6 @@ FormComponentDateTime.contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
+// Replaces FormComponentDateTime from vulcan-ui-bootstrap.
+// TODO: This may not work right in nested contexts.
 registerComponent("FormComponentDateTime", FormComponentDateTime, withStyles(styles, { name: "FormComponentDateTime" }));

@@ -40,39 +40,29 @@ const styles = theme => ({
 class MultiSelectButtons extends Component {
   constructor(props, context) {
     super(props,context);
-    this.state = {
-      options: this.props.document[this.props.name] || [],
-    }
-  }
-
-  componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({options: []}))
-    this.context.updateCurrentValues({
-      [this.props.name]: this.props.document && this.props.document[this.props.name] || []
-    })
   }
 
   handleClick = (option) => {
-    if (this.state.options && this.state.options.includes(option)) {
+    const { value } = this.props;
+    
+    if (value && value.includes(option)) {
       this.context.updateCurrentValues({
-        [this.props.name]: _.without(this.state.options, option)
+        [this.props.path]: _.without(value, option)
       })
-      this.setState({options: _.without(this.state.options, option)})
     } else {
       this.context.updateCurrentValues({
-        [this.props.name]: [...this.state.options, option]
+        [this.props.path]: [...value, option]
       })
-      this.setState({options: [...this.state.options, option]})
     }
   }
 
   render() {
-    const { classes } = this.props;
+    const { value, classes } = this.props;
     
     return <div className="multi-select-buttons">
       {this.props.label && <label className="multi-select-buttons-label">{this.props.label}</label>}
       {this.props.options.map((option) => {
-        const selected = this.state.options && this.state.options.includes(option.value);
+        const selected = value && value.includes(option.value);
         return <Button
           className={classnames(
             "multi-select-buttons-button",
@@ -82,7 +72,6 @@ class MultiSelectButtons extends Component {
               [classes.notSelected]: !selected,
             }
           )}
-          primary={selected}
           onClick={() => this.handleClick(option.value)}
           key={option.value}
         >
@@ -95,11 +84,11 @@ class MultiSelectButtons extends Component {
 
 MultiSelectButtons.contextTypes = {
   updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 MultiSelectButtons.defaultProps = {
 
 }
+
 registerComponent("MultiSelectButtons", MultiSelectButtons,
   withStyles(styles, { name: "MultiSelectButtons" }));

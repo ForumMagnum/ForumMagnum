@@ -2,7 +2,7 @@ import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds } from '../../../testing/utils.js'
+import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
 
 chai.should();
@@ -28,12 +28,14 @@ describe('createComment – ', async function() {
   });
 });
 describe('updateComment – ', async () => {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("fails when user updates another user's legacyParentId", async () => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
     const post = await createDummyPost()
     const comment = await createDummyComment(otherUser, {postId: post._id})
-    return userUpdateFieldFails({ user:user, document:comment, fieldName:'commentbody', collectionType: 'Comment'})
+    await userUpdateFieldFails({ user:user, document:comment, fieldName:'body', collectionType: 'Comment'})
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("succeeds when user updates their own body", async () => {
     const user = await createDummyUser()

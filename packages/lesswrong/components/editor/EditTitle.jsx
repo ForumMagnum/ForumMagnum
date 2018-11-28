@@ -25,7 +25,7 @@ const EditTitle = (props) => {
   return <Textarea
     className={props.classes.root}
     {...props.inputProperties}
-    placeholder={ props.placeholder }
+    placeholder={ props.document.question ? "Question" : props.placeholder }
     layout="elementOnly"
          />
 }
