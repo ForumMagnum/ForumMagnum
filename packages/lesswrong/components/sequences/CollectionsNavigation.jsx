@@ -1,19 +1,12 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withRouter, Link } from 'react-router';
 import React, { PureComponent } from 'react';
+import withGlobalKeydown from '../common/withGlobalKeydown';
 
 class CollectionsNavigation extends PureComponent
 {
   componentDidMount() {
-    if (!Meteor.isServer && document) {
-      document.addEventListener("keydown", this.handleKey);
-    }
-  }
-  
-  componentWillUnmount() {
-    if (!Meteor.isServer && document) {
-      document.removeEventListener("keydown", this.handleKey);
-    }
+    this.props.addKeydownListener(this.handleKey);
   }
   
   handleKey = (ev) => {
@@ -78,4 +71,4 @@ class CollectionsNavigation extends PureComponent
   }
 }
 
-registerComponent('CollectionsNavigation', CollectionsNavigation, withRouter);
+registerComponent('CollectionsNavigation', CollectionsNavigation, withRouter, withGlobalKeydown);
