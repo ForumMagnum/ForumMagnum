@@ -272,3 +272,122 @@ Picker.route('/item', (params, req, res, next) => {
 Picker.route('/favicon.ico', (params, req, res, next) => {
   makeRedirect(res, getSetting('faviconUrl'));
 });
+
+
+// AgentFoundations legacy redirects
+
+/*
+https://agentfoundations.org/how-to-contribute -> https://www.alignmentforum.org/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq
+https://agentfoundations.org/newcomments -> https://www.alignmentforum.org/AllComments
+https://agentfoundations.org/submitted?id= (.*) -> https://www.alignmentforum.org/users/ $1 (that won’t work for users that got mapped to different user names, but that seems fine, since it would probably be a big hassle to do them all manually, and it’s just not that important.)
+https://agentfoundations.org/threads?id= (.*) -> https://www.alignmentforum.org/users/ $1 (ditto)
+https://agentfoundations.org/user?id= (.*) -> https://www.alignmentforum.org/users/ $1 (ditto)
+https://agentfoundations.org/submit -> https://www.alignmentforum.org/newPost
+https://agentfoundations.org/rss -> (whatever the link is for the sensible default RSS)
+And all these to alignmentforum.org since there are no equivalents (probably just with a catch all?):
+
+https://agentfoundations.org/links
+https://agentfoundations.org/members
+https://agentfoundations.org/contributors
+https://agentfoundations.org/drafts
+https://agentfoundations.org/saved
+*/
+
+Picker.route('/how-to-contribute', (params, req, res, next) => {
+  return makeRedirect(res, '/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq');
+});
+
+Picker.route('/newcomments', (params, req, res, next) => {
+  return makeRedirect(res, '/AllComments');
+});
+
+Picker.route('/submitted', (params, req, res, next) => {
+  if(params.query && params.query.id){
+    try {
+      const user = Users.findOne({username: params.query.id});
+      if (user) {
+        return makeRedirect(res, Users.getProfileUrl(user));
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('// AgentFoundations Legacy item error', error, params)
+    }
+  } 
+  res.statusCode = 404
+  res.end(`No legacy user found with: ${params}`);
+});
+
+Picker.route('/threads', (params, req, res, next) => {
+  if(params.query && params.query.id){
+    try {
+      const user = Users.findOne({username: params.query.id});
+      if (user) {
+        return makeRedirect(res, Users.getProfileUrl(user));
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('// AgentFoundations Legacy item error', error, params)
+    }
+  } 
+  res.statusCode = 404
+  res.end(`No legacy user found with: ${params}`);
+});
+
+Picker.route('/user', (params, req, res, next) => {
+  if(params.query && params.query.id){
+    try {
+      const user = Users.findOne({username: params.query.id});
+      if (user) {
+        return makeRedirect(res, Users.getProfileUrl(user));
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('// AgentFoundations Legacy item error', error, params)
+    }
+  } 
+  res.statusCode = 404
+  res.end(`No legacy user found with: ${params}`);
+});
+
+Picker.route('/submit', (params, req, res, next) => {
+  return makeRedirect(res, '/newPost');
+});
+
+Picker.route('/rss', (params, req, res, next) => {
+  return makeRedirect(res, "/feed.xml");
+});
+
+Picker.route('/newest', (params, req, res, next) => {
+  return makeRedirect(res, "/daily");
+});
+
+/* 
+
+All redirect to top-level: 
+
+https://agentfoundations.org/links
+https://agentfoundations.org/members
+https://agentfoundations.org/contributors
+https://agentfoundations.org/drafts
+https://agentfoundations.org/saved
+*/ 
+
+Picker.route('/links', (params, req, res, next) => {
+  return makeRedirect(res, "/");
+});
+
+Picker.route('/members', (params, req, res, next) => {
+  return makeRedirect(res, "/");
+});
+
+Picker.route('/contributors', (params, req, res, next) => {
+  return makeRedirect(res, "/");
+});
+
+Picker.route('/drafts', (params, req, res, next) => {
+  return makeRedirect(res, "/");
+});
+
+Picker.route('/saved', (params, req, res, next) => {
+  return makeRedirect(res, "/");
+});
