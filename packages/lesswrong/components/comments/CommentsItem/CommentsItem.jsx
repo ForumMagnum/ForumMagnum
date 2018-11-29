@@ -8,6 +8,7 @@ import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
+import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
@@ -132,12 +133,14 @@ class CommentsItem extends Component {
           <div className="comments-item-body">
             <div className="comments-item-meta">
               {(comment.parentCommentId && (nestingLevel === 1)) &&
-                <Icon
-                  onClick={this.toggleShowParent}
-                  className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
-                >
-                  subdirectory_arrow_left
-                </Icon>}
+                <Tooltip title="Show previous comment">
+                  <Icon
+                    onClick={this.toggleShowParent}
+                    className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+                  >
+                    subdirectory_arrow_left
+                  </Icon>
+                </Tooltip>}
               { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
@@ -174,19 +177,20 @@ class CommentsItem extends Component {
             </div>
             { showEdit ? (
               <Components.CommentsEditForm
-                  comment={this.props.comment}
+                  comment={comment}
                   successCallback={this.editSuccessCallback}
                   cancelCallback={this.editCancelCallback}
                 />
             ) : (
               <Components.CommentBody
+                truncationCharCount={comment.baseScore > 20 ? 1000 : 300}
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}
               />
             ) }
 
-            {!comment.deleted && this.renderCommentBottom()}
+            {!comment.deleted && !collapsed && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
         </div>

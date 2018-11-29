@@ -15,6 +15,11 @@ const styles = theme => ({
       boxShadow: "none",
       border: "none",
     },
+    '& .ais-Pagination-link:focus': {
+      // Disable focused-link greying because it looks too much like a greyed
+      // out link in this context
+      opacity: "initial",
+    },
     '& .ais-Pagination-item': {
       marginLeft: 10,
     },
@@ -44,6 +49,9 @@ const styles = theme => ({
         fontSize: theme.typography.body2.fontSize,
         content: '"Prev"'
       }
+    },
+    '& .ais-Pagination-link--selected': {
+      cursor: "initial",
     },
   }
 })

@@ -75,7 +75,7 @@ export const postBodyStyles = (theme, fontSize) => {
     '& img': {
       maxWidth: "100%"
     },
-    '& a, & a:hover, & a:focus, & a:active, & a:visited': {
+    '& a, & a:hover, & a:active': {
       ...linkStyle({
         theme: theme,
         underlinePosition: (
@@ -95,7 +95,7 @@ export const postBodyStyles = (theme, fontSize) => {
 export const commentBodyStyles = theme => {
   const commentBodyStyles = {
     marginTop: ".5em",
-    marginBottom: ".5em",
+    marginBottom: ".25em",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     ...spoilerStyles(theme),
@@ -126,12 +126,12 @@ export const commentBodyStyles = theme => {
       content: '"spoiler (hover/select to reveal)"',
       color: 'white',
     },
-    '& a, & a:hover, & a:focus, & a:active, & a:visited': {
+    '& a, & a:hover, & a:active': {
       backgroundImage: "none",
       textShadow: "none",
       textDecoration: "none",
     },
-    '& pre code a, & pre code a:hover, & pre code a:focus, & pre code a:active, & pre code a:visited': {
+    '& pre code a, & pre code a:hover, & pre code a:active': {
       backgroundImage: "none",
       textShadow: "none",
       textDecoration: "none",
