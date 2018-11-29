@@ -1,6 +1,9 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
 import { getSetting } from 'meteor/vulcan:core';
+import { Votes } from "meteor/vulcan:voting";
+import { Comments } from '../comments'
+import { Posts } from '../posts'
 
 Users.ownsAndInGroup = (group) => {
   return (user, document) => {
@@ -209,4 +212,16 @@ Users.getLocation = (currentUser) => {
 
     return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};
   }
+}
+
+// utility function for checking how much karma a user is supposed to have
+Users.getAggregateKarma = async (user) => {
+  const posts = Posts.find({userId:user._id}).fetch().map(post=>post._id)
+  const comments = Comments.find({userId:user._id}).fetch().map(comment=>comment._id)
+  const documentIds = [...posts, ...comments]
+
+  return await Votes.rawCollection().aggregate([
+    {$match: {documentId: {$in:documentIds}, userId: {$ne: user._id}}},
+    {$group: { _id: null, totalPower: { $sum: '$power' }}},
+  ]).toArray()[0].totalPower;
 }
