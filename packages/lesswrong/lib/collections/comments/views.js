@@ -19,6 +19,11 @@ Comments.addDefaultView(terms => {
   });
 })
 
+export function augmentForDefaultView(indexFields)
+{
+  return {...indexFields, deleted:1, deletedPublic:1, answer:1, hideAuthor:1, userId:1, af:1};
+}
+
 // Most common case: want to get all the comments on a post, filter fields and
 // `limit` affects it only minimally. Best handled by a hash index on `postId`.
 ensureIndex(Comments, { postId: "hashed" });
