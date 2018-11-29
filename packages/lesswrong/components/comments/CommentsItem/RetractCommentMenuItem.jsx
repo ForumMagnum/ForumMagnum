@@ -1,51 +1,24 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, withEdit } from 'meteor/vulcan:core';
+import { Comments } from '../../lib/collections/comments';
 import withUser from '../../common/withUser';
-import { getFragment } from 'meteor/vulcan:core';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
 import MenuItem from '@material-ui/core/MenuItem';
-
-function withRetractComment(options)
-{
-  const fragmentName = "CommentsList";
-  const fragment = getFragment(fragmentName);
-  
-  return graphql(gql`
-    mutation retractComment($commentId: String, $retracted: Boolean) {
-      retractComment(commentId: $commentId, retracted: $retracted) {
-        ...${fragmentName}
-      }
-    }
-    ${fragment}
-  `, {
-    alias: 'withRetractComment',
-    props: ({ ownProps, mutate }) => ({
-      retractCommentMutation: (args) => {
-        const { commentId, retracted } = args;
-        return mutate({
-          variables: { commentId, retracted }
-        });
-      }
-    }),
-  });
-}
 
 class RetractCommentMenuItem extends PureComponent
 {
   handleRetract = (event) => {
-    const { retractCommentMutation, comment } = this.props;
-    retractCommentMutation({
-      commentId: comment._id,
-      retracted: true,
+    const { editMutation, comment } = this.props;
+    editMutation({
+      documentId: comment._id,
+      set: { retracted: true },
     });
   }
   
   handleUnretract = (event) => {
-    const { retractCommentMutation, comment } = this.props;
-    retractCommentMutation({
-      commentId: comment._id,
-      retracted: false,
+    const { editMutation, comment } = this.props;
+    editMutation({
+      documentId: comment._id,
+      set: { retracted: false },
     });
   }
   
@@ -63,5 +36,10 @@ class RetractCommentMenuItem extends PureComponent
   }
 }
 
+const withEditOptions = {
+  collection: Comments,
+  fragmentName: 'CommentsList',
+}
+
 registerComponent('RetractCommentMenuItem', RetractCommentMenuItem,
-  withUser, [withRetractComment, {}]);
+  withUser, [withEdit, withEditOptions]);
