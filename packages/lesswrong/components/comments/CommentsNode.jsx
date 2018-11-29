@@ -105,7 +105,7 @@ class CommentsNode extends PureComponent {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, answerId } = this.props;
 
     const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 

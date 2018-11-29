@@ -187,7 +187,7 @@ ensureIndex(Comments, {legacyId: "hashed"});
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
 
-Comments.addView('answerComments', function (terms) {
+Comments.addView('repliesToAnswer', function (terms) {
   return {
     selector: {answerId: terms.answerId},
     options: {sort: {baseScore: -1}}
