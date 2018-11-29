@@ -90,7 +90,7 @@ class ContentItemBody extends Component {
   }
   
   componentDidMount() {
-    //this.markScrollableLaTeX();
+    this.markScrollableLaTeX();
   }
   
   // Find LaTeX elements inside the body, check whether they're wide enough to

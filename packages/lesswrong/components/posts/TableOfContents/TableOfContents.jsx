@@ -30,13 +30,13 @@ const styles = theme => ({
 //
 // The reference is to a function setToC, which puts the ToC in the state of
 // Layout.
-export const tableOfContentsContext = React.createContext('tableOfContentsRef');
+export const TableOfContentsContext = React.createContext('tableOfContentsRef');
 
 function withToCContext(Component) {
   return function WithToCContextComponent(props) {
-    return <tableOfContentsContext.Consumer>
+    return <TableOfContentsContext.Consumer>
       { setToC => <Component {...props} setToC={setToC}/> }
-    </tableOfContentsContext.Consumer>
+    </TableOfContentsContext.Consumer>
   }
 }
 
@@ -64,7 +64,7 @@ class TableOfContents extends Component
     if (!sections || !document)
       return <div/>
     
-    return (<React.Fragment>
+    return (
       <Hidden mdDown implementation="js">
         <div className={classes.stickyContainer}>
           <div className={classes.stickyBlock}>
@@ -77,7 +77,7 @@ class TableOfContents extends Component
           </div>
         </div>
       </Hidden>
-    </React.Fragment>);
+    );
   }
 }
 

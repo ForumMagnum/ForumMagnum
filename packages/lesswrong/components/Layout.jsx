@@ -17,7 +17,7 @@ import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { tableOfContentsContext } from './posts/TableOfContents/TableOfContents';
+import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -104,7 +104,7 @@ class Layout extends PureComponent {
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
-      <tableOfContentsContext.Provider value={this.setToC}>
+      <TableOfContentsContext.Provider value={this.setToC}>
       <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
         <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
           <DialogManager>
@@ -145,7 +145,7 @@ class Layout extends PureComponent {
           </DialogManager>
         </V0MuiThemeProvider>
       </div>
-      </tableOfContentsContext.Provider>
+      </TableOfContentsContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
