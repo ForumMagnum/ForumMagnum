@@ -20,7 +20,7 @@ Notifications.addView("userNotifications", (terms) => {
     selector: {
       userId: terms.userId,
       type: terms.type || null,
-      viewed: terms.viewed == null ? null : (terms.viewed || {$ne: true})
+      viewed: terms.viewed == null ? null : (terms.viewed || {$in: [false,null]})
     }, //Ugly construction to deal with falsy viewed values and null != false in Mongo
     options: {sort: {createdAt: -1}}
   }

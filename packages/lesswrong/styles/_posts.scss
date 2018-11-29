@@ -27,9 +27,6 @@
     a {
       color: rgba(0,0,0,0.6);
     }
-    a:visited {
-      color: inherit;
-    }
     a:hover {
       text-decoration: none;
     }
@@ -364,10 +361,6 @@ svg.drag-handle {
     line-height: 24px;
     color: rgba(0,0,0,0.5);
     margin-top: -10p;
-
-    a {
-      text-decoration: none;
-    }
 }
 
 .sequences-navigation-top, .posts-page-group-details {

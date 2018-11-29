@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { excerptFromHTML } from '../../../lib/editor/ellipsize'
+import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 
 const styles = theme => ({
   commentStyling: {
@@ -13,17 +13,19 @@ const styles = theme => ({
     overflowX: "auto",
     overflowY: "hidden",
     '& .read-more': {
-      minWidth:60,
       fontSize: ".85em",
     },
     '& .read-more-default': {
+      display: "inline-block",
+      minWidth: 125,
       color: "rgba(0,0,0,.4)",
     },
     '& .read-more-tooltip': {
       display:"none",
     },
     "&:hover .read-more-tooltip": {
-      display:"inline"
+      display:"inline-block"
+
     },
     '&:hover .read-more-default': {
       display:"none"
@@ -56,7 +58,7 @@ class CommentBody extends Component {
       return (
         <div>
           <ContentItemBody className={bodyClasses}
-            dangerouslySetInnerHTML={{__html: excerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
+            dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
         </div>
       )
     } else if (!collapsed) {
