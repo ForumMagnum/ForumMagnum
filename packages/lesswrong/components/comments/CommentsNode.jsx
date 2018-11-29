@@ -4,6 +4,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -196,5 +197,6 @@ CommentsNode.propTypes = {
 
 registerComponent('CommentsNode', CommentsNode,
   withRouter,
+  withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );
