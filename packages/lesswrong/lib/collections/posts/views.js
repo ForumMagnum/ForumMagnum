@@ -206,7 +206,7 @@ Posts.addView("curated-rss", terms => ({
 
 Posts.addView("community", terms => ({
   selector: {
-    curatedDate: {$gt: new Date(0)},
+    frontpageDate: null,
     meta: null,
   },
   options: {
@@ -217,7 +217,6 @@ ensureIndex(Posts,
   augmentForDefaultView({ meta:1, sticky: -1, score: -1 }),
   {
     name: "posts.community",
-    partialFilterExpression: { curatedDate: {$gt: new Date(0)} },
   }
 );
 
