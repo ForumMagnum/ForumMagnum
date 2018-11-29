@@ -1,4 +1,4 @@
-// global vulcan
+/* global Vulcan */
 import { Collections } from 'meteor/vulcan:lib';
 
 Vulcan.logMongoQueries = () => {
