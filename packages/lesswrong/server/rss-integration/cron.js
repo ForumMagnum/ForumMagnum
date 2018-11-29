@@ -21,7 +21,7 @@ const addJob = function () {
     job() {
       const feedparser = require('feedparser-promised');
 
-      RSSFeeds.find().forEach(feed => {
+      RSSFeeds.find({status: {$ne: 'inactive'}}).forEach(feed => {
         // create array of all posts in current rawFeed object
         let previousPosts = feed.rawFeed || [];
 
