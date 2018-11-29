@@ -21,6 +21,28 @@
 @import "alignment-forum";
 @import "modal";
 
+@font-face { font-family: "Valkyrie";
+  src: url("https://res.cloudinary.com/dq3pms5lt/raw/upload/v1543532699/Valkyrie%20Font/Tabular%20Numerals/WOFF/valkyrie_t4_tab_regular.woff");
+  font-weight: normal;
+  font-style: normal; }
+
+@font-face { font-family: "Valkyrie";
+  src: url("https://res.cloudinary.com/dq3pms5lt/raw/upload/v1543532699/Valkyrie%20Font/Tabular%20Numerals/WOFF/valkyrie_t4_tab_italic.woff");
+  font-weight: normal;
+  font-style: italic; }
+
+@font-face { font-family: "Valkyrie";
+  src: url("https://res.cloudinary.com/dq3pms5lt/raw/upload/v1543532699/Valkyrie%20Font/Tabular%20Numerals/WOFF/valkyrie_t4_tab_bold_italic.woff");
+  font-weight: bold;
+  font-style: italic; }
+
+@font-face { font-family: "Valkyrie";
+  src: url("https://res.cloudinary.com/dq3pms5lt/raw/upload/v1543532699/Valkyrie%20Font/Tabular%20Numerals/WOFF/valkyrie_t4_tab_bold.woff");
+  font-weight: bold;
+  font-style: normal; }
+
+
+
 @font-face { font-family: "et-book";
              src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284541/et-book-roman-line-figures_tqyky9.eot");
              src: url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284541/et-book-roman-line-figures_tqyky9.eot?#iefix") format("embedded-opentype"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284541/et-book-roman-line-figures_qwnmtg.woff") format("woff"), url("https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1539284542/et-book-bold-line-figures_nos3pc.ttf") format("truetype");
