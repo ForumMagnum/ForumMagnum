@@ -72,6 +72,7 @@ const schema = {
     optional: true,
     order: 20,
   },
+  // Set to 'inactive' to prevent posting
   status: {
     type: String,
     viewableBy: ['guests'],

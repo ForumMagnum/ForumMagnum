@@ -1,23 +1,29 @@
 import Sequences from './collection.js';
 import { getSetting } from 'meteor/vulcan:core';
+import { ensureIndex } from '../../collectionUtils';
 
 Sequences.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
-      hidden: {$ne: true},
+      hidden: {$in: [false,null]},
       ...alignmentForum
     }
   }
   return params;
 })
 
+function augmentForDefaultView(indexFields)
+{
+  return { hidden:1, af:1, isDeleted:1, ...indexFields };
+}
+
 Sequences.addView("userProfile", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: {$ne: true},
-      draft: {$ne: true},
+      isDeleted: {$in: [false,null]},
+      draft: {$in: [false,null]},
     },
     options: {
       sort: {
@@ -26,12 +32,13 @@ Sequences.addView("userProfile", function (terms) {
     },
   };
 });
+ensureIndex(Sequences, augmentForDefaultView({ userId:1 }));
 
 Sequences.addView("userProfileAll", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: {$ne: true},
+      isDeleted: {$in: [false,null]},
     },
     options: {
       sort: {
@@ -47,9 +54,9 @@ Sequences.addView("curatedSequences", function (terms) {
     selector: {
       userId: terms.userId,
       curatedOrder: {$exists: true},
-      isDeleted: {$ne: true},
+      isDeleted: {$in: [false,null]},
       gridImageId: {$ne: null },
-      draft: {$ne: true},
+      draft: {$in: [false,null]},
     },
     options: {
       sort: {
@@ -59,6 +66,7 @@ Sequences.addView("curatedSequences", function (terms) {
     },
   };
 });
+ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
 
 Sequences.addView("communitySequences", function (terms) {
   return {
@@ -67,8 +75,8 @@ Sequences.addView("communitySequences", function (terms) {
       curatedOrder: {$exists: false},
       gridImageId: {$ne: null },
       canonicalCollectionSlug: { $in: [null, ""] },
-      isDeleted: {$ne: true},
-      draft: {$ne: true},
+      isDeleted: {$in: [false,null]},
+      draft: {$in: [false,null]},
     },
     options: {
       sort: {

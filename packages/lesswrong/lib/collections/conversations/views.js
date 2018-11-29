@@ -1,5 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core';
 import Conversations from "./collection.js";
+import { ensureIndex } from '../../collectionUtils';
 
 // will be common to all other view unless specific properties are overwritten
 Conversations.addDefaultView(function (terms) {
@@ -19,3 +20,4 @@ Conversations.addView("userConversations", function (terms) {
     options: {sort: {latestActivity: -1}}
   };
 });
+ensureIndex(Conversations, { participantIds: 1, latestActivity: -1 })

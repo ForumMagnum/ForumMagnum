@@ -266,3 +266,9 @@ Picker.route('/item', (params, req, res, next) => {
     res.end("Please provide a URL");
   }
 });
+
+// Secondary way of specifying favicon for browser or RSS readers that don't
+// support using a meta tag (the preferred approach).
+Picker.route('/favicon.ico', (params, req, res, next) => {
+  makeRedirect(res, getSetting('faviconUrl'));
+});

@@ -16,7 +16,7 @@
     justify-content: center;
   }
 
-  a:hover, a:active, a:focus {
+  a:hover, a:active {
     text-decoration: none;
     color: rgba(0,0,0,0.87);
   }
@@ -84,9 +84,6 @@
       margin-top: 3px;
       color: rgba(0,0,0,0.5);
 
-      a {
-        transition: inherit;
-      }
       &:hover {
         color: rgba(0,0,0,0.3);
         a {
@@ -141,7 +138,7 @@
     color: rgba(0,0,0,0.5);
     font-size: 20px;
 
-    a:hover, a:focus, a:active {
+    a:hover, a:active {
       text-decoration: none;
       color: rgba(0,0,0,0.3);
     }
@@ -205,9 +202,6 @@
   div {
     display: inline-block;
     margin-right: 5px;
-  }
-  .sequences-item-user a {
-    color: rgba(0,0,0,0.5);
   }
 }
 
@@ -518,7 +512,7 @@
 
   &:hover, &:visited, &:focus {
     text-decoration: none;
-    a, a:hover, a:visited, h3, p, span, div {
+    a, a:hover, h3, p, span, div {
       text-decoration: none;
       color:rgba(0,0,0,.5);
     }
