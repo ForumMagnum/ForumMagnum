@@ -16,11 +16,15 @@ const styles = theme => ({
       maxWidth: 'calc(100% - 60px)'
     }
   },
+  draft: {
+    color: theme.palette.grey[500]
+  }
 })
 
 const PostsPageTitle = ({classes, post}) =>
   <Typography variant="display3" className={classes.root}>
     {post.draft && <span className={classes.draft}>[Draft] </span>}
+    {post.question && <span>Question: </span>}
     {post.title}
   </Typography>
 

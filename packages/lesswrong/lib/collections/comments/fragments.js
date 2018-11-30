@@ -1,18 +1,6 @@
 import { registerFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
-  fragment NewAnswer on Comment {
-    userId
-    body
-    htmlBody
-    content
-    answercontent
-    af
-  }
-`);
-
-
-registerFragment(`
   fragment CommentsList on Comment {
     # example-forum
     _id
@@ -46,7 +34,5 @@ registerFragment(`
     suggestForAlignmentUserIds
     needsReview
     answer
-    answerId
-    chosenAnswer
   }
 `);

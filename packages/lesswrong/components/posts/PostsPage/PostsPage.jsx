@@ -125,7 +125,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
       PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, FromNowDate,
-      PostsPageMobileActions, ContentItemBody } = Components
+      PostsPageMobileActions, ContentItemBody, AnswersSection } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -200,6 +200,11 @@ class PostsPage extends Component {
           {sequenceId && <div className={classes.recommendedReading}>
             <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
           </div>}
+
+          {/* Answers Section */}
+          <div id="comments">
+            <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
+          </div>
 
           {/* Comments Section */}
           <div id="comments">
