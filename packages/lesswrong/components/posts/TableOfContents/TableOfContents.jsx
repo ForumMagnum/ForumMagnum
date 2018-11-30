@@ -6,14 +6,13 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
   stickyContainer: {
-    position: "absolute",
-    right: "100%",
-    marginRight: 60,
+    position: "fixed",
+    left: theme.spacing.unit*4,
     top: 120,
     width: 240,
     height: "100%",
   },
-  
+
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
@@ -44,12 +43,12 @@ class TableOfContents extends Component
 {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       drawerOpen: false,
     };
   }
-  
+
   componentDidMount() {
     this.props.setToC(this.props.document, this.props.sections);
   }
@@ -57,13 +56,13 @@ class TableOfContents extends Component
   componentWillUnmount() {
     this.props.setToC(null);
   }
-  
+
   render() {
     const { classes, sections, document, context } = this.props;
-    
+
     if (!sections || !document)
       return <div/>
-    
+
     return (
       <Hidden mdDown implementation="js">
         <div className={classes.stickyContainer}>

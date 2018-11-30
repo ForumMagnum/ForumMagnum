@@ -9,27 +9,27 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.postStyle,
   },
-  
+
   // For the highlighted section only, disable the half-opacity-on-hover effect
-  // that's otherwise globally applied to <a> tags. 
+  // that's otherwise globally applied to <a> tags.
   highlighted: {
     fontWeight: "bold",
-    
+
     "& a:focus, & a:hover": {
       opacity: "initial",
     }
   },
-  
+
   link: {
     display: "block",
-    whiteSpace: "nowrap",
-    overflowX: "hidden",
+    // // whiteSpace: "nowrap",
+    // overflowX: "hidden",
     textOverflow: "ellipsis",
-    
+    textIndent: "-1em",
     paddingTop: 4,
     paddingBottom: 4,
   },
-  
+
   level0: {
     paddingLeft: 0,
     paddingTop: 15,
@@ -53,7 +53,7 @@ class TableOfContentsRow extends PureComponent
 {
   render() {
     const {indentLevel=0, highlighted=false, href, onClick, children, classes} = this.props;
-    
+
     return <Typography variant="body2"
       className={classNames(
         classes.root,
@@ -66,7 +66,7 @@ class TableOfContentsRow extends PureComponent
       </a>
     </Typography>
   }
-  
+
   levelToClassName = (level) => {
     const { classes } = this.props;
     switch(level) {

@@ -22,7 +22,7 @@ const showPostActions = (currentUser, post) => {
     Posts.canEdit(currentUser, post)
 }
 
-const PostsPageMobileActions = ({classes, post, setMenuAnchor, anchorEl, currentUser}) => {
+const PostsPageActions = ({classes, post, setMenuAnchor, anchorEl, currentUser}) => {
   if (showPostActions(currentUser, post)) {
     return <div>
       <MoreHorizIcon className={classes.icon} onClick={e => setMenuAnchor(e.target)}/>
@@ -43,8 +43,8 @@ const PostsPageMobileActions = ({classes, post, setMenuAnchor, anchorEl, current
 }
 
 
-registerComponent('PostsPageMobileActions', PostsPageMobileActions,
-  withStyles(styles, {name: "PostsPageMobileActions"}),
+registerComponent('PostsPageActions', PostsPageActions,
+  withStyles(styles, {name: "PostsPageActions"}),
   withState('anchorEl', 'setMenuAnchor', null),
   withUser
 )
