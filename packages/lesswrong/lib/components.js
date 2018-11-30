@@ -283,6 +283,7 @@ if(getSetting('AlignmentForum', false)) {
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
 import '../components/questions/AnswersSection.jsx';
+import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/AnswerMeta.jsx';

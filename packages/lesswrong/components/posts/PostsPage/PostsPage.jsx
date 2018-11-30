@@ -22,16 +22,14 @@ import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
     root: {
-      position: 'relative',
-      maxWidth: 650,
-      minHeight: 200,
-      fontSize: 20,
-      marginLeft: 'auto',
-      marginRight: 'auto',
       marginTop: 80,
+      position:"relative",
       [theme.breakpoints.down('sm')]: {
         marginTop: 40
       }
+    },
+    post: {
+      maxWidth: 650,
     },
     header: {
       position: 'relative',
@@ -55,7 +53,7 @@ const styles = theme => ({
       position: 'absolute',
       top: -14,
       right: 0,
-      fontSize: '2em',
+      fontSize: 42,
       display: 'inline-block',
       textAlign: 'center',
     },
@@ -125,7 +123,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
       PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, FromNowDate,
-      PostsPageMobileActions, ContentItemBody } = Components
+      PostsPageMobileActions, ContentItemBody, AnswersSection, Section } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -144,61 +142,70 @@ class PostsPage extends Component {
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
-          <div className={classes.header}>
-            <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-            <PostsPageTitle post={post} />
-            <span className={classes.mobileVote}>
-              <Hidden mdUp implementation="css">
-                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-              </Hidden>
-            </span>
-            <Hidden smDown implementation="css">
-              <div className={classes.voteTop}>
-                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+          <Section>
+            <div className={classes.post}>
+              <div className={classes.header}>
+                <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                <PostsPageTitle post={post} />
+                <span className={classes.mobileVote}>
+                  <Hidden mdUp implementation="css">
+                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                  </Hidden>
+                </span>
+                <Hidden smDown implementation="css">
+                  <div className={classes.voteTop}>
+                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                  </div>
+                </Hidden>
+                {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+                <div className={classes.secondaryInfo}>
+                  <span className={classes.inline}><PostsAuthors post={post}/></span>
+                  <span className={classes.mobileDate}>
+                    <Hidden mdUp implementation="css">
+                      <FromNowDate date={post.postedAt}/>
+                    </Hidden>
+                  </span>
+                  <span className={classes.mobileActions}>
+                    <Hidden mdUp implementation="css">
+                      <PostsPageMobileActions post={post} />
+                    </Hidden>
+                  </span>
+                  <Hidden mdUp implementation="css">
+                    <hr className={classes.mobileDivider} />
+                  </Hidden>
+                </div>
               </div>
-            </Hidden>
-            {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-            <div className={classes.secondaryInfo}>
-              <span className={classes.inline}><PostsAuthors post={post}/></span>
-              <span className={classes.mobileDate}>
-                <Hidden mdUp implementation="css">
-                  <FromNowDate date={post.postedAt}/>
-                </Hidden>
-              </span>
-              <span className={classes.mobileActions}>
-                <Hidden mdUp implementation="css">
-                  <PostsPageMobileActions post={post} />
-                </Hidden>
-              </span>
-              <Hidden mdUp implementation="css">
-                <hr className={classes.mobileDivider} />
-              </Hidden>
-            </div>
-          </div>
 
-          {/* Body */}
-          <div className={classes.postBody}>
-            <Hidden smDown implementation="css">
-              <PostsPageMetadata post={post} />
-            </Hidden>
-            { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
-            <div className={classes.postContent}>
-              <LinkPostMessage post={post} />
-              { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
-            </div>
-          </div>
+              {/* Body */}
+              <div className={classes.postBody}>
+                <Hidden smDown implementation="css">
+                  <PostsPageMetadata post={post} />
+                </Hidden>
+                { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
+                <div className={classes.postContent}>
+                  <LinkPostMessage post={post} />
+                  { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
+                </div>
+              </div>
 
-          {/* Footer */}
-          <div className={classes.postFooter}>
-            <div className={classes.voteBottom}>
-              <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              {/* Footer */}
+              <div className={classes.postFooter}>
+                <div className={classes.voteBottom}>
+                  <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                </div>
+                <div className={classes.moderationGuidelinesWrapper}>
+                  <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+                </div>
+              </div>
+              {sequenceId && <div className={classes.recommendedReading}>
+                <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+              </div>}
             </div>
-            <div className={classes.moderationGuidelinesWrapper}>
-              <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-            </div>
-          </div>
-          {sequenceId && <div className={classes.recommendedReading}>
-            <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+          </Section>
+
+          {/* Answers Section */}
+          {post.question && <div id="answers">
+            <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
           </div>}
 
           {/* Comments Section */}
