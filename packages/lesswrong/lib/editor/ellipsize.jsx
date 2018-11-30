@@ -19,7 +19,8 @@ export const highlightFromHTML = (html) => {
   }));
 };
 
-export const postExcerptFromHTML = (html = "", truncationCharCount) => {
+export const postExcerptFromHTML = (html, truncationCharCount) => {
+  if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
@@ -30,7 +31,8 @@ export const postExcerptFromHTML = (html = "", truncationCharCount) => {
   }));
 };
 
-export const commentExcerptFromHTML = (html = "", truncationCharCount) => {
+export const commentExcerptFromHTML = (html, truncationCharCount) => {
+  if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
