@@ -287,8 +287,8 @@ describe('User moderation fields --', async () => {
 })
 
 describe('PostsEdit bannedUserIds permissions --', async ()=> {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post and has moderationGuidelines set on the post", async () => {
-    let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
     const post = await createDummyPost(user, {moderationGuidelinesHtmlBody: "beware"})
     const testBannedUserIds = "test"

@@ -72,7 +72,7 @@ addCallback('posts.new.after', checkPostForSpamWithAkismet);
 
 async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
-      const spam = await checkForAkismetSpam({content: comment.body, author: currentUser, link: Comments.getPageUrl(comment, true)})
+      const spam = await checkForAkismetSpam({content: comment.body, author: currentUser, link: (comment.postId && Comments.getPageUrl(comment, true))})
       if (spam) {
         //eslint-disable-next-line no-console
         console.log("Spam comment detected, creating new Report")
@@ -82,7 +82,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
             userId: currentUser._id,
             postId: comment.postId,
             commentId: comment._id,
-            link: Comments.getPageUrl(comment),
+            link: comment.postId && Comments.getPageUrl(comment),
             description: "Akismet reported this as spam"
           },
           validate: false,
