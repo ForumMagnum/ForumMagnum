@@ -1,7 +1,7 @@
 
 export let expectedIndexes = {};
 
-export function ensureIndex(collection, index, options)
+export async function ensureIndex(collection, index, options)
 {
   if (Meteor.isServer) {
     const mergedOptions = {background: true, ...options};
