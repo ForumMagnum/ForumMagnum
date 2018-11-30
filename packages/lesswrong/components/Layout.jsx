@@ -130,7 +130,6 @@ class Layout extends PureComponent {
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
             <Components.Header toc={this.state.toc} />
-
             <div className={classes.main}>
               <Components.ErrorBoundary>
                 <Components.FlashMessages />

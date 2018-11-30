@@ -48,7 +48,6 @@ lesswrong@0.1.0
 lmieulet:meteor-coverage@2.0.2
 localstorage@1.2.0
 logging@1.1.20
-matb33:collection-hooks@0.8.4
 meteor@1.9.2
 meteorhacks:inject-initial@1.0.4
 meteorhacks:picker@1.0.3
