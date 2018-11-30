@@ -3,7 +3,7 @@ import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 const sansSerifStack = [
-  'et-book',
+  'Valkyrie',
   'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
@@ -21,7 +21,7 @@ const sansSerifStack = [
 ].join(',')
 
 const serifStack = [
-  'et-book',
+  'Valkyrie',
   'warnock-pro',
   'Palatino',
   '"Palatino Linotype"',
