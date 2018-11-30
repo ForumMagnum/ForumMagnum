@@ -68,6 +68,7 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  moderationGuidelinesHtmlBody
   markDownPostEditor
   commentSorting
   location
@@ -208,7 +209,6 @@ registerFragment(`
       groups
       moderationStyle
       bannedUserIds
-      moderationGuidelines
       moderatorAssistance
     }
     canonicalSequence {
@@ -222,6 +222,11 @@ registerFragment(`
     }
     collectionTitle
     types
+    showModerationGuidelines
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
   }
 `);
 

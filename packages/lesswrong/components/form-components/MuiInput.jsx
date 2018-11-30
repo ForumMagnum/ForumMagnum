@@ -16,7 +16,7 @@ class MuiInput extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: props.document && props.document[props.path] || ""
+      content: props.document && props.document[props.path] || props.defaultValue || ""
     }
   }
 
@@ -48,6 +48,7 @@ class MuiInput extends Component {
         fullWidth={this.props.fullWidth}
         disableUnderline={this.props.disableUnderline}
         classes={{input: this.props.classes.input}}
+        startAdornment={this.props.startAdornment}
       /><br />
     </div>
   }

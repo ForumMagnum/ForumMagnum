@@ -5,7 +5,7 @@ import { performVoteServer } from 'meteor/vulcan:voting';
 import Localgroups from '../localgroups/collection.js';
 
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
-import { makeEditableOptions } from './custom_fields.js'
+import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'
 
 
 
@@ -155,3 +155,4 @@ async function LWPostsNewUpvoteOwnPost(post) {
 addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
+addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})

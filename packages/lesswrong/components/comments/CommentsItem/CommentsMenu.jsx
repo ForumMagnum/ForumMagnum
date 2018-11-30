@@ -36,7 +36,7 @@ class CommentsMenu extends PureComponent {
   render() {
     const { currentUser, children, classes, className, comment, post, showEdit, icon } = this.props
     const { anchorEl } = this.state
-    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem } = Components
+    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem } = Components
     return (
       <span className={className}>
         <span onClick={this.handleClick}>
@@ -56,6 +56,7 @@ class CommentsMenu extends PureComponent {
           <DeleteCommentMenuItem comment={comment} post={post}/>
           <BanUserFromPostMenuItem comment={comment} post={post}/>
           <BanUserFromAllPostsMenuItem comment={comment} post={post}/>
+          <BanUserFromAllPersonalPostsMenuItem comment={comment} post={post}/>
           {children}
         </Menu>
       </span>
