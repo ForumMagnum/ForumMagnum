@@ -351,6 +351,7 @@ registerFragment(`
     afBaseScore
     suggestForAlignmentUserIds
     needsReview
+    answer
   }
 `);
 
