@@ -22,7 +22,8 @@ export const formGroups = {
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: "Moderation",
+    label: "Moderation Guidelines",
+    helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
   options: {
@@ -50,6 +51,11 @@ export const formGroups = {
     flexStyle: true
   },
 };
+
+
+const userHasModerationGuidelines = (currentUser) => {
+  return !!(currentUser.moderationGuidelinesHtmlBody)
+}
 
 Posts.addField([
   /**
@@ -1017,6 +1023,67 @@ Posts.addField([
       group: formGroups.adminOptions,
     }
   },
+
+  /**
+    GraphQL only field that resolves based on whether the current user has closed
+    this posts author's moderation guidelines in the past
+  */
+  {
+    fieldName: 'showModerationGuidelines',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: ['guests'],
+      resolveAs: {
+        type: 'Boolean',
+        resolver: async (post, args, { LWEvents, currentUser }) => {
+          if(currentUser){
+            const query = {
+              name:'toggled-user-moderation-guidelines',
+              documentId: post.userId,
+              userId: currentUser._id
+            }
+            const sort = {sort:{createdAt:-1}}
+            const event = await LWEvents.findOne(query, sort);
+            if (event) {
+              return event && event.properties && event.properties.targetState
+            } else {
+              return true
+            }
+          } else {
+            return false
+          }
+        },
+        addOriginalField: false
+      }
+    }
+  },
+
+  {
+    fieldName: 'moderationStyle',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      control: "select",
+      group: formGroups.moderationGroup,
+      label: "Style",
+      viewableBy: ['guests'],
+      editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines],
+      blackbox: true,
+      order: 55,
+      form: {
+        options: function () { // options for the select form control
+          return [
+            {value: "", label: "No Moderation"},
+            {value: "easy-going", label: "Easy Going - I just delete obvious spam and trolling."},
+            {value: "norm-enforcing", label: "Norm Enforcing - I try to enforce particular rules (see below)"},
+            {value: "reign-of-terror", label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive"},
+          ];
+        }
+      },
+    }
+  },
 ]);
 
 export const makeEditableOptions = {
@@ -1028,6 +1095,27 @@ export const makeEditableOptions = {
 makeEditable({
   collection: Posts,
   options: makeEditableOptions
+})
+
+export const makeEditableOptionsModeration = {
+  // Determines whether to use the comment editor configuration (e.g. Toolbars)
+  commentEditor: true,
+  // Determines whether to use the comment editor styles (e.g. Fonts)
+  commentStyles: true,
+  formGroup: formGroups.moderationGroup,
+  adminFormGroup: formGroups.adminOptions,
+  order: 50,
+  fieldName: "moderationGuidelines",
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: [userHasModerationGuidelines]
+  },
+}
+
+makeEditable({
+  collection: Posts,
+  options: makeEditableOptionsModeration
 })
 
 
@@ -1114,5 +1202,5 @@ Users.addField([
       viewableBy: ['guests'],
       order: 50,
     }
-  }
+  },
 ]);

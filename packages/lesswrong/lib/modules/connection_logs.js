@@ -52,7 +52,9 @@ Accounts.onLogin((login) => {
     properties: {
       type: login.type,
       id: login.connection && login.connection.id,
-      ip: login.connection && ForwardedWhitelist.getClientIP(login.connection)
+      ip: login.connection && ForwardedWhitelist.getClientIP(login.connection),
+      userAgent: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['user-agent'],
+      referrer: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['referrer']
     }
   }
   newMutation({

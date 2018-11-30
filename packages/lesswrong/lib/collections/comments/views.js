@@ -12,6 +12,7 @@ Comments.addDefaultView(terms => {
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$in: [false,null]}}],
       answer: { $in: [false,null] },
+      parentAnswerId: { $in: [false,null] },
       hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
       ...validFields,
       ...alignmentForum,
@@ -186,3 +187,11 @@ ensureIndex(Comments, {legacyId: "hashed"});
 
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
+
+Comments.addView('repliesToAnswer', function (terms) {
+  return {
+    selector: {parentAnswerId: terms.parentAnswerId},
+    options: {sort: {baseScore: -1}}
+  };
+});
+ensureIndex(Comments, augmentForDefaultView({answerId:1, baseScore:-1}));

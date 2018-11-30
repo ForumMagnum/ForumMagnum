@@ -107,8 +107,8 @@ addStrings('en', {
 })
 
 addStrings('en', {
-  "moderation-easy-going": "Easy Going - I just delete obvious spam and trolling.",
-  "moderation-norm-enforcing": "Norm Enforcing - I try to enforce particular rules (see below)",
+  "moderation-easy-going": "Easy Going - I just delete obvious spam and trolling",
+  "moderation-norm-enforcing": "Norm Enforcing - I try to enforce particular rules",
   "moderation-reign-of-terror": "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
   "short-moderation-easy-going": " Easy Going",
   "short-moderation-norm-enforcing": " Norm Enforcing",

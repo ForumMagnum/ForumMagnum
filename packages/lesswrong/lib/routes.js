@@ -48,7 +48,6 @@ addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComment
 addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome', title: "Community"})
 addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome', title: "Community"})
 
-//Route for testing the editor. Useful for debugging
 addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});

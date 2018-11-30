@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 
 const styles = theme => ({
@@ -14,15 +15,18 @@ const styles = theme => ({
     display: 'inline-block',
     overflow: 'hidden',
     transition: 'width 0.25s',
-    width: 110,
+    width: 140,
   },
   hideInput: {
-    width: 0,
+    width: 28,
   },
   button: {
     '&:hover': {
       cursor:'pointer'
     }
+  },
+  innerInput: {
+    padding: '6px 0 7px'
   }
 })
 
@@ -49,18 +53,22 @@ class EditUrl extends Component {
     // which creates a property, give some though to whether it should be passed
     // through.)
     const { classes, ...otherProps } = this.props;
-
+    const startAdornmentInactive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
+      <Icon>link</Icon>
+    </InputAdornment>
+    const startAdornmentActive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
+      <Icon>link_off</Icon></InputAdornment>
     return (
       <div className={classes.root}>
         <div>
-          <span onClick={this.toggleEditor} className={classes.button}>
-            { !active ? <Icon>link</Icon> : <Icon>link_off</Icon> }
-          </span>
           <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
             <Components.MuiInput
               {...otherProps}
               type={"url"}
               layout="elementOnly"
+              startAdornment={active ? startAdornmentActive : startAdornmentInactive}
+              className={classes.innerInput}
+              disableUnderline={!active}
             />
           </span>
         </div>

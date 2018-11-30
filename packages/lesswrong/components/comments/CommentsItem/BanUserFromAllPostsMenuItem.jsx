@@ -6,11 +6,6 @@ import PropTypes from 'prop-types';
 import withUser from '../../common/withUser';
 
 class BanUserFromAllPostsMenuItem extends PureComponent {
-
-  constructor(props) {
-    super(props);
-  }
-
   handleBanUserFromAllPosts = (event) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
@@ -29,7 +24,7 @@ class BanUserFromAllPostsMenuItem extends PureComponent {
 
   render() {
     const { currentUser, post} = this.props
-    if (Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post)) {
+    if (Users.canModeratePost(currentUser, post) && post.frontpageDate && Users.owns(currentUser, post)) {
         return <MenuItem onClick={ this.handleBanUserFromAllPosts }>
           Ban from all your posts
         </MenuItem>
