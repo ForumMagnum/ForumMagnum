@@ -8,9 +8,8 @@ const styles = theme => ({
   metadata: {
     ...theme.typography.postStyle,
     position: 'absolute',
-    right: '100%',
+    left: 30,
     width: 200,
-    paddingRight: 30,
     textAlign: 'right',
     color: 'rgba(0,0,0,0.5)',
   },

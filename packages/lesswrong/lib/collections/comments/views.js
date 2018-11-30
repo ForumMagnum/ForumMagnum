@@ -12,6 +12,7 @@ Comments.addDefaultView(terms => {
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$in: [false,null]}}],
       answer: { $in: [false,null] },
+      parentAnswerId: { $in: [false,null] },
       hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
       ...validFields,
       ...alignmentForum,
@@ -189,7 +190,7 @@ ensureIndex(Comments, {inactive:1,postedAt:1});
 
 Comments.addView('repliesToAnswer', function (terms) {
   return {
-    selector: {answerId: terms.answerId},
+    selector: {parentAnswerId: terms.parentAnswerId},
     options: {sort: {baseScore: -1}}
   };
 });

@@ -61,7 +61,7 @@ class Answer extends Component {
             <Typography variant="subheading"><SimpleDate date={comment.postedAt}/></Typography>
           </div>
           <AnswerCommentsList
-            terms={{view:"repliesToAnswer", answerId: comment._id, limit:3}}
+            terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit:3}}
             post={post}
             answerId={comment._id}
             />

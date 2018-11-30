@@ -18,7 +18,6 @@ const styles = theme => ({
   root: {
     position: 'absolute',
     top: -40,
-    left: -20,
   }
 })
 

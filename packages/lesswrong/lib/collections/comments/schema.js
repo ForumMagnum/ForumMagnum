@@ -213,7 +213,7 @@ const schema = {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
 
-  answerId: {
+  parentAnswerId: {
     type: String,
     max: 500,
     canRead: ['guests'],
@@ -221,10 +221,10 @@ const schema = {
     optional: true,
     hidden: true,
     resolveAs: {
-      fieldName: 'replyToAnswer',
+      fieldName: 'parentAnswer',
       type: 'Comment',
       resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'answerId'}
+        {collectionName: 'Comments', fieldName: 'parentAnswerId'}
       ),
       addOriginalField: true
     },
