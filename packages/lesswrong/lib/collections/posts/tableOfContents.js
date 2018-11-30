@@ -39,6 +39,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //   }
 export function extractTableOfContents(postHTML)
 {
+  if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
   let headings = [];
   let usedAnchors = {};
