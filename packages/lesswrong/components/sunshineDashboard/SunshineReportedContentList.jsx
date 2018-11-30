@@ -16,18 +16,18 @@ const styles = theme => ({
   }
 })
 
-class SunshineReportedCommentsList extends Component {
+class SunshineReportedContentList extends Component {
   render () {
     const { results, editMutation, classes } = this.props
     if (results && results.length) {
       return (
         <div className={classes.root}>
           <Components.SunshineListTitle>
-            Flagged Comments
+            Flagged Content
           </Components.SunshineListTitle>
           {results.map(report =>
             <div key={report._id} >
-              <Components.SunshineReportedCommentsItem
+              <Components.SunshineReportedItem
                 report={report}
                 reportEditMutation={editMutation}
               />
@@ -41,7 +41,7 @@ class SunshineReportedCommentsList extends Component {
   }
 }
 
-SunshineReportedCommentsList.propTypes = {
+SunshineReportedContentList.propTypes = {
   results: PropTypes.array,
   editMutation: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
@@ -49,7 +49,7 @@ SunshineReportedCommentsList.propTypes = {
 
 const withListOptions = {
   collection: Reports,
-  queryName: 'sunshineCommentsListQuery',
+  queryName: 'sunshineReportsListQuery',
   fragmentName: 'unclaimedReportsList',
 };
 
@@ -59,10 +59,10 @@ const withEditOptions = {
 }
 
 registerComponent(
-  'SunshineReportedCommentsList',
-  SunshineReportedCommentsList,
+  'SunshineReportedContentList',
+  SunshineReportedContentList,
   [withList, withListOptions],
   [withEdit, withEditOptions],
   withUser,
-  withStyles(styles, {name:"SunshineReportedCommentsList"})
+  withStyles(styles, {name:"SunshineReportedContentList"})
 );
