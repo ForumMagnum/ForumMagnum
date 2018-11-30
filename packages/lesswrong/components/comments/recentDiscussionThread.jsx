@@ -16,6 +16,8 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary'
+
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML, postExcerptMaxChars } from '../../lib/editor/ellipsize'
 
@@ -224,4 +226,5 @@ registerComponent(
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "RecentDiscussionThread" }),
+  withErrorBoundary
 );

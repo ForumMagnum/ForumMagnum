@@ -126,7 +126,6 @@ class CommentsListSection extends Component {
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
         <Components.CommentsList
           currentUser={currentUser}
           totalComments={totalComments}
