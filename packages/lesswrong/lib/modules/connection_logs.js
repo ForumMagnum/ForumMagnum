@@ -4,9 +4,15 @@ import Users from 'meteor/vulcan:users';
 import { ForwardedWhitelist } from './forwarded_whitelist.js';
 import { Accounts } from 'meteor/accounts-base';
 
-const dummyUser = Users.findOne();
+let dummyUser = null;
+async function getDummyUser() {
+  if (!dummyUser) dummyUser = Users.findOne();
+  return dummyUser;
+}
+getDummyUser();
 
-Meteor.onConnection((connection) => {
+Meteor.onConnection(async (connection) => {
+  let currentUser = await getDummyUser();
   const document = {
     name: 'newConnection',
     important: false,
@@ -18,7 +24,7 @@ Meteor.onConnection((connection) => {
   newMutation({
     collection: LWEvents,
     document: document,
-    currentUser: dummyUser,
+    currentUser: currentUser,
     validate: false,
   })
   //eslint-disable-next-line no-console
@@ -38,13 +44,13 @@ Meteor.onConnection((connection) => {
     newMutation({
       collection: LWEvents,
       document: document,
-      currentUser: dummyUser,
+      currentUser: currentUser,
       validate: false,
     })
   })
 })
 
-Accounts.onLogin((login) => {
+Accounts.onLogin(async (login) => {
   const document = {
     name: 'login',
     important: false,
@@ -60,7 +66,7 @@ Accounts.onLogin((login) => {
   newMutation({
     collection: LWEvents,
     document: document,
-    currentUser: dummyUser,
+    currentUser: await getDummyUser(),
     validate: false,
   })
 })
