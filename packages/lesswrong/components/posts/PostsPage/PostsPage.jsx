@@ -22,8 +22,6 @@ import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
     root: {
-      marginTop: 80,
-      position:"relative",
       [theme.breakpoints.down('sm')]: {
         marginTop: 40
       }
@@ -122,8 +120,8 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, FromNowDate,
-      PostsPageMobileActions, ContentItemBody, AnswersSection, Section } = Components
+      PostsTopSequencesNav, ModerationGuidelinesBox, FromNowDate,
+      PostsPageActions, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -142,6 +140,7 @@ class PostsPage extends Component {
 
       return (
         <div className={classes.root}>
+          <TableOfContents sections={sections} document={document} />
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
@@ -164,14 +163,10 @@ class PostsPage extends Component {
                 <div className={classes.secondaryInfo}>
                   <span className={classes.inline}><PostsAuthors post={post}/></span>
                   <span className={classes.mobileDate}>
-                    <Hidden mdUp implementation="css">
                       <FromNowDate date={post.postedAt}/>
-                    </Hidden>
                   </span>
                   <span className={classes.mobileActions}>
-                    <Hidden mdUp implementation="css">
-                      <PostsPageMobileActions post={post} />
-                    </Hidden>
+                      <PostsPageActions post={post} />
                   </span>
                   <Hidden mdUp implementation="css">
                     <hr className={classes.mobileDivider} />
@@ -181,10 +176,6 @@ class PostsPage extends Component {
 
               {/* Body */}
               <div className={classes.postBody}>
-                <Hidden smDown implementation="css">
-                  <PostsPageMetadata post={post} />
-                </Hidden>
-                <Components.TableOfContents sections={sections} document={document} />
                 { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
                 <div className={classes.postContent}>
                   <LinkPostMessage post={post} />
