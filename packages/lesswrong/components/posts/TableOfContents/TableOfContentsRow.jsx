@@ -42,12 +42,12 @@ const styles = theme => ({
     '&:first-of-type': {
       marginBottom: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
-      borderBottom: "dashed 1px rgba(0,0,0,.25)",
+      borderBottom: "solid 1px rgba(0,0,0,.2)",
     },
     '&:last-of-type': {
       marginTop: theme.spacing.unit,
       paddingTop: theme.spacing.unit,
-      borderTop: "dashed 1px rgba(0,0,0,.25)",
+      borderTop: "solid 1px rgba(0,0,0,.2)",
     }
   },
   level1: {

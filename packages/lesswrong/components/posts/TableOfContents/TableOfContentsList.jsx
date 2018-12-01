@@ -34,14 +34,14 @@ class TableOfContentsList extends Component
       return <div/>
 
     return <div>
-      <Row key="postTitle"
-        href="#"
-        onClick={ev => this.jumpToY(0, ev)}
-        highlighted={currentSection && currentSection.anchor === topSection}
-      >
-        {document.title}
-      </Row>
       <div>
+        <Row key="postTitle"
+          href="#"
+          onClick={ev => this.jumpToY(0, ev)}
+          highlighted={currentSection && currentSection.anchor === topSection}
+        >
+          {document.title}
+        </Row>
         {sections && sections.map((section, index) =>
           <Row
             key={section.anchor}
