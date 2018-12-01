@@ -43,17 +43,17 @@ export function extractTableOfContents(postHTML)
   const postBody = cheerio.load(postHTML);
   let headings = [];
   let usedAnchors = {};
-  
+
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
   let headingTags = postBody(headingSelector);
   for (let i=0; i<headingTags.length; i++) {
     let tag = headingTags[i];
-    
+
     if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
       continue;
     }
-    
+
     let title = cheerio(tag).text();
     let anchor = titleToAnchor(title, usedAnchors);
     usedAnchors[anchor] = true;
@@ -64,29 +64,29 @@ export function extractTableOfContents(postHTML)
       level: tagToHeadingLevel(tag.tagName),
     });
   }
-  
+
   if (headings.length < minHeadingsForToC)
     return null;
-  
+
   // Filter out unused heading levels, mapping the heading levels to consecutive
   // numbers starting from 1. So if a post uses <h1>, <h3> and <strong>, those
   // will be levels 1, 2, and 3 (not 1, 3 and 7).
-  
+
   // Get a list of heading levels used
   let headingLevelsUsedDict = {};
   for(let i=0; i<headings.length; i++)
     headingLevelsUsedDict[headings[i].level] = true;
-  
+
   // Generate a mapping from raw heading levels to compressed heading levels
   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
   let headingLevelMap = {};
   for(let i=0; i<headingLevelsUsed.length; i++)
     headingLevelMap[ headingLevelsUsed[i] ] = i;
-  
+
   // Mark sections with compressed heading levels
   for(let i=0; i<headings.length; i++)
     headings[i].level = headingLevelMap[headings[i].level]+1;
-  
+
   return {
     html: postBody.html(),
     sections: headings,
@@ -103,7 +103,7 @@ function titleToAnchor(title, usedAnchors)
 {
   let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
   let sb = [];
-  
+
   for(let i=0; i<title.length; i++) {
     let ch = title.charAt(i);
     if(charsToUse.indexOf(ch) >= 0) {
@@ -112,11 +112,11 @@ function titleToAnchor(title, usedAnchors)
       sb.push('_');
     }
   }
-  
+
   let anchor = sb.join('');
   if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
     return anchor;
-  
+
   let anchorSuffix = 1;
   while(usedAnchors[anchor + anchorSuffix])
     anchorSuffix++;
@@ -139,7 +139,7 @@ function tagIsWholeParagraph(tag) {
   if (parent.tagName.toLowerCase() !== 'p') return false;
   let selfAndSiblings = cheerio(parent).contents();
   if (selfAndSiblings.length != 1) return false;
-  
+
   return true;
 }
 

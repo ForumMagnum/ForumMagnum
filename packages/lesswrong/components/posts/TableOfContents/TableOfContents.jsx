@@ -16,7 +16,7 @@ const styles = theme => ({
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
-    top: 100,
+    top: 72,
     lineHeight: 1.0,
     opacity: .7,
     paddingLeft:theme.spacing.unit*2,

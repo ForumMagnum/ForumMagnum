@@ -153,7 +153,8 @@ class PostsPage extends Component {
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = sectionData ? sectionData.html : post.htmlBody;
-      const sections = sectionData ? sectionData.sections : null;
+      const sections = sectionData ? [...sectionData.sections, {anchor:"comments", level:0, title:Posts.getCommentCountStr(post)}] : null;
+
 
       return (
         <div className={classes.root}>
@@ -198,7 +199,7 @@ class PostsPage extends Component {
             </div>
           </Section>
           <Section titleComponent={
-            <TableOfContents sections={sections} document={document} />
+            <TableOfContents sections={sections} document={post}/>
           }>
             <div className={classes.post}>
               {/* Body */}

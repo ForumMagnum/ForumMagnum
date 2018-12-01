@@ -1,5 +1,4 @@
 import React, { PureComponent, Component } from 'react';
-import { Posts } from '../../../lib/collections/posts';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
@@ -55,12 +54,6 @@ class TableOfContentsList extends Component
           </Row>
         )}
       </div>
-      <Row key="comments"
-        href="#comments"
-        onClick={(ev) => this.jumpToAnchor("comments", ev)}
-      >
-        {Posts.getCommentCountStr(document)}
-      </Row>
     </div>
   }
 
