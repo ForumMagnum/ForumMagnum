@@ -19,22 +19,28 @@ import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import Hidden from '@material-ui/core/Hidden';
+import classNames from 'classnames';
+import moment from 'moment';
 
 const styles = theme => ({
     root: {
-      [theme.breakpoints.down('sm')]: {
-        marginTop: 40
-      }
+      position: "relative",
     },
     post: {
       maxWidth: 650,
+      [theme.breakpoints.down('md')]: {
+        margin: "auto"
+      }
     },
     header: {
       position: 'relative',
-      marginBottom: 80,
+      marginBottom: 50,
       [theme.breakpoints.down('sm')]: {
-        marginBottom: 30
+        marginBottom: 0
       }
+    },
+    eventHeader: {
+      marginBottom:0,
     },
     secondaryInfo: {
       fontSize: '1.4rem',
@@ -121,7 +127,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
       PostsTopSequencesNav, ModerationGuidelinesBox, FromNowDate,
-      PostsPageActions, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
+      PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -140,13 +146,12 @@ class PostsPage extends Component {
 
       return (
         <div className={classes.root}>
-          <TableOfContents sections={sections} document={document} />
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
           <Section>
             <div className={classes.post}>
-              <div className={classes.header}>
+              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
                 <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
                 <PostsPageTitle post={post} />
                 <span className={classes.mobileVote}>
@@ -162,20 +167,37 @@ class PostsPage extends Component {
                 {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
                 <div className={classes.secondaryInfo}>
                   <span className={classes.inline}><PostsAuthors post={post}/></span>
-                  <span className={classes.mobileDate}>
+                  <span>
+                    <Hidden mdUp implementation="css">
                       <FromNowDate date={post.postedAt}/>
+                    </Hidden>
+                  </span>
+                  <span>
+                    <Hidden smDown implementation="css">
+                      <span>{moment(post.postedAt).format("DD MMM YYYY")}</span>
+                    </Hidden>
                   </span>
                   <span className={classes.mobileActions}>
                       <PostsPageActions post={post} />
                   </span>
+                  <Components.GroupLinks document={post} />
                   <Hidden mdUp implementation="css">
                     <hr className={classes.mobileDivider} />
                   </Hidden>
                 </div>
-              </div>
+                {post.isEvent && <PostsPageEventData post={post}/>}
 
+              </div>
+            </div>
+          </Section>
+          <Section titleComponent={
+            <TableOfContents sections={sections} document={document} />
+          }>
+            <div className={classes.post}>
               {/* Body */}
               <div className={classes.postBody}>
+
+
                 { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
                 <div className={classes.postContent}>
                   <LinkPostMessage post={post} />
@@ -205,7 +227,7 @@ class PostsPage extends Component {
 
           {/* Comments Section */}
           <div>
-            <div id="comments"/> {/* For anchor links (lesswrong.com/foo#comments */}
+            <div id="comments"/>
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
           </div>
 

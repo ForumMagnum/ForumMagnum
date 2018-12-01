@@ -54,6 +54,9 @@ const styles = (theme) => ({
     maxWidth: 739,
     [theme.breakpoints.up('md')]: {
       paddingLeft: 24
+    },
+    [theme.breakpoints.down('sm')]: {
+      margin: "auto"
     }
   },
   subscribeWidget: {

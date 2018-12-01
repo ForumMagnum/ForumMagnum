@@ -62,7 +62,7 @@ class CommentBody extends Component {
 CommentBody.propTypes = {
   comment: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  truncationCharCount: PropTypes.number.isRequired
+  truncationCharCount: PropTypes.number
 };
 
 
