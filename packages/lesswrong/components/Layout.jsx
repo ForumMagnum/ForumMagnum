@@ -52,12 +52,18 @@ class Layout extends PureComponent {
   };
   
   setToC = (document, sections) => {
-    this.setState({
-      toc: {
-        document: document,
-        sections: sections
-      }
-    })
+    if (document) {
+      this.setState({
+        toc: {
+          document: document,
+          sections: sections
+        }
+      });
+    } else {
+      this.setState({
+        toc: null,
+      });
+    }
   }
   
   componentDidMount() {

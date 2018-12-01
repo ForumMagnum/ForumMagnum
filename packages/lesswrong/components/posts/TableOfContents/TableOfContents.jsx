@@ -55,7 +55,7 @@ class TableOfContents extends Component
   }
 
   componentWillUnmount() {
-    this.props.setToC(null);
+    this.props.setToC(null, null);
   }
   
   render() {

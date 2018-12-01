@@ -1,0 +1,10 @@
+{
+  "presets": ["env"],
+  "plugins": [
+    [
+      "module-resolver", {
+        "root": [ "./" ]
+      }
+    ]
+  ]
+}
