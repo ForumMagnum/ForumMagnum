@@ -14,7 +14,9 @@ const styles = theme => ({
   // that's otherwise globally applied to <a> tags.
   highlighted: {
     fontWeight: "bold",
-
+    '& $link': {
+      color: "black !important",
+    },
     "& a:focus, & a:hover": {
       opacity: "initial",
     }
@@ -22,30 +24,57 @@ const styles = theme => ({
 
   link: {
     display: "block",
-    // // whiteSpace: "nowrap",
-    // overflowX: "hidden",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
     textOverflow: "ellipsis",
-    textIndent: "-1em",
     paddingTop: 4,
     paddingBottom: 4,
+    color: theme.palette.grey[700],
+    '&:hover':{
+      opacity:1,
+      fontWeight:"bold",
+    }
   },
 
   level0: {
-    paddingLeft: 0,
-    paddingTop: 15,
-    paddingBottom: 15,
+    display:"inline-block",
+    maxWidth:240,
+    '&:first-of-type': {
+      marginBottom: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
+      borderBottom: "dashed 1px rgba(0,0,0,.25)",
+    },
+    '&:last-of-type': {
+      marginTop: theme.spacing.unit,
+      paddingTop: theme.spacing.unit,
+      borderTop: "dashed 1px rgba(0,0,0,.25)",
+    }
   },
   level1: {
     paddingLeft: 0,
   },
   level2: {
-    paddingLeft: 24,
+    fontSize:"1.05em",
+    paddingLeft: 16,
+    "& $link": {
+      color: "rgba(0,0,0,.5)",
+    }
   },
   level3: {
-    paddingLeft: 48,
+    fontSize:"1.05em",
+    color:theme.palette.grey[700],
+    paddingLeft: 32,
+    "& $link": {
+      color: "rgba(0,0,0,.5)",
+    }
   },
   level4: {
-    paddingLeft: 72,
+    fontSize:"1.05em",
+    color:theme.palette.grey[700],
+    paddingLeft: 48,
+    "& $link": {
+      color: "rgba(0,0,0,.5)",
+    }
   },
 });
 

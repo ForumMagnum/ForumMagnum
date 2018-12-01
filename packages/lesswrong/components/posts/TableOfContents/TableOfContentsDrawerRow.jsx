@@ -18,18 +18,18 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     color: "rgba(0,0,0, 0.87)",
   },
-  
+
   highlighted: {
     fontWeight: "bold",
   },
-  
+
   ellipses: {
     display: "block",
     whiteSpace: "nowrap",
     overflowX: "hidden",
     textOverflow: "ellipsis",
   },
-  
+
   level0: {
   },
   level1: {
@@ -50,7 +50,7 @@ class TableOfContentsDrawerRow extends PureComponent
 {
   render() {
     const {indentLevel=0, highlighted=false, href, onClick, children, classes} = this.props;
-    
+
     return <MenuItem
       className={classNames(
         classes.root,
@@ -65,7 +65,7 @@ class TableOfContentsDrawerRow extends PureComponent
       </a>
     </MenuItem>
   }
-  
+
   levelToClassName = (level) => {
     const { classes } = this.props;
     switch(level) {
@@ -80,4 +80,3 @@ class TableOfContentsDrawerRow extends PureComponent
 
 registerComponent("TableOfContentsDrawerRow", TableOfContentsDrawerRow,
   withStyles(styles, { name: "TableOfContentsDrawerRow" }));
-

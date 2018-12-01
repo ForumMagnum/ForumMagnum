@@ -11,14 +11,14 @@ const styles = theme => ({
   drawerPaperWithoutToC: {
     width: 225,
   },
-  
+
   // If there's a table of contents, make the drawer wider than if there isn't
   // one (because post section titles tend to be longer than top-level
   // navigation options).
   drawerPaperWithToC: {
     width: 300,
   },
-  
+
   menuItem: {
     fontSize: 16,
     ...theme.typography.postStyle,
@@ -31,7 +31,7 @@ const styles = theme => ({
 
 const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
   const af = getSetting('AlignmentForum', false);
-  
+
   const NavigationMenuLink = ({to, label, indent=false}) => (
     <MenuItem
       onClick={handleClose}
@@ -43,7 +43,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       {label}
     </MenuItem>
   )
-  
+
   return <SwipeableDrawer
     open={open}
     onClose={(event) => handleClose()}
@@ -53,9 +53,21 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
     }}
   >
     <NavigationMenuLink to="/" label="Home"/>
-    
+
     <Divider />
-    
+
+    {!af && <NavigationMenuLink to="/library" label="Library"/>}
+    {!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
+    {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
+    {!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
+
+    <Divider />
+
+    {!af && <NavigationMenuLink to={"/community"} label="Community"/>}
+    <NavigationMenuLink to={"/daily"} label="Posts by Date"/>
+    <NavigationMenuLink to={"/meta"} label="Meta"/>
+    <NavigationMenuLink to={"/about"} label="About"/>
+    <Divider />
     {toc && <React.Fragment>
       <Components.TableOfContentsList
         document={toc.document}
@@ -65,21 +77,6 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       />
       <Divider />
     </React.Fragment>}
-    
-    {!af && <NavigationMenuLink to="/library" label="Library"/>}
-    {!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
-    {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
-    {!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
-    
-    <Divider />
-    
-    {!af && <NavigationMenuLink to={"/community"} label="Community"/>}
-    <NavigationMenuLink to={"/daily"} label="Posts by Date"/>
-    <NavigationMenuLink to={"/meta"} label="Meta"/>
-    
-    <Divider />
-    
-    <NavigationMenuLink to={"/about"} label="About"/>
   </SwipeableDrawer>;
 }
 

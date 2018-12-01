@@ -6,18 +6,24 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
   stickyContainer: {
-    position: "fixed",
-    left: theme.spacing.unit*4,
-    top: 120,
+    position: "absolute",
     width: 240,
     height: "100%",
+    [theme.breakpoints.up('lg')]: {
+      left:-40
+    }
   },
-
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
     top: 100,
     lineHeight: 1.0,
+    opacity: .7,
+    paddingLeft:theme.spacing.unit*2,
+    textAlign:"left",
+    "&:hover": {
+      opacity:1
+    }
   },
 });
 
@@ -51,6 +57,7 @@ class TableOfContents extends Component
 
   componentDidMount() {
     this.props.setToC(this.props.document, this.props.sections);
+    // addCallback('router.onUpdate', this.props.setToC(null));
   }
 
   componentWillUnmount() {
@@ -64,7 +71,7 @@ class TableOfContents extends Component
       return <div/>
 
     return (
-      <Hidden mdDown implementation="js">
+      <Hidden smDown implementation="css">
         <div className={classes.stickyContainer}>
           <div className={classes.stickyBlock}>
             <Components.TableOfContentsList
