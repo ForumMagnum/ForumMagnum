@@ -64,7 +64,18 @@ const styles = theme => ({
     mobileDate: {
       marginLeft: 20,
       display: 'inline-block',
-      color: theme.palette.grey[600]
+      color: theme.palette.grey[600],
+      [theme.breakpoints.up('md')]: {
+        display:"none"
+      }
+    },
+    desktopDate: {
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600],
+      [theme.breakpoints.down('md')]: {
+        display:"none"
+      }
     },
     mobileActions: {
       display: 'inline-block',
@@ -167,15 +178,11 @@ class PostsPage extends Component {
                 {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
                 <div className={classes.secondaryInfo}>
                   <span className={classes.inline}><PostsAuthors post={post}/></span>
-                  <span>
-                    <Hidden mdUp implementation="css">
-                      <FromNowDate date={post.postedAt}/>
-                    </Hidden>
+                  <span className={classes.mobileDate}>
+                    <FromNowDate date={post.postedAt}/>
                   </span>
-                  <span>
-                    <Hidden smDown implementation="css">
-                      <span>{moment(post.postedAt).format("DD MMM YYYY")}</span>
-                    </Hidden>
+                  <span className={classes.desktopDate}>
+                    {moment(post.postedAt).format("DD MMM YYYY")}
                   </span>
                   <span className={classes.mobileActions}>
                       <PostsPageActions post={post} />
