@@ -5,6 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router';
 
 const styles = theme => ({
   drawerPaperWithoutToC: {
@@ -34,7 +35,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
   const NavigationMenuLink = ({to, label, indent=false}) => (
     <MenuItem
       onClick={handleClose}
-      component="Link" to={to}
+      component={Link} to={to}
       classes={{
         root: classNames(classes.menuItem, {[classes.indented]: indent})
       }}
