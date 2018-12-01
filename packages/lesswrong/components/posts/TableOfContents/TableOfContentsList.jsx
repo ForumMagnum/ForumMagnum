@@ -120,6 +120,8 @@ class TableOfContentsList extends Component
     
     if (Meteor.isServer)
       return null;
+    if (!sections)
+      return null;
     
     // The current section is whichever section a spot 1/3 of the way down the
     // window is inside. So the selected section is the section whose heading's
