@@ -9,6 +9,7 @@ import Users from 'meteor/vulcan:users';
  * @param {string} operation - The operation being performed
  */
 function updateKarma({newDocument, vote}, collection, user, context) {
+  console.log("updateKarma: ", newDocument.title, newDocument.userId, vote)
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
@@ -18,7 +19,7 @@ function updateKarma({newDocument, vote}, collection, user, context) {
 addCallback("votes.smallUpvote.async", updateKarma);
 addCallback("votes.bigUpvote.async", updateKarma);
 addCallback("votes.smallDownvote.async", updateKarma);
-addCallback("votes.bigDowvote.async", updateKarma);
+addCallback("votes.bigDownvote.async", updateKarma);
 
 function cancelVoteKarma({newDocument, vote}, collection, user, context) {
   // only update karma is the operation isn't done by the item's author
