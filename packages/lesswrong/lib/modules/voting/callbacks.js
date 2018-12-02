@@ -9,7 +9,6 @@ import Users from 'meteor/vulcan:users';
  * @param {string} operation - The operation being performed
  */
 function updateKarma({newDocument, vote}, collection, user, context) {
-  console.log("updateKarma: ", newDocument.title, newDocument.userId, vote)
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
