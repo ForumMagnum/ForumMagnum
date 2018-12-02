@@ -26,7 +26,7 @@ const styles = theme => ({
   ellipses: {
     display: "block",
     whiteSpace: "nowrap",
-    overflowX: "hidden",
+    overflow: "hidden",
     textOverflow: "ellipsis",
   },
 
