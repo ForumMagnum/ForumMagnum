@@ -213,6 +213,23 @@ const schema = {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
 
+  parentAnswerId: {
+    type: String,
+    max: 500,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    optional: true,
+    hidden: true,
+    resolveAs: {
+      fieldName: 'parentAnswer',
+      type: 'Comment',
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Comments', fieldName: 'parentAnswerId'}
+      ),
+      addOriginalField: true
+    },
+  },
+
   chosenAnswer: {
     type: Boolean,
     optional: true,

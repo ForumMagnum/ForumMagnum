@@ -9,7 +9,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 const styles = theme => ({
   postContent: postBodyStyles(theme),
   root: {
-    width: 640,
+    maxWidth: 640,
     margin:10,
   },
   author: {
@@ -40,7 +40,7 @@ class Answer extends Component {
   render () {
     const { comment, post, classes } = this.props
     const { showEdit } = this.state
-    const { ContentItemBody, AnswerMeta, SimpleDate } = Components
+    const { ContentItemBody, AnswerMeta, SimpleDate, AnswerCommentsList } = Components
 
     return (
       <Components.Section titleComponent={<AnswerMeta comment={comment} post={post} showEdit={this.showEdit}/>}>
@@ -60,7 +60,11 @@ class Answer extends Component {
             {comment && comment.user && <Typography variant="headline">by { comment.user.displayName}</Typography>}
             <Typography variant="subheading"><SimpleDate date={comment.postedAt}/></Typography>
           </div>
-          <hr className={classes.separator}/>
+          <AnswerCommentsList
+            terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit:3}}
+            post={post}
+            answerId={comment._id}
+            />
         </div>
       </Components.Section>
     )

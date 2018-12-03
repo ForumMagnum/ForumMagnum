@@ -10,3 +10,12 @@ registerFragment(`
     question
   }
 `);
+
+registerFragment(`
+  fragment EditModerationGuidelines on Post {
+    moderationGuidelinesBody,
+    moderationGuidelinesContent,
+    moderationGuidelinesHtmlBody,
+    moderationStyle
+  }
+`);

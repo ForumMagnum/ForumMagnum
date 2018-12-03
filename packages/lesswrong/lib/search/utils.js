@@ -6,7 +6,6 @@ import Sequences from '../collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { draftToHTML } from '../editor/utils.js';
@@ -43,9 +42,8 @@ Comments.toAlgolia = (comment) => {
     af: comment.af
   };
   const commentAuthor = Users.findOne({_id: comment.userId});
-  if (commentAuthor) {
+  if (commentAuthor && !commentAuthor.deleted) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
-    algoliaComment.authorUserName = commentAuthor.username;
   }
   const parentPost = Posts.findOne({_id: comment.postId});
   if (parentPost) {
@@ -140,11 +138,10 @@ Posts.toAlgolia = (post) => {
     af: post.af
   };
   const postAuthor = Users.findOne({_id: post.userId});
-  if (postAuthor) {
+  if (postAuthor && !postAuthor.deleted) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
     algoliaMetaInfo.authorFullName = postAuthor.fullName;
-    algoliaMetaInfo.authorUserName = postAuthor.username;
   }
   const postFeed = RSSFeeds.findOne({_id: post.feedId});
   if (postFeed) {

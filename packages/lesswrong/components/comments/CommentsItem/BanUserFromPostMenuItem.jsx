@@ -30,7 +30,7 @@ class BanUserFromPostMenuItem extends PureComponent {
 
   render() {
     const { currentUser, post} = this.props
-    if (Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post)) {
+    if (Users.canModeratePost(currentUser, post)) {
         return <MenuItem onClick={ this.handleBanUserFromPost }>
           Ban user from this post
         </MenuItem>

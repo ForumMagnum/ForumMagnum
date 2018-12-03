@@ -18,9 +18,9 @@ Posts.addView("alignmentSuggestedPosts", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ createdAt:1, suggestForAlignmentUserIds:1, reviewForAlignmentUserId:1, af:1 }),
+  augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, createdAt:1, }),
   {
     name: "posts.alignmentSuggestedPosts",
-    partialFilterExpression: { suggestForAlignmentUserIds: {$exists:true} },
+    partialFilterExpression: { "suggestForAlignmentUserIds.0": {$exists:true} },
   }
 );

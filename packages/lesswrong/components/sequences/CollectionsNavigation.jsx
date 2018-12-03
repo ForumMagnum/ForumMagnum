@@ -1,7 +1,25 @@
+import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withRouter, Link } from 'react-router';
-import React, { PureComponent } from 'react';
 import withGlobalKeydown from '../common/withGlobalKeydown';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  title: {
+    display: 'inline-block',
+    fontSize: 22,
+    verticalAlign: '-webkit-baseline-middle',
+    fontVariant: 'small-caps',
+    lineHeight: '24px',
+    color: 'rgba(0,0,0,0.5)',
+    marginTop: -10,
+  },
+  root: {
+    position: 'absolute',
+    top: -45,
+    left: -20,
+  }
+})
 
 class CollectionsNavigation extends PureComponent
 {
@@ -34,6 +52,7 @@ class CollectionsNavigation extends PureComponent
       title,
       titleUrl,
       loading,
+      classes,
       
       // Two different ways of identifying the prev/next post for SequencesNavigation,
       // depending on whether this is a collection or a sequence.
@@ -42,7 +61,7 @@ class CollectionsNavigation extends PureComponent
     } = this.props;
     
     return (
-      <div className="sequences-navigation-top">
+      <div className={classes.root}>
         {loading ? <Components.Loading/> : <React.Fragment>
           {prevPostUrl
             ? <Components.SequencesNavigationLink
@@ -53,7 +72,7 @@ class CollectionsNavigation extends PureComponent
             : <Components.SequencesNavigationLinkDisabled
                 direction="left" />}
     
-          <div className="sequences-navigation-title">
+          <div className={classes.title}>
             {title ? <Link to={ titleUrl }>{ title }</Link> : <Components.Loading/>}
           </div>
     
@@ -71,4 +90,4 @@ class CollectionsNavigation extends PureComponent
   }
 }
 
-registerComponent('CollectionsNavigation', CollectionsNavigation, withRouter, withGlobalKeydown);
+registerComponent('CollectionsNavigation', CollectionsNavigation, withRouter, withGlobalKeydown, withStyles(styles, {name: "CollectionsNavigation"}));
