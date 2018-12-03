@@ -201,38 +201,41 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser } = this.props;
-    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    const { comment, currentUser, truncated, collapsed } = this.props;
 
-    const showReplyButton = (
-      !comment.isDeleted &&
-      !!currentUser &&
-      (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-      Users.isAllowedToComment(currentUser, this.props.post)
-    )
+    if (!truncated && !collapsed) {
+      const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
-    return (
-      <div className="comments-item-bottom">
-        { blockedReplies &&
-          <div className="comment-blocked-replies">
-            A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
-          </div>
-        }
-        <div>
-          { showReplyButton &&
-            <a className="comments-item-reply-link" onClick={this.showReply}>
-              <FormattedMessage id="comments.reply"/>
-            </a>
+      const showReplyButton = (
+        !comment.isDeleted &&
+        !!currentUser &&
+        (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
+        Users.isAllowedToComment(currentUser, this.props.post)
+      )
+
+      return (
+        <div className="comments-item-bottom">
+          { blockedReplies &&
+            <div className="comment-blocked-replies">
+              A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
+            </div>
           }
+          <div>
+            { showReplyButton &&
+              <a className="comments-item-reply-link" onClick={this.showReply}>
+                <FormattedMessage id="comments.reply"/>
+              </a>
+            }
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
   }
 
   renderReply = () => {
     const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
-    const { currentUser, post, comment } = this.props
+    const { currentUser, post, comment, answerId } = this.props
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
@@ -241,8 +244,12 @@ class CommentsItem extends Component {
           parentComment={comment}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
-          prefilledProps={{af:Comments.defaultToAlignment(currentUser, post, comment)}}
+          prefilledProps={{
+            af:Comments.defaultToAlignment(currentUser, post, comment),
+            answerId: answerId
+          }}
           type="reply"
+          answerId={answerId}
         />
       </div>
     )

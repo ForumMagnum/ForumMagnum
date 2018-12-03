@@ -4,6 +4,7 @@ import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
+import moment from 'moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
 import Users from 'meteor/vulcan:users';
@@ -60,11 +61,13 @@ export const servePostRSS = (terms, url) => {
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
     const postLink = `<a href="${Posts.getPageUrl(post, true)}#comments">Discuss</a>`;
+    const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem = {
       title: post.title,
       // LESSWRONG - this was added to handle karmaThresholds
       // description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
-      description: `Published on ${post.postedAt}<br/><br/>${post.htmlBody || ""}<br/><br/>${postLink}`,
+
+      description: `Published on ${formattedTime}<br/><br/>${post.htmlBody || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,

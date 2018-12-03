@@ -205,15 +205,6 @@
   }
 }
 
-.posts-page-recommended-reading {
-  // height: 200px;
-  width: 640px;
-  margin: auto;
-  @include max-small() {
-    width:100%;
-  }
-}
-
 .sequences-navigation-bottom-next-sequence {
   margin-top:-22px;
   padding:0;

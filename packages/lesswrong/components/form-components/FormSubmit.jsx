@@ -15,16 +15,16 @@ const styles = theme => ({
     fontFamily: commentFonts,
     fontSize: "16px",
     marginLeft: "5px",
-    
+
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     }
   },
-  
+
   secondaryButton: {
     color: "rgba(0,0,0,0.4)",
   },
-  
+
   submitButton: {
     color: theme.palette.secondary.main,
   },
@@ -112,10 +112,6 @@ const FormSubmit = ({
     >
       {submitLabel}
     </Button>
-
-    {collectionName === "comments" && document && document.postId && <span className="comment-submit-buttons">
-      <Components.ModerationGuidelinesLink showModeratorAssistance documentId={document.postId}/>
-    </span>}
   </div>
 );
 
