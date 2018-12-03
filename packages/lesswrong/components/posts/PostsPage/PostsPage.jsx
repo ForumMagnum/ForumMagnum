@@ -73,13 +73,14 @@ const styles = theme => ({
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
-      [theme.breakpoints.down('md')]: {
+      [theme.breakpoints.down('sm')]: {
         display:"none"
       }
     },
     mobileActions: {
       display: 'inline-block',
       marginLeft: 15,
+      cursor: "pointer",
       color: theme.palette.grey[600],
     },
     mobileDivider: {
@@ -179,16 +180,16 @@ class PostsPage extends Component {
                 {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
                 <div className={classes.secondaryInfo}>
                   <span className={classes.inline}><PostsAuthors post={post}/></span>
-                  <span className={classes.mobileDate}>
+                  {!post.isEvent && <span className={classes.mobileDate}>
                     <FromNowDate date={post.postedAt}/>
-                  </span>
-                  <span className={classes.desktopDate}>
+                  </span>}
+                  {!post.isEvent && <span className={classes.desktopDate}>
                     {moment(post.postedAt).format("DD MMM YYYY")}
-                  </span>
+                  </span>}
+                  {post.types && post.types.length && <Components.GroupLinks document={post} />}
                   <span className={classes.mobileActions}>
                       <PostsPageActions post={post} />
                   </span>
-                  <Components.GroupLinks document={post} />
                   <Hidden mdUp implementation="css">
                     <hr className={classes.mobileDivider} />
                   </Hidden>

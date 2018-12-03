@@ -4,15 +4,10 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 
 const topSection = "top";
 
-class TableOfContentsList extends Component
-{
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentSection: {anchor: topSection},
-      drawerOpen: false,
-    };
+class TableOfContentsList extends Component {
+  state = {
+    currentSection: {anchor: topSection},
+    drawerOpen: false,
   }
 
   componentDidMount() {

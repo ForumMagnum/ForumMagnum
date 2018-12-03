@@ -47,17 +47,10 @@ function withToCContext(Component) {
 
 class TableOfContents extends Component
 {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      drawerOpen: false,
-    };
-  }
+  state = { drawerOpen: false }
 
   componentDidMount() {
     this.props.setToC(this.props.document, this.props.sections);
-    // addCallback('router.onUpdate', this.props.setToC(null));
   }
 
   componentWillUnmount() {

@@ -15,7 +15,7 @@ const styles = theme => ({
   highlighted: {
     fontWeight: "bold",
     '& $link': {
-      color: "black !important",
+      color: "black",
     },
     "& a:focus, & a:hover": {
       opacity: "initial",

@@ -102,10 +102,6 @@ class Header extends Component {
   }
   handleNotificationClose = () => this.setState({notificationOpen: false});
   
-  toggleTableOfContents = () => {
-    this.props.tocContext.toggle();
-  }
-
   render() {
     const { currentUser, classes, routes, location, params, client, theme, toc} = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen } = this.state

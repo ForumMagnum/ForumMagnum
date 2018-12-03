@@ -22,6 +22,7 @@ const GroupTypeIcon = (props) => <FontIcon style={{fontSize: '14px'}}>
 
 const styles = theme => ({
   groupTypes: {
+    marginLeft: 20,
     display: 'inline-block',
   },
 
