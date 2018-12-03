@@ -20,25 +20,25 @@ class TableOfContentsList extends Component {
   }
 
   render() {
-    const { sections, document, drawerStyle } = this.props;
+    const { sections, document } = this.props;
     const { currentSection } = this.state;
-    const { TableOfContentsRow, TableOfContentsDrawerRow } = Components;
-    const Row = drawerStyle ? TableOfContentsDrawerRow : TableOfContentsRow;
+    const { TableOfContentsRow } = Components;
+    // const Row = TableOfContentsRow;
 
     if (!sections || !document)
       return <div/>
 
     return <div>
       <div>
-        <Row key="postTitle"
+        <TableOfContentsRow key="postTitle"
           href="#"
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
         >
           {document.title}
-        </Row>
+        </TableOfContentsRow>
         {sections && sections.map((section, index) =>
-          <Row
+          <TableOfContentsRow
             key={section.anchor}
             indentLevel={section.level}
             highlighted={section.anchor === currentSection}
@@ -46,7 +46,7 @@ class TableOfContentsList extends Component {
             onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
           >
             {section.title}
-          </Row>
+          </TableOfContentsRow>
         )}
       </div>
     </div>
