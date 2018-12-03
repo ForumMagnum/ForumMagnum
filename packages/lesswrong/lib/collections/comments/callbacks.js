@@ -269,3 +269,33 @@ function NewCommentNeedsReview (comment) {
 addCallback("comments.new.async", NewCommentNeedsReview);
 
 addEditableCallbacks({collection: Comments, options: makeEditableOptions})
+
+async function validateDeleteOperations (modifier, comment, currentUser) {
+  if (modifier.$set) {
+    const { deleted, deletedPublic, deletedReason } = modifier.$set
+    console.log("validateDeleteOperation", deleted, deletedPublic, deletedReason)
+    if (deletedPublic && !deleted) {
+      throw new Error("You cannot publicly delete a comment without also deleting it")
+    }
+    if (deletedPublic && !deletedReason) {
+      throw new Error("Publicly deleted comments need to have a deletion reason");
+    } 
+    if (
+      (comment.deleted || comment.deletedPublic) && 
+      (deletedPublic || deletedReason) && 
+      !Users.canDo('comments.remove.all') && 
+      comment.deletedByUserId !== currentUser._id) {
+        throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
+    }
+    if (deletedReason && !deleted && !deletedPublic) {
+      throw new Error("You cannot set a deleted reason without deleting a comment")
+    }
+    const childrenComments = await Comments.find({parentCommentId: comment._id})
+    if (!childrenComments || ((childrenComments.length === 0) && (deletedPublic || deleted) && !Users.canDo('comment.remove.all'))) {
+      throw new Error("You cannot delete a comment that has children")
+    }
+  }
+  return modifier
+}
+
+addCallback("comments.edit.sync", validateDeleteOperations)
