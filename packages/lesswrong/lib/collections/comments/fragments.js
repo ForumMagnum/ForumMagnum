@@ -34,5 +34,6 @@ registerFragment(`
     suggestForAlignmentUserIds
     needsReview
     answer
+    parentAnswerId
   }
 `);

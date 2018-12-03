@@ -540,6 +540,8 @@ registerFragment(`
     }
     link
     description
+    reportedAsSpam
+    markedAsSpam
   }
 `);
 
