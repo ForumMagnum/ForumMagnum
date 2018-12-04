@@ -142,7 +142,8 @@ class SearchBar extends Component {
     if(!algoliaAppId) {
       return <div className={classes.root}>Search is disabled (Algolia App ID not configured on server)</div>
     }
-
+    
+    // HACK FIXME: This should very likely be factored out somewhere close to where the routes lives, to avoid breaking when we make small URL changes
     let userRefinement
     if(location && location.pathname && location.pathname.includes("/users/")){
       userRefinement = location.pathname.split('/')[2]
