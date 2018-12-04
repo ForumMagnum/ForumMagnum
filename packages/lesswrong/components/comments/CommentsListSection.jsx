@@ -37,6 +37,7 @@ const styles = theme => ({
     padding: '0 10px',
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
+    marginBottom: "1.3em",
     "@media print": {
       display: "none"
     }
@@ -126,16 +127,6 @@ class CommentsListSection extends Component {
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        <Components.CommentsList
-          currentUser={currentUser}
-          totalComments={totalComments}
-          comments={comments}
-          highlightDate={this.state.highlightDate}
-          post={post}
-          postPage
-          startThreadCollapsed={startThreadCollapsed}
-          answerId={answerId}
-        />
         {!currentUser &&
           <div>
             <Components.LoginPopupLink>
@@ -163,6 +154,16 @@ class CommentsListSection extends Component {
             </span> }
           </div>
         )}
+        <Components.CommentsList
+          currentUser={currentUser}
+          totalComments={totalComments}
+          comments={comments}
+          highlightDate={this.state.highlightDate}
+          post={post}
+          postPage
+          startThreadCollapsed={startThreadCollapsed}
+          answerId={answerId}
+        />
       </div>
     );
   }
