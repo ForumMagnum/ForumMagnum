@@ -49,7 +49,7 @@ class CommentsListSection extends Component {
   }
 
   renderTitleComponent = () => {
-    const { commentCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
+    const { commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
     const { anchorEl, highlightDate } = this.state
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
     return <div className={this.props.classes.meta}>
@@ -62,7 +62,7 @@ class CommentsListSection extends Component {
           (commentCount < totalComments) ?
             <span>
               Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={this.props.post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments()}> (show more) </a>}
+              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments({limit: commentCount + (loadMoreCount || commentCount)})}> (show more) </a>}
             </span> :
             <span>
               { totalComments } comments, sorted by <Components.CommentsViews post={this.props.post} />
@@ -98,7 +98,7 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, totalComments } = this.props;
+    const { currentUser, comments, postId, post, classes, totalComments, answerId, startThreadCollapsed } = this.props;
     const { ModerationGuidelinesBox, CommentsList, CommentsNewWrapper } = Components;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
@@ -115,6 +115,8 @@ class CommentsListSection extends Component {
           highlightDate={this.state.highlightDate}
           post={post}
           postPage
+          startThreadCollapsed={startThreadCollapsed}
+          answerId={answerId}
         />
       </div>
     );

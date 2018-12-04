@@ -12,12 +12,18 @@ Comments.addDefaultView(terms => {
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$in: [false,null]}}],
       answer: { $in: [false,null] },
+      parentAnswerId: { $in: [false,null] },
       hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
       ...validFields,
       ...alignmentForum,
     }
   });
 })
+
+export function augmentForDefaultView(indexFields)
+{
+  return {...indexFields, deleted:1, deletedPublic:1, answer:1, hideAuthor:1, userId:1, af:1};
+}
 
 // Most common case: want to get all the comments on a post, filter fields and
 // `limit` affects it only minimally. Best handled by a hash index on `postId`.
@@ -65,7 +71,7 @@ Comments.addView("postCommentsTop", function (terms) {
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
   };
 });
-ensureIndex(Comments, { postId:1, deleted:1, answer:1, baseScore:-1, postedAt:-1 });
+ensureIndex(Comments, augmentForDefaultView({ postId:1, deleted:1, answer:1, baseScore:-1, postedAt:-1 }));
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
@@ -81,7 +87,7 @@ Comments.addView("postCommentsNew", function (terms) {
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
-ensureIndex(Comments, { postId:1, deleted:1, answer:1, postedAt:-1 });
+ensureIndex(Comments, augmentForDefaultView({ postId:1, deleted:1, answer:1, postedAt:-1 }));
 
 Comments.addView("postCommentsBest", function (terms) {
   return {
@@ -111,7 +117,7 @@ Comments.addView("recentComments", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
-ensureIndex(Comments, { postedAt: -1 });
+ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
 Comments.addView("recentDiscussionThread", function (terms) {
   const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
@@ -181,3 +187,11 @@ ensureIndex(Comments, {legacyId: "hashed"});
 
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
+
+Comments.addView('repliesToAnswer', function (terms) {
+  return {
+    selector: {parentAnswerId: terms.parentAnswerId},
+    options: {sort: {baseScore: -1}}
+  };
+});
+ensureIndex(Comments, augmentForDefaultView({answerId:1, baseScore:-1}));

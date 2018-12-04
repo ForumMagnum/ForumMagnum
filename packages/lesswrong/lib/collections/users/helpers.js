@@ -1,6 +1,9 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
 import { getSetting } from 'meteor/vulcan:core';
+import { Votes } from "meteor/vulcan:voting";
+import { Comments } from '../comments'
+import { Posts } from '../posts'
 
 Users.ownsAndInGroup = (group) => {
   return (user, document) => {
@@ -33,10 +36,18 @@ Users.canModeratePost = (user, post) => {
     return false
   }
   return !!(
-    user._id === post.userId &&
-    user.moderationStyle &&
-    Users.canDo(user,"posts.moderate.own") &&
-    Users.owns(user, post)
+    (
+      Users.canDo(user,"posts.moderate.own") &&
+      Users.owns(user, post) &&
+      post.moderationGuidelinesHtmlBody
+    )
+    ||
+    (
+      Users.canDo(user, "posts.moderate.own.personal") &&
+      Users.owns(user, post) &&
+      post.moderationGuidelinesHtmlBody &&
+      !post.frontpageDate
+    )
   )
 }
 
@@ -59,7 +70,6 @@ Users.userIsBannedFromPost = (user, post) => {
     post &&
     post.bannedUserIds &&
     post.bannedUserIds.includes(user._id) &&
-    Users.canDo(postAuthor, 'posts.moderate.own') &&
     Users.owns(postAuthor, post)
   )
 }
@@ -71,6 +81,17 @@ Users.userIsBannedFromAllPosts = (user, post) => {
     postAuthor.bannedUserIds &&
     postAuthor.bannedUserIds.includes(user._id) &&
     Users.canDo(postAuthor, 'posts.moderate.own') &&
+    Users.owns(postAuthor, post)
+  )
+}
+
+Users.userIsBannedFromAllPersonalPosts = (user, post) => {
+  const postAuthor = post.user || Users.findOne(post.userId)
+  return !!(
+    postAuthor &&
+    postAuthor.bannedPersonalUserIds &&
+    postAuthor.bannedPersonalUserIds.includes(user._id) &&
+    Users.canDo(postAuthor, 'posts.moderate.own.personal') &&
     Users.owns(postAuthor, post)
   )
 }
@@ -91,6 +112,11 @@ Users.isAllowedToComment = (user, post) => {
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return false
   }
+
+  if (Users.userIsBannedFromAllPersonalPosts(user, post) && !post.frontpageDate) {
+    return false
+  }
+
   if (post.commentsLocked) {
     return false
   }
@@ -112,6 +138,7 @@ Users.blockedCommentingReason = (user, post) => {
   if (Users.userIsBannedFromPost(user, post)) {
     return "This post's author has blocked you from commenting."
   }
+
   if (getSetting('AlignmentForum', false)) {
     if (!Users.canDo(user, 'comments.alignment.new')) {
       return "You must be approved by an admin to comment on Alignment Forum"
@@ -120,6 +147,11 @@ Users.blockedCommentingReason = (user, post) => {
   if (Users.userIsBannedFromAllPosts(user, post)) {
     return "This post's author has blocked you from commenting."
   }
+
+  if (Users.userIsBannedFromAllPersonalPosts(user, post)) {
+    return "This post's author has blocked you from commenting on any of their personal blog posts."
+  }
+
   if (post.commentsLocked) {
     return "Comments on this post are disabled."
   }
@@ -209,4 +241,16 @@ Users.getLocation = (currentUser) => {
 
     return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};
   }
+}
+
+// utility function for checking how much karma a user is supposed to have
+Users.getAggregateKarma = async (user) => {
+  const posts = Posts.find({userId:user._id}).fetch().map(post=>post._id)
+  const comments = Comments.find({userId:user._id}).fetch().map(comment=>comment._id)
+  const documentIds = [...posts, ...comments]
+
+  return await Votes.rawCollection().aggregate([
+    {$match: {documentId: {$in:documentIds}, userId: {$ne: user._id}}},
+    {$group: { _id: null, totalPower: { $sum: '$power' }}},
+  ]).toArray()[0].totalPower;
 }

@@ -9,7 +9,14 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
+import red from '@material-ui/core/colors/red';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  negativeKarma: {
+     color: red['A100']
+  }
+})
 class SunshineNewUsersItem extends Component {
 
   handleReview = () => {
@@ -39,7 +46,7 @@ class SunshineNewUsersItem extends Component {
   }
 
   render () {
-    const { user, hover, anchorEl } = this.props
+    const { user, hover, anchorEl, classes } = this.props
     return (
         <C.SunshineListItem hover={hover}>
           <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
@@ -61,7 +68,7 @@ class SunshineNewUsersItem extends Component {
           </C.SidebarHoverOver>
           <div>
             <C.MetaInfo>
-              <Link to={Users.getProfileUrl(user)}>
+              <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
                   {user.displayName}
               </Link>
             </C.MetaInfo>
@@ -101,4 +108,4 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary, withStyles(styles));
