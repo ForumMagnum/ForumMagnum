@@ -12,7 +12,7 @@ Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
-  
+
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
@@ -139,7 +139,8 @@ Posts.addView("old", terms => ({
 
 Posts.addView("daily", terms => ({
   selector: {
-    baseScore: {$gt: terms.karmaThreshold || -100}
+    baseScore: {$gt: terms.karmaThreshold || -100},
+    unreviewedUser: {$in: [false,null]},
   },
   options: {
     sort: {score: -1}
@@ -155,6 +156,7 @@ ensureIndex(Posts,
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$gt: new Date(0)},
+    unreviewedUser: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -208,6 +210,7 @@ Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
     meta: null,
+    unreviewedUser: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -352,6 +355,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       meta: null,
       groupId: null,
       isEvent: null,
+      unreviewedUser: {$in: [false,null]},
     },
     options: {
       sort: {lastCommentedAt:-1},
