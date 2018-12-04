@@ -1027,7 +1027,7 @@ Posts.addField([
   },
   
   {
-    fieldName: 'LWTableOfContents',
+    fieldName: 'tableOfContents',
     fieldSchema: {
       type: Object,
       optional: true,
@@ -1038,7 +1038,6 @@ Posts.addField([
         resolver: async (document, args, options) => {
           return Utils.extractTableOfContents(document.htmlBody);
         },
-        addOriginalField: true,
       },
     }
   },
