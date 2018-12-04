@@ -3,6 +3,10 @@ export * from './lib/index.js';
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
+import './server/database-import/force_batch_update_scores.js';
+import './server/database-import/cleanup_scripts.js';
+
+// Scripts
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
@@ -23,6 +27,8 @@ import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
+import './server/scripts/removeObsoleteIndexes.js';
+import './server/scripts/logMongoQueries.js';
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
@@ -31,6 +37,7 @@ import './server/posts/index.js';
 
 import './server/logging.js';
 import './server/rss.js';
+import './server/akismet.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
@@ -41,15 +48,12 @@ import './lib/collections/books/callbacks.js';
 import './lib/collections/collections/callbacks.js';
 import './lib/collections/messages/callbacks.js';
 import './lib/collections/users/validate_login.js';
+import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
-import './lib/collections/lwevents/indexes.js';
-import './lib/collections/posts/indexes.js';
-import './lib/collections/localgroups/indexes.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/events/server.js';
 
-import './lib/modules/indexes.js';
 import './lib/modules/connection_logs.js';
 
 //eslint-disable-next-line no-console

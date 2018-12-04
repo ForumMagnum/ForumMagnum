@@ -16,7 +16,7 @@ import DataLoader from 'dataloader';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id)
+export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id, projection)
 {
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
@@ -24,7 +24,7 @@ export async function getWithLoader(collection, loaderName, baseQuery={}, groupB
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults = await Connectors.find(collection, query);
+      const queryResults = await Connectors.find(collection, query, projection);
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {

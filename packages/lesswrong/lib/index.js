@@ -22,6 +22,7 @@ import './collections/subscription_fields.js';
 import '../components/momentjs.js';
 
 import './collections/posts/fragments.js';
+import './collections/comments/fragments.js';
 
 
 // Notifications
@@ -73,7 +74,9 @@ import './modules/fragments.js';
 import './collections/chapters/fragments.js';
 import './collections/sequences/fragments.js';
 import './collections/books/fragments.js';
+import './collections/books/views.js';
 import './collections/collections/fragments.js';
+import './collections/collections/views.js';
 import './modules/alignment-forum/posts/fragments.js';
 import './modules/alignment-forum/users/fragments.js';
 
@@ -98,7 +101,6 @@ import './collections/posts/helpers.js';
 // Users
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
-import './collections/users/callbacks.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
 
@@ -106,7 +108,7 @@ import './collections/users/permissions.js';
 import { Comments } from './collections/comments'
 
 // Votes
-import './collections/votes/custom_fields.js';
+import './collections/votes';
 //
 //
 //
@@ -119,7 +121,6 @@ import './modules/callbacks.js';
 // // Misc.
 import './helpers.js'
 import './routes.js';
-import './views.js';
 import './scrollRestoration.js';
 
 // Algolia Search Integration

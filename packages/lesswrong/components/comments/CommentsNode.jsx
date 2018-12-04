@@ -4,6 +4,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -21,8 +22,8 @@ const styles = theme => ({
     }
   },
   child: {
-    marginLeft: 10,
-    marginBottom: 10,
+    marginLeft: 8,
+    marginBottom: 8,
     borderLeft: `solid 1px ${theme.palette.grey[300]}`,
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
@@ -30,6 +31,17 @@ const styles = theme => ({
   new: {},
   newHover: {},
   deleted: {},
+  parentScroll: {
+    position: "absolute",
+    top:0,
+    left:0,
+    width:8,
+    height:"100%",
+    cursor:"pointer",
+    '&:hover': {
+      backgroundColor: "rgba(0,0,0,.075)"
+    }
+  }
 })
 
 class CommentsNode extends PureComponent {
@@ -94,11 +106,11 @@ class CommentsNode extends PureComponent {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, answerId } = this.props;
 
-    const { hover, collapsed, finishedScroll } = this.state
+    const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
-    const truncated = this.state.truncated || (this.props.truncated && this.state.truncatedStateSet === false)
+    const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
 
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const nodeClass = classNames(
@@ -131,7 +143,7 @@ class CommentsNode extends PureComponent {
           <div className={nodeClass}
             onMouseEnter={this.toggleHover}
             onMouseLeave={this.toggleHover}
-            onDoubleClick={(event) => this.unTruncate(event)}
+            onClick={(event) => this.unTruncate(event)}
             id={comment._id}>
             {/*eslint-disable-next-line react/no-string-refs*/}
             <div ref="comment">
@@ -148,10 +160,11 @@ class CommentsNode extends PureComponent {
                 postPage={postPage}
                 nestingLevel={nestingLevel}
                 showPostTitle={showPostTitle}
+                answerId={answerId}
               />
             </div>
             {!collapsed && <div className="comments-children">
-              <div className="comments-parent-scroll" onClick={this.scrollIntoView}></div>
+              <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
               {children && children.map(child =>
                 <Components.CommentsNode child
                   currentUser={currentUser}
@@ -167,6 +180,7 @@ class CommentsNode extends PureComponent {
                   editMutation={editMutation}
                   post={post}
                   postPage={postPage}
+                  answerId={answerId}
                 />)}
             </div>}
           </div>
@@ -185,5 +199,6 @@ CommentsNode.propTypes = {
 
 registerComponent('CommentsNode', CommentsNode,
   withRouter,
+  withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );

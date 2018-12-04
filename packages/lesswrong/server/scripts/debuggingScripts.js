@@ -159,14 +159,52 @@ Vulcan.createStyledPost = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    body: makeStyledBody(),
-    af: true,
+    htmlBody: makeStyledBody(),
     frontpageDate: new Date(),
+    curatedDate: new Date(),
   })
 
   await createDummyComment(user, {
     postId: post._id,
-    body: makeStyledBody()
+    htmlBody: makeStyledBody()
+  })
+}
+
+Vulcan.createStyledAFPost = async () => {
+  const user = Users.findOne();
+  // Create a post
+
+  const post = await createDummyPost(user, {
+    title: "Styled Post",
+    slug: "styled-post",
+    htmlBody: makeStyledBody(),
+    af: true,
+    frontpageDate: new Date(),
+    curateDate: new Date(),
+  })
+
+  await createDummyComment(user, {
+    postId: post._id,
+    htmlBody: makeStyledBody()
+  })
+}
+
+Vulcan.createStyledQuestion = async () => {
+  const user = Users.findOne();
+  // Create a post
+
+  const post = await createDummyPost(user, {
+    title: "Styled Post",
+    slug: "styled-post",
+    htmlBody: makeStyledBody(),
+    question: true,
+    frontpageDate: new Date(),
+    curatedDate: new Date(),
+  })
+
+  await createDummyComment(user, {
+    postId: post._id,
+    htmlBody: makeStyledBody()
   })
 }
 
@@ -178,7 +216,10 @@ Vulcan.createTestPostSet = async () =>
 {
   //eslint-disable-next-line no-console
   console.log("Creating a set of bulky posts to test for load-time problems. This may take awhile...");
+
   await Vulcan.createStyledPost()
+  await Vulcan.createStyledAFPost()
+  await Vulcan.createStyledQuestion()
 
   await Vulcan.createBulkyTestPost({
     postTitle: "Test post with 100 flat comments",
@@ -253,7 +294,7 @@ Vulcan.createBulkyTestPost = async ({
 
   let dummyPostFields = {
     title: postTitle,
-    body: body
+    htmlBody: body
   };
   if (backDate) {
     dummyPostFields.createdAt = backDate;
@@ -267,7 +308,7 @@ Vulcan.createBulkyTestPost = async ({
     //eslint-disable-next-line no-await-in-loop
     var rootComment = await createDummyComment(user, {
       postId: post._id,
-      body: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)
+      htmlBody: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)
     })
 
     // If commentDepth>1, create a series of replies-to-replies under the top-level replies
@@ -276,7 +317,7 @@ Vulcan.createBulkyTestPost = async ({
       var childComment = await createDummyComment(user, {
         postId: post._id,
         parentCommentId: parentCommentId,
-        body: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)
+        htmlBody: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)
       });
       parentCommentId = childComment._id
     }
@@ -289,7 +330,7 @@ Vulcan.createBackdatedPosts = async () =>
 {
   //eslint-disable-next-line no-console
   console.log("Creating back-dated test post set");
-  
+
   for(let i=0; i<24*10; i++) {
     const backdateTime = moment().subtract(i, 'hours').toDate();
     await Vulcan.createBulkyTestPost({
@@ -298,7 +339,7 @@ Vulcan.createBackdatedPosts = async () =>
       backDate: backdateTime,
     });
   }
-  
+
   //eslint-disable-next-line no-console
   console.log("Done");
 }

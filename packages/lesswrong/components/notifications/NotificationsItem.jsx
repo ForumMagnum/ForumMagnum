@@ -1,5 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import {ListItem} from 'material-ui/List';
 import { Link } from 'react-router';
@@ -7,6 +8,17 @@ import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
+
+const styles = theme => ({
+  root: {
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,0.02) !important",
+    },
+    "&.read:hover": {
+      backgroundColor: "rgba(0,0,0,0.08) !important",
+    }
+  },
+});
 
 const iconStyles = {
   marginTop: '24px',
@@ -37,13 +49,12 @@ class NotificationsItem extends Component {
   }
 
   render() {
-    const notification = this.props.notification;
-    const lastNotificationsCheck = this.props.lastNotificationsCheck;
+    const { classes, notification, lastNotificationsCheck } = this.props;
 
     return (
       <ListItem
         containerElement={<Link to={notification.link} />}
-        className={classNames('notifications-item', {read: notification.createdAt < lastNotificationsCheck || this.state.clicked})}
+        className={classNames(classes.root, {read: notification.createdAt < lastNotificationsCheck || this.state.clicked})}
         onClick={() => this.setState({clicked: true})}
         secondaryText={notification.message}
         secondaryTextLines={2}
@@ -55,4 +66,4 @@ class NotificationsItem extends Component {
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem);
+registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}));

@@ -1,7 +1,7 @@
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
-import { highlightFromHTML, excerptFromHTML } from '../../lib/editor/ellipsize.jsx';
+import { highlightFromHTML, postExcerptFromHTML } from '../../lib/editor/ellipsize.jsx';
 
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
@@ -17,6 +17,8 @@ import { addCallback } from 'meteor/vulcan:core';
 import { mjpage }  from 'mathjax-node-page'
 
 import htmlToText from 'html-to-text'
+
+const camel = Utils.camelCaseify
 
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -36,13 +38,13 @@ export const getExcerptFieldsFromHTML = (html, fieldName = "") => {
   const markdownBody = htmlToMarkdown(html);
   const wordCount = wordcountFromMarkdown(markdownBody);
   const htmlHighlight = highlightFromHTML(html);
-  const excerpt = excerptFromHTML(html);
+  const excerpt = postExcerptFromHTML(html, 500);
   const plaintextExcerpt = htmlToText.fromString(excerpt);
   return {
-    [`${fieldName}wordCount`]: wordCount,
-    [`${fieldName}htmlHighlight`]: htmlHighlight,
-    [`${fieldName}excerpt`]: excerpt,
-    [`${fieldName}plaintextExcerpt`]: plaintextExcerpt,
+    [camel(`${fieldName}WordCount`)]: wordCount,
+    [camel(`${fieldName}HtmlHighlight`)]: htmlHighlight,
+    [camel(`${fieldName}Excerpt`)]: excerpt,
+    [camel(`${fieldName}PlaintextExcerpt`)]: plaintextExcerpt,
   }
 }
 
@@ -55,10 +57,10 @@ const convertFromContent = (content, fieldName = "") => {
   const htmlBody = draftToHTML(contentState)
   const body = htmlToMarkdown(htmlBody)
   return {
-    [`${fieldName}htmlBody`]: htmlBody,
-    [`${fieldName}body`]: body,
+    [camel(`${fieldName}HtmlBody`)]: htmlBody,
+    [camel(`${fieldName}Body`)]: body,
     ...getExcerptFieldsFromHTML(htmlBody, fieldName),
-    [`${fieldName}lastEditedAs`]: 'draft-js'
+    [camel(`${fieldName}LastEditedAs`)]: 'draft-js'
   }
 }
 
@@ -75,19 +77,19 @@ const convertFromHTML = (html, sanitize, fieldName = "") => {
   const body = htmlToMarkdown(html)
   const htmlBody = sanitize ? Utils.sanitize(html) : html
   return {
-    [`${fieldName}htmlBody`]: htmlBody,
-    [`${fieldName}body`]: body,
+    [camel(`${fieldName}HtmlBody`)]: htmlBody,
+    [camel(`${fieldName}Body`)]: body,
     ...getExcerptFieldsFromHTML(html, fieldName),
-    [`${fieldName}lastEditedAs`]: "html",
+    [camel(`${fieldName}LastEditedAs`)]: "html",
   }
 }
 
 const convertFromMarkdown = (body, fieldName = "") => {
   return {
-    [`${fieldName}htmlBody`]: mdi.render(body),
-    [`${fieldName}body`]: body,
+    [camel(`${fieldName}HtmlBody`)]: mdi.render(body),
+    [camel(`${fieldName}Body`)]: body,
     ...getExcerptFieldsFromMarkdown(body, fieldName),
-    [`${fieldName}lastEditedAs`]: "markdown"
+    [camel(`${fieldName}LastEditedAs`)]: "markdown"
   }
 }
 
@@ -96,44 +98,52 @@ const convertFromMarkdownAsync = async (body, fieldName = "") => {
   const newHtmlBody = await mjPagePromise(newPostFields.htmlBody, Utils.trimEmptyLatexParagraphs)
   return {
     ...newPostFields,
-    [`${fieldName}htmlBody`]: newHtmlBody
+    [camel(`${fieldName}HtmlBody`)]: newHtmlBody
   }
 }
 
 export function addEditableCallbacks({collection, options = {}}) {
-  const { fieldName } = options
-  // Promisified version of mjpage
+  const {
+    fieldName = "",
+    deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
+    // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
+  } = options
+  const contentFieldName = camel(`${fieldName}Content`)
+  const bodyFieldName = camel(`${fieldName}Body`)
+  const htmlFieldName = camel(`${fieldName}HtmlBody`)
 
   async function editorSerializationNew(doc, author) {
     let newFields = {}
     let newDoc = {...doc}
-    if (doc.content) {
-      newFields = await convertFromContentAsync(doc.content, fieldName);
+    if (doc[contentFieldName]) {
+      newFields = await convertFromContentAsync(doc[contentFieldName], fieldName);
       newDoc = {...doc, ...newFields}
-    } else if (doc.body) {
-      newFields = await convertFromMarkdownAsync(doc.body, fieldName)
+    } else if (doc[bodyFieldName]) {
+      newFields = await convertFromMarkdownAsync(doc[bodyFieldName], fieldName)
       newDoc = {...doc, ...newFields}
-    } else if (doc.htmlBody) {
-      newFields = convertFromHTML(doc.htmlBody, !(author && author.isAdmin), fieldName);
+    } else if (doc[htmlFieldName]) {
+      newFields = convertFromHTML(doc[htmlFieldName], !(author && author.isAdmin), fieldName);
       newDoc = {...doc, ...newFields}
     }
     return newDoc
   }
-  addCallback(`${collection.options.collectionName.toLowerCase()}.new.sync`, editorSerializationNew);
+  if (!deactivateNewCallback) {
+    addCallback(`${collection.options.collectionName.toLowerCase()}.new.sync`, editorSerializationNew);
+  }
 
   async function editorSerializationEdit (modifier, doc, author) {
     let newFields = {}
     let newModifier = {...modifier}
-    if (modifier.$set && modifier.$set.content) {
-      newFields = await convertFromContentAsync(modifier.$set.content, fieldName)
+    if (modifier.$set && modifier.$set[contentFieldName]) {
+      newFields = await convertFromContentAsync(modifier.$set[contentFieldName], fieldName)
       newModifier.$set = {...modifier.$set, ...newFields}
-      if (modifier.$unset) {delete modifier.$unset.htmlBody}
-    } else if (modifier.$set && modifier.$set.body) {
-      newFields = await convertFromMarkdownAsync(modifier.$set.body, fieldName)
+      if (modifier.$unset) {delete modifier.$unset[htmlFieldName]}
+    } else if (modifier.$set && modifier.$set[bodyFieldName]) {
+      newFields = await convertFromMarkdownAsync(modifier.$set[bodyFieldName], fieldName)
       newModifier.$set = {...modifier.$set, ...newFields}
-      if (modifier.$unset) {delete modifier.$unset.htmlBody}
-    } else if (modifier.$set && modifier.$set.htmlBody) {
-      newFields = convertFromHTML(modifier.$set.htmlBody, !(author && author.isAdmin), fieldName);
+      if (modifier.$unset) {delete modifier.$unset[htmlFieldName]}
+    } else if (modifier.$set && modifier.$set[htmlFieldName]) {
+      newFields = convertFromHTML(modifier.$set[htmlFieldName], !(author && author.isAdmin), fieldName);
       newModifier.$set = {...modifier.$set, ...newFields}
     }
     return newModifier

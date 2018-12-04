@@ -3,7 +3,7 @@ import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails } from '../utils.js'
+import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils.js'
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -23,11 +23,11 @@ describe('Users.userIsBannedFromPost --', async () => {
     const post = await createDummyPost(author, {bannedUserIds:['notUserId']})
     expect(Users.userIsBannedFromPost(user, post)).to.equal(false)
   })
-  it('returns false if post.bannedUserIds contain user._id but post.user is NOT in trustLevel1', async () => {
+  it('returns true if post.bannedUserIds contain user._id but post.user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(Users.userIsBannedFromPost(user, post)).to.equal(false)
+    expect(Users.userIsBannedFromPost(user, post)).to.equal(true)
   })
   it('returns true if post.bannedUserIds contain user._id AND post.user is in trustLevel1', async () => {
     const user = await createDummyUser()
@@ -81,11 +81,11 @@ describe('Users.isAllowedToComment --', async () => {
     const post = await createDummyPost({bannedUserIds:[user._id], userId: undefined})
     expect(Users.isAllowedToComment(user, post)).to.equal(true)
   })
-  it('returns true if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {
+  it('returns false if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(Users.isAllowedToComment(user, post)).to.equal(true)
+    expect(Users.isAllowedToComment(user, post)).to.equal(false)
   })
   it('returns false if passed a user AND post contains bannedUserIds AND post-user is in trustLevel1', async () => {
     const user = await createDummyUser()
@@ -96,7 +96,9 @@ describe('Users.isAllowedToComment --', async () => {
 })
 
 describe('Posts Moderation --', async function() {
+  let graphQLerrors = catchGraphQLErrors();
   this.timeout(10000)
+  
   it('CommentsNew should succeed if user is not in bannedUserIds list', async function() {
     const user = await createDummyUser()
     const post = await createDummyPost()
@@ -128,7 +130,8 @@ describe('Posts Moderation --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it('new comment on a post should fail if user in User.bannedUserIds list and post.user is in trustLevel1', async () => {
     const secondUser = await createDummyUser()
@@ -145,7 +148,8 @@ describe('Posts Moderation --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it('new comment on a post should succeed if user in User.bannedUserIds list but post.user is NOT in trustLevel1', async () => {
     const secondUser = await createDummyUser()
@@ -168,15 +172,17 @@ describe('Posts Moderation --', async function() {
 });
 
 describe('User moderation fields --', async () => {
+  let graphQLerrors = catchGraphQLErrors();
+  
   it("new trusted users do not have a moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     expect(user.moderationStyle).to.equal(undefined)
   });
-  it("non-trusted users cannot set their moderationStyle", async () => {
+  it("non-trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser()
     const query = `
     mutation UsersUpdate {
-      updateUser(selector: {_id: "${user._id}"}, data: {moderationStyle:"0"}) {
+      updateUser(selector: {_id: "${user._id}"}, data: {moderationStyle:"easy-going"}) {
         data {
           moderationStyle
         }
@@ -184,27 +190,29 @@ describe('User moderation fields --', async () => {
     }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    const expectedOutput = { data: { updateUser: {data: { moderationStyle: "easy-going" } } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
-  it("non-trusted users cannot set their moderationGuidelines", async () => {
+  it("non-trusted users can set their moderationGuidelines", async () => {
     const user = await createDummyUser()
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines:"foo"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesBody:"blah"}) {
           data {
-            moderationGuidelines
+            moderationGuidelinesBody
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    const expectedOutput = { data: { updateUser: { data: {moderationGuidelinesBody: "blah"} } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
-  it("non-trusted users cannot set their moderatorAssistance", async () => {
+  it("non-trusted users can set their moderatorAssistance", async () => {
     const user = await createDummyUser()
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance:"foo"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderatorAssistance: true}) {
           data {
             moderatorAssistance
           }
@@ -212,7 +220,8 @@ describe('User moderation fields --', async () => {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    const expectedOutput = { data: { updateUser: { data: {moderatorAssistance: true} } } }
+    return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can set their moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
@@ -233,15 +242,15 @@ describe('User moderation fields --', async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines:"blah"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesBody:"blah"}) {
           data {
-            moderationGuidelines
+            moderationGuidelinesBody
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: "blah"} } } }
+    const expectedOutput = { data: { updateUser: { data: {moderationGuidelinesBody: "blah"} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it("trusted users can set their moderatorAssistance", async () => {
@@ -264,22 +273,24 @@ describe('User moderation fields --', async () => {
     const user2 = await createDummyUser({groups:["trustLevel1"]})
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: "blah"}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelinesBody: "blah"}) {
           data {
-            moderationGuidelines
+            moderationGuidelinesBody
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user2})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 })
 
 describe('PostsEdit bannedUserIds permissions --', async ()=> {
-  it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post, and has set moderationStyle", async () => {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
+  it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post and has moderationGuidelines set on the post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
-    const post = await createDummyPost(user)
+    const post = await createDummyPost(user, {moderationGuidelinesHtmlBody: "beware"})
     const testBannedUserIds = "test"
     const query = `
       mutation PostsEdit {
@@ -308,7 +319,8 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit bannedUserIds should fail if user in TrustLevel1, has set moderationStyle, and does NOT own post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -325,7 +337,8 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected
+    await response.should.be.rejected
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit bannedUserIds should fail if user in trustLevel1, owns post, but has NOT set moderationStyle", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
@@ -341,11 +354,14 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
 })
 
 describe('UsersEdit bannedUserIds permissions --', async ()=> {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
+  
   it("usersEdit bannedUserIds should succeed if user in trustLevel1", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const testBannedUserIds = "test"
@@ -376,7 +392,8 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user2})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
 })
 
@@ -406,9 +423,9 @@ describe('Users.canModeratePost --', async ()=> {
     const post = await createDummyPost(author)
     expect(Users.canModeratePost(author, post)).to.be.false;
   })
-  it("returns true if user in trustLevel1 AND owns post AND has set user.moderationStyle", async () => {
+  it("returns true if user in trustLevel1 AND owns post AND has moderationGuidelines", async () => {
     const author = await createDummyUser({groups:['trustLevel1'], moderationStyle:"1"})
-    const post = await createDummyPost(author)
+    const post = await createDummyPost(author, {moderationGuidelinesHtmlBody: "beware"})
     expect(Users.canModeratePost(author, post)).to.be.true;
   })
   it("returns true if user in sunshineRegiment", async () => {
@@ -442,6 +459,7 @@ describe('Users.canEditUsersBannedUserIds --', async ()=> {
 })
 
 describe('Comments deleted permissions --', async function() {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   this.timeout(10000)
   it("updateComment – Deleted should succeed if user in sunshineRegiment", async function() {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
@@ -457,16 +475,18 @@ describe('Comments deleted permissions --', async function() {
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
-    return userUpdateFieldFails({ user:user, document:comment,
+    await userUpdateFieldFails({ user:user, document:comment,
       fieldName:'deleted', newValue: true, collectionType: "Comment"
     })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("CommentsEdit set Deleted should fail if user is alignmentForum", async () => {
     const user = await createDummyUser({groups:["alignmentForum"]})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
-    return userUpdateFieldFails({ user:user, document:comment, fieldName:'deleted', newValue: true, collectionType: "Comment"})
+    await userUpdateFieldFails({ user:user, document:comment, fieldName:'deleted', newValue: true, collectionType: "Comment"})
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("moderateComment set deleted should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
@@ -484,10 +504,10 @@ describe('Comments deleted permissions --', async function() {
     const expectedOutput = { data: { moderateComment: { deleted: true } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
-  it("set deleted should succeed if user in trustLevel1, has set moderationStyle and owns post", async () => {
+  it("set deleted should succeed if user in trustLevel1, has set moderationGuidelines and owns post", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
     const commentAuthor = await createDummyUser()
-    const post = await createDummyPost(user)
+    const post = await createDummyPost(user, {moderationGuidelinesHtmlBody: "beware"})
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
     const query = `
       mutation  {
@@ -500,7 +520,7 @@ describe('Comments deleted permissions --', async function() {
     const expectedOutput = { data: { moderateComment: { deleted: true } } }
     return response.should.eventually.deep.equal(expectedOutput);
   })
-  it("set deleted should fail if user in trustLevel1, owns post but NOT set moderationStyle", async () => {
+  it("set deleted should fail if user in trustLevel1, owns post but NOT set moderationGuidelines", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const commentAuthor = await createDummyUser()
     const post = await createDummyPost(user)
@@ -513,7 +533,8 @@ describe('Comments deleted permissions --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("set deleted should fail if user in trustLevel1, has set moderationStyle but does NOT own post", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
@@ -528,7 +549,8 @@ describe('Comments deleted permissions --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("set deleted should fail if user has set moderationStyle, owns post but is NOT in trustLevel1", async () => {
     const user = await createDummyUser({moderationStyle:"easy"})
@@ -543,11 +565,13 @@ describe('Comments deleted permissions --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
 })
 
 describe('CommentLock permissions --', async ()=> {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit.commentLock should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
     const author = await createDummyUser()
@@ -579,7 +603,8 @@ describe('CommentLock permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit.commentLock should fail if author not in canCommentLock", async () => {
     const author = await createDummyUser()
@@ -594,9 +619,11 @@ describe('CommentLock permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:author})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
   it("PostsEdit.commentLock should fail if author in canCommentLock", async () => {
+    // FIXME: Description says "should fail", but test body says it succeeds?
     const author = await createDummyUser({groups:["canCommentLock"]})
     const post = await createDummyPost(author)
     const query = `
@@ -625,7 +652,8 @@ describe('CommentLock permissions --', async ()=> {
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    return response.should.be.rejected;
+    await response.should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 
 })

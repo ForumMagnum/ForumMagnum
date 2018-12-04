@@ -6,7 +6,6 @@ import Sequences from '../collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { draftToHTML } from '../editor/utils.js';
@@ -43,7 +42,7 @@ Comments.toAlgolia = (comment) => {
     af: comment.af
   };
   const commentAuthor = Users.findOne({_id: comment.userId});
-  if (commentAuthor) {
+  if (commentAuthor && !commentAuthor.deleted) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
@@ -141,11 +140,10 @@ Posts.toAlgolia = (post) => {
     af: post.af
   };
   const postAuthor = Users.findOne({_id: post.userId});
-  if (postAuthor) {
+  if (postAuthor && !postAuthor.deleted) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
     algoliaMetaInfo.authorFullName = postAuthor.fullName;
-    algoliaMetaInfo.authorUserName = postAuthor.username;
   }
   const postFeed = RSSFeeds.findOne({_id: post.feedId});
   if (postFeed) {
@@ -276,7 +274,9 @@ export function algoliaDocumentExport(documents, Collection, indexName, exportFu
     });
     // console.log("Encountered the following errors: ", totalErrors)
   } else {
-    //eslint-disable-next-line no-console
-    console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+    if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+      //eslint-disable-next-line no-console
+      console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+    }
   }
 }

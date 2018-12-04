@@ -89,7 +89,7 @@ import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
-import '../components/posts/PostsPage.jsx';
+import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
@@ -113,7 +113,6 @@ import '../components/posts/PostsStats.jsx';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
 
-import '../components/questions/NewQuestionDialog.jsx';
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
 import '../components/localGroups/CommunityMapFilter.jsx';
@@ -134,12 +133,14 @@ import '../components/localGroups/LocalGroupsItem.jsx';
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
+import '../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
 import '../components/comments/CommentsItem/EditCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/ReportCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/MoveToAlignmentMenuItem.jsx';
 import '../components/comments/CommentsItem/SuggestAlignmentMenuItem.jsx';
+import '../components/comments/CommentsItem/SubscribeToCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
@@ -160,6 +161,7 @@ import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
+import '../components/comments/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
@@ -197,8 +199,8 @@ import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsItem.jsx';
 import '../components/sunshineDashboard/SunshineNewCommentsItem.jsx';
 import '../components/sunshineDashboard/SunshineNewCommentsList.jsx';
-import '../components/sunshineDashboard/SunshineReportedCommentsList.jsx';
-import '../components/sunshineDashboard/SunshineReportedCommentsItem.jsx';
+import '../components/sunshineDashboard/SunshineReportedContentList.jsx';
+import '../components/sunshineDashboard/SunshineReportedItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
 import '../components/sunshineDashboard/SunshineSidebar.jsx';
@@ -278,3 +280,10 @@ if(getSetting('AlignmentForum', false)) {
 }
 
 
+import '../components/questions/NewQuestionDialog.jsx';
+import '../components/questions/NewAnswerForm.jsx';
+import '../components/questions/AnswersSection.jsx';
+import '../components/questions/AnswerCommentsList.jsx';
+import '../components/questions/AnswersList.jsx';
+import '../components/questions/Answer.jsx';
+import '../components/questions/AnswerMeta.jsx';
