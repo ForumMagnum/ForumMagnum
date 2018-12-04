@@ -8,7 +8,6 @@ import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
-//import marked from 'marked';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
@@ -17,10 +16,13 @@ registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in word
  * @type {Object}
  */
 const formGroups = {
-  admin: {
-    name: 'admin',
-    order: 2
-  }
+  // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: "Admin Options",
+    startCollapsed: true,
+  },
 };
 
 /**
@@ -57,7 +59,7 @@ const schema = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'datetime',
-    group: formGroups.admin,
+    group: formGroups.adminOptions,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && getCollection('Posts').getDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
@@ -224,7 +226,7 @@ const schema = {
       }
     },
     options: () => getCollection('Posts').statuses,
-    group: formGroups.admin
+    group: formGroups.adminOptions
   },
   /**
     Whether a post is scheduled in the future or not
@@ -267,7 +269,7 @@ const schema = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'checkbox',
-    group: formGroups.admin,
+    group: formGroups.adminOptions,
     onInsert: (post) => {
       if(!post.sticky) {
         return false;
@@ -467,9 +469,9 @@ const schema = {
     optional: true,
     defaultValue: false,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
+    insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
-    hidden: true,
+    group: formGroups.adminOptions,
   },
 
 };
