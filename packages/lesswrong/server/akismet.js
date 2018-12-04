@@ -11,8 +11,8 @@ const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affect
 async function constructAkismetReport({document, type = "post"}) {
     const author = await Users.findOne(document.userId)
 
-    const link = (type === "post") ? 
-      Posts.getPageUrl(document, true) : 
+    const link = (type === "post") ?
+      Posts.getPageUrl(document, true) :
       (document.postId && Comments.getPageUrl(document, true)) // Don't get link if we create a comment without a post
     const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
     const ip = events && events[0] && events[0].properties && events[0].properties.ip
@@ -26,7 +26,7 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.htmlBody, 
+      comment_content : document.htmlBody,
       is_test: Meteor.isDevelopment
     }
 }
@@ -43,8 +43,8 @@ async function checkForAkismetSpam({document, type = "post"}) {
 const akismetKey = getSetting('akismet.apiKey', false)
 const akismetURL = getSetting('akismet.url', false)
 const client = akismet.client({
-  key  : akismetKey,                   
-  blog : akismetURL       
+  key  : akismetKey,
+  blog : akismetURL
 });
 
 client.verifyKey()
@@ -98,7 +98,7 @@ addCallback('posts.new.after', checkPostForSpamWithAkismet);
 
 async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
-      const spam = await checkForAkismetSpam({document: comment, type: "comment"})
+      const spam = await checkForAkismetSpam({content: comment.body, author: currentUser, link: (comment.postId && Comments.getPageUrl(comment, true))})
       if (spam) {
         //eslint-disable-next-line no-console
         console.log("Spam comment detected, creating new Report", currentUser)
@@ -134,38 +134,5 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     }
     return comment
   }
-  
+
 addCallback('comments.new.after', checkCommentForSpamWithAkismet);
-
-function runReportCloseCallbacks(newReport, oldReport) {
-  if (newReport.closedAt && !oldReport.closedAt) {
-    runCallbacksAsync('reports.close.async', newReport);
-  }
-}
-
-addCallback('reports.edit.async', runReportCloseCallbacks)
-
-async function akismetReportSpamHam(report) {
-  if (report.reportedAsSpam) {
-    let comment = {}
-    const post = await Posts.findOne(report.postId)
-    if (report.commentId) {
-      comment = Comments.findOne(report.commentId)
-    }
-    const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
-    const akismetReport = constructAkismetReport(akismetReportArguments)
-    if (report.markedAsSpam) {
-      client.submitSpam(akismetReport, (err) => {
-        // eslint-disable-next-line no-console
-        if (!err) { console.log("Reported Akismet correct positive", akismetReport)}
-      });
-    } else {
-      client.submitHam(akismetReport, (err) => {
-        // eslint-disable-next-line no-console
-        if (!err) { console.log("Reported Akismet false positive", akismetReport)}
-      })
-    }
-  }
-}
-
-addCallback('reports.close.async', akismetReportSpamHam)

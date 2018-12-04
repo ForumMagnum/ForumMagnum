@@ -50,7 +50,8 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage,  startThreadCollapsed, totalComments} = this.props;
+    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, startThreadCollapsed, answerId } = this.props;
+
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -76,6 +77,7 @@ class CommentsList extends Component {
                 editMutation={editMutation}
                 post={post}
                 postPage={postPage}
+                answerId={answerId}
               />)
             }
           </div>

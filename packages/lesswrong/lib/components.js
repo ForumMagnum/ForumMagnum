@@ -89,7 +89,7 @@ import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
-import '../components/posts/PostsPage.jsx';
+import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
@@ -133,6 +133,7 @@ import '../components/localGroups/LocalGroupsItem.jsx';
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
+import '../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
 import '../components/comments/CommentsItem/EditCommentMenuItem.jsx';
@@ -160,6 +161,7 @@ import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
+import '../components/comments/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
@@ -281,6 +283,7 @@ if(getSetting('AlignmentForum', false)) {
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
 import '../components/questions/AnswersSection.jsx';
+import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/AnswerMeta.jsx';
