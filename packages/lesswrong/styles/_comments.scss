@@ -95,11 +95,6 @@ $small-font: 1.1rem;
   }
 }
 
-.comments-subscribe:hover {
-  text-decoration: none;
-  color: inherit;
-}
-
 .comments-item-body{
   border-radius: .25rem;
   border: $border;
@@ -157,12 +152,6 @@ $small-font: 1.1rem;
     a {
       color: rgba(0,0,0,0.5);
     }
-  }
-  .comment-edit, .comment-delete {
-    font-size: $small-font;
-  }
-  .comment-delete {
-    margin-left: 8px;
   }
   .comments-item-origin {
     display: inline-block;
@@ -353,13 +342,6 @@ $small-font: 1.1rem;
     margin-bottom:.8em;
     position:inherit;
   }
-}
-
-.comment-context-link {
-  font-family: $comments-font;
-  text-align:right;
-  color:rgba(0,0,0,.5);
-  margin-right:10px;
 }
 
 .posts-item-new-comments-wrapper .comment-new .comments-node.comments-node-root {
