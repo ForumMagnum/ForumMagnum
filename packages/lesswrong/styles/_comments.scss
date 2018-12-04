@@ -57,23 +57,6 @@ $small-font: 1.1rem;
 
 
 
-/*
-
-New CSS File
-
-*/
-
-.posts-comments-thread {
-  font-weight:400;
-  font-family: $comments-font;
-  max-width:720px;
-  margin:80px auto $vmargin auto;
-}
-
-.posts-comments-thread .content-editor-is-empty {
-  font-size:15px !important;
-}
-
 .comments-item-body, .recent-comments-item-body {
   font-family: $comments-font;
 }

@@ -18,6 +18,17 @@ import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 
 const styles = theme => ({
+  root: {
+    fontWeight: 400,
+    maxWidth: 720,
+    margin: "80px auto 15px auto",
+    ...theme.typography.commentStyle,
+    
+    "& .content-editor-is-empty": {
+      fontSize: "15px !important",
+    },
+  },
+  
   meta: {
     fontSize: 14,
     clear: 'both',
@@ -125,7 +136,7 @@ class CommentsListSection extends Component {
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
-      <div className="posts-comments-thread">
+      <div className={classes.root}>
         { this.props.totalComments ? this.renderTitleComponent() : null }
         {!currentUser &&
           <div>
