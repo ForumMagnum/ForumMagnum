@@ -17,7 +17,8 @@ class SunshineReportedItem extends Component {
       documentId: report._id,
       set: {
         closedAt: new Date(),
-        claimedUserId: currentUser._id
+        claimedUserId: currentUser._id,
+        markedAsSpam: false
       },
       unset: {}
     })
@@ -34,32 +35,26 @@ class SunshineReportedItem extends Component {
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
         updateComment({
-          documentId: report.comment._id,
-          set: {
+          selector: {documentId: report.comment._id},
+          data: {
             deleted: true,
             deletedDate: new Date(),
             deletedByUserId: currentUser._id,
             deletedReason: "spam"
-          },
-          unset: {}
+          }
         })
       } else if (report.post) {
         updatePost({
-          documentId: report.post._id,
-          set: {
-            deleted: true,
-            deletedDate: new Date(),
-            deletedByUserId: currentUser._id,
-            deletedReason: "spam"
-          },
-          unset: {}
+          selector: {documentId: report.post._id},
+          data: { status: report.reportedAsSpam ? 4 : 5 }
         })
       }
       reportEditMutation({
         documentId: report._id,
         set: {
           closedAt: new Date(),
-          claimedUserId: currentUser._id
+          claimedUserId: currentUser._id,
+          markedAsSpam: report.reportedAsSpam
         },
         unset: {}
       })

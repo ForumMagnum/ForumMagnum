@@ -203,7 +203,7 @@ const schema = {
     defaultValue: 0
   },
   /**
-    The post's status. One of pending (`1`), approved (`2`), or deleted (`3`)
+    The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   */
   status: {
     type: Number,
@@ -461,7 +461,6 @@ const schema = {
     insertableBy: ['members'],
     hidden: true,
   },
-
 };
 
 export default schema;
