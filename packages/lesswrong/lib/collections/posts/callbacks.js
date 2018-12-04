@@ -155,3 +155,12 @@ async function LWPostsNewUpvoteOwnPost(post) {
 addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
+
+function PostsNewUserApprovedStatus (post) {
+  const postAuthor = Users.findOne(post.userId);
+  if (!postAuthor.reviewedByUserId) {
+    return {...post, unreviewedUser: true}
+  }
+}
+
+addCallback("posts.new.sync", PostsNewUserApprovedStatus);

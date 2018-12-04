@@ -461,6 +461,16 @@ const schema = {
     insertableBy: ['members'],
     hidden: true,
   },
+
+  unreviewedUser: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    hidden: true,
+  },
+
 };
 
 export default schema;

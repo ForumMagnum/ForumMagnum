@@ -105,6 +105,11 @@ const styles = theme => ({
     eventLinks: {
       fontWeight: 400,
     },
+    unreviewed: {
+      fontSize: ".9em",
+      marginBottom: "1em",
+      color: theme.palette.grey[600]
+    }
 })
 
 class PostsPage extends Component {
@@ -286,6 +291,7 @@ class PostsPage extends Component {
                 { post.isEvent && <Components.SmallMapPreviewWrapper post={post} /> }
               </Components.ErrorBoundary>
               <div className={classes.postContent}>
+                {post.unreviewedUser && <div className={classes.unreviewed}>This post is awaiting review</div>}
                 <Components.LinkPostMessage post={post} />
                 { post.htmlBody && <Components.ContentItemBody
                     dangerouslySetInnerHTML={{__html: post.htmlBody}}
