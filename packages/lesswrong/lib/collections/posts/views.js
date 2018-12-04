@@ -147,7 +147,7 @@ Posts.addView("daily", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1, }),
+  augmentForDefaultView({ postedAt:1, baseScore:1, unreviewedUser:1}),
   {
     name: "posts.postedAt_baseScore",
   }
@@ -163,7 +163,7 @@ Posts.addView("frontpage", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
+  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1, unreviewedUser:1 }),
   {
     name: "posts.frontpage",
     partialFilterExpression: { frontpageDate: {$gt: new Date(0)} },
@@ -217,7 +217,7 @@ Posts.addView("community", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ meta:1, sticky: -1, score: -1 }),
+  augmentForDefaultView({ meta:1, sticky: -1, score: -1, unreviewedUser:1 }),
   {
     name: "posts.community",
   }
@@ -364,7 +364,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1, unreviewedUser:1 }),
   { name: "posts.recentDiscussionThreadsList", }
 );
 

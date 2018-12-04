@@ -468,6 +468,7 @@ const schema = {
     defaultValue: false,
     viewableBy: ['guests'],
     insertableBy: ['members'],
+    editableBy: ['admins', 'sunshineRegiment'],
     hidden: true,
   },
 

@@ -160,7 +160,7 @@ addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration}
 
 function PostsNewUserApprovedStatus (post) {
   const postAuthor = Users.findOne(post.userId);
-  if (!postAuthor.reviewedByUserId) {
+  if (!postAuthor.reviewedByUserId && postAuthor.karma <= 10) {
     return {...post, unreviewedUser: true}
   }
 }
