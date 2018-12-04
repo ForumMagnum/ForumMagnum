@@ -1,12 +1,19 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
 
-const Footer = props => {
+const styles = theme => ({
+  root: {
+    height: 150,
+  }
+});
+
+const Footer = ({classes}) => {
   return (
-    <div className="footer"><a href="/about">Made with heart and brain for humanity</a></div>
+    <div className={classes.root} />
   )
 }
 
 Footer.displayName = "Footer";
 
-registerComponent('Footer', Footer);
+registerComponent('Footer', Footer, withStyles(styles, { name: "Footer" }));
