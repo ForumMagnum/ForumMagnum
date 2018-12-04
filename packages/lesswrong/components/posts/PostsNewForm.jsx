@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
+import withUser from '../common/withUser'
 
 const PostsNewForm = (props, context) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
@@ -13,7 +14,9 @@ const PostsNewForm = (props, context) => {
     meta: props.router.location.query && !!props.router.location.query.meta,
     frontpageDate: getSetting("AlignmentForum", false) ? new Date() : null,
     af: getSetting("AlignmentForum", false) || (props.router.location.query && !!props.router.location.query.af),
-    groupId: props.router.location.query && props.router.location.query.groupId
+    groupId: props.router.location.query && props.router.location.query.groupId,
+    moderationStyle: props.currentUser && props.currentUser.moderationStyle,
+    moderationGuidelinesHtmlBody: props.currentUser && props.currentUser.moderationGuidelinesHtmlBody,
   }
   return <Components.ShowIf
     check={Posts.options.mutations.new.check}
@@ -46,4 +49,4 @@ PostsNewForm.propTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter);
+registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser);

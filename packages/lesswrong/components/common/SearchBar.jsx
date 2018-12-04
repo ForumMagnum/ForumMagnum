@@ -13,6 +13,7 @@ const styles = theme => ({
   root: {
     display: "inline-block",
     position: "relative",
+    minWidth: 48,
 
     "& .ais-SearchBox": {
       display: 'inline-block',
@@ -41,10 +42,13 @@ const styles = theme => ({
       backgroundColor: "transparent",
       cursor: "pointer",
       width:0,
+      display:"none",
       height: '100%',
-      fontSize: 'inherit'
+      fontSize: 'inherit',
+      "-webkit-appearance": "none"
     },
     "&.open .ais-SearchBox-input": {
+      display:"inline-block",
       cursor: "text",
       width: "100%",
       borderRadius:5,
