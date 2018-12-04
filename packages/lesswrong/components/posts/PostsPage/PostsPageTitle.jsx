@@ -5,15 +5,13 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
-    margin: 0,
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
+    margin: "0 !important",
     color: theme.palette.text.primary,
     [theme.breakpoints.down('sm')]: {
       fontSize: '2.5rem',
-      marginBottom: 10,
-      maxWidth: 'calc(100% - 60px)'
     }
   },
   draft: {
