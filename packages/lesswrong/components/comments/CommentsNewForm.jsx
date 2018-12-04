@@ -3,18 +3,48 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
+import Button from '@material-ui/core/Button';
+import classNames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
 
-const CommentsNewForm = (props, context) => {
+const styles = theme => ({
+  root: {
+    paddingBottom: 12
+  },
+  submit: {
+    textAlign: 'right'
+  },
+  formButton: {
+    paddingBottom: "2px",
+    fontSize: "16px",
+    marginLeft: "5px",
+    "&:hover": {
+      background: "rgba(0,0,0, 0.05)",
+    },
+    color: theme.palette.secondary.main
+  },
+});
 
-  let prefilledProps = props.prefilledProps || {}
-  prefilledProps.postId = props.postId;
+const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost}) => {
+  prefilledProps.postId = postId;
 
-  if (props.parentComment) {
+  if (parentComment) {
     prefilledProps = Object.assign(prefilledProps, {
-      parentCommentId: props.parentComment._id,
+      parentCommentId: parentComment._id,
       // if parent comment has a topLevelCommentId use it; if it doesn't then it *is* the top level comment
-      topLevelCommentId: props.parentComment.topLevelCommentId || props.parentComment._id
+      topLevelCommentId: parentComment.topLevelCommentId || parentComment._id
     });
+  }
+
+  const SubmitComponent = ({submitLabel = "Submit"}) => {
+    return <div className={classes.submit}>
+      <Button
+        type="submit"
+        className={classNames(classes.formButton)}
+      >
+        {submitLabel}
+      </Button>
+    </div>
   }
 
   return (
@@ -23,20 +53,46 @@ const CommentsNewForm = (props, context) => {
       document={prefilledProps}
       failureComponent={<FormattedMessage id="users.cannot_comment"/>}
     >
-      <div className="comments-new-form">
+      <div className={classes.root}>
         <Components.SmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
-          successCallback={props.successCallback}
-          cancelCallback={props.type === "reply" ? props.cancelCallback : null}
+          successCallback={successCallback}
+          cancelCallback={type === "reply" ? cancelCallback : null}
           prefilledProps={prefilledProps}
           layout="elementOnly"
+          GroupComponent={FormGroupComponent}
+          SubmitComponent={SubmitComponent}
+          alignmentForumPost={alignmentForumPost}
         />
       </div>
     </Components.ShowIf>
   )
 
 };
+
+const FormGroupComponent = (props) => {
+  return <React.Fragment>
+    {props.fields.map(field => (
+      <Components.FormComponent
+        key={field.name}
+        disabled={props.disabled}
+        {...field}
+        errors={props.errors}
+        throwError={props.throwError}
+        currentValues={props.currentValues}
+        updateCurrentValues={props.updateCurrentValues}
+        deletedValues={props.deletedValues}
+        addToDeletedValues={props.addToDeletedValues}
+        clearFieldErrors={props.clearFieldErrors}
+        formType={props.formType}
+        currentUser={props.currentUser}
+      />
+    ))}
+  </React.Fragment>
+}
+
+
 
 CommentsNewForm.propTypes = {
   postId: PropTypes.string.isRequired,
@@ -51,4 +107,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withMessages);
+registerComponent('CommentsNewForm', CommentsNewForm, withMessages, withStyles(styles));

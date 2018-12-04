@@ -45,7 +45,7 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 10px',
+    padding: '0 12px',
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
     marginBottom: "1.3em",
@@ -57,7 +57,7 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
-    marginTop: theme.spacing.unit
+    marginTop: 12
   }
 })
 
@@ -149,6 +149,7 @@ class CommentsListSection extends Component {
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
+              alignmentForumPost={post.af}
               postId={postId}
               prefilledProps={{
                 af: Comments.defaultToAlignment(currentUser, post),
@@ -160,7 +161,7 @@ class CommentsListSection extends Component {
         {currentUser && !Users.isAllowedToComment(currentUser, post) && (
           <div className="i18n-message author_has_banned_you">
             { Users.blockedCommentingReason(currentUser, post)}
-            { !(getSetting('AlignmentForum', false)) && <span>
+          { !(getSetting('AlignmentForum', false)) && <span>
               (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
             </span> }
           </div>
