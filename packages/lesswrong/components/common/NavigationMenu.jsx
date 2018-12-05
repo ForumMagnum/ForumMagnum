@@ -30,6 +30,10 @@ const styles = theme => ({
     position:"absolute",
     left:55,
     maxWidth: 215,
+    display:"none",
+    [theme.breakpoints.down('sm')]: {
+      display:"block"
+    }
   },
   menuItem: {
     fontSize: 16,
@@ -40,7 +44,8 @@ const styles = theme => ({
     paddingLeft: 35,
   },
   navButton: {
-    padding:theme.spacing.unit
+    padding:theme.spacing.unit,
+    paddingLeft: theme.spacing.unit*2,
   },
   navButtons: {
     display: "flex",
@@ -48,11 +53,13 @@ const styles = theme => ({
     width:55,
     backgroundColor: theme.palette.grey[100],
     paddingTop: theme.spacing.unit*2,
-    paddingLeft: 6,
     paddingBottom: theme.spacing.unit,
     borderRight: "solid 1px rgba(0,0,0,.1)",
     height:"100%",
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    [theme.breakpoints.up('md')]: {
+      display:"none"
+    }
   },
   about: {
     fontSize: 22,
@@ -63,9 +70,30 @@ const styles = theme => ({
     width: 24,
     textAlign:"center"
   },
+  sequences: {
+    fontSize: 20,
+    fontWeight: 600,
+    position:"relative",
+    left:4,
+    width: 24,
+    textAlign:"center",
+    color: theme.palette.grey[500]
+  },
+  divider: {
+    marginTop:theme.spacing.unit,
+    marginBottom:theme.spacing.unit
+  },
   menuIcon: {
     width:24,
     color: theme.palette.grey[600]
+  },
+  defaultNavMenu: {
+    marginTop: theme.spacing.unit
+  },
+  hideDefaultNav: {
+    [theme.breakpoints.down('sm')]: {
+      display:"none"
+    }
   }
 });
 
@@ -98,16 +126,28 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           <Home/>
         </Link>
       </Tooltip>
+      <Divider className={classes.divider}/>
       <Tooltip title="Library" placement="right">
         <Link to="/library" className={classes.navButton}>
           <LocalLibrary/>
         </Link>
       </Tooltip>
-      <Tooltip title="Meta" placement="right">
-        <Link to="/meta" className={classes.navButton}>
-          <Details/>
+      <Tooltip title="Rationality A:Z" placement="right">
+        <Link to="/rationality" className={classes.navButton}>
+          <span className={classes.sequences}>R</span>
         </Link>
       </Tooltip>
+      <Tooltip title="Codex" placement="right">
+        <Link to="/codex" className={classes.navButton}>
+          <span className={classes.sequences}>C</span>
+        </Link>
+      </Tooltip>
+      <Tooltip title="Harry Potter and the Methods of Rationality" placement="right">
+        <Link to="/hpmor" className={classes.navButton}>
+          <span className={classes.sequences}>H</span>
+        </Link>
+      </Tooltip>
+      <Divider className={classes.divider}/>
       <Tooltip title="Community Events" placement="right">
         <Link to="/community" className={classes.navButton}>
           <Public/>
@@ -118,28 +158,34 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           <ListAlt/>
         </Link>
       </Tooltip>
+      <Tooltip title="Meta" placement="right">
+        <Link to="/meta" className={classes.navButton}>
+          <Details/>
+        </Link>
+      </Tooltip>
       <Tooltip title="About" placement="right">
         <Link to="/about" className={classes.navButton}>
           <span className={classes.about}>?</span>
         </Link>
       </Tooltip>
     </div>}
-    {!toc && <NavigationMenuLink icon={<Home/>} to="/" label="Home"/>}
+    <div className={classNames(classes.defaultNavMenu, {[classes.hideDefaultNav]:toc})}>
+      <NavigationMenuLink icon={<Home/>} to="/" label="Home"/>
 
-    {!toc && <Divider />}
+      <Divider className={classes.divider}/>
 
-    {!af && !toc && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
-    {!af && !toc && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
-    {!af && !toc  && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
-    {!af && !toc  && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
+      {!af && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
+      {!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
+      {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
+      {!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
 
-    {!toc && <Divider />}
+      <Divider className={classes.divider}/>
 
-    {!af && !toc && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
-    {!toc && <NavigationMenuLink icon={<ListAlt/>} to={"/daily"} label="Posts by Date"/>}
-    {!toc && <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Meta"/>}
-    {!toc && <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>}
-    {!toc && <Divider />}
+      {!af && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
+      <NavigationMenuLink icon={<ListAlt/>} to={"/daily"} label="Posts by Date"/>
+      <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Meta"/>
+      <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
+    </div>
     {toc && <React.Fragment>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
@@ -149,7 +195,6 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           drawerStyle={true}
         />
       </div>
-      <Divider />
     </React.Fragment>}
   </SwipeableDrawer>;
 }
