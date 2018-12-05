@@ -19,6 +19,7 @@ import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -156,7 +157,6 @@ const styles = theme => ({
     position: "absolute",
     padding: "10px 0",
     bottom: 0,
-    height: 35,
     background: "white",
     borderTop: "solid 1px rgba(0,0,0,.05)",
 
@@ -204,7 +204,7 @@ const styles = theme => ({
   ////////////////////////////////////////////////////////////////////////////
   newCommentsSection: {
     backgroundColor: "rgba(0,0,0,.05)",
-    padding: "7px 9px 25px 9px",
+    padding: "7px 9px 50px 9px",
   },
   newCommentsHeader: {
   },
@@ -219,7 +219,6 @@ const styles = theme => ({
     fontSize: "12px",
     cursor: "pointer",
     padding: 10,
-    height: 35,
     "&:hover": {
       color: "rgba(0,0,0,.35)",
       backgroundColor: "rgba(0,0,0,.1)",
@@ -313,16 +312,16 @@ class PostsItem extends PureComponent {
     let { classes } = this.props;
     return (
       <div className={classes.highlightFooter}>
-        <span className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
+        <Typography variant="body1" className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
           <Icon className={classes.collapseIcon}>
             subdirectory_arrow_left
           </Icon>
           Collapse
-        </span>
+        </Typography>
         <Link to={this.getPostLink()}>
-          <span className={classNames(classes.highlightFooterButton, classes.viewFullPost)}>
-            Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
-          </span>
+        <Typography className={classNames(classes.highlightFooterButton, classes.viewFullPost)} variant="body1">
+          Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
+        </Typography>
         </Link>
       </div>
     )
@@ -410,17 +409,21 @@ class PostsItem extends PureComponent {
           { this.state.showNewComments &&
             <div className={classes.newCommentsSection}>
               <div className={classes.newCommentsHeader}>
-                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
+                <Typography variant="body1" className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
-                </span>
-                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
-                  View All Comments
-                </Link>
+                </Typography>
+                <Typography variant="body1">
+                  <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
+                    View All Comments
+                  </Link>
+                </Typography>
               </div>
-              <div className={classes.recentCommentsTitle}>Recent Comments</div>
+              <Typography variant="body1" className={classes.recentCommentsTitle}>
+                Recent Comments
+              </Typography>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={lastVisitedAt}
@@ -428,15 +431,17 @@ class PostsItem extends PureComponent {
                 post={post}
               />
               <div className={classes.newCommentsFooter}>
-                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
+                <Typography variant="body1" className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
-                </span>
-                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
-                  View All Comments
-                </Link>
+                </Typography>
+                <Typography variant="body1">
+                  <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
+                    View All Comments
+                  </Link>
+                </Typography>
               </div>
             </div>
           }
