@@ -2,7 +2,7 @@ import LWEvents from '../lib/collections/lwevents/collection'
 import Reports from '../lib/collections/reports/collection.js'
 import { Posts } from '../lib/collections/posts/collection.js'
 import { Comments } from '../lib/collections/comments/collection.js'
-import { newMutation, editMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
+import { newMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import akismet from 'akismet-api'
 
@@ -79,12 +79,12 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
       if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
-        editMutation({
-          collection: Posts,
-          documentId: post._id,
-          set: {status: 4}, // Sets status to spam
-          unset: {}
-        })
+        post = {
+          ...post,
+          deleted: true,
+          deletedDate: new Date(),
+          deletedReason: "Akismet spam protection"
+        }
       }
     } else {
       //eslint-disable-next-line no-console
@@ -94,7 +94,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
   return post
 }
 
-addCallback('posts.new.after', checkPostForSpamWithAkismet);
+addCallback('posts.new.sync', checkPostForSpamWithAkismet);
 
 async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
@@ -117,15 +117,12 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
         if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
-          editMutation({
-            collection: Comments, 
-            documentId: comment._id,
-            set: {
-              deleted: true,
-              deletedDate: new Date(),
-              deletedReason: "Akismet spam detection"
-            }
-          })
+          comment = {
+            ...comment,
+            deleted: true,
+            deletedDate: new Date(), 
+            deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
+          }
         }
       } else {
         //eslint-disable-next-line no-console
@@ -135,7 +132,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     return comment
   }
   
-addCallback('comments.new.after', checkCommentForSpamWithAkismet);
+addCallback('comments.new.sync', checkCommentForSpamWithAkismet);
 
 function runReportCloseCallbacks(newReport, oldReport) {
   if (newReport.closedAt && !oldReport.closedAt) {
@@ -154,12 +151,7 @@ async function akismetReportSpamHam(report) {
     }
     const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
     const akismetReport = constructAkismetReport(akismetReportArguments)
-    if (report.markedAsSpam) {
-      client.submitSpam(akismetReport, (err) => {
-        // eslint-disable-next-line no-console
-        if (!err) { console.log("Reported Akismet correct positive", akismetReport)}
-      });
-    } else {
+    if (!report.markedAsSpam) {
       client.submitHam(akismetReport, (err) => {
         // eslint-disable-next-line no-console
         if (!err) { console.log("Reported Akismet false positive", akismetReport)}

@@ -60,7 +60,7 @@ Accounts.onLogin(async (login) => {
       id: login.connection && login.connection.id,
       ip: login.connection && ForwardedWhitelist.getClientIP(login.connection),
       userAgent: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['user-agent'],
-      referrer: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['referrer']
+      referrer: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['referer']
     }
   }
   newMutation({
