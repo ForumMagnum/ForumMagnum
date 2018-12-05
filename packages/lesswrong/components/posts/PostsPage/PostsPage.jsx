@@ -186,7 +186,7 @@ class PostsPage extends Component {
                   {!post.isEvent && <span className={classes.desktopDate}>
                     {moment(post.postedAt).format("DD MMM YYYY")}
                   </span>}
-                  {post.types && post.types.length && <Components.GroupLinks document={post} />}
+                  {post.types && (post.types.length > 0) && <Components.GroupLinks document={post} />}
                   <span className={classes.mobileActions}>
                       <PostsPageActions post={post} />
                   </span>
