@@ -681,7 +681,7 @@ Users.addField([
       canRead: ['sunshineRegiment', 'admins'],
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
-      hidden: true,
+      group: formGroups.adminOptions,
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',

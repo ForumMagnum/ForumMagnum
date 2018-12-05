@@ -167,6 +167,7 @@ registerFragment(`
     afSticky
     voteCount
     question
+    authorIsUnreviewed
   }
 `);
 
