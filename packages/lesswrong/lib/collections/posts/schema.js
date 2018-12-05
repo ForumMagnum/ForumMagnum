@@ -464,7 +464,7 @@ const schema = {
     hidden: true,
   },
 
-  unreviewedUser: {
+  authorIsUnreviewed: {
     type: Boolean,
     optional: true,
     defaultValue: false,

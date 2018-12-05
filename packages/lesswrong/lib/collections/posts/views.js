@@ -140,14 +140,14 @@ Posts.addView("old", terms => ({
 Posts.addView("daily", terms => ({
   selector: {
     baseScore: {$gt: terms.karmaThreshold || -100},
-    unreviewedUser: {$in: [false,null]},
+    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1, unreviewedUser:1}),
+  augmentForDefaultView({ postedAt:1, baseScore:1, authorIsUnreviewed:1}),
   {
     name: "posts.postedAt_baseScore",
   }
@@ -156,14 +156,14 @@ ensureIndex(Posts,
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$gt: new Date(0)},
-    unreviewedUser: {$in: [false,null]},
+    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1, unreviewedUser:1 }),
+  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1, authorIsUnreviewed:1 }),
   {
     name: "posts.frontpage",
     partialFilterExpression: { frontpageDate: {$gt: new Date(0)} },
@@ -210,14 +210,14 @@ Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
     meta: null,
-    unreviewedUser: {$in: [false,null]},
+    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ meta:1, sticky: -1, score: -1, unreviewedUser:1 }),
+  augmentForDefaultView({ meta:1, sticky: -1, score: -1, authorIsUnreviewed:1 }),
   {
     name: "posts.community",
   }
@@ -355,7 +355,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       meta: null,
       groupId: null,
       isEvent: null,
-      unreviewedUser: {$in: [false,null]},
+      authorIsUnreviewed: {$in: [false,null]},
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -364,7 +364,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1, unreviewedUser:1 }),
+  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1, authorIsUnreviewed:1 }),
   { name: "posts.recentDiscussionThreadsList", }
 );
 

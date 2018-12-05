@@ -17,7 +17,7 @@ class SunshineNewPostsItem extends Component {
       selector: { _id: post._id},
       data: {
         reviewedByUserId: currentUser._id,
-        unreviewedUser: false
+        authorIsUnreviewed: false
       },
     })
   }
@@ -29,7 +29,7 @@ class SunshineNewPostsItem extends Component {
       data: {
         frontpageDate: new Date(),
         reviewedByUserId: currentUser._id,
-        unreviewedUser: false
+        authorIsUnreviewed: false
       },
     })
   }
