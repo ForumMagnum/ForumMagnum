@@ -1,16 +1,17 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection.js'
 import withUser from '../common/withUser';
+import { withRouter } from 'react-router';
 
 class NewQuestionDialog extends PureComponent {
   render() {
-    const { onClose, currentUser } = this.props
+    const { onClose, currentUser, router, flash } = this.props
     return (
       <Dialog
         open={true}
@@ -19,13 +20,17 @@ class NewQuestionDialog extends PureComponent {
         <DialogContent>
           <Components.SmartForm
             collection={Posts}
-            fields={['title', 'content', 'question']}
-            mutationFragment={getFragment('EditQuestion')}
+            fields={['title', 'content', 'question', 'draft']}
+            mutationFragment={getFragment('PostsList')}
             prefilledProps={{
               userId: currentUser._id,
               question: true
             }}
-            successCallback={onClose}
+            successCallback={post => {
+              router.push({pathname: Posts.getPageUrl(post)});
+              flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+              onClose()
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -38,4 +43,4 @@ NewQuestionDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
 }
 
-registerComponent('NewQuestionDialog', NewQuestionDialog, withUser)
+registerComponent('NewQuestionDialog', NewQuestionDialog, withUser, withRouter, withMessages)
