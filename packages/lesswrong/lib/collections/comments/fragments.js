@@ -35,5 +35,6 @@ registerFragment(`
     needsReview
     answer
     parentAnswerId
+    retracted
   }
 `);

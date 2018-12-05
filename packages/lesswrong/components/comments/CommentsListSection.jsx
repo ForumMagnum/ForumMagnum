@@ -18,6 +18,17 @@ import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 
 const styles = theme => ({
+  root: {
+    fontWeight: 400,
+    maxWidth: 720,
+    margin: "80px auto 15px auto",
+    ...theme.typography.commentStyle,
+    
+    "& .content-editor-is-empty": {
+      fontSize: "15px !important",
+    },
+  },
+  
   meta: {
     fontSize: 14,
     clear: 'both',
@@ -34,9 +45,10 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 10px',
+    padding: '0 12px',
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
+    marginBottom: "1.3em",
     "@media print": {
       display: "none"
     }
@@ -45,7 +57,7 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
-    marginTop: theme.spacing.unit
+    marginTop: 12
   }
 })
 
@@ -124,18 +136,8 @@ class CommentsListSection extends Component {
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
-      <div className="posts-comments-thread">
+      <div className={classes.root}>
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        <Components.CommentsList
-          currentUser={currentUser}
-          totalComments={totalComments}
-          comments={comments}
-          highlightDate={this.state.highlightDate}
-          post={post}
-          postPage
-          startThreadCollapsed={startThreadCollapsed}
-          answerId={answerId}
-        />
         {!currentUser &&
           <div>
             <Components.LoginPopupLink>
@@ -147,6 +149,7 @@ class CommentsListSection extends Component {
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
+              alignmentForumPost={post.af}
               postId={postId}
               prefilledProps={{
                 af: Comments.defaultToAlignment(currentUser, post),
@@ -158,11 +161,21 @@ class CommentsListSection extends Component {
         {currentUser && !Users.isAllowedToComment(currentUser, post) && (
           <div className="i18n-message author_has_banned_you">
             { Users.blockedCommentingReason(currentUser, post)}
-            { !(getSetting('AlignmentForum', false)) && <span>
+          { !(getSetting('AlignmentForum', false)) && <span>
               (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
             </span> }
           </div>
         )}
+        <Components.CommentsList
+          currentUser={currentUser}
+          totalComments={totalComments}
+          comments={comments}
+          highlightDate={this.state.highlightDate}
+          post={post}
+          postPage
+          startThreadCollapsed={startThreadCollapsed}
+          answerId={answerId}
+        />
       </div>
     );
   }

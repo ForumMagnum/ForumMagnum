@@ -204,6 +204,19 @@ Posts.getCommentCount = (post) => {
   }
 }
 
+Posts.getCommentCountStr = (post) => {
+  let count = Posts.getCommentCount(post)
+
+  if (!count) {
+    return "No comments"
+  } else if (count == 1) {
+    return "1 comment"
+  } else {
+    return count + " comments"
+  }
+}
+
+
 Posts.getLastCommentedAt = (post) => {
   if (getSetting('AlignmentForum')) {
     return post.afLastCommentedAt;

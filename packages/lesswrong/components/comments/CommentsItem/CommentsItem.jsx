@@ -97,6 +97,11 @@ class CommentsItem extends Component {
     return false;
   }
 
+  getTruncationCharCount = () => {
+    const { comment } = this.props
+    return comment.baseScore > 20 ? 1000 : 300
+  }
+
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
@@ -113,7 +118,7 @@ class CommentsItem extends Component {
             {
               deleted: comment.deleted && !comment.deletedPublic,
               "public-deleted": comment.deletedPublic,
-              "showParent": this.state.showParent
+              "showParent": this.state.showParent,
             },
           )}
         >
@@ -183,7 +188,7 @@ class CommentsItem extends Component {
                 />
             ) : (
               <Components.CommentBody
-                truncationCharCount={comment.baseScore > 20 ? 1000 : 300}
+                truncationCharCount={this.getTruncationCharCount()}
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}
@@ -203,7 +208,7 @@ class CommentsItem extends Component {
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
 
-    if (!truncated && !collapsed) {
+    if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (

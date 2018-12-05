@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
+import { Link } from 'react-router'
 
 const styles = theme => ({
   icon: {
@@ -22,7 +23,7 @@ const showPostActions = (currentUser, post) => {
     Posts.canEdit(currentUser, post)
 }
 
-const PostsPageMobileActions = ({classes, post, setMenuAnchor, anchorEl, currentUser}) => {
+const PostsPageActions = ({classes, post, setMenuAnchor, anchorEl, currentUser}) => {
   if (showPostActions(currentUser, post)) {
     return <div>
       <MoreHorizIcon className={classes.icon} onClick={e => setMenuAnchor(e.target)}/>
@@ -31,9 +32,9 @@ const PostsPageMobileActions = ({classes, post, setMenuAnchor, anchorEl, current
         open={Boolean(anchorEl)}
         onClose={() => setMenuAnchor(null)}
       >
-        { Posts.canEdit(currentUser,post) && <MenuItem>
-          <Components.PostsEdit post={post}/>
-        </MenuItem> }
+        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+          <MenuItem>Edit</MenuItem>
+        </Link>}
         <Components.PostActions Container={MenuItem} post={post}/>
       </Menu>
     </div>
@@ -43,8 +44,8 @@ const PostsPageMobileActions = ({classes, post, setMenuAnchor, anchorEl, current
 }
 
 
-registerComponent('PostsPageMobileActions', PostsPageMobileActions,
-  withStyles(styles, {name: "PostsPageMobileActions"}),
+registerComponent('PostsPageActions', PostsPageActions,
+  withStyles(styles, {name: "PostsPageActions"}),
   withState('anchorEl', 'setMenuAnchor', null),
   withUser
 )

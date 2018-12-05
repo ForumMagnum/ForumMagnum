@@ -145,6 +145,10 @@ export function addEditableCallbacks({collection, options = {}}) {
     } else if (modifier.$set && modifier.$set[htmlFieldName]) {
       newFields = convertFromHTML(modifier.$set[htmlFieldName], !(author && author.isAdmin), fieldName);
       newModifier.$set = {...modifier.$set, ...newFields}
+    } else if (modifier.$unset && (modifier.$unset[contentFieldName] || modifier.$unset[bodyFieldName])) {
+      modifier.$unset[htmlFieldName] = true
+      modifier.$unset[bodyFieldName] = true
+      modifier.$unset[contentFieldName] = true
     }
     return newModifier
   }

@@ -16,6 +16,7 @@ const styles = theme => ({
     marginBottom: 10,
     padding: '8px 14px 1px 14px',
     cursor: 'pointer',
+    position:"relative",
     '&:hover': {
       backgroundColor: 'rgba(0,0,0,0.05)'
     }

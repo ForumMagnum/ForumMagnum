@@ -4,9 +4,11 @@ import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   formButton: {
@@ -42,7 +44,13 @@ class ModerationGuidelinesEditForm extends PureComponent {
         open={true}
         onClose={onClose}
       >
+        <DialogTitle>
+          Moderation Guidelines Edit Form
+        </DialogTitle>
         <DialogContent>
+          <Typography variant="body2">
+            Edit the moderation guidelines specific to this post:
+          </Typography>
           <Components.SmartForm
             collection={Posts}
             documentId={postId}
