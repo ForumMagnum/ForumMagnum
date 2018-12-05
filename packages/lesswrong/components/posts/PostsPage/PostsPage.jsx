@@ -128,7 +128,7 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, ModerationGuidelinesBox, FromNowDate,
+      PostsTopSequencesNav, ModerationGuidelinesBox, FormatDate,
       PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
 
     if (loading) {
@@ -163,10 +163,10 @@ class PostsPage extends Component {
                   <div className={classes.secondaryInfo}>
                     <span className={classes.inline}><PostsAuthors post={post}/></span>
                     {!post.isEvent && <span className={classes.mobileDate}>
-                      <FromNowDate date={post.postedAt}/>
+                      <FormatDate date={post.postedAt}/>
                     </span>}
                     {!post.isEvent && <span className={classes.desktopDate}>
-                      {moment(post.postedAt).format("MMM D YYYY")}
+                      <FormatDate date={post.postedAt} format="MMM Do YYYY"/>
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <span className={classes.actions}>

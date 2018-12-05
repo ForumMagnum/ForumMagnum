@@ -80,7 +80,7 @@ class SunshineReportedItem extends Component {
             {comment && <Components.SunshineCommentsItemOverview comment={comment}/>}
             <Components.SidebarInfo>
               {post && !comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
-              <em>"{ report.description }"</em> – {report.user.displayName}, <Components.FromNowDate date={report.createdAt}/>
+              <em>"{ report.description }"</em> – {report.user.displayName}, <Components.FormatDate date={report.createdAt}/>
             </Components.SidebarInfo>
             {hover && <Components.SidebarActionMenu>
               <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
