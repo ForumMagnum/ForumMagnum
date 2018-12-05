@@ -56,25 +56,17 @@ const styles = theme => ({
   level2: {
     fontSize:"1.05em",
     paddingLeft: 16,
-    "& $link": {
-      color: "rgba(0,0,0,.5)",
-    }
+
   },
   level3: {
     fontSize:"1.05em",
     color:theme.palette.grey[700],
     paddingLeft: 32,
-    "& $link": {
-      color: "rgba(0,0,0,.5)",
-    }
   },
   level4: {
     fontSize:"1.05em",
     color:theme.palette.grey[700],
     paddingLeft: 48,
-    "& $link": {
-      color: "rgba(0,0,0,.5)",
-    }
   },
 });
 

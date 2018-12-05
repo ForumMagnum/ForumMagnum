@@ -18,12 +18,9 @@ const styles = theme => ({
     fontSize: 12,
     top: 72,
     lineHeight: 1.0,
-    opacity: .7,
+    opacity: .8,
     paddingLeft:theme.spacing.unit*2,
     textAlign:"left",
-    "&:hover": {
-      opacity:1
-    }
   },
 });
 

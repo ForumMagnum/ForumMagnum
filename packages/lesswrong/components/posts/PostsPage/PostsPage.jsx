@@ -19,7 +19,6 @@ import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
-import moment from 'moment';
 
 const styles = theme => ({
     root: {
