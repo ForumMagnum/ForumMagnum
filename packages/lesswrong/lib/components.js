@@ -1,4 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core';
+import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
@@ -206,7 +207,7 @@ import '../components/sunshineDashboard/SunshineReportedContentList.jsx';
 import '../components/sunshineDashboard/SunshineReportedItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
-import '../components/sunshineDashboard/SunshineSidebar.jsx';
+registerSplitComponent("SunshineSidebar", () => import('../components/sunshineDashboard/SunshineSidebar.jsx'));
 import '../components/sunshineDashboard/SunshineListTitle.jsx';
 import '../components/sunshineDashboard/SunshineListItem.jsx';
 import '../components/sunshineDashboard/SidebarHoverOver.jsx';

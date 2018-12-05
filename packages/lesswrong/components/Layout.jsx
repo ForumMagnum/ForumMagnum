@@ -19,6 +19,9 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 
+import Users from 'meteor/vulcan:users';
+import { SplitComponent } from 'meteor/vulcan:routing';
+
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
 const styles = theme => ({
@@ -73,6 +76,12 @@ class Layout extends PureComponent {
         timezone: newTimezone
       });
     }
+  }
+
+  shouldRenderSidebar = () => {
+    const { currentUser } = this.props
+    return Users.canDo(currentUser, 'posts.moderate.all') ||
+      Users.canDo(currentUser, 'alignment.sidebar')
   }
 
   render () {
@@ -141,9 +150,7 @@ class Layout extends PureComponent {
                 <Components.FlashMessages />
               </Components.ErrorBoundary>
               {children}
-              <Components.ErrorBoundary>
-                <Components.SunshineSidebar />
-              </Components.ErrorBoundary>
+              {this.shouldRenderSidebar() && <SplitComponent name="SunshineSidebar" />}
             </div>
             <Components.Footer />
           </div>
