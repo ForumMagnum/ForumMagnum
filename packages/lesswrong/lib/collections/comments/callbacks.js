@@ -159,13 +159,6 @@ function CommentsEditSoftDeleteCallback (comment, oldComment) {
 }
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 
-function CommentsNewSoftDeleteCallback (comment) {
-  if (comment.deleted) {
-    runCallbacksAsync('comments.moderate.async', comment)
-  }
-}
-addCallback("comments.new.async", CommentsNewSoftDeleteCallback);
-
 function ModerateCommentsPostUpdate (comment, oldComment) {
   const comments = Comments.find({postId:comment.postId, deleted: {$in: [false,null]}}).fetch()
 
@@ -299,9 +292,9 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
       if (deletedReason && !deleted && !deletedPublic) {
         throw new Error("You cannot set a deleted reason without deleting a comment")
       }
-      
-      const childrenComments = await Comments.find({parentCommentId: comment._id})
-      const filteredChildrenComments = _.filter(childrenComments, (c) => c.deleted)
+
+      const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch()
+      const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
       if (
         filteredChildrenComments && 
         (filteredChildrenComments.length > 0) && 

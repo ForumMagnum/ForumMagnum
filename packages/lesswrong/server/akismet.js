@@ -2,18 +2,27 @@ import LWEvents from '../lib/collections/lwevents/collection'
 import Reports from '../lib/collections/reports/collection.js'
 import { Posts } from '../lib/collections/posts/collection.js'
 import { Comments } from '../lib/collections/comments/collection.js'
-import { newMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
+import { editMutation, newMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import akismet from 'akismet-api'
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
 
+// Akismet API integration
+const akismetKey = getSetting('akismet.apiKey', false)
+const akismetURL = getSetting('akismet.url', false)
+const client = akismet.client({
+  key  : akismetKey,                   
+  blog : akismetURL       
+});
+
 async function constructAkismetReport({document, type = "post"}) {
     const author = await Users.findOne(document.userId)
-
-    const link = (type === "post") ? 
-      Posts.getPageUrl(document, true) : 
-      (document.postId && Comments.getPageUrl(document, true)) // Don't get link if we create a comment without a post
+    let post = document
+    if (type !== "post") {
+      post = await Posts.findOne(document.postId)
+    }
+    const link = Posts.getPageUrl(post)  // Don't get link if we create a comment without a post
     const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
     const ip = events && events[0] && events[0].properties && events[0].properties.ip
     const userAgent = events && events[0] && events[0].properties && events[0].properties.userAgent
@@ -21,12 +30,12 @@ async function constructAkismetReport({document, type = "post"}) {
     return {
       user_ip : ip,              // Required!
       user_agent : userAgent,    // Required!
-      referrer : referrer || "",          // Required!
-      permalink : link,
+      referer: referrer,
+      permalink : akismetURL + link,
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.htmlBody, 
+      comment_content : document.body, 
       is_test: Meteor.isDevelopment
     }
 }
@@ -39,13 +48,7 @@ async function checkForAkismetSpam({document, type = "post"}) {
     return spam
 }
 
-// Akismet API integration
-const akismetKey = getSetting('akismet.apiKey', false)
-const akismetURL = getSetting('akismet.url', false)
-const client = akismet.client({
-  key  : akismetKey,                   
-  blog : akismetURL       
-});
+
 
 client.verifyKey()
 .then(function(valid) {
@@ -79,12 +82,12 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
       if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
-        post = {
-          ...post,
-          deleted: true,
-          deletedDate: new Date(),
-          deletedReason: "Akismet spam protection"
-        }
+        editMutation({
+          collection: Posts,
+          documentId: post._id,
+          set: {status: 4},
+          validate: false,
+        });
       }
     } else {
       //eslint-disable-next-line no-console
@@ -94,7 +97,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
   return post
 }
 
-addCallback('posts.new.sync', checkPostForSpamWithAkismet);
+addCallback('posts.new.after', checkPostForSpamWithAkismet);
 
 async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
@@ -117,12 +120,17 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
         if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
-          comment = {
-            ...comment,
-            deleted: true,
-            deletedDate: new Date(), 
-            deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
-          }
+          await editMutation({
+            collection: Comments,
+            documentId: comment._id,
+            set: {
+              deleted: true,
+              deletedDate: new Date(), 
+              deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
+            },
+            validate: false,
+            user: currentUser
+          });
         }
       } else {
         //eslint-disable-next-line no-console
@@ -132,7 +140,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     return comment
   }
   
-addCallback('comments.new.sync', checkCommentForSpamWithAkismet);
+addCallback('comments.new.after', checkCommentForSpamWithAkismet);
 
 function runReportCloseCallbacks(newReport, oldReport) {
   if (newReport.closedAt && !oldReport.closedAt) {

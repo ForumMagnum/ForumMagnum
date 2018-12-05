@@ -206,7 +206,7 @@ Comments.addField([
       canCreate: ['members'],
       hidden: true,
       onEdit: (modifier, document, currentUser) => {
-        if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
+        if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
           return modifier.$set.deletedByUserId || currentUser._id
         }
       },
