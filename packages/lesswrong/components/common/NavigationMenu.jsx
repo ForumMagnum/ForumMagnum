@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
 import Home from '@material-ui/icons/Home';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
-import Details from '@material-ui/icons/details';
+import Details from '@material-ui/icons/Details';
 import ListAlt from '@material-ui/icons/ListAlt';
 import Public from '@material-ui/icons/Public';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
