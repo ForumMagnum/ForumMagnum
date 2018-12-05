@@ -8,6 +8,7 @@ const styles = theme => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    direction:"ltr",
   },
 
   // For the highlighted section only, disable the half-opacity-on-hover effect
@@ -15,7 +16,7 @@ const styles = theme => ({
   highlighted: {
     fontWeight: "bold",
     '& $link': {
-      color: "black",
+      color: "rgba(0,0,0,.87)",
     },
     "& a:focus, & a:hover": {
       opacity: "initial",
@@ -38,13 +39,15 @@ const styles = theme => ({
 
   level0: {
     display:"inline-block",
-    maxWidth:240,
-    '&:first-of-type': {
-      marginBottom: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    '& $link': {
+      whiteSpace: "normal",
     },
     '&:last-of-type': {
+      borderBottom: "none",
       marginTop: theme.spacing.unit,
       paddingTop: theme.spacing.unit,
       borderTop: "solid 1px rgba(0,0,0,.2)",

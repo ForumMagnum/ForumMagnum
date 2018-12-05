@@ -9,8 +9,15 @@ const styles = theme => ({
     position: "absolute",
     width: 240,
     height: "100%",
+    [theme.breakpoints.up('xl')]: {
+      left:-100
+    },
     [theme.breakpoints.up('lg')]: {
-      left:-40
+      left:-50
+    },
+    opacity: .5,
+    '&:hover': {
+      opacity:1
     }
   },
   stickyBlock: {
@@ -18,9 +25,30 @@ const styles = theme => ({
     fontSize: 12,
     top: 72,
     lineHeight: 1.0,
-    opacity: .8,
+    marginLeft:1,
     paddingLeft:theme.spacing.unit*2,
     textAlign:"left",
+    height:"80vh",
+    overflowY:"scroll",
+    direction:"rtl",
+    "&::-webkit-scrollbar": {
+        width: 1,
+    },
+
+    /* Track */
+    "&::-webkit-scrollbar-track": {
+        background: theme.palette.grey[100],
+    },
+
+    /* Handle */
+    "&::-webkit-scrollbar-thumb": {
+        background: theme.palette.grey[300],
+    },
+
+    /* Handle on hover */
+    "&::-webkit-scrollbar-thumb:hover": {
+        background: theme.palette.grey[700],
+    }
   },
 });
 

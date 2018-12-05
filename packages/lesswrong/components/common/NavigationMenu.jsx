@@ -112,15 +112,17 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
     </MenuItem>
   )
 
+  const showToc = toc && toc.sections
+
   return <SwipeableDrawer
     open={open}
     onClose={(event) => handleClose()}
     onOpen={(event) => handleOpen()}
     classes={{
-      paper: toc ? classes.drawerPaperWithToC : classes.drawerPaperWithoutToC
+      paper: showToc ? classes.drawerPaperWithToC : classes.drawerPaperWithoutToC
     }}
   >
-    {toc && <div className={classes.navButtons}>
+    {showToc && <div className={classes.navButtons}>
       <Tooltip title="Home" placement="right">
         <Link to="/" className={classes.navButton}>
           <Home/>
@@ -169,7 +171,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
         </Link>
       </Tooltip>
     </div>}
-    <div className={classNames(classes.defaultNavMenu, {[classes.hideDefaultNav]:toc})}>
+    <div className={classNames(classes.defaultNavMenu, {[classes.hideDefaultNav]:showToc})}>
       <NavigationMenuLink icon={<Home/>} to="/" label="Home"/>
 
       <Divider className={classes.divider}/>
@@ -186,7 +188,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Meta"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
     </div>
-    {toc && <React.Fragment>
+    {showToc && <React.Fragment>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
           document={toc.document}
