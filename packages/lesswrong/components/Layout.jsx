@@ -130,7 +130,7 @@ class Layout extends PureComponent {
                 <Components.SunshineSidebar />
               </Components.ErrorBoundary>
             </div>
-            {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
+            <Components.Footer />
           </div>
           </DialogManager>
         </V0MuiThemeProvider>
