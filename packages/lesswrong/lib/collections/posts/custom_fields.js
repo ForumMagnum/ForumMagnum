@@ -6,6 +6,8 @@ import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
+import { Utils } from 'meteor/vulcan:core';
+import GraphQLJSON from 'graphql-type-json';
 
 export const formGroups = {
   adminOptions: {
@@ -1021,6 +1023,22 @@ Posts.addField([
       editableBy: ['admins'],
       optional: true,
       group: formGroups.adminOptions,
+    }
+  },
+  
+  {
+    fieldName: 'tableOfContents',
+    fieldSchema: {
+      type: Object,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        fieldName: "tableOfContents",
+        type: GraphQLJSON,
+        resolver: async (document, args, options) => {
+          return Utils.extractTableOfContents(document.htmlBody);
+        },
+      },
     }
   },
 

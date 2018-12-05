@@ -9,7 +9,7 @@ class PostsCommentsThread extends PureComponent {
     const {loading, results, loadMore, networkStatus, totalCount, post} = this.props;
     const loadingMore = networkStatus === 2;
     if (loading || !results) {
-      return <div className="posts-comments-thread"><Components.Loading/></div>
+      return <Components.Loading/>
     } else {
       const nestedComments = unflattenComments(results);
       return (

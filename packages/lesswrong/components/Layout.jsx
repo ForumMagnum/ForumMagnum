@@ -17,6 +17,7 @@ import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
+import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -45,13 +46,26 @@ const styles = theme => ({
 })
 
 class Layout extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      timezone: null
-    };
+  state = {
+    timezone: null,
+    toc: null,
+  };
+  
+  setToC = (document, sections) => {
+    if (document) {
+      this.setState({
+        toc: {
+          document: document,
+          sections: sections
+        }
+      });
+    } else {
+      this.setState({
+        toc: null,
+      });
+    }
   }
-
+  
   componentDidMount() {
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
@@ -96,6 +110,7 @@ class Layout extends PureComponent {
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <TableOfContentsContext.Provider value={this.setToC}>
       <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
         <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
           <DialogManager>
@@ -120,7 +135,7 @@ class Layout extends PureComponent {
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
-            <Components.Header/>
+            <Components.Header toc={this.state.toc} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
                 <Components.FlashMessages />
@@ -130,11 +145,12 @@ class Layout extends PureComponent {
                 <Components.SunshineSidebar />
               </Components.ErrorBoundary>
             </div>
-            {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
+            <Components.Footer />
           </div>
           </DialogManager>
         </V0MuiThemeProvider>
       </div>
+      </TableOfContentsContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )

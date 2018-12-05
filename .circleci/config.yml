@@ -215,7 +215,7 @@ jobs:
           command: |
             echo "$settings_prod" > settings.json
             echo "$meteor_token" > token.json
-            echo "$mup_settings_prod" > mup.js
+            echo "$mup_settings_prod" > mup.secret
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
@@ -236,7 +236,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy
+          command: meteor mup deploy --config mup.secret
   deploy_af:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -289,7 +289,7 @@ jobs:
           command: |
             echo "$settings_af" > settings.json
             echo "$meteor_token" > token.json
-            echo "$mup_settings_af" > mup.js
+            echo "$mup_settings_af" > mup.secret
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
@@ -310,7 +310,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy
+          command: meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -363,7 +363,7 @@ jobs:
           command: |
             echo "$settings_baserates_dev" > settings.json
             echo "$meteor_token" > token.json
-            echo "$mup_settings_baserates_dev" > mup.js
+            echo "$mup_settings_baserates_dev" > mup.secret
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
@@ -387,7 +387,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy
+          command: meteor mup deploy --config mup.secret
   deploy_staging:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -440,7 +440,7 @@ jobs:
           command: |
             echo "$settings_dev_live" > settings.json
             echo "$meteor_token" > token.json
-            echo "$mup_lessestwrong" > mup.js
+            echo "$mup_lessestwrong" > mup.secret
       - run:
           name: Install sentry-cli
           command: meteor npm i -g @sentry/cli
@@ -461,7 +461,7 @@ jobs:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy
+          command: meteor mup deploy --config mup.secret
 
 workflows:
   version: 2

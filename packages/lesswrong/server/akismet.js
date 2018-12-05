@@ -48,8 +48,6 @@ async function checkForAkismetSpam({document, type = "post"}) {
     return spam
 }
 
-
-
 client.verifyKey()
 .then(function(valid) {
   //eslint-disable-next-line no-console
@@ -139,7 +137,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     }
     return comment
   }
-  
+
 addCallback('comments.new.after', checkCommentForSpamWithAkismet);
 
 function runReportCloseCallbacks(newReport, oldReport) {

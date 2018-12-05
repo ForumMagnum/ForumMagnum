@@ -167,6 +167,7 @@ registerFragment(`
     afSticky
     voteCount
     question
+    authorIsUnreviewed
   }
 `);
 
@@ -194,6 +195,7 @@ registerFragment(`
     lastEditedAs
     body
     htmlBody
+    tableOfContents
     content
     plaintextExcerpt
     draft
