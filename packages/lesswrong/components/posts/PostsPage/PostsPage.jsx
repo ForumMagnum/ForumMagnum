@@ -91,8 +91,9 @@ const styles = theme => ({
       fontSize: 42,
       textAlign: 'center',
       display: 'inline-block',
-      marginLeft: 8,
-      marginRight: 8,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      paddingRight: 50
     },
     draft: {
       color: theme.palette.secondary.light
@@ -113,7 +114,15 @@ const styles = theme => ({
       [theme.breakpoints.down('sm')]: {
         paddingRight: 0
       }
-    }
+    },
+    footerSection: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '1.4em'
+    },
+    bottomDate: {
+      color: theme.palette.grey[600]
+    },
 })
 
 class PostsPage extends Component {
@@ -160,7 +169,7 @@ class PostsPage extends Component {
                       <FormatDate date={post.postedAt}/>
                     </span>}
                     {!post.isEvent && <span className={classes.desktopDate}>
-                      <FormatDate date={post.postedAt} format="MMM Do YYYY"/>
+                      <FormatDate date={post.postedAt} format="Do MMM YYYY"/>
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <span className={classes.actions}>
@@ -197,6 +206,15 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
+            {!post.isEvent && <div className={classes.footerSection}>
+              <div className={classes.voteBottom}>
+                <PostsVote
+                  collection={Posts}
+                  post={post}
+                  currentUser={currentUser}
+                  />  
+              </div>
+            </div>}
             {sequenceId && <div className={classes.recommendedReading}>
               <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
             </div>}
