@@ -20,6 +20,8 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 
+const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 600
+
 const styles = theme => ({
     root: {
       position: "relative",
@@ -206,15 +208,16 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            <div className={classes.footerSection}>
-              <div className={classes.voteBottom}>
-                <PostsVote
-                  collection={Posts}
-                  post={post}
-                  currentUser={currentUser}
-                  />  
-              </div>
-            </div>
+            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && 
+              <div className={classes.footerSection}>
+                <div className={classes.voteBottom}>
+                  <PostsVote
+                    collection={Posts}
+                    post={post}
+                    currentUser={currentUser}
+                    />  
+                </div>
+              </div>}
             {sequenceId && <div className={classes.recommendedReading}>
               <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
             </div>}
