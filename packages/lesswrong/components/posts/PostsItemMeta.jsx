@@ -17,7 +17,7 @@ const styles = theme => ({
 const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
-  const { MetaInfo, PostsEdit, FromNowDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
+  const { MetaInfo, PostsEdit, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
       { Posts.canEdit(currentUser,post) && <MetaInfo>
         <PostsEdit post={post}/>
@@ -54,7 +54,7 @@ const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
       </MetaInfo>}
 
       {post.postedAt && !post.isEvent && <MetaInfo>
-        <FromNowDate date={post.postedAt}/>
+        <FormatDate date={post.postedAt}/>
       </MetaInfo>}
 
       {post.wordCount && !post.isEvent && <MetaInfo>

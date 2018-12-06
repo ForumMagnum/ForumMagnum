@@ -18,9 +18,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
-import moment from 'moment';
 
 const styles = theme => ({
     root: {
@@ -34,32 +32,30 @@ const styles = theme => ({
     },
     header: {
       position: 'relative',
-      marginBottom: 50,
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: 0
-      }
+      display:"flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: theme.spacing.unit*2
+    },
+    headerLeft: {
+      width:"100%"
+    },
+    headerVote: {
+      textAlign: 'center',
+      fontSize: 42,
+      position: "relative",
+    },
+    divider: {
+      marginTop: theme.spacing.unit*2,
+      marginBottom: theme.spacing.unit*2,
+      marginLeft:0,
+      borderTop: "solid 1px rgba(0,0,0,.1)"
     },
     eventHeader: {
       marginBottom:0,
     },
     secondaryInfo: {
       fontSize: '1.4rem',
-      width: 'calc(100% - 60px)',
-    },
-    voteTop: {
-      position: 'absolute',
-      fontSize: 42,
-      left: -72,
-      top: -6,
-      textAlign: 'center',
-    },
-    mobileVote: {
-      position: 'absolute',
-      top: -14,
-      right: 0,
-      fontSize: 42,
-      display: 'inline-block',
-      textAlign: 'center',
     },
     mobileDate: {
       marginLeft: 20,
@@ -77,17 +73,11 @@ const styles = theme => ({
         display:"none"
       }
     },
-    mobileActions: {
+    actions: {
       display: 'inline-block',
       marginLeft: 15,
       cursor: "pointer",
       color: theme.palette.grey[600],
-    },
-    mobileDivider: {
-      width: '60%',
-      marginTop: 20,
-      marginLeft: 0,
-      borderColor: theme.palette.grey[100]
     },
     postBody: {
       marginBottom: 50,
@@ -128,8 +118,7 @@ const styles = theme => ({
     },
     inline: {
       display: 'inline-block'
-    },
-
+    }
 })
 
 class PostsPage extends Component {
@@ -138,7 +127,7 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, ModerationGuidelinesBox, FromNowDate,
+      PostsTopSequencesNav, ModerationGuidelinesBox, FormatDate,
       PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
 
     if (loading) {
@@ -164,39 +153,36 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <Section>
             <div className={classes.post}>
-              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
-                <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-                <PostsPageTitle post={post} />
-                <span className={classes.mobileVote}>
-                  <Hidden mdUp implementation="css">
-                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                  </Hidden>
-                </span>
-                <Hidden smDown implementation="css">
-                  <div className={classes.voteTop}>
-                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
+              >
+                <div className={classes.headerLeft}>
+                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+                  <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                  <PostsPageTitle post={post} />
+                  <div className={classes.secondaryInfo}>
+                    <span className={classes.inline}><PostsAuthors post={post}/></span>
+                    {!post.isEvent && <span className={classes.mobileDate}>
+                      <FormatDate date={post.postedAt}/>
+                    </span>}
+                    {!post.isEvent && <span className={classes.desktopDate}>
+                      <FormatDate date={post.postedAt} format="MMM Do YYYY"/>
+                    </span>}
+                    {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                    <span className={classes.actions}>
+                        <PostsPageActions post={post} />
+                    </span>
                   </div>
-                </Hidden>
-                {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                <div className={classes.secondaryInfo}>
-                  <span className={classes.inline}><PostsAuthors post={post}/></span>
-                  {!post.isEvent && <span className={classes.mobileDate}>
-                    <FromNowDate date={post.postedAt}/>
-                  </span>}
-                  {!post.isEvent && <span className={classes.desktopDate}>
-                    {moment(post.postedAt).format("DD MMM YYYY")}
-                  </span>}
-                  {post.types && (post.types.length > 0) && <Components.GroupLinks document={post} />}
-                  <span className={classes.mobileActions}>
-                      <PostsPageActions post={post} />
-                  </span>
-                  <Hidden mdUp implementation="css">
-                    <hr className={classes.mobileDivider} />
-                  </Hidden>
+                  {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
-                {post.isEvent && <PostsPageEventData post={post}/>}
-
+                <div className={classes.headerVote}>
+                  <PostsVote
+                    collection={Posts}
+                    post={post}
+                    currentUser={currentUser}
+                    />
+                </div>
               </div>
+              <hr className={classes.divider}/>
             </div>
           </Section>
           <Section titleComponent={
@@ -213,20 +199,20 @@ class PostsPage extends Component {
                   { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
                 </div>
               </div>
-
-              {/* Footer */}
-              <div className={classes.postFooter}>
-                <div className={classes.voteBottom}>
-                  <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                </div>
-                <div className={classes.moderationGuidelinesWrapper}>
-                  <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-                </div>
-              </div>
-              {sequenceId && <div className={classes.recommendedReading}>
-                <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
-              </div>}
             </div>
+
+            {/* Footer */}
+            <div className={classes.postFooter}>
+              <div className={classes.voteBottom}>
+                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              </div>
+              <div className={classes.moderationGuidelinesWrapper}>
+                <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+              </div>
+            </div>
+            {sequenceId && <div className={classes.recommendedReading}>
+              <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+            </div>}
           </Section>
 
           {/* Answers Section */}
@@ -235,10 +221,10 @@ class PostsPage extends Component {
           </div>}
 
           {/* Comments Section */}
-          <div>
+          <Section>
             <div id="comments"/>
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>
+          </Section>
 
         </div>
       );

@@ -101,7 +101,7 @@ class Header extends Component {
     }
   }
   handleNotificationClose = () => this.setState({notificationOpen: false});
-  
+
   render() {
     const { currentUser, classes, routes, location, params, client, theme, toc} = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen } = this.state
@@ -121,7 +121,17 @@ class Header extends Component {
                   aria-label="Menu"
                   onClick={()=>this.setNavigationOpen(true)}
                 >
-                  {toc ? <TocIcon /> : <MenuIcon />}
+                {/* Show the ToC icon if there's a table of contents being displayed  */}
+                  {toc && toc.sections ? (
+                    <span>
+                      <Hidden smDown implementation="css">
+                        <MenuIcon />
+                      </Hidden>
+                      <Hidden mdUp implementation="css">
+                        <TocIcon />
+                      </Hidden>
+                    </span>
+                  ) : <MenuIcon />}
                 </IconButton>
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
