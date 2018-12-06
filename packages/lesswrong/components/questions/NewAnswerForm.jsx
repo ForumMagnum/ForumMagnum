@@ -4,14 +4,67 @@ import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import classNames from 'classnames';
 
 const styles = theme => ({
   answersForm: {
-    maxWidth:640
-  }
+    maxWidth:670,
+    margin:"auto",
+    marginBottom:100,
+  },
+  title: {
+    ...theme.typography.postStyle,
+    borderTop: "solid 3px rgba(0,0,0,.87)",
+    paddingTop: 10,
+    width: 670,
+  },
+  formButton: {
+    paddingBottom: "2px",
+    fontSize: "16px",
+    marginLeft: "5px",
+    "&:hover": {
+      background: "rgba(0,0,0, 0.05)",
+    },
+    color: theme.palette.secondary.main,
+    float: "right"
+  },
 })
 
+const FormGroupComponent = (props) => {
+  return <React.Fragment>
+    {props.fields.map(field => (
+      <Components.FormComponent
+        key={field.name}
+        disabled={props.disabled}
+        {...field}
+        errors={props.errors}
+        throwError={props.throwError}
+        currentValues={props.currentValues}
+        updateCurrentValues={props.updateCurrentValues}
+        deletedValues={props.deletedValues}
+        addToDeletedValues={props.addToDeletedValues}
+        clearFieldErrors={props.clearFieldErrors}
+        formType={props.formType}
+        currentUser={props.currentUser}
+      />
+    ))}
+  </React.Fragment>
+}
+
 const NewAnswerForm = ({postId, classes}) => {
+
+  const SubmitComponent = ({submitLabel = "Submit"}) => {
+    return <div className={classes.submit}>
+      <Button
+        type="submit"
+        className={classNames(classes.formButton)}
+      >
+        {submitLabel}
+      </Button>
+    </div>
+  }
 
   const prefilledProps = { postId: postId, answer: true }
   const { SmartForm, ShowIf } = Components
@@ -22,8 +75,13 @@ const NewAnswerForm = ({postId, classes}) => {
       failureComponent={<FormattedMessage id="users.cannot_comment"/>}
     >
       <div className={classes.answersForm}>
+        <Typography variant="display1" className={classes.title}>
+          New Answer
+        </Typography>
         <SmartForm
           collection={Comments}
+          GroupComponent={FormGroupComponent}
+          SubmitComponent={SubmitComponent}
           mutationFragment={getFragment('CommentsList')}
           prefilledProps={prefilledProps}
           layout="elementOnly"
@@ -31,7 +89,6 @@ const NewAnswerForm = ({postId, classes}) => {
       </div>
     </ShowIf>
   )
-
 };
 
 NewAnswerForm.propTypes = {

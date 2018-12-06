@@ -38,6 +38,10 @@ class AnswerCommentsList extends PureComponent {
     }
   }
 
+  closeCommentNewForm = () => {
+    this.setState({commenting:false})
+  }
+
   render() {
     const { currentUser, results, loading, classes, totalCount, post, answerId } = this.props
     const { CommentsList, Loading, CommentsNewForm } = Components
@@ -69,7 +73,10 @@ class AnswerCommentsList extends PureComponent {
                   prefilledProps={{
                     af: Comments.defaultToAlignment(currentUser, post),
                     parentAnswerId: answerId}}
-                  type="comment"
+                  successCallback={this.closeCommentNewForm}
+                  cancelCallback={this.closeCommentNewForm}
+                  type="reply"
+                  answerId={answerId}
                 />
               </div>
             }
