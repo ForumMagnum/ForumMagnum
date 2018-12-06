@@ -120,6 +120,12 @@ const schema = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    onInsert: (document, currentUser) => {
+      // if userId is changing, change the author name too
+      if (document.userId) {
+        return Users.getDisplayNameById(document.userId)
+      }
+    },
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {

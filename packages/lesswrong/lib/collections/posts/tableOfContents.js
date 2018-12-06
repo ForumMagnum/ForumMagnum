@@ -37,7 +37,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML)
+export function extractTableOfContents(postHTML, alwaysDisplayToC)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
@@ -65,8 +65,9 @@ export function extractTableOfContents(postHTML)
     });
   }
 
-  if (headings.length < minHeadingsForToC)
+  if ((headings.length < minHeadingsForToC) && !alwaysDisplayToC) {
     return null;
+  }
 
   // Filter out unused heading levels, mapping the heading levels to consecutive
   // numbers starting from 1. So if a post uses <h1>, <h3> and <strong>, those
@@ -90,6 +91,7 @@ export function extractTableOfContents(postHTML)
   return {
     html: postBody.html(),
     sections: headings,
+    headingsCount: headings.length
   }
 }
 

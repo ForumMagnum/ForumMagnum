@@ -74,7 +74,7 @@ class UsersMenu extends PureComponent {
         >
             {(showNewButtons && Users.isAdmin(currentUser)) &&
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                Ask Question
+                Ask Question [Beta]
               </MenuItem>
             }
             {showNewButtons && <Link to={`/newPost`}>

@@ -37,7 +37,7 @@ const styles = theme => ({
 
     /* Track */
     "&::-webkit-scrollbar-track": {
-        background: theme.palette.grey[100],
+        background: "theme.palette.grey[100]",
     },
 
     /* Handle */
@@ -83,9 +83,9 @@ class TableOfContents extends Component
   }
 
   render() {
-    const { classes, sections, document, context } = this.props;
+    const { classes, sectionData, document, context } = this.props;
 
-    if (!sections || !document)
+    if (!sectionData || !document)
       return <div/>
 
     return (
@@ -93,7 +93,7 @@ class TableOfContents extends Component
         <div className={classes.stickyContainer}>
           <div className={classes.stickyBlock}>
             <Components.TableOfContentsList
-              sections={sections}
+              sectionData={sectionData}
               document={document}
               context={context}
               drawerStyle={false}

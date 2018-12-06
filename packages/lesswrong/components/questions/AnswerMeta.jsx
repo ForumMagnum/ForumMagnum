@@ -3,9 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import LinkIcon from '@material-ui/icons/Link';
-import { Posts } from '../../lib/collections/posts';
-import { Link } from 'react-router';
+// import LinkIcon from '@material-ui/icons/Link';
+// import { Posts } from '../../lib/collections/posts';
+// import { Link } from 'react-router';
 
 const styles = theme => ({
   root: {
@@ -28,14 +28,14 @@ const AnswerMeta = ({classes, comment, post, showEdit, scrollIntoView}) => {
   const { CommentsVote, CommentsMenu } = Components
 
   return <div className={classes.root}>
-    <CommentsVote comment={comment} />
-    <Link
+    {!comment.deleted && <CommentsVote comment={comment} />}
+    {/*}<Link
       className={classes.permalink}
       onClick={scrollIntoView}
       to={Posts.getPageUrl(post) + "#" + comment._id}
     >
       <LinkIcon />
-    </Link>
+    </Link>*/}
     <CommentsMenu
       showEdit={showEdit}
       comment={comment}

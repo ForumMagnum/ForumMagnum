@@ -146,9 +146,7 @@ class PostsPage extends Component {
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
       const sectionData = post.tableOfContents;
-      const htmlWithAnchors = sectionData ? sectionData.html : post.htmlBody;
-      const sections = sectionData ? [...sectionData.sections, {anchor:"comments", level:0, title:Posts.getCommentCountStr(post)}] : null;
-
+      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : post.htmlBody;
 
       return (
         <div className={classes.root}>
@@ -176,7 +174,6 @@ class PostsPage extends Component {
                         <PostsPageActions post={post} />
                     </span>
                   </div>
-                  {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
                 <div className={classes.headerVote}>
                   <PostsVote
@@ -187,10 +184,11 @@ class PostsPage extends Component {
                 </div>
               </div>
               <hr className={classes.divider}/>
+              {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
           </Section>
           <Section titleComponent={
-            <TableOfContents sections={sections} document={post}/>
+            <TableOfContents sectionData={sectionData} document={post} />
           }>
             <div className={classes.post}>
               {/* Body */}
@@ -221,7 +219,8 @@ class PostsPage extends Component {
           </Section>
 
           {/* Answers Section */}
-          {post.question && <div id="answers">
+          {post.question && <div>
+            <div id="answers"/>
             <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
           </div>}
 

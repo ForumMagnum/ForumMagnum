@@ -20,14 +20,15 @@ class TableOfContentsList extends Component {
   }
 
   render() {
-    const { sections, document } = this.props;
+    const { sectionData, document } = this.props;
     const { currentSection } = this.state;
     const { TableOfContentsRow } = Components;
     // const Row = TableOfContentsRow;
 
-    if (!sections || !document)
+    if (!sectionData || !document)
       return <div/>
 
+    const sections = sectionData ? sectionData.sections : []
     return <div>
       <div>
         <TableOfContentsRow key="postTitle"
@@ -44,6 +45,7 @@ class TableOfContentsList extends Component {
             highlighted={section.anchor === currentSection}
             href={"#"+section.anchor}
             onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
+            answersStyling={sectionData.headingsCount > 1}
           >
             {section.title}
           </TableOfContentsRow>
@@ -64,8 +66,12 @@ class TableOfContentsList extends Component {
   // position.)
   getAnchorY(anchorName) {
     let anchor = document.getElementById(anchorName);
-    let anchorBounds = anchor.getBoundingClientRect();
-    return anchorBounds.top + anchorBounds.height/2;
+    if (anchor) {
+      let anchorBounds = anchor.getBoundingClientRect();
+      return anchorBounds.top + anchorBounds.height/2;
+    } else {
+      return null
+    }
   }
 
   jumpToAnchor(anchor, ev) {
@@ -121,7 +127,7 @@ class TableOfContentsList extends Component {
     {
       let sectionY = this.getAnchorY(sections[i].anchor);
 
-      if(sectionY < currentSectionMark)
+      if(sectionY && sectionY < currentSectionMark)
         currentSection = sections[i].anchor;
     }
 

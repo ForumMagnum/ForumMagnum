@@ -28,6 +28,18 @@ const styles = theme => ({
   menu: {
     float: "right",
     marginLeft: theme.spacing.unit,
+  },
+  deletedSection: {
+    borderTop: "solid 1px rgba(0,0,0,.2)",
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit
+  },
+  deleted: {
+    color: theme.palette.grey[500]
   }
 })
 
@@ -43,28 +55,45 @@ class Answer extends Component {
     const { ContentItemBody, AnswerMeta, SimpleDate, AnswerCommentsList } = Components
 
     return (
-      <Components.Section titleComponent={<AnswerMeta comment={comment} post={post} showEdit={this.showEdit}/>}>
-        <div className={classes.root}>
-          { showEdit ?
-            <Components.CommentsEditForm
-               comment={comment}
-               successCallback={this.hideEdit}
-               cancelCallback={this.hideEdit}
-             />
-          :
-            <ContentItemBody
-              className={classes.postContent}
-              dangerouslySetInnerHTML={{__html:comment.htmlBody}}/>
+      <Components.Section>
+        <div className={classes.root} id={comment._id}>
+          { comment.deleted ?
+            <div className={classes.deletedSection}>
+              <Typography variant="body2" className={classes.deleted}>
+                Answer was deleted
+              </Typography>
+              <AnswerMeta
+                comment={comment}
+                post={post}
+                showEdit={this.showEdit}
+              />
+            </div>
+            :
+            <div>
+              { showEdit ?
+                <Components.CommentsEditForm
+                   comment={comment}
+                   successCallback={this.hideEdit}
+                   cancelCallback={this.hideEdit}
+                 />
+              :
+                <ContentItemBody
+                  className={classes.postContent}
+                  dangerouslySetInnerHTML={{__html:comment.htmlBody}}/>
+              }
+              <div className={classes.footer}>
+                {comment && comment.user && <Typography variant="headline">by { comment.user.displayName}</Typography>}
+                <Typography variant="subheading"><SimpleDate date={comment.postedAt}/></Typography>
+                <AnswerMeta comment={comment} post={post} showEdit={this.showEdit}/>
+              </div>
+              <AnswerCommentsList
+                terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit:3}}
+                post={post}
+                answerId={comment._id}
+                />
+            </div>
           }
-          <div className={classes.footer}>
-            {comment && comment.user && <Typography variant="headline">by { comment.user.displayName}</Typography>}
-            <Typography variant="subheading"><SimpleDate date={comment.postedAt}/></Typography>
-          </div>
-          <AnswerCommentsList
-            terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit:3}}
-            post={post}
-            answerId={comment._id}
-            />
+
         </div>
       </Components.Section>
     )
