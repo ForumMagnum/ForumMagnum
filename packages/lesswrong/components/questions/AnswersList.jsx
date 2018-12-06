@@ -13,9 +13,8 @@ const styles = theme => ({
   answerCount: {
     ...theme.typography.postStyle,
     borderTop: "solid 3px rgba(0,0,0,.87)",
-    margin: 10,
     paddingTop: 10,
-    width: 640,
+    width: 650,
     marginBottom: theme.spacing.unit*2,
   },
   loading: {
