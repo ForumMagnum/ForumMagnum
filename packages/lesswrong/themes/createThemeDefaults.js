@@ -83,7 +83,8 @@ const createLWTheme = (theme) => {
       },
       display3: {
         color: grey[800],
-        marginTop: '1.2em'
+        marginTop: '1.2em',
+        fontSize: '3rem'
       },
       display4: {
         color: grey[800],
