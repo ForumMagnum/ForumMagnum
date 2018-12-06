@@ -206,7 +206,7 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            {!post.isEvent && <div className={classes.footerSection}>
+            <div className={classes.footerSection}>
               <div className={classes.voteBottom}>
                 <PostsVote
                   collection={Posts}
@@ -214,7 +214,7 @@ class PostsPage extends Component {
                   currentUser={currentUser}
                   />  
               </div>
-            </div>}
+            </div>
             {sequenceId && <div className={classes.recommendedReading}>
               <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
             </div>}
