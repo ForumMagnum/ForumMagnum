@@ -53,9 +53,14 @@ const UsersProfile = (props) => {
 
       return (<div className="users-profile-actions">
         { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        {props.currentUser && props.currentUser.isAdmin && <Components.DialogGroup actions={[]} trigger={<Components.SectionSubtitle>Register new RSS Feed</Components.SectionSubtitle>}>
-          <div><Components.newFeedButton user={user} /></div>
-        </Components.DialogGroup>}
+        { props.currentUser && props.currentUser.isAdmin &&
+            <Components.DialogGroup
+              actions={[]}
+              trigger={<Components.SectionSubtitle>Register new RSS Feed</Components.SectionSubtitle>}
+            >
+              <div><Components.newFeedButton user={user} /></div>
+            </Components.DialogGroup>
+        }
         {Users.canEdit(currentUser, user) &&
           <Components.SectionSubtitle><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></Components.SectionSubtitle>
         }
