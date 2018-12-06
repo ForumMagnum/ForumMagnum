@@ -221,7 +221,6 @@ const schema = {
 
   parentAnswerId: {
     type: String,
-    max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,

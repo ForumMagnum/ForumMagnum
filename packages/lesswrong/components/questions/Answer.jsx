@@ -12,13 +12,13 @@ const styles = theme => ({
   postContent: postBodyStyles(theme),
   root: {
     maxWidth: 640,
-    margin:10,
   },
   author: {
     ...postBodyStyles(theme)
   },
   footer: {
-    marginTop: theme.spacing.unit*4,
+    marginTop: 5,
+    marginLeft: -13,
     display:"flex",
     alignItems:"center",
   },
@@ -119,7 +119,7 @@ class Answer extends Component {
               <AnswerCommentsList
                 terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit:3}}
                 post={post}
-                answerId={comment._id}
+                parentAnswerId={comment._id}
                 />
             </div>
           }

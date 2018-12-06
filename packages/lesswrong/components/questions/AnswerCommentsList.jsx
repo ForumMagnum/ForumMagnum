@@ -11,9 +11,8 @@ import Typography from '@material-ui/core/Typography';
 const styles = theme => ({
   answersList: {
     marginTop: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*2,
-    borderLeft: "solid 1.3em rgba(0,0,0,.07)",
-    marginLeft: "1.3em",
+    marginLeft: 34,
+    borderTop: `solid 1px ${theme.palette.grey[300]}`
   },
   newComment: {
     marginTop: theme.spacing.unit*2,
@@ -34,12 +33,20 @@ class AnswerCommentsList extends PureComponent {
     super(props);
     this.state = {
       commenting: false,
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
+      highlightDate: this.props.lastEvent && 
+      this.props.lastEvent.properties && 
+      this.props.lastEvent.properties.createdAt && 
+      new Date(this.props.lastEvent.properties.createdAt) 
+      || 
+      this.props.post && 
+      this.props.post.lastVisitedAt && 
+      new Date(this.props.post.lastVisitedAt) || 
+      new Date(),
     }
   }
 
   render() {
-    const { currentUser, results, loading, classes, totalCount, post, answerId } = this.props
+    const { currentUser, results, loading, classes, totalCount, post, parentAnswerId } = this.props
     const { CommentsList, Loading, CommentsNewForm } = Components
 
     const { commenting, highlightDate } = this.state
@@ -58,7 +65,7 @@ class AnswerCommentsList extends PureComponent {
               comments={nestedComments}
               highlightDate={highlightDate}
               post={post}
-              answerId={answerId}
+              parentAnswerId={parentAnswerId}
               postPage
               startThreadCollapsed
             />
@@ -68,7 +75,7 @@ class AnswerCommentsList extends PureComponent {
                   postId={post._id}
                   prefilledProps={{
                     af: Comments.defaultToAlignment(currentUser, post),
-                    parentAnswerId: answerId}}
+                    parentAnswerId: parentAnswerId}}
                   type="comment"
                 />
               </div>
@@ -86,7 +93,7 @@ class AnswerCommentsList extends PureComponent {
 AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  answerId: PropTypes.string,
+  parentAnswerId: PropTypes.string,
   loading: PropTypes.bool,
   results: PropTypes.array,
 };

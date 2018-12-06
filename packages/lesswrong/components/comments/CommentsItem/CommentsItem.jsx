@@ -240,7 +240,7 @@ class CommentsItem extends Component {
   renderReply = () => {
     const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
-    const { currentUser, post, comment, answerId } = this.props
+    const { currentUser, post, comment, parentAnswerId } = this.props
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
@@ -251,10 +251,10 @@ class CommentsItem extends Component {
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
             af:Comments.defaultToAlignment(currentUser, post, comment),
-            answerId: answerId
+            parentAnswerId: parentAnswerId
           }}
           type="reply"
-          answerId={answerId}
+          parentAnswerId={parentAnswerId}
         />
       </div>
     )

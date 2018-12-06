@@ -41,6 +41,23 @@ const styles = theme => ({
     '&:hover': {
       backgroundColor: "rgba(0,0,0,.075)"
     }
+  },
+  answerComment: {
+    borderLeft: 'transparent',
+    borderRight: 'transparent',
+    borderTop: 'transparent',
+    marginBottom: 0,
+    paddingBottom: 10
+  },
+  childAnswerComment: {
+    borderTop: 'transparent',
+    borderBottom: 'transparent',
+  },
+  oddAnswerComment: {
+    backgroundColor: 'white'
+  },
+  answerLeafComment: {
+    paddingBottom: 0
   }
 })
 
@@ -106,7 +123,7 @@ class CommentsNode extends PureComponent {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, answerId } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, parentAnswerId } = this.props;
 
     const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
@@ -120,7 +137,7 @@ class CommentsNode extends PureComponent {
         "af":comment.af,
         "comments-node-root" : nestingLevel === 1,
         "comments-node-even" : nestingLevel % 2 === 0,
-        "comments-node-odd"  : nestingLevel % 2 != 0,
+        "comments-node-odd"  : nestingLevel % 2 !== 0,
         "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
         "comments-node-its-getting-nested-here": nestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
@@ -135,6 +152,10 @@ class CommentsNode extends PureComponent {
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
+        [classes.answerComment]: parentAnswerId,
+        [classes.childAnswerComment]: child && parentAnswerId,
+        [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
+        [classes.answerLeafComment]: !(children && children.length)
       }
     )
     if (comment && post) {
@@ -160,7 +181,7 @@ class CommentsNode extends PureComponent {
                 postPage={postPage}
                 nestingLevel={nestingLevel}
                 showPostTitle={showPostTitle}
-                answerId={answerId}
+                parentAnswerId={parentAnswerId}
               />
             </div>
             {!collapsed && <div className="comments-children">
@@ -180,7 +201,7 @@ class CommentsNode extends PureComponent {
                   editMutation={editMutation}
                   post={post}
                   postPage={postPage}
-                  answerId={answerId}
+                  parentAnswerId={parentAnswerId}
                 />)}
             </div>}
           </div>
