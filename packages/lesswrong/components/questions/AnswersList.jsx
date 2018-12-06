@@ -8,13 +8,15 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   answersList: {
-    marginTop: theme.spacing.unit*2
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
   },
   answerCount: {
     ...theme.typography.postStyle,
     borderTop: "solid 3px rgba(0,0,0,.87)",
     paddingTop: 10,
-    width: 650,
+    width: 670,
+    margin: "auto",
     marginBottom: theme.spacing.unit*2,
   },
   loading: {
@@ -25,22 +27,24 @@ const styles = theme => ({
 const AnswersList = ({results, loading, classes, post}) => {
   const { Answer, Section } = Components
 
-  return <div>
-    <Section>
+  if (results && results.length) {
+    return <div>
       <Typography variant="display1" className={classNames(classes.answerCount, {[classes.loading]: loading})}>
         { results ? results.length : "Loading" } Answers
       </Typography>
-    </Section>
-    <div className={classes.answersList}>
-      { results ? results.map((comment) => {
-        return <span key={comment._id} >
-          <Answer comment={comment} post={post}/>
-        </span>
-        })
-        : <Components.Loading />
-      }
+      <div className={classes.answersList}>
+        { results ? results.map((comment) => {
+          return <span key={comment._id} >
+            <Answer comment={comment} post={post}/>
+          </span>
+          })
+          : <Components.Loading />
+        }
+      </div>
     </div>
-  </div>
+  } else {
+    return null
+  }
 };
 
 AnswersList.propTypes = {

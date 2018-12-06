@@ -3,14 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const AnswersSection = ({post}) => {
-  const { Section, AnswersList, NewAnswerForm } = Components
+  const { AnswersList, NewAnswerForm } = Components
   return (
 
     <div>
+      <NewAnswerForm postId={post._id}/>
       <AnswersList terms={{view: "questionAnswers", postId: post._id}} post={post}/>
-      <Section>
-        <NewAnswerForm postId={post._id}/>
-      </Section>
     </div>
   )
 
