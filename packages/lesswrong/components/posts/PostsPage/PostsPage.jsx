@@ -15,7 +15,7 @@ import { withRouter } from 'react-router'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
+import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
@@ -91,14 +91,9 @@ const styles = theme => ({
       fontSize: 42,
       textAlign: 'center',
       display: 'inline-block',
-      marginLeft: 8,
-      marginRight: 8,
-    },
-    postFooter: {
-      padding: '10px 0px',
-      borderTop: '1px solid rgba(0,0,0,0.2)',
-      borderBottom: '1px solid rgba(0,0,0,0.2)',
-      marginBottom: 30,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      paddingRight: 50
     },
     draft: {
       color: theme.palette.secondary.light
@@ -110,18 +105,24 @@ const styles = theme => ({
         width:'100%'
       }
     },
-    moderationGuidelinesWrapper: {
-      width: 'calc(100% - 70px)',
-      verticalAlign: 'top',
-      display: 'inline-block',
-      ...commentBodyStyles(theme)
-    },
     inline: {
       display: 'inline-block'
     },
     commentsSection: {
-      minHeight: 'calc(70vh - 100px)'
-    }
+      minHeight: 'calc(70vh - 100px)',
+      paddingRight: 25,
+      [theme.breakpoints.down('sm')]: {
+        paddingRight: 0
+      }
+    },
+    footerSection: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '1.4em'
+    },
+    bottomDate: {
+      color: theme.palette.grey[600]
+    },
 })
 
 class PostsPage extends Component {
@@ -130,8 +131,8 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, ModerationGuidelinesBox, FormatDate,
-      PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, 
+      Section, TableOfContents } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -168,7 +169,7 @@ class PostsPage extends Component {
                       <FormatDate date={post.postedAt}/>
                     </span>}
                     {!post.isEvent && <span className={classes.desktopDate}>
-                      <FormatDate date={post.postedAt} format="MMM Do YYYY"/>
+                      <FormatDate date={post.postedAt} format="Do MMM YYYY"/>
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <span className={classes.actions}>
@@ -205,12 +206,13 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            <div className={classes.postFooter}>
+            <div className={classes.footerSection}>
               <div className={classes.voteBottom}>
-                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-              </div>
-              <div className={classes.moderationGuidelinesWrapper}>
-                <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+                <PostsVote
+                  collection={Posts}
+                  post={post}
+                  currentUser={currentUser}
+                  />  
               </div>
             </div>
             {sequenceId && <div className={classes.recommendedReading}>
@@ -225,10 +227,8 @@ class PostsPage extends Component {
 
           {/* Comments Section */}
           <div className={classes.commentsSection}>
-            <Section>
-              <div id="comments"/>
-              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-            </Section>
+            <div id="comments"/>
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
           </div>
         </div>
       );

@@ -16,12 +16,13 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,
-    margin: "80px auto 15px auto",
+    margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
     
     "& .content-editor-is-empty": {
@@ -58,14 +59,31 @@ const styles = theme => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
-  }
+  },
+  moderationGuidelinesWrapper: {
+    ...commentBodyStyles(theme),
+    verticalAlign: 'top',
+    display: 'inline-block',
+    padding: '10px 0px',
+    borderTop: '1px solid rgba(0,0,0,0.2)',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    marginBottom: 30,
+  },
 })
 
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
+      highlightDate: this.props.lastEvent && 
+        this.props.lastEvent.properties && 
+        this.props.lastEvent.properties.createdAt && 
+        new Date(this.props.lastEvent.properties.createdAt) 
+        || 
+        this.props.post && 
+        this.props.post.lastVisitedAt && 
+        new Date(this.props.post.lastVisitedAt) || 
+        new Date(),
     }
   }
 
@@ -137,6 +155,9 @@ class CommentsListSection extends Component {
 
     return (
       <div className={classes.root}>
+        <div className={classes.moderationGuidelinesWrapper}>
+          <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+        </div>
         { this.props.totalComments ? this.renderTitleComponent() : null }
         {!currentUser &&
           <div>
