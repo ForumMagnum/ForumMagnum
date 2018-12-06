@@ -56,7 +56,7 @@ class TableOfContentsList extends Component {
   // Return the screen-space current section mark - that is, the spot on the
   // screen where the current-post will transition when its heading passes.
   getCurrentSectionMark() {
-    return Math.min(150, window.innerHeight/4);
+    return window.innerHeight/3
   }
 
   // Return the screen-space Y coordinate of an anchor. (Screen-space meaning

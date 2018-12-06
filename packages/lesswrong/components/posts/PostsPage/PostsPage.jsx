@@ -106,6 +106,9 @@ const styles = theme => ({
     },
     inline: {
       display: 'inline-block'
+    },
+    commentsSection: {
+      minHeight: 'calc(70vh - 100px)'
     }
 })
 
@@ -201,11 +204,10 @@ class PostsPage extends Component {
           </div>}
 
           {/* Comments Section */}
-          <div>
+          <div className={classes.commentsSection}>
             <div id="comments"/>
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
           </div>
-
         </div>
       );
     }
