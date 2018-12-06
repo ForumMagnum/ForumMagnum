@@ -15,7 +15,7 @@ import { withRouter } from 'react-router'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
+import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
@@ -94,12 +94,6 @@ const styles = theme => ({
       marginLeft: 8,
       marginRight: 8,
     },
-    postFooter: {
-      padding: '10px 0px',
-      borderTop: '1px solid rgba(0,0,0,0.2)',
-      borderBottom: '1px solid rgba(0,0,0,0.2)',
-      marginBottom: 30,
-    },
     draft: {
       color: theme.palette.secondary.light
     },
@@ -109,12 +103,6 @@ const styles = theme => ({
       [theme.breakpoints.down('sm')]: {
         width:'100%'
       }
-    },
-    moderationGuidelinesWrapper: {
-      width: 'calc(100% - 70px)',
-      verticalAlign: 'top',
-      display: 'inline-block',
-      ...commentBodyStyles(theme)
     },
     inline: {
       display: 'inline-block'
@@ -127,8 +115,8 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, ModerationGuidelinesBox, FormatDate,
-      PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, 
+      Section, TableOfContents } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -202,14 +190,6 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            <div className={classes.postFooter}>
-              <div className={classes.voteBottom}>
-                <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-              </div>
-              <div className={classes.moderationGuidelinesWrapper}>
-                <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-              </div>
-            </div>
             {sequenceId && <div className={classes.recommendedReading}>
               <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
             </div>}
@@ -221,10 +201,10 @@ class PostsPage extends Component {
           </div>}
 
           {/* Comments Section */}
-          <Section>
+          <div>
             <div id="comments"/>
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-          </Section>
+          </div>
 
         </div>
       );
