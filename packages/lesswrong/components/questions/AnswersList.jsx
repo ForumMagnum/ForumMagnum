@@ -25,7 +25,7 @@ const styles = theme => ({
 })
 
 const AnswersList = ({results, loading, classes, post}) => {
-  const { Answer, Section } = Components
+  const { Answer } = Components
 
   if (results && results.length) {
     return <div>
