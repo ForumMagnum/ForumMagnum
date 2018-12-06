@@ -83,7 +83,7 @@ class AnswerCommentsList extends PureComponent {
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
-                  answerId={answerId}
+                  parentAnswerId={parentAnswerId}
                 />
               </div>
             }
