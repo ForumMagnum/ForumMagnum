@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import { List, ListItem } from 'material-ui/List';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import withUser from '../common/withUser';
@@ -15,6 +16,16 @@ const styles = theme => ({
   
   empty: {
     padding: 10
+  },
+  
+  loadMoreButton: {
+    fontSize: "14px",
+    padding: 0,
+  },
+  loadMoreLabel: {
+    padding: 16,
+    textAlign: "center",
+    width: "100%",
   },
 });
 
@@ -41,10 +52,14 @@ class NotificationsList extends Component {
           )}
           {results.length >= 20 &&
             <ListItem
+              button={true}
+              className={classes.loadMoreButton}
               onClick={() => loadMore()}
-              primaryText="Load More"
-              style={{textAlign: 'center', fontSize: '14px'}}
-            />}
+            >
+              <div className={classes.loadMoreLabel}>
+                Load More
+              </div>
+            </ListItem>}
         </List>
       )
     } else {
