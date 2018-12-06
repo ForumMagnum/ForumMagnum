@@ -22,7 +22,8 @@ const styles = theme => ({
   },
   noComments: {
     position: "relative",
-    top: -theme.spacing.unit*8,
+    textAlign: "right",
+    top:-theme.spacing.unit*8
   },
 })
 

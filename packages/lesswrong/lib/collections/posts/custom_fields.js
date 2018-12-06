@@ -8,6 +8,8 @@ import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
+import { Comments } from '../comments'
+import { questionAnswersSort } from '../comments/views';
 
 export const formGroups = {
   adminOptions: {
@@ -1025,7 +1027,7 @@ Posts.addField([
       group: formGroups.adminOptions,
     }
   },
-  
+
   {
     fieldName: 'tableOfContents',
     fieldSchema: {
@@ -1036,7 +1038,39 @@ Posts.addField([
         fieldName: "tableOfContents",
         type: GraphQLJSON,
         resolver: async (document, args, options) => {
-          return Utils.extractTableOfContents(document.htmlBody);
+          let tocData
+          if (document.question) {
+
+            const answers = Comments.find(
+              {answer:true, postId: document._id, deleted:{$in:[null, false]}},
+              {sort:questionAnswersSort}
+            ).fetch()
+
+            if (answers && answers.length) {
+              tocData = Utils.extractTableOfContents(document.htmlBody, true)
+
+              const answerSections = answers.map((answer) => ({
+                title: answer.author + "'s answer",
+                anchor: answer._id,
+                level: 2
+              }))
+              tocData = {
+                html: tocData.html,
+                headingsCount: tocData.headingsCount,
+                sections: [
+                  ...tocData.sections,
+                  {anchor:"answers", level:1, title:"Answers"},
+                  ...answerSections
+                ]
+              }
+            }
+          } else {
+            tocData = Utils.extractTableOfContents(document.htmlBody)
+          }
+          if (tocData) {
+            tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document)})
+          }
+          return tocData;
         },
       },
     }
