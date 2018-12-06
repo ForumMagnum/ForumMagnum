@@ -1040,7 +1040,12 @@ Posts.addField([
         resolver: async (document, args, options) => {
           let tocData
           if (document.question) {
-            const answers = Comments.find({answer:true, postId: document._id, deleted:{$in:[null, false]}}, {sort:questionAnswersSort}).fetch()
+
+            const answers = Comments.find(
+              {answer:true, postId: document._id, deleted:{$in:[null, false]}},
+              {sort:questionAnswersSort}
+            ).fetch()
+
             if (answers && answers.length) {
               tocData = Utils.extractTableOfContents(document.htmlBody, true)
 

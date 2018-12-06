@@ -37,7 +37,7 @@ const styles = theme => ({
 
     /* Track */
     "&::-webkit-scrollbar-track": {
-        background: "theme.palette.grey[100]",
+        background: "none",
     },
 
     /* Handle */

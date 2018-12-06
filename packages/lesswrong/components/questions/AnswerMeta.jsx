@@ -6,6 +6,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 // import LinkIcon from '@material-ui/icons/Link';
 // import { Posts } from '../../lib/collections/posts';
 // import { Link } from 'react-router';
+import { Comments } from '../../lib/collections/comments';
 
 const styles = theme => ({
   root: {
@@ -21,27 +22,21 @@ const styles = theme => ({
       display: "block"
     },
     color: theme.palette.grey[500]
-  }
+  },
 })
 
 const AnswerMeta = ({classes, comment, post, showEdit, scrollIntoView}) => {
-  const { CommentsVote, CommentsMenu } = Components
+  const { CommentsMenu } = Components
 
   return <div className={classes.root}>
-    {!comment.deleted && <CommentsVote comment={comment} />}
-    {/*}<Link
+    {/*<Link
       className={classes.permalink}
       onClick={scrollIntoView}
       to={Posts.getPageUrl(post) + "#" + comment._id}
     >
       <LinkIcon />
     </Link>*/}
-    <CommentsMenu
-      showEdit={showEdit}
-      comment={comment}
-      post={post}
-      icon={<MoreHorizIcon className={classes.menuIcon}/>}
-    />
+
   </div>
 };
 
