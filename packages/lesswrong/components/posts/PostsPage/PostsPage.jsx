@@ -108,7 +108,11 @@ const styles = theme => ({
       display: 'inline-block'
     },
     commentsSection: {
-      minHeight: 'calc(70vh - 100px)'
+      minHeight: 'calc(70vh - 100px)',
+      paddingRight: 25,
+      [theme.breakpoints.down('sm')]: {
+        paddingRight: 0
+      }
     }
 })
 
