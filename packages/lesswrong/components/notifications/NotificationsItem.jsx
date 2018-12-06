@@ -14,9 +14,20 @@ const styles = theme => ({
     "&:hover": {
       backgroundColor: "rgba(0,0,0,0.02) !important",
     },
-    "&.read:hover": {
+    
+    fontFamily: "freight-sans-pro, sans-serif",
+    fontSize: "1rem",
+    lineHeight: "1.4rem"
+  },
+  read: {
+    backgroundColor: "rgba(0,0,0,0.04) !important",
+    
+    "&:hover": {
       backgroundColor: "rgba(0,0,0,0.08) !important",
-    }
+    },
+  },
+  unread: {
+    backgroundColor: "inherit !important",
   },
 });
 
@@ -54,12 +65,17 @@ class NotificationsItem extends Component {
     return (
       <ListItem
         containerElement={<Link to={notification.link} />}
-        className={classNames(classes.root, {read: notification.createdAt < lastNotificationsCheck || this.state.clicked})}
+        className={classNames(
+          classes.root,
+          {
+            [classes.read]:     notification.createdAt < lastNotificationsCheck || this.state.clicked,
+            [classes.unread]: !(notification.createdAt < lastNotificationsCheck || this.state.clicked)
+          }
+        )}
         onClick={() => this.setState({clicked: true})}
         secondaryText={notification.message}
         secondaryTextLines={2}
         leftIcon={this.renderNotificationIcon(notification.type)}
-        style={{backgroundColor: (notification.createdAt < lastNotificationsCheck || this.state.clicked) ? 'rgba(0,0,0,0.04)' : 'inherit', fontFamily: "freight-sans-pro, sans-serif", fontSize: "1rem", lineHeight: "1.4rem"}}
       />
     )
   }
