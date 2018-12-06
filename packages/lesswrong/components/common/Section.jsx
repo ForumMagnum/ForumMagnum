@@ -74,7 +74,6 @@ const styles = (theme) => ({
 })
 
 const Section = ({
-  contentStyle,
   title,
   titleLink,
   titleComponent,
