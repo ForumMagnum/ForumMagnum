@@ -1,13 +1,14 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
+import withUser from '../common/withUser'
 
 const AnswersSection = ({post}) => {
-  const { AnswersList, NewAnswerForm } = Components
+  const { AnswersList, NewAnswerForm, currentUser } = Components
   return (
 
     <div>
-      <NewAnswerForm postId={post._id}/>
+      {currentUser && <NewAnswerForm postId={post._id}/>}
       <AnswersList terms={{view: "questionAnswers", postId: post._id}} post={post}/>
     </div>
   )
@@ -18,4 +19,4 @@ AnswersSection.propTypes = {
   post: PropTypes.object.isRequired,
 };
 
-registerComponent('AnswersSection', AnswersSection);
+registerComponent('AnswersSection', AnswersSection, withUser);
