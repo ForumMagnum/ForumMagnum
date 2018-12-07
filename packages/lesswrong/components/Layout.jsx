@@ -50,13 +50,13 @@ class Layout extends PureComponent {
     timezone: null,
     toc: null,
   };
-  
-  setToC = (document, sections) => {
+
+  setToC = (document, sectionData) => {
     if (document) {
       this.setState({
         toc: {
           document: document,
-          sections: sections
+          sections: sectionData && sectionData.sections
         }
       });
     } else {
@@ -65,7 +65,7 @@ class Layout extends PureComponent {
       });
     }
   }
-  
+
   componentDidMount() {
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
