@@ -1,8 +1,3 @@
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import Users from 'meteor/vulcan:users';
-import { Posts } from '../../collections/posts';
-import Sequences from '../../collections/sequences/collection'
-import { getSetting } from 'meteor/vulcan:core';
 
 // Legacy LW breakpoints
 // We are migrating away from these, towards material-UI's breakpoints. Also
