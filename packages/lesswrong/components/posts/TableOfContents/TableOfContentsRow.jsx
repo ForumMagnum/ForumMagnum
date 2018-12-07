@@ -41,7 +41,7 @@ const styles = theme => ({
     display:"inline-block",
     marginBottom: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
     '& $link': {
       whiteSpace: "normal",
     },
@@ -49,7 +49,7 @@ const styles = theme => ({
       borderBottom: "none",
       marginTop: theme.spacing.unit,
       paddingTop: theme.spacing.unit,
-      borderTop: "solid 1px rgba(0,0,0,.2)",
+      borderTop: "solid 1px rgba(0,0,0,.1)",
     }
   },
   level1: {
@@ -74,7 +74,7 @@ const styles = theme => ({
     marginTop:theme.spacing.unit,
     '& $link': {
       display:"inline-block",
-      borderTop: "solid 1px rgba(0,0,0,.2)",
+      borderTop: "solid 1px rgba(0,0,0,.1)",
       paddingTop: theme.spacing.unit*1.5,
     }
   }
