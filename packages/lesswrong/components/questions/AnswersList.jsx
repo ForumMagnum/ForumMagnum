@@ -15,7 +15,7 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     borderTop: "solid 3px rgba(0,0,0,.87)",
     paddingTop: 10,
-    width: 650,
+    maxWidth: 650,
     marginBottom: theme.spacing.unit*2,
   },
   loading: {

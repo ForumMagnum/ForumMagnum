@@ -11,7 +11,10 @@ import Typography from '@material-ui/core/Typography';
 const styles = theme => ({
   answersList: {
     marginLeft: 34,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`
+    borderTop: `solid 1px ${theme.palette.grey[300]}`,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: 0
+    }
   },
   noComments: {
     position: "relative",
@@ -62,7 +65,7 @@ class AnswerCommentsList extends PureComponent {
   }
 
   loadMoreComments = () => {
-    this.props.loadMore({limit: 500})
+    this.props.loadMore({limit: 10000})
   }
 
   render() {
