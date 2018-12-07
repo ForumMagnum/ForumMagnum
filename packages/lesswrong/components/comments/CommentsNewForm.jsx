@@ -23,6 +23,9 @@ const styles = theme => ({
     },
     color: theme.palette.secondary.main
   },
+  cancelButton: {
+    color: theme.palette.grey[400]
+  }
 });
 
 const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost}) => {
@@ -38,6 +41,12 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
+      <Button
+        onClick={cancelCallback}
+        className={classNames(classes.formButton, classes.cancelButton)}
+      >
+        Cancel
+      </Button>
       <Button
         type="submit"
         className={classNames(classes.formButton)}
@@ -58,7 +67,7 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
           successCallback={successCallback}
-          cancelCallback={type === "reply" ? cancelCallback : null}
+          cancelCallback={cancelCallback}
           prefilledProps={prefilledProps}
           layout="elementOnly"
           GroupComponent={FormGroupComponent}

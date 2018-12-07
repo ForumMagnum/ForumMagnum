@@ -10,15 +10,13 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   answersForm: {
-    maxWidth:670,
-    margin:"auto",
+    maxWidth:650,
     marginBottom:100,
   },
   title: {
     ...theme.typography.postStyle,
     borderTop: "solid 3px rgba(0,0,0,.87)",
     paddingTop: 10,
-    width: 670,
   },
   formButton: {
     paddingBottom: "2px",
