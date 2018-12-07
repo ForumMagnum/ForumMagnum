@@ -3,8 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import withUser from '../common/withUser'
 
-const AnswersSection = ({post}) => {
-  const { AnswersList, NewAnswerForm, currentUser } = Components
+const AnswersSection = ({post, currentUser}) => {
+  const { AnswersList, NewAnswerForm } = Components
   return (
 
     <div>

@@ -90,7 +90,9 @@ class AnswerCommentsList extends PureComponent {
                   postId={post._id}
                   prefilledProps={{
                     af: Comments.defaultToAlignment(currentUser, post),
-                    parentAnswerId: parentAnswerId}}
+                    parentAnswerId: parentAnswerId,
+                    parentCommentId: parentAnswerId
+                  }}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"

@@ -103,7 +103,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, parentAnswerId } = this.props
 
     const { showEdit } = this.state
     const { CommentsMenu } = Components
@@ -137,7 +137,7 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              {(comment.parentCommentId && (nestingLevel === 1)) &&
+              {(comment.parentCommentId && (parentAnswerId !== comment.parentCommentId) && (nestingLevel === 1)) &&
                 <Tooltip title="Show previous comment">
                   <Icon
                     onClick={this.toggleShowParent}

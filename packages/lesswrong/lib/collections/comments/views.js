@@ -11,8 +11,6 @@ Comments.addDefaultView(terms => {
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$in: [false,null]}}],
-      answer: { $in: [false,null] },
-      parentAnswerId: { $in: [false,null] },
       hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
       ...validFields,
       ...alignmentForum,
@@ -22,7 +20,7 @@ Comments.addDefaultView(terms => {
 
 export function augmentForDefaultView(indexFields)
 {
-  return {...indexFields, deleted:1, deletedPublic:1, answer:1, hideAuthor:1, userId:1, af:1};
+  return {...indexFields, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1};
 }
 
 // Most common case: want to get all the comments on a post, filter fields and
@@ -67,31 +65,49 @@ Comments.addView("allCommentsDeleted", function (terms) {
 
 Comments.addView("postCommentsTop", function (terms) {
   return {
-    selector: { postId: terms.postId },
-    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
+    selector: { 
+      postId: terms.postId,
+      parentAnswerId: { $in: [false,null] },
+      answer: { $in: [false,null] },
+    },
+    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}},
+    
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, deleted:1, answer:1, baseScore:-1, postedAt:-1 }));
+ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }));
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
-    selector: { postId: terms.postId },
-    options: {sort: {deleted: 1, postedAt: 1}}
+    selector: { 
+      postId: terms.postId,
+      parentAnswerId: { $in: [false,null] },
+      answer: { $in: [false,null] },
+    },
+    options: {sort: {deleted: 1, postedAt: 1}},
+    parentAnswerId: { $in: [false,null] }
   };
 });
 // Uses same index as postCommentsNew
 
 Comments.addView("postCommentsNew", function (terms) {
   return {
-    selector: { postId: terms.postId },
+    selector: { 
+      postId: terms.postId,
+      parentAnswerId: { $in: [false,null] },
+      answer: { $in: [false,null] },
+    },
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, deleted:1, answer:1, postedAt:-1 }));
+ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }));
 
 Comments.addView("postCommentsBest", function (terms) {
   return {
-    selector: { postId: terms.postId },
+    selector: { 
+      postId: terms.postId,
+      parentAnswerId: { $in: [false,null] },
+      answer: { $in: [false,null] },
+    },
     options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
   };
 });
