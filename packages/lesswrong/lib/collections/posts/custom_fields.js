@@ -1069,7 +1069,7 @@ Posts.addField([
           }
           if (tocData) {
             const commentCount = Comments.find(
-              {answer:{$in:[false, null]}, parentAnswerId:{$in:["",undefined,null]}, postId: document._id }).count()
+              {answer:{$in:[false, null]}, parentAnswerId:{$in:[undefined,null]}, postId: document._id }).count()
             tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
           }
           return tocData;
