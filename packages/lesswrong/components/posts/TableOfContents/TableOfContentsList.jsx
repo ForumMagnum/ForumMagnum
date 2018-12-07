@@ -20,12 +20,12 @@ class TableOfContentsList extends Component {
   }
 
   render() {
-    const { sectionData, document } = this.props;
+    const { sectionData } = this.props;
     const { currentSection } = this.state;
     const { TableOfContentsRow } = Components;
     // const Row = TableOfContentsRow;
 
-    if (!sectionData || !document)
+    if (!sectionData)
       return <div/>
 
     const sections = sectionData ? sectionData.sections : []
@@ -36,7 +36,7 @@ class TableOfContentsList extends Component {
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
         >
-          {document.title}
+          {sectionData.document && sectionData.document.title}
         </TableOfContentsRow>
         {sections && sections.map((section, index) =>
           <TableOfContentsRow

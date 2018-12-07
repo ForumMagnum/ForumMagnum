@@ -24,12 +24,15 @@ const styles = theme => ({
   // navigation options).
   drawerPaperWithToC: {
     width: 300,
+    overflow:"hidden",
   },
   tableOfContents: {
-    margin:16,
+    padding: "16px 0 16px 16px",
     position:"absolute",
+    overflowY:"scroll",
     left:55,
-    maxWidth: 215,
+    maxWidth: 247,
+    height:"100%",
     display:"none",
     [theme.breakpoints.down('sm')]: {
       display:"block"
@@ -111,7 +114,6 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       <ListItemIcon className={classes.menuIcon}><span>{icon}</span></ListItemIcon> {label}
     </MenuItem>
   )
-
   const showToc = toc && toc.sections
 
   return <SwipeableDrawer
@@ -191,8 +193,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
     {showToc && <React.Fragment>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
-          document={toc.document}
-          sections={toc.sections}
+          sectionData={toc}
           onClickSection={() => handleClose()}
           drawerStyle={true}
         />

@@ -76,7 +76,7 @@ class TableOfContents extends Component
   state = { drawerOpen: false }
 
   componentDidMount() {
-    this.props.setToC(this.props.document, this.props.sections);
+    this.props.setToC(this.props.document, this.props.sectionData);
   }
 
   componentWillUnmount() {
@@ -95,7 +95,6 @@ class TableOfContents extends Component
           <div className={classes.stickyBlock}>
             <Components.TableOfContentsList
               sectionData={sectionData}
-              document={document}
               context={context}
               drawerStyle={false}
             />
