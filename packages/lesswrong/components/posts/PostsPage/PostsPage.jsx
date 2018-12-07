@@ -219,13 +219,12 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.recommendedReading}>
               <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
             </div>}
+            {/* Answers Section */}
+            {post.question && <div>
+              <div id="answers"/>
+              <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
+            </div>}
           </Section>
-
-          {/* Answers Section */}
-          {post.question && <div>
-            <div id="answers"/>
-            <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>}
 
           {/* Comments Section */}
           <div className={classes.commentsSection}>

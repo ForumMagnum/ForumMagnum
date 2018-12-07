@@ -10,20 +10,28 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   answersList: {
-    marginTop: theme.spacing.unit*2,
     marginLeft: 34,
     borderTop: `solid 1px ${theme.palette.grey[300]}`
-  },
-  newComment: {
-    marginTop: theme.spacing.unit*2,
-    marginLeft: theme.spacing.unit,
-    color: theme.palette.grey[500]
   },
   noComments: {
     position: "relative",
     textAlign: "right",
     top:-theme.spacing.unit*8
   },
+  noCommentAnswersList: {
+    borderTop: 'transparent'
+  },
+  editor: {
+    marginLeft: 34, 
+    marginTop: 16,
+    paddingLeft: 12,
+    borderTop: `solid 1px ${theme.palette.grey[300]}`
+  },
+  newComment: {
+    marginBottom: 8,
+    textAlign: 'right',
+    color: theme.palette.grey[600]
+  }
 })
 
 
@@ -42,9 +50,9 @@ class AnswerCommentsList extends PureComponent {
       this.props.post.lastVisitedAt && 
       new Date(this.props.post.lastVisitedAt) || 
       new Date(),
-    }
+      }
   }
-
+  
   closeCommentNewForm = () => {
     this.setState({commenting:false})
   }
@@ -52,8 +60,8 @@ class AnswerCommentsList extends PureComponent {
   render() {
     const { currentUser, results, loading, classes, totalCount, post, parentAnswerId } = this.props
     const { CommentsList, Loading, CommentsNewForm } = Components
-
     const { commenting, highlightDate } = this.state
+    const noComments = (!results || !results.length) && !commenting
 
     // const loadingMore = networkStatus === 2;
     if (loading || !results) {
@@ -62,7 +70,27 @@ class AnswerCommentsList extends PureComponent {
       const nestedComments = unflattenComments(results);
       return (
         <div>
-          <div className={classes.answersList}>
+          {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
+              <a>Add Comment</a>
+            </Typography>}
+          {/* <Typography variant="body2" onClick={()=>this.setState({commenting: true})}>
+              <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
+          </Typography> */}
+          { commenting &&
+              <div className={classes.editor}>
+                <CommentsNewForm
+                  postId={post._id}
+                  prefilledProps={{
+                    af: Comments.defaultToAlignment(currentUser, post),
+                    parentAnswerId: parentAnswerId}}
+                  successCallback={this.closeCommentNewForm}
+                  cancelCallback={this.closeCommentNewForm}
+                  type="reply"
+                  parentAnswerId={parentAnswerId._id}
+                />
+              </div>
+            }
+          <div className={classNames(classes.answersList, {[classes.noCommentAnswersList]: noComments})}>
             <CommentsList
               currentUser={currentUser}
               totalComments={totalCount}
@@ -73,24 +101,7 @@ class AnswerCommentsList extends PureComponent {
               postPage
               startThreadCollapsed
             />
-            { commenting &&
-              <div className={classes.editor}>
-                <CommentsNewForm
-                  postId={post._id}
-                  prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post),
-                    parentAnswerId: parentAnswerId}}
-                  successCallback={this.closeCommentNewForm}
-                  cancelCallback={this.closeCommentNewForm}
-                  type="reply"
-                  parentAnswerId={parentAnswerId}
-                />
-              </div>
-            }
           </div>
-          {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment, {[classes.noComments]: (!results || !results.length) && !commenting})}>
-            <a>Add Comment</a>
-          </Typography>}
         </div>
       );
     }

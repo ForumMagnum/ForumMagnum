@@ -15,8 +15,7 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     borderTop: "solid 3px rgba(0,0,0,.87)",
     paddingTop: 10,
-    width: 670,
-    margin: "auto",
+    width: 650,
     marginBottom: theme.spacing.unit*2,
   },
   loading: {
@@ -33,10 +32,8 @@ const AnswersList = ({results, loading, classes, post}) => {
         { results ? results.length : "Loading" } Answers
       </Typography>
       <div className={classes.answersList}>
-        { results ? results.map((comment) => {
-          return <span key={comment._id} >
-            <Answer comment={comment} post={post}/>
-          </span>
+        { results ? results.map((comment, i) => {
+          return <Answer comment={comment} post={post} key={comment._id} answerCount={results.length} index={i} />
           })
           : <Components.Loading />
         }
