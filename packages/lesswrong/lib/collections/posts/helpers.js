@@ -196,11 +196,7 @@ Posts.getPageUrl = function(post, isAbsolute = false){
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-Posts.getCommentCount = (post, commentCount) => {
-  // can be passed in a manual comment count, or retrieve the post's cached comment count
-  if (commentCount != undefined) {
-    return commentCount
-  }
+Posts.getCommentCount = (post) => {
   if (getSetting('AlignmentForum')) {
     return post.afCommentCount || 0;
   } else {
@@ -209,7 +205,10 @@ Posts.getCommentCount = (post, commentCount) => {
 }
 
 Posts.getCommentCountStr = (post, commentCount) => {
-  const count = Posts.getCommentCount(post, commentCount)
+  // can be passed in a manual comment count, or retrieve the post's cached comment count
+
+  const count = commentCount != undefined ? commentCount :  Posts.getCommentCount(post)
+
   if (!count) {
     return "No comments"
   } else if (count == 1) {
