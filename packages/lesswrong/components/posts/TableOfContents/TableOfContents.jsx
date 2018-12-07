@@ -95,6 +95,7 @@ class TableOfContents extends Component
           <div className={classes.stickyBlock}>
             <Components.TableOfContentsList
               sectionData={sectionData}
+              document={document}
               context={context}
               drawerStyle={false}
             />

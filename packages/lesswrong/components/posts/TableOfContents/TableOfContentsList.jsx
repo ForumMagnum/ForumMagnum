@@ -20,7 +20,7 @@ class TableOfContentsList extends Component {
   }
 
   render() {
-    const { sectionData } = this.props;
+    const { sectionData, document} = this.props;
     const { currentSection } = this.state;
     const { TableOfContentsRow } = Components;
     // const Row = TableOfContentsRow;
@@ -29,6 +29,9 @@ class TableOfContentsList extends Component {
       return <div/>
 
     const sections = sectionData ? sectionData.sections : []
+
+    const title = document && document.title || sectionData && sectionData.document && sectionData.document.title
+    
     return <div>
       <div>
         <TableOfContentsRow key="postTitle"
@@ -36,7 +39,7 @@ class TableOfContentsList extends Component {
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
         >
-          {sectionData.document && sectionData.document.title}
+          {title}
         </TableOfContentsRow>
         {sections && sections.map((section, index) =>
           <TableOfContentsRow
