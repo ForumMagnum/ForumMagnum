@@ -46,12 +46,13 @@ const styles = theme => ({
     borderLeft: 'transparent',
     borderRight: 'transparent',
     borderTop: 'transparent',
-    marginBottom: 0,
-    paddingBottom: 10
+    paddingBottom: 1,
+    marginBottom: 0
   },
   childAnswerComment: {
     borderTop: 'transparent',
     borderBottom: 'transparent',
+    marginBottom: 8
   },
   oddAnswerComment: {
     backgroundColor: 'white'
