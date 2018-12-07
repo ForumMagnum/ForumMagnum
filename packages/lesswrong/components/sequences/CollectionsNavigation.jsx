@@ -15,9 +15,7 @@ const styles = theme => ({
     marginTop: -10,
   },
   root: {
-    position: 'absolute',
-    top: -45,
-    left: -20,
+    marginLeft:-20
   }
 })
 
