@@ -97,7 +97,8 @@ const styles = theme => ({
       display: 'inline-block',
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingRight: 50
+      paddingRight: 50,
+      marginBottom: 40
     },
     draft: {
       color: theme.palette.secondary.light
@@ -114,7 +115,7 @@ const styles = theme => ({
     },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
-      marginLeft: -40,
+      marginLeft: -67,
       [theme.breakpoints.down('sm')]: {
         paddingRight: 0,
         marginLeft: 0
