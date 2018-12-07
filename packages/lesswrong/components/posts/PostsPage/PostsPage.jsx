@@ -24,8 +24,7 @@ const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 600
 
 const styles = theme => ({
     root: {
-      position: "relative",
-      marginTop: 50
+      position: "relative"
     },
     post: {
       maxWidth: 650,
@@ -161,11 +160,11 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <Section>
             <div className={classes.post}>
+              {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+              <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
               <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
               >
                 <div className={classes.headerLeft}>
-                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                  <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
                   <PostsPageTitle post={post} />
                   <div className={classes.secondaryInfo}>
                     <span className={classes.inline}><PostsAuthors post={post}/></span>
