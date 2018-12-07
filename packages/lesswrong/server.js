@@ -3,6 +3,10 @@ export * from './lib/index.js';
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
+import './server/database-import/force_batch_update_scores.js';
+import './server/database-import/cleanup_scripts.js';
+
+// Scripts
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
@@ -24,6 +28,7 @@ import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
+import './server/scripts/logMongoQueries.js';
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
@@ -32,6 +37,7 @@ import './server/posts/index.js';
 
 import './server/logging.js';
 import './server/rss.js';
+import './server/akismet.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
