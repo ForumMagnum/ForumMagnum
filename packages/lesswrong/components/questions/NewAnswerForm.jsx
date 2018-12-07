@@ -12,6 +12,10 @@ const styles = theme => ({
   answersForm: {
     maxWidth:650,
     marginBottom:100,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   title: {
     ...theme.typography.postStyle,

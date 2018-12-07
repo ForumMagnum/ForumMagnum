@@ -11,7 +11,11 @@ import withUser from '../common/withUser'
 const styles = theme => ({
   postContent: postBodyStyles(theme),
   root: {
-    maxWidth: 640,
+    maxWidth: 650,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   author: {
     display: 'inline-block',

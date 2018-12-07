@@ -25,11 +25,13 @@ const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 600
 const styles = theme => ({
     root: {
       position: "relative",
+      marginTop: 50
     },
     post: {
       maxWidth: 650,
       [theme.breakpoints.down('md')]: {
-        margin: "auto"
+        marginLeft: "auto",
+        marginRight: "auto"
       }
     },
     header: {
@@ -113,9 +115,10 @@ const styles = theme => ({
     },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
-      paddingRight: 25,
+      marginLeft: -40,
       [theme.breakpoints.down('sm')]: {
-        paddingRight: 0
+        paddingRight: 0,
+        marginLeft: 0
       }
     },
     footerSection: {
@@ -225,13 +228,12 @@ class PostsPage extends Component {
               <div id="answers"/>
               <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
             </div>}
+            {/* Comments Section */}
+            <div className={classes.commentsSection}>
+              <div id="comments"/>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+            </div>
           </Section>
-
-          {/* Comments Section */}
-          <div className={classes.commentsSection}>
-            <div id="comments"/>
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>
         </div>
       );
     }

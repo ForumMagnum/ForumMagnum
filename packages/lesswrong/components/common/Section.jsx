@@ -56,7 +56,8 @@ const styles = (theme) => ({
       paddingLeft: 24
     },
     [theme.breakpoints.down('sm')]: {
-      margin: "auto"
+      marginLeft: "auto",
+      marginRight: "auto"
     }
   },
   subscribeWidget: {

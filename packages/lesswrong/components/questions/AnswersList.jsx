@@ -17,6 +17,10 @@ const styles = theme => ({
     paddingTop: 10,
     maxWidth: 650,
     marginBottom: theme.spacing.unit*2,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   loading: {
     opacity: .5,
