@@ -22,9 +22,10 @@ const GroupTypeIcon = (props) => <FontIcon style={{fontSize: '14px'}}>
 
 const styles = theme => ({
   groupTypes: {
+    marginLeft: 20,
     display: 'inline-block',
   },
-  
+
   groupType: {
     ...theme.typography.headerStyle,
     display: 'inline-block',
@@ -32,12 +33,12 @@ const styles = theme => ({
     width: 'initial',
     height: '20px',
   },
-  
+
   groupLinks: {
     display: 'inline-block',
     marginLeft: '6px'
   },
-  
+
   facebookIcon: {
     width: "12px",
     height: "12px",
@@ -46,14 +47,14 @@ const styles = theme => ({
     paddingTop: "0px",
     transform: "translateY(1px)",
   },
-  
+
   linkIcon: {
     height: "17px",
     width: "17px",
     paddingTop: "2px",
     transform: "translateY(3px) rotate(-45deg)",
   },
-  
+
   iconButton: {
     padding: '0px',
     width: '18px',
@@ -66,7 +67,7 @@ class GroupLinks extends PureComponent {
   render() {
     const { document, classes } = this.props;
     return(
-      <div className="group-links">
+      <span className="group-links">
         <div className={classes.groupTypes}>
           {document.types && document.types.map(type => {
             return (
@@ -102,7 +103,7 @@ class GroupLinks extends PureComponent {
               </IconButton></a>
             </Tooltip>}
         </div>
-      </div>
+      </span>
     )
   }
 }

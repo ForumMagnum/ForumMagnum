@@ -10,6 +10,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withApollo } from 'react-apollo';
@@ -102,7 +103,7 @@ class Header extends Component {
   handleNotificationClose = () => this.setState({notificationOpen: false});
 
   render() {
-    const { currentUser, classes, routes, location, params, client, theme } = this.props
+    const { currentUser, classes, routes, location, params, client, theme, toc} = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
@@ -115,8 +116,22 @@ class Header extends Component {
           <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
-                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={()=>this.setNavigationOpen(true)}>
-                  <MenuIcon />
+                <IconButton
+                  className={classes.menuButton} color="inherit"
+                  aria-label="Menu"
+                  onClick={()=>this.setNavigationOpen(true)}
+                >
+                {/* Show the ToC icon if there's a table of contents being displayed  */}
+                  {toc && toc.sections ? (
+                    <span>
+                      <Hidden smDown implementation="css">
+                        <MenuIcon />
+                      </Hidden>
+                      <Hidden mdUp implementation="css">
+                        <TocIcon />
+                      </Hidden>
+                    </span>
+                  ) : <MenuIcon />}
                 </IconButton>
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
@@ -144,7 +159,7 @@ class Header extends Component {
                 </div>
               </Toolbar>
             </AppBar>
-            <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} />
+            <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} toc={toc} />
           </Headroom>
           <Components.ErrorBoundary>
             <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />

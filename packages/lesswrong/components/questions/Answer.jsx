@@ -5,21 +5,37 @@ import { withStyles } from '@material-ui/core/styles'
 import { postBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
-import { withRouter } from 'react-router';
-import classNames from 'classnames';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import withUser from '../common/withUser'
 
 const styles = theme => ({
   postContent: postBodyStyles(theme),
-  answer: {
-    width: 640,
-    margin:10,
+  root: {
+    maxWidth: 650,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   author: {
-    ...postBodyStyles(theme)
+    display: 'inline-block',
+    marginBottom: 10
+  },
+  date: {
+    display: 'inline-block',
+    marginLeft: 10
+  },
+  vote: {
+    display: 'inline-block',
+    marginLeft: 10,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.grey[500]
   },
   footer: {
-    marginTop: theme.spacing.unit*4,
-    textAlign: "right"
+    marginTop: 5,
+    marginLeft: -13,
+    display:"flex",
+    alignItems:"center",
   },
   separator: {
     borderColor: theme.palette.grey[200],
@@ -28,76 +44,114 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*8
   },
   menu: {
-    float: "right",
-    marginLeft: theme.spacing.unit,
+    opacity:.5,
+    cursor: "pointer",
+    '&:hover': {
+      opacity:1
+    },
+    position: "relative",
+    top:7,
+    marginLeft: 10
   },
-  finishedScroll: {
-    animation: "lw-green-fade 5s ease-in-out 0s",
-  }
+  deletedSection: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    marginTop: 50
+  },
+  deleted: {
+    color: theme.palette.grey[500]
+  },
+  footerVote: {
+    fontSize: 42,
+    textAlign: "center",
+    marginRight: theme.spacing.unit
+  },
+  footerRight: {
+    marginTop: theme.spacing.unit*2
+  },
+  newComment: {
+    marginTop: theme.spacing.unit*2,
+    color: theme.palette.grey[500]
+  },
+  metaData: {
+    textAlign: 'right'
+  },
+  bottomDivider: {
+    marginTop: 50,
+    marginBottom: 50,
+    border: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: 'transparent'
+  },
 })
 
 class Answer extends Component {
-  state = { showEdit: false, finishedScroll: false}
+  state = { 
+    showEdit: false,
+    commenting: false,
+  }
 
   showEdit = () => this.setState({showEdit: true})
   hideEdit = () => this.setState({showEdit: false})
 
-  scrollIntoView = (event) => {
-    // TODO: This is a legacy React API; migrate to the new type of refs.
-    // https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
-    //eslint-disable-next-line react/no-string-refs
-    if (this.refs && this.refs.answer) {
-      //eslint-disable-next-line react/no-string-refs
-      this.refs.answer.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-      this.setState({finishedScroll: true});
-    }
-  }
-
-  componentDidMount() {
-    const { router, comment, post } = this.props
-    let commentHash = router.location.hash;
-    const self = this;
-    if (comment && commentHash === ("#" + comment._id) && post) {
-      setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
-        self.scrollIntoView()
-      }, 0);
-    }
-  }
-
   render () {
-    const { comment, post, classes } = this.props
-    const { showEdit, finishedScroll } = this.state
-    const { ContentItemBody, AnswerMeta, SimpleDate } = Components
+    const { comment, post, classes, index, answerCount } = this.props
+    const { showEdit } = this.state
+    const { ContentItemBody, SimpleDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
 
     return (
-      <div className={classNames({[classes.finishedScroll]: finishedScroll})}>
-        <Components.Section titleComponent={
-            <AnswerMeta
-              comment={comment}
-              post={post}
-              scrollIntoView={this.scrollIntoView}
-              showEdit={this.showEdit}/>
-          }>
-          {/*eslint-disable-next-line react/no-string-refs*/}
-          <div className={classes.answer} id={comment._id} ref="answer">
+      <div className={classes.root} id={comment._id}>
+        { comment.deleted ?
+          <div className={classes.deletedSection}>
+            <Typography variant="body2" className={classes.deleted}>
+              Answer was deleted
+            </Typography>
+            <span className={classes.menu}>
+              <CommentsMenu
+                showEdit={this.showEdit}
+                comment={comment}
+                post={post}
+                icon={<MoreHorizIcon className={classes.menuIcon}/>}
+              />
+            </span>
+          </div>
+          :
+          <div>
+            {comment.user && <Typography variant="headline" className={classes.author}>
+              { <UsersName user={comment.user} />}
+            </Typography>}
+            <Typography variant="subheading" className={classes.date}><SimpleDate date={comment.postedAt}/></Typography>
+            <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
+            <span className={classes.menu}>
+              <CommentsMenu
+                showEdit={this.showEdit}
+                comment={comment}
+                post={post}
+                icon={<MoreHorizIcon className={classes.menuIcon}/>}
+              />
+            </span>
             { showEdit ?
               <Components.CommentsEditForm
-                 comment={comment}
-                 successCallback={this.hideEdit}
-                 cancelCallback={this.hideEdit}
-               />
-            :
+                comment={comment}
+                successCallback={this.hideEdit}
+                cancelCallback={this.hideEdit}
+              />
+              :
               <ContentItemBody
                 className={classes.postContent}
-                dangerouslySetInnerHTML={{__html:comment.htmlBody}}/>
+                dangerouslySetInnerHTML={{__html:comment.htmlBody}}
+              />
             }
-            <div className={classes.footer}>
-              {comment && comment.user && <Typography variant="headline">by { comment.user.displayName}</Typography>}
-              <Typography variant="subheading"><SimpleDate date={comment.postedAt}/></Typography>
-            </div>
-            <hr className={classes.separator}/>
+            <AnswerCommentsList
+              terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
+              post={post}
+              parentAnswerId={comment._id}
+              />
           </div>
-        </Components.Section>
+        }
+      {(index !== (answerCount-1)) && <hr className={classes.bottomDivider}/>}
       </div>
     )
   }
@@ -107,4 +161,4 @@ Answer.propTypes = {
   comment: PropTypes.object.isRequired,
 };
 
-registerComponent('Answer', Answer, withStyles(styles, {name:'Answer'}), withErrorBoundary, withRouter);
+registerComponent('Answer', Answer, withStyles(styles, {name:'Answer'}), withErrorBoundary, withUser);

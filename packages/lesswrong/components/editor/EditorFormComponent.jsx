@@ -15,9 +15,13 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
 const styles = theme => ({
+  root: {
+    position: 'relative'
+  },
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
+    maxWidth:640,
   },
 
   commentBodyStyles: {
@@ -29,6 +33,9 @@ const styles = theme => ({
   },
   questionWidth: {
     width: 540,
+    [theme.breakpoints.down('sm')]: {
+      width: 'inherit'
+    }
   },
   postEditorHeight: {
     minHeight: postEditorHeight,
@@ -111,7 +118,7 @@ class EditorFormComponent extends Component {
   render() {
     const AsyncEditor = this.state.editor
     const { editorOverride } = this.state
-    const { document, currentUser, formType } = this.props
+    const { document, currentUser, formType, name } = this.props
     const commentStyles = this.props.form && this.props.form.commentStyles
     const { classes, ...passedDownProps } = this.props
 
@@ -131,7 +138,7 @@ class EditorFormComponent extends Component {
 
     if (this.getCurrentEditorType() === "draft-js") {
       return (
-        <div className={heightClass}>
+        <div className={classnames(heightClass, classes.root)}>
           { editorWarning }
           <AsyncEditor
             {...passedDownProps}
@@ -142,18 +149,20 @@ class EditorFormComponent extends Component {
       // HACK FIXME: If not using the draft-JS editor, change the field name.
       // (This will break horribly with nested form fields, as well as with
       // multiple editable fields on the same object.)
-      const name = (this.getCurrentEditorType() === "html") ? "htmlBody" : "body";
-      const path = name;
+      const newName = (this.getCurrentEditorType() === "html") ?
+        name.replace("content", "htmlBody").replace("Content", "htmlBody") :
+        name.replace("content", "body").replace("Content", "body")
+      const path = newName;
 
       return (
-        <div>
+        <div className={classes.root}>
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}
             className={classnames(classes.markdownEditor, bodyStyles, {[classes.questionWidth]: document.question})}
             rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
             rowsMax={99999}
-            name={name}
+            name={newName}
             path={path}
           />
         </div>

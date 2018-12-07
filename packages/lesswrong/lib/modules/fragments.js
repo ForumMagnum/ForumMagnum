@@ -68,6 +68,7 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  moderationGuidelinesHtmlBody
   markDownPostEditor
   commentSorting
   location
@@ -166,6 +167,7 @@ registerFragment(`
     afSticky
     voteCount
     question
+    authorIsUnreviewed
   }
 `);
 
@@ -193,6 +195,7 @@ registerFragment(`
     lastEditedAs
     body
     htmlBody
+    tableOfContents
     content
     plaintextExcerpt
     draft
@@ -208,7 +211,6 @@ registerFragment(`
       groups
       moderationStyle
       bannedUserIds
-      moderationGuidelines
       moderatorAssistance
     }
     canonicalSequence {
@@ -222,6 +224,11 @@ registerFragment(`
     }
     collectionTitle
     types
+    showModerationGuidelines
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
   }
 `);
 
@@ -317,43 +324,6 @@ registerFragment(`
     bannedUserIds
   }
 `)
-
-registerFragment(`
-  fragment CommentsList on Comment {
-    # example-forum
-    _id
-    postId
-    parentCommentId
-    topLevelCommentId
-    body
-    htmlBody
-    content
-    postedAt
-    repliesBlockedUntil
-    # vulcan:users
-    userId
-    deleted
-    deletedPublic
-    hideAuthor
-    user {
-      ...UsersMinimumInfo
-    }
-    # vulcan:voting
-    currentUserVotes {
-      ...VoteFragment
-    }
-    baseScore
-    score
-    voteCount
-    af
-    afDate
-    moveToAlignmentUserId
-    afBaseScore
-    suggestForAlignmentUserIds
-    needsReview
-    answer
-  }
-`);
 
 registerFragment(`
   fragment SelectCommentsList on Comment {

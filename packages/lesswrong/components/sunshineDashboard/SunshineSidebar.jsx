@@ -69,7 +69,7 @@ class SunshineSidebar extends Component {
             <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
             <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
           </div>}
-          { showSidebar && Users.canDo(currentUser, 'alignment.sidebar') && <div>
+          { showSidebar && currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
             <Components.AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
             <Components.AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
             <Components.AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>

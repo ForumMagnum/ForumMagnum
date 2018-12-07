@@ -120,6 +120,12 @@ const schema = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    onInsert: (document, currentUser) => {
+      // if userId is changing, change the author name too
+      if (document.userId) {
+        return Users.getDisplayNameById(document.userId)
+      }
+    },
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
@@ -211,6 +217,22 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
+
+  parentAnswerId: {
+    type: String,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    optional: true,
+    hidden: true,
+    resolveAs: {
+      fieldName: 'parentAnswer',
+      type: 'Comment',
+      resolver: generateIdResolverSingle(
+        {collectionName: 'Comments', fieldName: 'parentAnswerId'}
+      ),
+      addOriginalField: true
+    },
   },
 
   chosenAnswer: {

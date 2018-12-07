@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -12,36 +12,37 @@ import withErrorBoundary from '../common/withErrorBoundary'
 class SunshineNewPostsItem extends Component {
 
   handleReview = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {reviewedByUserId: currentUser._id},
-      unset: {}
+    const { currentUser, post, updatePost } = this.props
+    updatePost({
+      selector: { _id: post._id},
+      data: {
+        reviewedByUserId: currentUser._id,
+        authorIsUnreviewed: false
+      },
     })
   }
 
   handleFrontpage = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {
+    const { currentUser, post, updatePost } = this.props
+    updatePost({
+      selector: { _id: post._id},
+      data: {
         frontpageDate: new Date(),
-        reviewedByUserId: currentUser._id
+        reviewedByUserId: currentUser._id,
+        authorIsUnreviewed: false
       },
-      unset: {}
     })
   }
 
   handleDelete = () => {
-    const { editMutation, post } = this.props
+    const { updatePost, post } = this.props
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       window.open(Users.getProfileUrl(post.user), '_blank');
-      editMutation({
-        documentId: post._id,
-        set: {
+      updatePost({
+        selector: { _id: post._id},
+        data: {
           draft: true,
-        },
-        unset: {}
+        }
       })
     }
   }
@@ -98,9 +99,9 @@ SunshineNewPostsItem.propTypes = {
   editMutation: PropTypes.func.isRequired,
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
 
-registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);

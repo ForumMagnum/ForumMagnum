@@ -97,8 +97,13 @@ class CommentsItem extends Component {
     return false;
   }
 
+  getTruncationCharCount = () => {
+    const { comment } = this.props
+    return comment.baseScore > 20 ? 1000 : 300
+  }
+
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, parentAnswerId } = this.props
 
     const { showEdit } = this.state
     const { CommentsMenu } = Components
@@ -113,7 +118,7 @@ class CommentsItem extends Component {
             {
               deleted: comment.deleted && !comment.deletedPublic,
               "public-deleted": comment.deletedPublic,
-              "showParent": this.state.showParent
+              "showParent": this.state.showParent,
             },
           )}
         >
@@ -132,7 +137,7 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              {(comment.parentCommentId && (nestingLevel === 1)) &&
+              {(comment.parentCommentId && (parentAnswerId !== comment.parentCommentId) && (nestingLevel === 1)) &&
                 <Tooltip title="Show previous comment">
                   <Icon
                     onClick={this.toggleShowParent}
@@ -152,14 +157,14 @@ class CommentsItem extends Component {
               <div className="comments-item-date">
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <Components.FromNowDate date={comment.postedAt}/>
+                    <Components.FormatDate date={comment.postedAt}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  <Components.FromNowDate date={comment.postedAt}/>
+                  <Components.FormatDate date={comment.postedAt}/>
                   <Icon className="material-icons comments-item-permalink"> link
                   </Icon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
@@ -183,7 +188,7 @@ class CommentsItem extends Component {
                 />
             ) : (
               <Components.CommentBody
-                truncationCharCount={comment.baseScore > 20 ? 1000 : 300}
+                truncationCharCount={this.getTruncationCharCount()}
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}
@@ -201,38 +206,41 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser } = this.props;
-    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    const { comment, currentUser, truncated, collapsed } = this.props;
 
-    const showReplyButton = (
-      !comment.isDeleted &&
-      !!currentUser &&
-      (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-      Users.isAllowedToComment(currentUser, this.props.post)
-    )
+    if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
+      const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
-    return (
-      <div className="comments-item-bottom">
-        { blockedReplies &&
-          <div className="comment-blocked-replies">
-            A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
-          </div>
-        }
-        <div>
-          { showReplyButton &&
-            <a className="comments-item-reply-link" onClick={this.showReply}>
-              <FormattedMessage id="comments.reply"/>
-            </a>
+      const showReplyButton = (
+        !comment.isDeleted &&
+        !!currentUser &&
+        (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
+        Users.isAllowedToComment(currentUser, this.props.post)
+      )
+
+      return (
+        <div className="comments-item-bottom">
+          { blockedReplies &&
+            <div className="comment-blocked-replies">
+              A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
+            </div>
           }
+          <div>
+            { showReplyButton &&
+              <a className="comments-item-reply-link" onClick={this.showReply}>
+                <FormattedMessage id="comments.reply"/>
+              </a>
+            }
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
   }
 
   renderReply = () => {
     const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
-    const { currentUser, post, comment } = this.props
+    const { currentUser, post, comment, parentAnswerId } = this.props
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
@@ -241,8 +249,12 @@ class CommentsItem extends Component {
           parentComment={comment}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
-          prefilledProps={{af:Comments.defaultToAlignment(currentUser, post, comment)}}
+          prefilledProps={{
+            af:Comments.defaultToAlignment(currentUser, post, comment),
+            parentAnswerId: parentAnswerId
+          }}
           type="reply"
+          parentAnswerId={parentAnswerId}
         />
       </div>
     )

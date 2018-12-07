@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
+import { withRouter } from 'react-router'
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -13,6 +14,7 @@ const styles = theme => ({
   root: {
     display: "inline-block",
     position: "relative",
+    minWidth: 48,
 
     "& .ais-SearchBox": {
       display: 'inline-block',
@@ -41,10 +43,13 @@ const styles = theme => ({
       backgroundColor: "transparent",
       cursor: "pointer",
       width:0,
+      display:"none",
       height: '100%',
-      fontSize: 'inherit'
+      fontSize: 'inherit',
+      "-webkit-appearance": "none"
     },
     "&.open .ais-SearchBox-input": {
+      display:"inline-block",
       cursor: "text",
       width: "100%",
       borderRadius:5,
@@ -141,6 +146,12 @@ class SearchBar extends Component {
     if(!algoliaAppId) {
       return <div className={classes.root}>Search is disabled (Algolia App ID not configured on server)</div>
     }
+    
+    // HACK FIXME: This should very likely be factored out somewhere close to where the routes lives, to avoid breaking when we make small URL changes
+    let userRefinement
+    if(location && location.pathname && location.pathname.includes("/users/")){
+      userRefinement = location.pathname.split('/')[2]
+    }
 
     return <div onKeyDown={this.handleKeyDown}>
       <Components.ErrorBoundary>
@@ -152,6 +163,7 @@ class SearchBar extends Component {
         >
           <div className={classNames(classes.root, {"open":this.state.inputOpen})}>
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+            {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
             <div onClick={this.handleSearchTap}>
               <Icon className={classes.searchIcon}>search</Icon>
               <SearchBox reset={null} focusShortcuts={[]} />
@@ -175,4 +187,4 @@ SearchBar.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}));
+registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withRouter);

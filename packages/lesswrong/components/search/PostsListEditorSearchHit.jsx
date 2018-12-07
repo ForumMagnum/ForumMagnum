@@ -33,7 +33,7 @@ const PostsListEditorSearchHit = ({hit, clickAction, router, classes}) => {
         {hit.baseScore} points
       </Components.MetaInfo>
       {hit.postedAt && <Components.MetaInfo>
-        <Components.FromNowDate date={hit.postedAt}/>
+        <Components.FormatDate date={hit.postedAt}/>
       </Components.MetaInfo>}
       <Link to={Posts.getLink(hit)} target={Posts.getLinkTarget(hit)} className={classes.postLink}>
         (Link)

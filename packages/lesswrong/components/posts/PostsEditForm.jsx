@@ -4,14 +4,13 @@ import { Components, registerComponent, getFragment, withMessages, withDocument 
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router'
-import withUser from '../common/withUser';
 
 class PostsEditForm extends PureComponent {
 
   render() {
     const { documentId, document, eventForm } = this.props;
     const isDraft = document && document.draft;
-    
+
     return (
       <div className="posts-edit-form">
         <Components.SmartForm
@@ -62,4 +61,4 @@ const documentQuery = {
 
 registerComponent('PostsEditForm', PostsEditForm,
   [withDocument, documentQuery],
-  withMessages, withRouter, withUser);
+  withMessages, withRouter);

@@ -66,7 +66,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
                       <div className="comments-item-date">
-                        <Components.FromNowDate date={comment.postedAt}/>
+                        <Components.FormatDate date={comment.postedAt}/>
                         <Icon className="material-icons comments-item-permalink"> link </Icon>
                       </div>
                       { showTitle && comment.post && comment.post.title}
