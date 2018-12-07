@@ -85,9 +85,21 @@ Posts.addView("magicalSorting", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
 ensureIndex(Posts,
-  augmentForDefaultView({ ...stickiesIndexPrefix, score:-1 }),
+  augmentForDefaultView({ score:-1 }),
   {
-    name: "posts.stickies_score",
+    name: "posts.score",
+  }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({ afSticky:-1, score:-1 }),
+  {
+    name: "posts.afSticky_score",
+  }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({ metaSticky:-1, score:-1 }),
+  {
+    name: "posts.metaSticky_score",
   }
 );
 ensureIndex(Posts,
