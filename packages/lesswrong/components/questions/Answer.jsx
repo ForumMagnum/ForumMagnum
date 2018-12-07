@@ -23,7 +23,9 @@ const styles = theme => ({
   },
   vote: {
     display: 'inline-block',
-    marginLeft: 10
+    marginLeft: 10,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.grey[500]
   },
   footer: {
     marginTop: 5,

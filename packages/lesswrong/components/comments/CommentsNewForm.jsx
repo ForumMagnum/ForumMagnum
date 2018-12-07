@@ -41,12 +41,12 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
-      <Button
+      {(type === "reply") && <Button
         onClick={cancelCallback}
         className={classNames(classes.formButton, classes.cancelButton)}
       >
         Cancel
-      </Button>
+      </Button>}
       <Button
         type="submit"
         className={classNames(classes.formButton)}
