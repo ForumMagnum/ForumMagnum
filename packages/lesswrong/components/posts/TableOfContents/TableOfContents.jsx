@@ -18,7 +18,8 @@ const styles = theme => ({
     opacity: .5,
     '&:hover': {
       opacity:1
-    }
+    },
+    marginTop: -1
   },
   stickyBlock: {
     position: "sticky",

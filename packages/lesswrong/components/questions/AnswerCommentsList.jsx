@@ -11,7 +11,10 @@ import Typography from '@material-ui/core/Typography';
 const styles = theme => ({
   answersList: {
     marginLeft: 34,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`
+    borderTop: `solid 1px ${theme.palette.grey[300]}`,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: 0
+    }
   },
   noComments: {
     position: "relative",
@@ -31,6 +34,10 @@ const styles = theme => ({
     marginBottom: 8,
     textAlign: 'right',
     color: theme.palette.grey[600]
+  },
+  loadMore: {
+    color: theme.palette.grey[500],
+    textAlign: 'right'
   }
 })
 
@@ -57,6 +64,10 @@ class AnswerCommentsList extends PureComponent {
     this.setState({commenting:false})
   }
 
+  loadMoreComments = () => {
+    this.props.loadMore({limit: 10000})
+  }
+
   render() {
     const { currentUser, results, loading, classes, totalCount, post, parentAnswerId } = this.props
     const { CommentsList, Loading, CommentsNewForm } = Components
@@ -73,9 +84,6 @@ class AnswerCommentsList extends PureComponent {
           {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
               <a>Add Comment</a>
             </Typography>}
-          {/* <Typography variant="body2" onClick={()=>this.setState({commenting: true})}>
-              <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
-          </Typography> */}
           { commenting &&
               <div className={classes.editor}>
                 <CommentsNewForm
@@ -102,6 +110,10 @@ class AnswerCommentsList extends PureComponent {
               startThreadCollapsed
             />
           </div>
+          {(results && results.length && results.length < totalCount) ? 
+            <Typography variant="body2" onClick={this.loadMoreComments} className={classes.loadMore}>
+              <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
+            </Typography> : null}
         </div>
       );
     }

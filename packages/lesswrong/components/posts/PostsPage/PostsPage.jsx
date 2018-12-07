@@ -51,7 +51,8 @@ const styles = theme => ({
       marginTop: theme.spacing.unit*2,
       marginBottom: theme.spacing.unit*2,
       marginLeft:0,
-      borderTop: "solid 1px rgba(0,0,0,.1)"
+      borderTop: "solid 1px rgba(0,0,0,.1)",
+      borderLeft: 'transparent'
     },
     eventHeader: {
       marginBottom:0,

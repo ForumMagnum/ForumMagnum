@@ -50,13 +50,12 @@ const styles = theme => ({
     marginLeft: 10
   },
   deletedSection: {
-    borderTop: "solid 1px rgba(0,0,0,.2)",
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit
+    paddingBottom: theme.spacing.unit,
+    marginTop: 50
   },
   deleted: {
     color: theme.palette.grey[500]
@@ -105,6 +104,14 @@ class Answer extends Component {
             <Typography variant="body2" className={classes.deleted}>
               Answer was deleted
             </Typography>
+            <span className={classes.menu}>
+              <CommentsMenu
+                showEdit={this.showEdit}
+                comment={comment}
+                post={post}
+                icon={<MoreHorizIcon className={classes.menuIcon}/>}
+              />
+            </span>
           </div>
           :
           <div>
