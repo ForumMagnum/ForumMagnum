@@ -149,7 +149,7 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments, answerId, startThreadCollapsed } = this.props;
+    const { currentUser, comments, postId, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -174,7 +174,7 @@ class CommentsListSection extends Component {
               postId={postId}
               prefilledProps={{
                 af: Comments.defaultToAlignment(currentUser, post),
-                answerId: answerId}}
+                parentAnswerId: parentAnswerId}}
               type="comment"
             />
           </div>
@@ -195,7 +195,7 @@ class CommentsListSection extends Component {
           post={post}
           postPage
           startThreadCollapsed={startThreadCollapsed}
-          answerId={answerId}
+          parentAnswerId={parentAnswerId}
         />
       </div>
     );

@@ -195,4 +195,4 @@ Comments.addView('repliesToAnswer', function (terms) {
     options: {sort: {baseScore: -1}}
   };
 });
-ensureIndex(Comments, augmentForDefaultView({answerId:1, baseScore:-1}));
+ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
