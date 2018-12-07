@@ -85,8 +85,12 @@ class Header extends Component {
     this.setState({navigationOpen: open})
   }
 
-  handleNotificationToggle = (muiState) => {
-    if(!this.state.notificationOpen) {
+  handleNotificationToggle = () => {
+    this.handleSetNotificationDrawerOpen(!this.state.notificationOpen);
+  }
+  
+  handleSetNotificationDrawerOpen = (isOpen) => {
+    if (isOpen) {
       this.props.editMutation({
         documentId: this.props.currentUser._id,
         set: {lastNotificationsCheck: new Date()},
@@ -100,7 +104,6 @@ class Header extends Component {
       this.setState({notificationOpen: false})
     }
   }
-  handleNotificationClose = () => this.setState({notificationOpen: false});
 
   render() {
     const { currentUser, classes, routes, location, params, client, theme, toc} = this.props
@@ -162,7 +165,7 @@ class Header extends Component {
             <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} toc={toc} />
           </Headroom>
           <Components.ErrorBoundary>
-            <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
+            <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />
           </Components.ErrorBoundary>
         </div>
       </Components.ErrorBoundary>

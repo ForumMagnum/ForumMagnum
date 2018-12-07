@@ -1,7 +1,7 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Drawer from 'material-ui/Drawer';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Badge from '@material-ui/core/Badge';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -23,6 +23,11 @@ const styles = theme => ({
     display: "inline-block",
     verticalAlign: "top",
   },
+  drawerPaper: {
+    width: 270,
+    boxShadow: "rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px",
+    zIndex: 1500,
+  },
   badgeContainer: {
     padding: "none",
     verticalAlign: "inherit",
@@ -35,15 +40,6 @@ const styles = theme => ({
     right: "-15px",
     top: 0,
     pointerEvents: "none",
-  },
-  menuContainer: {
-    height: "100vh",
-    boxShadow: "none",
-    transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-    
-    // !important because material-UI defines an (incorrect)
-    // overflow
-    overflowX: "hidden !important",
   },
   icon: {
     color: "rgba(0,0,0,0.8)",
@@ -83,7 +79,7 @@ class NotificationsMenu extends Component {
   }
 
   render() {
-      const { classes, currentUser, results, open, handleToggle, hasOpened } = this.props;
+      const { classes, currentUser, results, open, setIsOpen, hasOpened } = this.props;
       const newMessages = results && _.filter(results, (x) => x.createdAt > this.state.lastNotificationsCheck);
       if (!currentUser) {
         return null;
@@ -122,12 +118,15 @@ class NotificationsMenu extends Component {
         return (
           <div className={classes.root}>
             <Components.ErrorBoundary>
-              <Drawer
+              <SwipeableDrawer
                 open={open}
-                width={270}
-                containerClassName={classes.menuContainer}
-                openSecondary={true}
-                onRequestChange={handleToggle}
+                anchor="right"
+                onClose={() => setIsOpen(false)}
+                onOpen={() => setIsOpen(true)}
+                classes={{
+                  paper: classes.drawerPaper,
+                }}
+                variant="persistent"
               >
                 { hasOpened && <div className="notifications-menu-content">
                   <Tabs
@@ -157,10 +156,10 @@ class NotificationsMenu extends Component {
                         close/X button (which hovers over the tabs). */}
                     <Tab className={classes.hiddenTab} />
                   </Tabs>
-                  <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={handleToggle} />
+                  <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />
                   <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
                 </div>}
-              </Drawer>
+              </SwipeableDrawer>
             </Components.ErrorBoundary>
           </div>
         )
