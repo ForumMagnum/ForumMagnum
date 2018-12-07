@@ -137,7 +137,6 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     }
     return comment
   }
-
 addCallback('comments.new.after', checkCommentForSpamWithAkismet);
 
 function runReportCloseCallbacks(newReport, oldReport) {
