@@ -129,7 +129,7 @@ const styles = theme => ({
         paddingRight: 0,
         marginLeft: 0
       },
-      // TODO – This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
+      // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
       background: "white",
       position: "relative"
     },
