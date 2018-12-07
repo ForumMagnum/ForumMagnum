@@ -65,6 +65,7 @@ const styles = theme => ({
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
+      fontSize: theme.typography.body2.fontSize,
       [theme.breakpoints.up('md')]: {
         display:"none"
       }
@@ -73,9 +74,17 @@ const styles = theme => ({
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
       [theme.breakpoints.down('sm')]: {
         display:"none"
       }
+    },
+    commentsLink: {
+      marginLeft: 20,
+      color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
     },
     actions: {
       display: 'inline-block',
@@ -119,7 +128,10 @@ const styles = theme => ({
       [theme.breakpoints.down('sm')]: {
         paddingRight: 0,
         marginLeft: 0
-      }
+      },
+      // TODO – This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
+      background: "white",
+      position: "relative"
     },
     footerSection: {
       display: 'flex',
@@ -137,7 +149,7 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, 
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
       Section, TableOfContents } = Components
 
     if (loading) {
@@ -176,6 +188,7 @@ class PostsPage extends Component {
                       <FormatDate date={post.postedAt} format="Do MMM YYYY"/>
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                    <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
                         <PostsPageActions post={post} />
                     </span>
@@ -210,14 +223,14 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && 
+            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
               <div className={classes.footerSection}>
                 <div className={classes.voteBottom}>
                   <PostsVote
                     collection={Posts}
                     post={post}
                     currentUser={currentUser}
-                    />  
+                    />
                 </div>
               </div>}
             {sequenceId && <div className={classes.recommendedReading}>
@@ -230,7 +243,6 @@ class PostsPage extends Component {
             </div>}
             {/* Comments Section */}
             <div className={classes.commentsSection}>
-              <div id="comments"/>
               <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
             </div>
           </Section>

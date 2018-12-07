@@ -13,7 +13,6 @@ import withDialog from '../common/withDialog'
 
 const styles = theme => ({
   root: {
-    marginBottom: 10,
     padding: '8px 14px 1px 14px',
     cursor: 'pointer',
     position:"relative",
@@ -40,6 +39,12 @@ const styles = theme => ({
     position: 'absolute',
     right: 16,
     height: '0.8em'
+  },
+  collapse: {
+    display:"flex",
+    justifyContent:"flex-end",
+    fontSize: 14,
+    marginBottom: 4,
   }
 })
 
@@ -117,6 +122,7 @@ class ModerationGuidelinesBox extends PureComponent {
         }
         <div className={classNames({[classes.truncated]: !open})}>
           <div dangerouslySetInnerHTML={{__html: open ? combinedGuidelines : truncatedGuidelines}}/>
+          {open && <a className={classes.collapse}>(Click to Collapse)</a>}
         </div>
       </div>
     )
