@@ -17,10 +17,12 @@ const styles = theme => ({
     
     fontFamily: "freight-sans-pro, sans-serif",
     
-    // From old-MUI
     display: "block",
-    "-webkit-tap-highlight-color": "black",
     padding: 0,
+    
+    // Disable MUI's hover-highlight-color animation that conflicts with having
+    // a non-default background color and looks glitchy.
+    transition: "none",
   },
   read: {
     backgroundColor: "rgba(0,0,0,0.04) !important",
