@@ -75,7 +75,6 @@ class Layout extends PureComponent {
 
   render () {
     const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
-    const {userAgent} = this.context;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -151,10 +150,6 @@ class Layout extends PureComponent {
       </UserContext.Provider>
     )
   }
-}
-
-Layout.contextTypes = {
-  userAgent: PropTypes.string,
 }
 
 Layout.displayName = "Layout";
