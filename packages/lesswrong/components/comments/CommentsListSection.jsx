@@ -24,12 +24,14 @@ const styles = theme => ({
     maxWidth: 720,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
-    
+
     "& .content-editor-is-empty": {
       fontSize: "15px !important",
     },
+    background: "white",
+    position: "relative"
   },
-  
+
   meta: {
     fontSize: 14,
     clear: 'both',
@@ -75,14 +77,14 @@ class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      highlightDate: this.props.lastEvent && 
-        this.props.lastEvent.properties && 
-        this.props.lastEvent.properties.createdAt && 
-        new Date(this.props.lastEvent.properties.createdAt) 
-        || 
-        this.props.post && 
-        this.props.post.lastVisitedAt && 
-        new Date(this.props.post.lastVisitedAt) || 
+      highlightDate: this.props.lastEvent &&
+        this.props.lastEvent.properties &&
+        this.props.lastEvent.properties.createdAt &&
+        new Date(this.props.lastEvent.properties.createdAt)
+        ||
+        this.props.post &&
+        this.props.post.lastVisitedAt &&
+        new Date(this.props.post.lastVisitedAt) ||
         new Date(),
     }
   }
@@ -166,6 +168,7 @@ class CommentsListSection extends Component {
             </Components.LoginPopupLink>
           </div>
         }
+        <div id="comments"/>
         {currentUser && Users.isAllowedToComment(currentUser, post) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
