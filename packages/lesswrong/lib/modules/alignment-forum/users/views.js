@@ -1,15 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { ensureIndex } from '../../../collectionUtils';
 
-Users.addView('LWSunshinesList', function(terms) {
-  return {
-    selector: {groups:'sunshineRegiment'},
-    options: {
-      sort: terms.sort
-    }
-  }
-});
-
 
 Users.addView("alignmentSuggestedUsers", function () {
   return {
