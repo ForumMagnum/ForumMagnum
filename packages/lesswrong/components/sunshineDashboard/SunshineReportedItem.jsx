@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router'
@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
 
-class SunshineReportedCommentsItem extends Component {
+class SunshineReportedItem extends Component {
 
   handleReview = () => {
     const { currentUser, report, reportEditMutation } = this.props
@@ -17,7 +17,8 @@ class SunshineReportedCommentsItem extends Component {
       documentId: report._id,
       set: {
         closedAt: new Date(),
-        claimedUserId: currentUser._id
+        claimedUserId: currentUser._id,
+        markedAsSpam: false
       },
       unset: {}
     })
@@ -27,47 +28,58 @@ class SunshineReportedCommentsItem extends Component {
     const {
       currentUser,
       report,
-      editMutation,
+      updateComment,
+      updatePost,
       reportEditMutation,
     } = this.props
-    if (confirm("Are you sure you want to immediately delete this comment?")) {
-      editMutation({
-        documentId: report.comment && report.comment._id,
-        set: {
-          deleted: true,
-          deletedDate: new Date(),
-          deletedByUserId: currentUser._id,
-          deletedReason: "spam"
-        },
-        unset: {}
-      })
+    if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
+      if (report.comment) {
+        updateComment({
+          selector: {documentId: report.comment._id},
+          data: {
+            deleted: true,
+            deletedDate: new Date(),
+            deletedByUserId: currentUser._id,
+            deletedReason: "spam"
+          }
+        })
+      } else if (report.post) {
+        updatePost({
+          selector: {documentId: report.post._id},
+          data: { status: report.reportedAsSpam ? 4 : 5 }
+        })
+      }
       reportEditMutation({
         documentId: report._id,
         set: {
           closedAt: new Date(),
-          claimedUserId: currentUser._id
+          claimedUserId: currentUser._id,
+          markedAsSpam: report.reportedAsSpam
         },
         unset: {}
       })
-    }
+    } 
   }
 
   render () {
     const { report, hover, anchorEl } = this.props
     const comment = report.comment
+    const post = report.post
 
     return (
           <Components.SunshineListItem hover={hover}>
             <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
               <Typography variant="body2">
-                <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-                  Commented on post: <strong>{ comment.post.title }</strong>
+                <Link to={Posts.getPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
+                  Post: <strong>{ post.title }</strong>
                 </Link>
-                <Components.CommentBody comment={comment}/>
+                {comment && <Components.CommentBody comment={comment}/>}
+                {post && !comment && <Components.PostsHighlight post={post}/>}
               </Typography>
             </Components.SidebarHoverOver>
-            <Components.SunshineCommentsItemOverview comment={comment}/>
+            {comment && <Components.SunshineCommentsItemOverview comment={comment}/>}
             <Components.SidebarInfo>
+              {post && !comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
               <em>"{ report.description }"</em> – {report.user.displayName}, <Components.FromNowDate date={report.createdAt}/>
             </Components.SidebarInfo>
             {hover && <Components.SidebarActionMenu>
@@ -84,24 +96,31 @@ class SunshineReportedCommentsItem extends Component {
   }
 }
 
-const withEditOptions = {
+const withCommentUpdateOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
 
-SunshineReportedCommentsItem.propTypes = {
+const withPostUpdateOptions = {
+  collection: Posts,
+  fragmentName: 'PostsList',
+}
+
+SunshineReportedItem.propTypes = {
   report: PropTypes.object.isRequired,
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updateComment: PropTypes.func.isRequired,
+  updatePost: PropTypes.func.isRequired,
   reportEditMutation: PropTypes.func.isRequired,
 };
 
 registerComponent(
-  'SunshineReportedCommentsItem',
-  SunshineReportedCommentsItem,
-  [withEdit, withEditOptions],
+  'SunshineReportedItem',
+  SunshineReportedItem,
+  [withUpdate, withCommentUpdateOptions],
+  [withUpdate, withPostUpdateOptions],
   withUser,
   withHover,
   withErrorBoundary

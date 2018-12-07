@@ -11,12 +11,14 @@ Vulcan.forceBatchUpdateScores = wrapVulcanAsyncScript('forceBatchUpdateScores', 
     collection: Posts,
     forceUpdate: true
   })
+  // eslint-disable-next-line no-console
   console.log('nActivePostsUpdated', nActivePostsUpdated)
   const nInactivePostsUpdated = await batchUpdateScore({
     collection: Posts,
     inactive: true,
     forceUpdate: true
   })
+  // eslint-disable-next-line no-console
   console.log('nInactivePostsUpdated', nInactivePostsUpdated)
 
   // Comments
@@ -24,11 +26,13 @@ Vulcan.forceBatchUpdateScores = wrapVulcanAsyncScript('forceBatchUpdateScores', 
     collection: Comments,
     forceUpdate: true
   })
+  // eslint-disable-next-line no-console
   console.log('nActiveCommentsUpdated', nActiveCommentsUpdated)
   const nInactiveCommentsUpdated = await batchUpdateScore({
     collection: Comments,
     inactive: true,
     forceUpdate: true
   })
+  // eslint-disable-next-line no-console
   console.log('nInactiveCommentsUpdated', nInactiveCommentsUpdated)
 })

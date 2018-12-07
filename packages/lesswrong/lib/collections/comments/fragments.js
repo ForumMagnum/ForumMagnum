@@ -8,5 +8,12 @@ registerFragment(`
     content
     answercontent
     af
+    afDate
+    moveToAlignmentUserId
+    afBaseScore
+    suggestForAlignmentUserIds
+    needsReview
+    answer
+    parentAnswerId
   }
 `);

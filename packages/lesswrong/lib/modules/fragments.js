@@ -351,6 +351,7 @@ registerFragment(`
     afBaseScore
     suggestForAlignmentUserIds
     needsReview
+    answer
   }
 `);
 
@@ -571,6 +572,8 @@ registerFragment(`
     }
     link
     description
+    reportedAsSpam
+    markedAsSpam
   }
 `);
 

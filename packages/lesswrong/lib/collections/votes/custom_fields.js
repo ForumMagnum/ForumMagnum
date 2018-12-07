@@ -77,7 +77,14 @@ VoteableCollections.forEach(collection => {
         resolveAs: {
           type: 'Int',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await getWithLoader(Votes, "votesByDocument", {}, "documentId", document._id)
+            const votes = await getWithLoader(Votes, "votesByDocument",
+              // Base query
+              {},
+              // Selector
+              "documentId", document._id,
+              // Projection
+              {documentId:1}
+            )
             return votes.length;
           }
         }
