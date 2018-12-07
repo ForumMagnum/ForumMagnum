@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
 import Badge from '@material-ui/core/Badge';
-import {Tabs, Tab} from 'material-ui/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import AllIcon from '@material-ui/icons/Notifications';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
@@ -12,13 +13,10 @@ import MessagesIcon from '@material-ui/icons/Forum';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import classNames from 'classnames';
+import grey from '@material-ui/core/colors/grey';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection.js'
-
-const tabLabelStyle = {
-  color: "rgba(0,0,0,0.8)",
-}
 
 const styles = theme => ({
   root: {
@@ -60,8 +58,17 @@ const styles = theme => ({
     margin: "10px",
     cursor: "pointer",
   },
+  tabBar: {
+    background: grey[100],
+  },
+  tabLabel: {
+    color: "rgba(0,0,0,0.8)",
+    minWidth: "auto",
+  },
   hiddenTab: {
     pointerEvents: "none",
+    minWidth: "auto",
+    width: 24,
   },
 });
 
@@ -69,6 +76,7 @@ class NotificationsMenu extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
+      tab: 0,
       notificationTerms: {view: 'userNotifications'},
       lastNotificationsCheck: (props.currentUser && props.currentUser.lastNotificationsCheck) || ""
     }
@@ -80,10 +88,37 @@ class NotificationsMenu extends Component {
       if (!currentUser) {
         return null;
       } else {
-        const AllNotificationTerms = {view: 'userNotifications'};
-        const PostsNotificationTerms = {view: 'userNotifications', type: "newPost"};
-        const CommentsNotificationTerms = {view: 'userNotifications', type: "newComment"};
-        const MessagesNotificationTerms = {view: 'userNotifications', type: "newMessage"};
+      
+        const notificationCategoryTabs = [
+          {
+            name: "All Notifications",
+            icon: () => (<AllIcon classes={{root: classes.icon}}/>),
+            terms: {view: "userNotifications"},
+          },
+          {
+            name: "New Posts",
+            icon: () => (<PostsIcon classes={{root: classes.icon}}/>),
+            terms: {view: 'userNotifications', type: "newPost"},
+          },
+          {
+            name: "New Comments",
+            icon: () => (<CommentsIcon classes={{root: classes.icon}}/>),
+            terms: {view: 'userNotifications', type: "newComment"},
+          },
+          {
+            name: "New Messages",
+            icon: () => (
+              <Badge
+                classes={{ root: classes.badgeContainer, badge: classes.badge }}
+                badgeContent={(newMessages && newMessages.length) || ""}
+              >
+                <MessagesIcon classes={{root: classes.icon}} />
+              </Badge>
+            ),
+            terms: {view: 'userNotifications', type: "newMessage"},
+          }
+        ];
+      
         return (
           <div className={classes.root}>
             <Components.ErrorBoundary>
@@ -95,34 +130,31 @@ class NotificationsMenu extends Component {
                 onRequestChange={handleToggle}
               >
                 { hasOpened && <div className="notifications-menu-content">
-                  <Tabs>
-                    <Tab
-                      icon={<span title="All Notifications"><AllIcon classes={{root: classes.icon}}/></span>}
-                      style={tabLabelStyle}
-                      onActive={() => this.setState({notificationTerms: AllNotificationTerms})}
-                    />
-                    <Tab
-                      icon={<span title="New Posts"><PostsIcon classes={{root: classes.icon}}/></span>}
-                      style={tabLabelStyle}
-                      onActive={() => this.setState({notificationTerms: PostsNotificationTerms})}
-                    />
-                    <Tab
-                      icon={<span title="New Comments"><CommentsIcon classes={{root: classes.icon}} /></span>}
-                      style={tabLabelStyle}
-                      onActive={() => this.setState({notificationTerms: CommentsNotificationTerms})}
-                    />
-                    <Tab
-                      icon={<span title="New Messages">
-                        <Badge
-                          classes={{ root: classes.badgeContainer, badge: classes.badge }}
-                          badgeContent={(newMessages && newMessages.length) || ""}
-                        >
-                          <MessagesIcon classes={{root: classes.icon}} />
-                        </Badge>
-                      </span>}
-                      style={tabLabelStyle}
-                      onActive={() => this.setState({notificationTerms: MessagesNotificationTerms})}
-                    />
+                  <Tabs
+                    fullWidth={true}
+                    value={this.state.tab}
+                    className={classes.tabBar}
+                    onChange={(event, tabIndex) => {
+                      this.setState({
+                        tab: tabIndex,
+                        notificationTerms: notificationCategoryTabs[tabIndex].terms
+                      });
+                    }}
+                  >
+                    {notificationCategoryTabs.map(notificationCategory =>
+                      <Tab
+                        icon={
+                          <span title={notificationCategory.title}>
+                            {notificationCategory.icon()}
+                          </span>
+                        }
+                        key={notificationCategory.title}
+                        className={classes.tabLabel}
+                      />
+                    )}
+                    
+                    {/* Include an extra, hidden tab to reserve space for the
+                        close/X button (which hovers over the tabs). */}
                     <Tab className={classes.hiddenTab} />
                   </Tabs>
                   <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={handleToggle} />
