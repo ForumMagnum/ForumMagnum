@@ -110,7 +110,8 @@ class TableOfContentsList extends Component {
   }
 
   getCurrentSection = () => {
-    const { sections } = this.props;
+    const { sectionData } = this.props;
+    const sections = sectionData && sectionData.sections
 
     if (Meteor.isServer)
       return null;

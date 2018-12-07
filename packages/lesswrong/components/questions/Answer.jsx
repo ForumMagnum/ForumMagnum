@@ -96,7 +96,7 @@ class Answer extends Component {
   render () {
     const { comment, post, classes, index, answerCount } = this.props
     const { showEdit } = this.state
-    const { ContentItemBody, AnswerMeta, SimpleDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
+    const { ContentItemBody, SimpleDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
 
     return (
       <div className={classes.root} id={comment._id}>
@@ -105,11 +105,6 @@ class Answer extends Component {
             <Typography variant="body2" className={classes.deleted}>
               Answer was deleted
             </Typography>
-            <AnswerMeta
-              comment={comment}
-              post={post}
-              showEdit={this.showEdit}
-            />
           </div>
           :
           <div>
