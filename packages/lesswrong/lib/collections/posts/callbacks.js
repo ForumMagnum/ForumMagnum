@@ -7,7 +7,7 @@ import Localgroups from '../localgroups/collection.js';
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
 import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'
 
-const MINIMUM_APPROVAL_KARMA = 0
+const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
