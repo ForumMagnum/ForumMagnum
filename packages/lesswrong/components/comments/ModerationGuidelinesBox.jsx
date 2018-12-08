@@ -10,6 +10,7 @@ import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../common/withDialog'
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const styles = theme => ({
   root: {
@@ -70,15 +71,15 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 
   getModerationGuidelines = (document, classes) => {
-    const moderationStyle = document.moderationStyle || document.user.moderationStyle
+    const moderationStyle = document.moderationStyle || (document.user && document.user.moderationStyle)
     const truncatiseOptions = {
       TruncateLength: 250,
       TruncateBy: "characters",
       Suffix: "... (Read More)",
       Strict: false
     }
-    const userGuidelines = `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
-    <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>
+    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
+    <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>` : ""}
     ${document.moderationGuidelinesHtmlBody}`
     const combinedGuidelines = `
       ${document.moderationGuidelinesHtmlBody ? userGuidelines : ""}
@@ -170,5 +171,6 @@ const queryOptions = {
 registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, [withDocument, queryOptions], withStyles(styles, {name: 'ModerationGuidelinesBox'}),
   withNewEvents,
   withUser,
-  withDialog
+  withDialog,
+  withErrorBoundary
 );
