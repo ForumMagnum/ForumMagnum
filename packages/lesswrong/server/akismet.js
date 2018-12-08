@@ -155,7 +155,7 @@ async function akismetReportSpamHam(report) {
       comment = Comments.findOne(report.commentId)
     }
     const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
-    const akismetReport = constructAkismetReport(akismetReportArguments)
+    const akismetReport = await constructAkismetReport(akismetReportArguments)
     if (!report.markedAsSpam) {
       client.submitHam(akismetReport, (err) => {
         // eslint-disable-next-line no-console
@@ -166,3 +166,23 @@ async function akismetReportSpamHam(report) {
 }
 
 addCallback('reports.close.async', akismetReportSpamHam)
+
+async function postReportPurgeAsSpam(post) {
+  const akismetReport = await constructAkismetReport({document: post, type: "post"})
+  client.submitSpam(akismetReport, (err) => {
+    // eslint-disable-next-line no-console
+    if (!err) { console.log("Reported Akismet false negative", akismetReport)}
+  })
+}
+
+addCallback('posts.purge.async', postReportPurgeAsSpam)
+
+async function commentReportPurgeAsSpam(comment) {
+  const akismetReport = await constructAkismetReport({document: comment, type: "comment"})
+  client.submitSpam(akismetReport, (err) => {
+    // eslint-disable-next-line no-console
+    if (!err) { console.log("Reported Akismet false negative", akismetReport)}
+  })
+}
+
+addCallback('comments.purge.async', commentReportPurgeAsSpam)

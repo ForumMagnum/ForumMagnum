@@ -52,7 +52,7 @@ class ModerationGuidelinesBox extends PureComponent {
   constructor(props, context) {
     super(props);
     this.state = {
-      open: props.document.showModerationGuidelines,
+      open: props && props.document && props.document.showModerationGuidelines,
     }
   }
 
