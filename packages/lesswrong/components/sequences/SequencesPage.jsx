@@ -38,6 +38,7 @@ const styles = theme => ({
     },
   },
   description: {
+    marginTop: -6,
     marginLeft: 10,
     ...postBodyStyles(theme),
   },
