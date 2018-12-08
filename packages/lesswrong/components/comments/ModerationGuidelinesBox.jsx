@@ -60,14 +60,16 @@ class ModerationGuidelinesBox extends PureComponent {
   handleClick = () => {
     const { currentUser, registerEvent, document } = this.props
     this.setState({open: !this.state.open})
-    const eventProperties = {
-      userId: currentUser._id,
-      important: false,
-      intercom: true,
-      documentId: document && document.userId,
-      targetState: !this.state.open
-    };
-    registerEvent('toggled-user-moderation-guidelines', eventProperties);
+    if (currentUser) {
+      const eventProperties = {
+        userId: currentUser._id,
+        important: false,
+        intercom: true,
+        documentId: document && document.userId,
+        targetState: !this.state.open
+      };
+      registerEvent('toggled-user-moderation-guidelines', eventProperties);
+    }
   }
 
   getModerationGuidelines = (document, classes) => {
