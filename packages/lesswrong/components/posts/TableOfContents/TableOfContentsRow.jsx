@@ -56,17 +56,17 @@ const styles = theme => ({
     paddingLeft: 0,
   },
   level2: {
-    fontSize:"1.05em",
+    fontSize:"1.1em",
     paddingLeft: 16,
 
   },
   level3: {
-    fontSize:"1.05em",
+    fontSize:"1.1em",
     color:theme.palette.grey[700],
     paddingLeft: 32,
   },
   level4: {
-    fontSize:"1.05em",
+    fontSize:"1.1em",
     color:theme.palette.grey[700],
     paddingLeft: 48,
   },
