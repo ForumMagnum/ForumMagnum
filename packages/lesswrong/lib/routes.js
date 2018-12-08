@@ -69,3 +69,5 @@ if(getSetting('AlignmentForum', false)) {
 }
 
 addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', title: "All Posts" });
+
+addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });
