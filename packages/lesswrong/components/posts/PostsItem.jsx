@@ -4,7 +4,7 @@ import {
   withMutation,
   getActions,
 } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { Posts } from "../../lib/collections/posts";
@@ -20,6 +20,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
+import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const styles = theme => ({
   root: {
@@ -248,7 +249,7 @@ const isSticky = (post, terms) => {
   }
 }
 
-class PostsItem extends PureComponent {
+class PostsItem extends Component {
   constructor(props, context) {
     super(props)
     this.state = {
@@ -270,6 +271,25 @@ class PostsItem extends PureComponent {
     this.setState({showHighlight: !this.state.showHighlight});
     this.setState({showNewComments: false});
   }
+  
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!shallowEqual(this.state, nextState)) {
+      return true;
+    }
+    
+    // Deep compare rather than shallow compare 'terms', because it gets reconstructed but is simple
+    if (!_.isEqual(this.props.terms, nextProps.terms)) {
+      return true;
+    }
+    
+    // Exclude mutators from comparison
+    if (!shallowEqualExcept(this.props, nextProps, ["terms", "increasePostViewCount", "createLWEvent", "newMutation"])) {
+      return true;
+    }
+    
+    return false;
+  }
+
 
   async handleMarkAsRead () {
     // try {
