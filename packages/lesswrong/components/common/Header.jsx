@@ -18,6 +18,7 @@ import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const getTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -109,9 +110,11 @@ class Header extends Component {
     const query = location && location.query
     const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
+    
+    const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
+      NavigationMenu, NotificationsMenu } = Components;
 
     return (
-      <Components.ErrorBoundary>
         <div className={classes.root}>
           <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
@@ -151,21 +154,18 @@ class Header extends Component {
                   </Hidden>
                 </Typography>
                 <div className={classes.rightHeaderItems}>
-                  <NoSSR><Components.ErrorBoundary>
-                    <Components.SearchBar/>
-                  </Components.ErrorBoundary></NoSSR>
-                  {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
-                  {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                  <NoSSR>
+                    <SearchBar/>
+                  </NoSSR>
+                  {currentUser ? <UsersMenu color={getTextColor(theme)} /> : <UsersAccountMenu color={getTextColor(theme)} />}
+                  {currentUser && <NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>
             </AppBar>
-            <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} toc={toc} />
+            <NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} toc={toc} />
           </Headroom>
-          <Components.ErrorBoundary>
-            <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
-          </Components.ErrorBoundary>
+          <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
         </div>
-      </Components.ErrorBoundary>
     )
   }
 }
@@ -186,4 +186,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

@@ -11,6 +11,7 @@ import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
@@ -154,4 +155,4 @@ const options = {
 };
 
 
-registerComponent('NotificationsMenu', NotificationsMenu, withUser, [withList, options], withStyles(styles, { name: "NotificationsMenu" }));
+registerComponent('NotificationsMenu', NotificationsMenu, withErrorBoundary, withUser, [withList, options], withStyles(styles, { name: "NotificationsMenu" }));
