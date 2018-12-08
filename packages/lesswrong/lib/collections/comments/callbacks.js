@@ -1,7 +1,7 @@
 import React from 'react';
 import { Posts } from "../posts";
 import { Comments } from './collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { convertFromRaw } from 'draft-js';
 import { performVoteServer } from 'meteor/vulcan:voting';
