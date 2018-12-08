@@ -1047,7 +1047,11 @@ Posts.addField([
             ).fetch()
 
             if (answers && answers.length) {
-              tocData = Utils.extractTableOfContents(document.htmlBody, true)
+              tocData = Utils.extractTableOfContents(document.htmlBody, true) || {
+                html: null,
+                headingsCount: 0,
+                sections: []
+              }
 
               const answerSections = answers.map((answer) => ({
                 title: answer.author + "'s answer",
@@ -1055,7 +1059,7 @@ Posts.addField([
                 level: 2
               }))
               tocData = {
-                html: tocData && tocData.html,
+                html: tocData.html,
                 headingsCount: tocData.headingsCount,
                 sections: [
                   ...tocData.sections,
