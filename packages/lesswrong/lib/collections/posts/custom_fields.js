@@ -1055,7 +1055,7 @@ Posts.addField([
                 level: 2
               }))
               tocData = {
-                html: tocData.html,
+                html: tocData && tocData.html,
                 headingsCount: tocData.headingsCount,
                 sections: [
                   ...tocData.sections,
