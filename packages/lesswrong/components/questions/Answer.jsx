@@ -19,7 +19,8 @@ const styles = theme => ({
   },
   author: {
     display: 'inline-block',
-    marginBottom: 10
+    marginBottom: 10,
+    fontWeight: 600,
   },
   date: {
     display: 'inline-block',
@@ -88,7 +89,7 @@ const styles = theme => ({
 })
 
 class Answer extends Component {
-  state = { 
+  state = {
     showEdit: false,
     commenting: false,
   }
