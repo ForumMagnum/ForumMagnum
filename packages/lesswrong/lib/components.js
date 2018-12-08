@@ -291,3 +291,4 @@ import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/AnswerMeta.jsx';
+import '../components/questions/QuestionsPage.jsx';

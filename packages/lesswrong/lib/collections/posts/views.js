@@ -261,6 +261,22 @@ Posts.addView("meta-rss", terms => ({
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
+Posts.addView("questions", terms => ({
+  selector: {
+    question: true,
+    authorIsUnreviewed: {$in: [false,null]},
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+ensureIndex(Posts,
+  augmentForDefaultView({ sticky: -1, score: -1, question:1, authorIsUnreviewed:1 }),
+  {
+    name: "posts.questions",
+  }
+);
+
 /**
  * @summary Scheduled view
  */
