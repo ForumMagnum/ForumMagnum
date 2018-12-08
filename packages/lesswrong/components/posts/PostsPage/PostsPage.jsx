@@ -15,6 +15,7 @@ import { withRouter } from 'react-router'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -122,6 +123,15 @@ const styles = theme => ({
     inline: {
       display: 'inline-block'
     },
+    feedName: {
+      fontSize: theme.typography.body2.fontSize,
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600],
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
+    },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
       marginLeft: -67,
@@ -166,6 +176,8 @@ class PostsPage extends Component {
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : post.htmlBody;
 
+      const feedLink = post.feed && post.feed.url && new URL(post.feed.url).hostname
+
       return (
         <div className={classes.root}>
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
@@ -180,7 +192,16 @@ class PostsPage extends Component {
                 <div className={classes.headerLeft}>
                   <PostsPageTitle post={post} />
                   <div className={classes.secondaryInfo}>
-                    <span className={classes.inline}><PostsAuthors post={post}/></span>
+                    <span className={classes.inline}>
+                      <PostsAuthors post={post}/>
+                    </span>
+                    { post.feed && post.feed.user &&
+                      <Tooltip title={`Crossposted from ${feedLink}`}>
+                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                          {post.feed.nickname}
+                        </a>
+                      </Tooltip>
+                    }
                     {!post.isEvent && <span className={classes.mobileDate}>
                       <FormatDate date={post.postedAt}/>
                     </span>}
