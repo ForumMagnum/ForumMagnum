@@ -32,6 +32,7 @@ import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
+import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
