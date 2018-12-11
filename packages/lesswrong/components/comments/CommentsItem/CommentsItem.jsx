@@ -107,7 +107,7 @@ class CommentsItem extends Component {
     if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
       return 10000000
     }
-    const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000));
+    const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
     return (commentIsRecent || comment.baseScore > 10) ? 1500 : 700
   }
 
