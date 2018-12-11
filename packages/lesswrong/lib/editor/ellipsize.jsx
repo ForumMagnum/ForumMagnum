@@ -3,7 +3,7 @@ import truncatise from 'truncatise';
 import { Utils } from 'meteor/vulcan:core';
 
 const highlightMaxChars = 2400;
-export const excerptMaxChars = 300;
+export const excerptMaxChars = 700;
 export const postExcerptMaxChars = 600;
 
 export const highlightFromMarkdown = (body, mdi) => {
@@ -37,7 +37,7 @@ export const commentExcerptFromHTML = (html, truncationCharCount) => {
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   return Utils.sanitize(truncatise(htmlRemovedStyles, {
-    TruncateLength: truncationCharCount || excerptMaxChars,
+    TruncateLength: truncationCharCount - truncationCharCount/4 || excerptMaxChars,
     TruncateBy: "characters",
     Suffix: `... <span class="read-more"><a class="read-more-default">(Read more)</a><a class="read-more-tooltip">(Click to expand thread)</a></span>${styles}`,
   }));
