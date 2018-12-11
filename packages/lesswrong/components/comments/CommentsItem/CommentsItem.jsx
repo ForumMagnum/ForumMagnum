@@ -108,7 +108,7 @@ class CommentsItem extends Component {
       return 10000000
     }
     const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
-    return (commentIsRecent || comment.baseScore > 10) ? 1500 : 700
+    return (commentIsRecent || comment.baseScore >= 10) ? 1600 : 800
   }
 
   render() {
