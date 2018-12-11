@@ -99,6 +99,8 @@ class CommentsItem extends Component {
 
   getTruncationCharCount = () => {
     const { comment, currentUser, postPage } = this.props
+
+    // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
     if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
       return 10000000
     }
