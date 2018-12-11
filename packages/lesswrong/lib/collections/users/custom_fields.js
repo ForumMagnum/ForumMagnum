@@ -784,7 +784,37 @@ Users.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment']
     }
-  }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsPosts',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (in large threads on Post Pages)"
+    }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsFrontpage',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (on home page)"
+    }
+  },
 ]);
 
 export const makeEditableOptionsModeration = {

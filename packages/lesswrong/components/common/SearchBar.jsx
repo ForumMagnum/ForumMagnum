@@ -75,7 +75,15 @@ const styles = theme => ({
     top: 15,
     right: 5,
     cursor: "pointer"
-  }
+  },
+  alignmentForum: {
+    "& .ais-SearchBox-input": {
+      color: "white",
+    },
+    "& .ais-SearchBox-input::placeholder": {
+      color: "rgba(255,255,255, 0.5)",
+    },
+  },
 })
 
 class SearchBar extends Component {
@@ -161,7 +169,11 @@ class SearchBar extends Component {
           apiKey={algoliaSearchKey}
           onSearchStateChange={this.queryStateControl}
         >
-          <div className={classNames(classes.root, {"open":this.state.inputOpen})}>
+          <div className={classNames(
+            classes.root,
+            {"open":this.state.inputOpen},
+            {[classes.alignmentForum]: alignmentForum}
+          )}>
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
             <div onClick={this.handleSearchTap}>

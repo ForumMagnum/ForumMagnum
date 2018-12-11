@@ -65,20 +65,20 @@ Comments.addView("allCommentsDeleted", function (terms) {
 
 Comments.addView("postCommentsTop", function (terms) {
   return {
-    selector: { 
+    selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
       answer: { $in: [false,null] },
     },
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}},
-    
+
   };
 });
 ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }));
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
-    selector: { 
+    selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
       answer: { $in: [false,null] },
@@ -91,7 +91,7 @@ Comments.addView("postCommentsOld", function (terms) {
 
 Comments.addView("postCommentsNew", function (terms) {
   return {
-    selector: { 
+    selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
       answer: { $in: [false,null] },
@@ -103,7 +103,7 @@ ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer
 
 Comments.addView("postCommentsBest", function (terms) {
   return {
-    selector: { 
+    selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
       answer: { $in: [false,null] },
@@ -115,10 +115,15 @@ Comments.addView("postCommentsBest", function (terms) {
 
 Comments.addView("postLWComments", function (terms) {
   return {
-    selector: { postId: terms.postId, af: null },
+    selector: {
+      postId: terms.postId,
+      af: null,
+      answer: { $in: [false,null] },
+      parentAnswerId: { $in: [false,null] }
+    },
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
   };
-});
+})
 
 Comments.addView("allRecentComments", function (terms) {
   return {

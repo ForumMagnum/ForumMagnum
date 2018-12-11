@@ -71,7 +71,8 @@ const options = {
   pollInterval: 0,
   limit: 20,
   enableTotal: false,
-  fetchPolicy: 'cache-and-network'
+  fetchPolicy: 'cache-and-network',
+  ssr: true,
 };
 
 registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withList, options], withUser, withStyles(styles, { name: "NotificationsMenuButton" }))

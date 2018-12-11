@@ -98,8 +98,17 @@ class CommentsItem extends Component {
   }
 
   getTruncationCharCount = () => {
-    const { comment } = this.props
-    return comment.baseScore > 20 ? 1000 : 300
+    const { comment, currentUser, postPage } = this.props
+
+    // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
+    if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
+      return 10000000
+    }
+    if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
+      return 10000000
+    }
+    const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
+    return (commentIsRecent || comment.baseScore > 10) ? 1500 : 700
   }
 
   render() {
