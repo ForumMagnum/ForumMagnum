@@ -112,7 +112,7 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    recommendedReading: {
+    bottomNavigation: {
       width: 640,
       margin: 'auto',
       [theme.breakpoints.down('sm')]: {
@@ -233,7 +233,7 @@ class PostsPage extends Component {
                     />
                 </div>
               </div>}
-            {sequenceId && <div className={classes.recommendedReading}>
+            {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
             {/* Answers Section */}
