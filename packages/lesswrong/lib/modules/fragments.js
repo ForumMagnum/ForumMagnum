@@ -77,6 +77,8 @@ extendFragment('UsersCurrent', `
   emailSubscribedToCurated
   emails
   whenConfirmationEmailSent
+  noCollapseCommentsFrontpage
+  noCollapseCommentsPosts
 `);
 
 registerFragment(`
