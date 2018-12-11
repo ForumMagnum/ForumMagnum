@@ -812,7 +812,7 @@ Users.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
       control: 'checkbox',
-      label: "Do not collapse comments (on frontpage)"
+      label: "Do not collapse comments (on home page)"
     }
   },
 ]);
