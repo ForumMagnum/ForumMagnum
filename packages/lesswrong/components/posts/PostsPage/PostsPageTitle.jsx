@@ -19,7 +19,9 @@ const styles = theme => ({
     color: theme.palette.grey[500]
   },
   question: {
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    display: "block",
+    marginTop: "1em"
   }
 })
 
