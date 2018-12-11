@@ -40,7 +40,7 @@ export const commentExcerptFromHTML = (html, truncationCharCount) => {
     // We want the amount comments get truncated to to be less than the threshold at which they are truncated, so that users don't have the experience of expanding a comment only to see a couple more words (which just feels silly).
 
     // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
-    TruncateLength: truncationCharCount - truncationCharCount/4 || excerptMaxChars,
+    TruncateLength: Math.floor(truncationCharCount - truncationCharCount/4) || excerptMaxChars,
     TruncateBy: "characters",
     Suffix: `... <span class="read-more"><a class="read-more-default">(Read more)</a><a class="read-more-tooltip">(Click to expand thread)</a></span>${styles}`,
   }));
