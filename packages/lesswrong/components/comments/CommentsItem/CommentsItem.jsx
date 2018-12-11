@@ -99,10 +99,10 @@ class CommentsItem extends Component {
 
   getTruncationCharCount = () => {
     const { comment, currentUser, postPage } = this.props
-    if (currentUser.noCollapseCommentsPosts && postPage) {
+    if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
       return 10000000
     }
-    if (currentUser.noCollapseCommentsFrontpage && !postPage) {
+    if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
       return 10000000
     }
     const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000));
