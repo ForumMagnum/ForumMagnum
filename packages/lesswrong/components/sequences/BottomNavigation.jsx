@@ -67,11 +67,11 @@ const styles = theme => ({
   }
 })
 
-const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle, classes}) => {
+const BottomNavigation = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle, classes}) => {
   if (nextPost || previousPost) {
     return <div className={classes.root}>
       {(previousPost && sequence) ? <div className={classnames(classes.post, classes.prevPost)}>
-        <Components.RecommendedReadingItem direction="Previous" post={previousPost} sequence={sequence}/>
+        <Components.BottomNavigationItem direction="Previous" post={previousPost} sequence={sequence}/>
       </div> : null}
       <div className={classes.divider}></div>
       {/* TODO: This is currently unreachable (nextTitle is never passed). Hook it up, test the styles, then JSS-ify them. */}
@@ -83,7 +83,7 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
         </div>
       : (
         (nextPost && sequence) ? <div className={classnames(classes.post, classes.nextPost)}>
-          <Components.RecommendedReadingItem direction="Next" post={nextPost} sequence={sequence}/>
+          <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={sequence}/>
         </div> : null
       ) }
       <div className={classes.clear}></div>
@@ -94,5 +94,5 @@ const RecommendedReading = ({sequence, chapter, post, previousPost, nextPost, ne
 };
 
 
-registerComponent('RecommendedReading', RecommendedReading,
-  withRouter, withStyles(styles, {name: "RecommendedReading"}));
+registerComponent('BottomNavigation', BottomNavigation,
+  withRouter, withStyles(styles, {name: "BottomNavigation"}));

@@ -3,7 +3,7 @@ import React from 'react';
 import classnames from 'classnames';
 import { Link } from 'react-router';
 
-const RecommendedReadingItem = ({direction, post, sequence}) => {
+const BottomNavigationItem = ({direction, post, sequence}) => {
   const commentCount = post.commentCount || "No"
 
   return (
@@ -21,4 +21,4 @@ const RecommendedReadingItem = ({direction, post, sequence}) => {
 };
 
 
-registerComponent('RecommendedReadingItem', RecommendedReadingItem);
+registerComponent('BottomNavigationItem', BottomNavigationItem);
