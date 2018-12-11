@@ -21,7 +21,7 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 
-const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 400
+const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
 const styles = theme => ({
     root: {
