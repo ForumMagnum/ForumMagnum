@@ -151,6 +151,7 @@ const options = {
   pollInterval: 0,
   limit: 20,
   enableTotal: false,
+  ssr: true,
 };
 
 
