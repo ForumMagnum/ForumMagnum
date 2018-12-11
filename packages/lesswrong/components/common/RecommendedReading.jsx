@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import Hidden from '@material-ui/core/Hidden';
 
 const testCollections = [
   {
@@ -36,49 +37,49 @@ const testCollections = [
 ]
 
 const styles = theme => ({
-  frontpageSequencesGridList: {
-    [legacyBreakpoints.maxSmall]: {
-      marginTop: 40,
-    }
-  }
+  smallScreenRecommendedReading: {
+    maxWidth: 720,
+    margin: "0 auto",
+  },
 });
 
 
 const RecommendedReading = ({currentUser, classes}) => {
-  if (currentUser) {
-    return (
-      <div>
-        <Components.Section
-          title="Recommended Sequences"
-          titleLink="/library"
-          titleComponent= {<Components.SectionSubtitle to="/library">
-            <Link to="/library">Sequence Library</Link>
-          </Components.SectionSubtitle>}
-        >
-          <Components.SequencesGridWrapper
-            terms={{view:"curatedSequences", limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-            className={classes.frontpageSequencesGridList}
-          />
-        </Components.Section>
-      </div>
-    );
-  } else {
-    return (
+  let sectionTitle = currentUser ? "Recommended Sequences" : "Recommended Reading";
+  
+  let sectionWrapper = recommendedContent => <React.Fragment>
+    <Hidden smDown implementation="css">
       <Components.Section
-        title="Recommended Reading"
+        title={sectionTitle}
         titleLink="/library"
-        titleComponent= {<Components.SectionSubtitle>
+        titleComponent= {<Components.SectionSubtitle to="/library">
           <Link to="/library">Sequence Library</Link>
         </Components.SectionSubtitle>}
-      >
-        <Components.CollectionsCardContainer>
-          <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
-          <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
-          <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
-        </Components.CollectionsCardContainer>
-      </Components.Section>
+      >{recommendedContent}</Components.Section>
+    </Hidden>
+    <Hidden mdUp implementation="css">
+      <div className={classes.smallScreenRecommendedReading}>
+        {recommendedContent}
+      </div>
+    </Hidden>
+  </React.Fragment>;
+  
+  if (currentUser) {
+    return sectionWrapper(
+      <Components.SequencesGridWrapper
+        terms={{view:"curatedSequences", limit:3}}
+        showAuthor={true}
+        showLoadMore={false}
+        className={classes.frontpageSequencesGridList}
+      />
+    );
+  } else {
+    return sectionWrapper(
+      <Components.CollectionsCardContainer>
+        <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
+        <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
+        <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
+      </Components.CollectionsCardContainer>
     );
   }
 }
