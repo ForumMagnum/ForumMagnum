@@ -3,7 +3,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
