@@ -99,7 +99,7 @@ class Answer extends Component {
   render () {
     const { comment, post, classes, index, answerCount } = this.props
     const { showEdit } = this.state
-    const { ContentItemBody, SimpleDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
+    const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
 
     return (
       <div className={classes.root} id={comment._id}>
@@ -122,7 +122,9 @@ class Answer extends Component {
             {comment.user && <Typography variant="headline" className={classes.author}>
               { <UsersName user={comment.user} />}
             </Typography>}
-            <Typography variant="subheading" className={classes.date}><SimpleDate date={comment.postedAt}/></Typography>
+            <Typography variant="subheading" className={classes.date}>
+              <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+            </Typography>
             <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
             <span className={classes.menu}>
               <CommentsMenu

@@ -26,7 +26,6 @@ import '../components/Layout.jsx';
 
 import '../components/common/CalendarDate.jsx';
 import '../components/common/FormatDate.jsx';
-import '../components/common/SimpleDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
