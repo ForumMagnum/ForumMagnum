@@ -1,5 +1,4 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -23,7 +22,7 @@ const styles = theme => ({
 const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
-  const { MetaInfo, PostsEdit, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
+  const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       <MetaInfo>
@@ -63,10 +62,6 @@ const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
         <Tooltip title={`${post.wordCount} words`}>
           <span>{parseInt(post.wordCount/300) || 1 } min read</span>
         </Tooltip>
-      </MetaInfo>}
-
-      { Posts.canEdit(currentUser,post) && <MetaInfo>
-        <span className={classes.secondaryInfo}><PostsEdit post={post}/></span>
       </MetaInfo>}
 
       { currentUser && currentUser.isAdmin &&

@@ -204,6 +204,16 @@ const schema = {
     viewableBy: ['admins'],
     defaultValue: 0
   },
+
+  deletedByUser: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    hidden: true,
+  },
+
   /**
     The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   */

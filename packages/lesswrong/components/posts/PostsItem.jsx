@@ -79,6 +79,9 @@ const styles = theme => ({
         opacity: 0.7,
       }
     },
+    '&:hover $actions': {
+      display: "inline-block",
+    }
   },
   
   content: {
@@ -236,6 +239,19 @@ const styles = theme => ({
     textAlign: "center",
     width: "50%",
   },
+  actions: {
+    display:"none",
+    opacity:.5,
+    overflow:"hidden",
+    height: 14,
+    '&:hover': {
+      opacity: 1
+    },
+    '& span': {
+      position: "relative",
+      top:-3
+    }
+  }
 })
 
 const isSticky = (post, terms) => {
@@ -336,6 +352,9 @@ class PostsItem extends PureComponent {
 
     const { post, currentUser, terms, classes } = this.props;
     const { lastVisitedAt } = post
+
+    const { PostsPageActions } = Components
+
     const lastCommentedAt = Posts.getLastCommentedAt(post)
 
     let commentCount = Posts.getCommentCount(post)
@@ -387,6 +406,9 @@ class PostsItem extends PureComponent {
               </Link>
               <div onClick={this.toggleHighlight} className={classes.meta}>
                 <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
+                <span className={classes.actions} onClick={(event)=>event.stopPropagation()}>
+                  <PostsPageActions post={post}/>
+                </span>
                 <Components.ShowOrHideHighlightButton
                   className={classes.showHighlightButton}
                   open={this.state.showHighlight}/>
