@@ -33,17 +33,17 @@ const styles = theme => ({
   },
   postsItem: {
     position: "relative",
-    
+
     "&:hover": {
       backgroundColor: "rgba(0,0,0,.025) !important",
     },
-    
+
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: "rgba(0,0,0,0.3)",
     },
   },
-  
+
   paperShowHighlight: {
     "&:hover": {
       backgroundColor: "white !important",
@@ -52,13 +52,13 @@ const styles = theme => ({
   contentShowHighlight: {
     background: "white !important",
   },
-  
+
   highlight: {
     maxWidth:570,
     padding:theme.spacing.unit*2,
     ...postHighlightStyles(theme),
   },
-  
+
   meta: {
     display: "block",
     color: "rgba(0,0,0,0.55)",
@@ -69,7 +69,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
     overflow: "hidden",
-    
+
     [legacyBreakpoints.maxTiny]: {
       width: 320,
       paddingLeft: 3,
@@ -83,7 +83,7 @@ const styles = theme => ({
       display: "inline-block",
     }
   },
-  
+
   content: {
     paddingLeft:10,
     paddingTop:10,
@@ -123,13 +123,13 @@ const styles = theme => ({
   unreadComments: {
     color: theme.palette.secondary.light,
   },
-  
+
   recentCommentsTitle: {
     padding: "10px 0",
     fontSize: 14,
     fontWeight: 600,
   },
-  
+
   collapseIcon: {
     fontSize: "12px !important",
     height: 12,
@@ -138,7 +138,7 @@ const styles = theme => ({
     top: 1,
     color: "rgba(0,0,0,.4) !important",
   },
-  
+
   ////////////////////////////////////////////////////////////////////////////
   // Used for the highlight (in renderHighlightMenu, and the button)
   ////////////////////////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@ const styles = theme => ({
     clear: "both",
     overflow: "auto",
   },
-  
+
   highlightFooterButton: {
     color: "rgba(0,0,0,.6)",
     fontSize: "12px",
@@ -179,7 +179,7 @@ const styles = theme => ({
     textAlign: "center",
     width: "50%",
   },
-  
+
   ////////////////////////////////////////////////////////////////////////////
   // Used on the comments speech-bubble icon/button
   ////////////////////////////////////////////////////////////////////////////
@@ -200,8 +200,8 @@ const styles = theme => ({
     borderLeft: "solid 1px rgba(0,0,0,.05)",
     backgroundColor: "rgba(0,0,0,.02)",
   },
-  
-  
+
+
   ////////////////////////////////////////////////////////////////////////////
   // Used in the New Comments view (when you click the comments icon)
   ////////////////////////////////////////////////////////////////////////////
@@ -242,15 +242,10 @@ const styles = theme => ({
   actions: {
     display:"none",
     opacity:.5,
-    overflow:"hidden",
-    height: 14,
+    marginTop:-5,
     '&:hover': {
       opacity: 1
     },
-    '& span': {
-      position: "relative",
-      top:-3
-    }
   }
 })
 

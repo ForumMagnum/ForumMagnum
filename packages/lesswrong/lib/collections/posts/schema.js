@@ -205,7 +205,7 @@ const schema = {
     defaultValue: 0
   },
 
-  deletedByUser: {
+  deletedDraft: {
     type: Boolean,
     optional: true,
     defaultValue: false,

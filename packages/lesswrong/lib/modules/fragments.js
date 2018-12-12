@@ -111,7 +111,7 @@ registerFragment(`
     frontpageDate
     meta
     draft
-    deletedByUser
+    deletedDraft
     # body # We replaced this with content
     excerpt # This won't work with content
     htmlHighlight

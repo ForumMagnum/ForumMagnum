@@ -85,7 +85,7 @@ import '../components/posts/PostsDailyList.jsx';
 import '../components/posts/AllPostsPage.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
-import '../components/posts/DeletePost.jsx';
+import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItem.jsx';

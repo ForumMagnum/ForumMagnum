@@ -18,7 +18,6 @@ Posts.addDefaultView(terms => {
     selector: {
       status: Posts.config.STATUS_APPROVED,
       draft: {$in: [false,null]},
-      deletedByUser:  {$in: [false,null]},
       isFuture: {$in: [false,null]}, // match both false and undefined
       unlisted: {$in: [false,null]},
       meta: {$in: [false,null]},
@@ -42,7 +41,7 @@ export function augmentForDefaultView(indexFields)
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
     prefix: {status:1},
-    suffix: { _id:1, isFuture:1, draft:1, deletedByUser:1, meta:1, groupId:1, af:1, isEvent:1, unlisted:1, postedAt:1, baseScore:1 },
+    suffix: { _id:1, isFuture:1, draft:1, meta:1, groupId:1, af:1, isEvent:1, unlisted:1, postedAt:1, baseScore:1 },
   });
 }
 
@@ -301,6 +300,7 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
+      deletedDraft: {$in: [false,null]},
       hideAuthor: {$in: [false,null]},
       unlisted: null,
       meta: null,
@@ -310,7 +310,7 @@ Posts.addView("drafts", terms => {
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, deletedDraft: 1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 

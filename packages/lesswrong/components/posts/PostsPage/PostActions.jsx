@@ -127,7 +127,7 @@ class PostActions extends Component {
         }
         <Components.SuggestCurated post={post} Container={Container}/>
         <Components.MoveToDraft post={post} Container={Container}/>
-        <Components.DeletePost post={post} Container={Container}/>
+        <Components.DeleteDraft post={post} Container={Container}/>
       </div>
     )
   }
