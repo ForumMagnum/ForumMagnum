@@ -31,11 +31,11 @@ const testCollections = [
   }
 ]
 
-const CoreReading = (props) => (
+const CoreReading = ({minimal=false}) => (
   <Components.CollectionsCardContainer>
     <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
-    <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>
-    <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>
+    {!minimal && <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>}
+    {!minimal && <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>}
   </Components.CollectionsCardContainer>
 );
 
