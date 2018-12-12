@@ -20,7 +20,12 @@ const styles = theme => ({
   },
 })
 
-const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
+const DateWithoutTime = withTimezone(
+  ({date, timezone}) => 
+    <span>{moment(date).tz(timezone).format("MMM Do")}</span>
+);
+
+const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
   const { MetaInfo, PostsEdit, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
@@ -38,13 +43,13 @@ const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
       </MetaInfo>
 
       { post.isEvent && <MetaInfo>
-        <Tooltip title={
-          post.startTime ? <EventTime post={post} /> : <span>To Be Determined</span>}
-          >
-          {post.startTime ? <span>{moment(post.startTime).tz(timezone).format("MMM Do")}</span>
-            : <span>TBD</span>
-          }
-        </Tooltip>
+        {post.startTime
+          ? <Tooltip title={<EventTime post={post} />}>
+              <DateWithoutTime date={post.startTime} />
+            </Tooltip>
+          : <Tooltip title={<span>To Be Determined</span>}>
+              <span>TBD</span>
+            </Tooltip>}
       </MetaInfo>}
 
       { post.isEvent && <MetaInfo>
@@ -83,4 +88,4 @@ const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
     </span>
 };
 
-registerComponent('PostsItemMeta', PostsItemMeta, withUser, withStyles(styles, {name: "PostsItemMeta"}), withTimezone)
+registerComponent('PostsItemMeta', PostsItemMeta, withUser, withStyles(styles, {name: "PostsItemMeta"}))
