@@ -1041,13 +1041,17 @@ Posts.addField([
           let tocData
           if (document.question) {
 
-            const answers = Comments.find(
+            const answers = await Comments.find(
               {answer:true, postId: document._id, deleted:{$in:[null, false]}},
               {sort:questionAnswersSort}
             ).fetch()
 
             if (answers && answers.length) {
-              tocData = Utils.extractTableOfContents(document.htmlBody, true)
+              tocData = Utils.extractTableOfContents(document.htmlBody, true) || {
+                html: null,
+                headingsCount: 0,
+                sections: []
+              }
 
               const answerSections = answers.map((answer) => ({
                 title: answer.author + "'s answer",
@@ -1068,7 +1072,9 @@ Posts.addField([
             tocData = Utils.extractTableOfContents(document.htmlBody)
           }
           if (tocData) {
-            tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document)})
+            const commentCount = await Comments.find(
+              {answer:{$in:[false, null]}, parentAnswerId:{$in:[undefined,null]}, postId: document._id }).count()
+            tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
           }
           return tocData;
         },

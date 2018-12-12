@@ -5,20 +5,36 @@ import { withStyles } from '@material-ui/core/styles'
 import { postBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
-import { Comments } from '../../lib/collections/comments';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import withUser from '../common/withUser'
 
 const styles = theme => ({
   postContent: postBodyStyles(theme),
   root: {
-    maxWidth: 640,
-    margin:10,
+    maxWidth: 650,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   author: {
-    ...postBodyStyles(theme)
+    display: 'inline-block',
+    marginBottom: 10,
+    fontWeight: 600,
+  },
+  date: {
+    display: 'inline-block',
+    marginLeft: 10
+  },
+  vote: {
+    display: 'inline-block',
+    marginLeft: 10,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.grey[500]
   },
   footer: {
-    marginTop: theme.spacing.unit*4,
+    marginTop: 5,
+    marginLeft: -13,
     display:"flex",
     alignItems:"center",
   },
@@ -35,16 +51,16 @@ const styles = theme => ({
       opacity:1
     },
     position: "relative",
-    left:-3
+    top:7,
+    marginLeft: 10
   },
   deletedSection: {
-    borderTop: "solid 1px rgba(0,0,0,.2)",
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit
+    paddingBottom: theme.spacing.unit,
+    marginTop: 50
   },
   deleted: {
     color: theme.palette.grey[500]
@@ -56,76 +72,90 @@ const styles = theme => ({
   },
   footerRight: {
     marginTop: theme.spacing.unit*2
-  }
+  },
+  newComment: {
+    marginTop: theme.spacing.unit*2,
+    color: theme.palette.grey[500]
+  },
+  metaData: {
+    textAlign: 'right'
+  },
+  bottomDivider: {
+    marginTop: 50,
+    marginBottom: 50,
+    border: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: 'transparent'
+  },
 })
 
 class Answer extends Component {
-  state = { showEdit: false }
+  state = {
+    showEdit: false,
+    commenting: false,
+  }
 
   showEdit = () => this.setState({showEdit: true})
   hideEdit = () => this.setState({showEdit: false})
 
   render () {
-    const { comment, post, classes } = this.props
+    const { comment, post, classes, index, answerCount } = this.props
     const { showEdit } = this.state
-    const { ContentItemBody, AnswerMeta, SimpleDate, AnswerCommentsList, PostsVote, CommentsMenu } = Components
+    const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
 
     return (
-      <Components.Section>
-        <div className={classes.root} id={comment._id}>
-          { comment.deleted ?
-            <div className={classes.deletedSection}>
-              <Typography variant="body2" className={classes.deleted}>
-                Answer was deleted
-              </Typography>
-              <AnswerMeta
+      <div className={classes.root} id={comment._id}>
+        { comment.deleted ?
+          <div className={classes.deletedSection}>
+            <Typography variant="body2" className={classes.deleted}>
+              Answer was deleted
+            </Typography>
+            <span className={classes.menu}>
+              <CommentsMenu
+                showEdit={this.showEdit}
                 comment={comment}
                 post={post}
-                showEdit={this.showEdit}
+                icon={<MoreHorizIcon className={classes.menuIcon}/>}
               />
-            </div>
-            :
-            <div>
-              { showEdit ?
-                <Components.CommentsEditForm
-                   comment={comment}
-                   successCallback={this.hideEdit}
-                   cancelCallback={this.hideEdit}
-                 />
-              :
-                <ContentItemBody
-                  className={classes.postContent}
-                  dangerouslySetInnerHTML={{__html:comment.htmlBody}}/>
-              }
-              <div className={classes.footer}>
-                {!comment.deleted && <div className={classes.footerVote}>
-                  <PostsVote post={comment} collection={Comments}/>
-                </div>}
-                <div className={classes.footerRight}>
-                  {comment && comment.user && <Typography variant="headline">
-                    { comment.user.displayName}
-                  </Typography>}
-                  <Typography variant="subheading"><SimpleDate date={comment.postedAt}/></Typography>
-                  <div className={classes.menu}>
-                    <CommentsMenu
-                      showEdit={showEdit}
-                      comment={comment}
-                      post={post}
-                      icon={<MoreHorizIcon className={classes.menuIcon}/>}
-                    />
-                  </div>
-                </div>
-              </div>
-              <AnswerCommentsList
-                terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit:3}}
+            </span>
+          </div>
+          :
+          <div>
+            {comment.user && <Typography variant="headline" className={classes.author}>
+              { <UsersName user={comment.user} />}
+            </Typography>}
+            <Typography variant="subheading" className={classes.date}>
+              <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+            </Typography>
+            <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
+            <span className={classes.menu}>
+              <CommentsMenu
+                showEdit={this.showEdit}
+                comment={comment}
                 post={post}
-                answerId={comment._id}
-                />
-            </div>
-          }
-
-        </div>
-      </Components.Section>
+                icon={<MoreHorizIcon className={classes.menuIcon}/>}
+              />
+            </span>
+            { showEdit ?
+              <Components.CommentsEditForm
+                comment={comment}
+                successCallback={this.hideEdit}
+                cancelCallback={this.hideEdit}
+              />
+              :
+              <ContentItemBody
+                className={classes.postContent}
+                dangerouslySetInnerHTML={{__html:comment.htmlBody}}
+              />
+            }
+            <AnswerCommentsList
+              terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
+              post={post}
+              parentAnswerId={comment._id}
+              />
+          </div>
+        }
+      {(index !== (answerCount-1)) && <hr className={classes.bottomDivider}/>}
+      </div>
     )
   }
 }
@@ -134,4 +164,4 @@ Answer.propTypes = {
   comment: PropTypes.object.isRequired,
 };
 
-registerComponent('Answer', Answer, withStyles(styles, {name:'Answer'}), withErrorBoundary);
+registerComponent('Answer', Answer, withStyles(styles, {name:'Answer'}), withErrorBoundary, withUser);

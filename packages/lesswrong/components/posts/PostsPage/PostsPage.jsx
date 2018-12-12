@@ -15,21 +15,23 @@ import { withRouter } from 'react-router'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 
-const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 600
+const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
 const styles = theme => ({
     root: {
-      position: "relative",
+      position: "relative"
     },
     post: {
       maxWidth: 650,
       [theme.breakpoints.down('md')]: {
-        margin: "auto"
+        marginLeft: "auto",
+        marginRight: "auto"
       }
     },
     header: {
@@ -51,7 +53,8 @@ const styles = theme => ({
       marginTop: theme.spacing.unit*2,
       marginBottom: theme.spacing.unit*2,
       marginLeft:0,
-      borderTop: "solid 1px rgba(0,0,0,.1)"
+      borderTop: "solid 1px rgba(0,0,0,.1)",
+      borderLeft: 'transparent'
     },
     eventHeader: {
       marginBottom:0,
@@ -63,6 +66,7 @@ const styles = theme => ({
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
+      fontSize: theme.typography.body2.fontSize,
       [theme.breakpoints.up('md')]: {
         display:"none"
       }
@@ -71,9 +75,17 @@ const styles = theme => ({
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
       [theme.breakpoints.down('sm')]: {
         display:"none"
       }
+    },
+    commentsLink: {
+      marginLeft: 20,
+      color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
     },
     actions: {
       display: 'inline-block',
@@ -95,7 +107,8 @@ const styles = theme => ({
       display: 'inline-block',
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingRight: 50
+      paddingRight: 50,
+      marginBottom: 40
     },
     draft: {
       color: theme.palette.secondary.light
@@ -110,12 +123,25 @@ const styles = theme => ({
     inline: {
       display: 'inline-block'
     },
+    feedName: {
+      fontSize: theme.typography.body2.fontSize,
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600],
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
+    },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
-      paddingRight: 25,
+      marginLeft: -67,
       [theme.breakpoints.down('sm')]: {
-        paddingRight: 0
-      }
+        paddingRight: 0,
+        marginLeft: 0
+      },
+      // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
+      background: "white",
+      position: "relative"
     },
     footerSection: {
       display: 'flex',
@@ -133,7 +159,7 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, 
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
       Section, TableOfContents } = Components
 
     if (loading) {
@@ -150,6 +176,8 @@ class PostsPage extends Component {
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : post.htmlBody;
 
+      const feedLink = post.feed && post.feed.url && new URL(post.feed.url).hostname
+
       return (
         <div className={classes.root}>
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
@@ -157,14 +185,23 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <Section>
             <div className={classes.post}>
+              {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+              <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
               <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
               >
                 <div className={classes.headerLeft}>
-                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                  <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
                   <PostsPageTitle post={post} />
                   <div className={classes.secondaryInfo}>
-                    <span className={classes.inline}><PostsAuthors post={post}/></span>
+                    <span className={classes.inline}>
+                      <PostsAuthors post={post}/>
+                    </span>
+                    { post.feed && post.feed.user &&
+                      <Tooltip title={`Crossposted from ${feedLink}`}>
+                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                          {post.feed.nickname}
+                        </a>
+                      </Tooltip>
+                    }
                     {!post.isEvent && <span className={classes.mobileDate}>
                       <FormatDate date={post.postedAt}/>
                     </span>}
@@ -172,6 +209,7 @@ class PostsPage extends Component {
                       <FormatDate date={post.postedAt} format="Do MMM YYYY"/>
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                    <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
                         <PostsPageActions post={post} />
                     </span>
@@ -206,32 +244,29 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && 
+            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
               <div className={classes.footerSection}>
                 <div className={classes.voteBottom}>
                   <PostsVote
                     collection={Posts}
                     post={post}
                     currentUser={currentUser}
-                    />  
+                    />
                 </div>
               </div>}
             {sequenceId && <div className={classes.recommendedReading}>
               <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
             </div>}
+            {/* Answers Section */}
+            {post.question && <div>
+              <div id="answers"/>
+              <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
+            </div>}
+            {/* Comments Section */}
+            <div className={classes.commentsSection}>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+            </div>
           </Section>
-
-          {/* Answers Section */}
-          {post.question && <div>
-            <div id="answers"/>
-            <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>}
-
-          {/* Comments Section */}
-          <div className={classes.commentsSection}>
-            <div id="comments"/>
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>
         </div>
       );
     }

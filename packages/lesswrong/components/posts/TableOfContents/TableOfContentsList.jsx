@@ -20,15 +20,18 @@ class TableOfContentsList extends Component {
   }
 
   render() {
-    const { sectionData, document } = this.props;
+    const { sectionData, document} = this.props;
     const { currentSection } = this.state;
     const { TableOfContentsRow } = Components;
     // const Row = TableOfContentsRow;
 
-    if (!sectionData || !document)
+    if (!sectionData)
       return <div/>
 
     const sections = sectionData ? sectionData.sections : []
+
+    const title = document && document.title || sectionData && sectionData.document && sectionData.document.title
+    
     return <div>
       <div>
         <TableOfContentsRow key="postTitle"
@@ -36,7 +39,7 @@ class TableOfContentsList extends Component {
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
         >
-          {document.title}
+          {title}
         </TableOfContentsRow>
         {sections && sections.map((section, index) =>
           <TableOfContentsRow
@@ -110,7 +113,8 @@ class TableOfContentsList extends Component {
   }
 
   getCurrentSection = () => {
-    const { sections } = this.props;
+    const { sectionData } = this.props;
+    const sections = sectionData && sectionData.sections
 
     if (Meteor.isServer)
       return null;

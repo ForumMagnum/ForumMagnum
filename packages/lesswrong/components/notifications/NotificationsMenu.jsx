@@ -12,6 +12,7 @@ import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import grey from '@material-ui/core/colors/grey';
 
@@ -182,7 +183,8 @@ const options = {
   pollInterval: 0,
   limit: 20,
   enableTotal: false,
+  ssr: true,
 };
 
 
-registerComponent('NotificationsMenu', NotificationsMenu, withUser, [withList, options], withStyles(styles, { name: "NotificationsMenu" }));
+registerComponent('NotificationsMenu', NotificationsMenu, withErrorBoundary, withUser, [withList, options], withStyles(styles, { name: "NotificationsMenu" }));

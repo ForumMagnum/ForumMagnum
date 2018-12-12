@@ -72,7 +72,7 @@ class UsersMenu extends PureComponent {
           anchorEl={this.state.anchorEl}
           onClose={this.handleRequestClose}
         >
-            {(showNewButtons && Users.isAdmin(currentUser)) &&
+            {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 Ask Question [Beta]
               </MenuItem>

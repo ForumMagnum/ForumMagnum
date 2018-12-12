@@ -18,7 +18,8 @@ const styles = theme => ({
     opacity: .5,
     '&:hover': {
       opacity:1
-    }
+    },
+    marginTop: -1
   },
   stickyBlock: {
     position: "sticky",
@@ -75,7 +76,7 @@ class TableOfContents extends Component
   state = { drawerOpen: false }
 
   componentDidMount() {
-    this.props.setToC(this.props.document, this.props.sections);
+    this.props.setToC(this.props.document, this.props.sectionData);
   }
 
   componentWillUnmount() {

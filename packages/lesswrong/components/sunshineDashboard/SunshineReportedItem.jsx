@@ -58,7 +58,7 @@ class SunshineReportedItem extends Component {
         },
         unset: {}
       })
-    }
+    } 
   }
 
   render () {
