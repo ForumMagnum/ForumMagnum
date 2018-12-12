@@ -4,8 +4,8 @@ import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import withUser from '../common/withUser';
 
 // import '../modules/columns.js';
@@ -99,15 +99,46 @@ const banColumns = [
   },
 ]
 
+const adminViewsOfAllUsers = [
+  {
+    label: "Created At (Descending)",
+    view: "LWUsersAdmin",
+    sort: {createdAt:-1},
+  },
+  {
+    label: "Created At (Ascending)",
+    view: "LWUsersAdmin",
+    sort: {createdAt:1},
+  },
+  {
+    label: "Karm (Descending)",
+    view: "LWUsersAdmin",
+    sort: {karma:-1},
+  },
+  {
+    label: "Karma (Ascending)",
+    view: "LWUsersAdmin",
+    sort: {karma:1},
+  },
+  {
+    label: "Sunshines",
+    view: "LWSunshinesList",
+    sort: {karma:1},
+  },
+  {
+    label: "TrustLevel1",
+    view: "LWTrustLevel1List",
+    sort: {karma:1},
+  },
+];
+
 // columns={['_id', 'createdAt', 'expirationDate', 'type', 'user.username', 'ip']}
 class AdminHome extends PureComponent {
 
   constructor(props) {
     super(props);
     this.state = {
-      sortUsersBy: {createdAt: -1},
-      view: 'LWUsersAdmin',
-      allUsersValue: 1,
+      allUsersValue: 0,
     };
   }
 
@@ -138,30 +169,27 @@ class AdminHome extends PureComponent {
               </div>
               <div className="admin-all-users">
                 <h3>All Users</h3>
-                <DropDownMenu
+                <Select
                   value={this.state.allUsersValue}
-                  onChange={this.handleChange}
-                  openImmediately={true}
+                  onChange={(event) => {
+                    this.setState({allUsersValue: event.target.value});
+                  }}
                 >
-                  <MenuItem value={1} primaryText="Created At (Descending)"
-                    onClick={(e) => {this.setState({allUsersValue:1, view:'LWUsersAdmin', sortUsersBy:{createdAt:-1}})}}/>
-                  <MenuItem value={2} primaryText="Created At (Ascending)"
-                    onClick={(e) => {this.setState({allUsersValue:2, view:'LWUsersAdmin', sortUsersBy:{createdAt:1}})}}/>
-                  <MenuItem value={3} primaryText="Karma (Descending)"
-                    onClick={(e) => {this.setState({allUsersValue:3, view:'LWUsersAdmin', sortUsersBy:{karma:-1}})}}/>
-                  <MenuItem value={4} primaryText="Karma (Ascending)"
-                    onClick={(e) => {this.setState({allUsersValue:4, view:'LWUsersAdmin', sortUsersBy:{karma:1}})}}/>
-                  <MenuItem value={5} primaryText="Sunshines"
-                    onClick={(e) => {this.setState({allUsersValue:5, view:'LWSunshinesList', sortUsersBy:{karma:1}})}} />
-                  <MenuItem value={6} primaryText="TrustLevel1"
-                    onClick={(e) => {this.setState({allUsersValue:6, view:'LWTrustLevel1List', sortUsersBy:{karma:1}})}} />
-                </DropDownMenu>
+                  {adminViewsOfAllUsers.map((userView, i) =>
+                    <MenuItem key={i} value={i}>
+                      {userView.label}
+                    </MenuItem>
+                  )}
+                </Select>
                 <Components.Datatable
                   collection={Users}
                   columns={AdminColumns}
                   options={{
                     fragmentName: 'UsersAdmin',
-                    terms: {view: this.state.view, sort:this.state.sortUsersBy},
+                    terms: {
+                      view: adminViewsOfAllUsers[this.state.allUsersValue].view,
+                      sort: adminViewsOfAllUsers[this.state.allUsersValue].sort,
+                    },
                     limit: 20
                   }}
                   showEdit={true}

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Dialog from 'material-ui/Dialog';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import { registerComponent } from 'meteor/vulcan:core';
 
@@ -33,13 +35,12 @@ class DialogGroup extends Component {
       <span className="dialog-trigger-group">
         <span className="dialog-trigger" onClick={this.handleOpen}>{ this.props.trigger }</span>
         <Dialog
-          title={this.props.title}
-          actions={actions}
-          modal={false}
           open={this.state.open}
-          onRequestClose={this.handleClose}
+          onClose={this.handleClose}
         >
+          {this.props.title && <DialogTitle>{this.props.title}</DialogTitle>}
           {this.props.children}
+          <DialogActions>{actions}</DialogActions>
         </Dialog>
       </span>
     );

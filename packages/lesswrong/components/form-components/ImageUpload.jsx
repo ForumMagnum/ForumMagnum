@@ -3,8 +3,20 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent, getSetting} from 'meteor/vulcan:core';
 import Helmet from 'react-helmet';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+
+const styles = theme => ({
+  button: {
+    background: "rgba(0,0,0, 0.5)",
+    "&:hover": {
+      background: "rgba(0,0,0,.35)"
+    },
+    color: "white",
+  }
+});
 
 class ImageUpload extends Component {
   constructor(props, context) {
@@ -63,6 +75,8 @@ class ImageUpload extends Component {
     }, this.setImageInfo);
   }
   render(){
+    const { classes } = this.props;
+    
     return (
       <div className="upload">
         <Helmet>
@@ -76,14 +90,13 @@ class ImageUpload extends Component {
             width={this.props.name == "gridImageId" ? "203" : "auto"}
             height={this.props.name == "bannerImageId" ? "380" : "80"}
           /> }
-        <FlatButton
-          label={this.state.imageId ? `Replace ${this.props.label}` : `Upload ${this.props.label}`}
+        <Button
           onClick={this.uploadWidget}
-          backgroundColor={"rgba(0,0,0,.5)"}
-          hoverColor={"rgba(0,0,0,.35)"}
-          style={{color:"#fff"}}
-          icon={<ImageIcon/>}
-        className="image-upload-button" />
+          className={classNames("image-upload-button", classes.button)}
+        >
+          <ImageIcon/>
+          {this.state.imageId ? `Replace ${this.props.label}` : `Upload ${this.props.label}`}
+        </Button>
       </div>
     );
   }
@@ -96,4 +109,4 @@ ImageUpload.contextTypes = {
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("ImageUpload", ImageUpload);
+registerComponent("ImageUpload", ImageUpload, withStyles(styles, {name: "ImageUpload"}));
