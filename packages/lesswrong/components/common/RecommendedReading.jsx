@@ -15,38 +15,57 @@ const styles = theme => ({
 
 
 const RecommendedReading = ({currentUser, classes}) => {
-  let sectionTitle = currentUser ? "Recommended Sequences" : "Recommended Reading";
+  const sectionTitle = currentUser ? "Recommended Sequences" : "Recommended Reading";
   
-  let sectionWrapper = recommendedContent => <React.Fragment>
-    <Hidden smDown implementation="css">
-      <Components.Section
-        title={sectionTitle}
-        titleLink="/library"
-        titleComponent= {<Components.SectionSubtitle to="/library">
-          <Link to="/library">Sequence Library</Link>
-        </Components.SectionSubtitle>}
-      >{recommendedContent}</Components.Section>
-    </Hidden>
-    <Hidden mdUp implementation="css">
-      <div className={classes.smallScreenRecommendedReading}>
-        {recommendedContent}
-      </div>
-    </Hidden>
-  </React.Fragment>;
+  const sectionWrapper = (recommendedContent) => (
+    <Components.Section
+      title={sectionTitle}
+      titleLink="/library"
+      titleComponent= {<Components.SectionSubtitle to="/library">
+        <Link to="/library">Sequence Library</Link>
+      </Components.SectionSubtitle>}
+    >{recommendedContent}</Components.Section>
+  );
+  
+  const omittedSectionWrapper = (content) => (
+    <div className={classes.smallScreenRecommendedReading}>
+      {content}
+    </div>
+  );
   
   if (currentUser) {
-    return sectionWrapper(
+    const suggestedSequences = count => (
       <Components.SequencesGridWrapper
-        terms={{view:"curatedSequences", limit:3}}
+        terms={{view:"curatedSequences", limit: count}}
         showAuthor={true}
         showLoadMore={false}
         className={classes.frontpageSequencesGridList}
       />
     );
+    
+    return (<React.Fragment>
+      <Hidden smDown implementation="css">
+        {sectionWrapper(
+          suggestedSequences(3)
+        )}
+      </Hidden>
+      <Hidden mdUp xsDown implementation="css">
+        {omittedSectionWrapper(
+          suggestedSequences(3)
+        )}
+      </Hidden>
+      <Hidden smUp implementation="css">
+        {omittedSectionWrapper(
+          suggestedSequences(1)
+        )}
+      </Hidden>
+    </React.Fragment>);
   } else {
-    return sectionWrapper(
-      <Components.CoreReading />
-    );
+    return (<React.Fragment>
+      sectionWrapper(
+        <Components.CoreReading />
+      )
+    </React.Fragment>);
   }
 }
 

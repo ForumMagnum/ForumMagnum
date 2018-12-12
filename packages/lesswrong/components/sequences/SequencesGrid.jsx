@@ -27,7 +27,6 @@ export const styles = theme => ({
     flexWrap: "wrap",
     flexFlow: "row wrap",
     [legacyBreakpoints.maxSmall]: {
-      flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
     },
