@@ -1,12 +1,13 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { makeEditable } from '../../editor/make_editable.js'
 
 export const formGroups = {
   moderationGroup: {
     order:60,
     name: "moderation",
-    label: "Moderation",
+    label: "Moderation & Moderation Guidelines",
   },
   banUser: {
     order:50,
@@ -280,8 +281,8 @@ Users.addField([
       group: formGroups.moderationGroup,
       label: "Style",
       canRead: ['guests'],
-      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
       blackbox: true,
       order: 55,
       form: {
@@ -298,29 +299,6 @@ Users.addField([
   },
 
   {
-    fieldName: 'moderationGuidelines',
-    fieldSchema: {
-      type: String,
-      optional: true,
-      group: formGroups.moderationGroup,
-      label: "Special Guidelines",
-      placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
-      canRead: ['guests'],
-      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-      control: 'MuiTextField',
-      blackbox: true,
-      order: 55,
-      form: {
-        hintText:"Bio",
-        rows:4,
-        multiLine:true,
-        fullWidth:true,
-      },
-    }
-  },
-
-  {
     fieldName: 'moderatorAssistance',
     fieldSchema: {
       type: Boolean,
@@ -328,8 +306,8 @@ Users.addField([
       group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
       canRead: ['guests'],
-      canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-      canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
       control: 'checkbox',
       blackbox: true,
       order: 55,
@@ -363,6 +341,31 @@ Users.addField([
   },
   {
     fieldName: 'bannedUserIds.$',
+    fieldSchema: {
+      type: String,
+      optional: true
+    }
+  },
+
+  /**
+    bannedUserIds: users who are not allowed to comment on this user's personal blog posts
+  */
+
+  {
+    fieldName: 'bannedPersonalUserIds',
+    fieldSchema: {
+      type: Array,
+      group: formGroups.moderationGroup,
+      canRead: ['guests'],
+      canUpdate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+      canCreate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+      optional: true,
+      label: "Banned Users from Personal Blog Posts",
+      control: 'UsersListEditor'
+    }
+  },
+  {
+    fieldName: 'bannedPersonalUserIds.$',
     fieldSchema: {
       type: String,
       optional: true
@@ -678,7 +681,7 @@ Users.addField([
       canRead: ['sunshineRegiment', 'admins'],
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
-      hidden: true,
+      group: formGroups.adminOptions,
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
@@ -781,5 +784,57 @@ Users.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment']
     }
-  }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsPosts',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (in large threads on Post Pages)"
+    }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsFrontpage',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (on home page)"
+    }
+  },
 ]);
+
+export const makeEditableOptionsModeration = {
+  // Determines whether to use the comment editor configuration (e.g. Toolbars)
+  commentEditor: true,
+  // Determines whether to use the comment editor styles (e.g. Fonts)
+  commentStyles: true,
+  formGroup: formGroups.moderationGroup,
+  adminFormGroup: formGroups.adminOptions,
+  order: 50,
+  fieldName: "moderationGuidelines",
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
+  },
+  deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
+}
+
+makeEditable({
+  collection: Users,
+  options: makeEditableOptionsModeration
+})

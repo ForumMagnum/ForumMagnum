@@ -217,10 +217,6 @@ figure:after {
   position: static !important;
 }
 
-.comments-new-form {
-  position: static !important;
-}
-
 .image-form-invalid {
   color: #e65757;
 }
@@ -241,7 +237,6 @@ figure:after {
     You can switch to a markdown editor in your user settings.\A
     We support LaTeX! (Ctrl-4 for inline, Ctrl-M for block-level).";
     max-width: 540px;
-    white-space: pre;
     position: absolute;
     color: rgba(0,0,0,0.55);
     font-weight: 200;

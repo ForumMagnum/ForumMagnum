@@ -37,7 +37,7 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
           {hit.baseScore} points
         </Components.MetaInfo>
         {hit.postedAt && <Components.MetaInfo>
-          <Components.FromNowDate date={hit.postedAt}/>
+          <Components.FormatDate date={hit.postedAt}/>
         </Components.MetaInfo>}
         <div><Snippet attribute="body" hit={hit} tagName="mark" /></div>
     </Link>

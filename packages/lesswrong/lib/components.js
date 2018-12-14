@@ -25,7 +25,7 @@ import '../components/notifications/SubscribeTo.jsx';
 import '../components/Layout.jsx';
 
 import '../components/common/CalendarDate.jsx';
-import '../components/common/FromNowDate.jsx';
+import '../components/common/FormatDate.jsx';
 import '../components/common/SimpleDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
@@ -49,6 +49,7 @@ import '../components/common/CloudinaryImage.jsx';
 import '../components/common/Logo.jsx';
 import '../components/common/SearchForm.jsx';
 import '../components/common/ContentItemBody.jsx';
+import '../components/common/Footer.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -81,6 +82,7 @@ import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
 import '../components/posts/PostsDailyList.jsx';
+import '../components/posts/AllPostsPage.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/SuggestAlignment.jsx';
@@ -89,7 +91,7 @@ import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
-import '../components/posts/PostsPage.jsx';
+import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
@@ -110,6 +112,7 @@ import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsVote.jsx';
 import '../components/posts/PostsStats.jsx';
+import '../components/posts/TableOfContents';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
 
@@ -131,8 +134,10 @@ import '../components/localGroups/LocalGroupsList.jsx';
 import '../components/localGroups/LocalGroupsItem.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
+import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
+import '../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/DeleteCommentDialog.jsx';
 import '../components/comments/CommentsItem/EditCommentMenuItem.jsx';
@@ -160,6 +165,7 @@ import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelinesLink.jsx';
 import '../components/comments/ModerationGuidelinesContent.jsx'
+import '../components/comments/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
@@ -281,6 +287,8 @@ if(getSetting('AlignmentForum', false)) {
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
 import '../components/questions/AnswersSection.jsx';
+import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/AnswerMeta.jsx';
+import '../components/questions/QuestionsPage.jsx';

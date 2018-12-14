@@ -19,7 +19,7 @@ const UserIPsDisplay = ({column, document}) => {
 }
 
 const DateDisplay = ({column, document}) => {
-  return <div>{document[column.name] && <Components.FromNowDate date={document[column.name]}/>}</div>
+  return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
 const EventPropertiesDisplay = ({column, document}) => {

@@ -155,7 +155,7 @@ export const createDummyPost = async (user, data) => {
   const newPostResponse = await newMutation({
     collection: Posts,
     document: postData,
-    currentUser: user,
+    currentUser: user || defaultUser,
     validate: false,
     context: {},
   });
@@ -178,6 +178,7 @@ export const createDummyUser = async (data) => {
   return newUserResponse.data;
 }
 export const createDummyComment = async (user, data) => {
+  const defaultUser = await createDefaultUser();
   let defaultData = {
     userId: user._id,
     body: "This is a test comment",
@@ -189,7 +190,7 @@ export const createDummyComment = async (user, data) => {
   const newCommentResponse = await newMutation({
     collection: Comments,
     document: commentData,
-    currentUser: user,
+    currentUser: user || defaultUser,
     validate: false,
     context: {},
   });

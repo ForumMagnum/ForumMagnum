@@ -1,4 +1,5 @@
 import Users from 'meteor/vulcan:users'
+import { Utils } from 'meteor/vulcan:core'
 
 const defaultOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -26,7 +27,7 @@ export const makeEditable = ({collection, options = {}}) => {
     formGroup,
     adminFormGroup,
     permissions,
-    fieldName,
+    fieldName = "",
     order,
     enableMarkDownEditor
   } = options
@@ -36,7 +37,7 @@ export const makeEditable = ({collection, options = {}}) => {
       Draft-js content
     */
     {
-      fieldName: `${fieldName}content`,
+      fieldName: Utils.camelCaseify(`${fieldName}Content`),
       fieldSchema: {
         type: Object,
         optional: true,
@@ -50,6 +51,7 @@ export const makeEditable = ({collection, options = {}}) => {
           multiLine:true,
           fullWidth:true,
           disableUnderline:true,
+          fieldName: fieldName,
           commentEditor,
           commentStyles,
           getLocalStorageId,
@@ -62,7 +64,7 @@ export const makeEditable = ({collection, options = {}}) => {
       Html Body field, made editable to allow access in edit form
     */
     {
-      fieldName: `${fieldName}htmlBody`,
+      fieldName: Utils.camelCaseify(`${fieldName}HtmlBody`),
       fieldSchema: {
         type: String,
         optional: true,
@@ -80,7 +82,7 @@ export const makeEditable = ({collection, options = {}}) => {
     */
 
     {
-      fieldName: `${fieldName}body`,
+      fieldName: Utils.camelCaseify(`${fieldName}Body`),
       fieldSchema: {
         type: String,
         viewableBy: ['guests'],
@@ -98,7 +100,7 @@ export const makeEditable = ({collection, options = {}}) => {
     */
 
     {
-      fieldName: `${fieldName}htmlHighlight`,
+      fieldName: Utils.camelCaseify(`${fieldName}HtmlHighlight`),
       fieldSchema: {
         type: String,
         optional: true,
@@ -112,7 +114,7 @@ export const makeEditable = ({collection, options = {}}) => {
     */
 
     {
-      fieldName: `${fieldName}wordCount`,
+      fieldName: Utils.camelCaseify(`${fieldName}WordCount`),
       fieldSchema: {
         type: Number,
         viewableBy: ['guests'],
@@ -127,7 +129,7 @@ export const makeEditable = ({collection, options = {}}) => {
     */
 
     {
-      fieldName: `${fieldName}plaintextExcerpt`,
+      fieldName: Utils.camelCaseify(`${fieldName}PlaintextExcerpt`),
       fieldSchema: {
         type: String,
         viewableBy: ['guests'],
@@ -142,7 +144,7 @@ export const makeEditable = ({collection, options = {}}) => {
     */
 
     {
-      fieldName: `${fieldName}lastEditedAs`,
+      fieldName: Utils.camelCaseify(`${fieldName}LastEditedAs`),
       fieldSchema: {
         type: String,
         viewableBy: ['guests'],

@@ -186,7 +186,12 @@ Comments.addField([
       optional: true,
       canRead: ['guests'],
       canCreate: ['members'],
-      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      onEdit: (modifier, document, currentUser) => {
+        if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
+          return new Date()
+        }
+      },
       hidden: true,
     }
   },
@@ -197,9 +202,14 @@ Comments.addField([
       type: String,
       optional: true,
       canRead: ['guests'],
-      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['members'],
       hidden: true,
+      onEdit: (modifier, document, currentUser) => {
+        if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
+          return modifier.$set.deletedByUserId || currentUser._id
+        }
+      },
       resolveAs: {
         fieldName: 'deletedByUser',
         type: 'User',

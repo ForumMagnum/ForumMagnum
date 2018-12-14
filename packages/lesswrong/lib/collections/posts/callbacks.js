@@ -5,9 +5,9 @@ import { performVoteServer } from 'meteor/vulcan:voting';
 import Localgroups from '../localgroups/collection.js';
 
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
-import { makeEditableOptions } from './custom_fields.js'
+import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'
 
-
+const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -155,3 +155,14 @@ async function LWPostsNewUpvoteOwnPost(post) {
 addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
+
+addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
+
+function PostsNewUserApprovedStatus (post) {
+  const postAuthor = Users.findOne(post.userId);
+  if (!postAuthor.reviewedByUserId && (postAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+    return {...post, authorIsUnreviewed: true}
+  }
+}
+
+addCallback("posts.new.sync", PostsNewUserApprovedStatus);

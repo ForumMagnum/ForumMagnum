@@ -16,8 +16,22 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
+  root: {
+    fontWeight: 400,
+    maxWidth: 720,
+    margin: "0px auto 15px auto",
+    ...theme.typography.commentStyle,
+
+    "& .content-editor-is-empty": {
+      fontSize: "15px !important",
+    },
+    background: "white",
+    position: "relative"
+  },
+
   meta: {
     fontSize: 14,
     clear: 'both',
@@ -34,9 +48,10 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 10px',
+    padding: '0 12px',
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
+    marginBottom: "1.3em",
     "@media print": {
       display: "none"
     }
@@ -45,15 +60,32 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
-    marginTop: theme.spacing.unit
-  }
+    marginTop: 12
+  },
+  moderationGuidelinesWrapper: {
+    ...commentBodyStyles(theme),
+    verticalAlign: 'top',
+    display: 'inline-block',
+    padding: '10px 0px',
+    borderTop: '1px solid rgba(0,0,0,0.2)',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    marginBottom: 30,
+  },
 })
 
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
+      highlightDate: this.props.lastEvent &&
+        this.props.lastEvent.properties &&
+        this.props.lastEvent.properties.createdAt &&
+        new Date(this.props.lastEvent.properties.createdAt)
+        ||
+        this.props.post &&
+        this.props.post.lastVisitedAt &&
+        new Date(this.props.post.lastVisitedAt) ||
+        new Date(),
     }
   }
 
@@ -70,7 +102,7 @@ class CommentsListSection extends Component {
   }
 
   renderTitleComponent = () => {
-    const { commentCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
+    const { commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
     const { anchorEl, highlightDate } = this.state
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
     return <div className={this.props.classes.meta}>
@@ -83,7 +115,7 @@ class CommentsListSection extends Component {
           (commentCount < totalComments) ?
             <span>
               Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={this.props.post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments()}> (show more) </a>}
+              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments({limit: commentCount + (loadMoreCount || commentCount)})}> (show more) </a>}
             </span> :
             <span>
               { totalComments } comments, sorted by <Components.CommentsViews post={this.props.post} />
@@ -119,22 +151,16 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments } = this.props;
+    const { currentUser, comments, postId, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
-      <div className="posts-comments-thread">
+      <div className={classes.root}>
+        <div className={classes.moderationGuidelinesWrapper}>
+          <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+        </div>
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        <Components.ModerationGuidelinesBox documentId={this.props.post._id} showModeratorAssistance />
-        <Components.CommentsList
-          currentUser={currentUser}
-          totalComments={totalComments}
-          comments={comments}
-          highlightDate={this.state.highlightDate}
-          post={post}
-          postPage
-        />
         {!currentUser &&
           <div>
             <Components.LoginPopupLink>
@@ -142,12 +168,16 @@ class CommentsListSection extends Component {
             </Components.LoginPopupLink>
           </div>
         }
+        <div id="comments"/>
         {currentUser && Users.isAllowedToComment(currentUser, post) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
+              alignmentForumPost={post.af}
               postId={postId}
-              prefilledProps={{af: Comments.defaultToAlignment(currentUser, post)}}
+              prefilledProps={{
+                af: Comments.defaultToAlignment(currentUser, post),
+                parentAnswerId: parentAnswerId}}
               type="comment"
             />
           </div>
@@ -155,11 +185,21 @@ class CommentsListSection extends Component {
         {currentUser && !Users.isAllowedToComment(currentUser, post) && (
           <div className="i18n-message author_has_banned_you">
             { Users.blockedCommentingReason(currentUser, post)}
-            { !(getSetting('AlignmentForum', false)) && <span>
+          { !(getSetting('AlignmentForum', false)) && <span>
               (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
             </span> }
           </div>
         )}
+        <Components.CommentsList
+          currentUser={currentUser}
+          totalComments={totalComments}
+          comments={comments}
+          highlightDate={this.state.highlightDate}
+          post={post}
+          postPage
+          startThreadCollapsed={startThreadCollapsed}
+          parentAnswerId={parentAnswerId}
+        />
       </div>
     );
   }

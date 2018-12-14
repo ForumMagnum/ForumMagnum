@@ -37,7 +37,7 @@ describe('Commenting while banned from post --', async () => {
       />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
   });
-  it('CommentsItem renders reply-button when user is in a Post bannedUserIds list but PostAuthor NOT in trustLevel1', async () => {
+  it('CommentsItem does not render reply-button when user is in a Post bannedUserIds list but PostAuthor NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
@@ -48,7 +48,7 @@ describe('Commenting while banned from post --', async () => {
         currentUser={user}
         post={post}
       />)
-    expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
+    expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
   });
   it('CommentsItem does NOT render reply-button when user is in a User bannedUserIds list', async () => {
     const user = await createDummyUser()

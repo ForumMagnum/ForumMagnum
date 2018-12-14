@@ -57,8 +57,7 @@ const EventTime = ({post, timezone, dense}) => {
         start.format(startTimeFormat) + '-' + end.format(timeFormat);
     } else {
       return (<span>
-        {start.calendar({}, startCalendarFormat)}
-        to {end.calendar({}, calendarFormat)}
+        {start.calendar({}, startCalendarFormat)} to {end.calendar({}, calendarFormat)}
       </span>);
     }
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Posts } from "../posts";
 import { Comments } from './collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { convertFromRaw } from 'draft-js';
 import { performVoteServer } from 'meteor/vulcan:voting';
@@ -159,7 +159,6 @@ function CommentsEditSoftDeleteCallback (comment, oldComment) {
 }
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 
-
 function ModerateCommentsPostUpdate (comment, oldComment) {
   const comments = Comments.find({postId:comment.postId, deleted: {$in: [false,null]}}).fetch()
 
@@ -190,10 +189,10 @@ function NewCommentsEmptyCheck (comment, user) {
 
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
-export async function CommentsDeleteSendPMAsync (newComment, oldComment, context) {
-  if (newComment.deleted && !oldComment.deleted && newComment.htmlBody) {
-    const originalPost = Posts.findOne(newComment.postId);
-    const moderatingUser = Users.findOne(newComment.deletedByUserId);
+export async function CommentsDeleteSendPMAsync (newComment) {
+  if (newComment.deleted && newComment.htmlBody) {
+    const originalPost = await Posts.findOne(newComment.postId);
+    const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
 
     const conversationData = {
@@ -204,12 +203,11 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
       collection: Conversations,
       document: conversationData,
       currentUser: lwAccount,
-      validate: false,
-      context
+      validate: false
     });
 
     let firstMessageContent =
-        `One of your comments on "${originalPost.title}" has been removed by ${moderatingUser.displayName}. We've sent you another PM with the content.`
+        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content.`
     if (newComment.deletedReason) {
       firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
@@ -230,17 +228,18 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, context
       collection: Messages,
       document: firstMessageData,
       currentUser: lwAccount,
-      validate: false,
-      context
+      validate: false
     })
 
     newMutation({
       collection: Messages,
       document: secondMessageData,
       currentUser: lwAccount,
-      validate: false,
-      context
+      validate: false
     })
+
+    // eslint-disable-next-line no-console
+    console.log("Sent moderation messages for comment", newComment)
   }
 }
 
@@ -269,3 +268,44 @@ function NewCommentNeedsReview (comment) {
 addCallback("comments.new.async", NewCommentNeedsReview);
 
 addEditableCallbacks({collection: Comments, options: makeEditableOptions})
+
+async function validateDeleteOperations (modifier, comment, currentUser) {
+  if (modifier.$set) {
+    const { deleted, deletedPublic, deletedReason } = modifier.$set
+    if (deleted || deletedPublic || deletedReason) {
+      if (deletedPublic && !deleted) {
+        throw new Error("You cannot publicly delete a comment without also deleting it")
+      }
+  
+      if (deletedPublic && !deletedReason) {
+        throw new Error("Publicly deleted comments need to have a deletion reason");
+      } 
+  
+      if (
+        (comment.deleted || comment.deletedPublic) && 
+        (deletedPublic || deletedReason) && 
+        !Users.canDo('comments.remove.all') && 
+        comment.deletedByUserId !== currentUser._id) {
+          throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
+      }
+  
+      if (deletedReason && !deleted && !deletedPublic) {
+        throw new Error("You cannot set a deleted reason without deleting a comment")
+      }
+
+      const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch()
+      const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
+      if (
+        filteredChildrenComments && 
+        (filteredChildrenComments.length > 0) && 
+        (deletedPublic || deleted) && 
+        !Users.canDo('comment.remove.all')
+      ) {
+        throw new Error("You cannot delete a comment that has children")
+      }
+    }
+  }
+  return modifier
+}
+
+addCallback("comments.edit.sync", validateDeleteOperations)

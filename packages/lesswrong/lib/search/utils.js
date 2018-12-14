@@ -44,6 +44,8 @@ Comments.toAlgolia = (comment) => {
   const commentAuthor = Users.findOne({_id: comment.userId});
   if (commentAuthor && !commentAuthor.deleted) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
+    algoliaComment.authorUserName = commentAuthor.username;
+    algoliaComment.authorSlug = commentAuthor.slug;
   }
   const parentPost = Posts.findOne({_id: comment.postId});
   if (parentPost) {
