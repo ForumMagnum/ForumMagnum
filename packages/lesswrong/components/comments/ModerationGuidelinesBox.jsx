@@ -1,4 +1,4 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { registerComponent, withDocument } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
