@@ -84,7 +84,7 @@ class ModerationGuidelinesBox extends PureComponent {
     <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>` : ""}
     ${document.moderationGuidelinesHtmlBody}`
     const combinedGuidelines = `
-      ${document.moderationGuidelinesHtmlBody ? userGuidelines : ""}
+      ${(document.moderationGuidelinesHtmlBody || document.moderationStyle) ? userGuidelines : ""}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
