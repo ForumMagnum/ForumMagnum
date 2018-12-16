@@ -33,6 +33,7 @@ class SuggestCurated extends Component {
   }
 
   render() {
+    console.log("Rerendering suggestCurated")
     const { currentUser, post, Container } = this.props;
     if (currentUser &&
         post &&

@@ -8,6 +8,9 @@ import moment from 'moment';
 import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
+  root: {
+    display: 'flex'
+  },
   read: {
     opacity: ".8"
   },
@@ -28,7 +31,11 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
   const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
-  return <span className={classNames({[classes.read]:read})}>
+  return <span className={classNames({[classes.read]:read}, classes.root)}>
+      
+      { post.user && <MetaInfo>
+        <PostsUserAndCoauthors post={post}/>
+      </MetaInfo>}
 
       <MetaInfo>
         <Tooltip title={<div>
@@ -55,31 +62,28 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
         <EventVicinity post={post} />
       </MetaInfo>}
 
-      { post.user && <MetaInfo>
-        <PostsUserAndCoauthors post={post}/>
-      </MetaInfo>}
 
       {post.postedAt && !post.isEvent && <MetaInfo>
         <FormatDate date={post.postedAt}/>
       </MetaInfo>}
 
-      {post.wordCount && !post.isEvent && <MetaInfo>
+      {/* {post.wordCount && !post.isEvent && <MetaInfo>
         <Tooltip title={`${post.wordCount} words`}>
           <span>{parseInt(post.wordCount/300) || 1 } min read</span>
         </Tooltip>
-      </MetaInfo>}
+      </MetaInfo>} */}
 
-      { currentUser && currentUser.isAdmin &&
+      {/* { currentUser && currentUser.isAdmin &&
         <PostsStats post={post} />
-      }
+      } */}
 
-      { afBaseScore && <MetaInfo>
+      {/* { afBaseScore && <MetaInfo>
         <Tooltip title={<div>
           { afBaseScore || 0 } karma on alignmentform.org
         </div>}>
           <span>Ω { afBaseScore || 0 }</span>
         </Tooltip>
-      </MetaInfo>}
+      </MetaInfo>} */}
     </span>
 };
 

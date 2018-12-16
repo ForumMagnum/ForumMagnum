@@ -87,6 +87,7 @@ class PostsViews extends Component {
   }
 
   render() {
+    console.log("Rerendering PostsViews")
     const props = this.props;
     const views = props.views || defaultViews;
     let expandedViews = props.expandedViews || defaultExpandedViews;

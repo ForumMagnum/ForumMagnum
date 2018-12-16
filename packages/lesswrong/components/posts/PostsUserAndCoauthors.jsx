@@ -8,10 +8,12 @@ const styles = theme => ({
     maxWidth: 300,
     textOverflow: "ellipsis",
     overflowX: "hidden",
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
+    textAlign: 'right'
   },
   lengthUnlimited: {
     display: "inline",
+    whiteSpace: 'nowrap'
   },
 });
 

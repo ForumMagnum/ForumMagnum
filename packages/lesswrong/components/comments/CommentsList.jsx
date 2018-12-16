@@ -22,6 +22,7 @@ class CommentsList extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    console.log("Calling shouldComponentUpdate of CommentsList")
     if(!shallowEqual(this.state, nextState))
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post","comments","editMutation"]))

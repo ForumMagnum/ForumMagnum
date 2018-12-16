@@ -26,7 +26,8 @@ const styles = theme => ({
   root: {
     ...theme.typography.postStyle,
     display: "flex",
-    alignAtems: "stretch",
+    alignItems: "center",
+    justifyContent: 'center',
     cursor: "pointer",
     "&:hover": {
       backgroundColor: "rgba(0, 0, 0, 0.03) !important",
@@ -87,8 +88,7 @@ const styles = theme => ({
 
   content: {
     paddingLeft:10,
-    paddingTop:10,
-    width:"calc(100% - 100px)"
+    width:"100%"
   },
   paperExpanded: {
     backgroundColor: 'inherit',
@@ -419,19 +419,20 @@ class PostsItem extends Component {
               <Link to={this.getPostLink()}>
                 <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
               </Link>
-              <div onClick={this.toggleHighlight} className={classes.meta}>
-                <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
+              {/* <div onClick={this.toggleHighlight} className={classes.meta}>
                 <span className={classes.actions} onClick={(event)=>event.stopPropagation()}>
                   <PostsPageActions post={post}/>
                 </span>
                 <Components.ShowOrHideHighlightButton
                   className={classes.showHighlightButton}
                   open={this.state.showHighlight}/>
-              </div>
+              </div> */}
             </div>
+            <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
             <Components.CategoryDisplay
               onClick={this.toggleHighlight}
-              post={post} read={lastVisitedAt || this.state.readStatus}/>
+              post={post} read={lastVisitedAt || this.state.readStatus}
+            />
 
             { renderCommentsButton() }
 

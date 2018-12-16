@@ -6,9 +6,9 @@ import classNames from 'classnames'
 
 const styles = (theme) => ({
   root: {
-    display: "inline",
+    display: "block",
     color: theme.palette.grey[600],
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing.unit*2,
     fontSize: "1rem"
   },
   button: {

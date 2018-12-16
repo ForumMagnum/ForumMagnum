@@ -11,6 +11,8 @@ const styles = theme => ({
     overflow:"hidden",
     textOverflow:"ellipsis",
     color: "rgba(0,0,0,.95)",
+    lineHeight: '1',
+    marginBottom: 0,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
