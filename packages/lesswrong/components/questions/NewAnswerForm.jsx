@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import withUser from '../common/withUser'
 
 const styles = theme => ({
   answersForm: {
@@ -55,7 +56,7 @@ const FormGroupComponent = (props) => {
   </React.Fragment>
 }
 
-const NewAnswerForm = ({postId, classes}) => {
+const NewAnswerForm = ({postId, classes, currentUser}) => {
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
@@ -69,27 +70,26 @@ const NewAnswerForm = ({postId, classes}) => {
   }
 
   const prefilledProps = { postId: postId, answer: true }
-  const { SmartForm, ShowIf } = Components
+  const { SmartForm } = Components
+  
+  if (!Comments.options.mutations.new.check(currentUser)) {
+    return <FormattedMessage id="users.cannot_comment"/>;
+  }
+  
   return (
-    <ShowIf
-      check={Comments.options.mutations.new.check}
-      document={prefilledProps}
-      failureComponent={<FormattedMessage id="users.cannot_comment"/>}
-    >
-      <div className={classes.answersForm}>
-        <Typography variant="display1" className={classes.title}>
-          New Answer
-        </Typography>
-        <SmartForm
-          collection={Comments}
-          GroupComponent={FormGroupComponent}
-          SubmitComponent={SubmitComponent}
-          mutationFragment={getFragment('CommentsList')}
-          prefilledProps={prefilledProps}
-          layout="elementOnly"
-        />
-      </div>
-    </ShowIf>
+    <div className={classes.answersForm}>
+      <Typography variant="display1" className={classes.title}>
+        New Answer
+      </Typography>
+      <SmartForm
+        collection={Comments}
+        GroupComponent={FormGroupComponent}
+        SubmitComponent={SubmitComponent}
+        mutationFragment={getFragment('CommentsList')}
+        prefilledProps={prefilledProps}
+        layout="elementOnly"
+      />
+    </div>
   )
 };
 
@@ -99,4 +99,4 @@ NewAnswerForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('NewAnswerForm', NewAnswerForm, withMessages, withStyles(styles, {name:"NewAnswerForm"}));
+registerComponent('NewAnswerForm', NewAnswerForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerForm"}));

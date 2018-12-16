@@ -12,3 +12,4 @@ import '../lib/collections/users/tests.js';
 import '../lib/collections/notifications/tests.js';
 
 import '../lib/modules/alignment-forum/posts/tests.js';
+import '../lib/modules/alignment-forum/users/tests.js';

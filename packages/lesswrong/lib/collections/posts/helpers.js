@@ -230,3 +230,10 @@ Posts.getLastCommentedAt = (post) => {
 Posts.canEdit = (currentUser, post) => {
   return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
 }
+
+Posts.canDelete = (currentUser, post) => {
+  if (Users.canDo(currentUser, "posts.remove.all")) {
+    return true
+  }
+  return Users.owns(currentUser, post) && post.draft
+}
