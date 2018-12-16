@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import withUser from '../common/withUser';
 import truncatise from 'truncatise';
-import classNames from 'classnames'
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -82,7 +81,7 @@ class ModerationGuidelinesBox extends PureComponent {
     }
     const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
     <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>` : ""}
-    ${document.moderationGuidelinesHtmlBody}`
+    ${document.moderationGuidelinesHtmlBody || ""}`
     const combinedGuidelines = `
       ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
       ${document.frontpageDate ?
@@ -114,6 +113,7 @@ class ModerationGuidelinesBox extends PureComponent {
     const { document, classes, currentUser } = this.props;
     const { open } = this.state
     const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
+    const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
     return (
       <div className={classes.root} onClick={this.handleClick}>
         {Users.canModeratePost(currentUser, document) &&
@@ -123,9 +123,9 @@ class ModerationGuidelinesBox extends PureComponent {
             </Tooltip>
           </span>
         }
-        <div className={classNames({[classes.truncated]: !open})}>
-          <div dangerouslySetInnerHTML={{__html: open ? combinedGuidelines : truncatedGuidelines}}/>
-          {open && <a className={classes.collapse}>(Click to Collapse)</a>}
+        <div>
+          <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
+          {open && (displayedGuidelines.length > 250) && <a className={classes.collapse}>(Click to Collapse)</a>}
         </div>
       </div>
     )
