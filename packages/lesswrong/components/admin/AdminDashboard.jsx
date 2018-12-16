@@ -52,9 +52,19 @@ const banColumns = [
 ]
 // columns={['_id', 'createdAt', 'expirationDate', 'type', 'user.username', 'ip']}
 
-const AdminHome = ({ currentUser }) =>
-  <div className="admin-home page">
-    <Components.ShowIf check={Users.isAdmin} document={currentUser} failureComponent={<p className="admin-home-message"><FormattedMessage id="app.noPermission" /></p>}>
+const AdminHome = ({ currentUser }) => {
+  if (!Users.isAdmin(currentUser)) {
+    return (
+      <div className="admin-home page">
+        <p className="admin-home-message">
+          <FormattedMessage id="app.noPermission" />
+        </p>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="admin-home page">
       <div>
         <h2>New IP Ban</h2>
         <Components.SmartForm
@@ -93,7 +103,8 @@ const AdminHome = ({ currentUser }) =>
           showEdit={true}
         />
       </div>
-    </Components.ShowIf>
-  </div>
+    </div>
+  );
+}
 
 registerComponent("AdminDashboard", AdminHome, withUser)

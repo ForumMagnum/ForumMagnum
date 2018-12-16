@@ -143,81 +143,83 @@ class AdminHome extends PureComponent {
   }
 
   render() {
+    const { currentUser } = this.props;
+    
+    if (!Users.isAdmin(currentUser)) {
+      return (
+        <div className="admin-home page">
+          <p className="admin-home-message"><FormattedMessage id="app.noPermission" /></p>
+        </div>
+      );
+    }
+    
     return (
       <div className="admin-home page">
-        <Components.ShowIf
-          check={Users.isAdmin}
-          document={this.props.currentUser}
-          failureComponent={
-            <p className="admin-home-message"><FormattedMessage id="app.noPermission" /></p>
-          }
-        >
-          <div className="admin-home-layout">
-            <h2>Admin Console</h2>
-            <div>
-              <div className="admin-recent-logins">
-                <h3>Recent Logins</h3>
-                <Components.Datatable
-                  collection={LWEvents}
-                  columns={eventColumns}
-                  options={{
-                    fragmentName: 'lwEventsAdminPageFragment',
-                    terms: {view: 'adminView', name: 'login'},
-                    limit: 10,
-                  }}
-                />
-              </div>
-              <div className="admin-all-users">
-                <h3>All Users</h3>
-                <Select
-                  value={this.state.allUsersValue}
-                  onChange={(event) => {
-                    this.setState({allUsersValue: event.target.value});
-                  }}
-                >
-                  {adminViewsOfAllUsers.map((userView, i) =>
-                    <MenuItem key={i} value={i}>
-                      {userView.label}
-                    </MenuItem>
-                  )}
-                </Select>
-                <Components.Datatable
-                  collection={Users}
-                  columns={AdminColumns}
-                  options={{
-                    fragmentName: 'UsersAdmin',
-                    terms: {
-                      view: adminViewsOfAllUsers[this.state.allUsersValue].view,
-                      sort: adminViewsOfAllUsers[this.state.allUsersValue].sort,
-                    },
-                    limit: 20
-                  }}
-                  showEdit={true}
-                  showNew={false}
-                />
-              </div>
-              <div className="admin-new-ip-bans">
-                <h3>New IP Bans</h3>
-                <Components.SmartForm
-                  collection={Bans}
-                />
-              </div>
-              <div className="admin-current-ip-bans">
-                <h3>Current IP Bans</h3>
-                <Components.Datatable
-                  collection={Bans}
-                  columns={banColumns}
-                  options={{
-                    fragmentName: 'BansAdminPageFragment',
-                    terms: {},
-                    limit: 10,
-                  }}
-                  showEdit={true}
-                />
-              </div>
+        <div className="admin-home-layout">
+          <h2>Admin Console</h2>
+          <div>
+            <div className="admin-recent-logins">
+              <h3>Recent Logins</h3>
+              <Components.Datatable
+                collection={LWEvents}
+                columns={eventColumns}
+                options={{
+                  fragmentName: 'lwEventsAdminPageFragment',
+                  terms: {view: 'adminView', name: 'login'},
+                  limit: 10,
+                }}
+              />
+            </div>
+            <div className="admin-all-users">
+              <h3>All Users</h3>
+              <Select
+                value={this.state.allUsersValue}
+                onChange={(event) => {
+                  this.setState({allUsersValue: event.target.value});
+                }}
+              >
+                {adminViewsOfAllUsers.map((userView, i) =>
+                  <MenuItem key={i} value={i}>
+                    {userView.label}
+                  </MenuItem>
+                )}
+              </Select>
+              <Components.Datatable
+                collection={Users}
+                columns={AdminColumns}
+                options={{
+                  fragmentName: 'UsersAdmin',
+                  terms: {
+                    view: adminViewsOfAllUsers[this.state.allUsersValue].view,
+                    sort: adminViewsOfAllUsers[this.state.allUsersValue].sort,
+                  },
+                  limit: 20
+                }}
+                showEdit={true}
+                showNew={false}
+              />
+            </div>
+            <div className="admin-new-ip-bans">
+              <h3>New IP Bans</h3>
+              <Components.SmartForm
+                collection={Bans}
+              />
+            </div>
+            <div className="admin-current-ip-bans">
+              <h3>Current IP Bans</h3>
+              <Components.Datatable
+                collection={Bans}
+                columns={banColumns}
+                options={{
+                  fragmentName: 'BansAdminPageFragment',
+                  terms: {},
+                  limit: 10,
+                }}
+                showEdit={true}
+              />
             </div>
           </div>
-        </Components.ShowIf>
+        </div>
       </div>
     )
   }
