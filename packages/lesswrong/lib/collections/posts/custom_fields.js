@@ -1106,7 +1106,7 @@ Posts.addField([
             if (event) {
               return event && event.properties && event.properties.targetState
             } else {
-              return true
+              return (post.moderationGuidelinesHtmlBody || post.moderationStyle)
             }
           } else {
             return false
