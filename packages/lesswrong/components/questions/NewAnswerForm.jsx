@@ -72,7 +72,7 @@ const NewAnswerForm = ({postId, classes, currentUser}) => {
   const prefilledProps = { postId: postId, answer: true }
   const { SmartForm } = Components
   
-  if (!Comments.options.mutations.new.check(currentUser)) {
+  if (!Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
   

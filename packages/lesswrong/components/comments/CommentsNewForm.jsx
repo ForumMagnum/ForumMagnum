@@ -57,7 +57,7 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
     </div>
   }
 
-  if (Comments.options.mutations.new.check(currentUser)) {
+  if (Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return (
       <div className={classes.root}>
         <Components.SmartForm
