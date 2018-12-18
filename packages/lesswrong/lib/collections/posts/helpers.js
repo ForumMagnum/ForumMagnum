@@ -204,6 +204,21 @@ Posts.getCommentCount = (post) => {
   }
 }
 
+Posts.getCommentCountStr = (post, commentCount) => {
+  // can be passed in a manual comment count, or retrieve the post's cached comment count
+
+  const count = commentCount != undefined ? commentCount :  Posts.getCommentCount(post)
+
+  if (!count) {
+    return "No comments"
+  } else if (count == 1) {
+    return "1 comment"
+  } else {
+    return count + " comments"
+  }
+}
+
+
 Posts.getLastCommentedAt = (post) => {
   if (getSetting('AlignmentForum')) {
     return post.afLastCommentedAt;

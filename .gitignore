@@ -22,9 +22,10 @@ dump/*
 settings*
 
 .idea
+.tern-project
 
 scratch
-
+.vscode/*
 .deploy
 .deploy/*
 ### Meteor template
@@ -60,5 +61,5 @@ yarn.lock
 
 *.swp
 *.un~
-
 yarn-error.log
+.vscode/launch.json

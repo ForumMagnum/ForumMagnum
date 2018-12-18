@@ -11,17 +11,31 @@ import withTimezone from '../common/withTimezone';
 const styles = theme => ({
   read: {
     opacity: ".8"
-  }
+  },
+  karma: {
+    minWidth:20,
+    textAlign: "center",
+    display: "inline-block",
+    color: "rgba(0,0,0,.3)"
+  },
 })
 
 const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
-  const { MetaInfo, PostsEdit, FromNowDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
+  const { MetaInfo, PostsEdit, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
-      { Posts.canEdit(currentUser,post) && <MetaInfo>
-        <PostsEdit post={post}/>
-      </MetaInfo>}
+
+      <MetaInfo>
+        <Tooltip title={<div>
+          This post has { baseScore || 0 } karma<br/>
+          ({ post.voteCount} votes)
+        </div>}>
+          <span className={classes.karma}>
+            { baseScore || 0 }
+          </span>
+        </Tooltip>
+      </MetaInfo>
 
       { post.isEvent && <MetaInfo>
         <Tooltip title={
@@ -41,29 +55,31 @@ const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
         <PostsUserAndCoauthors post={post}/>
       </MetaInfo>}
 
-      { post.feed && post.feed.user && <MetaInfo>
-        {post.feed.nickname}
-      </MetaInfo>}
-
-      <MetaInfo>
-        { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
-      </MetaInfo>
-
-      { afBaseScore && <MetaInfo>
-        Ω { afBaseScore || 0 }
-      </MetaInfo>}
-
       {post.postedAt && !post.isEvent && <MetaInfo>
-        <FromNowDate date={post.postedAt}/>
+        <FormatDate date={post.postedAt}/>
       </MetaInfo>}
 
       {post.wordCount && !post.isEvent && <MetaInfo>
-        {parseInt(post.wordCount/300) || 1 } min read
+        <Tooltip title={`${post.wordCount} words`}>
+          <span>{parseInt(post.wordCount/300) || 1 } min read</span>
+        </Tooltip>
+      </MetaInfo>}
+
+      { Posts.canEdit(currentUser,post) && <MetaInfo>
+        <span className={classes.secondaryInfo}><PostsEdit post={post}/></span>
       </MetaInfo>}
 
       { currentUser && currentUser.isAdmin &&
         <PostsStats post={post} />
       }
+
+      { afBaseScore && <MetaInfo>
+        <Tooltip title={<div>
+          { afBaseScore || 0 } karma on alignmentform.org
+        </div>}>
+          <span>Ω { afBaseScore || 0 }</span>
+        </Tooltip>
+      </MetaInfo>}
     </span>
 };
 

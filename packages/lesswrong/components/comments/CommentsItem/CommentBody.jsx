@@ -2,6 +2,7 @@ import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:co
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles } from '../../../themes/stylePiping'
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 
@@ -29,6 +30,9 @@ const styles = theme => ({
     '&:hover .read-more-default': {
       display:"none"
     }
+  },
+  retracted: {
+    textDecoration: "line-through",
   }
 })
 
@@ -42,17 +46,24 @@ class CommentBody extends Component {
   render () {
     const { comment, classes, collapsed, truncationCharCount } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
+    
+    const bodyClasses = classNames(
+      classes.commentStyling,
+      { [classes.retracted]: comment.retracted }
+    );
 
     if (comment.deleted) {
       return <CommentDeletedMetadata documentId={comment._id}/>
     } else if (this.shouldRenderExcerpt()) {
       return (
         <div>
-          <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
+          <ContentItemBody className={bodyClasses}
+            dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
         </div>
       )
     } else if (!collapsed) {
-      return <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: comment.htmlBody}}/>
+      return <ContentItemBody className={bodyClasses}
+        dangerouslySetInnerHTML={{__html: comment.htmlBody}}/>
     } else {
       return null
     }
@@ -62,7 +73,7 @@ class CommentBody extends Component {
 CommentBody.propTypes = {
   comment: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  truncationCharCount: PropTypes.number.isRequired
+  truncationCharCount: PropTypes.number
 };
 
 

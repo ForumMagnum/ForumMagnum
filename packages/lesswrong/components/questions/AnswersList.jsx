@@ -8,15 +8,19 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   answersList: {
-    marginTop: theme.spacing.unit*2
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
   },
   answerCount: {
     ...theme.typography.postStyle,
     borderTop: "solid 3px rgba(0,0,0,.87)",
-    margin: 10,
     paddingTop: 10,
-    width: 640,
+    maxWidth: 650,
     marginBottom: theme.spacing.unit*2,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   loading: {
     opacity: .5,
@@ -24,24 +28,24 @@ const styles = theme => ({
 })
 
 const AnswersList = ({results, loading, classes, post}) => {
-  const { Answer, Section } = Components
+  const { Answer } = Components
 
-  return <div>
-    <Section>
+  if (results && results.length) {
+    return <div>
       <Typography variant="display1" className={classNames(classes.answerCount, {[classes.loading]: loading})}>
         { results ? results.length : "Loading" } Answers
       </Typography>
-    </Section>
-    <div className={classes.answersList}>
-      { results ? results.map((comment) => {
-        return <span key={comment._id} >
-          <Answer comment={comment} post={post}/>
-        </span>
-        })
-        : <Components.Loading />
-      }
+      <div className={classes.answersList}>
+        { results ? results.map((comment, i) => {
+          return <Answer comment={comment} post={post} key={comment._id} answerCount={results.length} index={i} />
+          })
+          : <Components.Loading />
+        }
+      </div>
     </div>
-  </div>
+  } else {
+    return null
+  }
 };
 
 AnswersList.propTypes = {
@@ -56,6 +60,7 @@ const listOptions = {
   queryName: 'AnswersListQuery',
   fragmentName: 'CommentsList',
   enableTotal: true,
+  ssr: true
 }
 
 registerComponent('AnswersList', AnswersList, [withList, listOptions], withStyles(styles, {name: "AnswersList"}));

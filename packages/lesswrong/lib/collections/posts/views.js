@@ -12,7 +12,7 @@ Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
-  
+
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   let params = {
     selector: {
@@ -85,9 +85,21 @@ Posts.addView("magicalSorting", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
 ensureIndex(Posts,
-  augmentForDefaultView({ ...stickiesIndexPrefix, score:-1 }),
+  augmentForDefaultView({ score:-1 }),
   {
-    name: "posts.stickies_score",
+    name: "posts.score",
+  }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({ afSticky:-1, score:-1 }),
+  {
+    name: "posts.afSticky_score",
+  }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({ metaSticky:-1, score:-1 }),
+  {
+    name: "posts.metaSticky_score",
   }
 );
 ensureIndex(Posts,
@@ -139,14 +151,15 @@ Posts.addView("old", terms => ({
 
 Posts.addView("daily", terms => ({
   selector: {
-    baseScore: {$gt: terms.karmaThreshold || -100}
+    baseScore: {$gt: terms.karmaThreshold || -100},
+    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1, }),
+  augmentForDefaultView({ postedAt:1, baseScore:1, authorIsUnreviewed:1}),
   {
     name: "posts.postedAt_baseScore",
   }
@@ -155,13 +168,14 @@ ensureIndex(Posts,
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$gt: new Date(0)},
+    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
+  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1, authorIsUnreviewed:1 }),
   {
     name: "posts.frontpage",
     partialFilterExpression: { frontpageDate: {$gt: new Date(0)} },
@@ -208,13 +222,14 @@ Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
     meta: null,
+    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ meta:1, sticky: -1, score: -1 }),
+  augmentForDefaultView({ meta:1, sticky: -1, score: -1, authorIsUnreviewed:1 }),
   {
     name: "posts.community",
   }
@@ -245,6 +260,22 @@ Posts.addView("meta-rss", terms => ({
 
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
+
+Posts.addView("questions", terms => ({
+  selector: {
+    question: true,
+    authorIsUnreviewed: {$in: [false,null]},
+  },
+  options: {
+    sort: {sticky: -1, score: -1}
+  }
+}));
+ensureIndex(Posts,
+  augmentForDefaultView({ sticky: -1, score: -1, question:1, authorIsUnreviewed:1 }),
+  {
+    name: "posts.questions",
+  }
+);
 
 /**
  * @summary Scheduled view
@@ -352,6 +383,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       meta: null,
       groupId: null,
       isEvent: null,
+      authorIsUnreviewed: {$in: [false,null]},
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -360,7 +392,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1, authorIsUnreviewed:1 }),
   { name: "posts.recentDiscussionThreadsList", }
 );
 

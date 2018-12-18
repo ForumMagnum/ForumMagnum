@@ -41,7 +41,6 @@ addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPos
 addRoute({ name: 'Community', path: '/community', componentName: 'Meta', title: 'Community'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
 
-//Route for testing the editor. Useful for debugging
 addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
@@ -61,3 +60,7 @@ if(getSetting('AlignmentForum', false)) {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"Y2iqhjAHbXNkwcS8F"});
 }
+
+addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', title: "All Posts" });
+
+addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });

@@ -52,11 +52,6 @@ then moved to more specific files as it becomes necessary.
 .comments-item {
   line-height: 1.25;
   color: rgba(0,0,0,0.87);
-  .comment-context-link{
-    font-weight: 300;
-    font-size: 13px;
-    color: rgba(0,0,0,0.5);
-  }
 }
 
 // CSS Modifications for Navbar buttons and styles
@@ -73,10 +68,6 @@ then moved to more specific files as it becomes necessary.
 
 .comments-item-meta{
   font-size: $small-font;
-
-  .comment-edit{
-    margin-right: $hmargin;
-  }
 }
 
 // CSS Modifications for RSS Feed integration

@@ -21,6 +21,12 @@ const styles = (theme) => ({
       display: 'inline',
       maxWidth: 240,
     },
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 20,
+      maxWidth: 720,
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   sectionTitle: {
     ...theme.typography.headerStyle,
@@ -54,6 +60,10 @@ const styles = (theme) => ({
     maxWidth: 739,
     [theme.breakpoints.up('md')]: {
       paddingLeft: 24
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
     }
   },
   subscribeWidget: {
@@ -71,7 +81,6 @@ const styles = (theme) => ({
 })
 
 const Section = ({
-  contentStyle,
   title,
   titleLink,
   titleComponent,
