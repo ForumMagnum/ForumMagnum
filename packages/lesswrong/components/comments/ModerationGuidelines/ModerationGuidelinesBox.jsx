@@ -1,16 +1,16 @@
 import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import withUser from '../common/withUser';
+import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import withUser from '../../common/withUser';
 import truncatise from 'truncatise';
 import classNames from 'classnames'
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
-import withDialog from '../common/withDialog'
-import withErrorBoundary from '../common/withErrorBoundary'
+import withDialog from '../../common/withDialog'
+import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
   root: {
