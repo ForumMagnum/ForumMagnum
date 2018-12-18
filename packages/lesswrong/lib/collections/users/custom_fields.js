@@ -306,11 +306,25 @@ Users.addField([
       group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
       canRead: ['guests'],
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members', 'sunshineRegiment', 'admins'],
       control: 'checkbox',
-      blackbox: true,
       order: 55,
+    }
+  },
+
+  {
+    fieldName: 'collapseModerationGuidelines',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      group: formGroups.moderationGroup,
+      label: "On my posts, collapse my moderation guidelines by default",
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
+      control: 'checkbox',
+      order: 56,
     }
   },
 
@@ -784,7 +798,37 @@ Users.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment']
     }
-  }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsPosts',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (in large threads on Post Pages)"
+    }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsFrontpage',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (on home page)"
+    }
+  },
 ]);
 
 export const makeEditableOptionsModeration = {

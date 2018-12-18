@@ -1,11 +1,10 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { registerComponent, withDocument } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import withUser from '../common/withUser';
 import truncatise from 'truncatise';
-import classNames from 'classnames'
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -82,13 +81,13 @@ class ModerationGuidelinesBox extends PureComponent {
     }
     const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
     <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>` : ""}
-    ${document.moderationGuidelinesHtmlBody}`
+    ${document.moderationGuidelinesHtmlBody || ""}`
     const combinedGuidelines = `
-      ${document.moderationGuidelinesHtmlBody ? userGuidelines : ""}
+      ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
-              document.moderationGuidelinesHtmlBody ?
+              (document.moderationGuidelinesHtmlBody || moderationStyle) ?
                 "" :
                 defaultGuidelines
             )
@@ -114,6 +113,7 @@ class ModerationGuidelinesBox extends PureComponent {
     const { document, classes, currentUser } = this.props;
     const { open } = this.state
     const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
+    const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
     return (
       <div className={classes.root} onClick={this.handleClick}>
         {Users.canModeratePost(currentUser, document) &&
@@ -123,9 +123,9 @@ class ModerationGuidelinesBox extends PureComponent {
             </Tooltip>
           </span>
         }
-        <div className={classNames({[classes.truncated]: !open})}>
-          <div dangerouslySetInnerHTML={{__html: open ? combinedGuidelines : truncatedGuidelines}}/>
-          {open && <a className={classes.collapse}>(Click to Collapse)</a>}
+        <div>
+          <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
+          {open && (displayedGuidelines.length > 250) && <a className={classes.collapse}>(Click to Collapse)</a>}
         </div>
       </div>
     )
@@ -138,7 +138,7 @@ const frontpageGuidelines = `
     <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
   </p>
   <p>
-    <b>Avoid identity politics.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
+    <b>Present your own perspective.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
   </p>
   <p>
     <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
@@ -150,7 +150,7 @@ const defaultGuidelines = `
     <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
   </p>
   <p>
-    <b>Avoid identity politics.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
+    <b>Present your own perspective.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
   </p>
   <p>
     <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?

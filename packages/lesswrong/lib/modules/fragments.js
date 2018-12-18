@@ -77,6 +77,8 @@ extendFragment('UsersCurrent', `
   emailSubscribedToCurated
   emails
   whenConfirmationEmailSent
+  noCollapseCommentsFrontpage
+  noCollapseCommentsPosts
 `);
 
 registerFragment(`
@@ -108,6 +110,8 @@ registerFragment(`
     status
     frontpageDate
     meta
+    draft
+    deletedDraft
     # body # We replaced this with content
     excerpt # This won't work with content
     htmlHighlight
