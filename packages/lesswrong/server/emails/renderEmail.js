@@ -1,6 +1,5 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { ServerStyleSheet } from 'styled-components';
 import { ApolloProvider } from 'react-apollo';
 import Juice from 'juice';
 import { createApolloClient, configureStore } from 'meteor/vulcan:lib';

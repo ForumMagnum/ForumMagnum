@@ -1,5 +1,6 @@
 import React from 'react';
-import { withDocument, withCurrentUser } from 'meteor/vulcan:core';
+import { withDocument } from 'meteor/vulcan:core';
+//import { withCurrentUser } from 'meteor/vulcan:core';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils.js'
@@ -54,7 +55,7 @@ describe('renderEmail', async () => {
   
   it("Can use Apollo HoCs", async () => {
     const user = createDummyUser();
-    const post = createDummyPost(user, { title: "Email unit test post" });
+    const post = await createDummyPost(user, { title: "Email unit test post" });
     console.log("Post ID: "+post._id);
     
     const queryOptions = {
@@ -70,7 +71,7 @@ describe('renderEmail', async () => {
     const email = await generateEmail({
       user: createDummyUser(),
       subject: "Unit test email",
-      bodyComponent: <PostTitleComponent/>
+      bodyComponent: <PostTitleComponent documentId={post._id} />
     });
     email.bodyHtml.should.equal(emailDoctype+'<body><div data-reactroot="">Email unit test post</div></body>');
   });
