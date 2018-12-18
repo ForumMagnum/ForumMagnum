@@ -7,6 +7,7 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
+import { getSetting } from 'meteor/vulcan:core';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
@@ -41,6 +42,10 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 //
 export async function generateEmail({user, subject, bodyComponent})
 {
+  if (!user) throw new Error("Missing required argument: user");
+  if (!subject) throw new Error("Missing required argument: subject");
+  if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
+  
   // Set up Apollo
   //TODO: Get a loginToken corresponding to the right user
   const loginToken = null;
@@ -88,11 +93,22 @@ export async function generateEmail({user, subject, bodyComponent})
     wordwrap: plainTextWordWrap
   });
   
+  const from = getSetting("defaultEmail", null);
+  if (!from) {
+    throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
+  }
+  
+  const sitename = getSetting("title", null);
+  if (!sitename) {
+    throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
+  }
+  const taggedSubject = `[${sitename}] ${subject}`;
   
   return {
     user: user,
     to: user.email,
-    subject: subject,
+    from: from,
+    subject: taggedSubject,
     bodyHtml: emailDoctype + inlinedHTML,
     bodyText: plaintext,
   }
