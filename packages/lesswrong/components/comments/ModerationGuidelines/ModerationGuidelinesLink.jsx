@@ -23,6 +23,7 @@ class ModerationGuidelinesLink extends PureComponent {
     const post = document;
     const user = document && document.user;
     const canModerate = Users.canModeratePost(user, post)
+    console.log('ModerationGuidelinesLink render')
     if (post && user && (canModerate || document.frontpageDate)) {
       const moderationStyle = user.moderationStyle || "no-moderation";
       return <span>
@@ -41,7 +42,7 @@ class ModerationGuidelinesLink extends PureComponent {
         </a>
         {this.state.open && <Components.ModerationGuidelinesContent showFrontpageGuidelines={post && post.frontpageDate} user={user} />}
       </span>
-        } else {
+    } else {
       return null
     }
   }
