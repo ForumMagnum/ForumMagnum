@@ -151,7 +151,6 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       <Divider className={classes.divider}/>
 
-      {!af && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
       <NavigationMenuLink icon={<ListAlt/>} to={"/daily"} label="Posts by Date"/>
       <NavigationMenuLink icon={<Details/>} to={"/community"} label="Community"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
