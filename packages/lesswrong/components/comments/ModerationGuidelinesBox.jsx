@@ -1,4 +1,4 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
@@ -132,7 +132,7 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 }
 
-const frontpageGuidelines = `
+const frontpageGuidelinesLW = `
   <p><em>Frontpage commenting guidelines:</em></p>
   <p>
     <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
@@ -144,7 +144,7 @@ const frontpageGuidelines = `
     <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
   </p>`
 
-const defaultGuidelines = `
+const defaultGuidelinesLW = `
   <p><em>Default commenting guidelines:</em></p>
   <p>
     <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
@@ -156,6 +156,24 @@ const defaultGuidelines = `
     <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
   </p>
 `
+
+const frontpageGuidelinesEA = `
+  <p><em>Frontpage commenting guidelines:</em></p>
+  <p>
+    Lorem Ipsum
+  </p>
+`
+
+const defaultGuidelinesEA = `
+  <p><em>Default commenting guidelines:</em></p>
+  <p>
+    Lorem Ipsum
+  </p>
+`
+
+const frontpageGuidelines = getSetting('EAForum') ? frontpageGuidelinesEA : frontpageGuidelinesLW
+const defaultGuidelines = getSetting('EAForum') ? defaultGuidelinesEA : defaultGuidelinesLW
+
 const moderationStyleLookup = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
   'reign-of-terror': "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
