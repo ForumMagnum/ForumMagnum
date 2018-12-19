@@ -42,7 +42,7 @@ export const commentExcerptFromHTML = (html, truncationCharCount) => {
     // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
     TruncateLength: Math.floor(truncationCharCount - truncationCharCount/4) || excerptMaxChars,
     TruncateBy: "characters",
-    Suffix: `... <span class="read-more"><a class="read-more-default">(Read more)</a><a class="read-more-tooltip">(Click to expand thread)</a></span>${styles}`,
+    Suffix: `... <span class="read-more"><a class="read-more-default">(Read more)</a><a class="read-more-tooltip">(Click to expand thread)</a><span class="read-more-f-tooltip">Cmd/Ctrl F to expand all comments on this post</span></span>${styles}`,
   }));
 };
 

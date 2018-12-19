@@ -1,16 +1,13 @@
-/*
-
-Button used to add a new feed to a user profile
-
-*/
-
 import React, { Component } from 'react';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
 import withUser from '../common/withUser';
 
+//
+// Button used to add a new feed to a user profile
+//
 class newFeedButton extends Component {
 
   render() {
@@ -28,9 +25,9 @@ class newFeedButton extends Component {
             successCallback={conversation => {
               this.props.closeModal();
             }}
-          >
-            </ Components.SmartForm>
-            <FlatButton onClick={() => this.props.closeModal()} label="Close"/>
+          />
+          {/*FIXME: This close button doesn't work (closeModal is not a thing)*/}
+          <Button onClick={() => this.props.closeModal()}>Close</Button>
         </div>
       )
     } else {

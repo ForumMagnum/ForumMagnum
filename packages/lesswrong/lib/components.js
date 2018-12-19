@@ -26,7 +26,6 @@ import '../components/Layout.jsx';
 
 import '../components/common/CalendarDate.jsx';
 import '../components/common/FormatDate.jsx';
-import '../components/common/SimpleDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
@@ -87,6 +86,8 @@ import '../components/posts/PostsDailyList.jsx';
 import '../components/posts/AllPostsPage.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
+import '../components/posts/DeleteDraft.jsx';
+import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemMeta.jsx';
@@ -165,8 +166,6 @@ import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
-import '../components/comments/ModerationGuidelines/ModerationGuidelinesLink.jsx';
-import '../components/comments/ModerationGuidelines/ModerationGuidelinesContent.jsx'
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';

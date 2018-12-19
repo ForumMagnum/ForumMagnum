@@ -306,11 +306,25 @@ Users.addField([
       group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
       canRead: ['guests'],
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members', 'sunshineRegiment', 'admins'],
       control: 'checkbox',
-      blackbox: true,
       order: 55,
+    }
+  },
+
+  {
+    fieldName: 'collapseModerationGuidelines',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      group: formGroups.moderationGroup,
+      label: "On my posts, collapse my moderation guidelines by default",
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
+      control: 'checkbox',
+      order: 56,
     }
   },
 
