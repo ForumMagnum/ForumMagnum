@@ -65,7 +65,7 @@ const styles = theme => ({
   moderationGuidelinesWrapper: {
     ...commentBodyStyles(theme),
     verticalAlign: 'top',
-    display: 'inline-block',
+    display: 'block',
     padding: '10px 0px',
     borderTop: '1px solid rgba(0,0,0,0.2)',
     borderBottom: '1px solid rgba(0,0,0,0.2)',

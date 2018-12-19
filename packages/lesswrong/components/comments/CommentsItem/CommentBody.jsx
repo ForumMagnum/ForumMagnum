@@ -12,7 +12,11 @@ const styles = theme => ({
     maxWidth: "100%",
     overflowX: "auto",
     overflowY: "hidden",
+  },
+  root: {
+    position: "relative",
     '& .read-more': {
+      position: "relative",
       fontSize: ".85em",
     },
     '& .read-more-default': {
@@ -29,6 +33,20 @@ const styles = theme => ({
     },
     '&:hover .read-more-default': {
       display:"none"
+    },
+    '& .read-more-f-tooltip': {
+      display: "none",
+      position: "absolute",
+      background: "rgba(0,0,0,.6)",
+      color: "white",
+      padding: "7px 10px",
+      width:156,
+      borderRadius: 5,
+      top: -60,
+      left:0,
+    },
+    '& .read-more:hover .read-more-f-tooltip': {
+      display: "inline-block"
     }
   },
   retracted: {
@@ -46,7 +64,7 @@ class CommentBody extends Component {
   render () {
     const { comment, classes, collapsed, truncationCharCount } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
-    
+
     const bodyClasses = classNames(
       classes.commentStyling,
       { [classes.retracted]: comment.retracted }
@@ -56,7 +74,7 @@ class CommentBody extends Component {
       return <CommentDeletedMetadata documentId={comment._id}/>
     } else if (this.shouldRenderExcerpt()) {
       return (
-        <div>
+        <div className={classes.root}>
           <ContentItemBody className={bodyClasses}
             dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
         </div>
