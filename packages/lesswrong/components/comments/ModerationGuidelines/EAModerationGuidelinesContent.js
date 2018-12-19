@@ -17,7 +17,7 @@ const generalGuidelines = `
     supportively</a>.
   </p>
   <p>
-    See our <a href="http://effective-altruism.com/ea/dy/supportive_scepticism_in_practice/">guide to the Forum</a> for more notes on commenting.
+    See our <a href="https://forum.effectivealtruism.org/about">guide to the Forum</a> for more notes on commenting.
   </p>
 `
 
