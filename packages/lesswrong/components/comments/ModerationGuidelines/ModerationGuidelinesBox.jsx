@@ -13,8 +13,6 @@ import withDialog from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 
-// TODO rename to .js
-
 const styles = theme => ({
   root: {
     padding: '8px 14px 1px 14px',

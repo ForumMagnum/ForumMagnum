@@ -1,3 +1,4 @@
+// TODO; remove this file
 import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Icon from '@material-ui/core/Icon';

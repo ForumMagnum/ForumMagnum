@@ -1,3 +1,4 @@
+// TODO; remove this file
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 
