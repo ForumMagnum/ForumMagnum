@@ -2,7 +2,7 @@ import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Icon from '@material-ui/core/Icon';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../../lib/collections/posts';
 import classNames from 'classnames'
 import Users from 'meteor/vulcan:users';
 
@@ -23,6 +23,7 @@ class ModerationGuidelinesLink extends PureComponent {
     const post = document;
     const user = document && document.user;
     const canModerate = Users.canModeratePost(user, post)
+    console.log('ModerationGuidelinesLink render')
     if (post && user && (canModerate || document.frontpageDate)) {
       const moderationStyle = user.moderationStyle || "no-moderation";
       return <span>
@@ -41,7 +42,7 @@ class ModerationGuidelinesLink extends PureComponent {
         </a>
         {this.state.open && <Components.ModerationGuidelinesContent showFrontpageGuidelines={post && post.frontpageDate} user={user} />}
       </span>
-        } else {
+    } else {
       return null
     }
   }
