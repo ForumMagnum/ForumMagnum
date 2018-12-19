@@ -5,6 +5,8 @@ import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
+import MenuItem from '@material-ui/core/MenuItem';
+import { Link } from 'react-router'
 
 const styles = theme => ({
   root: {
@@ -22,6 +24,7 @@ const styles = theme => ({
 })
 
 class PostActions extends Component {
+
   handleMoveToMeta = () => {
     const { post, editMutation } = this.props
     editMutation({
@@ -30,6 +33,7 @@ class PostActions extends Component {
       unset: {
         frontpageDate: true,
         curatedDate: true,
+        draft: true
       }
     })
   }
@@ -40,7 +44,8 @@ class PostActions extends Component {
       documentId: post._id,
       set: { frontpageDate: new Date() },
       unset: {
-        meta: true
+        meta: true,
+        draft: true
       }
     })
   }
@@ -69,7 +74,8 @@ class PostActions extends Component {
       unset: {
         curatedDate: true,
         frontpageDate: true,
-        meta: true
+        meta: true,
+        draft: true
       }
     })
   }
@@ -77,6 +83,9 @@ class PostActions extends Component {
     const { classes, post, Container, currentUser } = this.props
     return (
       <div className={classes.actions}>
+      { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+        <MenuItem>Edit</MenuItem>
+      </Link>}
         { Users.canDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
@@ -117,6 +126,8 @@ class PostActions extends Component {
           </div>
         }
         <Components.SuggestCurated post={post} Container={Container}/>
+        <Components.MoveToDraft post={post} Container={Container}/>
+        <Components.DeleteDraft post={post} Container={Container}/>
       </div>
     )
   }

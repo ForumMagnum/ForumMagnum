@@ -14,7 +14,8 @@ describe('alignment updateUser – ', async () => {
     await userUpdateFieldFails({
       user:alignmentAdmin,
       document:user,
-      fieldName:'bio'
+      fieldName:'bio',
+      collectionType:'User'
     })
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });

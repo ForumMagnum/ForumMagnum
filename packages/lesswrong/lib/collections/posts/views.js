@@ -300,6 +300,7 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
+      deletedDraft: {$in: [false,null]},
       hideAuthor: {$in: [false,null]},
       unlisted: null,
       meta: null,
@@ -309,7 +310,7 @@ Posts.addView("drafts", terms => {
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, deletedDraft: 1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 

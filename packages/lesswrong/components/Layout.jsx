@@ -10,8 +10,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from 'moment-timezone';
 
-import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { customizeTheme } from '../lib/modules/utils/theme';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
@@ -77,7 +75,6 @@ class Layout extends PureComponent {
 
   render () {
     const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
-    const {userAgent} = this.context;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -111,8 +108,7 @@ class Layout extends PureComponent {
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <TableOfContentsContext.Provider value={this.setToC}>
-      <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
-        <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
+        <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />
@@ -148,17 +144,12 @@ class Layout extends PureComponent {
             <Components.Footer />
           </div>
           </DialogManager>
-        </V0MuiThemeProvider>
-      </div>
+        </div>
       </TableOfContentsContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
   }
-}
-
-Layout.contextTypes = {
-  userAgent: PropTypes.string,
 }
 
 Layout.displayName = "Layout";
