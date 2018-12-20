@@ -163,10 +163,8 @@ import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
-import '../components/comments/ModerationGuidelinesBox.jsx';
-import '../components/comments/ModerationGuidelinesLink.jsx';
-import '../components/comments/ModerationGuidelinesContent.jsx'
-import '../components/comments/ModerationGuidelinesEditForm.jsx'
+import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
+import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
