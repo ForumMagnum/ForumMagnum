@@ -1,6 +1,7 @@
 import { Comments } from "../../../collections/comments";
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
 import { getSetting } from 'meteor/vulcan:core'
+import { schemaDefaultValue } from '../../../collectionUtils';
 
 export const alignmentOptionsGroup = {
   order: 50,
@@ -18,7 +19,7 @@ Comments.addField([
       type: Boolean,
       optional: true,
       label: "AI Alignment Forum",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['guests'],
       editableBy: ['alignmentForum', 'admins'],
       insertableBy: ['alignmentForum', 'admins'],

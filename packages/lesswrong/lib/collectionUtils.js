@@ -46,3 +46,20 @@ export function combineIndexWithDefaultViewIndex({viewFields, prefix, suffix})
   }
   return combinedIndex;
 }
+
+export function schemaDefaultValue(defaultValue) {
+  // Used for both onCreate and onUpdate
+  const fillIfMissing = ({newDocument, fieldName}) => {
+    if (newDocument[fieldName] === undefined) {
+      return defaultValue;
+    } else {
+      return undefined;
+    }
+  };
+  
+  return {
+    defaultValue: defaultValue,
+    onCreate: fillIfMissing,
+    onUpdate: fillIfMissing,
+  }
+}

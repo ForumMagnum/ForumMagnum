@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
@@ -208,7 +209,7 @@ const schema = {
   deletedDraft: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     editableBy: ['members'],
     hidden: true,
@@ -274,7 +275,7 @@ const schema = {
   sticky: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
@@ -468,7 +469,7 @@ const schema = {
   question: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
@@ -477,7 +478,7 @@ const schema = {
   authorIsUnreviewed: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
