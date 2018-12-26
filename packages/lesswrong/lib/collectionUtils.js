@@ -1,3 +1,6 @@
+import SimpleSchema from 'simpl-schema';
+
+SimpleSchema.extendOptions([ 'canAutofillDefault' ]);
 
 export let expectedIndexes = {};
 
@@ -61,5 +64,6 @@ export function schemaDefaultValue(defaultValue) {
     defaultValue: defaultValue,
     onCreate: fillIfMissing,
     onUpdate: fillIfMissing,
+    canAutofillDefault: true,
   }
 }
