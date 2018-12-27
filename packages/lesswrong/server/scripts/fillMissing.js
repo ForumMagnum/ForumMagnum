@@ -1,3 +1,4 @@
+/* global Vulcan */
 import { Collections } from 'meteor/vulcan:core';
 
 Vulcan.fillMissingValues = async () => {
