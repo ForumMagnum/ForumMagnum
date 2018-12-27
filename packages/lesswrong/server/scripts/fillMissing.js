@@ -2,8 +2,7 @@
 import { Collections } from 'meteor/vulcan:core';
 
 Vulcan.fillMissingValues = async () => {
-  for (let i=0; i<Collections.length; i++) {
-    const collection = Collections[i];
+  for(let collection of Collections) {
     if (!collection.simpleSchema) continue;
     const schema = collection.simpleSchema()._schema
     
@@ -34,8 +33,7 @@ Vulcan.fillMissingValues = async () => {
 }
 
 Vulcan.checkForMissingValues = async () => {
-  for (let i=0; i<Collections.length; i++) {
-    const collection = Collections[i];
+  for(let collection of Collections) {
     if (!collection.simpleSchema) continue;
     const schema = collection.simpleSchema()._schema;
     
