@@ -72,21 +72,9 @@ const RecommendedReading = ({currentUser, classes}) => {
     </React.Fragment>);
   } else {
     return (<React.Fragment>
-      <Hidden smDown implementation="css">
-        {sectionWrapper(
-          <Components.CoreReading />
-        )}
-      </Hidden>
-      <Hidden mdUp xsDown implementation="css">
-        {sectionWrapper(
-          <Components.CoreReading />
-        )}
-      </Hidden>
-      <Hidden smUp implementation="css">
-        {sectionWrapper(
-          <Components.CoreReading />
-        )}
-      </Hidden>
+      {sectionWrapper(
+        <Components.CoreReading />
+      )}
     </React.Fragment>);
   }
 }
