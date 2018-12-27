@@ -6,6 +6,12 @@ import { withStyles } from '@material-ui/core/styles';
 import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
+  section: {
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -15,
+    },
+  },
+  
   smallScreenRecommendedReading: {
     maxWidth: 720,
     margin: "0 auto",
@@ -20,9 +26,14 @@ const RecommendedReading = ({currentUser, classes}) => {
     <Components.Section
       title={sectionTitle}
       titleLink="/library"
-      titleComponent= {<Components.SectionSubtitle to="/library">
-        <Link to="/library">Sequence Library</Link>
-      </Components.SectionSubtitle>}
+      className={classes.section}
+      titleComponent= {
+        <Hidden smDown implementation="css">
+          <Components.SectionSubtitle to="/library">
+            <Link to="/library">Sequence Library</Link>
+          </Components.SectionSubtitle>
+        </Hidden>
+      }
     >{recommendedContent}</Components.Section>
   );
   
@@ -67,13 +78,13 @@ const RecommendedReading = ({currentUser, classes}) => {
         )}
       </Hidden>
       <Hidden mdUp xsDown implementation="css">
-        {omittedSectionWrapper(
+        {sectionWrapper(
           <Components.CoreReading />
         )}
       </Hidden>
       <Hidden smUp implementation="css">
-        {omittedSectionWrapper(
-          <Components.CoreReading minimal={true} />
+        {sectionWrapper(
+          <Components.CoreReading />
         )}
       </Hidden>
     </React.Fragment>);

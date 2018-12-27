@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
+import Hidden from '@material-ui/core/Hidden';
 
 const coreReadingCollections = [
   {
@@ -33,9 +34,15 @@ const coreReadingCollections = [
 
 const CoreReading = ({minimal=false}) => (
   <Components.CollectionsCardContainer>
-    <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
+    <Hidden xsDown implementation="css">
+      <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
+    </Hidden>
+    <Hidden smUp implementation="css">
+      <Components.CollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
+    </Hidden>
+    
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={"/codex"}/>}
-    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={"/hpmor"}/>}
+    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={"/hpmor"} mergeTitle={true} />}
   </Components.CollectionsCardContainer>
 );
 
