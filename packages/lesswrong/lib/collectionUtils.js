@@ -59,11 +59,18 @@ export function schemaDefaultValue(defaultValue) {
       return undefined;
     }
   };
+  const throwIfSetToNull = ({document, newDocument, fieldName}) => {
+    const wasValid = (document[fieldName] !== undefined && document[fieldName] !== null);
+    const isValid = (newDocument[fieldName] !== undefined && newDocument[fieldName] !== null);
+    if (wasValid && !isValid) {
+      throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
+    }
+  };
   
   return {
     defaultValue: defaultValue,
     onCreate: fillIfMissing,
-    onUpdate: fillIfMissing,
+    onUpdate: throwIfSetToNull,
     canAutofillDefault: true,
   }
 }
