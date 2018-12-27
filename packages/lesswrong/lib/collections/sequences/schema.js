@@ -174,7 +174,7 @@ const schema = {
     editableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,
-    control: "checkbox"
+    control: "checkbox",
     ...schemaDefaultValue(false),
   },
 
@@ -212,7 +212,7 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment'],
-    insertableBy: ['sunshineRegiment']
+    insertableBy: ['sunshineRegiment'],
     ...schemaDefaultValue(false),
   }
 }
