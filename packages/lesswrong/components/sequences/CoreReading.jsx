@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
-const testCollections = [
+const coreReadingCollections = [
   {
     title: "Rationality: A-Z",
     id: "dummyId",
@@ -33,9 +33,9 @@ const testCollections = [
 
 const CoreReading = ({minimal=false}) => (
   <Components.CollectionsCardContainer>
-    <Components.BigCollectionsCard collection={testCollections[0]} url={"/rationality"}/>
-    {!minimal && <Components.CollectionsCard collection={testCollections[1]} url={"/codex"}/>}
-    {!minimal && <Components.CollectionsCard collection={testCollections[2]} url={"/hpmor"}/>}
+    <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
+    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={"/codex"}/>}
+    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={"/hpmor"}/>}
   </Components.CollectionsCardContainer>
 );
 
