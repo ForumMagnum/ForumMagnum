@@ -252,6 +252,8 @@ const schema = {
         const postTime = new Date(post.postedAt).getTime();
         const currentTime = new Date().getTime() + 1000;
         return postTime > currentTime; // round up to the second
+      } else {
+        return false;
       }
     },
     onEdit: (modifier, post) => {

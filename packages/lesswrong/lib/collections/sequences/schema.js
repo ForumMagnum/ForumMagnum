@@ -1,5 +1,6 @@
 import { Components } from 'meteor/vulcan:core';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
 
@@ -162,7 +163,8 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: "checkbox"
+    control: "checkbox",
+    ...schemaDefaultValue(false),
   },
 
   isDeleted: {
@@ -173,6 +175,7 @@ const schema = {
     insertableBy: ['members'],
     hidden: true,
     control: "checkbox"
+    ...schemaDefaultValue(false),
   },
 
   algoliaIndexAt: {
@@ -210,6 +213,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment'],
     insertableBy: ['sunshineRegiment']
+    ...schemaDefaultValue(false),
   }
 }
 

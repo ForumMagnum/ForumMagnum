@@ -517,16 +517,7 @@ Posts.addField([
       control: "checkbox",
       order: 11,
       group: formGroups.adminOptions,
-      onInsert: (document, currentUser) => {
-        if (!document.unlisted) {
-          return false;
-        }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.unlisted === null || modifier.$unset.unlisted) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -1018,6 +1009,7 @@ Posts.addField([
       editableBy: ['admins'],
       optional: true,
       group: formGroups.adminOptions,
+      ...schemaDefaultValue(false),
     }
   },
 
