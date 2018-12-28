@@ -116,8 +116,8 @@ import '../components/posts/PostsUserAndCoauthors.jsx';
 
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/VotesInfo.jsx';
-import '../components/comments/CommentsVote.jsx';
-import '../components/posts/PostsVote.jsx';
+import '../components/votes/CommentsVote.jsx';
+import '../components/votes/PostsVote.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
