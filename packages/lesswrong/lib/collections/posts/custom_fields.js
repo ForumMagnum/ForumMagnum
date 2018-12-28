@@ -10,6 +10,7 @@ import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { Comments } from '../comments'
 import { questionAnswersSort } from '../comments/views';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 export const formGroups = {
   adminOptions: {
@@ -516,16 +517,7 @@ Posts.addField([
       control: "checkbox",
       order: 11,
       group: formGroups.adminOptions,
-      onInsert: (document, currentUser) => {
-        if (!document.unlisted) {
-          return false;
-        }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.unlisted === null || modifier.$unset.unlisted) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -540,7 +532,7 @@ Posts.addField([
       label: 'Save to Drafts',
       type: Boolean,
       optional: true,
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['members'],
       insertableBy: ['members'],
       editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -564,16 +556,7 @@ Posts.addField([
       hidden: true,
       label: "Publish to meta",
       control: "checkbox",
-      onInsert: (document, currentUser) => {
-          if (!document.meta) {
-            return false
-          }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.meta === null || modifier.$unset.meta) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false)
     }
   },
 
@@ -749,7 +732,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment'],
       insertableBy: ['members'],
-      optional: true
+      optional: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -935,7 +919,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       label: "Sticky (Meta)",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['admins'],
@@ -1025,6 +1009,7 @@ Posts.addField([
       editableBy: ['admins'],
       optional: true,
       group: formGroups.adminOptions,
+      ...schemaDefaultValue(false),
     }
   },
 
