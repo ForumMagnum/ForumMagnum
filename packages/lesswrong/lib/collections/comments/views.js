@@ -1,7 +1,7 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { Comments } from './index';
 import moment from 'moment';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 
 // Auto-generated indexes from production
 
@@ -11,7 +11,7 @@ Comments.addDefaultView(terms => {
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
-      hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
+      hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,
     }
@@ -20,7 +20,11 @@ Comments.addDefaultView(terms => {
 
 export function augmentForDefaultView(indexFields)
 {
-  return {...indexFields, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1};
+  return combineIndexWithDefaultViewIndex({
+    viewFields: indexFields,
+    prefix: {deleted:1, deletedPublic:1},
+    suffix: {hideAuthor:1, userId:1, af:1},
+  });
 }
 
 // Most common case: want to get all the comments on a post, filter fields and

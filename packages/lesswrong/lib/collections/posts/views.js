@@ -40,8 +40,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1},
-    suffix: { _id:1, isFuture:1, draft:1, meta:1, groupId:1, af:1, isEvent:1, unlisted:1, postedAt:1, baseScore:1 },
+    prefix: {status:1, isFuture:1, draft:1, meta:1, isEvent:1, unlisted:1 },
+    suffix: { _id:1, groupId:1, af:1, postedAt:1, baseScore:1 },
   });
 }
 
