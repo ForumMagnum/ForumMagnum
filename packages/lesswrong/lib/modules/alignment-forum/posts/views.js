@@ -5,7 +5,7 @@ import { augmentForDefaultView } from '../../../collections/posts/views';
 Posts.addView("alignmentSuggestedPosts", function () {
   return {
     selector: {
-      af: {$in: [false,null]},
+      af: false,
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
       reviewForAlignmentUserId: {$exists:false}
     },

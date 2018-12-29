@@ -18,13 +18,13 @@ function UpdateUserSequenceCount (sequence) {
   if (sequence.userId) {
     const sequences = Sequences.find({
       userId: sequence.userId,
-      draft: {$in: [false,null]},
-      isDeleted: {$in: [false,null]}
+      draft: false,
+      isDeleted: false
     }).fetch()
     const drafts = Sequences.find({
       userId: sequence.userId,
       draft: true,
-      isDeleted: {$in: [false,null]}
+      isDeleted: false
     }).fetch()
     Users.update(sequence.userId, {$set: {
       'sequenceCount':sequences.length,

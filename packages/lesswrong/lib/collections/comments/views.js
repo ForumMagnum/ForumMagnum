@@ -10,7 +10,7 @@ Comments.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   return ({
     selector: {
-      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: {$in: [false,null]}}],
+      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
       hideAuthor: terms.userId ? {$in: [false,null]} : undefined,
       ...validFields,
       ...alignmentForum,
@@ -68,7 +68,7 @@ Comments.addView("postCommentsTop", function (terms) {
     selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
-      answer: { $in: [false,null] },
+      answer: false,
     },
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}},
 
@@ -81,7 +81,7 @@ Comments.addView("postCommentsOld", function (terms) {
     selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
-      answer: { $in: [false,null] },
+      answer: false,
     },
     options: {sort: {deleted: 1, postedAt: 1}},
     parentAnswerId: { $in: [false,null] }
@@ -94,7 +94,7 @@ Comments.addView("postCommentsNew", function (terms) {
     selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
-      answer: { $in: [false,null] },
+      answer: false,
     },
     options: {sort: {deleted: 1, postedAt: -1}}
   };
@@ -106,7 +106,7 @@ Comments.addView("postCommentsBest", function (terms) {
     selector: {
       postId: terms.postId,
       parentAnswerId: { $in: [false,null] },
-      answer: { $in: [false,null] },
+      answer: false,
     },
     options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
   };
@@ -118,7 +118,7 @@ Comments.addView("postLWComments", function (terms) {
     selector: {
       postId: terms.postId,
       af: null,
-      answer: { $in: [false,null] },
+      answer: false,
       parentAnswerId: { $in: [false,null] }
     },
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
@@ -127,14 +127,14 @@ Comments.addView("postLWComments", function (terms) {
 
 Comments.addView("allRecentComments", function (terms) {
   return {
-    selector: {deletedPublic: {$in: [false,null]}},
+    selector: {deletedPublic: false},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
 
 Comments.addView("recentComments", function (terms) {
   return {
-    selector: { score:{$gt:0}, deletedPublic: {$in: [false,null]}},
+    selector: { score:{$gt:0}, deletedPublic: false},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
@@ -146,7 +146,7 @@ Comments.addView("recentDiscussionThread", function (terms) {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
-      deletedPublic: {$in: [false,null]},
+      deletedPublic: false,
       postedAt: {$gt: eighteenHoursAgo}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
@@ -160,7 +160,7 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
     selector: {
       postId: terms.postId,
       score: {$gt:0},
-      deletedPublic: {$in: [false,null]},
+      deletedPublic: false,
       postedAt: {$gt: sevenDaysAgo},
       af: true,
     },
@@ -172,7 +172,7 @@ Comments.addView("postCommentsUnread", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      deleted: {$in: [false,null] },
+      deleted: false,
       score: {$gt: 0}
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
@@ -189,7 +189,7 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
         {baseScore: {$lte:0}}
       ],
       reviewedByUserId: {$exists:false},
-      deleted: {$in: [false,null]},
+      deleted: false,
       postedAt: {$gt: twoDaysAgo},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},

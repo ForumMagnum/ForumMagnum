@@ -17,12 +17,12 @@ Posts.addDefaultView(terms => {
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
-      draft: {$in: [false,null]},
-      isFuture: {$in: [false,null]}, // match both false and undefined
-      unlisted: {$in: [false,null]},
-      meta: {$in: [false,null]},
+      draft: false,
+      isFuture: false,
+      unlisted: false,
+      meta: false,
       groupId: {$exists: false},
-      isEvent: {$in: [false,null]},
+      isEvent: false,
       ...validFields,
       ...alignmentForum
     }
@@ -31,7 +31,7 @@ Posts.addDefaultView(terms => {
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
   if (terms.userId) {
-    params.selector.hideAuthor = {$in: [false,null]}
+    params.selector.hideAuthor = false
   }
   return params;
 })
@@ -152,7 +152,7 @@ Posts.addView("old", terms => ({
 Posts.addView("daily", terms => ({
   selector: {
     baseScore: {$gt: terms.karmaThreshold || -100},
-    authorIsUnreviewed: {$in: [false,null]},
+    authorIsUnreviewed: false,
   },
   options: {
     sort: {score: -1}
@@ -168,7 +168,7 @@ ensureIndex(Posts,
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$gt: new Date(0)},
-    authorIsUnreviewed: {$in: [false,null]},
+    authorIsUnreviewed: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -222,7 +222,7 @@ Posts.addView("community", terms => ({
   selector: {
     frontpageDate: null,
     meta: null,
-    authorIsUnreviewed: {$in: [false,null]},
+    authorIsUnreviewed: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -264,7 +264,7 @@ Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss
 Posts.addView("questions", terms => ({
   selector: {
     question: true,
-    authorIsUnreviewed: {$in: [false,null]},
+    authorIsUnreviewed: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -300,8 +300,8 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
-      deletedDraft: {$in: [false,null]},
-      hideAuthor: {$in: [false,null]},
+      deletedDraft: false,
+      hideAuthor: false,
       unlisted: null,
       meta: null,
     },
@@ -380,11 +380,11 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
-      hideFrontpageComments: {$in: [false,null]},
+      hideFrontpageComments: false,
       meta: null,
       groupId: null,
       isEvent: null,
-      authorIsUnreviewed: {$in: [false,null]},
+      authorIsUnreviewed: false,
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -557,7 +557,7 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
-      hideFrontpageComments: {$in: [false,null]},
+      hideFrontpageComments: false,
       af: true,
       meta: null,
       groupId: null,
