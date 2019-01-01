@@ -37,12 +37,6 @@ const RecommendedReading = ({currentUser, classes}) => {
     >{recommendedContent}</Components.Section>
   );
   
-  const omittedSectionWrapper = (content) => (
-    <div className={classes.smallScreenRecommendedReading}>
-      {content}
-    </div>
-  );
-  
   if (currentUser) {
     const suggestedSequences = count => (
       <Components.SequencesGridWrapper
@@ -54,18 +48,13 @@ const RecommendedReading = ({currentUser, classes}) => {
     );
     
     return (<React.Fragment>
-      <Hidden smDown implementation="css">
+      <Hidden xsDown implementation="css">
         {sectionWrapper(
           suggestedSequences(3)
         )}
       </Hidden>
-      <Hidden mdUp xsDown implementation="css">
-        {omittedSectionWrapper(
-          suggestedSequences(3)
-        )}
-      </Hidden>
       <Hidden smUp implementation="css">
-        {omittedSectionWrapper(
+        {sectionWrapper(
           suggestedSequences(1)
         )}
       </Hidden>
