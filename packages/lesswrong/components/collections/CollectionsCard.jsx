@@ -1,6 +1,5 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { CardMedia } from 'material-ui/Card';
 import { withRouter, Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -83,13 +82,13 @@ class CollectionsCard extends PureComponent {
         <div className={classes.card}>
           <div className={classes.content} style={cardContentStyle}>
             <Hidden smUp implementation="css">
-              <CardMedia className={classes.thumbnailImage}>
+              <div className={classes.thumbnailImage}>
                 <Components.CloudinaryImage
                   publicId={collection.imageId}
                   width={50}
                   height={41}
                 />
-              </CardMedia>
+              </div>
             </Hidden>
             <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
               <Link to={url}>{collection.title}</Link>
@@ -102,9 +101,9 @@ class CollectionsCard extends PureComponent {
             </Typography>
           </div>
           <Hidden xsDown implementation="css">
-            <CardMedia className={classes.media}>
+            <div className={classes.media}>
               <Components.CloudinaryImage publicId={collection.imageId} />
-            </CardMedia>
+            </div>
           </Hidden>
         </div>
     </div>

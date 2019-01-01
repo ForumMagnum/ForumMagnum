@@ -9,6 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     backgroundColor: theme.palette.background.default,
+    color: "rgba(0,0,0, 0.87)",
     transition: "opacity .1s ease-in-out",
     height: 2000,
     width:"100%",

@@ -403,7 +403,20 @@ function userDeleteContent(user) {
       currentUser: user,
       validate: false,
     })
+
+    const notifications = Notifications.find({documentId: post._id}).fetch();
+    //eslint-disable-next-line no-console
+    console.info(`Deleting notifications for post ${post._id}: `, notifications);
+    notifications.forEach((notification) => {
+      removeMutation({
+        collection: Notifications,
+        documentId: notification._id,
+      })
+    })
+    
+    runCallbacksAsync('posts.purge.async', post)
   })
+
   const comments = Comments.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
@@ -428,6 +441,8 @@ function userDeleteContent(user) {
         documentId: notification._id,
       })
     })
+
+    runCallbacksAsync('comments.purge.async', comment)
   })
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
@@ -444,14 +459,16 @@ addCallback("users.ban.async", userResetLoginTokens);
 async function userIPBan(user) {
   const query = `
     query UserIPBan($userId:String) {
-      UsersSingle(documentId: $userId) {
-        IPs
+      user(input:{selector: {_id: $userId}}) {
+        result {
+          IPs
+        }
       }
     }
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.UsersSingle.IPs.forEach(ip => {
+    IPs.data.user.data.IPs.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {

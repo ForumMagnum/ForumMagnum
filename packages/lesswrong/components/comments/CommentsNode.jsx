@@ -115,7 +115,10 @@ class CommentsNode extends PureComponent {
   }
 
   unTruncate = (event) => {
-    event.stopPropagation()
+    const { parentAnswerId } = this.props
+    if (!parentAnswerId) {
+      event.stopPropagation()
+    }
     this.setState({truncated: false, truncatedStateSet: true});
   }
 
