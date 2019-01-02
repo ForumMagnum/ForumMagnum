@@ -164,10 +164,11 @@ export const createDummyPost = async (user, data) => {
 
 export const createDummyUser = async (data) => {
   const testUsername = Random.id()
+  const reviewingUser = await createDefaultUser();
   const defaultData = {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
-    reviewedByUserId: "testadmin"
+    reviewedByUserId: reviewingUser._id
   }
   const userData = {...defaultData, ...data};
   const newUserResponse = await newMutation({
