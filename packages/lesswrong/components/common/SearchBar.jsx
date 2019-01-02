@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 import { withRouter } from 'react-router'
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -162,31 +163,29 @@ class SearchBar extends Component {
     }
 
     return <div onKeyDown={this.handleKeyDown}>
-      <Components.ErrorBoundary>
-        <InstantSearch
-          indexName="test_posts"
-          appId={algoliaAppId}
-          apiKey={algoliaSearchKey}
-          onSearchStateChange={this.queryStateControl}
-        >
-          <div className={classNames(
-            classes.root,
-            {"open":this.state.inputOpen},
-            {[classes.alignmentForum]: alignmentForum}
-          )}>
-            {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
-            {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
-            <div onClick={this.handleSearchTap}>
-              <Icon className={classes.searchIcon}>search</Icon>
-              <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />
-            </div>
-            { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
-              <Icon className={classes.closeSearchIcon}>close</Icon>
-            </div>}
+      <InstantSearch
+        indexName="test_posts"
+        appId={algoliaAppId}
+        apiKey={algoliaSearchKey}
+        onSearchStateChange={this.queryStateControl}
+      >
+        <div className={classNames(
+          classes.root,
+          {"open":this.state.inputOpen},
+          {[classes.alignmentForum]: alignmentForum}
+        )}>
+          {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
+          <div onClick={this.handleSearchTap}>
+            <Icon className={classes.searchIcon}>search</Icon>
+            <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />
           </div>
-          { searchOpen && <Components.SearchBarResults closeSearch={this.closeSearch} />}
-        </InstantSearch>
-      </Components.ErrorBoundary>
+          { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
+            <Icon className={classes.closeSearchIcon}>close</Icon>
+          </div>}
+        </div>
+        { searchOpen && <Components.SearchBarResults closeSearch={this.closeSearch} />}
+      </InstantSearch>
     </div>
   }
 }
@@ -199,4 +198,4 @@ SearchBar.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withRouter);
+registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withRouter, withErrorBoundary);
