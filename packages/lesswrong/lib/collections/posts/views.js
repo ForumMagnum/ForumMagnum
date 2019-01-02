@@ -512,6 +512,7 @@ Posts.addView("sunshineNewPosts", function () {
       reviewedByUserId: {$exists: false},
       frontpageDate: {$in: [false,null] },
       createdAt: {$gt: twoDaysAgo},
+      authorIsUnreviewed: null
     },
     options: {
       sort: {
