@@ -340,10 +340,13 @@ PostsPage.propTypes = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'LWPostsRevision',
   enableTotal: false,
   enableCache: true,
-  ssr: true
+  ssr: true,
+  extraVariables: {
+    revisionId: "String"
+  }
 };
 
 const mutationOptions = {

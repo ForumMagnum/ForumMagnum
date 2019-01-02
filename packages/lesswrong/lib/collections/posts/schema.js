@@ -487,6 +487,20 @@ const schema = {
     group: formGroups.adminOptions,
   },
 
+  revision: {
+    type: String,
+    optional: true,
+    viewableBy: ['guest'],
+    resolveAs: {
+      type: 'String',
+      arguments: 'revisionId: String = 0',
+      resolver: (post, args, { Posts }) => {
+        console.log("Revision resolver args: ", args)
+        return args.revisionId || "0"
+      }
+    }
+  }
+
 };
 
 export default schema;

@@ -196,6 +196,50 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment LWPostsRevision on Post {
+    ...PostsList
+    lastEditedAs
+    body
+    htmlBody
+    tableOfContents
+    content
+    plaintextExcerpt
+    draft
+    commentSortOrder
+    canonicalPrevPostSlug
+    canonicalNextPostSlug
+    canonicalCollectionSlug
+    canonicalSequenceId
+    canonicalBookId
+    bannedUserIds
+    hideAuthor
+    user {
+      groups
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
+    }
+    canonicalSequence {
+      title
+    }
+    canonicalBook {
+      title
+    }
+    canonicalCollection {
+      title
+    }
+    collectionTitle
+    types
+    showModerationGuidelines
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
+    revision(revisionId: $revisionId)
+  }
+`);
+
+registerFragment(`
   fragment LWPostsPage on Post {
     ...PostsList
     lastEditedAs

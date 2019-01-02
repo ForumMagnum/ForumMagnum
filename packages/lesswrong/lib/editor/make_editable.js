@@ -1,5 +1,39 @@
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
+import SimpleSchema from 'simpl-schema'
+
+let ContentType = new SimpleSchema({
+    canonicalContentType: {
+      type: String,
+    },
+    canonicalContent: {
+      type: Object,
+      blackbox: true, 
+    },
+    html: {
+      type: String,
+    },
+    markdown: {
+      type: String,
+    },
+    draftJs: {
+      type: String
+    },
+})
+
+Posts.addField([
+    {
+        fieldName: 'fieldWithSubschema',
+        resolveAs: {
+          type: ContentType,
+          name: "contentField", 
+          resolver: () => {
+
+          }
+        }
+    }
+])
+
 
 const defaultOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -33,6 +67,17 @@ export const makeEditable = ({collection, options = {}}) => {
   } = options
 
   collection.addField([
+    // LESSWRONG: TEST STUFF, DO NOT COMMIT
+    {
+      fieldName: 'testField',
+      fieldSchema: {
+        type: ContentType,
+        resolveAs: {
+          
+        }
+      }
+    },
+
     /**
       Draft-js content
     */
