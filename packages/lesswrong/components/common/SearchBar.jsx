@@ -13,9 +13,13 @@ const VirtualMenu = connectMenu(() => null);
 
 const styles = theme => ({
   root: {
-    display: "inline-block",
+  },
+  
+  searchInputArea: {
+    display: "block",
     position: "relative",
     minWidth: 48,
+    height: 48,
 
     "& .ais-SearchBox": {
       display: 'inline-block',
@@ -24,7 +28,7 @@ const styles = theme => ({
       width: '100%',
       height: 46,
       whiteSpace: 'nowrap',
-      boxSizing: 'borderBox',
+      boxSizing: 'border-box',
       fontSize: 14,
     },
     "& .ais-SearchBox-form": {
@@ -162,7 +166,7 @@ class SearchBar extends Component {
       userRefinement = location.pathname.split('/')[2]
     }
 
-    return <div onKeyDown={this.handleKeyDown}>
+    return <div onKeyDown={this.handleKeyDown} className={classes.root}>
       <InstantSearch
         indexName="test_posts"
         appId={algoliaAppId}
@@ -170,7 +174,7 @@ class SearchBar extends Component {
         onSearchStateChange={this.queryStateControl}
       >
         <div className={classNames(
-          classes.root,
+          classes.searchInputArea,
           {"open":this.state.inputOpen},
           {[classes.alignmentForum]: alignmentForum}
         )}>
