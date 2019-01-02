@@ -113,7 +113,7 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    recommendedReading: {
+    bottomNavigation: {
       width: 640,
       margin: 'auto',
       [theme.breakpoints.down('sm')]: {
@@ -158,7 +158,7 @@ class PostsPage extends Component {
   render() {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
+      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
       Section, TableOfContents } = Components
 
@@ -254,8 +254,8 @@ class PostsPage extends Component {
                     />
                 </div>
               </div>}
-            {sequenceId && <div className={classes.recommendedReading}>
-              <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+            {sequenceId && <div className={classes.bottomNavigation}>
+              <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
             {/* Answers Section */}
             {post.question && <div>
