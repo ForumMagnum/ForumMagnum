@@ -570,6 +570,7 @@ Posts.addField([
       insertableBy: ['admins'],
       control: 'checkbox',
       group: formGroups.moderationGroup,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -1027,7 +1028,7 @@ Posts.addField([
           if (document.question) {
 
             const answers = await Comments.find(
-              {answer:true, postId: document._id, deleted:{$in:[null, false]}},
+              {answer:true, postId: document._id, deleted:false},
               {sort:questionAnswersSort}
             ).fetch()
 
@@ -1058,7 +1059,7 @@ Posts.addField([
           }
           if (tocData) {
             const commentCount = await Comments.find(
-              {answer:{$in:[false, null]}, parentAnswerId:{$in:[undefined,null]}, postId: document._id }).count()
+              {answer:false, parentAnswerId:{$in:[undefined,null]}, postId: document._id }).count()
             tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
           }
           return tocData;

@@ -160,7 +160,7 @@ function CommentsEditSoftDeleteCallback (comment, oldComment) {
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 
 function ModerateCommentsPostUpdate (comment, oldComment) {
-  const comments = Comments.find({postId:comment.postId, deleted: {$in: [false,null]}}).fetch()
+  const comments = Comments.find({postId:comment.postId, deleted: false}).fetch()
 
   const lastComment = _.max(comments, (c) => c.postedAt)
   const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId}).postedAt
