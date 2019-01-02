@@ -154,7 +154,7 @@ class SearchBar extends Component {
     const alignmentForum = getSetting('AlignmentForum', false);
 
     const { classes } = this.props
-    const { searchOpen } = this.state
+    const { searchOpen, inputOpen } = this.state
 
     if(!algoliaAppId) {
       return <div className={classes.root}>Search is disabled (Algolia App ID not configured on server)</div>
@@ -175,14 +175,14 @@ class SearchBar extends Component {
       >
         <div className={classNames(
           classes.searchInputArea,
-          {"open":this.state.inputOpen},
+          {"open": inputOpen},
           {[classes.alignmentForum]: alignmentForum}
         )}>
           {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
           {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
           <div onClick={this.handleSearchTap}>
             <Icon className={classes.searchIcon}>search</Icon>
-            <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />
+            { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
           </div>
           { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
             <Icon className={classes.closeSearchIcon}>close</Icon>
