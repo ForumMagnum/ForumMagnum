@@ -26,8 +26,7 @@ import '../components/notifications/SubscribeTo.jsx';
 import '../components/Layout.jsx';
 
 import '../components/common/CalendarDate.jsx';
-import '../components/common/FromNowDate.jsx';
-import '../components/common/SimpleDate.jsx';
+import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
@@ -83,8 +82,11 @@ import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
 import '../components/posts/PostsDailyList.jsx';
+import '../components/posts/AllPostsPage.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
+import '../components/posts/DeleteDraft.jsx';
+import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemMeta.jsx';
@@ -162,10 +164,8 @@ import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
-import '../components/comments/ModerationGuidelinesBox.jsx';
-import '../components/comments/ModerationGuidelinesLink.jsx';
-import '../components/comments/ModerationGuidelinesContent.jsx'
-import '../components/comments/ModerationGuidelinesEditForm.jsx'
+import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
+import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
@@ -291,3 +291,4 @@ import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/AnswerMeta.jsx';
+import '../components/questions/QuestionsPage.jsx';

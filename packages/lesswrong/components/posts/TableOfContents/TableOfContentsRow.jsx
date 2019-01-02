@@ -8,6 +8,7 @@ const styles = theme => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    direction:"ltr",
   },
 
   // For the highlighted section only, disable the half-opacity-on-hover effect
@@ -15,7 +16,7 @@ const styles = theme => ({
   highlighted: {
     fontWeight: "bold",
     '& $link': {
-      color: "black",
+      color: "rgba(0,0,0,.87)",
     },
     "& a:focus, & a:hover": {
       opacity: "initial",
@@ -38,56 +39,60 @@ const styles = theme => ({
 
   level0: {
     display:"inline-block",
-    maxWidth:240,
-    '&:first-of-type': {
-      marginBottom: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+    marginBottom: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    '& $link': {
+      whiteSpace: "normal",
     },
     '&:last-of-type': {
+      borderBottom: "none",
       marginTop: theme.spacing.unit,
       paddingTop: theme.spacing.unit,
-      borderTop: "solid 1px rgba(0,0,0,.2)",
+      borderTop: "solid 1px rgba(0,0,0,.1)",
     }
   },
   level1: {
     paddingLeft: 0,
   },
   level2: {
-    fontSize:"1.05em",
+    fontSize:"1.1em",
     paddingLeft: 16,
-    "& $link": {
-      color: "rgba(0,0,0,.5)",
-    }
+
   },
   level3: {
-    fontSize:"1.05em",
+    fontSize:"1.1em",
     color:theme.palette.grey[700],
     paddingLeft: 32,
-    "& $link": {
-      color: "rgba(0,0,0,.5)",
-    }
   },
   level4: {
-    fontSize:"1.05em",
+    fontSize:"1.1em",
     color:theme.palette.grey[700],
     paddingLeft: 48,
-    "& $link": {
-      color: "rgba(0,0,0,.5)",
-    }
   },
+  answers: {
+    marginTop:theme.spacing.unit,
+    '& $link': {
+      display:"inline-block",
+      borderTop: "solid 1px rgba(0,0,0,.1)",
+      paddingTop: theme.spacing.unit*1.5,
+    }
+  }
 });
 
 class TableOfContentsRow extends PureComponent
 {
   render() {
-    const {indentLevel=0, highlighted=false, href, onClick, children, classes} = this.props;
+    const {indentLevel=0, highlighted=false, href, onClick, children, classes, answersStyling } = this.props;
 
     return <Typography variant="body2"
       className={classNames(
         classes.root,
         this.levelToClassName(indentLevel),
-        { [classes.highlighted]: highlighted }
+        {
+          [classes.answers]: href==="#answers" && answersStyling,
+          [classes.highlighted]: highlighted
+        }
       )}
     >
       <a href={href} onClick={onClick} className={classes.link}>

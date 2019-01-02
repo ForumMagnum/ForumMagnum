@@ -15,6 +15,9 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
 const styles = theme => ({
+  root: {
+    position: 'relative'
+  },
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
@@ -30,6 +33,9 @@ const styles = theme => ({
   },
   questionWidth: {
     width: 540,
+    [theme.breakpoints.down('sm')]: {
+      width: 'inherit'
+    }
   },
   postEditorHeight: {
     minHeight: postEditorHeight,
@@ -132,7 +138,7 @@ class EditorFormComponent extends Component {
 
     if (this.getCurrentEditorType() === "draft-js") {
       return (
-        <div className={heightClass}>
+        <div className={classnames(heightClass, classes.root)}>
           { editorWarning }
           <AsyncEditor
             {...passedDownProps}
@@ -149,7 +155,7 @@ class EditorFormComponent extends Component {
       const path = newName;
 
       return (
-        <div>
+        <div className={classes.root}>
           { editorWarning }
           <Components.MuiInput
             {...passedDownProps}

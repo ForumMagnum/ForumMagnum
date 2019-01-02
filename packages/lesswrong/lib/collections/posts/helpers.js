@@ -204,8 +204,10 @@ Posts.getCommentCount = (post) => {
   }
 }
 
-Posts.getCommentCountStr = (post) => {
-  let count = Posts.getCommentCount(post)
+Posts.getCommentCountStr = (post, commentCount) => {
+  // can be passed in a manual comment count, or retrieve the post's cached comment count
+
+  const count = commentCount != undefined ? commentCount :  Posts.getCommentCount(post)
 
   if (!count) {
     return "No comments"
@@ -227,4 +229,11 @@ Posts.getLastCommentedAt = (post) => {
 
 Posts.canEdit = (currentUser, post) => {
   return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
+}
+
+Posts.canDelete = (currentUser, post) => {
+  if (Users.canDo(currentUser, "posts.remove.all")) {
+    return true
+  }
+  return Users.owns(currentUser, post) && post.draft
 }

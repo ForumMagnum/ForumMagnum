@@ -6,6 +6,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser'
 
 const styles = theme => ({
   root: {
@@ -23,9 +24,12 @@ const styles = theme => ({
     },
     color: theme.palette.secondary.main
   },
+  cancelButton: {
+    color: theme.palette.grey[400]
+  }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost}) => {
+const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost, currentUser}) => {
   prefilledProps.postId = postId;
 
   if (parentComment) {
@@ -38,6 +42,12 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
+      {(type === "reply") && <Button
+        onClick={cancelCallback}
+        className={classNames(classes.formButton, classes.cancelButton)}
+      >
+        Cancel
+      </Button>}
       <Button
         type="submit"
         className={classNames(classes.formButton)}
@@ -47,18 +57,14 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
     </div>
   }
 
-  return (
-    <Components.ShowIf
-      check={Comments.options.mutations.new.check}
-      document={prefilledProps}
-      failureComponent={<FormattedMessage id="users.cannot_comment"/>}
-    >
+  if (Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+    return (
       <div className={classes.root}>
         <Components.SmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
           successCallback={successCallback}
-          cancelCallback={type === "reply" ? cancelCallback : null}
+          cancelCallback={cancelCallback}
           prefilledProps={prefilledProps}
           layout="elementOnly"
           GroupComponent={FormGroupComponent}
@@ -66,9 +72,10 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
           alignmentForumPost={alignmentForumPost}
         />
       </div>
-    </Components.ShowIf>
-  )
-
+    );
+  } else {
+    return <FormattedMessage id="users.cannot_comment"/>;
+  }
 };
 
 const FormGroupComponent = (props) => {
@@ -107,4 +114,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withMessages, withStyles(styles));
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withMessages, withStyles(styles));

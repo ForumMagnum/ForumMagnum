@@ -16,19 +16,22 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,
-    margin: "80px auto 15px auto",
+    margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
-    
+
     "& .content-editor-is-empty": {
       fontSize: "15px !important",
     },
+    background: "white",
+    position: "relative"
   },
-  
+
   meta: {
     fontSize: 14,
     clear: 'both',
@@ -58,14 +61,31 @@ const styles = theme => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
-  }
+  },
+  moderationGuidelinesWrapper: {
+    ...commentBodyStyles(theme),
+    verticalAlign: 'top',
+    display: 'block',
+    padding: '10px 0px',
+    borderTop: '1px solid rgba(0,0,0,0.2)',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    marginBottom: 30,
+  },
 })
 
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
+      highlightDate: this.props.lastEvent &&
+        this.props.lastEvent.properties &&
+        this.props.lastEvent.properties.createdAt &&
+        new Date(this.props.lastEvent.properties.createdAt)
+        ||
+        this.props.post &&
+        this.props.post.lastVisitedAt &&
+        new Date(this.props.post.lastVisitedAt) ||
+        new Date(),
     }
   }
 
@@ -131,12 +151,15 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments, answerId, startThreadCollapsed } = this.props;
+    const { currentUser, comments, postId, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className={classes.root}>
+        <div className={classes.moderationGuidelinesWrapper}>
+          <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+        </div>
         { this.props.totalComments ? this.renderTitleComponent() : null }
         {!currentUser &&
           <div>
@@ -145,6 +168,7 @@ class CommentsListSection extends Component {
             </Components.LoginPopupLink>
           </div>
         }
+        <div id="comments"/>
         {currentUser && Users.isAllowedToComment(currentUser, post) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
@@ -153,7 +177,7 @@ class CommentsListSection extends Component {
               postId={postId}
               prefilledProps={{
                 af: Comments.defaultToAlignment(currentUser, post),
-                answerId: answerId}}
+                parentAnswerId: parentAnswerId}}
               type="comment"
             />
           </div>
@@ -174,7 +198,7 @@ class CommentsListSection extends Component {
           post={post}
           postPage
           startThreadCollapsed={startThreadCollapsed}
-          answerId={answerId}
+          parentAnswerId={parentAnswerId}
         />
       </div>
     );

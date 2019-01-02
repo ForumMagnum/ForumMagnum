@@ -9,20 +9,46 @@ const styles = theme => ({
     position: "absolute",
     width: 240,
     height: "100%",
+    [theme.breakpoints.up('xl')]: {
+      left:-100
+    },
     [theme.breakpoints.up('lg')]: {
-      left:-40
-    }
+      left:-50
+    },
+    opacity: .5,
+    '&:hover': {
+      opacity:1
+    },
+    marginTop: -1
   },
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
-    top: 72,
+    top: 92,
     lineHeight: 1.0,
-    opacity: .7,
+    marginLeft:1,
     paddingLeft:theme.spacing.unit*2,
     textAlign:"left",
-    "&:hover": {
-      opacity:1
+    height:"80vh",
+    overflowY:"scroll",
+    direction:"rtl",
+    "&::-webkit-scrollbar": {
+        width: 1,
+    },
+
+    /* Track */
+    "&::-webkit-scrollbar-track": {
+        background: "none",
+    },
+
+    /* Handle */
+    "&::-webkit-scrollbar-thumb": {
+        background: theme.palette.grey[300],
+    },
+
+    /* Handle on hover */
+    "&::-webkit-scrollbar-thumb:hover": {
+        background: theme.palette.grey[700],
     }
   },
 });
@@ -50,7 +76,7 @@ class TableOfContents extends Component
   state = { drawerOpen: false }
 
   componentDidMount() {
-    this.props.setToC(this.props.document, this.props.sections);
+    this.props.setToC(this.props.document, this.props.sectionData);
   }
 
   componentWillUnmount() {
@@ -58,9 +84,9 @@ class TableOfContents extends Component
   }
 
   render() {
-    const { classes, sections, document, context } = this.props;
+    const { classes, sectionData, document, context } = this.props;
 
-    if (!sections || !document)
+    if (!sectionData || !document)
       return <div/>
 
     return (
@@ -68,7 +94,7 @@ class TableOfContents extends Component
         <div className={classes.stickyContainer}>
           <div className={classes.stickyBlock}>
             <Components.TableOfContentsList
-              sections={sections}
+              sectionData={sectionData}
               document={document}
               context={context}
               drawerStyle={false}

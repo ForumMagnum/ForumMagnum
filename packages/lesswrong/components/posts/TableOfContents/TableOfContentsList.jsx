@@ -20,33 +20,38 @@ class TableOfContentsList extends Component {
   }
 
   render() {
-    const { sections, document, drawerStyle } = this.props;
+    const { sectionData, document} = this.props;
     const { currentSection } = this.state;
-    const { TableOfContentsRow, TableOfContentsDrawerRow } = Components;
-    const Row = drawerStyle ? TableOfContentsDrawerRow : TableOfContentsRow;
+    const { TableOfContentsRow } = Components;
+    // const Row = TableOfContentsRow;
 
-    if (!sections || !document)
+    if (!sectionData)
       return <div/>
 
+    const sections = sectionData ? sectionData.sections : []
+
+    const title = document && document.title || sectionData && sectionData.document && sectionData.document.title
+    
     return <div>
       <div>
-        <Row key="postTitle"
+        <TableOfContentsRow key="postTitle"
           href="#"
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
         >
-          {document.title}
-        </Row>
+          {title}
+        </TableOfContentsRow>
         {sections && sections.map((section, index) =>
-          <Row
+          <TableOfContentsRow
             key={section.anchor}
             indentLevel={section.level}
             highlighted={section.anchor === currentSection}
             href={"#"+section.anchor}
             onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
+            answersStyling={sectionData.headingsCount > 1}
           >
             {section.title}
-          </Row>
+          </TableOfContentsRow>
         )}
       </div>
     </div>
@@ -56,7 +61,7 @@ class TableOfContentsList extends Component {
   // Return the screen-space current section mark - that is, the spot on the
   // screen where the current-post will transition when its heading passes.
   getCurrentSectionMark() {
-    return Math.min(150, window.innerHeight/4);
+    return window.innerHeight/3
   }
 
   // Return the screen-space Y coordinate of an anchor. (Screen-space meaning
@@ -64,8 +69,12 @@ class TableOfContentsList extends Component {
   // position.)
   getAnchorY(anchorName) {
     let anchor = document.getElementById(anchorName);
-    let anchorBounds = anchor.getBoundingClientRect();
-    return anchorBounds.top + anchorBounds.height/2;
+    if (anchor) {
+      let anchorBounds = anchor.getBoundingClientRect();
+      return anchorBounds.top + anchorBounds.height/2;
+    } else {
+      return null
+    }
   }
 
   jumpToAnchor(anchor, ev) {
@@ -104,7 +113,8 @@ class TableOfContentsList extends Component {
   }
 
   getCurrentSection = () => {
-    const { sections } = this.props;
+    const { sectionData } = this.props;
+    const sections = sectionData && sectionData.sections
 
     if (Meteor.isServer)
       return null;
@@ -121,7 +131,7 @@ class TableOfContentsList extends Component {
     {
       let sectionY = this.getAnchorY(sections[i].anchor);
 
-      if(sectionY < currentSectionMark)
+      if(sectionY && sectionY < currentSectionMark)
         currentSection = sections[i].anchor;
     }
 

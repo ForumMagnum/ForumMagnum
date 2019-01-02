@@ -8,6 +8,9 @@ import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
+import { Comments } from '../comments'
+import { questionAnswersSort } from '../comments/views';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 export const formGroups = {
   adminOptions: {
@@ -56,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser.moderationGuidelinesHtmlBody)
+  return !!(currentUser && currentUser.moderationGuidelinesHtmlBody)
 }
 
 Posts.addField([
@@ -514,16 +517,7 @@ Posts.addField([
       control: "checkbox",
       order: 11,
       group: formGroups.adminOptions,
-      onInsert: (document, currentUser) => {
-        if (!document.unlisted) {
-          return false;
-        }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.unlisted === null || modifier.$unset.unlisted) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -538,7 +532,7 @@ Posts.addField([
       label: 'Save to Drafts',
       type: Boolean,
       optional: true,
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['members'],
       insertableBy: ['members'],
       editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -562,16 +556,7 @@ Posts.addField([
       hidden: true,
       label: "Publish to meta",
       control: "checkbox",
-      onInsert: (document, currentUser) => {
-          if (!document.meta) {
-            return false
-          }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.meta === null || modifier.$unset.meta) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false)
     }
   },
 
@@ -747,7 +732,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment'],
       insertableBy: ['members'],
-      optional: true
+      optional: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -933,7 +919,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       label: "Sticky (Meta)",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['admins'],
@@ -1023,9 +1009,10 @@ Posts.addField([
       editableBy: ['admins'],
       optional: true,
       group: formGroups.adminOptions,
+      ...schemaDefaultValue(false),
     }
   },
-  
+
   {
     fieldName: 'tableOfContents',
     fieldSchema: {
@@ -1036,7 +1023,45 @@ Posts.addField([
         fieldName: "tableOfContents",
         type: GraphQLJSON,
         resolver: async (document, args, options) => {
-          return Utils.extractTableOfContents(document.htmlBody);
+          let tocData
+          if (document.question) {
+
+            const answers = await Comments.find(
+              {answer:true, postId: document._id, deleted:{$in:[null, false]}},
+              {sort:questionAnswersSort}
+            ).fetch()
+
+            if (answers && answers.length) {
+              tocData = Utils.extractTableOfContents(document.htmlBody, true) || {
+                html: null,
+                headingsCount: 0,
+                sections: []
+              }
+
+              const answerSections = answers.map((answer) => ({
+                title: answer.author + "'s answer",
+                anchor: answer._id,
+                level: 2
+              }))
+              tocData = {
+                html: tocData.html,
+                headingsCount: tocData.headingsCount,
+                sections: [
+                  ...tocData.sections,
+                  {anchor:"answers", level:1, title:"Answers"},
+                  ...answerSections
+                ]
+              }
+            }
+          } else {
+            tocData = Utils.extractTableOfContents(document.htmlBody)
+          }
+          if (tocData) {
+            const commentCount = await Comments.find(
+              {answer:{$in:[false, null]}, parentAnswerId:{$in:[undefined,null]}, postId: document._id }).count()
+            tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
+          }
+          return tocData;
         },
       },
     }
@@ -1063,10 +1088,11 @@ Posts.addField([
             }
             const sort = {sort:{createdAt:-1}}
             const event = await LWEvents.findOne(query, sort);
+            const author = await Users.findOne({_id: post.userId});
             if (event) {
               return event && event.properties && event.properties.targetState
             } else {
-              return true
+              return author.collapseModerationGuidelines ? false : (post.moderationGuidelinesHtmlBody || post.moderationStyle)
             }
           } else {
             return false

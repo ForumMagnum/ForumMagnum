@@ -5,6 +5,7 @@ import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
   order: 50,
@@ -46,7 +47,7 @@ Comments.addField([
       type: Boolean,
       optional: true,
       hidden: true,
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
@@ -134,6 +135,7 @@ Comments.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -152,6 +154,7 @@ Comments.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -164,6 +167,7 @@ Comments.addField([
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -236,6 +240,7 @@ Comments.addField([
       canUpdate: ['admins'],
       control: "checkbox",
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -313,6 +318,7 @@ Comments.addField([
       optional: true,
       canRead: ['guests'],
       canUpdate: ['admins'],
+      ...schemaDefaultValue(false),
     }
   },
 ]);

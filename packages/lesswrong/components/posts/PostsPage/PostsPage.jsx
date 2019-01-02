@@ -15,56 +15,58 @@ import { withRouter } from 'react-router'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
+import Tooltip from '@material-ui/core/Tooltip';
+import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
-import moment from 'moment';
+
+const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
 const styles = theme => ({
     root: {
-      position: "relative",
+      position: "relative"
     },
     post: {
       maxWidth: 650,
       [theme.breakpoints.down('md')]: {
-        margin: "auto"
+        marginLeft: "auto",
+        marginRight: "auto"
       }
     },
     header: {
       position: 'relative',
-      marginBottom: 50,
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: 0
-      }
+      display:"flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: theme.spacing.unit*2
+    },
+    headerLeft: {
+      width:"100%"
+    },
+    headerVote: {
+      textAlign: 'center',
+      fontSize: 42,
+      position: "relative",
+    },
+    divider: {
+      marginTop: theme.spacing.unit*2,
+      marginBottom: theme.spacing.unit*2,
+      marginLeft:0,
+      borderTop: "solid 1px rgba(0,0,0,.1)",
+      borderLeft: 'transparent'
     },
     eventHeader: {
       marginBottom:0,
     },
     secondaryInfo: {
       fontSize: '1.4rem',
-      width: 'calc(100% - 60px)',
-    },
-    voteTop: {
-      position: 'absolute',
-      fontSize: 42,
-      left: -72,
-      top: -6,
-      textAlign: 'center',
-    },
-    mobileVote: {
-      position: 'absolute',
-      top: -14,
-      right: 0,
-      fontSize: 42,
-      display: 'inline-block',
-      textAlign: 'center',
     },
     mobileDate: {
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
+      fontSize: theme.typography.body2.fontSize,
       [theme.breakpoints.up('md')]: {
         display:"none"
       }
@@ -73,21 +75,23 @@ const styles = theme => ({
       marginLeft: 20,
       display: 'inline-block',
       color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
       [theme.breakpoints.down('sm')]: {
         display:"none"
       }
     },
-    mobileActions: {
+    commentsLink: {
+      marginLeft: 20,
+      color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
+    },
+    actions: {
       display: 'inline-block',
       marginLeft: 15,
       cursor: "pointer",
       color: theme.palette.grey[600],
-    },
-    mobileDivider: {
-      width: '60%',
-      marginTop: 20,
-      marginLeft: 0,
-      borderColor: theme.palette.grey[100]
     },
     postBody: {
       marginBottom: 50,
@@ -101,14 +105,10 @@ const styles = theme => ({
       fontSize: 42,
       textAlign: 'center',
       display: 'inline-block',
-      marginLeft: 8,
-      marginRight: 8,
-    },
-    postFooter: {
-      padding: '10px 0px',
-      borderTop: '1px solid rgba(0,0,0,0.2)',
-      borderBottom: '1px solid rgba(0,0,0,0.2)',
-      marginBottom: 30,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      paddingRight: 50,
+      marginBottom: 40
     },
     draft: {
       color: theme.palette.secondary.light
@@ -120,16 +120,37 @@ const styles = theme => ({
         width:'100%'
       }
     },
-    moderationGuidelinesWrapper: {
-      width: 'calc(100% - 70px)',
-      verticalAlign: 'top',
-      display: 'inline-block',
-      ...commentBodyStyles(theme)
-    },
     inline: {
       display: 'inline-block'
     },
-
+    feedName: {
+      fontSize: theme.typography.body2.fontSize,
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600],
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
+    },
+    commentsSection: {
+      minHeight: 'calc(70vh - 100px)',
+      marginLeft: -67,
+      [theme.breakpoints.down('sm')]: {
+        paddingRight: 0,
+        marginLeft: 0
+      },
+      // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
+      background: "white",
+      position: "relative"
+    },
+    footerSection: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '1.4em'
+    },
+    bottomDate: {
+      color: theme.palette.grey[600]
+    },
 })
 
 class PostsPage extends Component {
@@ -138,8 +159,8 @@ class PostsPage extends Component {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, ModerationGuidelinesBox, FromNowDate,
-      PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
+      Section, TableOfContents } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -153,9 +174,9 @@ class PostsPage extends Component {
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
       const sectionData = post.tableOfContents;
-      const htmlWithAnchors = sectionData ? sectionData.html : post.htmlBody;
-      const sections = sectionData ? [...sectionData.sections, {anchor:"comments", level:0, title:Posts.getCommentCountStr(post)}] : null;
+      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : post.htmlBody;
 
+      const feedLink = post.feed && post.feed.url && new URL(post.feed.url).hostname
 
       return (
         <div className={classes.root}>
@@ -164,43 +185,50 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <Section>
             <div className={classes.post}>
-              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
-                <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-                <PostsPageTitle post={post} />
-                <span className={classes.mobileVote}>
-                  <Hidden mdUp implementation="css">
-                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                  </Hidden>
-                </span>
-                <Hidden smDown implementation="css">
-                  <div className={classes.voteTop}>
-                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+              <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
+              >
+                <div className={classes.headerLeft}>
+                  <PostsPageTitle post={post} />
+                  <div className={classes.secondaryInfo}>
+                    <span className={classes.inline}>
+                      <PostsAuthors post={post}/>
+                    </span>
+                    { post.feed && post.feed.user &&
+                      <Tooltip title={`Crossposted from ${feedLink}`}>
+                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                          {post.feed.nickname}
+                        </a>
+                      </Tooltip>
+                    }
+                    {!post.isEvent && <span className={classes.mobileDate}>
+                      <FormatDate date={post.postedAt}/>
+                    </span>}
+                    {!post.isEvent && <span className={classes.desktopDate}>
+                      <FormatDate date={post.postedAt} format="Do MMM YYYY"/>
+                    </span>}
+                    {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                    <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
+                    <span className={classes.actions}>
+                        <PostsPageActions post={post} />
+                    </span>
                   </div>
-                </Hidden>
-                {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                <div className={classes.secondaryInfo}>
-                  <span className={classes.inline}><PostsAuthors post={post}/></span>
-                  {!post.isEvent && <span className={classes.mobileDate}>
-                    <FromNowDate date={post.postedAt}/>
-                  </span>}
-                  {!post.isEvent && <span className={classes.desktopDate}>
-                    {moment(post.postedAt).format("DD MMM YYYY")}
-                  </span>}
-                  {post.types && (post.types.length > 0) && <Components.GroupLinks document={post} />}
-                  <span className={classes.mobileActions}>
-                      <PostsPageActions post={post} />
-                  </span>
-                  <Hidden mdUp implementation="css">
-                    <hr className={classes.mobileDivider} />
-                  </Hidden>
                 </div>
-                {post.isEvent && <PostsPageEventData post={post}/>}
-
+                <div className={classes.headerVote}>
+                  <PostsVote
+                    collection={Posts}
+                    post={post}
+                    currentUser={currentUser}
+                    />
+                </div>
               </div>
+              <hr className={classes.divider}/>
+              {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
           </Section>
           <Section titleComponent={
-            <TableOfContents sections={sections} document={post}/>
+            <TableOfContents sectionData={sectionData} document={post} />
           }>
             <div className={classes.post}>
               {/* Body */}
@@ -213,33 +241,32 @@ class PostsPage extends Component {
                   { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
                 </div>
               </div>
+            </div>
 
-              {/* Footer */}
-              <div className={classes.postFooter}>
+            {/* Footer */}
+            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+              <div className={classes.footerSection}>
                 <div className={classes.voteBottom}>
-                  <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+                  <PostsVote
+                    collection={Posts}
+                    post={post}
+                    currentUser={currentUser}
+                    />
                 </div>
-                <div className={classes.moderationGuidelinesWrapper}>
-                  <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-                </div>
-              </div>
-              {sequenceId && <div className={classes.recommendedReading}>
-                <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
               </div>}
+            {sequenceId && <div className={classes.recommendedReading}>
+              <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+            </div>}
+            {/* Answers Section */}
+            {post.question && <div>
+              <div id="answers"/>
+              <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
+            </div>}
+            {/* Comments Section */}
+            <div className={classes.commentsSection}>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
             </div>
           </Section>
-
-          {/* Answers Section */}
-          {post.question && <div id="answers">
-            <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>}
-
-          {/* Comments Section */}
-          <div>
-            <div id="comments"/>
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>
-
         </div>
       );
     }

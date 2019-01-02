@@ -1,6 +1,5 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { CardMedia } from 'material-ui/Card';
 import { withRouter, Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -71,9 +70,9 @@ class CollectionsCard extends PureComponent {
               {collection.summary}
             </Typography>
           </div>
-          <CardMedia className={classes.media}>
+          <div className={classes.media}>
             <Components.CloudinaryImage publicId={collection.imageId} />
-          </CardMedia>
+          </div>
         </div>
     </div>
   }

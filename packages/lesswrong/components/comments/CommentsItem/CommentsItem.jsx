@@ -98,12 +98,21 @@ class CommentsItem extends Component {
   }
 
   getTruncationCharCount = () => {
-    const { comment } = this.props
-    return comment.baseScore > 20 ? 1000 : 300
+    const { comment, currentUser, postPage } = this.props
+
+    // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
+    if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
+      return 10000000
+    }
+    if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
+      return 10000000
+    }
+    const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
+    return (commentIsRecent || comment.baseScore >= 10) ? 1600 : 800
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, parentAnswerId } = this.props
 
     const { showEdit } = this.state
     const { CommentsMenu } = Components
@@ -137,7 +146,7 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              {(comment.parentCommentId && (nestingLevel === 1)) &&
+              {(comment.parentCommentId && (parentAnswerId !== comment.parentCommentId) && (nestingLevel === 1)) &&
                 <Tooltip title="Show previous comment">
                   <Icon
                     onClick={this.toggleShowParent}
@@ -157,14 +166,14 @@ class CommentsItem extends Component {
               <div className="comments-item-date">
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <Components.FromNowDate date={comment.postedAt}/>
+                    <Components.FormatDate date={comment.postedAt}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  <Components.FromNowDate date={comment.postedAt}/>
+                  <Components.FormatDate date={comment.postedAt}/>
                   <Icon className="material-icons comments-item-permalink"> link
                   </Icon>
                   {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
@@ -240,7 +249,7 @@ class CommentsItem extends Component {
   renderReply = () => {
     const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
-    const { currentUser, post, comment, answerId } = this.props
+    const { currentUser, post, comment, parentAnswerId } = this.props
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
@@ -251,10 +260,10 @@ class CommentsItem extends Component {
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
             af:Comments.defaultToAlignment(currentUser, post, comment),
-            answerId: answerId
+            parentAnswerId: parentAnswerId
           }}
           type="reply"
-          answerId={answerId}
+          parentAnswerId={parentAnswerId}
         />
       </div>
     )
