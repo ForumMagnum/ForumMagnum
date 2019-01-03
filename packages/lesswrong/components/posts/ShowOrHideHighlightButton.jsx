@@ -17,7 +17,7 @@ const styles = theme => ({
     transform: "rotate(90deg)",
   },
   showButton: {
-    position:"relative",
+    position: "relative",
     top: 4,
     transform: "rotate(-90deg)",
   },
