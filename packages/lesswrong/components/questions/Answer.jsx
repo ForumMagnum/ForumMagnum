@@ -7,6 +7,9 @@ import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import withUser from '../common/withUser'
+import { Link } from 'react-router';
+import { Posts } from "../../lib/collections/posts";
+import Icon from '@material-ui/core/Icon';
 
 const styles = theme => ({
   postContent: postBodyStyles(theme),
@@ -124,7 +127,10 @@ class Answer extends Component {
               { <UsersName user={comment.user} />}
             </Typography>}
             <Typography variant="subheading" className={classes.date}>
-              <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+              <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
+                <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+                <Icon className="material-icons comments-item-permalink"> link </Icon>
+              </Link>
             </Typography>
             <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
             <span className={classes.menu}>
