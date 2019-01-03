@@ -12,9 +12,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 const VirtualMenu = connectMenu(() => null);
 
 const styles = theme => ({
-  root: {
-  },
-  
   searchInputArea: {
     display: "block",
     position: "relative",
@@ -157,7 +154,7 @@ class SearchBar extends Component {
     const { searchOpen, inputOpen } = this.state
 
     if(!algoliaAppId) {
-      return <div className={classes.root}>Search is disabled (Algolia App ID not configured on server)</div>
+      return <div>Search is disabled (Algolia App ID not configured on server)</div>
     }
     
     // HACK FIXME: This should very likely be factored out somewhere close to where the routes lives, to avoid breaking when we make small URL changes
@@ -166,7 +163,7 @@ class SearchBar extends Component {
       userRefinement = location.pathname.split('/')[2]
     }
 
-    return <div onKeyDown={this.handleKeyDown} className={classes.root}>
+    return <div onKeyDown={this.handleKeyDown}>
       <InstantSearch
         indexName="test_posts"
         appId={algoliaAppId}
