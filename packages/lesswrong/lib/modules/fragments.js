@@ -172,6 +172,8 @@ registerFragment(`
     voteCount
     question
     authorIsUnreviewed
+    isFuture
+    hideAuthor
   }
 `);
 
