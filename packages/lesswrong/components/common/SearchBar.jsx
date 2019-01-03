@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 import { withRouter } from 'react-router'
+import ReactDOM from 'react-dom';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -122,10 +123,14 @@ class SearchBar extends Component {
 
   closeSearch = () => {
     this.setState({searchOpen: false, inputOpen: false});
+    if (this.props.onSetIsActive)
+      this.props.onSetIsActive(false);
   }
 
   handleSearchTap = () => {
     this.setState({inputOpen: true, searchOpen: this.state.currentQuery});
+    if (this.props.onSetIsActive)
+      this.props.onSetIsActive(true);
   }
 
   handleKeyDown = (event) => {
@@ -148,7 +153,7 @@ class SearchBar extends Component {
     const algoliaSearchKey = getSetting('algolia.searchKey')
     const alignmentForum = getSetting('AlignmentForum', false);
 
-    const { classes } = this.props
+    const { searchResultsArea, classes } = this.props
     const { searchOpen } = this.state
 
     if(!algoliaAppId) {
@@ -184,7 +189,13 @@ class SearchBar extends Component {
               <Icon className={classes.closeSearchIcon}>close</Icon>
             </div>}
           </div>
-          { searchOpen && <Components.SearchBarResults closeSearch={this.closeSearch} />}
+          <div>
+            { searchOpen && ReactDOM.createPortal(
+                <Components.SearchBarResults closeSearch={this.closeSearch} />,
+                searchResultsArea.current
+              )
+            }
+          </div>
         </InstantSearch>
       </Components.ErrorBoundary>
     </div>
@@ -193,6 +204,7 @@ class SearchBar extends Component {
 
 SearchBar.propTypes = {
   color: PropTypes.string,
+  onSetIsActive: PropTypes.func,
 };
 
 SearchBar.defaultProps = {

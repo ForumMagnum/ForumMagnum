@@ -40,7 +40,13 @@ const styles = theme => ({
         marginBottom: 0,
       }
     },
-  }
+  },
+  searchResultsArea: {
+    position: "absolute",
+    zIndex: 1100,
+    top: 0,
+    width: "100%",
+  },
 })
 
 class Layout extends PureComponent {
@@ -48,6 +54,8 @@ class Layout extends PureComponent {
     timezone: null,
     toc: null,
   };
+  
+  searchResultsAreaRef = React.createRef();
 
   setToC = (document, sectionData) => {
     if (document) {
@@ -131,7 +139,8 @@ class Layout extends PureComponent {
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
-            <Components.Header toc={this.state.toc} />
+            <Components.Header toc={this.state.toc} searchResultsArea={this.searchResultsAreaRef} />
+            <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
                 <Components.FlashMessages />
