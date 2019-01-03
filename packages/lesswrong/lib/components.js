@@ -31,6 +31,7 @@ import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
+import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
@@ -163,10 +164,8 @@ import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
 import '../components/comments/RecentCommentsPage.jsx';
-import '../components/comments/ModerationGuidelinesBox.jsx';
-import '../components/comments/ModerationGuidelinesLink.jsx';
-import '../components/comments/ModerationGuidelinesContent.jsx'
-import '../components/comments/ModerationGuidelinesEditForm.jsx'
+import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
+import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
@@ -232,9 +231,9 @@ import '../components/sequences/SequencesNavigation.jsx';
 import '../components/sequences/CollectionsNavigation.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
 import '../components/sequences/SequencesNavigationLinkDisabled.jsx';
-import '../components/sequences/RecommendedReading.jsx';
-import '../components/sequences/RecommendedReadingItem.jsx';
-import '../components/sequences/RecommendedReadingWrapper.jsx';
+import '../components/sequences/BottomNavigation.jsx';
+import '../components/sequences/BottomNavigationItem.jsx';
+import '../components/sequences/BottomNavigationWrapper.jsx';
 import '../components/sequences/SequencesPost.jsx';
 import '../components/sequences/SequencesGridItem.jsx';
 import '../components/sequences/ChaptersItem.jsx';
@@ -247,6 +246,7 @@ import '../components/sequences/CollectionsEditForm.jsx';
 import '../components/sequences/BooksNewForm.jsx';
 import '../components/sequences/BooksEditForm.jsx';
 import '../components/sequences/BooksItem.jsx';
+import '../components/sequences/CoreReading.jsx';
 import '../components/collections/CollectionsCardContainer.jsx';
 import '../components/collections/CollectionsCard.jsx';
 import '../components/collections/BigCollectionsCard.jsx';
