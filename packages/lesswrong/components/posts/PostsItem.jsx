@@ -82,6 +82,7 @@ const styles = theme => ({
     },
     '&:hover $actions': {
       display: "inline-block",
+      opacity: 0.5,
     }
   },
 
@@ -241,9 +242,9 @@ const styles = theme => ({
     width: "50%",
   },
   actions: {
-    display:"none",
-    opacity:.5,
-    marginTop:-5,
+    display: "inline-block",
+    opacity: 0,
+    marginTop: -5,
     '&:hover': {
       opacity: 1
     },
