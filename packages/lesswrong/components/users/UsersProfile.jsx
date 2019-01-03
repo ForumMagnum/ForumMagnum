@@ -42,7 +42,7 @@ const UsersProfile = (props) => {
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id }
-    const terms = {view: "userPosts", ...query, userId: user._id};
+    const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
