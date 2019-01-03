@@ -9,7 +9,7 @@ import moment from 'moment';
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af', 'authorIsUnreviewed');
+  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
@@ -31,6 +31,25 @@ Posts.addDefaultView(terms => {
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
+  }
+
+  if (terms.filter === "curated") {
+    params.selector.curatedDate ={$gt: new Date(0)}
+  }
+  if (terms.filter === "frontpage") {
+    params.selector.frontpageDate = {$gt: new Date(0)}
+  }
+  if (terms.filter === "all") {
+    params.selector.groupId = null
+  }
+  if (terms.filter === "questions") {
+    params.selector.question = true
+  }
+  if (terms.filter === "events") {
+    params.selector.isEvent = true
+  }
+  if (terms.filter === "meta") {
+    params.selector.meta = true
   }
   return params;
 })
@@ -80,7 +99,7 @@ const stickiesIndexPrefix = {
 };
 
 
-Posts.addView("magicalSorting", terms => ({
+Posts.addView("magic", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
 ensureIndex(Posts,

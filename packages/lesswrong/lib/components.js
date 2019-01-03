@@ -95,6 +95,7 @@ import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
+import '../components/posts/HomePostsViews.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';

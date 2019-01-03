@@ -1,173 +1,141 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
-import { withRouter, Link } from 'react-router'
-import Icon from '@material-ui/core/Icon';
-import { withStyles } from '@material-ui/core/styles';
-import classnames from 'classnames';
+import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
-import postViewSections from '../../lib/sections.js'
-import withUser from '../common/withUser';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import classNames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
 
-const defaultViews = ["curated", "frontpage"];
-const defaultExpandedViews = ["community"];
 
 const styles = theme => ({
-  categoryIcon: {
-    position: "relative",
-    fontSize: "14px",
-    color: "white",
-    verticalAlign: "middle",
-    bottom: 1,
-    marginRight: 2
+  view: {
+    color: theme.palette.primary.light,
+    fontWeight: 600,
   },
-  
-  helpIcon: {
-    position: "relative",
-    fontSize: "14px",
-    color: "white",
-    top: 2,
-    marginRight: 1,
+  filter: {
+    cursor: "pointer",
+    color: theme.palette.grey[400],
+    '&:hover': {
+      opacity:.7
+    }
   },
-});
-
+  selected: {
+    color: theme.palette.grey[800],
+  },
+})
 
 class PostsViews extends Component {
   constructor(props) {
     super(props);
-    const expandedViews = this.props.expandedViews || defaultExpandedViews;
-    const currentView = this.getCurrentView();
+    const query = props.router.location.query
     this.state = {
-      expanded: !!expandedViews.includes(currentView),
+      anchorEl: null,
+      view: query && query.view || "new",
+      filter: query && query.filter
     }
   }
 
-  handleChange = (view, event) => {
-    const { router } = this.props;
-    const query = { ...router.location.query, view };
-    const location = { pathname: router.location.pathname, query };
-    router.replace(location);
-    this.setState({ view });
-    if (this.props.currentUser && router.location.pathname === "/") {
-      this.props.editMutation({
-        documentId: this.props.currentUser._id,
-        set: {currentFrontpageFilter: view},
-        unset: {}
-      })
+  handleSortClick = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
+
+  setFilter = (filter) => {
+    this.setState({filter:filter})
+    this.handleViewClick(this.state.view, filter)
+  }
+
+  handleViewClick = (view, filter) => {
+    const { router, post } = this.props
+
+    let newState = { anchorEl: null }
+    if (view) {
+      newState.view = view
     }
+    this.setState(newState)
+
+    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'new'}
+
+    let query = {
+      ...currentQuery,
+      view: view || this.state.view,
+      postId: post ? post._id : undefined,
+      filter: filter || this.state.filter
+    }
+    router.replace({...router.location, query: query})
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null })
   }
 
-  getCurrentView = () => {
-    const props = this.props;
-    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
-  }
+  render () {
+    const { currentUser, router, classes } = this.props
+    const { anchorEl, filter } = this.state
 
-  renderMenu = (viewData, view) => {
-    const { classes } = this.props;
+    let views = ['magic', 'new', 'old', 'top', 'unread'];
+    const adminViews = [
+      // 'pending', 'rejected', 'scheduled'
+    ];
+
+    if (Users.canDo(currentUser, 'posts.edit.all')) {
+      views = views.concat(adminViews);
+    }
+    const query = _.clone(router.location.query);
+    const currentView = query && query.view || "new"
+
     return (
-      <div className="view-chip-menu-wrapper">
-        <div className="view-chip-menu">
-          <div className="view-chip-menu-item description">
-            {viewData.categoryIcon && <Icon className={classnames("material-icons", classes.categoryIcon)}>
-              {viewData.categoryIcon}
-            </Icon>}
-            {viewData.description}
-          </div>
-          { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}
-          { viewData.learnMoreLink && <div className="view-chip-menu-item learn-more">
-            <Link to={viewData.learnMoreLink}>
-              <Icon className={classnames("material-icons", classes.helpIcon)}>help</Icon>
-              <span style={{color:"white"}}> Learn More</span>
-            </Link>
-          </div>}
+      <div>
+        sorted by <a className={classes.view} onClick={this.handleSortClick}>{ currentView }</a>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={this.handleClose}
+        >
+          {views.map(view => {
+            return(
+              <MenuItem key={view} onClick={() => this.handleViewClick(view)}>
+                { view }
+              </MenuItem>)})}
+        </Menu>
+        <div> —–––— </div>
+        <div className={classNames(classes.filter, {[classes.selected]:filter==="all"})} onClick={()=>this.setFilter("all")}>
+          All
+        </div>
+        <div className={classNames(classes.filter, {[classes.selected]:filter==="curated"})} onClick={()=>this.setFilter("curated")}>
+          Curated
+        </div>
+        <div className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})} onClick={()=>this.setFilter("frontpage")}>
+          Frontpage
+        </div>
+        <div className={classNames(classes.filter, {[classes.selected]:filter==="questions"})} onClick={()=>this.setFilter("questions")}>
+          Questions
+        </div>
+        <div className={classNames(classes.filter, {[classes.selected]:filter==="events"})} onClick={()=>this.setFilter("events")}>
+          Events
+        </div>
+        <div className={classNames(classes.filter, {[classes.selected]:filter==="meta"})} onClick={()=>this.setFilter("meta")}>
+          Meta
         </div>
       </div>
-    )
-  }
-
-  render() {
-    const props = this.props;
-    const views = props.views || defaultViews;
-    let expandedViews = props.expandedViews || defaultExpandedViews;
-    const currentView = this.getCurrentView();
-    // const adminViews = ["pending", "rejected", "scheduled", "all_drafts"];
-    //
-    // if (Users.canDo(this.props.currentUser, "posts.edit.all")) {
-    //   expandedViews = expandedViews.concat(adminViews);
-    // }
-
-    return (
-      <div className="posts-views">
-        {views.map(view => (
-          <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
-
-            <span className="view-chip" onClick={() => this.handleChange(view)}>
-              <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                {postViewSections[view].label}
-                { this.renderMenu(postViewSections[view], view)}
-              </Components.SectionSubtitle>
-            </span>
-          </div>
-        ))}
-        {(this.state.expanded || this.props.currentUser) ?
-          <span>
-            {expandedViews.map(view => (
-              <div
-                key={view}
-                className={classnames(
-                    "posts-view-button",
-                  {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
-                )}
-              >
-                <span className="view-chip" onClick={() => this.handleChange(view)} >
-                  <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
-                    {postViewSections[view].label}
-                    { this.renderMenu(postViewSections[view])}
-                  </Components.SectionSubtitle>
-                </span>
-              </div>
-            ))}
-            {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
-              <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/meta">Meta</Link> { this.renderMenu(postViewSections["meta"])}
-              </Components.SectionSubtitle></span>
-            </div>}
-            {!props.hideDaily && <span className="view-chip">
-              <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/daily">Daily</Link> { this.renderMenu(postViewSections["daily"])}
-              </Components.SectionSubtitle>
-            </span>}
-          </span> : <span>
-            <div className="view-chip more"
-              onClick={() => this.setState({expanded: true})}>
-              ...
-              { this.renderMenu(postViewSections["more"])}
-            </div>
-          </span>
-        }
-        <br/>
-      </div>
-    )
+    );
   }
 }
 
 PostsViews.propTypes = {
   currentUser: PropTypes.object,
-  defaultView: PropTypes.string
+  defaultView: PropTypes.string,
+};
+
+PostsViews.defaultProps = {
+  defaultView: 'top',
 };
 
 PostsViews.contextTypes = {
   currentRoute: PropTypes.object,
-  intl: intlShape
 };
 
-PostsViews.displayName = "PostsViews";
+PostsViews.displayName = 'PostsViews';
 
-const withEditOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-};
-
-registerComponent('PostsViews', PostsViews, withRouter, withUser, [withEdit, withEditOptions],
-  withStyles(styles, { name: "PostsViews" }));
+registerComponent('PostsViews', PostsViews, withCurrentUser, withRouter, withStyles(styles, {name:"PostsViews"}));
