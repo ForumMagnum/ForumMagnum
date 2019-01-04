@@ -1,4 +1,5 @@
 import Users from 'meteor/vulcan:users';
+import collectionUtils from '../../collectionUtils';
 
 const schema = {
 
@@ -30,7 +31,7 @@ const schema = {
     type: String,
     canRead: Users.owns,
   },
-
+  
   /**
     An optional vote type (for Facebook-style reactions)
   */
@@ -47,8 +48,12 @@ const schema = {
     type: Number,
     optional: true,
     canRead: Users.owns,
+    
+    // Can be inferred from userId+voteType+votedAt (votedAt necessary because
+    // the user's vote power may have changed over time)
+    denormalized: true,
   },
-
+  
   /**
     The vote timestamp
   */

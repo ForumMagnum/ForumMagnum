@@ -1,6 +1,14 @@
 import SimpleSchema from 'simpl-schema';
 
+// canAutofillDefault: Marks a field where, if its value is null, it should
+// be auto-replaced with defaultValue in migration scripts.
 SimpleSchema.extendOptions([ 'canAutofillDefault' ]);
+
+// denormalized: In a schema entry, denormalized:true means that this field can
+// (in principle) be regenerated from other fields. For now, it's a glorified
+// machine-readable comment; in the future, it may have other infrastructure
+// attached.
+SimpleSchema.extendOptions([ 'denormalized' ]);
 
 export let expectedIndexes = {};
 
