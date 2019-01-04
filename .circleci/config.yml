@@ -489,3 +489,13 @@ workflows:
               only: master
           requires:
             - test
+      - hold:
+          type: approval
+          requires:
+            - test
+      - deploy_baserates:
+          filters:
+            branchres:
+              only: devel
+          requires:
+            - hold
