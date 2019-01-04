@@ -45,17 +45,7 @@ const styles = theme => ({
   },
   date: {
     color: "rgba(0,0,0,0.5)",
-    '& a span.format-date': {
-      color: "rgba(0,0,0,0.5)",
-    }
   },
-  answerDate: {
-    color: "rgba(0,0,0,0.5)",
-    '& a span.format-date': {
-      fontFamily: theme.typography.postStyle.fontFamily,
-      color: "rgba(0,0,0,0.5)",
-    }
-  }
 })
 
 class CommentsItem extends Component {

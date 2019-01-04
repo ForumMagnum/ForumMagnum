@@ -91,7 +91,6 @@ class AnswerCommentsList extends PureComponent {
       return <Loading/>
     } else {
       const nestedComments = unflattenComments(results);
-      console.log("answersCommentList", parentAnswerId)
       return (
         <div>
           {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
