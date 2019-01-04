@@ -17,7 +17,13 @@ let ContentType = new SimpleSchema({
       type: String,
     },
     draftJs: {
-      type: String
+      type: String,
+      resolveAs: {
+        type: 'String',
+        resolver: () => {
+          return "draftJS"
+        }
+      }
     },
 })
 
@@ -79,7 +85,6 @@ export const makeEditable = ({collection, options = {}}) => {
               canonicalContent: 'Object',
               html: 'String',
               markdown: 'String',
-              draftJs: 'String',
             }
           }
         }
