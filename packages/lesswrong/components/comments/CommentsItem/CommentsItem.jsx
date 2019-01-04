@@ -11,7 +11,6 @@ import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
-import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
@@ -21,13 +20,13 @@ const styles = theme => ({
     }
   },
   author: {
-    ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
     marginRight: 10
   },
   authorAnswer: {
-    ...postHighlightStyles(theme),
+    ...theme.typography.body2,
+    fontFamily: theme.typography.postStyle.fontFamily,
     fontWeight: 600,
     marginRight: 10,
     '& a, & a:hover': {
@@ -177,7 +176,7 @@ class CommentsItem extends Component {
                     </span>
                     :
                     <span className={classes.authorAnswer}>
-                      <Components.UsersName user={comment.user}/>'s Answer
+                      Answer by <Components.UsersName user={comment.user}/>
                     </span>
                   }
                   </span>
