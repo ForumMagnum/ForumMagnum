@@ -495,7 +495,7 @@ workflows:
             - test
       - deploy_baserates:
           filters:
-            branchres:
+            branches:
               only: devel
           requires:
             - hold
