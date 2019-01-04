@@ -76,7 +76,7 @@ class AnswerCommentsList extends PureComponent {
     const { loadMore, totalCount } = this.props
     if (totalCount > 3) {
       this.setState({loadedMore: true})
-      loadMore({limit: 10000})  
+      loadMore({limit: 10000})
     }
   }
 
@@ -91,6 +91,7 @@ class AnswerCommentsList extends PureComponent {
       return <Loading/>
     } else {
       const nestedComments = unflattenComments(results);
+      console.log("answersCommentList", parentAnswerId)
       return (
         <div>
           {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
@@ -108,7 +109,6 @@ class AnswerCommentsList extends PureComponent {
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
-                  parentAnswerId={parentAnswerId._id}
                 />
               </div>
             }

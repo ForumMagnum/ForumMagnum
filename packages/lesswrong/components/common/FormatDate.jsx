@@ -14,9 +14,9 @@ const ExpandedDate = withTimezone(
 const FormatDate = ({date, timezone, format}) => {
   return <Tooltip title={<ExpandedDate date={date}/>}>
     {format ?
-      <span>{moment(new Date(date)).format(format)}</span>
+      <span className="format-date">{moment(new Date(date)).format(format)}</span>
       :
-      <span>{moment(new Date(date)).fromNow()}</span>
+      <span className="from-now-date">{moment(new Date(date)).fromNow()}</span>
     }
   </Tooltip>
 };

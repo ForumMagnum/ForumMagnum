@@ -11,7 +11,7 @@ import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
-import { commentBodyStyles } from '../../../themes/stylePiping'
+import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
@@ -20,13 +20,20 @@ const styles = theme => ({
       opacity:1
     }
   },
-  commentStyling: {
-    ...commentBodyStyles(theme)
-  },
   author: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
+    marginRight: 10
+  },
+  authorAnswer: {
+    ...postHighlightStyles(theme),
+    fontWeight: 600,
+    marginRight: 10,
+    '& a, & a:hover': {
+      textShadow:"none",
+      backgroundImage: "none"
+    }
   },
   postTitle: {
     marginRight: 5,
@@ -36,6 +43,19 @@ const styles = theme => ({
     opacity:.35,
     marginRight:-5
   },
+  date: {
+    color: "rgba(0,0,0,0.5)",
+    '& a span.format-date': {
+      color: "rgba(0,0,0,0.5)",
+    }
+  },
+  answerDate: {
+    color: "rgba(0,0,0,0.5)",
+    '& a span.format-date': {
+      fontFamily: theme.typography.postStyle.fontFamily,
+      color: "rgba(0,0,0,0.5)",
+    }
+  }
 })
 
 class CommentsItem extends Component {
@@ -161,12 +181,21 @@ class CommentsItem extends Component {
               }
               { comment.deleted || comment.hideAuthor || !comment.user ?
                 ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                <span className={classes.author}> <Components.UsersName user={comment.user}/> </span>
+                  <span>
+                  {!comment.answer ? <span className={classes.author}>
+                      <Components.UsersName user={comment.user}/>
+                    </span>
+                    :
+                    <span className={classes.authorAnswer}>
+                      <Components.UsersName user={comment.user}/>'s Answer
+                    </span>
+                  }
+                  </span>
               }
-              <div className="comments-item-date">
+              <div className={comment.answer ? classes.answerDate : classes.date}>
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <Components.FormatDate date={comment.postedAt}/>
+                    <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
