@@ -560,6 +560,15 @@ registerFragment(`
   }
 `);
 
+
+registerFragment(`
+  fragment VoteFragment on Vote {
+    _id
+    voteType
+    power
+  }
+`);
+
 registerFragment(`
   fragment WithVotePost on Post {
     __typename

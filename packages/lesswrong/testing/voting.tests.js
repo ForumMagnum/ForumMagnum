@@ -1,7 +1,9 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { batchUpdateScore, recalculateScore, performVoteServer } from 'meteor/vulcan:voting';
+import { recalculateScore } from '../lib/modules/scoring.js';
+import { performVoteServer } from '../lib/modules/vote.js';
+import { batchUpdateScore } from '../server/updateScores.js';
 
 import {
   createDummyUser,

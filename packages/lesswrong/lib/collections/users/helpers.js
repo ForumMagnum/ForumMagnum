@@ -1,7 +1,7 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
 import { getSetting } from 'meteor/vulcan:core';
-import { Votes } from "meteor/vulcan:voting";
+import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
 
