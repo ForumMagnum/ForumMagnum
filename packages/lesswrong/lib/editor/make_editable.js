@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users'
-import { Utils } from 'meteor/vulcan:core'
+import { Utils, GraphQLSchema } from 'meteor/vulcan:core'
 import SimpleSchema from 'simpl-schema'
 
 let ContentType = new SimpleSchema({
@@ -21,19 +21,6 @@ let ContentType = new SimpleSchema({
     },
 })
 
-Posts.addField([
-    {
-        fieldName: 'fieldWithSubschema',
-        resolveAs: {
-          type: ContentType,
-          name: "contentField", 
-          resolver: () => {
-
-          }
-        }
-    }
-])
-
 
 const defaultOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -51,6 +38,17 @@ const defaultOptions = {
   order: 0,
   enableMarkDownEditor: true
 }
+
+const customSchema = `
+  type ContentType {
+    canonicalContentType: String
+    canonicalContent: JSON
+    html: String
+    markdown: String
+    draftJs: String
+  }
+`;
+GraphQLSchema.addSchema(customSchema);
 
 export const makeEditable = ({collection, options = {}}) => {
   options = {...defaultOptions, ...options}
@@ -72,8 +70,18 @@ export const makeEditable = ({collection, options = {}}) => {
       fieldName: 'testField',
       fieldSchema: {
         type: ContentType,
+        optional: true,
         resolveAs: {
-          
+          type: 'ContentType',
+          resolver: (document, args, context) => {
+            return {
+              canonicalContentType: 'String',
+              canonicalContent: 'Object',
+              html: 'String',
+              markdown: 'String',
+              draftJs: 'String',
+            }
+          }
         }
       }
     },
