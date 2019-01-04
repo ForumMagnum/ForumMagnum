@@ -27,7 +27,6 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    console.log("asdf")
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
