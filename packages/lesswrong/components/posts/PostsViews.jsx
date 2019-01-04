@@ -15,15 +15,15 @@ const styles = theme => ({
     fontWeight: 600,
   },
   filter: {
-    cursor: "pointer",
     color: theme.palette.grey[400],
-    '&:hover': {
-      opacity:.7
-    }
   },
   selected: {
     color: theme.palette.grey[800],
   },
+  divider: {
+    margin: "10px 0 10px 80%",
+    borderBottom: "solid 1px rgba(0,0,0,.2)"
+  }
 })
 
 class PostsViews extends Component {
@@ -33,7 +33,7 @@ class PostsViews extends Component {
     this.state = {
       anchorEl: null,
       view: query && query.view || "new",
-      filter: query && query.filter
+      filter: query && query.filter || "all"
     }
   }
 
@@ -61,7 +61,7 @@ class PostsViews extends Component {
       ...currentQuery,
       view: view || this.state.view,
       postId: post ? post._id : undefined,
-      filter: filter || this.state.filter
+      filter: filter || this.state.filter || "all",
     }
     router.replace({...router.location, query: query})
   };
@@ -74,7 +74,9 @@ class PostsViews extends Component {
     const { currentUser, router, classes } = this.props
     const { anchorEl, filter } = this.state
 
-    let views = ['magic', 'new', 'old', 'top', 'unread'];
+    const { SectionSubtitle } = Components
+
+    let views = ['magic', 'new', 'old', 'top', 'recentComments'];
     const adminViews = [
       // 'pending', 'rejected', 'scheduled'
     ];
@@ -87,37 +89,39 @@ class PostsViews extends Component {
 
     return (
       <div>
-        sorted by <a className={classes.view} onClick={this.handleSortClick}>{ currentView }</a>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={this.handleClose}
-        >
-          {views.map(view => {
-            return(
-              <MenuItem key={view} onClick={() => this.handleViewClick(view)}>
-                { view }
-              </MenuItem>)})}
-        </Menu>
-        <div> —–––— </div>
-        <div className={classNames(classes.filter, {[classes.selected]:filter==="all"})} onClick={()=>this.setFilter("all")}>
-          All
-        </div>
-        <div className={classNames(classes.filter, {[classes.selected]:filter==="curated"})} onClick={()=>this.setFilter("curated")}>
+        <SectionSubtitle>
+          sorted by <a className={classes.view} onClick={this.handleSortClick}>{ currentView }</a>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={this.handleClose}
+          >
+            {views.map(view => {
+              return(
+                <MenuItem key={view} onClick={() => this.handleViewClick(view)}>
+                  { view }
+                </MenuItem>)})}
+          </Menu>
+        </SectionSubtitle>
+        <div className={classes.divider}/>
+        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})} onClick={()=>this.setFilter("curated")}>
           Curated
-        </div>
-        <div className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})} onClick={()=>this.setFilter("frontpage")}>
+        </SectionSubtitle>
+        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})} onClick={()=>this.setFilter("frontpage")}>
           Frontpage
-        </div>
-        <div className={classNames(classes.filter, {[classes.selected]:filter==="questions"})} onClick={()=>this.setFilter("questions")}>
+        </SectionSubtitle>
+        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="questions"})} onClick={()=>this.setFilter("questions")}>
           Questions
-        </div>
-        <div className={classNames(classes.filter, {[classes.selected]:filter==="events"})} onClick={()=>this.setFilter("events")}>
+        </SectionSubtitle>
+        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="events"})} onClick={()=>this.setFilter("events")}>
           Events
-        </div>
-        <div className={classNames(classes.filter, {[classes.selected]:filter==="meta"})} onClick={()=>this.setFilter("meta")}>
+        </SectionSubtitle>
+        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="meta"})} onClick={()=>this.setFilter("meta")}>
           Meta
-        </div>
+        </SectionSubtitle>
+        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})} onClick={()=>this.setFilter("all")}>
+          All
+        </SectionSubtitle>
       </div>
     );
   }

@@ -161,6 +161,10 @@ ensureIndex(Posts,
   }
 );
 
+Posts.addView("recentComments", terms => ({
+  options: {sort: {lastCommentedAt:-1}}
+}))
+
 
 Posts.addView("old", terms => ({
   options: {sort: setStickies({postedAt: 1}, terms)}

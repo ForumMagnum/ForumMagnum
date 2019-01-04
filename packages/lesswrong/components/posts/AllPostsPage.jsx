@@ -7,7 +7,6 @@ const styles = theme => ({
   titleSettings: {
     marginTop: 10,
     width: 150,
-
     [theme.breakpoints.up('md')]: {
       float: "right"
     }
@@ -35,21 +34,28 @@ class AllPostsPage extends Component {
 
   renderTitle = () => {
     const { classes } = this.props;
-    return <div className={classes.titleSettings}>
-      <Checkbox
-        classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
-        checked={this.state.hideLowKarma}
-        onChange={(event, checked) => this.setState({hideLowKarma: checked})}
-      />
-      <span className={classes.checkboxLabel}>
-        Hide Low Karma
-      </span>
+    return <div>
+      <Components.PostsViews defaultView="community" hideDaily={true}/>
+      <div className={classes.titleSettings}>
+        <Checkbox
+          classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
+          checked={this.state.hideLowKarma}
+          onChange={(event, checked) => this.setState({hideLowKarma: checked})}
+        />
+        <span className={classes.checkboxLabel}>
+          Hide Low Karma
+        </span>
+      </div>
     </div>
   }
 
   render() {
+
+    const query = _.clone(this.props.router.location.query || {});
+
     const terms = {
       view:"new",
+      ...query,
       karmaThreshold: this.state.hideLowKarma ? -10 : -100,
       limit:100
     }
