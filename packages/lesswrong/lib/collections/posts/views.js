@@ -27,6 +27,8 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
+    console.log("asdf")
+    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
   if (terms.userId) {
@@ -172,9 +174,6 @@ Posts.addView("old", terms => ({
 // Covered by the same index as `new`
 
 Posts.addView("daily", terms => ({
-  selector: {
-    baseScore: {$gt: terms.karmaThreshold || -100}
-  },
   options: {
     sort: {score: -1}
   }

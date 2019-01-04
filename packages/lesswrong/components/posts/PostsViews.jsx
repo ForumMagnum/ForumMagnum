@@ -23,6 +23,10 @@ const styles = theme => ({
   divider: {
     margin: "10px 0 10px 80%",
     borderBottom: "solid 1px rgba(0,0,0,.2)"
+  },
+  bottomDivider: {
+    margin: "10px 0 10px 85%",
+    borderBottom: "solid 1px rgba(0,0,0,.15)"
   }
 })
 
@@ -104,24 +108,36 @@ class PostsViews extends Component {
           </Menu>
         </SectionSubtitle>
         <div className={classes.divider}/>
-        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})} onClick={()=>this.setFilter("curated")}>
-          Curated
-        </SectionSubtitle>
-        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})} onClick={()=>this.setFilter("frontpage")}>
-          Frontpage
-        </SectionSubtitle>
-        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="questions"})} onClick={()=>this.setFilter("questions")}>
-          Questions
-        </SectionSubtitle>
-        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="events"})} onClick={()=>this.setFilter("events")}>
-          Events
-        </SectionSubtitle>
-        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="meta"})} onClick={()=>this.setFilter("meta")}>
-          Meta
-        </SectionSubtitle>
-        <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})} onClick={()=>this.setFilter("all")}>
-          All
-        </SectionSubtitle>
+        <div onClick={()=>this.setFilter("curated")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})}>
+            Curated
+          </SectionSubtitle>
+        </div>
+        <div onClick={()=>this.setFilter("frontpage")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})}>
+            Frontpage
+          </SectionSubtitle>
+        </div>
+        <div onClick={()=>this.setFilter("questions")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="questions"})}>
+            Questions
+          </SectionSubtitle>
+        </div>
+        <div onClick={()=>this.setFilter("events")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="events"})}>
+            Events
+          </SectionSubtitle>
+        </div>
+        <div onClick={()=>this.setFilter("meta")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="meta"})}>
+            Meta
+          </SectionSubtitle>
+        </div>
+        <div onClick={()=>this.setFilter("all")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})}>
+            All
+          </SectionSubtitle>
+        </div>
       </div>
     );
   }
