@@ -26,8 +26,6 @@ addStrings('en', {
   'posts.top': 'Top',
   'posts.new': 'New',
   'posts.best': 'Best',
-  'posts.old': 'Old',
-  'posts.unread': 'Unread',
   'posts.pending': 'Pending',
   'posts.rejected': 'Rejected',
   'posts.scheduled': 'Scheduled',
