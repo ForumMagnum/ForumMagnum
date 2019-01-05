@@ -716,7 +716,10 @@ Users.addField([
       resolveAs: {
         type: '[Vote]',
         resolver: async (document, args, { Users, Votes, currentUser }) => {
-          const votes = await Votes.find({ userId: document._id }).fetch();
+          const votes = await Votes.find({
+            userId: document._id,
+            cancelled: false,
+          }).fetch();
           if (!votes.length) return [];
           return Users.restrictViewableFields(currentUser, Votes, votes);
         },

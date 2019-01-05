@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import collectionUtils from '../../collectionUtils';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
 
@@ -63,6 +63,16 @@ const schema = {
     denormalized: true,
   },
   
+  /**
+    Whether this vote has been cancelled (by switching to a different vote
+    type).
+  */
+  cancelled: {
+    type: Boolean,
+    canRead: ['guests'],
+    ...schemaDefaultValue(false),
+  },
+
   /**
     The vote timestamp
   */

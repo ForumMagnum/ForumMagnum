@@ -250,7 +250,11 @@ Users.getAggregateKarma = async (user) => {
   const documentIds = [...posts, ...comments]
 
   return await Votes.rawCollection().aggregate([
-    {$match: {documentId: {$in:documentIds}, userId: {$ne: user._id}}},
+    {$match: {
+      documentId: {$in:documentIds},
+      userId: {$ne: user._id},
+      cancelled: false
+    }},
     {$group: { _id: null, totalPower: { $sum: '$power' }}},
   ]).toArray()[0].totalPower;
 }
