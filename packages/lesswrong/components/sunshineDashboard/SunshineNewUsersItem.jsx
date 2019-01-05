@@ -48,11 +48,11 @@ class SunshineNewUsersItem extends Component {
   render () {
     const { user, hover, anchorEl, classes } = this.props
 
-    const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate } = Components
+    const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
 
     return (
         <SunshineListItem hover={hover}>
-          <SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+          <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
               <Link to={Users.getProfileUrl(user)}>
                 { user.displayName }
@@ -66,6 +66,9 @@ class SunshineNewUsersItem extends Component {
                 <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+
+                <SunshineNewUserPostsList terms={{userId: user._id, authorIsUnreviewed:true}}/>
+                <SunshineNewUserCommentsList terms={{userId: user._id}}/>
               </MetaInfo>
             </Typography>
           </SidebarHoverOver>
