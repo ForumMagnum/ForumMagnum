@@ -133,3 +133,8 @@ addStrings('en', {
   "alignment.suggest_comment": "Comment has been suggested for the AI Alignment Forum",
   "alignment.unsuggest_comment": "You are no longer suggesting this comment for AI Alignment Forum",
 })
+
+addStrings('en', {
+  "questions.comments.moved_to_answers": "Comment moved to the Answers section.",
+  "questions.comments.moved_to_comments": "Answer moved to the Comments section.",
+})
