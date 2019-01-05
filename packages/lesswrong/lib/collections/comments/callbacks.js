@@ -313,9 +313,9 @@ addCallback("comments.edit.sync", validateDeleteOperations)
 async function moveToAnswers (modifier, comment) {
   if (modifier.$set) {
     if (modifier.$set.answer === true) {
-      await Comments.update({parentCommentId: comment._id}, {$set:{parentAnswerId:comment._id}})
+      await Comments.update({topLevelCommentId: comment._id}, {$set:{parentAnswerId:comment._id}}, { multi: true })
     } else if (modifier.$set.answer === false) {
-      await Comments.update({parentCommentId: comment._id}, {$unset:{parentAnswerId:true}})
+      await Comments.update({topLevelCommentId: comment._id}, {$unset:{parentAnswerId:true}}, { multi: true })
     }
   }
   return modifier
