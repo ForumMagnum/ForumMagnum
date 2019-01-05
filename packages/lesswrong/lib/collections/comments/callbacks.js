@@ -276,19 +276,19 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
       if (deletedPublic && !deleted) {
         throw new Error("You cannot publicly delete a comment without also deleting it")
       }
-  
+
       if (deletedPublic && !deletedReason) {
         throw new Error("Publicly deleted comments need to have a deletion reason");
-      } 
-  
+      }
+
       if (
-        (comment.deleted || comment.deletedPublic) && 
-        (deletedPublic || deletedReason) && 
-        !Users.canDo('comments.remove.all') && 
+        (comment.deleted || comment.deletedPublic) &&
+        (deletedPublic || deletedReason) &&
+        !Users.canDo('comments.remove.all') &&
         comment.deletedByUserId !== currentUser._id) {
           throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
       }
-  
+
       if (deletedReason && !deleted && !deletedPublic) {
         throw new Error("You cannot set a deleted reason without deleting a comment")
       }
@@ -296,9 +296,9 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
       const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch()
       const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
       if (
-        filteredChildrenComments && 
-        (filteredChildrenComments.length > 0) && 
-        (deletedPublic || deleted) && 
+        filteredChildrenComments &&
+        (filteredChildrenComments.length > 0) &&
+        (deletedPublic || deleted) &&
         !Users.canDo('comment.remove.all')
       ) {
         throw new Error("You cannot delete a comment that has children")
@@ -309,3 +309,16 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
 }
 
 addCallback("comments.edit.sync", validateDeleteOperations)
+
+async function moveToAnswers (modifier, comment) {
+  if (modifier.$set) {
+    if (modifier.$set.answer === true) {
+      await Comments.update({parentCommentId: comment._id}, {$set:{parentAnswerId:comment._id}})
+    } else if (modifier.$set.answer === false) {
+      await Comments.update({parentCommentId: comment._id}, {$unset:{parentAnswerId:true}})
+    }
+  }
+  return modifier
+}
+
+addCallback("comments.edit.sync", moveToAnswers)
