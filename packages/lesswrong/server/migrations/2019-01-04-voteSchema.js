@@ -1,12 +1,13 @@
 import { Votes } from '../../lib/collections/votes';
-import { registerMigration, migrateDocuments } from './migrationUtils';
+import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
 import { Collections } from 'meteor/vulcan:core';
 
 registerMigration({
   name: "migrateVotes",
   idempotent: true,
-  action: () => {
-    migrateDocuments({
+  action: async () => {
+  
+    await migrateDocuments({
       description: "Fill in authorId field",
       collection: Votes,
       batchSize: 100,
@@ -49,12 +50,17 @@ registerMigration({
               }
             };
           });
-          let bulkWriteResult = await Votes.rawCollection().bulkWrite(
+          await Votes.rawCollection().bulkWrite(
             updates,
             { ordered: false }
           );
         }
       },
+    });
+    
+    await fillDefaultValues({
+      collection: Votes,
+      fieldName: "cancelled",
     });
   },
 });
