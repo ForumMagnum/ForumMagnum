@@ -75,7 +75,7 @@ class NewQuestionDialog extends PureComponent {
         <DialogContent>
           <Components.SmartForm
             collection={Posts}
-            fields={['title', 'content', 'question', 'draft']}
+            fields={['title', 'content', 'body', 'question', 'draft']}
             mutationFragment={getFragment('PostsList')}
             prefilledProps={{
               userId: currentUser._id,
