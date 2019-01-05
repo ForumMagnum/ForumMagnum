@@ -53,7 +53,7 @@ export function registerMigration({ name, idempotent, action })
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export function migrateDocuments({ description, collection, batchSize=50, unmigratedDocumentQuery, migrate })
+export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate })
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
@@ -82,7 +82,11 @@ export function migrateDocuments({ description, collection, batchSize=50, unmigr
     // migrated by the previous batch's update operation.
     let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
     if (docsNotMigrated.length > 0) {
-      throw new Error(`Documents not updated in migrateDocuments: ${_.keys(docsNotMigrated).join(",")}`);
+      let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
+      
+      // eslint-disable-next-line no-console
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
     
     previousDocumentIds = {};
@@ -90,7 +94,7 @@ export function migrateDocuments({ description, collection, batchSize=50, unmigr
     
     // Migrate documents in the batch
     try {
-      migrate(documents);
+      await migrate(documents);
       
       documentsAffected += documents.length;
     } catch(e) {

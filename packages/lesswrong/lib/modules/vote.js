@@ -212,6 +212,9 @@ Create new vote object
 */
 const createVote = ({ document, collectionName, voteType, user, voteId }) => {
 
+  if (!document.userId)
+    throw new Error("Voted-on document does not have an author userId?");
+  
   const vote = {
     documentId: document._id,
     collectionName,
@@ -219,6 +222,7 @@ const createVote = ({ document, collectionName, voteType, user, voteId }) => {
     voteType: voteType,
     power: getVotePower({user, voteType, document}),
     votedAt: new Date(),
+    authorId: document.userId,
     __typename: 'Vote'
   }
 
