@@ -70,6 +70,7 @@ import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
 import '../components/users/LoginPopupLink.jsx';
+import '../components/users/AccountsResetPassword.jsx';
 
 // posts
 
