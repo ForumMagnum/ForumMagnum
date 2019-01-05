@@ -198,6 +198,8 @@ import '../components/sunshineDashboard/AFSuggestPostsItem.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsList.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersItem.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersList.jsx';
+import '../components/sunshineDashboard/SunshineNewUserPostsList.jsx';
+import '../components/sunshineDashboard/SunshineNewUserCommentsList.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersItem.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
