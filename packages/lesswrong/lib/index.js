@@ -97,6 +97,9 @@ import './collections/posts/custom_fields.js';
 import './collections/posts/views.js';
 import './collections/posts/permissions.js';
 import './collections/posts/helpers.js';
+
+// Revisions
+import Revisions from './collections/revisions/collection.js'
 //
 // Users
 import './collections/users/helpers.js';
@@ -171,5 +174,6 @@ export {
   Localgroups,
   generateIdResolverMulti,
   generateIdResolverSingle,
-  Comments
+  Comments,
+  Revisions
 }

@@ -2,30 +2,6 @@ import Users from 'meteor/vulcan:users'
 import { Utils, GraphQLSchema } from 'meteor/vulcan:core'
 import SimpleSchema from 'simpl-schema'
 
-let ContentType = new SimpleSchema({
-    canonicalContentType: {
-      type: String,
-    },
-    canonicalContent: {
-      type: Object,
-      blackbox: true, 
-    },
-    html: {
-      type: String,
-    },
-    markdown: {
-      type: String,
-    },
-    draftJs: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: () => {
-          return "draftJS"
-        }
-      }
-    },
-})
 
 
 const defaultOptions = {
@@ -45,16 +21,6 @@ const defaultOptions = {
   enableMarkDownEditor: true
 }
 
-const customSchema = `
-  type ContentType {
-    canonicalContentType: String
-    canonicalContent: JSON
-    html: String
-    markdown: String
-    draftJs: String
-  }
-`;
-GraphQLSchema.addSchema(customSchema);
 
 export const makeEditable = ({collection, options = {}}) => {
   options = {...defaultOptions, ...options}
@@ -71,26 +37,6 @@ export const makeEditable = ({collection, options = {}}) => {
   } = options
 
   collection.addField([
-    // LESSWRONG: TEST STUFF, DO NOT COMMIT
-    {
-      fieldName: 'testField',
-      fieldSchema: {
-        type: ContentType,
-        optional: true,
-        resolveAs: {
-          type: 'ContentType',
-          resolver: (document, args, context) => {
-            return {
-              canonicalContentType: 'String',
-              canonicalContent: 'Object',
-              html: 'String',
-              markdown: 'String',
-            }
-          }
-        }
-      }
-    },
-
     /**
       Draft-js content
     */

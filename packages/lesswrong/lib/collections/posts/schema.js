@@ -12,6 +12,7 @@ import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
+
 /**
  * @summary Posts config namespace
  * @type {Object}
@@ -499,8 +500,14 @@ const schema = {
         return args.revisionId || "0"
       }
     }
-  }
+  },
 
+  // LESSWRONG: TEST STUFF, DO NOT COMMIT
+  revisionField: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+  },
 };
 
 export default schema;

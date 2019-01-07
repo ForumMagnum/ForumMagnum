@@ -117,6 +117,8 @@ class ModerationGuidelinesBox extends PureComponent {
   render() {
     const { document, classes, currentUser } = this.props;
     const { open } = this.state
+    if (!document) return null
+    
     const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
     const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
     return (

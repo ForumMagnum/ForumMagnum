@@ -279,6 +279,7 @@ registerFragment(`
     moderationGuidelinesContent
     moderationGuidelinesBody
     moderationStyle
+    revisionField
   }
 `);
 
