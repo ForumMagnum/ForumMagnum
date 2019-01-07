@@ -157,11 +157,22 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     cancelled: false,
   });
   if (votes.length) {
+    // Cancel all the existing votes
     await Connectors.update(Votes,
       {documentId: document._id, userId: user._id},
       {$set: {cancelled: true}},
       {}, true);
     votes.forEach((vote)=> {
+      // Create an un-vote for each of the existing votes
+      const unvote = {
+        ...vote,
+        cancelled: true,
+        isUnvote: true,
+        votedAt: new Date(),
+      };
+      delete unvote["_id"];
+      Connectors.create(Votes, unvote);
+      
       runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
       runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
     })
@@ -188,6 +199,16 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     voteType,
     cancelled: false,
   })
+  
+  const unvote = {
+    ...vote,
+    cancelled: true,
+    isUnvote: true,
+    votedAt: new Date(),
+  };
+  delete unvote["_id"];
+  Connectors.create(Votes, unvote);
+  
   // Set the cancelled field on the vote object to true
   await Connectors.update(Votes,
     {_id: vote._id},

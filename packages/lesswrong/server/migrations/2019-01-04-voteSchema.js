@@ -62,5 +62,9 @@ registerMigration({
       collection: Votes,
       fieldName: "cancelled",
     });
+    await fillDefaultValues({
+      collection: Votes,
+      fieldName: "isUnvote",
+    });
   },
 });
