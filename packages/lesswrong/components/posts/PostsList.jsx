@@ -1,4 +1,4 @@
-import { Components, registerComponent, withList, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMulti, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
@@ -40,9 +40,8 @@ const PostsList = ({
   //         Alternatively, is there a better way of checking that this is
   //         in fact the best way of checking loading status?
   const loadingMore = networkStatus === 2 || networkStatus === 1;
-
+  console.log(loading, networkStatus)
   const { Loading } = Components
-
   const renderContent = () => {
     if (results && results.length) {
       return <div>
@@ -60,8 +59,8 @@ const PostsList = ({
     }
   }
   return (
-    <div className={classNames(className, 'posts-list', {[classes.loading]: loading})}>
-      {loading && <Loading/> }
+    <div className={classNames(className, 'posts-list', {[classes.loading]: loadingMore})}>
+      {loadingMore && <Loading/> }
       {showHeader ? <Components.PostsListHeader/> : null}
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
       <div className="posts-list-content">
@@ -98,4 +97,4 @@ const options = {
   ssr: true
 };
 
-registerComponent('PostsList', PostsList, withUser, [withList, options], withStyles(styles, {name:"PostsList"}));
+registerComponent('PostsList', PostsList, withUser, [withMulti, options], withStyles(styles, {name:"PostsList"}));

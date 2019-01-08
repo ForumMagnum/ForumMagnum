@@ -132,8 +132,8 @@ class CommentsNode extends Component {
   toggleHover = () => {
     this.setState({hover: !this.state.hover});
   }
-  
-  
+
+
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
@@ -141,14 +141,14 @@ class CommentsNode extends Component {
       return true;
     if (this.commentTreesDiffer(this.props.children, nextProps.children))
       return true;
-    
+
     return false;
   }
-  
+
   commentTreesDiffer(oldComments, newComments) {
-    if(oldComments===null && newComments!==null) return true;
-    if(oldComments!==null && newComments===null) return true;
-    if(newComments===null) return false;
+    if(!oldComments && newComments) return true;
+    if(oldComments && !newComments) return true;
+    if(!newComments) return false;
 
     if(oldComments.length != newComments.length)
       return true;
