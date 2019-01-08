@@ -28,6 +28,7 @@ import './server/scripts/localgroupsEditCallbacks.js';
 import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
+import './server/scripts/exportPostDetails.js';
 // EA Forum Invites
 import './server/scripts/eafIBetaInvites.js';
 import './lib/modules/accounts/configuration.js';
