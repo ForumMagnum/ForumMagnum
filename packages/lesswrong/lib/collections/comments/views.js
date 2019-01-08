@@ -10,7 +10,7 @@ Comments.addDefaultView(terms => {
   const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
   return ({
     selector: {
-      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: true}],
+      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,
