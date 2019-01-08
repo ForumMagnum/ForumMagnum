@@ -127,7 +127,6 @@ function AddReferrerToComment(comment, properties)
 {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
-    let origin = properties.context.headers["origin"];
     let userAgent = properties.context.headers["user-agent"];
     
     return {
