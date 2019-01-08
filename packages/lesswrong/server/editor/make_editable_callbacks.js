@@ -10,7 +10,7 @@ turndownService.remove('style') // Make sure we don't add the content of style t
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'
 import markdownItContainer from 'markdown-it-container'
-var mdi = markdownIt()
+const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 import { addCallback } from 'meteor/vulcan:core';
@@ -75,6 +75,8 @@ export const htmlToMarkdown = (html) => {
 
 const convertFromHTML = (html, sanitize, fieldName = "") => {
   const body = htmlToMarkdown(html)
+  // TODO; figure out how to have autolinking here
+  // One question is when is sanitize true / false
   const htmlBody = sanitize ? Utils.sanitize(html) : html
   return {
     [camel(`${fieldName}HtmlBody`)]: htmlBody,
