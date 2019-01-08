@@ -123,6 +123,22 @@ addCallback('comments.remove.async', CommentsRemoveChildrenComments);
 // other                                            //
 //////////////////////////////////////////////////////
 
+function AddReferrerToComment(comment, properties)
+{
+  if (properties && properties.context && properties.context.headers) {
+    let referrer = properties.context.headers["referer"];
+    let userAgent = properties.context.headers["user-agent"];
+    
+    return {
+      ...comment,
+      referrer: referrer,
+      userAgent: userAgent,
+    };
+  }
+}
+addCallback("comment.create.before", AddReferrerToComment);
+
+
 function UsersRemoveDeleteComments (user, options) {
   if (options.deleteComments) {
     Comments.remove({userId: user._id});
