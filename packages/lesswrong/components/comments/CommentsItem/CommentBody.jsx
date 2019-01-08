@@ -21,7 +21,8 @@ const styles = theme => ({
     '& .read-more a, & .read-more a:hover': {
       textShadow:"none",
       backgroundImage: "none"
-    }
+    },
+    marginBottom: ".5em"
   },
   root: {
     position: "relative",

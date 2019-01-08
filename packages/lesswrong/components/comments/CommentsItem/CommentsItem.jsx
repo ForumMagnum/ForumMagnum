@@ -278,10 +278,10 @@ class CommentsItem extends Component {
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
             af:Comments.defaultToAlignment(currentUser, post, comment),
-            parentAnswerId: parentAnswerId
+            parentCommentId: comment._id,
+            parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"
-          parentAnswerId={parentAnswerId}
         />
       </div>
     )
