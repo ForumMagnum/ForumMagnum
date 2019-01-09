@@ -239,7 +239,7 @@ Posts.addView("curated-rss", terms => ({
 Posts.addView("community", terms => ({
   selector: {
     frontpageDatgroupId: { $exists: false },
-    isEvent: null,
+    isEvent: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
