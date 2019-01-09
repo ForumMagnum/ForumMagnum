@@ -41,7 +41,7 @@ const PostsList = ({
   //         Alternatively, is there a better way of checking that this is
   //         in fact the best way of checking loading status?
   const loadingMore = networkStatus === 2 || networkStatus === 1;
-  const { Loading } = Components
+  // const { Loading } = Components
   const renderContent = () => {
     if (results && results.length) {
       return <div>
