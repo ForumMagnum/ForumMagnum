@@ -5,9 +5,9 @@ import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
+import Portal from '@material-ui/core/Portal';
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 import { withRouter } from 'react-router'
-import ReactDOM from 'react-dom';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const VirtualMenu = connectMenu(() => null);
@@ -190,11 +190,9 @@ class SearchBar extends Component {
             <Icon className={classes.closeSearchIcon}>close</Icon>
           </div>}
           <div>
-            { searchOpen && ReactDOM.createPortal(
-                <Components.SearchBarResults closeSearch={this.closeSearch} />,
-                searchResultsArea.current
-              )
-            }
+            { searchOpen && <Portal container={searchResultsArea.current}>
+                <Components.SearchBarResults closeSearch={this.closeSearch} />
+              </Portal> }
           </div>
         </div>
       </InstantSearch>
