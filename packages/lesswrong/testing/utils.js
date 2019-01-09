@@ -39,7 +39,7 @@ export const catchGraphQLErrors = function(before, after) {
       this.errors = [];
       this.errorsRetrieved = false;
     }
-    
+
     getErrors() {
       this.errorsRetrieved = true;
       return this.errors;
@@ -67,9 +67,9 @@ export const catchGraphQLErrors = function(before, after) {
       }
     }
   }
-  
+
   let errorCatcher = new ErrorCatcher();
-  
+
   (before ? before : beforeEach)(() => {
     setOnGraphQLError((errors) => {
       errorCatcher.addError(errors);
@@ -79,7 +79,7 @@ export const catchGraphQLErrors = function(before, after) {
     errorCatcher.cleanup();
     setOnGraphQLError(null);
   });
-  
+
   return errorCatcher;
 };
 
@@ -107,11 +107,11 @@ const isPermissionsFlavoredError = (error) => {
   if (!error) {
     return false;
   }
-  
+
   if ("app.validation_error" in error) {
     return true;
   }
-  
+
   if (!error.message) return false;
   let errorData = null;
   try {
@@ -166,7 +166,8 @@ export const createDummyUser = async (data) => {
   const testUsername = Random.id()
   const defaultData = {
     username: testUsername,
-    email: testUsername + "@test.lesserwrong.com"
+    email: testUsername + "@test.lesserwrong.com",
+    reviewedByUserId: "fakeuserid" // TODO: make this user_id correspond to something real that would hold up if we had proper validation
   }
   const userData = {...defaultData, ...data};
   const newUserResponse = await newMutation({
@@ -246,7 +247,7 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
     newValue = Random.id()
   }
   const newValueJson = JSON.stringify(newValue);
-  
+
   const query = `
     mutation {
       update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueJson}}) {

@@ -82,6 +82,7 @@ const styles = theme => ({
     },
     '&:hover $actions': {
       display: "inline-block",
+      opacity: 0.5,
     }
   },
 
@@ -241,9 +242,9 @@ const styles = theme => ({
     width: "50%",
   },
   actions: {
-    display:"none",
-    opacity:.5,
-    marginTop:-5,
+    display: "inline-block",
+    opacity: 0,
+    marginTop: -5,
     '&:hover': {
       opacity: 1
     },
@@ -282,22 +283,22 @@ class PostsItem extends Component {
     this.setState({showHighlight: !this.state.showHighlight});
     this.setState({showNewComments: false});
   }
-  
+
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState)) {
       return true;
     }
-    
+
     // Deep compare rather than shallow compare 'terms', because it gets reconstructed but is simple
     if (!_.isEqual(this.props.terms, nextProps.terms)) {
       return true;
     }
-    
+
     // Exclude mutators from comparison
     if (!shallowEqualExcept(this.props, nextProps, ["terms", "increasePostViewCount", "createLWEvent", "newMutation"])) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -421,12 +422,12 @@ class PostsItem extends Component {
               </Link>
               <div onClick={this.toggleHighlight} className={classes.meta}>
                 <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
-                <span className={classes.actions} onClick={(event)=>event.stopPropagation()}>
-                  <PostsPageActions post={post}/>
-                </span>
                 <Components.ShowOrHideHighlightButton
                   className={classes.showHighlightButton}
                   open={this.state.showHighlight}/>
+                <span className={classes.actions} onClick={(event)=>event.stopPropagation()}>
+                  <PostsPageActions post={post}/>
+                </span>
               </div>
             </div>
             <Components.CategoryDisplay

@@ -26,15 +26,12 @@ const styles = theme => ({
   },
   'easy-going': {
     color: 'rgba(100, 169, 105, 0.9)',
-    fontStyle: 'italic'
   },
   'norm-enforcing': {
     color: '#2B6A99',
-    fontStyle: 'italic'
   },
   'reign-of-terror': {
     color: 'rgba(179,90,49,.8)',
-    fontStyle: 'italic'
   },
   'editButton': {
     position: 'absolute',
@@ -46,6 +43,12 @@ const styles = theme => ({
     justifyContent:"flex-end",
     fontSize: 14,
     marginBottom: 4,
+  },
+  moderationGuidelines: {
+    '& p': {
+      marginTop: '.6em',
+      marginBottom: '.6em'
+    }
   }
 })
 
@@ -80,11 +83,12 @@ class ModerationGuidelinesBox extends PureComponent {
       Suffix: "... (Read More)",
       Strict: false
     }
-    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
-    <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>` : ""}
+    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span> <br/>` : ""}
     ${document.moderationGuidelinesHtmlBody || ""}`
+
     const combinedGuidelines = `
       ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
+      ${document.moderationGuidelinesHtmlBody ? '<hr class="dividerBlock"></hr>' : '</br>'}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
@@ -124,7 +128,7 @@ class ModerationGuidelinesBox extends PureComponent {
             </Tooltip>
           </span>
         }
-        <div>
+        <div className={classes.moderationGuidelines}>
           <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
           {open && (displayedGuidelines.length > 250) && <a className={classes.collapse}>(Click to Collapse)</a>}
         </div>

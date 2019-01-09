@@ -76,7 +76,7 @@ class AnswerCommentsList extends PureComponent {
     const { loadMore, totalCount } = this.props
     if (totalCount > 3) {
       this.setState({loadedMore: true})
-      loadMore({limit: 10000})  
+      loadMore({limit: 10000})
     }
   }
 
@@ -108,7 +108,6 @@ class AnswerCommentsList extends PureComponent {
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
-                  parentAnswerId={parentAnswerId._id}
                 />
               </div>
             }

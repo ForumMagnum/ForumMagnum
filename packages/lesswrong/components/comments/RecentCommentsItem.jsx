@@ -24,7 +24,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   render() {
     const { comment, showTitle, level=1, truncated, collapsed } = this.props;
     const { showEdit } = this.state
-    
+
     if (comment && comment.post) {
       return (
         <div
@@ -50,7 +50,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
             </div>
           )}
 
-          <div className="comments-item recent-comments-item">
+          <div className="comments-item">
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId ? (
