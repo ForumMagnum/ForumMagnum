@@ -7,6 +7,8 @@ import Users from 'meteor/vulcan:users';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withUser from '../common/withUser';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 // import '../modules/columns.js';
 
@@ -143,7 +145,7 @@ class AdminHome extends PureComponent {
   }
 
   render() {
-    const { currentUser } = this.props;
+    const { currentUser, adminMetadata, adminMetadataLoading } = this.props;
     
     if (!Users.isAdmin(currentUser)) {
       return (
@@ -158,6 +160,14 @@ class AdminHome extends PureComponent {
         <div className="admin-home-layout">
           <h2>Admin Console</h2>
           <div>
+            <div>
+              <h3>Server Information</h3>
+              { adminMetadataLoading
+                ? <Components.Loading/>
+                : <div>
+                  {JSON.stringify(adminMetadata)}
+                </div> }
+            </div>
             <div className="admin-recent-logins">
               <h3>Recent Logins</h3>
               <Components.Datatable
@@ -225,4 +235,24 @@ class AdminHome extends PureComponent {
   }
 }
 
-registerComponent('AdminHome', AdminHome, withUser);
+const adminMetadataQuery = gql`query AdminMetadataQuery {
+  AdminMetadata {
+    extraIndexes
+    missingIndexes
+  }
+}`;
+const withAdminMetadata = component => {
+  return graphql(adminMetadataQuery,
+    {
+      alias: "withAdminMetadata",
+      props(props) {
+        return {
+          adminMetadataLoading: props.data.loading,
+          adminMetadata: props.data.AdminMetadata,
+        }
+      }
+    }
+  )(component);
+}
+
+registerComponent('AdminHome', AdminHome, withUser, withAdminMetadata);
