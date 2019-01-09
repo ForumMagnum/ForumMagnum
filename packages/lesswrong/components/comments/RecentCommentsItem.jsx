@@ -12,6 +12,9 @@ const styles = theme => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginRight: 10
+  },
+  authorAnswer: {
+    fontFamily: theme.typography.postStyle.fontFamily
   }
 })
 
@@ -71,8 +74,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                     </Icon>
                   ) : level != 1 && <div className="recent-comment-username-spacing">○</div>
                 }
-                <span className={classes.author}>
-                  <Components.UsersName user={comment.user}/>
+                <span className={classNames(classes.author, {[classes.authorAnswer]:comment.answer})}>
+                  {comment.answer && "Answer by "}<Components.UsersName user={comment.user}/>
                 </span>
                 { comment.post && (
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
