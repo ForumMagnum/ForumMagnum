@@ -13,7 +13,8 @@ const Error = ({error}) => <div>
 
 const styles = theme => ({
   loading: {
-    opacity: .4,
+    // TODO: Figure out how to properly determine when to apply the loading style
+    // opacity: .4,
   }
 })
 
@@ -40,7 +41,6 @@ const PostsList = ({
   //         Alternatively, is there a better way of checking that this is
   //         in fact the best way of checking loading status?
   const loadingMore = networkStatus === 2 || networkStatus === 1;
-  console.log(loading, networkStatus)
   const { Loading } = Components
   const renderContent = () => {
     if (results && results.length) {
