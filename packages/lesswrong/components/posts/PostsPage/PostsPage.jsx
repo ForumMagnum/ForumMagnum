@@ -5,7 +5,6 @@ import {
   registerComponent,
   getActions,
   withMutation } from 'meteor/vulcan:core';
-
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -20,6 +19,15 @@ import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
+
+// On th client URL is defined as a global, on the server it needs to be imported from 'URL'
+// So we rename it to URLClass and resolve depending on where we are
+let URLClass
+if (Meteor.isServer) {
+  URLClass = require('url').URL
+} else {
+  URLClass = URL
+}
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -113,7 +121,7 @@ const styles = theme => ({
     draft: {
       color: theme.palette.secondary.light
     },
-    recommendedReading: {
+    bottomNavigation: {
       width: 640,
       margin: 'auto',
       [theme.breakpoints.down('sm')]: {
@@ -158,7 +166,7 @@ class PostsPage extends Component {
   render() {
     const { loading, document, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
+      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
       Section, TableOfContents } = Components
 
@@ -176,7 +184,7 @@ class PostsPage extends Component {
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : post.htmlBody;
 
-      const feedLink = post.feed && post.feed.url && new URL(post.feed.url).hostname
+      const feedLink = post.feed && post.feed.url && new URLClass(post.feed.url).hostname
 
       return (
         <div className={classes.root}>
@@ -254,8 +262,8 @@ class PostsPage extends Component {
                     />
                 </div>
               </div>}
-            {sequenceId && <div className={classes.recommendedReading}>
-              <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
+            {sequenceId && <div className={classes.bottomNavigation}>
+              <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
             {/* Answers Section */}
             {post.question && <div>

@@ -25,6 +25,7 @@ Package.onUse( function(api) {
     'vulcan:admin',
     'vulcan:users',
     'vulcan:voting',
+    'vulcan:routing',
   ]);
 
   api.mainModule('server.js', 'server');

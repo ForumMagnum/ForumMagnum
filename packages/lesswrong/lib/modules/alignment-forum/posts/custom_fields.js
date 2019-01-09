@@ -1,6 +1,7 @@
 import { Posts } from "../../../collections/posts";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
 import { generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../../collectionUtils';
 
 Posts.addField([
   {
@@ -10,7 +11,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       label: "Alignment Forum",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['guests'],
       editableBy: ['alignmentForum'],
       insertableBy: ['alignmentForum'],
@@ -76,7 +77,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       label: "Sticky (Alignment)",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['alignmentForumAdmins', 'admins'],

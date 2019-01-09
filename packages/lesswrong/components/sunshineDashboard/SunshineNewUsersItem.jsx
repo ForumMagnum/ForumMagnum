@@ -1,5 +1,5 @@
 /* global confirm */
-import { Components as C, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router'
@@ -47,15 +47,18 @@ class SunshineNewUsersItem extends Component {
 
   render () {
     const { user, hover, anchorEl, classes } = this.props
+
+    const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+
     return (
-        <C.SunshineListItem hover={hover}>
-          <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+        <SunshineListItem hover={hover}>
+          <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
               <Link to={Users.getProfileUrl(user)}>
                 { user.displayName }
               </Link>
               <br/>
-              <C.MetaInfo>
+              <MetaInfo>
                 <div>Posts: { user.postCount || 0 }</div>
                 <div>Comments: { user.commentCount || 0 }</div>
                 <hr />
@@ -63,35 +66,38 @@ class SunshineNewUsersItem extends Component {
                 <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-              </C.MetaInfo>
+
+                <SunshineNewUserPostsList terms={{userId: user._id, authorIsUnreviewed:true}}/>
+                <SunshineNewUserCommentsList terms={{userId: user._id}}/>
+              </MetaInfo>
             </Typography>
-          </C.SidebarHoverOver>
+          </SidebarHoverOver>
           <div>
-            <C.MetaInfo>
+            <MetaInfo>
               <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
                   {user.displayName}
               </Link>
-            </C.MetaInfo>
-            <C.MetaInfo>
+            </MetaInfo>
+            <MetaInfo>
               { user.karma || 0 }
-            </C.MetaInfo>
-            <C.MetaInfo>
+            </MetaInfo>
+            <MetaInfo>
               { user.email }
-            </C.MetaInfo>
-            <C.MetaInfo>
-              <C.FormatDate date={user.createdAt}/>
-            </C.MetaInfo>
+            </MetaInfo>
+            <MetaInfo>
+              <FormatDate date={user.createdAt}/>
+            </MetaInfo>
           </div>
 
-          { hover && <C.SidebarActionMenu>
-            <C.SidebarAction title="Review" onClick={this.handleReview}>
+          { hover && <SidebarActionMenu>
+            <SidebarAction title="Review" onClick={this.handleReview}>
               done
-            </C.SidebarAction>
-            <C.SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
+            </SidebarAction>
+            <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
               delete_forever
-            </C.SidebarAction>
-          </C.SidebarActionMenu>}
-        </C.SunshineListItem>
+            </SidebarAction>
+          </SidebarActionMenu>}
+        </SunshineListItem>
     )
   }
 }

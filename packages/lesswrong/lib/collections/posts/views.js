@@ -9,7 +9,7 @@ import moment from 'moment';
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af');
+  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
@@ -17,21 +17,40 @@ Posts.addDefaultView(terms => {
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
-      draft: {$in: [false,null]},
-      isFuture: {$in: [false,null]}, // match both false and undefined
-      unlisted: {$in: [false,null]},
-      meta: {$in: [false,null]},
+      draft: false,
+      isFuture: false,
+      unlisted: false,
+      authorIsUnreviewed: false,
       groupId: {$exists: false},
-      isEvent: {$in: [false,null]},
       ...validFields,
       ...alignmentForum
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
+    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
   if (terms.userId) {
-    params.selector.hideAuthor = {$in: [false,null]}
+    params.selector.hideAuthor = false
+  }
+
+  if (terms.filter === "curated") {
+    params.selector.curatedDate ={$gt: new Date(0)}
+  }
+  if (terms.filter === "frontpage") {
+    params.selector.frontpageDate = {$gt: new Date(0)}
+  }
+  if (terms.filter === "all") {
+    params.selector.groupId = null
+  }
+  if (terms.filter === "questions") {
+    params.selector.question = true
+  }
+  if (terms.filter === "events") {
+    params.selector.isEvent = true
+  }
+  if (terms.filter === "meta") {
+    params.selector.meta = true
   }
   return params;
 })
@@ -40,8 +59,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1},
-    suffix: { _id:1, isFuture:1, draft:1, meta:1, groupId:1, af:1, isEvent:1, unlisted:1, postedAt:1, baseScore:1 },
+    prefix: {status:1, isFuture:1, draft:1, meta:1, isEvent:1, unlisted:1,  authorIsUnreviewed:1, groupId:1 },
+    suffix: { _id:1, af:1, postedAt:1, baseScore:1 },
   });
 }
 
@@ -81,7 +100,7 @@ const stickiesIndexPrefix = {
 };
 
 
-Posts.addView("magicalSorting", terms => ({
+Posts.addView("magic", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
 ensureIndex(Posts,
@@ -143,6 +162,10 @@ ensureIndex(Posts,
   }
 );
 
+Posts.addView("recentComments", terms => ({
+  options: {sort: {lastCommentedAt:-1}}
+}))
+
 
 Posts.addView("old", terms => ({
   options: {sort: setStickies({postedAt: 1}, terms)}
@@ -150,16 +173,12 @@ Posts.addView("old", terms => ({
 // Covered by the same index as `new`
 
 Posts.addView("daily", terms => ({
-  selector: {
-    baseScore: {$gt: terms.karmaThreshold || -100},
-    authorIsUnreviewed: {$in: [false,null]},
-  },
   options: {
     sort: {score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1, authorIsUnreviewed:1}),
+  augmentForDefaultView({ postedAt:1, baseScore:1}),
   {
     name: "posts.postedAt_baseScore",
   }
@@ -168,14 +187,13 @@ ensureIndex(Posts,
 Posts.addView("frontpage", terms => ({
   selector: {
     frontpageDate: {$gt: new Date(0)},
-    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1, authorIsUnreviewed:1 }),
+  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
   {
     name: "posts.frontpage",
     partialFilterExpression: { frontpageDate: {$gt: new Date(0)} },
@@ -220,16 +238,15 @@ Posts.addView("curated-rss", terms => ({
 
 Posts.addView("community", terms => ({
   selector: {
-    frontpageDate: null,
-    meta: null,
-    authorIsUnreviewed: {$in: [false,null]},
+    frontpageDatgroupId: { $exists: false },
+    isEvent: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ meta:1, sticky: -1, score: -1, authorIsUnreviewed:1 }),
+  augmentForDefaultView({ sticky: -1, score: -1 }),
   {
     name: "posts.community",
   }
@@ -264,14 +281,13 @@ Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss
 Posts.addView("questions", terms => ({
   selector: {
     question: true,
-    authorIsUnreviewed: {$in: [false,null]},
   },
   options: {
     sort: {sticky: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, question:1, authorIsUnreviewed:1 }),
+  augmentForDefaultView({ sticky: -1, score: -1, question:1 }),
   {
     name: "posts.questions",
   }
@@ -300,10 +316,9 @@ Posts.addView("drafts", terms => {
     selector: {
       userId: terms.userId,
       draft: true,
-      deletedDraft: {$in: [false,null]},
-      hideAuthor: {$in: [false,null]},
+      deletedDraft: false,
+      hideAuthor: false,
       unlisted: null,
-      meta: null,
     },
     options: {
       sort: {createdAt: -1}
@@ -380,11 +395,8 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
-      hideFrontpageComments: {$in: [false,null]},
-      meta: null,
+      hideFrontpageComments: false,
       groupId: null,
-      isEvent: null,
-      authorIsUnreviewed: {$in: [false,null]},
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -393,7 +405,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1, authorIsUnreviewed:1 }),
+  augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
   { name: "posts.recentDiscussionThreadsList", }
 );
 
@@ -521,6 +533,7 @@ Posts.addView("sunshineNewPosts", function () {
       reviewedByUserId: {$exists: false},
       frontpageDate: {$in: [false,null] },
       createdAt: {$gt: twoDaysAgo},
+      authorIsUnreviewed: null
     },
     options: {
       sort: {
@@ -557,11 +570,8 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
-      hideFrontpageComments: {$in: [false,null]},
+      hideFrontpageComments: false,
       af: true,
-      meta: null,
-      groupId: null,
-      isEvent: null,
     },
     options: {
       sort: {lastCommentedAt:-1},
