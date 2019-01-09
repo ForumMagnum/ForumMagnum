@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Posts } from './collection.js';
 import Users from 'meteor/vulcan:users';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
@@ -104,20 +103,6 @@ Posts.isPending = function (post) {
   return post.status === Posts.config.STATUS_PENDING;
 };
 
-
-/**
- * @summary Check to see if post URL is unique.
- * We need the current user so we know who to upvote the existing post as.
- * @param {String} url
- */
-Posts.checkForSameUrl = function (url) {
-
-  // check that there are no previous posts with the same link in the past 6 months
-  var sixMonthsAgo = moment().subtract(6, 'months').toDate();
-  var postWithSameLink = Posts.findOne({url: url, postedAt: {$gte: sixMonthsAgo}});
-
-  return !!postWithSameLink;
-};
 
 /**
  * @summary When on a post page, return the current post
