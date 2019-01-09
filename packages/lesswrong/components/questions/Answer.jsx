@@ -156,7 +156,7 @@ class Answer extends Component {
             <AnswerCommentsList
               terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
               post={post}
-              parentAnswerId={comment._id}
+              parentAnswer={comment}
               />
           </div>
         }
