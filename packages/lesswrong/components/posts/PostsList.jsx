@@ -60,7 +60,6 @@ const PostsList = ({
   }
   return (
     <div className={classNames(className, 'posts-list', {[classes.loading]: loadingMore})}>
-      {loadingMore && <Loading/> }
       {showHeader ? <Components.PostsListHeader/> : null}
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
       <div className="posts-list-content">
