@@ -4,13 +4,10 @@ import chaiAsPromised from 'chai-as-promised';
 import { recalculateScore } from '../lib/modules/scoring.js';
 import { performVoteServer } from '../lib/modules/vote.js';
 import { batchUpdateScore } from '../server/updateScores.js';
-
-import {
-  createDummyUser,
-  createDummyPost,
-} from './utils.js'
-
+import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
+import { getKarmaChanges } from '../server/karmaChanges.js';
+import lolex from 'lolex';
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -146,6 +143,51 @@ describe('Voting', async function() {
       updatedPost[0].baseScore.should.be.equal(2);
     });
   })
+  describe('getKarmaChanges', async () => {
+    it('includes posts in the selected date range', async () => {
+      let clock = lolex.install({
+        now: new Date("1980-01-01"),
+        shouldAdvanceTime: true,
+      });
+      
+      let poster = await createDummyUser();
+      let voter = await createDummyUser();
+      
+      clock.setSystemTime(new Date("1980-01-01T13:00:00Z"));
+      let post = await createDummyPost(poster);
+      
+      clock.setSystemTime(new Date("1980-01-01T13:30:00Z"));
+      await performVoteServer({
+        document: post,
+        voteType: "smallUpvote",
+        collection: Posts,
+        user: voter,
+      });
+      
+      let karmaChanges = await getKarmaChanges({
+        user: poster,
+        startDate: new Date("1980-01-01T13:20:00Z"),
+        endDate: new Date("1980-01-01T13:40:00Z"),
+      });
+      
+      karmaChanges.totalChange.should.equal(1);
+      
+      karmaChanges.documents.length.should.equal(1);
+      karmaChanges.documents[0].should.deep.equal({
+        _id: post._id,
+        collectionName: "Posts",
+        scoreChange: 1,
+      });
+      
+      // TODO
+    });
+    /*it('does not include posts outside the selected date range', async () => {
+      // TODO
+    });
+    it('includes comments in the selected date range', async () => {
+      // TODO
+    });*/
+  });
 })
 
 //eslint-disable-next-line no-console
