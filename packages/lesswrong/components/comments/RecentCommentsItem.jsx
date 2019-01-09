@@ -5,6 +5,15 @@ import { Link } from 'react-router';
 import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { withStyles } from '@material-ui/core/styles'
+
+const styles = theme => ({
+  author: {
+    ...theme.typography.body2,
+    fontWeight: 600,
+    marginRight: 10
+  }
+})
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
   constructor(props) {
@@ -22,7 +31,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const { comment, showTitle, level=1, truncated, collapsed } = this.props;
+    const { comment, showTitle, level=1, truncated, collapsed, classes } = this.props;
     const { showEdit } = this.state
 
     if (comment && comment.post) {
@@ -54,14 +63,17 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId ? (
-                  <Icon
-                    onClick={this.toggleShowParent}
-                    className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
-                  >
-                    subdirectory_arrow_left
-                  </Icon>
-                ) : level != 1 && <div className="recent-comment-username-spacing">○</div>}
-                <Components.UsersName user={comment.user}/>
+                    <Icon
+                      onClick={this.toggleShowParent}
+                      className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+                    >
+                      subdirectory_arrow_left
+                    </Icon>
+                  ) : level != 1 && <div className="recent-comment-username-spacing">○</div>
+                }
+                <span className={classes.author}>
+                  <Components.UsersName user={comment.user}/>
+                </span>
                 { comment.post && (
                   <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                     <div className="comments-item-origin">
@@ -102,4 +114,4 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-registerComponent('RecentCommentsItem', RecentCommentsItem, withErrorBoundary);
+registerComponent('RecentCommentsItem', RecentCommentsItem, withErrorBoundary, withStyles(styles, {name:'RecentCommentsItem'}));
