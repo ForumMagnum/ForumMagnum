@@ -1,4 +1,5 @@
 import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from 'meteor/vulcan:core';
+import { getUnrecognizedIndexes, getMissingIndexes } from './indexUtil';
 
 const siteAdminMetadataSchema = `type SiteAdminMetadata {
   missingIndexes: JSON,
@@ -13,8 +14,8 @@ const siteAdminMetadataResolvers = {
         throw new Error("AdminMetadata graphQL API requires being logged in as an admin");
       
       return {
-        missingIndexes: {}, //TODO
-        extraIndexes: {}, //TODO
+        missingIndexes: getMissingIndexes(),
+        extraIndexes: getUnrecognizedIndexes(),
       };
     }
   }

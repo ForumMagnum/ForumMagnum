@@ -192,6 +192,7 @@ import '../components/search/SearchPagination.jsx';
 import '../components/admin/AdminDashboard.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
+import '../components/sunshineDashboard/AdminMetadata.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
