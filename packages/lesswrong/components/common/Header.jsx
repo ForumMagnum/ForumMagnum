@@ -115,7 +115,7 @@ class Header extends Component {
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
     
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
-      NavigationMenu, NotificationsMenu } = Components;
+      NavigationMenu, NotificationsMenu, KarmaChangeNotifier } = Components;
 
     return (
         <div className={classes.root}>
@@ -160,6 +160,7 @@ class Header extends Component {
                   <NoSSR>
                     <SearchBar/>
                   </NoSSR>
+                  <KarmaChangeNotifier/>
                   {currentUser ? <UsersMenu color={getTextColor(theme)} /> : <UsersAccountMenu color={getTextColor(theme)} />}
                   {currentUser && <NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>

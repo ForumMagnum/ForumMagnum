@@ -6,7 +6,7 @@ import { performVoteServer } from '../lib/modules/vote.js';
 import { batchUpdateScore } from '../server/updateScores.js';
 import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
-import { getKarmaChanges } from '../server/karmaChanges.js';
+import { getKarmaChanges } from '../lib/karmaChanges.js';
 import lolex from 'lolex';
 
 chai.should();

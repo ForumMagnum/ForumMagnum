@@ -79,6 +79,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  karmaChanges
 `);
 
 registerFragment(`

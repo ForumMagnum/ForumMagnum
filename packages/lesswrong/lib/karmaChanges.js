@@ -1,10 +1,17 @@
-import Votes from '../lib/collections/votes/collection.js';
+import Votes from './collections/votes/collection.js';
+
+// This file is server-side-only, but lives in an included-with-client-bundle
+// directory because we don't have a good way to make resolvers, or imports
+// used by resolvers, be server specific.
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
 //
+// For example:
 // {
 //   totalChange: 10,
+//   startDate: Date("2018-09-09"),
+//   endDate: Date("2018-09-10"),
 //   documents: [
 //     {
 //       _id: "12345",
@@ -48,6 +55,8 @@ export async function getKarmaChanges({user, startDate, endDate})
   
   return {
     totalChange: totalChange,
+    startDate: startDate,
+    endDate: endDate,
     documents: changedDocs,
   };
 }
