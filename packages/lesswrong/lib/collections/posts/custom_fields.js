@@ -59,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser && currentUser.moderationGuidelinesHtmlBody)
+  return !!(currentUser && (currentUser.moderationGuidelinesHtmlBody || currentUser.moderationStyle))
 }
 
 Posts.addField([
