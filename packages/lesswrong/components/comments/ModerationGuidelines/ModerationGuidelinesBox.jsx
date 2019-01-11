@@ -88,7 +88,7 @@ class ModerationGuidelinesBox extends PureComponent {
 
     const combinedGuidelines = `
       ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
-      ${document.moderationGuidelinesHtmlBody ? '<hr class="dividerBlock"></hr>' : '</br>'}
+      ${(document.moderationGuidelinesHtmlBody && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
