@@ -37,7 +37,9 @@ export async function getKarmaChanges({user, startDate, endDate})
     // Get votes cast on this user's content (including cancelled votes)
     {$match: {
       authorId: user._id,
-      votedAt: {$gte: startDate, $lte: endDate}
+      votedAt: {$gte: startDate, $lte: endDate},
+      userId: {$ne: user._id}, //Exclude self-votes
+      
     }},
     
     // Group by thing-that-was-voted-on and calculate the total karma change

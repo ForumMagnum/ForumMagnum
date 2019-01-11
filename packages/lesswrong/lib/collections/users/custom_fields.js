@@ -848,7 +848,7 @@ Users.addField([
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
             // TODO
-            const yesterday = new Date(new Date() - (60*60*24));
+            const yesterday = new Date(new Date() - (60*60*24*1000));
             startDate = yesterday;
             endDate = new Date();
           }
