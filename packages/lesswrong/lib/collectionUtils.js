@@ -26,7 +26,7 @@ async function conflictingIndexExists(collection, index, options)
   return false;
 }
 
-export async function ensureIndex(collection, index, options)
+export async function ensureIndex(collection, index, options={})
 {
   if (Meteor.isServer) {
     try {
