@@ -110,6 +110,7 @@ import '../components/posts/EventsUpcoming.jsx';
 import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
+import '../components/posts/PostsFormStyling.jsx';
 import '../components/posts/PostsEditForm.jsx';
 import '../components/posts/PostsEditPage.jsx';
 import '../components/posts/PostsListHeader.jsx';

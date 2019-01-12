@@ -6,7 +6,8 @@ import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
 
-const PostsNewForm = ({router, currentUser, flash}) => {
+const PostsNewForm = ({router, currentUser, flash, classes}) => {
+  const { PostsFormStyling, SmartForm } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const prefilledProps = {
     isEvent: router.location.query && router.location.query.eventForm,
@@ -18,26 +19,28 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelinesHtmlBody: currentUser && currentUser.moderationGuidelinesHtmlBody,
   }
-  
+
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<Components.AccountsLoginForm />);
   }
-  
+
   return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <Components.SmartForm
-        collection={Posts}
-        mutationFragment={getFragment('PostsPage')}
-        prefilledProps={prefilledProps}
-        successCallback={post => {
-          router.push({pathname: Posts.getPageUrl(post)});
-          flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
-        }}
-        eventForm={router.location.query && router.location.query.eventForm}
-        submitLabel="Publish"
-        repeatErrors
-      />
+      <PostsFormStyling>
+        <SmartForm
+          collection={Posts}
+          mutationFragment={getFragment('PostsPage')}
+          prefilledProps={prefilledProps}
+          successCallback={post => {
+            router.push({pathname: Posts.getPageUrl(post)});
+            flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+          }}
+          eventForm={router.location.query && router.location.query.eventForm}
+          submitLabel="Publish"
+          repeatErrors
+        />
+      </PostsFormStyling>
     </div>
   );
 }
