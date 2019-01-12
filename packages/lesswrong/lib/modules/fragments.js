@@ -122,6 +122,10 @@ registerFragment(`
     userId
     user {
       ...UsersMinimumInfo
+      moderationGuidelinesHtmlBody
+      moderationGuidelinesContent
+      moderationGuidelinesBody
+      moderationStyle
     }
     coauthors {
       ...UsersMinimumInfo
@@ -172,6 +176,12 @@ registerFragment(`
     voteCount
     question
     authorIsUnreviewed
+    isFuture
+    hideAuthor
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
   }
 `);
 

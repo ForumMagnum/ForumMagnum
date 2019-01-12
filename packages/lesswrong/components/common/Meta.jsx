@@ -5,7 +5,7 @@ import withUser from '../common/withUser';
 
 const Meta = ({location, currentUser}, context) => {
   const query = location ? location.query : {};
-  const recentPostsTerms = { view: 'magicalSorting', limit: 10, ...query, meta: true, forum: true }
+  const recentPostsTerms = { view: 'magic', limit: 10, ...query, meta: true, forum: true }
   return (
     <div className="home">
       <Components.Section title="Recent Meta Posts"

@@ -1,15 +1,16 @@
 import { registerComponent, withDocument } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import withUser from '../common/withUser';
+import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import withUser from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
-import withDialog from '../common/withDialog'
-import withErrorBoundary from '../common/withErrorBoundary'
+import withDialog from '../../common/withDialog'
+import withErrorBoundary from '../../common/withErrorBoundary'
+import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 
 const styles = theme => ({
   root: {
@@ -25,15 +26,12 @@ const styles = theme => ({
   },
   'easy-going': {
     color: 'rgba(100, 169, 105, 0.9)',
-    fontStyle: 'italic'
   },
   'norm-enforcing': {
     color: '#2B6A99',
-    fontStyle: 'italic'
   },
   'reign-of-terror': {
     color: 'rgba(179,90,49,.8)',
-    fontStyle: 'italic'
   },
   'editButton': {
     position: 'absolute',
@@ -45,6 +43,12 @@ const styles = theme => ({
     justifyContent:"flex-end",
     fontSize: 14,
     marginBottom: 4,
+  },
+  moderationGuidelines: {
+    '& p': {
+      marginTop: '.6em',
+      marginBottom: '.6em'
+    }
   }
 })
 
@@ -79,11 +83,12 @@ class ModerationGuidelinesBox extends PureComponent {
       Suffix: "... (Read More)",
       Strict: false
     }
-    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s moderation guidelines" } </b>: <br>
-    <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span>` : ""}
+    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span> <br/>` : ""}
     ${document.moderationGuidelinesHtmlBody || ""}`
+
     const combinedGuidelines = `
       ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
+      ${document.moderationGuidelinesHtmlBody ? '<hr class="dividerBlock"></hr>' : '</br>'}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
@@ -123,7 +128,7 @@ class ModerationGuidelinesBox extends PureComponent {
             </Tooltip>
           </span>
         }
-        <div>
+        <div className={classes.moderationGuidelines}>
           <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
           {open && (displayedGuidelines.length > 250) && <a className={classes.collapse}>(Click to Collapse)</a>}
         </div>
@@ -132,30 +137,6 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 }
 
-const frontpageGuidelines = `
-  <p><em>Frontpage commenting guidelines:</em></p>
-  <p>
-    <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
-  </p>
-  <p>
-    <b>Present your own perspective.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
-  </p>
-  <p>
-    <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
-  </p>`
-
-const defaultGuidelines = `
-  <p><em>Default commenting guidelines:</em></p>
-  <p>
-    <b>Aim to explain, not persuade.</b> Write your true reasons for believing something, not what you think is most likely to persuade others. Try to offer concrete models, make predictions, and note what would change your mind.
-  </p>
-  <p>
-    <b>Present your own perspective.</b> Make personal statements instead of statements that try to represent a group consensus (“I think X is wrong” vs. “X is generally frowned upon”). Avoid stereotypical arguments that will cause others to round you off to someone else they’ve encountered before. Tell people how <b>you</b> think about a topic, instead of repeating someone else’s arguments (e.g. “But Nick Bostrom says…”).
-  </p>
-  <p>
-    <b>Get curious.</b> If I disagree with someone, what might they be thinking; what are the moving parts of their beliefs? What model do I think they are running? Ask yourself - what about this topic do I not understand? What evidence could I get, or what evidence do I already have?
-  </p>
-`
 const moderationStyleLookup = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
   'reign-of-terror': "Reign of Terror - I delete anything I judge to be annoying or counterproductive",

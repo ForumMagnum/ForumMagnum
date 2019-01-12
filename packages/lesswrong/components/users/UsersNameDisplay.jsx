@@ -5,7 +5,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 
 const UsersNameDisplay = ({user}) => {
-  return <Link className="users-name" to={Users.getProfileUrl(user)}>
+  return <Link to={Users.getProfileUrl(user)}>
     {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
   </Link>
 }

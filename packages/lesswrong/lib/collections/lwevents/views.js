@@ -15,7 +15,7 @@ LWEvents.addView("postVisits", function (terms) {
       documentId: terms.postId,
       userId: terms.userId,
       name: "post-view",
-      deleted: {$in: [false,null]}
+      deleted: {$in: [false,null]} //FIXME: deleted isn't in the schema!
     },
     options: {sort: {createdAt: -1}, limit: terms.limit || 1},
   };
