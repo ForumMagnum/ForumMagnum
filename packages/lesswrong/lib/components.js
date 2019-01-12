@@ -69,6 +69,7 @@ import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
 import '../components/users/LoginPopupLink.jsx';
 import '../components/users/KarmaChangeNotifier.jsx';
+import '../components/users/AccountsResetPassword.jsx';
 
 // posts
 
@@ -95,6 +96,7 @@ import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
+import '../components/posts/HomePostsViews.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
@@ -141,6 +143,7 @@ import '../components/localGroups/LocalGroupsItem.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx';
@@ -191,6 +194,7 @@ import '../components/search/SearchPagination.jsx';
 import '../components/admin/AdminDashboard.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
+import '../components/sunshineDashboard/AdminMetadata.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
@@ -200,6 +204,8 @@ import '../components/sunshineDashboard/AFSuggestPostsItem.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsList.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersItem.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersList.jsx';
+import '../components/sunshineDashboard/SunshineNewUserPostsList.jsx';
+import '../components/sunshineDashboard/SunshineNewUserCommentsList.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersItem.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';

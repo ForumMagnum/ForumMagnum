@@ -128,8 +128,8 @@ const UsersProfile = (props) => {
 
     const renderBlogPosts = (props) => {
       return (
-        <Components.Section title="Recent Posts"
-          titleComponent= {
+        <Components.Section title={`${user.displayName}'s Posts`}
+          titleComponent={
             <div className="recent-posts-title-component users-profile-recent-posts">
               <Components.PostsViews defaultView="community" hideDaily={true}/>
             </div>}
@@ -171,7 +171,7 @@ const UsersProfile = (props) => {
         { renderSequences(props) }
         { renderDrafts(props) }
         { renderBlogPosts(props) }
-        <Components.Section title="Recent Comments" >
+        <Components.Section title={`${user.displayName}'s Comments`} >
           <Components.RecentComments terms={{view: 'allRecentComments', limit: 10, userId: user._id}} fontSize="small" />
         </Components.Section>
       </div>

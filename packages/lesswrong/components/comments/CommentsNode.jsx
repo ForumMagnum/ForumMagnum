@@ -43,7 +43,13 @@ const styles = theme => ({
       backgroundColor: "rgba(0,0,0,.075)"
     }
   },
-  answerComment: {
+  isAnswer: {
+    borderLeft: 'transparent',
+    borderRight: 'solid 1px rgba(0,0,0,.125)',
+    borderTop: 'transparent',
+    borderBottom: 'transparent',
+  },
+  answerChildComment: {
     borderLeft: 'transparent',
     borderRight: 'transparent',
     borderTop: 'transparent',
@@ -126,8 +132,8 @@ class CommentsNode extends Component {
   toggleHover = () => {
     this.setState({hover: !this.state.hover});
   }
-  
-  
+
+
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
@@ -135,14 +141,14 @@ class CommentsNode extends Component {
       return true;
     if (this.commentTreesDiffer(this.props.children, nextProps.children))
       return true;
-    
+
     return false;
   }
-  
+
   commentTreesDiffer(oldComments, newComments) {
-    if(oldComments===null && newComments!==null) return true;
-    if(oldComments!==null && newComments===null) return true;
-    if(newComments===null) return false;
+    if(!oldComments && newComments) return true;
+    if(oldComments && !newComments) return true;
+    if(!newComments) return false;
 
     if(oldComments.length != newComments.length)
       return true;
@@ -185,7 +191,8 @@ class CommentsNode extends Component {
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
-        [classes.answerComment]: parentAnswerId,
+        [classes.isAnswer]: comment.answer,
+        [classes.answerChildComment]: parentAnswerId,
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length)
@@ -214,7 +221,7 @@ class CommentsNode extends Component {
                 postPage={postPage}
                 nestingLevel={nestingLevel}
                 showPostTitle={showPostTitle}
-                parentAnswerId={parentAnswerId}
+                parentAnswerId={parentAnswerId || comment.answer && comment._id}
               />
             </div>
             {!collapsed && <div className="comments-children">
@@ -234,7 +241,7 @@ class CommentsNode extends Component {
                   editMutation={editMutation}
                   post={post}
                   postPage={postPage}
-                  parentAnswerId={parentAnswerId}
+                  parentAnswerId={parentAnswerId || comment.answer && comment._id}
                 />)}
             </div>}
           </div>
