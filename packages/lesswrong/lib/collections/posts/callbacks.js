@@ -166,3 +166,18 @@ function PostsNewUserApprovedStatus (post) {
 }
 
 addCallback("posts.new.sync", PostsNewUserApprovedStatus);
+
+function AddReferrerToPost(post, properties)
+{
+  if (properties && properties.context && properties.context.headers) {
+    let referrer = properties.context.headers["referer"];
+    let userAgent = properties.context.headers["user-agent"];
+    
+    return {
+      ...post,
+      referrer: referrer,
+      userAgent: userAgent,
+    };
+  }
+}
+addCallback("post.create.before", AddReferrerToPost);

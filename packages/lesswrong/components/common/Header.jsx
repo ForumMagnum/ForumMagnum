@@ -19,6 +19,7 @@ import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
+import classNames from 'classnames';
 
 const getTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -72,17 +73,22 @@ const styles = theme => ({
     marginRight: -theme.spacing.unit,
     display: "flex",
   },
-
+  headroomPinnedOpen: {
+    "& .headroom--unpinned": {
+      transform: "none",
+    },
+    "& .headroom--unfixed": {
+      position: "fixed",
+    },
+  },
 });
 
 class Header extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      navigationOpen: false,
-      notificationOpen: false,
-      notificationHasOpened: false,
-    };
+  state = {
+    navigationOpen: false,
+    notificationOpen: false,
+    notificationHasOpened: false,
+    headroomPinnedOpen: false,
   }
 
   setNavigationOpen = (open) => {
@@ -92,7 +98,7 @@ class Header extends Component {
   handleNotificationToggle = () => {
     this.handleSetNotificationDrawerOpen(!this.state.notificationOpen);
   }
-  
+
   handleSetNotificationDrawerOpen = (isOpen) => {
     if (isOpen) {
       this.props.editMutation({
@@ -109,20 +115,35 @@ class Header extends Component {
     }
   }
 
+  // Set whether Headroom (the auto-hiding top bar) is pinned so it doesn't
+  // hide on scroll. Called by SearchBar, which pins the header open when a
+  // search is active.
+  setHeadroomPinnedOpen = (isPinned) => {
+    this.setState({
+      headroomPinnedOpen: isPinned
+    });
+  }
+
   render() {
-    const { currentUser, classes, routes, location, params, client, theme, toc} = this.props
-    const { notificationOpen, notificationHasOpened, navigationOpen } = this.state
+    const { currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea } = this.props
+    const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
     const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
-    
+
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
       NavigationMenu, NotificationsMenu } = Components;
 
     return (
         <div className={classes.root}>
-          <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
+          <Headroom
+            disableInlineStyles
+            downTolerance={10} upTolerance={10}
+            className={classNames({
+              [classes.headroomPinnedOpen]: headroomPinnedOpen
+            })}
+          >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
                 <IconButton
@@ -163,7 +184,7 @@ class Header extends Component {
                 </Typography>
                 <div className={classes.rightHeaderItems}>
                   <NoSSR>
-                    <SearchBar/>
+                    <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
                   </NoSSR>
                   {currentUser ? <UsersMenu color={getTextColor(theme)} /> : <UsersAccountMenu color={getTextColor(theme)} />}
                   {currentUser && <NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
@@ -187,6 +208,7 @@ Header.propTypes = {
   location: PropTypes.object.isRequired,
   params: PropTypes.object,
   client: PropTypes.object.isRequired,
+  searchResultsArea: PropTypes.object,
 };
 
 const withEditOptions = {

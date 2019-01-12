@@ -2,26 +2,13 @@ import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:cor
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
-
-const styles = theme => ({
-  frontpageSequencesGridList: {
-    [legacyBreakpoints.maxSmall]: {
-      marginTop: 40,
-    }
-  }
-});
 
 const Home = (props, context) => {
   const { currentUser, router } = props;
-  const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || ("frontpage");
+  const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || 'frontpage'
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
   recentPostsTerms.forum = true
-  if (recentPostsTerms.view === "curated" && currentUser) {
-    recentPostsTerms.offset = 3
-  }
 
   let recentPostsTitle = "Recent Posts"
   switch (recentPostsTerms.view) {
@@ -38,7 +25,7 @@ const Home = (props, context) => {
       <Components.HeadTags image={getSetting('siteImage')} />
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
-          <Components.PostsViews />
+          <Components.HomePostsViews />
         </div>}
       >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
@@ -50,4 +37,4 @@ const Home = (props, context) => {
   )
 };
 
-registerComponent('Home', Home, withUser, withStyles(styles, {name: "Home"}));
+registerComponent('Home', Home, withUser);

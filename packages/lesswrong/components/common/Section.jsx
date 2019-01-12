@@ -4,13 +4,16 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import classNames from 'classnames';
 
 
 const BORDER_TOP_WIDTH = 3
 
 const styles = (theme) => ({
   section: {
-    marginBottom: theme.spacing.unit * 4,
+    [theme.breakpoints.up('sm')]: {
+      marginBottom: theme.spacing.unit * 4,
+    }
   },
   root: {
     maxWidth: "100vw",
@@ -26,7 +29,10 @@ const styles = (theme) => ({
       maxWidth: 720,
       marginLeft: "auto",
       marginRight: "auto"
-    }
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 0,
+    },
   },
   sectionTitle: {
     ...theme.typography.headerStyle,
@@ -85,13 +91,14 @@ const Section = ({
   titleLink,
   titleComponent,
   subscribeLinks = null,
+  className = null,
   children,
   classes
 }) => {
 
   return (
     <Components.ErrorBoundary>
-      <div className={classes.root}>
+      <div className={classNames(className, classes.root)}>
       <Grid container className={classes.section} spacing={0}>
         <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
           {title && <div className={classes.sectionTitleTop}>

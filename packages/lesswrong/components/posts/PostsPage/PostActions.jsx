@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
@@ -26,27 +26,41 @@ const styles = theme => ({
 class PostActions extends Component {
 
   handleMoveToMeta = () => {
-    const { post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {meta: true, metaDate: new Date()},
-      unset: {
-        frontpageDate: true,
-        curatedDate: true,
-        draft: true
-      }
+    const { post, updatePost } = this.props
+    updatePost({
+      selector: { _id: post._id},
+      data: {
+        meta: true,
+        draft: false,
+        metaDate: new Date(),
+        frontpageDate: null,
+        curatedDate: null
+      },
     })
   }
 
   handleMoveToFrontpage = () => {
-    const { post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: { frontpageDate: new Date() },
-      unset: {
-        meta: true,
-        draft: true
-      }
+    const { post, updatePost } = this.props
+    updatePost({
+      selector: { _id: post._id},
+      data: {
+        frontpageDate: new Date(),
+        meta: false,
+        draft: false
+      },
+    })
+  }
+
+  handleMoveToPersonalBlog = () => {
+    const { post, updatePost } = this.props
+    updatePost({
+      selector: { _id: post._id},
+      data: {
+        draft: false,
+        meta: false,
+        curatedDate: null,
+        frontpageDate: null
+      },
     })
   }
 
@@ -66,19 +80,6 @@ class PostActions extends Component {
     })
   }
 
-  handleMoveToPersonalBlog = () => {
-    const { post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {},
-      unset: {
-        curatedDate: true,
-        frontpageDate: true,
-        meta: true,
-        draft: true
-      }
-    })
-  }
   render() {
     const { classes, post, Container, currentUser } = this.props
     return (
@@ -132,7 +133,7 @@ class PostActions extends Component {
     )
   }
 }
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 };
@@ -146,5 +147,5 @@ const setAlignmentOptions = {
 registerComponent('PostActions', PostActions,
   withStyles(styles, {name: "PostActions"}),
   withUser,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   [withSetAlignmentPost, setAlignmentOptions])

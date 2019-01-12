@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 /**
  * @summary Comments schema
@@ -173,6 +174,9 @@ const schema = {
   },
   /**
     Whether the comment is deleted. Delete comments' content doesn't appear on the site.
+    FIXME: Not a real field. We inherited this from vulcan-starter, but
+    implemented our own, unrelated soft delete mechanism with the field named
+    `deleted` rather than `isDeleted`.
   */
   isDeleted: {
     type: Boolean,
@@ -217,6 +221,7 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 
   parentAnswerId: {
@@ -242,6 +247,7 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 };
 

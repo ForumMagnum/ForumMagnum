@@ -48,7 +48,7 @@ const basicText = {
   color: grey[800],
   // use ems (not rems) to preserve relative height even if font-size is changed
   lineHeight: '1.75em',
-  fontWeight: 500,
+  fontWeight: 400,
   fontFamily: serifStack
 }
 

@@ -49,6 +49,8 @@ class SunshineNewPostsItem extends Component {
 
   render () {
     const { post, hover, anchorEl } = this.props
+    const { MetaInfo } = Components
+
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl}>
@@ -58,6 +60,20 @@ class SunshineNewPostsItem extends Component {
             </Link>
           </Typography>
           <br/>
+          <div>
+            <MetaInfo>
+              { (post.moderationStyle || post.user.moderationStyle) && <span>Mod Style: </span> }
+              { post.moderationStyle || post.user.moderationStyle }
+              {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+            </MetaInfo>
+          </div>
+          <div>
+            <MetaInfo>
+              { (post.moderationGuidelinesHtmlBody || post.user.moderationGuidelinesHtmlBody) && <span>Mod Guidelines: </span> }
+              <span dangerouslySetInnerHTML={{__html: post.moderationGuidelinesHtmlBody || post.user.moderationGuidelinesHtmlBody}}/>
+              {!post.moderationGuidelinesHtmlBody && post.user.moderationGuidelinesHtmlBody && <span> (Default User Guideline)</span>}
+            </MetaInfo>
+          </div>
           <Components.PostsHighlight post={post}/>
         </Components.SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>

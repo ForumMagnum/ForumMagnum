@@ -1,7 +1,7 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { commentBodyStyles } from '../../../themes/stylePiping'
+import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -12,6 +12,17 @@ const styles = theme => ({
     maxWidth: "100%",
     overflowX: "auto",
     overflowY: "hidden",
+  },
+  answerStyling: {
+    ...postHighlightStyles(theme),
+    maxWidth: "100%",
+    overflowX: "auto",
+    overflowY: "hidden",
+    '& .read-more a, & .read-more a:hover': {
+      textShadow:"none",
+      backgroundImage: "none"
+    },
+    marginBottom: ".5em"
   },
   root: {
     position: "relative",
@@ -66,8 +77,9 @@ class CommentBody extends Component {
     const { ContentItemBody, CommentDeletedMetadata } = Components
 
     const bodyClasses = classNames(
-      classes.commentStyling,
-      { [classes.retracted]: comment.retracted }
+      { [classes.commentStyling]: !comment.answer,
+        [classes.answerStyling]: comment.answer,
+        [classes.retracted]: comment.retracted }
     );
 
     if (comment.deleted) {
