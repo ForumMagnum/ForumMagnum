@@ -79,7 +79,23 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
-  karmaChanges
+  karmaChanges {
+    totalChange
+    startDate
+    endDate
+    posts {
+      scoreChange
+      post {
+        title
+      }
+    }
+    comments {
+      scoreChange
+      comment {
+        body
+      }
+    }
+  }
 `);
 
 registerFragment(`

@@ -2,8 +2,6 @@ import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
-import GraphQLJSON from 'graphql-type-json';
-import { getKarmaChanges } from "../../karmaChanges.js";
 
 export const formGroups = {
   moderationGroup: {
@@ -833,33 +831,6 @@ Users.addField([
       control: 'checkbox',
       label: "Do not collapse comments (on home page)"
     }
-  },
-  
-  {
-    fieldName: 'karmaChanges',
-    fieldSchema: {
-      viewableBy: Users.owns,
-      type: GraphQLJSON,
-      resolveAs: {
-        arguments: 'startDate: Date, endDate: Date',
-        resolver: async (document, args, context) => {
-          let {startDate,endDate} = args;
-          
-          // If date range isn't specified, infer it from user settings
-          if (!startDate || !endDate) {
-            // TODO
-            const yesterday = new Date(new Date() - (60*60*24*1000));
-            startDate = yesterday;
-            endDate = new Date();
-          }
-          
-          return getKarmaChanges({
-            user: document,
-            startDate, endDate
-          });
-        },
-      }
-    },
   },
 ]);
 
