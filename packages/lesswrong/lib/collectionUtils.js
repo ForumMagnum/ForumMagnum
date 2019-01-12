@@ -46,6 +46,7 @@ export async function ensureIndex(collection, index, options={})
         partialFilterExpression: options && options.partialFilterExpression,
       });
     } catch(e) {
+      //eslint-disable-next-line no-console
       console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
     }
   }
