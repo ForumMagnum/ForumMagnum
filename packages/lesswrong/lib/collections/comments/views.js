@@ -14,6 +14,9 @@ Comments.addDefaultView(terms => {
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,
+    },
+    options: {
+      sort: {postedAt: -1},
     }
   });
 })
@@ -40,7 +43,7 @@ Comments.addView("commentReplies", function (terms) {
       parentCommentId: terms.parentCommentId,
     },
     options: {
-      sort: {createdAt: -1}
+      sort: {postedAt: -1}
     }
   }
 })
