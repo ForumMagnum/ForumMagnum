@@ -164,7 +164,7 @@ class CommentsItem extends Component {
                     subdirectory_arrow_left
                   </Icon>
                 </Tooltip>}
-              { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { postPage || this.props.collapsed && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
