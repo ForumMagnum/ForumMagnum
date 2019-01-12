@@ -109,7 +109,7 @@ class ModerationGuidelinesBox extends PureComponent {
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
-        postId: document._id
+        postId: document._id,
       }
     });
   }

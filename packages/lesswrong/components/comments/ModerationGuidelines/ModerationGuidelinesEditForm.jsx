@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import withUser from '../../common/withUser';
 
 const styles = theme => ({
   formButton: {
@@ -51,10 +52,12 @@ class ModerationGuidelinesEditForm extends PureComponent {
           <Typography variant="body2">
             Edit the moderation guidelines specific to this post:
           </Typography>
+          {/* TODO: fix unerlying issues so we don't need this weird addFields hack. Fields does not parse properly for non-admins */}
           <Components.SmartForm
             collection={Posts}
             documentId={postId}
             fields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
+            addFields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
             mutationFragment={getFragment("LWPostsPage")}
             successCallback={onClose}
             SubmitComponent={SubmitComponent}
@@ -67,6 +70,7 @@ class ModerationGuidelinesEditForm extends PureComponent {
 }
 
 const FormGroupComponent = (props) => {
+  console.log(props)
   return <React.Fragment>
     {props.fields.map(field => (
       <Components.FormComponent
@@ -91,4 +95,4 @@ ModerationGuidelinesEditForm.propTypes = {
   postId: PropTypes.string,
 }
 
-registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, withStyles(styles, { name: "ModerationGuidelinesEditForm" }));
+registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, withStyles(styles, { name: "ModerationGuidelinesEditForm" }), withUser);
