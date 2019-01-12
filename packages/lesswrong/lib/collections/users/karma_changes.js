@@ -1,5 +1,4 @@
 import Users from "meteor/vulcan:users";
-import GraphQLJSON from 'graphql-type-json';
 import { getKarmaChanges } from "../../karmaChanges.js";
 import { addGraphQLSchema, addGraphQLResolvers, Connectors } from 'meteor/vulcan:core';
 import { Comments } from '../comments'
