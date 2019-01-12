@@ -53,6 +53,7 @@ const wordcountFromMarkdown = (markdownBody) => {
 }
 
 const convertFromContent = (content, fieldName = "") => {
+  console.log('convertFromContent')
   const contentState = convertFromRaw(content);
   const htmlBody = draftToHTML(contentState)
   const body = htmlToMarkdown(htmlBody)

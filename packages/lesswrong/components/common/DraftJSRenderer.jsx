@@ -6,9 +6,11 @@ import { draftToHTML } from '../../lib/editor/utils.js'
 
 class DraftJSRenderer extends PureComponent {
   render() {
+    console.log('who what? ----------------------------------------')
     let htmlBody = {__html: "<span>No description</span>"}
     try {
       const contentState = convertFromRaw(this.props.content);
+      console.log('contentState', contentState)
       htmlBody = {__html: draftToHTML(contentState)};
     } catch(err) {
       //eslint-disable-next-line no-console

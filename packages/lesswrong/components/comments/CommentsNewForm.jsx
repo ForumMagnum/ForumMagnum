@@ -29,6 +29,10 @@ const CommentsNewForm = (props, context) => {
           mutationFragment={getFragment('CommentsList')}
           successCallback={props.successCallback}
           cancelCallback={props.type === "reply" ? props.cancelCallback : null}
+          submitCallback={data => {
+            console.log('submit callback data', data)
+            return data
+          }}
           prefilledProps={prefilledProps}
           layout="elementOnly"
         />

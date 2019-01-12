@@ -52,9 +52,11 @@ class EditorFormComponent extends Component {
   }
 
   UNSAFE_componentWillMount() {
+    // TODO; what even, man. Will it ever actually show loading?
     this.setState({editor: DraftJSEditor});
 
     const removeUnusedFields = (data) => {
+      console.log('removeUnusedFields data', data)
       let { content, body, htmlBody, ...newData } = data
       switch(this.getCurrentEditorType()) {
         case "draft-js":
@@ -89,14 +91,19 @@ class EditorFormComponent extends Component {
     if (editorOverride) {return editorOverride}
     // Otherwise, default to rich-text, but maybe show others
     if (document && (document.lastEditedAs === "html")) {
+      console.log('current is html')
       return "html"
     } else if (document && (document.lastEditedAs === "markdown")) {
+      console.log('current is md')
       return "markdown"
     } else if (document && (document.lastEditedAs === "draft-js")){
+      console.log('current is draftjs')
       return "draft-js"
     } else if (enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser)){
+      console.log('current is md')
       return "markdown"
     } else {
+      console.log('current is draftjs')
       return "draft-js"
     }
   }
@@ -111,6 +118,8 @@ class EditorFormComponent extends Component {
 
   render() {
     const AsyncEditor = this.state.editor
+    console.log('editorformcomponent render')
+    // console.log('asynceditor', AsyncEditor)
     const { editorOverride } = this.state
     const { document, currentUser, formType, name } = this.props
     const commentStyles = this.props.form && this.props.form.commentStyles
@@ -131,6 +140,7 @@ class EditorFormComponent extends Component {
       && this.renderEditorWarning()
 
     if (this.getCurrentEditorType() === "draft-js") {
+      // console.log('is still draft-js')
       return (
         <div className={heightClass}>
           { editorWarning }

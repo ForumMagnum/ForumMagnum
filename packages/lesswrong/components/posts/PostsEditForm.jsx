@@ -8,6 +8,7 @@ import { withRouter } from 'react-router'
 class PostsEditForm extends PureComponent {
 
   render() {
+    console.log('PostEditForm???')
     const { documentId, document, eventForm } = this.props;
     const isDraft = document && document.draft;
 
@@ -17,6 +18,10 @@ class PostsEditForm extends PureComponent {
           collection={Posts}
           documentId={documentId}
           mutationFragment={getFragment('LWPostsPage')}
+          submitCallback={data => {
+            console.log('submit callback data', data)
+            return data
+          }}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
             this.props.router.push({pathname: Posts.getPageUrl(post)});

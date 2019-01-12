@@ -7,13 +7,13 @@ import createImagePlugin from 'draft-js-image-plugin';
 import createAlignmentPlugin from 'draft-js-alignment-plugin';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
-import createLinkPlugin from 'draft-js-anchor-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
+import createLinkPlugin from 'draft-js-anchor-plugin';
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
@@ -25,6 +25,7 @@ import {
   BlockquoteButton,
 } from 'draft-js-buttons';
 import NoSsr from '@material-ui/core/NoSsr';
+import createLinkifyPlugin from './editor-plugins/custom-linkify-plugin'
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
@@ -98,6 +99,8 @@ class EditorForm extends Component {
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
 
+    const linkifyPlugin = createLinkifyPlugin();
+
     const imagePlugin = createImagePlugin({ decorator });
     let plugins = [
       inlineToolbarPlugin,
@@ -109,7 +112,8 @@ class EditorForm extends Component {
       richButtonsPlugin,
       blockBreakoutPlugin,
       markdownShortcutsPlugin,
-      dividerPlugin
+      dividerPlugin,
+      linkifyPlugin
     ];
 
     if (isClient) {
@@ -146,6 +150,7 @@ class EditorForm extends Component {
   }
 
   render() {
+    console.log('EditorForm render')
     const { theme, editorState, onChange } = this.props
 
     const InlineToolbar = this.plugins[0].InlineToolbar;

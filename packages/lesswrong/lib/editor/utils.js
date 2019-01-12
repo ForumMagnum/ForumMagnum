@@ -1,6 +1,7 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 import { Utils } from 'meteor/vulcan:core';
+import linkifyIt from 'linkify-it'
 
 
 export const htmlToDraft = convertFromHTML({
@@ -59,6 +60,7 @@ export const draftToHTML = convertToHTML({
     }
   },
   entityToHTML: (entity, originalText) => {
+    console.log('entityToHTML entity', entity)
     if (entity.type === 'image' || entity.type === 'IMAGE') {
       let classNames = 'draft-image '
       if (entity.data.alignment) {
@@ -91,8 +93,19 @@ export const draftToHTML = convertToHTML({
   },
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
+    console.log('blockToHTML block', block)
     const type = block.type;
 
+    const linkable = [
+      'ordered-list-item',
+      'unordered-list-item',
+      'paragraph',
+      'unstyled'
+    ]
+    // if (linkable.includes(type)) {
+    //   if (linkifyIt.match(block.text)) {
+    //   }
+    // }
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
