@@ -14,6 +14,9 @@ Comments.addDefaultView(terms => {
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,
+    },
+    options: {
+      sort: {postedAt: -1},
     }
   });
 })
@@ -22,8 +25,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {deleted:1, deletedPublic:1},
-    suffix: {hideAuthor:1, userId:1, af:1},
+    prefix: {},
+    suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
 
@@ -40,7 +43,7 @@ Comments.addView("commentReplies", function (terms) {
       parentCommentId: terms.parentCommentId,
     },
     options: {
-      sort: {createdAt: -1}
+      sort: {postedAt: -1}
     }
   }
 })
