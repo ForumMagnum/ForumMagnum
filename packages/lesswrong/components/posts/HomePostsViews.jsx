@@ -10,7 +10,7 @@ import Users from 'meteor/vulcan:users';
 import postViewSections from '../../lib/sections.js'
 import withUser from '../common/withUser';
 
-const defaultViews = ["curated", "frontpage"];
+const defaultViews = ["frontpage"];
 const defaultExpandedViews = ["community"];
 
 const styles = theme => ({
