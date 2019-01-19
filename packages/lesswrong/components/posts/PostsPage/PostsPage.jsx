@@ -165,10 +165,7 @@ class PostsPage extends Component {
 
   render() {
     const { loading, document, currentUser, location, router, classes, params } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
-      Section, TableOfContents } = Components
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper, PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection, Section, TableOfContents, AlignmentCrosspostMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -245,6 +242,7 @@ class PostsPage extends Component {
 
                 { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
                 <div className={classes.postContent}>
+                  <AlignmentCrosspostMessage post={post} />
                   <LinkPostMessage post={post} />
                   { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
                 </div>
