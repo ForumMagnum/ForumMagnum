@@ -19,13 +19,10 @@ class EventsUpcoming extends Component {
   }
 
   render() {
-    const { classes, router } = this.props;
+    const { classes } = this.props;
     const postsListTerms = {
-      view: 'nearbyEvents',
-      lat: this.state.currentUserLocation.lat,
-      lng: this.state.currentUserLocation.lng,
+      view: 'upcomingEvents',
       limit: 20,
-      filters: router.location.query && router.location.query.filters || [],
     }
 
     return <div className={classes.dailyWrapper}>

@@ -486,6 +486,25 @@ Posts.addView("pastEvents", function (terms) {
 })
 // Same index as events
 
+Posts.addView("upcomingEvents", function (terms) {
+  const oneDayAgo = moment().subtract(1, 'days').toDate();
+
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
+      startTime: {$gte: oneDayAgo}
+    },
+    options: {
+      sort: {
+        startTime: 1,
+      }
+    }
+  }
+})
+// Same index as events
+
 Posts.addView("groupPosts", function (terms) {
   return {
     selector: {

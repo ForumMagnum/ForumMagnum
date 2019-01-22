@@ -75,6 +75,7 @@ import '../components/users/AccountsResetPassword.jsx';
 
 import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
+import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/posts/PostsHome.jsx';

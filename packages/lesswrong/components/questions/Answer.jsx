@@ -106,9 +106,9 @@ class Answer extends Component {
     const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
 
     return (
-      <div className={classes.root} id={comment._id}>
+      <div className={classes.root}>
         { comment.deleted ?
-          <div className={classes.deletedSection}>
+          <div className={classes.deletedSection} id={comment._id}>
             <Typography variant="body2" className={classes.deleted}>
               Answer was deleted
             </Typography>
@@ -123,9 +123,9 @@ class Answer extends Component {
           </div>
           :
           <div>
-            {comment.user && <Typography variant="headline" className={classes.author}>
+            {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
               { <UsersName user={comment.user} />}
-            </Typography>}
+            </Typography >}
             <Typography variant="subheading" className={classes.date}>
               <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
                 <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
