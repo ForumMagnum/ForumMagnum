@@ -4,3 +4,4 @@
 // script was written.
 
 import './2019-01-04-voteSchema';
+import './2019-01-21-denormalizeVoteCount';
