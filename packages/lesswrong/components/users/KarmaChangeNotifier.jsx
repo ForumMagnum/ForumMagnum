@@ -5,12 +5,29 @@ import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
+import { Link } from 'react-router';
 
 const styles = theme => ({
   karmaNotifierButton: {
   },
   karmaNotifierPopover: {
     padding: 10,
+  },
+  
+  votedItems: {
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  votedItemRow: {
+  },
+  votedItemScoreChange: {
+    display: "inline-block",
+    width: 30,
+    textAlign: "right",
+  },
+  votedItemDescription: {
+    display: "inline-block",
+    marginLeft: 5,
   },
 });
 
@@ -34,39 +51,61 @@ class KarmaChangeNotifier extends PureComponent {
     });
   }
   
+  // Given a number, return a string version of it which has a plus sign in
+  // front if it's strictly positive. Ie "+1", "0", "-1" (rather than the usual
+  // stringification, which would be "1", "0", "-1").
+  numberToSignedString(n) {
+    if (n>0)
+      return "+"+n;
+    else
+      return ""+n;
+  }
+  
   render() {
     const {classes, currentUser} = this.props;
+    const {FormatDate} = Components;
     if (!currentUser) return null;
     const karmaChanges = currentUser.karmaChanges;
     
     return (<React.Fragment>
       <Button onClick={this.handleClick} className={classes.karmaNotifierButton}>
-        {karmaChanges.totalChange > 0 && "+"+karmaChanges.totalChange}
-        {karmaChanges.totalChange <= 0 && karmaChanges.totalChange}
+        {this.numberToSignedString(karmaChanges.totalChange)}
       </Button>
       <Popover
         open={this.state.open}
         anchorEl={this.state.anchorEl}
-        anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+        anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
         onClose={this.handleRequestClose}
       >
         <div className={classes.karmaNotifierPopover}>
-          Karma changes between {karmaChanges.startDate} and {karmaChanges.endDate}
+          Karma changes between <FormatDate date={karmaChanges.startDate}/> and <FormatDate date={karmaChanges.endDate}/>
           
-          <ul>
+          <div className={classes.votedItems}>
             {karmaChanges.posts && karmaChanges.posts.map((postChange,i) => (
-              <li key={"post"+i}>
-                {postChange.scoreChange}
-                {postChange.post.title}
-              </li>
+              <div className={classes.votedItemRow} key={"post"+i}>
+                <div className={classes.votedItemScoreChange}>
+                  {this.numberToSignedString(postChange.scoreChange)}
+                </div>
+                <div className={classes.votedItemDescription}>
+                  <Link to={postChange.post.pageUrlRelative}>
+                    {postChange.post.title}
+                  </Link>
+                </div>
+              </div>
             ))}
             {karmaChanges.comments && karmaChanges.comments.map((commentChange,i) => (
-              <li key={"comment"+i}>
-                {commentChange.scoreChange}
-                {commentChange.comment.body}
-              </li>
+              <div className={classes.votedItemRow} key={"comment"+i}>
+                <div className={classes.votedItemScoreChange}>
+                  {this.numberToSignedString(commentChange.scoreChange)}
+                </div>
+                <div className={classes.votedItemDescription}>
+                  <Link to={commentChange.comment.pageUrlRelative}>
+                    {commentChange.comment.body}
+                  </Link>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </Popover>
     </React.Fragment>);

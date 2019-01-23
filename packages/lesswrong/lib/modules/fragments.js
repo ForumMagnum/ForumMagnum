@@ -89,12 +89,14 @@ extendFragment('UsersCurrent', `
       scoreChange
       post {
         title
+        pageUrlRelative
       }
     }
     comments {
       scoreChange
       comment {
         body
+        pageUrlRelative
       }
     }
   }

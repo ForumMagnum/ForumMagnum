@@ -380,6 +380,18 @@ const schema = {
       },
     }
   },
+  
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        return Posts.getPageUrl(post, false);
+      },
+    }
+  },
 
   linkUrl: {
     type: String,
