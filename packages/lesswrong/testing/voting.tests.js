@@ -163,6 +163,7 @@ describe('Voting', async function() {
       });
       
       // TODO
+      clock.uninstall();
     });
     /*it('does not include posts outside the selected date range', async () => {
       // TODO
