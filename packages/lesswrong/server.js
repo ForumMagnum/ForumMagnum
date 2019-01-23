@@ -29,6 +29,8 @@ import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
 import './server/scripts/logMongoQueries.js';
+import './server/scripts/fillMissing.js';
+
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
@@ -41,6 +43,7 @@ import './server/akismet.js';
 import './server/votingCron.js';
 import './server/votingGraphQL.js';
 import './server/updateScores.js';
+import './server/siteAdminMetadata.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';

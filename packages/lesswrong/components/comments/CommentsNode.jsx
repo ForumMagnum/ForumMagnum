@@ -1,10 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -42,7 +43,13 @@ const styles = theme => ({
       backgroundColor: "rgba(0,0,0,.075)"
     }
   },
-  answerComment: {
+  isAnswer: {
+    borderLeft: 'transparent',
+    borderRight: 'solid 1px rgba(0,0,0,.125)',
+    borderTop: 'transparent',
+    borderBottom: 'transparent',
+  },
+  answerChildComment: {
     borderLeft: 'transparent',
     borderRight: 'transparent',
     borderTop: 'transparent',
@@ -62,7 +69,7 @@ const styles = theme => ({
   }
 })
 
-class CommentsNode extends PureComponent {
+class CommentsNode extends Component {
   constructor(props) {
     super(props);
 
@@ -126,6 +133,34 @@ class CommentsNode extends PureComponent {
     this.setState({hover: !this.state.hover});
   }
 
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!shallowEqual(this.state, nextState))
+      return true;
+    if (!shallowEqualExcept(this.props, nextProps, ["editMutation", "post", "children"]))
+      return true;
+    if (this.commentTreesDiffer(this.props.children, nextProps.children))
+      return true;
+
+    return false;
+  }
+
+  commentTreesDiffer(oldComments, newComments) {
+    if(!oldComments && newComments) return true;
+    if(oldComments && !newComments) return true;
+    if(!newComments) return false;
+
+    if(oldComments.length != newComments.length)
+      return true;
+    for(let i=0; i<oldComments.length; i++) {
+      if(oldComments[i].item != newComments[i].item)
+        return true;
+      if(this.commentTreesDiffer(oldComments[i].children, newComments[i].children))
+        return true;
+    }
+    return false;
+  }
+
   render() {
     const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, parentAnswerId } = this.props;
 
@@ -156,7 +191,8 @@ class CommentsNode extends PureComponent {
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
-        [classes.answerComment]: parentAnswerId,
+        [classes.isAnswer]: comment.answer,
+        [classes.answerChildComment]: parentAnswerId,
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length)
@@ -185,7 +221,7 @@ class CommentsNode extends PureComponent {
                 postPage={postPage}
                 nestingLevel={nestingLevel}
                 showPostTitle={showPostTitle}
-                parentAnswerId={parentAnswerId}
+                parentAnswerId={parentAnswerId || comment.answer && comment._id}
               />
             </div>
             {!collapsed && <div className="comments-children">
@@ -205,7 +241,7 @@ class CommentsNode extends PureComponent {
                   editMutation={editMutation}
                   post={post}
                   postPage={postPage}
-                  parentAnswerId={parentAnswerId}
+                  parentAnswerId={parentAnswerId || comment.answer && comment._id}
                 />)}
             </div>}
           </div>

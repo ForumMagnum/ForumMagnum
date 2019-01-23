@@ -7,6 +7,9 @@ import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import withUser from '../common/withUser'
+import { Link } from 'react-router';
+import { Posts } from "../../lib/collections/posts";
+import Icon from '@material-ui/core/Icon';
 
 const styles = theme => ({
   postContent: postBodyStyles(theme),
@@ -103,9 +106,9 @@ class Answer extends Component {
     const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
 
     return (
-      <div className={classes.root} id={comment._id}>
+      <div className={classes.root}>
         { comment.deleted ?
-          <div className={classes.deletedSection}>
+          <div className={classes.deletedSection} id={comment._id}>
             <Typography variant="body2" className={classes.deleted}>
               Answer was deleted
             </Typography>
@@ -120,11 +123,14 @@ class Answer extends Component {
           </div>
           :
           <div>
-            {comment.user && <Typography variant="headline" className={classes.author}>
+            {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
               { <UsersName user={comment.user} />}
-            </Typography>}
+            </Typography >}
             <Typography variant="subheading" className={classes.date}>
-              <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+              <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
+                <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+                <Icon className="material-icons comments-item-permalink"> link </Icon>
+              </Link>
             </Typography>
             <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
             <span className={classes.menu}>
@@ -150,7 +156,7 @@ class Answer extends Component {
             <AnswerCommentsList
               terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
               post={post}
-              parentAnswerId={comment._id}
+              parentAnswer={comment}
               />
           </div>
         }
