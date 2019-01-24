@@ -3,10 +3,23 @@ import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import Checkbox from '@material-ui/core/Checkbox';
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
 
-const Home = (props, context) => {
-  const { currentUser, router } = props;
-  const { TabNavigationMenu } = Components
+const styles = theme => ({
+  includePersonal: {
+    textAlign: "right",
+    marginRight: theme.spacing.unit,
+  },
+  checkbox: {
+    padding: 0,
+    paddingRight: theme.spacing.unit
+  }
+})
+
+const Home = ({ currentUser, router, classes }, context) => {
+  const { TabNavigationMenu, SingleColumnSection, SectionTitle, SectionSubtitle, MetaInfo } = Components
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -53,36 +66,34 @@ const Home = (props, context) => {
       <TabNavigationMenu />
       <Components.RecommendedReading />
       {currentUser &&
-        <Components.Section title="Curated Content">
+        <SingleColumnSection>
+          <SectionTitle title="Curated Content">
+            <Components.SubscribeWidget view={recentPostsTerms.view} />
+          </SectionTitle>
           <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
-        </Components.Section>}
-      <Components.Section title={recentPostsTitle}
-        titleComponent= {<div className="recent-posts-title-component">
-          <Components.HomePostsViews />
-        </div>}
-        subscribeLinks={<Components.SubscribeWidget view={recentPostsTerms.view} />}
-      >
+        </SingleColumnSection>}
+      <SingleColumnSection >
+        <SectionTitle title={recentPostsTitle}>
+          <Components.SubscribeWidget view={recentPostsTerms.view} />
+        </SectionTitle>
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
-      </Components.Section>
-      <Components.Section
-        title="Community"
-        titleLink="/community"
-        titleComponent={<div>
-          <Components.SectionSubtitle>
-          <Link to="/community">Find Events Nearby</Link>
-          </Components.SectionSubtitle>
-        </div>}
-      >
+        <div className={classes.includePersonal}>
+            <Checkbox classes={{root: classes.checkbox}}/> <MetaInfo>Include Personal Blogposts</MetaInfo>
+        </div>
+      </SingleColumnSection>
+      <SingleColumnSection>
+        <SectionTitle title={<Link to="/community">Community</Link>} />
         <Components.PostsList
           terms={eventsListTerms}
           showLoadMore={false}
           showHeader={false} />
-      </Components.Section>
-      <Components.Section title="Recent Discussion" titleLink="/AllComments">
+      </SingleColumnSection>
+      <SingleColumnSection>
+      <SectionTitle title={<Link to="/AllComments">Recent Discussion</Link>} />
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
-      </Components.Section>
+      </SingleColumnSection>
     </div>
   )
 };
 
-registerComponent('Home', Home, withUser);
+registerComponent('Home', Home, withUser, withStyles(styles, {name: "Home"}));

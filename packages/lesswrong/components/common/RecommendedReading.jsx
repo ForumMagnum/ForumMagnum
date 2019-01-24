@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import Hidden from '@material-ui/core/Hidden';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   section: {
@@ -11,7 +12,9 @@ const styles = theme => ({
       marginTop: -15,
     },
   },
-  
+  curatedTitle: {
+    fontFamily: theme.typography.postStyle.fontFamily
+  },
   smallScreenRecommendedReading: {
     maxWidth: 720,
     margin: "0 auto",
@@ -20,21 +23,16 @@ const styles = theme => ({
 
 
 const RecommendedReading = ({currentUser, classes}) => {
+  const { SingleColumnSection, SectionTitle } = Components
   const sectionTitle = currentUser ? "Recommended Sequences" : "Recommended Reading";
   
   const sectionWrapper = (recommendedContent) => (
-    <Components.Section
-      title={sectionTitle}
-      titleLink="/library"
-      className={classes.section}
-      titleComponent= {
-        <Hidden smDown implementation="css">
-          <Components.SectionSubtitle to="/library">
-            <Link to="/library">Sequence Library</Link>
-          </Components.SectionSubtitle>
-        </Hidden>
-      }
-    >{recommendedContent}</Components.Section>
+    <SingleColumnSection >
+      <Typography variant="display1" className={classes.curatedTitle}>
+        { sectionTitle }
+      </Typography>
+      {recommendedContent}
+    </SingleColumnSection>
   );
   
   if (currentUser) {

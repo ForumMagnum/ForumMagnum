@@ -16,8 +16,8 @@ export const styles = theme => ({
   },
   
   gridContent: {
-    marginTop: -15,
-    paddingLeft: 5,
+    // Note: Probably makes a sequence grid look janky somewhere
+    marginLeft: -14,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
     },

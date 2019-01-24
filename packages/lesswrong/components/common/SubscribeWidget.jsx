@@ -7,11 +7,10 @@ import classNames from 'classnames';
 const styles = theme => ({
   buttons: {
     display: "inline",
-    marginTop: "8px",
   },
   subscribeButton: {
+    top: 2,
     position: "relative",
-    top: "2px",
     display: "inline",
     paddingLeft: theme.spacing.unit,
     color: theme.palette.text.secondary,
@@ -30,7 +29,7 @@ const styles = theme => ({
   }
 });
 
-const defaultSubscribeLabel = "Subscribe";
+const defaultSubscribeLabel = "";
 
 class SubscribeWidget extends Component {
   constructor(props) {
@@ -63,7 +62,7 @@ class SubscribeWidget extends Component {
   render() {
     const { classes, className, view } = this.props;
     const { dialogOpen, method, subscribeLabel, subscribeLabelHighlighted } = this.state;
-
+    const { MetaInfo } = Components
     return (
       <div className={classNames(className, classes.buttons)}>
         <div
@@ -72,12 +71,12 @@ class SubscribeWidget extends Component {
             classes.subscribeLabel)}
           onClick={ () => this.openDialog("email") }
         >
-          {subscribeLabel}
+          <MetaInfo>{subscribeLabel}</MetaInfo>
         </div>
         <div
           className={classes.subscribeButton}
           onClick={ () => this.openDialog("rss") }
-          onMouseEnter={ () => this.setSubscribeLabel("Via RSS") }
+          onMouseEnter={ () => this.setSubscribeLabel("Subscribe via RSS") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
           <Icon fontSize="inherit" className={classes.icon}>rss_feed</Icon>
@@ -85,7 +84,7 @@ class SubscribeWidget extends Component {
         <div
           className={classes.subscribeButton}
           onClick={ () => this.openDialog("email") }
-          onMouseEnter={ () => this.setSubscribeLabel("Via Email") }
+          onMouseEnter={ () => this.setSubscribeLabel("Subscribe via Email") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
           <Icon fontSize="inherit" className={classes.icon}>email</Icon>

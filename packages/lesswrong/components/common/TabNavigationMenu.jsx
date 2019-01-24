@@ -75,7 +75,7 @@ const styles = (theme) => ({
   },
   icon: {
     display: "block",
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[400],
     marginBottom: theme.spacing.unit/2,
     [theme.breakpoints.up('md')]: {
       marginRight: theme.spacing.unit,

@@ -37,6 +37,8 @@ import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
+import '../components/common/SingleColumnSection';
+import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';

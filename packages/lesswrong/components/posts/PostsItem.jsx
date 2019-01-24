@@ -34,7 +34,7 @@ const styles = theme => ({
   },
   postsItem: {
     position: "relative",
-
+    maxWidth:675,
     "&:hover": {
       backgroundColor: "rgba(0,0,0,.025) !important",
     },
@@ -87,7 +87,7 @@ const styles = theme => ({
   },
 
   content: {
-    paddingLeft:10,
+    paddingLeft:5,
     paddingTop:10,
     width:"calc(100% - 100px)"
   },
@@ -99,7 +99,10 @@ const styles = theme => ({
   paperNotExpanded: {
     backgroundColor: 'inherit',
     outline: "none",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    '&:last-child': {
+      borderBottom: "none"
+    }
   },
   commentCountIcon: {
     position:"absolute",

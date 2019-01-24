@@ -49,9 +49,7 @@
   & > div > div:first-of-type {
     border-top: none;
   }
-  margin-left: 3px;
-  margin-top: -7px;
-  padding: 0 10px;
+  // NOTE: PostsList will look slightly janky now on older Section components
   a {
     background-image: none;
     text-shadow: none;
