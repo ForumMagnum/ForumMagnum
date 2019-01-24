@@ -59,6 +59,7 @@ class CollectionsPage extends Component {
 
   render() {
     const {document, currentUser, loading, classes} = this.props;
+
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {

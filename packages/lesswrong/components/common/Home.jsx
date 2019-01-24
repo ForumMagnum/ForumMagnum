@@ -6,6 +6,7 @@ import withUser from '../common/withUser';
 
 const Home = (props, context) => {
   const { currentUser, router } = props;
+  const { TabNavigationMenu } = Components
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
 
@@ -49,6 +50,7 @@ const Home = (props, context) => {
   return (
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
+      <TabNavigationMenu />
       <Components.RecommendedReading />
       {currentUser &&
         <Components.Section title="Curated Content">

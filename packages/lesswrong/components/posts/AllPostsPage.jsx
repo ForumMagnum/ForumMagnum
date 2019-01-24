@@ -69,7 +69,7 @@ class AllPostsPage extends Component {
   }
 
   render() {
-
+    const { TabNavigationMenu } = Components
     const query = _.clone(this.props.router.location.query || {});
 
     const terms = {
@@ -83,6 +83,7 @@ class AllPostsPage extends Component {
 
     return (
       <Section title="All Posts" titleComponent={this.renderTitle()}>
+        <TabNavigationMenu />
           <PostsList terms={terms} showHeader={false}/>
       </Section>
     )

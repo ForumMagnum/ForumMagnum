@@ -42,8 +42,11 @@ const styles = theme => ({
 });
 
 const SequencesHome = ({document, currentUser, loading, classes}) => {
+  const { TabNavigationMenu } = Components
   // TODO: decide on terms for community sequences
   return <div className={classes.root}>
+    <TabNavigationMenu />
+
     {/* Title */}
     <Components.Section>
       <div className={classes.header}>

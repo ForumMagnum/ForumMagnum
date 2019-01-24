@@ -30,6 +30,7 @@ import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
+import '../components/common/TabNavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
 import '../components/common/RecommendedReading.jsx';
@@ -51,6 +52,7 @@ import '../components/common/Logo.jsx';
 import '../components/common/SearchForm.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
+
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';

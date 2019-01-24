@@ -53,6 +53,7 @@ class CommunityHome extends Component {
   }
 
   render() {
+    const { TabNavigationMenu } = Components
     const router = this.props.router;
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -76,6 +77,7 @@ class CommunityHome extends Component {
     }
     return (
       <div className="community-home">
+        <TabNavigationMenu />
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />
