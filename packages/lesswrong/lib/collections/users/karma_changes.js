@@ -66,13 +66,28 @@ Users.addField([
         type: 'KarmaChanges',
         resolver: async (document, args, context) => {
           let {startDate,endDate} = args;
+          const {currentUser} = context;
+          
+          if (!currentUser)
+            return null;
           
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
-            // TODO
-            const yesterday = new Date(new Date() - (60*60*24*1000));
-            startDate = yesterday;
-            endDate = new Date();
+            const settings = currentUser.karmaChangeNotifierSettings;
+            
+            switch(settings.updateFrequency) {
+              case "disabled":
+                return null;
+              case "daily":
+              case "weekly":
+              case "realtime":
+                // TODO: Set the right date range. Requires some decision about
+                // how long notifications persist.
+                const yesterday = new Date(new Date() - (60*60*24*1000));
+                startDate = yesterday;
+                endDate = new Date();
+                break;
+            }
           }
           
           return getKarmaChanges({

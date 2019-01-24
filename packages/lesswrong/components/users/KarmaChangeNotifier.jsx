@@ -67,6 +67,10 @@ class KarmaChangeNotifier extends PureComponent {
     if (!currentUser) return null;
     const karmaChanges = currentUser.karmaChanges;
     
+    const settings = currentUser.karmaChangeNotifierSettings;
+    if (settings && settings.updateFrequency === "disabled")
+      return null;
+    
     return (<React.Fragment>
       <Button onClick={this.handleClick} className={classes.karmaNotifierButton}>
         {this.numberToSignedString(karmaChanges.totalChange)}

@@ -81,6 +81,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  karmaChangeNotifierSettings
   karmaChanges {
     totalChange
     startDate
