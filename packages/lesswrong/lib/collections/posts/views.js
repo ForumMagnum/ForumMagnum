@@ -75,7 +75,7 @@ Posts.addView("userPosts", terms => ({
   options: {
     limit: 5,
     sort: {
-      score: -1,
+      postedAt: -1,
     }
   }
 }));
