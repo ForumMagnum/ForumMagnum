@@ -85,6 +85,7 @@ class UsersMenu extends PureComponent {
             }
             {showNewShortformButton &&
               <Link to={`/posts/${currentUser.shortformFeedId}`}>
+                {/* TODO: set up a proper link url */}
                 <MenuItem>Shortform Feed</MenuItem>
               </Link>
             }

@@ -79,6 +79,7 @@ const Home = (props, context) => {
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
         <div>
           {currentUser.shortformFeedId && <Components.SectionSubtitle>
+            {/* TODO: set up a proper link url */}
             <Link to={`posts/${currentUser.shortformFeedId}`}>Shortform Feed</Link>
           </Components.SectionSubtitle>}
         </div>
