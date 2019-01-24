@@ -38,7 +38,7 @@ const karmaNotificationTimingChoices = {
 };
 
 const defaultSettings = {
-  batching: "daily",
+  updateFrequency: "daily",
   timeOfDay: "3am",
   dayOfWeek: "Saturday",
 };

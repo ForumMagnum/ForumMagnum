@@ -39,7 +39,6 @@ export async function getKarmaChanges({user, startDate, endDate})
       authorId: user._id,
       votedAt: {$gte: startDate, $lte: endDate},
       userId: {$ne: user._id}, //Exclude self-votes
-      cancelled: false,
     }},
     
     // Group by thing-that-was-voted-on and calculate the total karma change
