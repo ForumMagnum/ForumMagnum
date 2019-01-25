@@ -1,4 +1,4 @@
-import { Components, registerComponent, withList, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMulti, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
@@ -13,7 +13,8 @@ const Error = ({error}) => <div>
 
 const styles = theme => ({
   loading: {
-    opacity: .4,
+    // TODO: Figure out how to properly determine when to apply the loading style
+    // opacity: .4,
   }
 })
 
@@ -40,9 +41,7 @@ const PostsList = ({
   //         Alternatively, is there a better way of checking that this is
   //         in fact the best way of checking loading status?
   const loadingMore = networkStatus === 2 || networkStatus === 1;
-
-  const { Loading } = Components
-
+  // const { Loading } = Components
   const renderContent = () => {
     if (results && results.length) {
       return <div>
@@ -60,8 +59,7 @@ const PostsList = ({
     }
   }
   return (
-    <div className={classNames(className, 'posts-list', {[classes.loading]: loading})}>
-      {loading && <Loading/> }
+    <div className={classNames(className, 'posts-list', {[classes.loading]: loadingMore})}>
       {showHeader ? <Components.PostsListHeader/> : null}
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
       <div className="posts-list-content">
@@ -98,4 +96,4 @@ const options = {
   ssr: true
 };
 
-registerComponent('PostsList', PostsList, withUser, [withList, options], withStyles(styles, {name:"PostsList"}));
+registerComponent('PostsList', PostsList, withUser, [withMulti, options], withStyles(styles, {name:"PostsList"}));

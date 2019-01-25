@@ -38,3 +38,7 @@ Notifications.addView("unreadUserNotifications", (terms) => {
   }
 })
 ensureIndex(Notifications, {userId:1, type:1, createdAt:-1});
+
+// Index used in callbacks for finding notifications related to a document
+// that is being deleted
+ensureIndex(Notifications, {documentId:1});

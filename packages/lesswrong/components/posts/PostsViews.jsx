@@ -108,14 +108,19 @@ class PostsViews extends Component {
           </Menu>
         </SectionSubtitle>
         <div className={classes.divider}/>
-        <div onClick={()=>this.setFilter("curated")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})}>
-            Curated
+        <div onClick={()=>this.setFilter("all")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})}>
+            All Posts
           </SectionSubtitle>
         </div>
         <div onClick={()=>this.setFilter("frontpage")}>
           <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})}>
             Frontpage
+          </SectionSubtitle>
+        </div>
+        <div onClick={()=>this.setFilter("curated")}>
+          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})}>
+            Curated
           </SectionSubtitle>
         </div>
         <div onClick={()=>this.setFilter("questions")}>
@@ -131,11 +136,6 @@ class PostsViews extends Component {
         <div onClick={()=>this.setFilter("meta")}>
           <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="meta"})}>
             Meta
-          </SectionSubtitle>
-        </div>
-        <div onClick={()=>this.setFilter("all")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})}>
-            All
           </SectionSubtitle>
         </div>
       </div>

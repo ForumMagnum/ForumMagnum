@@ -4,18 +4,51 @@ SimpleSchema.extendOptions([ 'canAutofillDefault' ]);
 
 export let expectedIndexes = {};
 
-export async function ensureIndex(collection, index, options)
+// Returns true if the specified index has a name, and the collection has an
+// existing index with the same name but different columns or options.
+async function conflictingIndexExists(collection, index, options)
+{
+  if (!options.name)
+    return false;
+  
+  let existingIndexes = await collection.rawCollection().indexes();
+  
+  for (let existingIndex of existingIndexes) {
+    if (existingIndex.name === options.name) {
+      if (!_.isEqual(existingIndex.key, index)
+         || !_.isEqual(existingIndex.partialFilterExpression, options.partialFilterExpression))
+      {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+export async function ensureIndex(collection, index, options={})
 {
   if (Meteor.isServer) {
-    const mergedOptions = {background: true, ...options};
-    collection._ensureIndex(index, mergedOptions);
-    
-    if (!expectedIndexes[collection.collectionName])
-      expectedIndexes[collection.collectionName] = [];
-    expectedIndexes[collection.collectionName].push({
-      key: index,
-      partialFilterExpression: options && options.partialFilterExpression,
-    });
+    try {
+      if (options.name && await conflictingIndexExists(collection, index, options)) {
+        //eslint-disable-next-line no-console
+        console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
+        collection.rawCollection().dropIndex(options.name);
+      }
+      
+      const mergedOptions = {background: true, ...options};
+      collection._ensureIndex(index, mergedOptions);
+      
+      if (!expectedIndexes[collection.collectionName])
+        expectedIndexes[collection.collectionName] = [];
+      expectedIndexes[collection.collectionName].push({
+        key: index,
+        partialFilterExpression: options && options.partialFilterExpression,
+      });
+    } catch(e) {
+      //eslint-disable-next-line no-console
+      console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
+    }
   }
 }
 

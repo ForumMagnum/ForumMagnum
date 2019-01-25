@@ -76,6 +76,7 @@ import '../components/users/AccountsResetPassword.jsx';
 
 import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
+import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/posts/PostsHome.jsx';
@@ -193,6 +194,7 @@ import '../components/search/SearchPagination.jsx';
 import '../components/admin/AdminDashboard.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
+import '../components/sunshineDashboard/AdminMetadata.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';

@@ -158,6 +158,10 @@ class AdminHome extends PureComponent {
         <div className="admin-home-layout">
           <h2>Admin Console</h2>
           <div>
+            <div>
+              <h3>Server Information</h3>
+              <Components.AdminMetadata/>
+            </div>
             <div className="admin-recent-logins">
               <h3>Recent Logins</h3>
               <Components.Datatable

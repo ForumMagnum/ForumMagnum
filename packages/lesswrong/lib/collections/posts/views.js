@@ -59,8 +59,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, meta:1, isEvent:1, unlisted:1,  authorIsUnreviewed:1, groupId:1 },
-    suffix: { _id:1, af:1, postedAt:1, baseScore:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, authorIsUnreviewed:1, groupId:1 },
+    suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
 
@@ -239,7 +239,7 @@ Posts.addView("curated-rss", terms => ({
 Posts.addView("community", terms => ({
   selector: {
     frontpageDatgroupId: { $exists: false },
-    isEvent: null,
+    isEvent: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -480,6 +480,25 @@ Posts.addView("pastEvents", function (terms) {
       sort: {
         baseScore: -1,
         startTime: -1,
+      }
+    }
+  }
+})
+// Same index as events
+
+Posts.addView("upcomingEvents", function (terms) {
+  const oneDayAgo = moment().subtract(1, 'days').toDate();
+
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
+      startTime: {$gte: oneDayAgo}
+    },
+    options: {
+      sort: {
+        startTime: 1,
       }
     }
   }

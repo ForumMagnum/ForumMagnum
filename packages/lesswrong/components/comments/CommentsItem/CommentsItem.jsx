@@ -172,7 +172,7 @@ class CommentsItem extends Component {
                     subdirectory_arrow_left
                   </Icon>
                 </Tooltip>}
-              { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { postPage || this.props.collapsed && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
@@ -279,9 +279,8 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
-
-    const { currentUser, post, comment, parentAnswerId } = this.props
+    const { currentUser, post, comment, parentAnswerId, nestingLevel=1 } = this.props
+    const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
@@ -292,10 +291,10 @@ class CommentsItem extends Component {
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
             af:Comments.defaultToAlignment(currentUser, post, comment),
-            parentAnswerId: parentAnswerId
+            parentCommentId: comment._id,
+            parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"
-          parentAnswerId={parentAnswerId}
         />
       </div>
     )

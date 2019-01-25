@@ -88,7 +88,7 @@ class ModerationGuidelinesBox extends PureComponent {
 
     const combinedGuidelines = `
       ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
-      ${document.moderationGuidelinesHtmlBody ? '<hr class="dividerBlock"></hr>' : '</br>'}
+      ${(document.moderationGuidelinesHtmlBody && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
@@ -109,7 +109,7 @@ class ModerationGuidelinesBox extends PureComponent {
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
-        postId: document._id
+        postId: document._id,
       }
     });
   }

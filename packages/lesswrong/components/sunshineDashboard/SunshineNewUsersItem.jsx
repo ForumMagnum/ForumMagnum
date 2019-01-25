@@ -11,6 +11,7 @@ import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import { withStyles } from '@material-ui/core/styles';
+import { withApollo } from 'react-apollo'
 
 const styles = theme => ({
   negativeKarma: {
@@ -28,10 +29,10 @@ class SunshineNewUsersItem extends Component {
     })
   }
 
-  handlePurge = () => {
-    const { currentUser, user, editMutation } = this.props
+  handlePurge = async () => {
+    const { currentUser, user, editMutation, client } = this.props
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
-      editMutation({
+      await editMutation({
         documentId: user._id,
         set: {
           reviewedByUserId: currentUser._id,
@@ -42,6 +43,7 @@ class SunshineNewUsersItem extends Component {
         },
         unset: {}
       })
+      client.resetStore()
     }
   }
 
@@ -114,4 +116,4 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary, withStyles(styles));
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}), withApollo);

@@ -131,6 +131,16 @@ const styles = theme => ({
     inline: {
       display: 'inline-block'
     },
+    unreviewed: {
+      fontStyle: "italic",
+      color: theme.palette.grey[600],
+      marginBottom: theme.spacing.unit*2,
+      fontSize:".9em",
+      maxWidth: "100%",
+      overflowX: "hidden",
+      textOverflow: "ellipsis",
+      ...theme.typography.postStyle,
+    },
     feedName: {
       fontSize: theme.typography.body2.fontSize,
       marginLeft: 20,
@@ -242,6 +252,8 @@ class PostsPage extends Component {
               <div className={classes.postBody}>
                 { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
                 <div className={classes.postContent}>
+                  <AlignmentCrosspostMessage post={post} />
+                  { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
