@@ -105,16 +105,18 @@ describe('Posts Moderation --', async function() {
 
     const query = `
       mutation CommentsNew {
-        createComment(data:{postId: "${post._id}", body: "test"}){
+        createComment(data:{postId: "${post._id}", content: {canonicalContent: {type: "markdown", data: "test"}}){
           data {
             postId
-            body
+            content: {
+              markdown
+            }
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { createComment: {data: { postId: post._id, body: "test" } } } }
+    const expectedOutput = { data: { createComment: {data: { postId: post._id, content: { markdown:"test" } } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
   it('new comment on a post should fail if user in Post.bannedUserIds list', async () => {
@@ -122,9 +124,11 @@ describe('Posts Moderation --', async function() {
     const post = await createDummyPost(user, {bannedUserIds:[user._id]})
     const query = `
       mutation CommentsNew {
-        createComment(data:{postId: "${post._id}", body: "test"}){
+        createComment(data:{postId: "${post._id}", content: { canonicalContent: { type: "markdown", data: "test" } } }){
           data {
-            body
+            content {
+              markdown
+            }
           }
         }
       }
@@ -139,9 +143,11 @@ describe('Posts Moderation --', async function() {
     const post = await createDummyPost(user)
     const query = `
       mutation CommentsNew {
-        createComment(data:{postId:"${post._id}", body: "test"}){
+        createComment(data:{postId:"${post._id}", content: {canonicalContent: { type: "markdown", data: "test" } } }){
           data {
-            body
+            content {
+              markdown
+            }
             userId
           }
         }
@@ -157,16 +163,18 @@ describe('Posts Moderation --', async function() {
     const post = await createDummyPost(user)
     const query = `
       mutation CommentsNew {
-        createComment(data:{postId:"${post._id}", body: "test"}){
+        createComment(data:{postId:"${post._id}", content: { canonicalContent: {type: "markdown", data: "test" } } }){
           data {
-            body
+            content { 
+              markdown
+            }
             postId
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
-    const expectedOutput = { data: { createComment: { data: {postId: post._id, body: "test"} } } }
+    const expectedOutput = { data: { createComment: { data: {postId: post._id, content: {mardown: "test"} } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
@@ -650,7 +658,7 @@ describe('CommentLock permissions --', async ()=> {
     const post = await createDummyPost(undefined, {commentsLocked:true})
     const query = `
       mutation CommentsNew {
-        createComment(data:{postId:"${post._id}", body: "test"}){
+        createComment(data:{postId:"${post._id}", content: { canonicalContent: { type: "markdown", data: "test" } } }){
           data {
             postId
           }

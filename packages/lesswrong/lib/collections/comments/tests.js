@@ -15,32 +15,34 @@ describe('createComment – ', async function() {
     const user = await createDummyUser()
     const query = `
       mutation {
-        createComment(data:{body: "test"}){
+        createComment(data:{ content: { canonicalContent: { type: "markdown", data: test" } } }){
           data {
-            body
+            content {
+              markdown
+            }
           }
         }
       }
     `;
     const response = runQuery(query, {}, {currentUser: user})
-    const expectedOutput = { data: { createComment: { data : {body: "test" } } } }
+    const expectedOutput = { data: { createComment: { data : {content: {markdown: "test" } } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
 describe('updateComment – ', async () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
-  it("fails when user updates another user's legacyParentId", async () => {
+  it("fails when user updates another user's body", async () => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
     const post = await createDummyPost()
     const comment = await createDummyComment(otherUser, {postId: post._id})
-    await userUpdateFieldFails({ user:user, document:comment, fieldName:'body', collectionType: 'Comment'})
+    await userUpdateFieldFails({ user:user, document:comment, fieldName:'content', collectionType: 'Comment', newValue: {canonicalContent: {type: "markdown", data: "stuff"}}})
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("succeeds when user updates their own body", async () => {
     const user = await createDummyUser()
     const post = await createDummyPost()
     const comment = await createDummyComment(user, {postId: post._id})
-    return userUpdateFieldSucceeds({ user:user, document:comment, fieldName:'legacyParentId', collectionType: 'Comment'})
+    await userUpdateFieldFails({ user:user, document:comment, fieldName:'content', collectionType: 'Comment', newValue: {canonicalContent: {type: "markdown", data: "stuff"}}})
   });
 });

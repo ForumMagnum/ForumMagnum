@@ -247,9 +247,9 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
-    const { markdown } = comment.content
+    const { markdown = "" } = comment.content || {}
 
-    if ((!truncated || ((markdown || "").length <= this.getTruncationCharCount())) && !collapsed) {
+    if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
