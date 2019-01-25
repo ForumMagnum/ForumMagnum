@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { getKarmaChanges } from "../../karmaChanges.js";
+import { getKarmaChanges, getKarmaChangeDateRange, karmaChangeNotifierDefaultSettings } from "../../karmaChanges.js";
 import { addGraphQLSchema, addGraphQLResolvers, Connectors } from 'meteor/vulcan:core';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
@@ -73,21 +73,12 @@ Users.addField([
           
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
-            const settings = currentUser.karmaChangeNotifierSettings;
+            const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
+            const lastOpened = currentUser.karmaChangeLastOpened;
             
-            switch(settings.updateFrequency) {
-              case "disabled":
-                return null;
-              case "daily":
-              case "weekly":
-              case "realtime":
-                // TODO: Set the right date range. Requires some decision about
-                // how long notifications persist.
-                const yesterday = new Date(new Date() - (60*60*24*1000));
-                startDate = yesterday;
-                endDate = new Date();
-                break;
-            }
+            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, now: new Date()})
+            startDate = start;
+            endDate = end;
           }
           
           return getKarmaChanges({

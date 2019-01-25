@@ -1,8 +1,22 @@
 import Votes from './collections/votes/collection.js';
+import moment from 'moment-timezone';
 
-// This file is server-side-only, but lives in an included-with-client-bundle
+// This file is mostly server-side, but lives in an included-with-client-bundle
 // directory because we don't have a good way to make resolvers, or imports
 // used by resolvers, be server specific.
+
+export const karmaChangeNotifierDefaultSettings = {
+  // One of the string keys in karmaNotificationTimingChocies
+  updateFrequency: "daily",
+  
+  // Time of day at which daily/weekly batched updates are released, an integer
+  // number of hours 0-23.
+  // TODO: Figure out and add time zone handling.
+  timeOfDay: 3,
+  
+  // A string day-of-the-week name, spelled out and capitalized like "Monday"
+  dayOfWeek: "Saturday",
+};
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -60,4 +74,50 @@ export async function getKarmaChanges({user, startDate, endDate})
     endDate: endDate,
     documents: changedDocs,
   };
+}
+
+export function getKarmaChangeDateRange({settings, now, lastOpened})
+{
+  // Greatest date prior to lastOpened at which the time of day matches
+  // settings.timeOfDay.
+  let todaysDailyReset = moment(now);
+  todaysDailyReset.set('hour', settings.timeOfDay);
+  todaysDailyReset.set('minute', 0);
+  todaysDailyReset.set('second', 0);
+  todaysDailyReset.set('millisecond', 0);
+  
+  const lastDailyReset = todaysDailyReset.isAfter(now)
+    ? todaysDailyReset.subtract(1, 'days')
+    : todaysDailyReset;
+  
+  switch(settings.updateFrequency) {
+    case "disabled":
+      return null;
+    case "daily":
+      const oneDayPrior = lastDailyReset.subtract(1, 'days');
+      return {
+        start: oneDayPrior.min(lastOpened).toDate(),
+        end: lastDailyReset.toDate(),
+      };
+    case "weekly":
+      // Target day of the week, as an integer 0-6
+      const targetDayOfWeekNum = moment().day(settings.dayOfWeek).day();
+      const lastDailyResetDayOfWeekNum = lastDailyReset.day();
+      
+      // Number of days back from today's daily reset to get to a daily reset
+      // of the correct day of the week
+      const daysOfWeekDifference = (lastDailyResetDayOfWeekNum - targetDayOfWeekNum + 7) % 7;
+      
+      const lastWeeklyReset = lastDailyReset.add(-daysOfWeekDifference, 'days');
+      const oneWeekPrior = moment(lastWeeklyReset).add(-7, 'days');
+      return {
+        start: oneWeekPrior.min(lastOpened).toDate(),
+        end: lastWeeklyReset.toDate(),
+      };
+    case "realtime":
+      return {
+        start: lastOpened,
+        end: now,
+      }
+  }
 }

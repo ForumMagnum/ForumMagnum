@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router';
+import Users from 'meteor/vulcan:users';
 
 const styles = theme => ({
   karmaNotifierButton: {
@@ -41,6 +42,12 @@ class KarmaChangeNotifier extends PureComponent {
     this.setState({
       open: true,
       anchorEl: event.currentTarget,
+    });
+    this.props.editMutation({
+      documentId: this.props.currentUser._id,
+      set: {
+        karmaChangeLastOpened: new Date()
+      }
     });
   }
   
@@ -116,6 +123,13 @@ class KarmaChangeNotifier extends PureComponent {
   }
 }
 
+const withEditOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+};
+
 registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
   withUser, withErrorBoundary,
-  withStyles(styles, {name: 'KarmaChangeNotifier'}));
+  [withEdit, withEditOptions],
+  withStyles(styles, {name: 'KarmaChangeNotifier'})
+);

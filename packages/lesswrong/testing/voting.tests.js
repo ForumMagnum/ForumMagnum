@@ -6,7 +6,7 @@ import { performVoteServer } from '../lib/modules/vote.js';
 import { batchUpdateScore } from '../server/updateScores.js';
 import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
-import { getKarmaChanges } from '../lib/karmaChanges.js';
+import { getKarmaChanges, getKarmaChangeDateRange } from '../lib/karmaChanges.js';
 import lolex from 'lolex';
 
 chai.should();
@@ -171,6 +171,64 @@ describe('Voting', async function() {
     it('includes comments in the selected date range', async () => {
       // TODO
     });*/
+  });
+  describe('getKarmaChangeDateRange', async () => {
+    it('computes daily update times correctly', async () => {
+      const updateAt5AMSettings = {
+        updateFrequency: "daily",
+        timeOfDay: 5,
+      }
+      
+      getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T08:00:00Z"),
+        lastOpened: new Date("1980-03-03T06:00:00Z"),
+      }).should.equal({
+        start: new Date("1980-03-02T05:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      })
+      
+      getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T03:00:00Z"),
+        lastOpened: new Date("1980-03-03T02:00:00Z"),
+      }).should.equal({
+        start: new Date("1980-03-01T05:00:00Z"),
+        end: new Date("1980-03-02T05:00:00Z"),
+      })
+      
+      getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T08:00:00Z"),
+        lastOpened: new Date("1980-02-02T08:00:00Z"),
+      }).should.equal({
+        start: new Date("1980-02-02T08:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      })
+    });
+    it('computes weekly update times correctly', async () => {
+      const updateSaturdayAt5AMSettings = {
+        updateFrequency: "weekly",
+        timeOfDay: 5,
+        dayOfWeek: "Saturday",
+      }
+      getKarmaChangeDateRange({
+        settings: updateSaturdayAt5AMSettings,
+        now: new Date("1980-03-03T08:00:00Z"), //Saturday
+        lastOpened: new Date("1980-03-03T06:00:00Z"),
+      }).should.equal({
+        start: new Date("1980-02-24T05:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      })
+      getKarmaChangeDateRange({
+        settings: updateSaturdayAt5AMSettings,
+        now: new Date("1980-03-07T08:00:00Z"), //Wednesday
+        lastOpened: new Date("1980-03-07T06:00:00Z"),
+      }).should.equal({
+        start: new Date("1980-02-24T05:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      })
+    });
   });
 })
 

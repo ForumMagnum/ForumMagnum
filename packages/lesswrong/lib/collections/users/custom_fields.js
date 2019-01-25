@@ -591,6 +591,21 @@ Users.addField([
       canCreate: [Users.owns, 'admins'],
     },
   },
+  
+  /**
+    Time at which the karma-change notification was last opened (clicked)
+  */
+  {
+    fieldName: 'karmaChangeLastOpened',
+    fieldSchema: {
+      hidden: true,
+      type: Date,
+      optional: true,
+      canCreate: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canRead: [Users.owns, 'admins'],
+    },
+  },
 
   /**
     Email settings

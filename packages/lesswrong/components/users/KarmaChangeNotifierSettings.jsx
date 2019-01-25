@@ -8,6 +8,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import { karmaChangeNotifierDefaultSettings } from '../../lib/karmaChanges.js';
 
 const styles = theme => ({
   radioGroup: {
@@ -37,15 +38,9 @@ const karmaNotificationTimingChoices = {
   },
 };
 
-const defaultSettings = {
-  updateFrequency: "daily",
-  timeOfDay: "3am",
-  dayOfWeek: "Saturday",
-};
-
 class KarmaChangeNotifierSettings extends PureComponent {
   setUpdateFrequency = (updateFrequency) => {
-    const oldSettings = this.props.value || defaultSettings;
+    const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
     const settings = { ...oldSettings, updateFrequency:updateFrequency };
     this.context.updateCurrentValues({
       [this.props.path]: settings
@@ -53,7 +48,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   }
   
   setTimeOfDay = (timeOfDay) => {
-    const oldSettings = this.props.value || defaultSettings;
+    const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
     const settings = { ...oldSettings, timeOfDay: timeOfDay };
     this.context.updateCurrentValues({
       [this.props.path]: settings
@@ -61,7 +56,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   }
   
   setDayOfWeek = (dayOfWeek) => {
-    const oldSettings = this.props.value || defaultSettings;
+    const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
     const settings = { ...oldSettings, dayOfWeek: dayOfWeek };
     this.context.updateCurrentValues({
       [this.props.path]: settings
@@ -70,7 +65,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   
   render() {
     const { classes } = this.props;
-    const settings = this.props.value || defaultSettings;
+    const settings = this.props.value || karmaChangeNotifierDefaultSettings;
     const { updateFrequency, timeOfDay, dayOfWeek } = settings;
     
     return <div>
@@ -111,12 +106,10 @@ class KarmaChangeNotifierSettings extends PureComponent {
           value={timeOfDay}
           onChange={(event) => this.setTimeOfDay(event.target.value)}
         >
-          <MenuItem value="1am">1:00 am</MenuItem>
-          <MenuItem value="2am">2:00 am</MenuItem>
-          <MenuItem value="3am">3:00 am</MenuItem>
-          <MenuItem value="4am">4:00 am</MenuItem>
-          <MenuItem value="5am">5:00 am</MenuItem>
-          <MenuItem value="6am">6:00 am</MenuItem>
+          { _.range(24).map(hour =>
+              <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
+            )
+          }
         </Select>
         { updateFrequency==="weekly" && <span>
             on <Select value={dayOfWeek}
