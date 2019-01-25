@@ -87,17 +87,6 @@ const schema = {
     }
   },
   /**
-    The comment body (Markdown)
-  */
-  body: {
-    type: String,
-    max: 3000,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: "textarea"
-  },
-  /**
     The comment author's name
   */
   author: {

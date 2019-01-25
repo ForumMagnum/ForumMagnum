@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users'
-import { Utils, GraphQLSchema } from 'meteor/vulcan:core'
+import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
 import SimpleSchema from 'simpl-schema'
 
@@ -40,7 +40,6 @@ export const makeEditable = ({collection, options = {}}) => {
     commentStyles,
     getLocalStorageId,
     formGroup,
-    adminFormGroup,
     permissions,
     fieldName = "",
     order,
@@ -162,79 +161,79 @@ export const makeEditable = ({collection, options = {}}) => {
       body: Stores a markdown version of the post
     */
 
-    {
-      fieldName: Utils.camelCaseify(`${fieldName}Body`),
-      fieldSchema: {
-        type: String,
-        viewableBy: ['guests'],
-        insertableBy: ['members'],
-        editableBy: ['members'],
-        control: "textarea",
-        optional: true,
-        hidden: true,
-        max: 1000000, //overwriting Vulcan's character limit
-      }
-    },
+    // {
+    //   fieldName: Utils.camelCaseify(`${fieldName}Body`),
+    //   fieldSchema: {
+    //     type: String,
+    //     viewableBy: ['guests'],
+    //     insertableBy: ['members'],
+    //     editableBy: ['members'],
+    //     control: "textarea",
+    //     optional: true,
+    //     hidden: true,
+    //     max: 1000000, //overwriting Vulcan's character limit
+    //   }
+    // },
 
-    /*
-      htmlHighlight: stores an HTML highlight of an HTML body
-    */
+    // /*
+    //   htmlHighlight: stores an HTML highlight of an HTML body
+    // */
 
-    {
-      fieldName: Utils.camelCaseify(`${fieldName}HtmlHighlight`),
-      fieldSchema: {
-        type: String,
-        optional: true,
-        hidden:true,
-        viewableBy: ['guests'],
-      }
-    },
+    // {
+    //   fieldName: Utils.camelCaseify(`${fieldName}HtmlHighlight`),
+    //   fieldSchema: {
+    //     type: String,
+    //     optional: true,
+    //     hidden:true,
+    //     viewableBy: ['guests'],
+    //   }
+    // },
 
-    /*
-      wordCount: count of words
-    */
+    // /*
+    //   wordCount: count of words
+    // */
 
-    {
-      fieldName: Utils.camelCaseify(`${fieldName}WordCount`),
-      fieldSchema: {
-        type: Number,
-        viewableBy: ['guests'],
-        optional: true,
-        hidden:true
-      }
-    },
+    // {
+    //   fieldName: Utils.camelCaseify(`${fieldName}WordCount`),
+    //   fieldSchema: {
+    //     type: Number,
+    //     viewableBy: ['guests'],
+    //     optional: true,
+    //     hidden:true
+    //   }
+    // },
 
-    /*
-      plaintextExcerpt: Version of the excerpt that is plaintext, used for the description head tags which are
-      used by Facebook and Google to extract previews of content.
-    */
+    // /*
+    //   plaintextExcerpt: Version of the excerpt that is plaintext, used for the description head tags which are
+    //   used by Facebook and Google to extract previews of content.
+    // */
 
-    {
-      fieldName: Utils.camelCaseify(`${fieldName}PlaintextExcerpt`),
-      fieldSchema: {
-        type: String,
-        viewableBy: ['guests'],
-        hidden: true,
-        optional: true
-      }
-    },
+    // {
+    //   fieldName: Utils.camelCaseify(`${fieldName}PlaintextExcerpt`),
+    //   fieldSchema: {
+    //     type: String,
+    //     viewableBy: ['guests'],
+    //     hidden: true,
+    //     optional: true
+    //   }
+    // },
 
-    /*
-      lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
-      appropriate editor when being edited, overwriting user-preferences
-    */
+    // /*
+    //   lastEditedAs: Records whether the post was last edited in HTML, Markdown or Draft-JS, and displays the
+    //   appropriate editor when being edited, overwriting user-preferences
+    // */
 
-    {
-      fieldName: Utils.camelCaseify(`${fieldName}LastEditedAs`),
-      fieldSchema: {
-        type: String,
-        viewableBy: ['guests'],
-        insertableBy: ['members'],
-        editableBy: ['members'],
-        optional: true,
-        hidden: true,
-        group: adminFormGroup,
-      }
-    },
+    // {
+    //   fieldName: Utils.camelCaseify(`${fieldName}LastEditedAs`),
+    //   fieldSchema: {
+    //     type: String,
+    //     viewableBy: ['guests'],
+    //     insertableBy: ['members'],
+    //     editableBy: ['members'],
+    //     optional: true,
+    //     hidden: true,
+    //     group: adminFormGroup,
+    //   }
+    // },
   ])
 }

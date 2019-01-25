@@ -157,7 +157,10 @@ class RecentDiscussionThread extends PureComponent {
           </div>
           : <div className={highlightClasses} onClick={this.showHighlight}>
               <LinkPostMessage post={post} />
-              { (!post.lastVisitedAt || post.commentCount === null) && <ContentItemBody className={classes.postHighlight} dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.htmlHighlight)}}/>}
+              { (!post.lastVisitedAt || post.commentCount === null) && 
+                <ContentItemBody 
+                  className={classes.postHighlight} 
+                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.content && post.content.htmlHighlight)}}/>}
             </div>
         }
         <div className="recent-discussion-thread-comment-list">

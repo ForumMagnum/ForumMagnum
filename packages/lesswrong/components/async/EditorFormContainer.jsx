@@ -1,9 +1,5 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { getLSHandlers } from './localStorageHandlers.js'
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import { htmlToDraft } from '../../lib/editor/utils.js'
-import { Utils } from 'meteor/vulcan:core';
 import EditorForm from './EditorForm'
 
 class EditorFormContainer extends Component {

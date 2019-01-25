@@ -182,8 +182,9 @@ class EditorFormComponent extends Component {
 
   renderEditorWarning = () => {
     const { classes, currentUser, document } = this.props
+    const { type } = document.content || {}
     return <Typography variant="body2" color="primary">
-      This document was last edited in {document.lastEditedAs} format. Showing {this.getCurrentEditorType()} editor.
+      This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
       <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
       to switch to {this.getUserDefaultEditor(currentUser)} editor (your default editor).
     </Typography>

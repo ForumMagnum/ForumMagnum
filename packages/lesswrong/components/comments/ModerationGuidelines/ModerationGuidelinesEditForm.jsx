@@ -56,8 +56,8 @@ class ModerationGuidelinesEditForm extends PureComponent {
           <Components.SmartForm
             collection={Posts}
             documentId={postId}
-            fields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
-            addFields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
+            fields={['moderationGuidelines', 'moderationStyle']}
+            addFields={['moderationGuidelines', 'moderationStyle']}
             mutationFragment={getFragment("LWPostsPage")}
             successCallback={onClose}
             SubmitComponent={SubmitComponent}

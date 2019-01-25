@@ -1,5 +1,5 @@
 import schema from './schema.js';
-import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
+import { createCollection, getDefaultResolvers /*, getDefaultMutations */} from 'meteor/vulcan:core';
 
 /**
  * @summary Telescope Messages namespace

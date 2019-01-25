@@ -341,7 +341,8 @@ class PostsItem extends Component {
 
   // Render the thing that appears when you click "Show Highlight"
   renderHighlightMenu = () => {
-    let { classes } = this.props;
+    let { classes, post } = this.props;
+    const { wordCount = 0 } = post || {}
     return (
       <div className={classes.highlightFooter}>
         <Typography variant="body1" className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
@@ -352,7 +353,7 @@ class PostsItem extends Component {
         </Typography>
         <Link to={this.getPostLink()}>
         <Typography className={classNames(classes.highlightFooterButton, classes.viewFullPost)} variant="body1">
-          Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
+          Continue to Full Post {wordCount && <span> ({wordCount} words)</span>}
         </Typography>
         </Link>
       </div>

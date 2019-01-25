@@ -185,7 +185,7 @@ class PostsPage extends Component {
     } else if (!post) {
       return <Error404/>
     } else {
-      const { html, plaintextDescription, markdown } = post.content || {}
+      const { html, plaintextDescription, markdown, wordCount = 0 } = post.content || {}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
@@ -262,7 +262,7 @@ class PostsPage extends Component {
             </div>
 
             {/* Footer */}
-            {(post.wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+            {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
               <div className={classes.footerSection}>
                 <div className={classes.voteBottom}>
                   <PostsVote

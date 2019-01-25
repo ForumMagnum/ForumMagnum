@@ -115,7 +115,6 @@ registerFragment(`
     deletedDraft
     # body # We replaced this with content
     excerpt # This won't work with content
-    htmlHighlight
     # content # Our replacement for body
     viewCount
     clickCount
@@ -146,7 +145,6 @@ registerFragment(`
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate
-    wordCount
     commentsLocked
     # Local Event data
     groupId
@@ -212,10 +210,8 @@ registerFragment(`
 registerFragment(`
   fragment LWPostsPage on Post {
     ...PostsList
-    lastEditedAs
     body
     tableOfContents
-    plaintextExcerpt
     draft
     commentSortOrder
     canonicalPrevPostSlug
@@ -256,7 +252,6 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     }
-    moderationGuidelinesBody
     moderationStyle
     content {
       version
@@ -280,10 +275,8 @@ registerFragment(`
 registerFragment(`
   fragment LWPostsRevision on Post {
     ...PostsList
-    lastEditedAs
     body
     tableOfContents
-    plaintextExcerpt
     draft
     commentSortOrder
     canonicalPrevPostSlug
@@ -324,7 +317,6 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     }
-    moderationGuidelinesBody
     moderationStyle
     content(version: $version) {
       version

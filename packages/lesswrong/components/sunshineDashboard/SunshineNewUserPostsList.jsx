@@ -24,7 +24,7 @@ const SunshineNewUserPostsList = ({loading, results, classes}) => {
         <Link to={`/posts/${post._id}`}>
           <PostsItemTitle post={post} />
         </Link>
-        <div dangerouslySetInnerHTML={{__html:post.htmlHighlight}} />
+        <div dangerouslySetInnerHTML={{__html: (post.content && post.content.htmlHighlight)}} />
       </div>)}
     </div>
   } else {
