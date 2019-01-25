@@ -61,7 +61,12 @@ const addJob = function () {
             var post = {
               title: newPost.title,
               userId: feed.userId,
-              htmlBody: body,
+              content: {
+                canonicalContent: {
+                  type: "html",
+                  data: body
+                }
+              },
               feedId: feed._id,
               feedLink: newPost.link
             };

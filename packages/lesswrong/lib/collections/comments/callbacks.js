@@ -193,21 +193,19 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
-// DEACTIVATE THIS TEMPORARILY. IF YOU SEE THIS COMMENTED OUT, REMIND OLI THAT HE HAS TO STILL REACTIVATE THIS.
-// function NewCommentsEmptyCheck (comment, user) {
-//   if (!comment.htmlBody &&
-//       !comment.body &&
-//       (!comment.content || !convertFromRaw(comment.content).hasText())) {
-//     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
-//     throw new EmptyCommentError({data: {break: true, value: comment}});
-//   }
-//   return comment;
-// }
+function NewCommentsEmptyCheck (comment, user) {
+  const { html = "" } = comment.content || {}
+  if (!html) {
+    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
+    throw new EmptyCommentError({data: {break: true, value: comment}});
+  }
+  return comment;
+}
 
-// addCallback("comments.new.validate", NewCommentsEmptyCheck);
+addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment) {
-  if (newComment.deleted && newComment.htmlBody) {
+  if (newComment.deleted && newComment.content && newComment.content.html) {
     const originalPost = await Posts.findOne(newComment.postId);
     const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
@@ -231,13 +229,18 @@ export async function CommentsDeleteSendPMAsync (newComment) {
 
     const firstMessageData = {
       userId: lwAccount._id,
-      htmlBody: firstMessageContent,
+      content: {
+        canonicalContent: {
+          type: "html",
+          data: firstMessageContent
+        }
+      },
       conversationId: conversation.data._id
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
-      htmlBody: newComment.htmlBody,
+      content: newComment.content,
       conversationId: conversation.data._id
     }
 

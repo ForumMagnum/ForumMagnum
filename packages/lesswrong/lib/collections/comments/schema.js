@@ -98,24 +98,6 @@ const schema = {
     control: "textarea"
   },
   /**
-    The HTML version of the comment body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    // onInsert: (comment) => {
-    //   if (comment.body) {
-    //     return Utils.sanitize(marked(comment.body));
-    //   }
-    // },
-    // onEdit: (modifier, comment) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
     The comment author's name
   */
   author: {

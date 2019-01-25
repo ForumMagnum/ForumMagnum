@@ -17,9 +17,10 @@ const styles = theme => ({
 })
 
 const PostsHighlight = ({post, classes}) => {
+  const { htmlHighlight = "" } = post.content || {}
   return <div className={classes.root}>
       <Components.LinkPostMessage post={post} />
-      <div dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
+      <div dangerouslySetInnerHTML={{__html: htmlHighlight}}/>
       <div className={classes.highlightContinue}>
         {post.wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
           (Continue Reading{` – ${post.wordCount - 280} more words`})

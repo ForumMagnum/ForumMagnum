@@ -104,7 +104,7 @@ class Answer extends Component {
     const { comment, post, classes, index, answerCount } = this.props
     const { showEdit } = this.state
     const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
-
+    const { html = "" } = comment.content || {}
     return (
       <div className={classes.root}>
         { comment.deleted ?
@@ -150,7 +150,7 @@ class Answer extends Component {
               :
               <ContentItemBody
                 className={classes.postContent}
-                dangerouslySetInnerHTML={{__html:comment.htmlBody}}
+                dangerouslySetInnerHTML={{__html: html}}
               />
             }
             <AnswerCommentsList

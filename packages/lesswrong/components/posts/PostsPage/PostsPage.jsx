@@ -178,17 +178,17 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
-      Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage } = Components
+      Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
     } else if (!post) {
       return <Error404/>
     } else {
-      const { html } = post.content || {}
+      const { html, plaintextDescription, markdown } = post.content || {}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
-      const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
+      const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
       const sectionData = post.tableOfContents;

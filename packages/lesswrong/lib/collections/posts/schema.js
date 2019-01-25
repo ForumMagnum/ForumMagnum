@@ -139,25 +139,6 @@ const schema = {
     order: 30
   },
   /**
-    HTML version of the post body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     return Utils.sanitize(marked(post.body));
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
    Post Excerpt
    */
   excerpt: {
@@ -165,20 +146,6 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     searchable: true,
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     // excerpt length is configurable via the settings (30 words by default, ~255 characters)
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(post.body)), excerptLength);
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(modifier.$set.body)), excerptLength);
-    //   }
-    // }
   },
   /**
     Count of how many times the post's page was viewed

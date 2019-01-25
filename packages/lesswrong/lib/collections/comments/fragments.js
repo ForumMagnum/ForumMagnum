@@ -8,7 +8,6 @@ registerFragment(`
     parentCommentId
     topLevelCommentId
     body
-    htmlBody
     content {
       version
       updateType

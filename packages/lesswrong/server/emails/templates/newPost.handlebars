@@ -15,9 +15,9 @@
 
 <br><br>
 
-{{#if post.result.htmlBody}}
+{{#if post.result.content && post.result.content.html}}
   <div class="post-body">
-  {{{post.result.htmlBody}}}
+  {{{post.result.content && post.result.content.html}}}
   </div>
   <br>
 {{/if}}

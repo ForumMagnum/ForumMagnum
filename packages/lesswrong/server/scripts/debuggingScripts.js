@@ -159,14 +159,24 @@ Vulcan.createStyledPost = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    htmlBody: makeStyledBody(),
+    content: {
+      canonicalContent: {
+        data: makeStyledBody(),
+        type: "html"
+      }
+    },
     frontpageDate: new Date(),
     curatedDate: new Date(),
   })
 
   await createDummyComment(user, {
     postId: post._id,
-    htmlBody: makeStyledBody()
+    content: {
+      canonicalContent: {
+        data: makeStyledBody(),
+        type: "html"
+      }
+    },
   })
 }
 
@@ -177,7 +187,12 @@ Vulcan.createStyledAFPost = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    htmlBody: makeStyledBody(),
+    content: {
+      canonicalContent: {
+        data: makeStyledBody(),
+        type: "html"
+      }
+    },
     af: true,
     frontpageDate: new Date(),
     curateDate: new Date(),
@@ -185,7 +200,12 @@ Vulcan.createStyledAFPost = async () => {
 
   await createDummyComment(user, {
     postId: post._id,
-    htmlBody: makeStyledBody()
+    content: {
+      canonicalContent: {
+        data: makeStyledBody(),
+        type: "html"
+      }
+    },
   })
 }
 
@@ -196,7 +216,12 @@ Vulcan.createStyledQuestion = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    htmlBody: makeStyledBody(),
+    content: {
+      canonicalContent: {
+        data: makeStyledBody(),
+        type: "html"
+      }
+    },
     question: true,
     frontpageDate: new Date(),
     curatedDate: new Date(),
@@ -204,7 +229,12 @@ Vulcan.createStyledQuestion = async () => {
 
   await createDummyComment(user, {
     postId: post._id,
-    htmlBody: makeStyledBody()
+    content: {
+      canonicalContent: {
+        data: makeStyledBody(),
+        type: "html"
+      }
+    },
   })
 }
 
@@ -294,7 +324,12 @@ Vulcan.createBulkyTestPost = async ({
 
   let dummyPostFields = {
     title: postTitle,
-    htmlBody: body
+    content: {
+      canonicalContent: {
+        data: body,
+        type: "html"
+      }
+    },
   };
   if (backDate) {
     dummyPostFields.createdAt = backDate;
@@ -308,7 +343,12 @@ Vulcan.createBulkyTestPost = async ({
     //eslint-disable-next-line no-await-in-loop
     var rootComment = await createDummyComment(user, {
       postId: post._id,
-      htmlBody: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)
+      content: {
+        canonicalContent: {
+          data: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength),
+          type: "html"
+        }
+      },
     })
 
     // If commentDepth>1, create a series of replies-to-replies under the top-level replies
@@ -317,7 +357,12 @@ Vulcan.createBulkyTestPost = async ({
       var childComment = await createDummyComment(user, {
         postId: post._id,
         parentCommentId: parentCommentId,
-        htmlBody: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength)
+        content: {
+          canonicalContent: {
+            data: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength),
+            type: "html"
+          }
+        },
       });
       parentCommentId = childComment._id
     }

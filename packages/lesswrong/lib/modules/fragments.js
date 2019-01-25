@@ -31,8 +31,10 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
+    content { 
+      html
+    }
     createdAt
-    htmlBody
     conversationId
   }
 `);
@@ -68,9 +70,6 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
-  moderationGuidelinesContent
-  moderationGuidelinesBody
-  moderationGuidelinesHtmlBody
   markDownPostEditor
   commentSorting
   location
@@ -124,9 +123,6 @@ registerFragment(`
     userId
     user {
       ...UsersMinimumInfo
-      moderationGuidelinesHtmlBody
-      moderationGuidelinesContent
-      moderationGuidelinesBody
       moderationStyle
     }
     coauthors {
@@ -180,9 +176,6 @@ registerFragment(`
     authorIsUnreviewed
     isFuture
     hideAuthor
-    moderationGuidelinesHtmlBody
-    moderationGuidelinesContent
-    moderationGuidelinesBody
     moderationStyle
   }
 `);
@@ -211,7 +204,6 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     }
-    htmlBody
     body
     types
   }
@@ -222,7 +214,6 @@ registerFragment(`
     ...PostsList
     lastEditedAs
     body
-    htmlBody
     tableOfContents
     plaintextExcerpt
     draft
@@ -252,7 +243,6 @@ registerFragment(`
     collectionTitle
     types
     showModerationGuidelines
-    moderationGuidelinesHtmlBody
     moderationGuidelines {
       version
       updateType
@@ -292,7 +282,6 @@ registerFragment(`
     ...PostsList
     lastEditedAs
     body
-    htmlBody
     tableOfContents
     plaintextExcerpt
     draft
@@ -322,7 +311,6 @@ registerFragment(`
     collectionTitle
     types
     showModerationGuidelines
-    moderationGuidelinesHtmlBody
     moderationGuidelines {
       version
       updateType
@@ -357,7 +345,9 @@ registerFragment(`
 
 registerFragment(`
   fragment LWPostsBody on Post {
-    htmlBody
+    content { 
+      html
+    }
   }
 `);
 
@@ -540,7 +530,6 @@ registerFragment(`
     parentCommentId
     topLevelCommentId
     body
-    htmlBody
     content {
       version
       updateType
@@ -575,7 +564,6 @@ registerFragment(`
     # example-forum
     _id
     body
-    htmlBody
     content {
       version
       updateType
@@ -659,7 +647,6 @@ registerFragment(`
         ...UsersMinimumInfo
       }
       body
-      htmlBody
       baseScore
       postedAt
       deleted
@@ -739,7 +726,6 @@ registerFragment(/* GraphQL */`
   fragment PostsPage on Post {
     ...PostsList
     body
-    htmlBody
   }
 `);
 

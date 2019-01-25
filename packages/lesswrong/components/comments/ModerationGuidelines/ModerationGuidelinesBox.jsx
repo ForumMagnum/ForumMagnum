@@ -83,16 +83,17 @@ class ModerationGuidelinesBox extends PureComponent {
       Suffix: "... (Read More)",
       Strict: false
     }
+    const { html = "" } = document.moderationGuidelines
     const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span> <br/>` : ""}
-    ${document.moderationGuidelinesHtmlBody || ""}`
+    ${html || ""}`
 
     const combinedGuidelines = `
-      ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
-      ${(document.moderationGuidelinesHtmlBody && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
+      ${(html || moderationStyle) ? userGuidelines : ""}
+      ${(html && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
-              (document.moderationGuidelinesHtmlBody || moderationStyle) ?
+              (html || moderationStyle) ?
                 "" :
                 defaultGuidelines
             )

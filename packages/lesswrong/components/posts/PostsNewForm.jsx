@@ -16,7 +16,12 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     af: getSetting("AlignmentForum", false) || (router.location.query && !!router.location.query.af),
     groupId: router.location.query && router.location.query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelinesHtmlBody: currentUser && currentUser.moderationGuidelinesHtmlBody,
+    moderationGuidelines: {
+      canonicalContent: {
+        type: "html",
+        data: currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.html
+      }
+    }
   }
   
   if (!Posts.options.mutations.new.check(currentUser)) {

@@ -69,7 +69,8 @@ class CommentBody extends Component {
 
   shouldRenderExcerpt = () => {
     const { truncated, comment, collapsed, truncationCharCount } = this.props
-    return truncated && comment.body && comment.body.length > truncationCharCount && !collapsed
+    const { markdown = "" } = comment.content || {}
+    return truncated && markdown.length > truncationCharCount && !collapsed
   }
 
   render () {

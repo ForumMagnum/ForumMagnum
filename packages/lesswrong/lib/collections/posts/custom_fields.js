@@ -59,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser && (currentUser.moderationGuidelinesHtmlBody || currentUser.moderationStyle))
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
 Posts.addField([
@@ -1101,7 +1101,7 @@ Posts.addField([
             if (event) {
               return event && event.properties && event.properties.targetState
             } else {
-              return author.collapseModerationGuidelines ? false : (post.moderationGuidelinesHtmlBody || post.moderationStyle)
+              return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
             }
           } else {
             return false

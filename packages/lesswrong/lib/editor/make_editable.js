@@ -71,10 +71,10 @@ export const makeEditable = ({collection, options = {}}) => {
             }
             return {
               editedAt: doc[field] && doc[field].editedAt || new Date(),
-              userId: doc[field] && doc[field].userId || 'asdf',
-              canonicalContentType: doc[field] && doc[field].canonicalContentType || 'html',
+              userId: doc[field] && doc[field].userId,
+              canonicalContentType: doc[field] && doc[field].canonicalContentType || "html",
               canonicalContent: doc[field] && doc[field].canonicalContent || {},
-              html: doc[field] && doc[field].html || "html",
+              html: doc[field] && doc[field].html,
               updateType: doc[field] && doc[field].updateType,
               version: doc[field] && doc[field].version
             }
@@ -141,22 +141,22 @@ export const makeEditable = ({collection, options = {}}) => {
     //   }
     // },
 
-    /**
-      Html Body field, made editable to allow access in edit form
-    */
-    {
-      fieldName: Utils.camelCaseify(`${fieldName}HtmlBody`),
-      fieldSchema: {
-        type: String,
-        optional: true,
-        viewableBy: ['guests'],
-        editableBy: ['admins'],
-        insertableBy: ['admins'],
-        control: "textarea",
-        group: adminFormGroup,
-        hidden: !adminFormGroup, // Only display htmlBody if admin form group is given
-      }
-    },
+    // /**
+    //   Html Body field, made editable to allow access in edit form
+    // */
+    // {
+    //   fieldName: Utils.camelCaseify(`${fieldName}HtmlBody`),
+    //   fieldSchema: {
+    //     type: String,
+    //     optional: true,
+    //     viewableBy: ['guests'],
+    //     editableBy: ['admins'],
+    //     insertableBy: ['admins'],
+    //     control: "textarea",
+    //     group: adminFormGroup,
+    //     hidden: !adminFormGroup, // Only display htmlBody if admin form group is given
+    //   }
+    // },
 
     /*
       body: Stores a markdown version of the post

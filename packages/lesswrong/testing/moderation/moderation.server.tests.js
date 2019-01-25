@@ -290,7 +290,7 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post and has moderationGuidelines set on the post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
-    const post = await createDummyPost(user, {moderationGuidelinesHtmlBody: "beware"})
+    const post = await createDummyPost(user, {moderationGuidelines: {canonicalContent: {type: "html", data: "beware"}}})
     const testBannedUserIds = "test"
     const query = `
       mutation PostsEdit {
@@ -425,7 +425,7 @@ describe('Users.canModeratePost --', async ()=> {
   })
   it("returns true if user in trustLevel1 AND owns post AND has moderationGuidelines", async () => {
     const author = await createDummyUser({groups:['trustLevel1'], moderationStyle:"1"})
-    const post = await createDummyPost(author, {moderationGuidelinesHtmlBody: "beware"})
+    const post = await createDummyPost(author, {moderationGuidelines: {canonicalContent: {type: "html", data: "beware"}}})
     expect(Users.canModeratePost(author, post)).to.be.true;
   })
   it("returns true if user in sunshineRegiment", async () => {
@@ -507,7 +507,7 @@ describe('Comments deleted permissions --', async function() {
   it("set deleted should succeed if user in trustLevel1, has set moderationGuidelines and owns post", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
     const commentAuthor = await createDummyUser()
-    const post = await createDummyPost(user, {moderationGuidelinesHtmlBody: "beware"})
+    const post = await createDummyPost(user, {moderationGuidelines: {canonicalContent: {type: "html", data: "beware"}}})
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
     const query = `
       mutation  {

@@ -14,7 +14,6 @@ registerFragment(`
     googleLocation
     mongoLocation
     types
-    htmlBody
     content {
       version
       updateType

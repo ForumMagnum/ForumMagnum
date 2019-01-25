@@ -29,7 +29,12 @@ if (hpmorImport) {
       title: "HPMOR Chapter: " + chapterNumber,
       userId: eliezerId,
       draft: true,
-      htmlBody: hpmor_data.chapters[chapterNumber],
+      content: {
+        canonicalContent: {
+          data: hpmor_data.chapters[chapterNumber],
+          type: "html"
+        }
+      },
     };
     chapterNumber++;
 

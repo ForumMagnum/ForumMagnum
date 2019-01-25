@@ -16,7 +16,6 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     },
-    moderationGuidelinesHtmlBody,
     moderationStyle
   }
 `);
