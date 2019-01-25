@@ -114,7 +114,9 @@ registerFragment(`
     draft
     deletedDraft
     excerpt # This won't work with content
-    # content # Our replacement for body
+    content {
+      htmlHighlight
+    }
     viewCount
     clickCount
     # vulcan:users
