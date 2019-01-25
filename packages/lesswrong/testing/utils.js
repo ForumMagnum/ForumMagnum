@@ -182,7 +182,12 @@ export const createDummyComment = async (user, data) => {
   const defaultUser = await createDefaultUser();
   let defaultData = {
     userId: user._id,
-    body: "This is a test comment",
+    content: {
+      canonicalContent: {
+        type: "markdown",
+        data: "This is a test comment"
+      }
+    },
   }
   if (!data.postId) {
     defaultData.postId = Posts.findOne()._id; // By default, just grab ID from a random post

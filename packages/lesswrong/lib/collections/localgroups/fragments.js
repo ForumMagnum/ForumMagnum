@@ -27,7 +27,6 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     }
-    body
     contactInfo
     facebookLink
     website

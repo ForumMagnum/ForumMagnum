@@ -113,7 +113,6 @@ registerFragment(`
     meta
     draft
     deletedDraft
-    # body # We replaced this with content
     excerpt # This won't work with content
     # content # Our replacement for body
     viewCount
@@ -202,7 +201,6 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     }
-    body
     types
   }
 `);
@@ -210,7 +208,6 @@ registerFragment(`
 registerFragment(`
   fragment LWPostsPage on Post {
     ...PostsList
-    body
     tableOfContents
     draft
     commentSortOrder
@@ -275,7 +272,6 @@ registerFragment(`
 registerFragment(`
   fragment LWPostsRevision on Post {
     ...PostsList
-    body
     tableOfContents
     draft
     commentSortOrder
@@ -521,7 +517,6 @@ registerFragment(`
     _id
     parentCommentId
     topLevelCommentId
-    body
     content {
       version
       updateType
@@ -555,7 +550,6 @@ registerFragment(`
   fragment commentInlineFragment on Comment {
     # example-forum
     _id
-    body
     content {
       version
       updateType
@@ -638,7 +632,6 @@ registerFragment(`
       user {
         ...UsersMinimumInfo
       }
-      body
       baseScore
       postedAt
       deleted
@@ -717,7 +710,6 @@ registerFragment(`
 registerFragment(/* GraphQL */`
   fragment PostsPage on Post {
     ...PostsList
-    body
   }
 `);
 

@@ -372,7 +372,6 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     createdAt: moment(post.date).toDate(),
     postedAt: moment(post.date).toDate(),
     slug: Utils.slugify(post.title),
-    body: body,
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
