@@ -126,10 +126,6 @@ import './helpers.js'
 import './routes.js';
 import './scrollRestoration.js';
 
-// Algolia Search Integration
-import './search/utils.js';
-import './search/callbacks.js';
-
 import './components.js';
 
 // Alignment Forum

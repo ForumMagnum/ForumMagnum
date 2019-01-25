@@ -74,6 +74,7 @@ class CommentBody extends Component {
   render () {
     const { comment, classes, collapsed, truncationCharCount } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
+    const { html } = comment.content || {}
 
     const bodyClasses = classNames(
       { [classes.commentStyling]: !comment.answer,
@@ -87,12 +88,12 @@ class CommentBody extends Component {
       return (
         <div className={classes.root}>
           <ContentItemBody className={bodyClasses}
-            dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment.htmlBody, truncationCharCount)}}/>
+            dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(html, truncationCharCount)}}/>
         </div>
       )
     } else if (!collapsed) {
       return <ContentItemBody className={bodyClasses}
-        dangerouslySetInnerHTML={{__html: comment.htmlBody}}/>
+        dangerouslySetInnerHTML={{__html: html}}/>
     } else {
       return null
     }

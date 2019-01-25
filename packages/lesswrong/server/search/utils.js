@@ -1,15 +1,16 @@
-import { Posts } from '../collections/posts';
-import { Comments } from '../collections/comments'
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
-import RSSFeeds from '../collections/rssfeeds/collection.js';
-import Sequences from '../collections/sequences/collection.js';
+import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+import Sequences from '../../lib/collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import { Components } from 'meteor/vulcan:core';
-import React from 'react';
-import { draftToHTML } from '../editor/utils.js';
+import { draftToHTML } from '../../lib/editor/utils.js';
 import { convertFromRaw } from 'draft-js';
+import { dataToMarkdown } from '../../lib/collections/revisions/resolvers.js'
+
+const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
 const contentToHtml = (content) => {
   if (content) {
@@ -53,18 +54,14 @@ Comments.toAlgolia = (comment) => {
     algoliaComment.postTitle = parentPost.title;
     algoliaComment.postSlug = parentPost.slug;
   }
-  //  Limit comment size to ensure we stay below Algolia search Limit
-  // TODO: Actually limit by encoding size as opposed to characters
-  if (comment.htmlBody) {
-    const plaintextBody = htmlToText.fromString(comment.htmlBody);
-    algoliaComment.body = plaintextBody.slice(0, 2000);
-  } else if (comment.body) {
-    algoliaComment.body = comment.body.slice(0,2000);
-  } else if (comment.content) {
-    const html = contentToHtml(comment.content)
-    const plaintextBody = htmlToText.fromString(html);
-    algoliaComment.body = plaintextBody.slice(0, 2000);
+  let body = ""
+  if (comment.content && comment.content.canonicalContent && comment.content.canonicalContent.type) {
+    const { data, type } = comment.content.canonicalContent
+    body = dataToMarkdown(data, type)
   }
+  //  Limit comment size to ensure we stay below Algolia search Limit
+  //  TODO: Actually limit by encoding size as opposed to characters
+  algoliaComment.body = body.slice(0, COMMENT_MAX_SEARCH_CHARACTERS)
   return [algoliaComment]
 }
 
@@ -118,6 +115,7 @@ Users.toAlgolia = (user) => {
 }
 
 
+// TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
 Posts.toAlgolia = (post) => {
   const algoliaMetaInfo = {
     _id: post._id,
@@ -153,11 +151,11 @@ Posts.toAlgolia = (post) => {
   let postBatch = [];
   let paragraphCounter =  0;
   let algoliaPost = {};
-  const body = post.htmlBody ?
-    htmlToText.fromString(post.htmlBody) :
-    post.body
-      ? post.body :
-        post.content && htmlToText.fromString(contentToHtml(post.content))
+  let body = ""
+  if (post.content && post.content.canonicalContent && post.content.canonicalContent.type) {
+    const { data, type } = post.content.canonicalContent
+    body = dataToMarkdown(data, type)
+  }
   if (body) {
     body.split("\n\n").forEach((paragraph) => {
       algoliaPost = {

@@ -188,63 +188,22 @@ registerFragment(`
     facebookLink
     website
     contactInfo
-    content
-    htmlBody
-    body
-    types
-  }
-`);
-
-registerFragment(`
-  fragment LWPostsRevision on Post {
-    ...PostsList
-    lastEditedAs
-    body
-    htmlBody
-    tableOfContents
-    content
-    plaintextExcerpt
-    draft
-    commentSortOrder
-    canonicalPrevPostSlug
-    canonicalNextPostSlug
-    canonicalCollectionSlug
-    canonicalSequenceId
-    canonicalBookId
-    bannedUserIds
-    hideAuthor
-    user {
-      groups
-      moderationStyle
-      bannedUserIds
-      moderatorAssistance
-    }
-    canonicalSequence {
-      title
-    }
-    canonicalBook {
-      title
-    }
-    canonicalCollection {
-      title
-    }
-    collectionTitle
-    types
-    showModerationGuidelines
-    moderationGuidelinesHtmlBody
-    moderationGuidelinesContent
-    moderationGuidelinesBody
-    moderationStyle
-    revision(revisionId: $revisionId)
-    revisionField {
+    content {
+      version
+      updateType
       editedAt
       userId
-      canonicalContentType
       canonicalContent
       html
       markdown
-      draftJs
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
     }
+    htmlBody
+    body
+    types
   }
 `);
 
@@ -255,7 +214,6 @@ registerFragment(`
     body
     htmlBody
     tableOfContents
-    content
     plaintextExcerpt
     draft
     commentSortOrder
@@ -285,9 +243,105 @@ registerFragment(`
     types
     showModerationGuidelines
     moderationGuidelinesHtmlBody
-    moderationGuidelinesContent
+    moderationGuidelines {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
     moderationGuidelinesBody
     moderationStyle
+    content {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
+    hasMajorRevision
+  }
+`);
+
+
+// Same as LWPostsPage, it just accepts parameters for the revision field
+registerFragment(`
+  fragment LWPostsRevision on Post {
+    ...PostsList
+    lastEditedAs
+    body
+    htmlBody
+    tableOfContents
+    plaintextExcerpt
+    draft
+    commentSortOrder
+    canonicalPrevPostSlug
+    canonicalNextPostSlug
+    canonicalCollectionSlug
+    canonicalSequenceId
+    canonicalBookId
+    bannedUserIds
+    hideAuthor
+    user {
+      groups
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
+    }
+    canonicalSequence {
+      title
+    }
+    canonicalBook {
+      title
+    }
+    canonicalCollection {
+      title
+    }
+    collectionTitle
+    types
+    showModerationGuidelines
+    moderationGuidelinesHtmlBody
+    moderationGuidelines {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
+    moderationGuidelinesBody
+    moderationStyle
+    content(version: $version) {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
+    hasMajorRevision
   }
 `);
 
@@ -477,7 +531,19 @@ registerFragment(`
     topLevelCommentId
     body
     htmlBody
-    content
+    content {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
     postedAt
     # vulcan:users
     userId
@@ -500,7 +566,19 @@ registerFragment(`
     _id
     body
     htmlBody
-    content
+    content {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
     # vulcan:users
     userId
     user {

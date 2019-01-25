@@ -9,17 +9,6 @@ import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vu
 import moment from 'moment';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
-import { ContentType } from '../revisions/schema'
-import SimpleSchema from 'simpl-schema'
-
-const RevisionStorageType = new SimpleSchema({
-  revisionId: {type: String, optional: true},
-  canonicalContent: {type: ContentType, optional: true},
-  userId: {type: String, optional: true},
-  html: {type: String, optional: true}
-})
-
-SimpleSchema.extendOptions([ 'inputType' ]);
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
@@ -430,20 +419,6 @@ const schema = {
     }
   },
 
-  commentIds: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'comments',
-      arguments: 'limit: Int = 5',
-      type: '[Comment]',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'commentIds'}
-      ),
-    }
-  },
-
   emailShareUrl: {
     type: String,
     optional: true,
@@ -507,42 +482,23 @@ const schema = {
       type: 'String',
       arguments: 'revisionId: String = 0',
       resolver: (post, args, { Posts }) => {
-        console.log("Revision resolver args: ", args)
         return args.revisionId || "0"
       }
     }
   },
 
-  revisionField: {
-    type: RevisionStorageType,
-    inputType: 'UpdateRevisionDataInput',
+
+  // Right now only admins can set whether a post has a major revision
+  // In the future, we want to use some heuristic to determine whether a
+  // revision counts as major, maybe with some UI elements
+  hasMajorRevision: {
+    type: Boolean,
     optional: true,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
-    control: 'EditorFormComponent',
-    resolveAs: {
-      type: 'Revision',
-      resolver: (post) => {
-        return {
-          editedAt: post.revisionField && post.revisionField.editedAt || new Date(),
-          userId: post.revisionField && post.revisionField.userId || 'asdf',
-          canonicalContentType: post.revisionField && post.revisionField.canonicalContentType || 'html',
-          canonicalContent: post.revisionField && post.revisionField.canonicalContent || {},
-          html: post.revisionField && post.revisionField.html || "html"
-        }
-      }
-    },
-    form: {
-      hintText:"Plain Markdown Editor",
-      multiLine:true,
-      fullWidth:true,
-      disableUnderline:true,
-      fieldName: 'revisionField',
-      commentEditor: false,
-      commentStyles: false,
-      enableMarkDownEditor: true,
-    },
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions
   },
 };
 

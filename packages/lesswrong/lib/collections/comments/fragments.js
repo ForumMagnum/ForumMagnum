@@ -9,7 +9,19 @@ registerFragment(`
     topLevelCommentId
     body
     htmlBody
-    content
+    content {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
     postedAt
     repliesBlockedUntil
     # vulcan:users
@@ -36,5 +48,6 @@ registerFragment(`
     answer
     parentAnswerId
     retracted
+    postVersion
   }
 `);

@@ -6,6 +6,7 @@ Comments schema
 
 import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
+import { Posts } from '../posts/collection'
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -249,6 +250,18 @@ const schema = {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
+
+  // The semver-style version of the post that this comment was made against
+  // This gets automatically created in a callback on creation
+  postVersion: {
+    type: String, 
+    optional: true,
+    canRead: ['guests'],
+    onCreate: async ({newDocument}) => {
+      const post = await Posts.findOne({_id: newDocument.postId})
+      return post.content && post.content.version
+    }
+  }
 };
 
 export default schema;

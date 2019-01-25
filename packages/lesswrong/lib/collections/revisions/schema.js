@@ -1,4 +1,19 @@
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import SimpleSchema from 'simpl-schema'
+// import Revisions from './collection'
+
+export const ContentType = new SimpleSchema({
+  type: String,
+  data: SimpleSchema.oneOf(
+    String, 
+    {
+      type: Object, 
+      blackbox: true
+    }
+  )
+})
+
+SimpleSchema.extendOptions([ 'inputType' ]);
 /*
 
 A SimpleSchema-compatible JSON schema
@@ -10,11 +25,28 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
   },
+  documentId: {
+    type: String,
+  },
+  fieldName: {
+    type: String,
+  },
   editedAt: {
     type: Date,
     optional: true, 
     viewableBy: ['guests'],
-    onCreate: () => new Date(),
+  },
+  updateType: {
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    type: String,
+    allowedValues: ['initial', 'patch', 'minor', 'major'],
+    optional: true
+  },
+  version: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
   },
   userId: {
     viewableBy: ['guests'],
@@ -29,14 +61,10 @@ const schema = {
       addOriginalField: true
     },
   },
-  canonicalContentType: {
-    type: String,
-    viewableBy: ['guests'],
-  },
   canonicalContent: {
-    type: Object,
+    type: ContentType,
     viewableBy: ['guests'],
-    blackbox: true, 
+    editableBy: ['members']
   },
   html: {
     type: String,
@@ -46,23 +74,28 @@ const schema = {
   markdown: {
     type: String,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: () => {
-        return "markdown resolver"
-      }
-    }
+    // resolveAs defined in resolvers.js
   },
-  draftJs: {
-    type: String,
+  draftJS: {
+    type: Object,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'JSON',
-      resolver: () => {
-        return "draftJS resolver"
-      }
-    }
+    // resolveAs defined in resolvers.js
   },
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    // resolveAs defined in resolvers.js
+  },
+  htmlHighlight: {
+    type: String, 
+    viewableBy: ['guests'],
+    // resolveAs defined in resolvers.js
+  },
+  plaintextDescription: {
+    type: String, 
+    viewableBy: ['guests'],
+    // resolveAs defined in resolvers.js
+  }
 };
 
 export default schema;

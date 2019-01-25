@@ -154,6 +154,7 @@ import '../components/comments/CommentsItem/SubscribeToCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
+import '../components/comments/CommentsItem/CommentOutdatedWarning';
 
 import '../components/comments/recentDiscussionThread.jsx';
 import '../components/comments/recentDiscussionThreadsList.jsx';
@@ -280,6 +281,7 @@ import '../components/form-components/FormComponentSelect.jsx';
 import '../components/form-components/FormComponentDate.jsx';
 import '../components/form-components/FormComponentDateTime.jsx';
 import '../components/form-components/FormComponentNumber.jsx';
+import '../components/form-components/RevisionTestComponent.jsx';
 
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';

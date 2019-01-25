@@ -164,26 +164,25 @@ const styles = theme => ({
 class PostsPage extends Component {
 
   render() {
-    const { loading, document, currentUser, location, router, classes, params } = this.props
+    const { loading, document: post, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
-      Section, TableOfContents } = Components
+      Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
-    } else if (!document) {
+    } else if (!post) {
       return <Error404/>
     } else {
-      const post = document
+      const { html } = post.content || {}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
       const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
       const sectionData = post.tableOfContents;
-      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : post.htmlBody;
-
+      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLink = post.feed && post.feed.url && new URLClass(post.feed.url).hostname
 
       return (
@@ -214,7 +213,7 @@ class PostsPage extends Component {
                       <FormatDate date={post.postedAt}/>
                     </span>}
                     {!post.isEvent && <span className={classes.desktopDate}>
-                      <FormatDate date={post.postedAt} format="Do MMM YYYY"/>
+                      {post.hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
@@ -241,12 +240,11 @@ class PostsPage extends Component {
             <div className={classes.post}>
               {/* Body */}
               <div className={classes.postBody}>
-
-
                 { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
                 <div className={classes.postContent}>
                   <LinkPostMessage post={post} />
-                  { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
+                  {query.revision && <PostsRevisionMessage post={post} />}
+                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
                 </div>
               </div>
             </div>
@@ -345,7 +343,7 @@ const queryOptions = {
   enableCache: true,
   ssr: true,
   extraVariables: {
-    revisionId: "String"
+    version: 'String'
   }
 };
 

@@ -193,17 +193,18 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
-function NewCommentsEmptyCheck (comment, user) {
-  if (!comment.htmlBody &&
-      !comment.body &&
-      (!comment.content || !convertFromRaw(comment.content).hasText())) {
-    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
-    throw new EmptyCommentError({data: {break: true, value: comment}});
-  }
-  return comment;
-}
+// DEACTIVATE THIS TEMPORARILY. IF YOU SEE THIS COMMENTED OUT, REMIND OLI THAT HE HAS TO STILL REACTIVATE THIS.
+// function NewCommentsEmptyCheck (comment, user) {
+//   if (!comment.htmlBody &&
+//       !comment.body &&
+//       (!comment.content || !convertFromRaw(comment.content).hasText())) {
+//     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
+//     throw new EmptyCommentError({data: {break: true, value: comment}});
+//   }
+//   return comment;
+// }
 
-addCallback("comments.new.validate", NewCommentsEmptyCheck);
+// addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment) {
   if (newComment.deleted && newComment.htmlBody) {
