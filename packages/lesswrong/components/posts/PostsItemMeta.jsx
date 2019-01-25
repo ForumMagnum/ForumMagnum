@@ -75,7 +75,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
 
       { afBaseScore && <MetaInfo>
         <Tooltip title={<div>
-          { afBaseScore || 0 } karma on alignmentform.org
+          { afBaseScore || 0 } karma on alignmentforum.org
         </div>}>
           <span>Ω { afBaseScore || 0 }</span>
         </Tooltip>
