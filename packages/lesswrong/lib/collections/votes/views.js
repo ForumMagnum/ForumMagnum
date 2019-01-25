@@ -1,4 +1,4 @@
-import { Votes } from "meteor/vulcan:voting"
+import { Votes } from './collection.js';
 import { ensureIndex } from '../../collectionUtils';
 
 ensureIndex(Votes, {documentId:"hashed"});

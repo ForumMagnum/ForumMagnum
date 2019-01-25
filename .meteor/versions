@@ -104,7 +104,6 @@ vulcan:lib@1.12.8
 vulcan:routing@1.12.8
 vulcan:ui-bootstrap@1.12.8
 vulcan:users@1.12.8
-vulcan:voting@1.12.8
 webapp@1.7.0
 webapp-hashing@1.0.9
 zodern:minifier-js@3.0.0

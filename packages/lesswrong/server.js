@@ -40,6 +40,9 @@ import './server/posts/index.js';
 import './server/logging.js';
 import './server/rss.js';
 import './server/akismet.js';
+import './server/votingCron.js';
+import './server/votingGraphQL.js';
+import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
 
 import './lib/collections/comments/callbacks.js';
