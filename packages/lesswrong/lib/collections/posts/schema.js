@@ -126,19 +126,6 @@ const schema = {
     }
   },
   /**
-    Post body (markdown)
-  */
-  body: {
-    type: String,
-    optional: true,
-    max: 3000,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: 'textarea',
-    order: 30
-  },
-  /**
    Post Excerpt
    */
   excerpt: {
