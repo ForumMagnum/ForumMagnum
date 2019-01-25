@@ -69,10 +69,7 @@ export const draftToHTML = convertToHTML({
       if (entity.data.alignment) {
         classNames = classNames + entity.data.alignment;
       }
-      let style = ""
-      if (entity.data.width) {
-        style = "width:" + entity.data.width + "%";
-      }
+      let style = "width:" + (entity.data.width || 40) + "%"
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
     if (entity.type === 'LINK') {
