@@ -1,12 +1,14 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
+import moment from 'moment';
+import { withRouter } from 'react-router';
 
 const styles = theme => ({
   titleSettings: {
-    width: "100%",
+    marginLeft: theme.spacing.unit,
     fontStyle: "italic",
     cursor: "pointer",
     opacity: .8,
@@ -47,46 +49,52 @@ class AllPostsPage extends Component {
 
   state = { lowKarma: false }
 
-  renderTitle = () => {
+  render() {
     const { classes } = this.props;
     const { lowKarma } = this.state
-    const { PostsViews } = Components
-    return <div>
-      <PostsViews />
-      <div className={classes.divider} />
-      <Tooltip title="Show low karma posts" placement="right">
-        <div className={classes.titleSettings} onClick={(event) => this.setState({lowKarma: !lowKarma})}>
-          <Checkbox
-            classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
-            checked={lowKarma}
-          />
-          <span className={classes.checkboxLabel}>
-            Low Karma
-          </span>
-        </div>
-      </Tooltip>
-    </div>
-  }
 
-  render() {
-    const { TabNavigationMenu } = Components
-    const query = _.clone(this.props.router.location.query || {});
-
+    const { PostsViews, PostsList, TabNavigationMenu, SingleColumnSection, SectionTitle } = Components
+    const query = _.clone(this.props.router.location.query || {view:"daily"});
+    console.log(query)
     const terms = {
-      view:"new",
+      view: "daily",
       ...query,
       karmaThreshold: this.state.lowKarma ? -100 : -10,
       limit:100
     }
 
-    const { Section, PostsList } = Components
+    const numberOfDays = getSetting('forum.numberOfDays', 5);
+    const dailyTerms = {
+      view: 'daily',
+      after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
+      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
+      karmaThreshold: this.state.hideLowKarma ? -10 : -100
+    };
 
     return (
-      <Section title="All Posts" titleComponent={this.renderTitle()}>
+      <SingleColumnSection>
+        <SectionTitle title="All Posts" >
+          <PostsViews showPostTypes={false} defaultView="daily"/>
+          <Tooltip title="Show low karma posts" placement="right">
+            <div className={classes.titleSettings} onClick={(event) => this.setState({lowKarma: !lowKarma})}>
+              <Checkbox
+                classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
+                checked={lowKarma}
+              />
+              <span className={classes.checkboxLabel}>
+                Low Karma
+              </span>
+            </div>
+          </Tooltip>
+        </SectionTitle>
         <TabNavigationMenu />
-          <PostsList terms={terms} showHeader={false}/>
-      </Section>
+          {query.view === "daily" ? 
+            <Components.PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays}/>
+            :
+            <PostsList terms={terms} showHeader={false}/>
+          }
+      </SingleColumnSection>
     )
   }
 }
-registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}));
+registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}), withRouter);

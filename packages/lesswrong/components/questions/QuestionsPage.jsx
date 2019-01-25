@@ -8,13 +8,15 @@ const QuestionsPage = () => {
     limit: 50,
   };
 
-  const { Section, PostsList, TabNavigationMenu } = Components
+  const { PostsList, TabNavigationMenu, SingleColumnSection, SectionTitle } = Components
 
   return (
-    <Section title="Questions">
+    <SingleColumnSection>
+      <SectionTitle title="Questions">
+      </SectionTitle>
       <TabNavigationMenu />
       <PostsList terms={terms} showHeader={false}/>
-    </Section>
+    </SingleColumnSection>
   )
 };
 

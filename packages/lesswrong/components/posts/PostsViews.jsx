@@ -59,7 +59,7 @@ class PostsViews extends Component {
     }
     this.setState(newState)
 
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'new'}
+    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'daily'}
 
     let query = {
       ...currentQuery,
@@ -75,12 +75,12 @@ class PostsViews extends Component {
   }
 
   render () {
-    const { currentUser, router, classes } = this.props
+    const { currentUser, router, classes, showPostTypes, defaultView } = this.props
     const { anchorEl, filter } = this.state
 
     const { SectionSubtitle } = Components
 
-    let views = ['magic', 'new', 'old', 'top', 'recentComments'];
+    let views = ['magic', 'new', 'old', 'top', 'recentComments', 'daily'];
     const adminViews = [
       // 'pending', 'rejected', 'scheduled'
     ];
@@ -89,7 +89,7 @@ class PostsViews extends Component {
       views = views.concat(adminViews);
     }
     const query = _.clone(router.location.query);
-    const currentView = query && query.view || "new"
+    const currentView = query && query.view || defaultView
 
     return (
       <div>
@@ -107,37 +107,40 @@ class PostsViews extends Component {
                 </MenuItem>)})}
           </Menu>
         </SectionSubtitle>
-        <div className={classes.divider}/>
-        <div onClick={()=>this.setFilter("all")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})}>
-            All Posts
-          </SectionSubtitle>
-        </div>
-        <div onClick={()=>this.setFilter("frontpage")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})}>
-            Frontpage
-          </SectionSubtitle>
-        </div>
-        <div onClick={()=>this.setFilter("curated")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})}>
-            Curated
-          </SectionSubtitle>
-        </div>
-        <div onClick={()=>this.setFilter("questions")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="questions"})}>
-            Questions
-          </SectionSubtitle>
-        </div>
-        <div onClick={()=>this.setFilter("events")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="events"})}>
-            Events
-          </SectionSubtitle>
-        </div>
-        <div onClick={()=>this.setFilter("meta")}>
-          <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="meta"})}>
-            Meta
-          </SectionSubtitle>
-        </div>
+        {showPostTypes && <div>
+          <div className={classes.divider}/>
+          <div onClick={()=>this.setFilter("all")}>
+            <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="all"})}>
+              All Posts
+            </SectionSubtitle>
+          </div>
+          <div onClick={()=>this.setFilter("frontpage")}>
+            <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="frontpage"})}>
+              Frontpage
+            </SectionSubtitle>
+          </div>
+          <div onClick={()=>this.setFilter("curated")}>
+            <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="curated"})}>
+              Curated
+            </SectionSubtitle>
+          </div>
+          <div onClick={()=>this.setFilter("questions")}>
+            <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="questions"})}>
+              Questions
+            </SectionSubtitle>
+          </div>
+          <div onClick={()=>this.setFilter("events")}>
+            <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="events"})}>
+              Events
+            </SectionSubtitle>
+          </div>
+          <div onClick={()=>this.setFilter("meta")}>
+            <SectionSubtitle className={classNames(classes.filter, {[classes.selected]:filter==="meta"})}>
+              Meta
+            </SectionSubtitle>
+          </div>
+        </div>    
+        }
       </div>
     );
   }
@@ -146,10 +149,12 @@ class PostsViews extends Component {
 PostsViews.propTypes = {
   currentUser: PropTypes.object,
   defaultView: PropTypes.string,
+  showPostTypes: PropTypes.bool,
 };
 
 PostsViews.defaultProps = {
-  defaultView: 'top',
+  defaultView: 'new',
+  showPostTypes: true,
 };
 
 PostsViews.contextTypes = {

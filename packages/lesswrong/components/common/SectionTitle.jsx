@@ -9,7 +9,7 @@ const styles = (theme) => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: theme.spacing.unit*2,
+    paddingTop: theme.spacing.unit,
     paddingLeft: theme.spacing.unit/2,
     paddingRight: theme.spacing.unit*2,
     marginTop: theme.spacing.unit*3,
