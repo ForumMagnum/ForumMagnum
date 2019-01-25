@@ -236,6 +236,15 @@ registerFragment(`
     moderationGuidelinesBody
     moderationStyle
     revision(revisionId: $revisionId)
+    revisionField {
+      editedAt
+      userId
+      canonicalContentType
+      canonicalContent
+      html
+      markdown
+      draftJs
+    }
   }
 `);
 
@@ -279,7 +288,6 @@ registerFragment(`
     moderationGuidelinesContent
     moderationGuidelinesBody
     moderationStyle
-    revisionField
   }
 `);
 

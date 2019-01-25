@@ -10,14 +10,16 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
   },
-  createdAt: {
+  editedAt: {
     type: Date,
+    optional: true, 
     viewableBy: ['guests'],
     onCreate: () => new Date(),
   },
   userId: {
     viewableBy: ['guests'],
     type: String,
+    optional: true,
     resolveAs: {
       fieldName: 'user',
       type: 'User',
@@ -38,6 +40,7 @@ const schema = {
   },
   html: {
     type: String,
+    optional: true,
     viewableBy: ['guests'],
   },
   markdown: {
