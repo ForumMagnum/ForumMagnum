@@ -43,6 +43,6 @@ describe('updateComment – ', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost()
     const comment = await createDummyComment(user, {postId: post._id})
-    await userUpdateFieldFails({ user:user, document:comment, fieldName:'content', collectionType: 'Comment', newValue: {canonicalContent: {type: "markdown", data: "stuff"}}})
+    await userUpdateFieldSucceeds({ user:user, document:comment, fieldName:'content', collectionType: 'Comment', newValue: {canonicalContent: {type: "markdown", data: "stuff"}}})
   });
 });
