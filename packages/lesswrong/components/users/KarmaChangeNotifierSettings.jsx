@@ -9,7 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { karmaChangeNotifierDefaultSettings } from '../../lib/karmaChanges.js';
-import { withTimezone } from '../common/withTimezone';
+import withTimezone from '../common/withTimezone';
 import moment from 'moment-timezone';
 
 const styles = theme => ({

@@ -88,16 +88,16 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
   todaysDailyReset.set('millisecond', 0);
   
   const lastDailyReset = todaysDailyReset.isAfter(now)
-    ? todaysDailyReset.subtract(1, 'days')
+    ? moment(todaysDailyReset).subtract(1, 'days')
     : todaysDailyReset;
   
   switch(settings.updateFrequency) {
     case "disabled":
       return null;
     case "daily":
-      const oneDayPrior = lastDailyReset.subtract(1, 'days');
+      const oneDayPrior = moment(lastDailyReset).subtract(1, 'days');
       return {
-        start: oneDayPrior.min(lastOpened).toDate(),
+        start: moment.min(oneDayPrior, moment(lastOpened)).toDate(),
         end: lastDailyReset.toDate(),
       };
     case "weekly":
@@ -109,10 +109,10 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
       // of the correct day of the week
       const daysOfWeekDifference = (lastDailyResetDayOfWeekNum - targetDayOfWeekNum + 7) % 7;
       
-      const lastWeeklyReset = lastDailyReset.add(-daysOfWeekDifference, 'days');
+      const lastWeeklyReset = moment(lastDailyReset).add(-daysOfWeekDifference, 'days');
       const oneWeekPrior = moment(lastWeeklyReset).add(-7, 'days');
       return {
-        start: oneWeekPrior.min(lastOpened).toDate(),
+        start: moment.min(oneWeekPrior, moment(lastOpened)).toDate(),
         end: lastWeeklyReset.toDate(),
       };
     case "realtime":

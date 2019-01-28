@@ -183,7 +183,7 @@ describe('Voting', async function() {
         settings: updateAt5AMSettings,
         now: new Date("1980-03-03T08:00:00Z"),
         lastOpened: new Date("1980-03-03T06:00:00Z"),
-      }).should.equal({
+      }).should.deep.equal({
         start: new Date("1980-03-02T05:00:00Z"),
         end: new Date("1980-03-03T05:00:00Z"),
       })
@@ -192,7 +192,7 @@ describe('Voting', async function() {
         settings: updateAt5AMSettings,
         now: new Date("1980-03-03T03:00:00Z"),
         lastOpened: new Date("1980-03-03T02:00:00Z"),
-      }).should.equal({
+      }).should.deep.equal({
         start: new Date("1980-03-01T05:00:00Z"),
         end: new Date("1980-03-02T05:00:00Z"),
       })
@@ -201,7 +201,7 @@ describe('Voting', async function() {
         settings: updateAt5AMSettings,
         now: new Date("1980-03-03T08:00:00Z"),
         lastOpened: new Date("1980-02-02T08:00:00Z"),
-      }).should.equal({
+      }).should.deep.equal({
         start: new Date("1980-02-02T08:00:00Z"),
         end: new Date("1980-03-03T05:00:00Z"),
       })
@@ -214,19 +214,19 @@ describe('Voting', async function() {
       }
       getKarmaChangeDateRange({
         settings: updateSaturdayAt5AMSettings,
-        now: new Date("1980-03-03T08:00:00Z"), //Saturday
-        lastOpened: new Date("1980-03-03T06:00:00Z"),
-      }).should.equal({
-        start: new Date("1980-02-24T05:00:00Z"),
-        end: new Date("1980-03-03T05:00:00Z"),
+        now: new Date("1980-05-03T08:00:00Z"), //Saturday
+        lastOpened: new Date("1980-05-03T06:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-04-26T05:00:00Z"),
+        end: new Date("1980-05-03T05:00:00Z"),
       })
       getKarmaChangeDateRange({
         settings: updateSaturdayAt5AMSettings,
-        now: new Date("1980-03-07T08:00:00Z"), //Wednesday
-        lastOpened: new Date("1980-03-07T06:00:00Z"),
-      }).should.equal({
-        start: new Date("1980-02-24T05:00:00Z"),
-        end: new Date("1980-03-03T05:00:00Z"),
+        now: new Date("1980-05-07T08:00:00Z"), //Wednesday
+        lastOpened: new Date("1980-05-07T06:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-04-26T05:00:00Z"),
+        end: new Date("1980-05-03T05:00:00Z"),
       })
     });
   });
