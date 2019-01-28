@@ -176,7 +176,7 @@ describe('Voting', async function() {
     it('computes daily update times correctly', async () => {
       const updateAt5AMSettings = {
         updateFrequency: "daily",
-        timeOfDay: 5,
+        timeOfDayGMT: 5,
       }
       
       getKarmaChangeDateRange({
@@ -209,8 +209,8 @@ describe('Voting', async function() {
     it('computes weekly update times correctly', async () => {
       const updateSaturdayAt5AMSettings = {
         updateFrequency: "weekly",
-        timeOfDay: 5,
-        dayOfWeek: "Saturday",
+        timeOfDayGMT: 5,
+        dayOfWeekGMT: "Saturday",
       }
       getKarmaChangeDateRange({
         settings: updateSaturdayAt5AMSettings,

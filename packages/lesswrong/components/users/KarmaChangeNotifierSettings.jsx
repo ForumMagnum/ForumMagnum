@@ -9,6 +9,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { karmaChangeNotifierDefaultSettings } from '../../lib/karmaChanges.js';
+import { withTimezone } from '../common/withTimezone';
+import moment from 'moment-timezone';
 
 const styles = theme => ({
   radioGroup: {
@@ -47,26 +49,68 @@ class KarmaChangeNotifierSettings extends PureComponent {
     });
   }
   
-  setTimeOfDay = (timeOfDay) => {
+  setBatchingTimeOfDay = (timeOfDay, tz) => {
+    const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
+    const newTimeLocalTZ = {
+      timeOfDay: timeOfDay,
+      dayOfWeek: oldTimeLocalTZ.dayOfWeek
+    };
+    const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
+    
     const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
-    const settings = { ...oldSettings, timeOfDay: timeOfDay };
+    const newSettings = {
+      ...oldSettings,
+      timeOfDayGMT: newTimeGMT.timeOfDay,
+      dayOfWeekGMT: newTimeGMT.dayOfWeek,
+    };
     this.context.updateCurrentValues({
-      [this.props.path]: settings
+      [this.props.path]: newSettings
     });
   }
   
-  setDayOfWeek = (dayOfWeek) => {
+  setBatchingDayOfWeek = (dayOfWeek, tz) => {
+    const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
+    const newTimeLocalTZ = {
+      timeOfDay: oldTimeLocalTZ.timeOfDay,
+      dayOfWeek: dayOfWeek
+    };
+    const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
+    
     const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
-    const settings = { ...oldSettings, dayOfWeek: dayOfWeek };
+    const newSettings = {
+      ...oldSettings,
+      timeOfDayGMT: newTimeGMT.timeOfDay,
+      dayOfWeekGMT: newTimeGMT.dayOfWeek,
+    };
     this.context.updateCurrentValues({
-      [this.props.path]: settings
+      [this.props.path]: newSettings
     });
+  }
+  
+  // Given a time of day (number of hours, 0-24)
+  convertTimezone = (timeOfDay, dayOfWeek, fromTimezone, toTimezone) => {
+    let time = moment()
+      .tz(fromTimezone)
+      .day(dayOfWeek).hour(timeOfDay).minute(0)
+      .tz(toTimezone);
+    return {
+      timeOfDay: time.hour(),
+      dayOfWeek: time.format("dddd")
+    };
+  }
+  
+  getBatchingTimeLocalTZ = () => {
+    const settings = this.props.value || karmaChangeNotifierDefaultSettings;
+    const { timeOfDayGMT, dayOfWeekGMT } = settings;
+    const { timeOfDay, dayOfWeek } = this.convertTimezone(timeOfDayGMT, dayOfWeekGMT, "GMT", this.props.timezone);
+    return { timeOfDay, dayOfWeek };
   }
   
   render() {
-    const { classes } = this.props;
+    const { timezone, classes } = this.props;
     const settings = this.props.value || karmaChangeNotifierDefaultSettings;
-    const { updateFrequency, timeOfDay, dayOfWeek } = settings;
+    
+    const {timeOfDay, dayOfWeek} = this.getBatchingTimeLocalTZ();
     
     return <div>
       <Typography variant="body1">
@@ -81,7 +125,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
       </Typography>
       
       <RadioGroup className={classes.radioGroup}
-        value={updateFrequency}
+        value={settings.updateFrequency}
         onChange={(event, newValue) => this.setUpdateFrequency(newValue)}
       >
         {_.map(karmaNotificationTimingChoices, (timingChoice, key) =>
@@ -104,16 +148,20 @@ class KarmaChangeNotifierSettings extends PureComponent {
       <Typography variant="body2">
         Batched updates occur at <Select
           value={timeOfDay}
-          onChange={(event) => this.setTimeOfDay(event.target.value)}
+          onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
         >
           { _.range(24).map(hour =>
               <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
             )
           }
+          
         </Select>
-        { updateFrequency==="weekly" && <span>
+        
+        {moment().tz(timezone).format("z")}
+        
+        { settings.updateFrequency==="weekly" && <span>
             on <Select value={dayOfWeek}
-              onChange={(event) => this.setDayOfWeek(event.target.value)}
+              onChange={(event) => this.setBatchingDayOfWeek(event.target.value, timezone)}
             >
               <MenuItem value="Sunday">Sunday</MenuItem>
               <MenuItem value="Monday">Monday</MenuItem>
@@ -135,4 +183,5 @@ KarmaChangeNotifierSettings.contextTypes = {
 };
 
 registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings,
-  withStyles(styles, {name: "KarmaChangeNotifierSettings"}));
+  withStyles(styles, {name: "KarmaChangeNotifierSettings"}),
+  withTimezone);

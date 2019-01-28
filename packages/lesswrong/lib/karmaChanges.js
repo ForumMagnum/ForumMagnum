@@ -9,13 +9,14 @@ export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
   updateFrequency: "daily",
   
-  // Time of day at which daily/weekly batched updates are released, an integer
-  // number of hours 0-23.
-  // TODO: Figure out and add time zone handling.
-  timeOfDay: 3,
+  // Time of day at which daily/weekly batched updates are released, a number
+  // of hours [0,24). Always in GMT, regardless of the user's time zone.
+  timeOfDayGMT: 3,
   
-  // A string day-of-the-week name, spelled out and capitalized like "Monday"
-  dayOfWeek: "Saturday",
+  // A string day-of-the-week name, spelled out and capitalized like "Monday".
+  // Always in GMT, regardless of the user's timezone (timezone matters for day
+  // of the week because time zones could take it across midnight.)
+  dayOfWeekGMT: "Saturday",
 };
 
 // Given a user and a date range, get a summary of karma changes that occurred
@@ -80,9 +81,9 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.
-  let todaysDailyReset = moment(now);
-  todaysDailyReset.set('hour', settings.timeOfDay);
-  todaysDailyReset.set('minute', 0);
+  let todaysDailyReset = moment(now).tz("GMT");
+  todaysDailyReset.set('hour', Math.floor(settings.timeOfDayGMT));
+  todaysDailyReset.set('minute', 60*(settings.timeOfDayGMT%1));
   todaysDailyReset.set('second', 0);
   todaysDailyReset.set('millisecond', 0);
   
@@ -101,7 +102,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
       };
     case "weekly":
       // Target day of the week, as an integer 0-6
-      const targetDayOfWeekNum = moment().day(settings.dayOfWeek).day();
+      const targetDayOfWeekNum = moment().day(settings.dayOfWeekGMT).day();
       const lastDailyResetDayOfWeekNum = lastDailyReset.day();
       
       // Number of days back from today's daily reset to get to a daily reset
