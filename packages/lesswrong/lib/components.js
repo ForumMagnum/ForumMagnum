@@ -42,7 +42,6 @@ import '../components/common/NoContent.jsx';
 import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
-import '../components/common/VotesInfo.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';

@@ -58,7 +58,7 @@ class ModerationGuidelinesEditForm extends PureComponent {
             documentId={postId}
             fields={['moderationGuidelines', 'moderationStyle']}
             addFields={['moderationGuidelines', 'moderationStyle']}
-            mutationFragment={getFragment("LWPostsPage")}
+            mutationFragment={getFragment("PostsPage")}
             successCallback={onClose}
             SubmitComponent={SubmitComponent}
             GroupComponent={FormGroupComponent}

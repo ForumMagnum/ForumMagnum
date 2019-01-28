@@ -16,8 +16,8 @@ class PostsEditForm extends PureComponent {
         <Components.SmartForm
           collection={Posts}
           documentId={documentId}
-          queryFragment={getFragment('LWPostsPage')}
-          mutationFragment={getFragment('LWPostsPage')}
+          queryFragment={getFragment('PostsPage')}
+          mutationFragment={getFragment('PostsPage')}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
             this.props.router.push({pathname: Posts.getPageUrl(post)});
@@ -66,7 +66,7 @@ PostsEditForm.contextTypes = {
 const documentQuery = {
   collection: Posts,
   queryName: 'PostsEditFormQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'PostsPage',
   ssr: true
 };
 

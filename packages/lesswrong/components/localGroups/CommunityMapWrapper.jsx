@@ -21,7 +21,7 @@ const CommunityMapWrapper = (props) => {
 const listOptions = {
   collection: Posts,
   queryName: "communityMapEventsQuery",
-  fragmentName: "EventsList",
+  fragmentName: "PostsList",
   limit: 500,
 }
 

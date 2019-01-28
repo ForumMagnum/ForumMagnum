@@ -149,7 +149,7 @@ const moderationStyleLookup = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'PostsPage',
   enableTotal: false,
   enableCache: true,
 };

@@ -98,278 +98,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostsList on Post {
-    # example-forum
-    _id
-    title
-    url
-    slug
-    postedAt
-    createdAt
-    sticky
-    metaSticky
-    status
-    frontpageDate
-    meta
-    draft
-    deletedDraft
-    excerpt # This won't work with content
-    content {
-      htmlHighlight
-    }
-    viewCount
-    clickCount
-    # vulcan:users
-    userId
-    user {
-      ...UsersMinimumInfo
-      moderationStyle
-    }
-    coauthors {
-      ...UsersMinimumInfo
-    }
-    # example-forum
-    commentCount
-    # vulcan:voting
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    unlisted
-    score
-    feedId
-    feedLink
-    feed {
-      ...RSSFeedMinimumInfo
-    }
-    lastVisitedAt
-    lastCommentedAt
-    canonicalCollectionSlug
-    curatedDate
-    commentsLocked
-    # Local Event data
-    groupId
-    location
-    googleLocation
-    mongoLocation
-    startTime
-    endTime
-    facebookLink
-    website
-    contactInfo
-    isEvent
-    reviewedByUserId
-    suggestForCuratedUserIds
-    suggestForCuratedUsernames
-    reviewForCuratedUserId
-    af
-    afDate
-    suggestForAlignmentUserIds
-    reviewForAlignmentUserId
-    afBaseScore
-    afCommentCount
-    afLastCommentedAt
-    afSticky
-    voteCount
-    question
-    authorIsUnreviewed
-    isFuture
-    hideAuthor
-    moderationStyle
-  }
-`);
-
-registerFragment(`
-  fragment EventsList on Post {
-    ...PostsList
-    location
-    googleLocation
-    mongoLocation
-    startTime
-    endTime
-    facebookLink
-    website
-    contactInfo
-    content {
-      version
-      updateType
-      editedAt
-      userId
-      canonicalContent
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
-    }
-    types
-  }
-`);
-
-registerFragment(`
-  fragment LWPostsPage on Post {
-    ...PostsList
-    tableOfContents
-    draft
-    commentSortOrder
-    canonicalPrevPostSlug
-    canonicalNextPostSlug
-    canonicalCollectionSlug
-    canonicalSequenceId
-    canonicalBookId
-    bannedUserIds
-    hideAuthor
-    user {
-      groups
-      moderationStyle
-      bannedUserIds
-      moderatorAssistance
-    }
-    canonicalSequence {
-      title
-    }
-    canonicalBook {
-      title
-    }
-    canonicalCollection {
-      title
-    }
-    collectionTitle
-    types
-    showModerationGuidelines
-    moderationGuidelines {
-      version
-      updateType
-      editedAt
-      userId
-      canonicalContent
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
-    }
-    moderationStyle
-    content {
-      version
-      updateType
-      editedAt
-      userId
-      canonicalContent
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
-    }
-    hasMajorRevision
-  }
-`);
-
-
-// Same as LWPostsPage, it just accepts parameters for the revision field
-registerFragment(`
-  fragment LWPostsRevision on Post {
-    ...PostsList
-    tableOfContents
-    draft
-    commentSortOrder
-    canonicalPrevPostSlug
-    canonicalNextPostSlug
-    canonicalCollectionSlug
-    canonicalSequenceId
-    canonicalBookId
-    bannedUserIds
-    hideAuthor
-    user {
-      groups
-      moderationStyle
-      bannedUserIds
-      moderatorAssistance
-    }
-    canonicalSequence {
-      title
-    }
-    canonicalBook {
-      title
-    }
-    canonicalCollection {
-      title
-    }
-    collectionTitle
-    types
-    showModerationGuidelines
-    moderationGuidelines {
-      version
-      updateType
-      editedAt
-      userId
-      canonicalContent
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
-    }
-    moderationStyle
-    content(version: $version) {
-      version
-      updateType
-      editedAt
-      userId
-      canonicalContent
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
-    }
-    hasMajorRevision
-  }
-`);
-
-registerFragment(`
-  fragment LWPostsBody on Post {
-    content { 
-      html
-    }
-  }
-`);
-
-registerFragment(`
-  fragment SequencesPostNavigationLink on Post {
-    _id
-    title
-    url
-    slug
-    canonicalCollectionSlug
-  }
-`);
-
-registerFragment(`
-  fragment PostUrl on Post {
-    _id
-    url
-    slug
-  }
-`);
-
-registerFragment(`
-  fragment PostStats on Post {
-    allVotes {
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
   fragment CommentStats on Comment {
     currentUserVotes{
       ...VoteFragment
@@ -404,18 +132,6 @@ registerFragment(`
       slug
       _id
     }
-  }
-`)
-
-registerFragment(`
-  fragment UsersBannedFromPostsModerationLog on Post {
-    user {
-      ...UsersMinimumInfo
-    }
-    title
-    slug
-    _id
-    bannedUserIds
   }
 `)
 
@@ -585,6 +301,7 @@ registerFragment(`
     karma
     afKarma
     deleted
+    groups
   }
 `);
 
@@ -676,21 +393,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment WithVotePost on Post {
-    __typename
-    _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
-    baseScore
-    score
-    afBaseScore
-  }
-`);
-
-registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
     _id
@@ -708,12 +410,6 @@ registerFragment(`
 //
 // example-forum migrated fragments
 //
-
-registerFragment(/* GraphQL */`
-  fragment PostsPage on Post {
-    ...PostsList
-  }
-`);
 
 // note: fragment used by default on the UsersProfile fragment
 registerFragment(/* GraphQL */`

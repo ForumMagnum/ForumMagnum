@@ -350,7 +350,7 @@ PostsPage.propTypes = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'LWPostsRevision',
+  fragmentName: 'PostsRevision',
   enableTotal: false,
   enableCache: true,
   ssr: true,
