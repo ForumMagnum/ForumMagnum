@@ -9,7 +9,7 @@ import moment from 'moment';
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af', 'authorIsUnreviewed');
+  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
@@ -27,10 +27,30 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
+    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
+  }
+
+  if (terms.filter === "curated") {
+    params.selector.curatedDate ={$gt: new Date(0)}
+  }
+  if (terms.filter === "frontpage") {
+    params.selector.frontpageDate = {$gt: new Date(0)}
+  }
+  if (terms.filter === "all") {
+    params.selector.groupId = null
+  }
+  if (terms.filter === "questions") {
+    params.selector.question = true
+  }
+  if (terms.filter === "events") {
+    params.selector.isEvent = true
+  }
+  if (terms.filter === "meta") {
+    params.selector.meta = true
   }
   return params;
 })
@@ -39,8 +59,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, meta:1, isEvent:1, unlisted:1,  authorIsUnreviewed:1, groupId:1 },
-    suffix: { _id:1, af:1, postedAt:1, baseScore:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, authorIsUnreviewed:1, groupId:1 },
+    suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
 
@@ -80,7 +100,7 @@ const stickiesIndexPrefix = {
 };
 
 
-Posts.addView("magicalSorting", terms => ({
+Posts.addView("magic", terms => ({
   options: {sort: setStickies({score: -1}, terms)}
 }))
 ensureIndex(Posts,
@@ -142,6 +162,10 @@ ensureIndex(Posts,
   }
 );
 
+Posts.addView("recentComments", terms => ({
+  options: {sort: {lastCommentedAt:-1}}
+}))
+
 
 Posts.addView("old", terms => ({
   options: {sort: setStickies({postedAt: 1}, terms)}
@@ -149,9 +173,6 @@ Posts.addView("old", terms => ({
 // Covered by the same index as `new`
 
 Posts.addView("daily", terms => ({
-  selector: {
-    baseScore: {$gt: terms.karmaThreshold || -100}
-  },
   options: {
     sort: {score: -1}
   }
@@ -218,7 +239,7 @@ Posts.addView("curated-rss", terms => ({
 Posts.addView("community", terms => ({
   selector: {
     frontpageDatgroupId: { $exists: false },
-    isEvent: null,
+    isEvent: false,
   },
   options: {
     sort: {sticky: -1, score: -1}
@@ -459,6 +480,25 @@ Posts.addView("pastEvents", function (terms) {
       sort: {
         baseScore: -1,
         startTime: -1,
+      }
+    }
+  }
+})
+// Same index as events
+
+Posts.addView("upcomingEvents", function (terms) {
+  const oneDayAgo = moment().subtract(1, 'days').toDate();
+
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
+      startTime: {$gte: oneDayAgo}
+    },
+    options: {
+      sort: {
+        startTime: 1,
       }
     }
   }

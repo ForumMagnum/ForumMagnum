@@ -39,13 +39,13 @@ Users.canModeratePost = (user, post) => {
     (
       Users.canDo(user,"posts.moderate.own") &&
       Users.owns(user, post) &&
-      post.moderationGuidelinesHtmlBody
+      (post.moderationGuidelinesHtmlBody || post.moderationStyle)
     )
     ||
     (
       Users.canDo(user, "posts.moderate.own.personal") &&
       Users.owns(user, post) &&
-      post.moderationGuidelinesHtmlBody &&
+      (post.moderationGuidelinesHtmlBody || post.moderationStyle) &&
       !post.frontpageDate
     )
   )

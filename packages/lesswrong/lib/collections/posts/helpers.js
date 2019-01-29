@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Posts } from './collection.js';
 import Users from 'meteor/vulcan:users';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
@@ -106,20 +105,6 @@ Posts.isPending = function (post) {
 
 
 /**
- * @summary Check to see if post URL is unique.
- * We need the current user so we know who to upvote the existing post as.
- * @param {String} url
- */
-Posts.checkForSameUrl = function (url) {
-
-  // check that there are no previous posts with the same link in the past 6 months
-  var sixMonthsAgo = moment().subtract(6, 'months').toDate();
-  var postWithSameLink = Posts.findOne({url: url, postedAt: {$gte: sixMonthsAgo}});
-
-  return !!postWithSameLink;
-};
-
-/**
  * @summary When on a post page, return the current post
  */
 Posts.current = function () {
@@ -197,7 +182,7 @@ Posts.getPageUrl = function(post, isAbsolute = false){
 };
 
 Posts.getCommentCount = (post) => {
-  if (getSetting('AlignmentForum')) {
+  if (getSetting('AlignmentForum', false)) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
