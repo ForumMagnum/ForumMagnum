@@ -1,5 +1,4 @@
 import Users from 'meteor/vulcan:users';
-import collectionUtils from '../../collectionUtils';
 
 const schema = {
 
