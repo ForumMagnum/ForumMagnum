@@ -599,7 +599,7 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ afLastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
   { name: "posts.afRecentDiscussionThreadsList", }
 );
 
