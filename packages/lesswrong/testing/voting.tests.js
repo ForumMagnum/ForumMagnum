@@ -7,6 +7,7 @@ import { batchUpdateScore } from '../server/updateScores.js';
 import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../lib/karmaChanges.js';
+import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 import lolex from 'lolex';
 
 chai.should();
@@ -163,6 +164,7 @@ describe('Voting', async function() {
       });
       
       // TODO
+      await waitUntilCallbacksFinished();
       clock.uninstall();
     });
     /*it('does not include posts outside the selected date range', async () => {
