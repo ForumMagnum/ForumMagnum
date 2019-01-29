@@ -11,7 +11,8 @@ export const karmaChangeNotifierDefaultSettings = {
   
   // Time of day at which daily/weekly batched updates are released, a number
   // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  timeOfDayGMT: 3,
+  // Default corresponds to 3am PST.
+  timeOfDayGMT: 11,
   
   // A string day-of-the-week name, spelled out and capitalized like "Monday".
   // Always in GMT, regardless of the user's timezone (timezone matters for day
