@@ -82,7 +82,7 @@ Posts.addView("userPosts", terms => ({
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, postedAt: -1 }),
   {
-    name: "posts.userId_score",
+    name: "posts.userId_postedAt",
   }
 );
 
