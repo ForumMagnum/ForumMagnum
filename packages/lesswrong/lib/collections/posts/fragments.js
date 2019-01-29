@@ -134,6 +134,39 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment PostsEdit on Post {
+    ...PostsPage
+    moderationGuidelines {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
+    content {
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
+  }
+`);
+
+
 
 registerFragment(`
   fragment EditModerationGuidelines on Post {

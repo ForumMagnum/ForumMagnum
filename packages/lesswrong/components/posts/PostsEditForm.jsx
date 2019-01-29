@@ -16,7 +16,7 @@ class PostsEditForm extends PureComponent {
         <Components.SmartForm
           collection={Posts}
           documentId={documentId}
-          queryFragment={getFragment('PostsPage')}
+          queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsRevision')}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
