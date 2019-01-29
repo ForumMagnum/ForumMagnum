@@ -63,6 +63,12 @@ export async function getKarmaChanges({user, startDate, endDate})
       collectionName: { $first: "$collectionName" },
       scoreChange: { $sum: "$power" },
     }},
+    
+    // Filter out things with zero net change (eg where someone voted and then
+    // unvoted and nothing else happened)
+    {$match: {
+      scoreChange: {$ne: 0}
+    }},
   ]).toArray();
   
   let totalChange = 0;
