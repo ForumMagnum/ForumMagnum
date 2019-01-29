@@ -65,10 +65,7 @@ Users.addField([
       resolveAs: {
         arguments: 'startDate: Date, endDate: Date',
         type: 'KarmaChanges',
-        resolver: async (document, args, context) => {
-          let {startDate,endDate} = args;
-          const {currentUser} = context;
-          
+        resolver: async (document, {startDate,endDate}, {currentUser}) => {
           if (!currentUser)
             return null;
           

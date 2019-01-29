@@ -20,15 +20,15 @@ registerMigration({
         const collectionNames = _.uniq(_.pluck(documents, "collectionName"))
         
         for(let collectionName of collectionNames) {
-          const collection = _.find(Collections, c => c.collectionName==collectionName);
+          const collection = _.find(Collections, c => c.collectionName===collectionName);
           
           // Go through the votes in the batch and pick out IDs of voted-on
           // documents in this collection.
-          const votesToUpdate = _.filter(documents, doc => doc.collectionName==collectionName)
+          const votesToUpdate = _.filter(documents, doc => doc.collectionName===collectionName)
           const idsToFind = _.pluck(votesToUpdate, "documentId");
           
           // Retrieve the voted-on documents.
-          const votedDocuments = collection.find({
+          const votedDocuments = await collection.find({
             _id: {$in: idsToFind}
           }).fetch();
           

@@ -162,16 +162,17 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
       {documentId: document._id, userId: user._id},
       {$set: {cancelled: true}},
       {multi:true}, true);
-    votes.forEach((vote)=> {
+    votes.forEach((vote) => {
+      //eslint-disable-next-line no-unused-vars
+      const {_id, ...otherVoteFields} = vote;
       // Create an un-vote for each of the existing votes
       const unvote = {
-        ...vote,
+        ...otherVoteFields,
         cancelled: true,
         isUnvote: true,
         power: -vote.power,
         votedAt: new Date(),
       };
-      delete unvote["_id"];
       Connectors.create(Votes, unvote);
       
       runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
@@ -205,14 +206,15 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     cancelled: false,
   })
   
+  //eslint-disable-next-line no-unused-vars
+  const {_id, ...otherVoteFields} = vote;
   const unvote = {
-    ...vote,
+    ...otherVoteFields,
     cancelled: true,
     isUnvote: true,
     power: -vote.power,
     votedAt: new Date(),
   };
-  delete unvote["_id"];
   Connectors.create(Votes, unvote);
   
   // Set the cancelled field on the vote object to true
