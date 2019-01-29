@@ -584,6 +584,7 @@ Users.addField([
     fieldSchema: {
       group: formGroups.notifications,
       type: Object, // See KarmaChangeNotifierSettings.jsx
+      optional: true,
       blackbox: true,
       control: "KarmaChangeNotifierSettings",
       canRead: [Users.owns, 'admins'],

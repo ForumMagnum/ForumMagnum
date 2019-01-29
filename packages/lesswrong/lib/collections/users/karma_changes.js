@@ -61,6 +61,7 @@ Users.addField([
     fieldSchema: {
       viewableBy: Users.owns,
       type: 'KarmaChanges',
+      optional: true,
       resolveAs: {
         arguments: 'startDate: Date, endDate: Date',
         type: 'KarmaChanges',
