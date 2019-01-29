@@ -105,10 +105,10 @@ describe('Posts Moderation --', async function() {
 
     const query = `
       mutation CommentsNew {
-        createComment(data:{postId: "${post._id}", content: {canonicalContent: {type: "markdown", data: "test"}}){
+        createComment(data:{postId: "${post._id}", content: {canonicalContent: {type: "markdown", data: "test"}}}){
           data {
             postId
-            content: {
+            content {
               markdown
             }
           }
@@ -174,7 +174,7 @@ describe('Posts Moderation --', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser:secondUser})
-    const expectedOutput = { data: { createComment: { data: {postId: post._id, content: {mardown: "test"} } } } }
+    const expectedOutput = { data: { createComment: { data: {postId: post._id, content: {markdown: "test"} } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
@@ -280,12 +280,13 @@ describe('User moderation fields --', async () => {
     const expectedOutput = { data: { updateUser: { data: {moderatorAssistance: true} } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
+
   it("trusted users can NOT set other user's moderationGuidelines", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const user2 = await createDummyUser({groups:["trustLevel1"]})
     const query = `
       mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: {canonicalContent: {type: "markdown", data: "blah"}}) {
+        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: {canonicalContent: {data:"assad", type: "markdown"}}}) {
           data {
             moderationGuidelines {
               markdown

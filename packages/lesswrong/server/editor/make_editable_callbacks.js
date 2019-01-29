@@ -64,7 +64,7 @@ function getInitialVersion(document) {
 }
 
 async function getNextVersion(documentId, updateType = 'minor') {
-  const lastRevision = await Revisions.findOne({documentId: documentId}, {sort: {editedAt: -1}})
+  const lastRevision = await Revisions.findOne({documentId: documentId}, {sort: {editedAt: -1}}) || {}
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)
   switch (updateType) {
     case "patch":

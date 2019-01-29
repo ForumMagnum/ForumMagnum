@@ -32,12 +32,9 @@ describe('AlignmentForum PostsEdit', async () => {
   it("fails when an alignmentForum user edits a post's content field", async () => {
     const user = await createDummyUser({groups:['alignmentForum']})
     const post = await createDummyPost()
-
-    const newContent = "New Test Title"
-
     const query = `
       mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},,data:{content:"${newContent}"}) {
+        updatePost(selector: {_id:"${post._id}"} ,data:{ content: { canonicalContent: {type: "markdown", data: "test"} } }) {
           data {
             title
           }

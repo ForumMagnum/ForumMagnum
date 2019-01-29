@@ -15,7 +15,7 @@ describe('createComment – ', async function() {
     const user = await createDummyUser()
     const query = `
       mutation {
-        createComment(data:{ content: { canonicalContent: { type: "markdown", data: test" } } }){
+        createComment(data:{ content: { canonicalContent: { type: "markdown", data: "test" } } }){
           data {
             content {
               markdown
@@ -36,13 +36,39 @@ describe('updateComment – ', async () => {
     const otherUser = await createDummyUser()
     const post = await createDummyPost()
     const comment = await createDummyComment(otherUser, {postId: post._id})
-    await userUpdateFieldFails({ user:user, document:comment, fieldName:'content', collectionType: 'Comment', newValue: {canonicalContent: {type: "markdown", data: "stuff"}}})
+    await userUpdateFieldFails(
+      { 
+        user:user, 
+        document:comment, 
+        fieldName:'content', 
+        collectionType: 'Comment', 
+        newValue: {canonicalContent: {type: "markdown", data: "stuff"}},
+        fragment: `
+          content {
+            canonicalContent
+          }
+        `
+      }
+    )
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("succeeds when user updates their own body", async () => {
     const user = await createDummyUser()
     const post = await createDummyPost()
     const comment = await createDummyComment(user, {postId: post._id})
-    await userUpdateFieldSucceeds({ user:user, document:comment, fieldName:'content', collectionType: 'Comment', newValue: {canonicalContent: {type: "markdown", data: "stuff"}}})
+    await userUpdateFieldSucceeds(
+      { 
+        user:user, 
+        document:comment, 
+        fieldName:'content', 
+        collectionType: 'Comment', 
+        newValue: {canonicalContent: {type: "markdown", data: "stuff"}},
+        fragment: `
+          content {
+            canonicalContent
+          }
+        `
+      }
+    )
   });
 });

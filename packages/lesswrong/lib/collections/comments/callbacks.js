@@ -192,9 +192,9 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
-function NewCommentsEmptyCheck (comment, user) {
-  const { html = "" } = comment.content || {}
-  if (!html) {
+function NewCommentsEmptyCheck (comment) {
+  const { data } = comment.content && comment.content.canonicalContent || {}
+  if (!data) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
