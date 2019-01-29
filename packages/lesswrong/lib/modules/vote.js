@@ -168,6 +168,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
         ...vote,
         cancelled: true,
         isUnvote: true,
+        power: -vote.power,
         votedAt: new Date(),
       };
       delete unvote["_id"];
@@ -204,6 +205,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     ...vote,
     cancelled: true,
     isUnvote: true,
+    power: -vote.power,
     votedAt: new Date(),
   };
   delete unvote["_id"];

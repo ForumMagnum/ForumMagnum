@@ -10,7 +10,8 @@ import { schemaDefaultValue } from '../../collectionUtils';
 // for the new vote state (unless that's neutral). First, the old vote has
 // 'cancelled' set to true. Second, an "unvote" is created, also with cancelled
 // set to true, but with the timestamp corresponding to the moment you changed
-// the vote.
+// the vote. The power of an unvote is the opposite of the power of the vote
+// that was reversed.
 //
 
 const schema = {
