@@ -10,6 +10,7 @@ import Users from 'meteor/vulcan:users';
 
 const styles = theme => ({
   karmaNotifierButton: {
+    fontWeight: 500,
   },
   karmaNotifierPopover: {
     padding: 10,
@@ -29,6 +30,15 @@ const styles = theme => ({
   votedItemDescription: {
     display: "inline-block",
     marginLeft: 5,
+  },
+  
+  gainedPoints: {
+    color: theme.palette.primary.main,
+  },
+  zeroPoints: {
+  },
+  lostPoints: {
+    color: theme.palette.error.main,
   },
 });
 
@@ -61,11 +71,15 @@ class KarmaChangeNotifier extends PureComponent {
   // Given a number, return a string version of it which has a plus sign in
   // front if it's strictly positive. Ie "+1", "0", "-1" (rather than the usual
   // stringification, which would be "1", "0", "-1").
-  numberToSignedString(n) {
-    if (n>0)
-      return "+"+n;
-    else
-      return ""+n;
+  numberToColoredSpan(n) {
+    const { classes } = this.props;
+    if (n>0) {
+      return <span className={classes.gainedPoints}>{`+${n}`}</span>
+    } else if (n==0) {
+      return <span className={classes.zeroPoints}>{n}</span>
+    } else {
+      return <span className={classes.lostPoints}>{n}</span>
+    }
   }
   
   render() {
@@ -78,9 +92,12 @@ class KarmaChangeNotifier extends PureComponent {
     if (settings && settings.updateFrequency === "disabled")
       return null;
     
+    if (karmaChanges.comments.length===0 && karmaChanges.posts.length===0)
+      return null;
+    
     return (<React.Fragment>
       <Button onClick={this.handleClick} className={classes.karmaNotifierButton}>
-        {this.numberToSignedString(karmaChanges.totalChange)}
+        ({this.numberToColoredSpan(karmaChanges.totalChange)})
       </Button>
       <Popover
         open={this.state.open}
@@ -95,7 +112,7 @@ class KarmaChangeNotifier extends PureComponent {
             {karmaChanges.posts && karmaChanges.posts.map((postChange,i) => (
               <div className={classes.votedItemRow} key={"post"+i}>
                 <div className={classes.votedItemScoreChange}>
-                  {this.numberToSignedString(postChange.scoreChange)}
+                  {this.numberToColoredSpan(postChange.scoreChange)}
                 </div>
                 <div className={classes.votedItemDescription}>
                   <Link to={postChange.post.pageUrlRelative}>
@@ -107,7 +124,7 @@ class KarmaChangeNotifier extends PureComponent {
             {karmaChanges.comments && karmaChanges.comments.map((commentChange,i) => (
               <div className={classes.votedItemRow} key={"comment"+i}>
                 <div className={classes.votedItemScoreChange}>
-                  {this.numberToSignedString(commentChange.scoreChange)}
+                  {this.numberToColoredSpan(commentChange.scoreChange)}
                 </div>
                 <div className={classes.votedItemDescription}>
                   <Link to={commentChange.comment.pageUrlRelative}>
