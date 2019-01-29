@@ -64,7 +64,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
         <FormatDate date={post.postedAt}/>
       </MetaInfo>}
 
-      {wordCount && !post.isEvent && <MetaInfo>
+      {!!wordCount && !post.isEvent && <MetaInfo>
         <Tooltip title={`${wordCount} words`}>
           <span>{parseInt(wordCount/300) || 1 } min read</span>
         </Tooltip>
