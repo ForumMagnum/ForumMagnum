@@ -161,7 +161,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     await Connectors.update(Votes,
       {documentId: document._id, userId: user._id},
       {$set: {cancelled: true}},
-      {}, true);
+      {multi:true}, true);
     votes.forEach((vote)=> {
       // Create an un-vote for each of the existing votes
       const unvote = {
@@ -178,7 +178,11 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
       runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
     })
     if (updateDocument) {
-      await Connectors.update(collection, {_id: document._id}, {$set: {baseScore: recalculateBaseScore(document) }}, {}, true);
+      await Connectors.update(collection,
+        {_id: document._id},
+        {$set: {baseScore: recalculateBaseScore(document) }},
+        {}, true
+      );
     }
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
