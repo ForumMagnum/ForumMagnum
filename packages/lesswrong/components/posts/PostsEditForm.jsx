@@ -17,7 +17,7 @@ class PostsEditForm extends PureComponent {
           collection={Posts}
           documentId={documentId}
           queryFragment={getFragment('PostsPage')}
-          mutationFragment={getFragment('PostsPage')}
+          mutationFragment={getFragment('PostsRevision')}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
             this.props.router.push({pathname: Posts.getPageUrl(post)});
@@ -46,6 +46,9 @@ class PostsEditForm extends PureComponent {
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
+          extraVariables={{
+            version: 'String'
+          }}
           repeatErrors
         />
       </div>

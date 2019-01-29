@@ -59,6 +59,7 @@ const UsersEditForm = (props) => {
           client.resetStore()
           props.router.push(Users.getProfileUrl(user));
         }}
+        queryFragment={getFragment('UsersProfile')}
         mutationFragment={getFragment('UsersProfile')}
         showRemove={false}
       />

@@ -247,7 +247,7 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document && document[fieldName].canonicalContent.type
+      && document && document[fieldName] && document[fieldName].canonicalContent.type
       && document[fieldName].canonicalContent.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 

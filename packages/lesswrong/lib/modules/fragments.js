@@ -327,6 +327,12 @@ registerFragment(`
     afSequenceDraftCount
     sequenceDraftCount
     moderationStyle
+    moderationGuidelines {
+      canonicalContent
+      html
+      draftJS
+      markdown
+    }
     bannedUserIds
     location
     googleLocation
