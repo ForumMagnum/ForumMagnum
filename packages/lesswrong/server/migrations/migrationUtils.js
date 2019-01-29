@@ -18,12 +18,12 @@ export function registerMigration({ name, idempotent, action })
     Vulcan.migrations = {};
   }
   
-  Vulcan.migrations[name] = () => {
+  Vulcan.migrations[name] = async () => {
     // eslint-disable-next-line no-console
     console.log(`Beginning migration: ${name}`);
     
     try {
-      action();
+      await action();
       
       // eslint-disable-next-line no-console
       console.log(`Finished migration: ${name}`);
@@ -34,6 +34,36 @@ export function registerMigration({ name, idempotent, action })
       console.error(e);
     }
   };
+}
+
+// Given a collection which has a field that has a default value (specified
+// with ...schemaDefaultValue), fill in the default value for any rows where it
+// is missing.
+export async function fillDefaultValues({ collection, fieldName })
+{
+  if (!collection) throw new Error("Missing required argument: collection");
+  if (!fieldName) throw new Error("Missing required argument: fieldName");
+  const schema = collection.simpleSchema()._schema
+  const defaultValue = schema[fieldName].defaultValue;
+  if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
+  if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
+  if (!schema[fieldName].canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
+
+  // eslint-disable-next-line no-console
+  console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
+
+  const writeResult = await collection.update({
+    [fieldName]: null
+  }, {
+    $set: {
+      [fieldName]: defaultValue
+    }
+  }, {
+    multi: true,
+  });
+
+  // eslint-disable-next-line no-console
+  console.log(`Done. ${writeResult.nModified} rows affected`);
 }
 
 // Given a query which finds documents in need of a migration, and a function
@@ -53,7 +83,7 @@ export function registerMigration({ name, idempotent, action })
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export function migrateDocuments({ description, collection, batchSize=50, unmigratedDocumentQuery, migrate })
+export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate })
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
@@ -82,7 +112,11 @@ export function migrateDocuments({ description, collection, batchSize=50, unmigr
     // migrated by the previous batch's update operation.
     let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
     if (docsNotMigrated.length > 0) {
-      throw new Error(`Documents not updated in migrateDocuments: ${_.keys(docsNotMigrated).join(",")}`);
+      let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
+
+      // eslint-disable-next-line no-console
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
     
     previousDocumentIds = {};
@@ -90,7 +124,7 @@ export function migrateDocuments({ description, collection, batchSize=50, unmigr
     
     // Migrate documents in the batch
     try {
-      migrate(documents);
+      await migrate(documents);
       
       documentsAffected += documents.length;
     } catch(e) {
