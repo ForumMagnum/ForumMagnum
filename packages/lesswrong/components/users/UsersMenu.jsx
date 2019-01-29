@@ -54,7 +54,9 @@ class UsersMenu extends PureComponent {
   render() {
     let { currentUser, client, classes, color, openDialog } = this.props;
 
+
     const showNewButtons = !getSetting('AlignmentForum') || Users.canDo(currentUser, 'posts.alignment.new')
+    const showNewShortformButton = showNewButtons && currentUser && !!currentUser.shortformFeedId
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
 
@@ -79,6 +81,12 @@ class UsersMenu extends PureComponent {
             }
             {showNewButtons && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
+              </Link>
+            }
+            {showNewShortformButton &&
+              <Link to={`/posts/${currentUser.shortformFeedId}`}>
+                {/* TODO: set up a proper link url */}
+                <MenuItem>Shortform Feed</MenuItem>
               </Link>
             }
             { getSetting('AlignmentForum', false) && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>

@@ -81,6 +81,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -507,6 +508,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 

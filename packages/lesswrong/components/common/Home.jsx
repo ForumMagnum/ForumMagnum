@@ -76,7 +76,14 @@ const Home = (props, context) => {
           showLoadMore={false}
           showHeader={false} />
       </Components.Section>
-      <Components.Section title="Recent Discussion" titleLink="/AllComments">
+      <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
+        <div>
+          {currentUser.shortformFeedId && <Components.SectionSubtitle>
+            {/* TODO: set up a proper link url */}
+            <Link to={`posts/${currentUser.shortformFeedId}`}>Shortform Feed</Link>
+          </Components.SectionSubtitle>}
+        </div>
+      }>
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
       </Components.Section>
     </div>
