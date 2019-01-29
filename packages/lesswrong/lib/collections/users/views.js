@@ -1,5 +1,4 @@
 import Users from "meteor/vulcan:users";
-import moment from 'moment';
 import { ensureIndex } from '../../collectionUtils';
 
 // Auto-generated indexes from production
