@@ -1,5 +1,9 @@
 import Users from 'meteor/vulcan:users';
 
+// Needed for `denormalized` field to be valid (even though no specific token
+// is being imported here).
+import '../../collectionUtils.js';
+
 const schema = {
 
   _id: {
