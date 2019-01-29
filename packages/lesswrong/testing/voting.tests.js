@@ -231,6 +231,3 @@ describe('Voting', async function() {
     });
   });
 })
-
-//eslint-disable-next-line no-console
-process.on('unhandledRejection', r => console.error(r));
