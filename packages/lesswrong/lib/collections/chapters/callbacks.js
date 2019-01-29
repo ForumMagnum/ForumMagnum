@@ -2,6 +2,8 @@ import { addCallback } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../editor/utils.js';
 import htmlToText from 'html-to-text';
+import { Posts } from '../posts/index.js';
+import Sequences from '../sequences/collection.js';
 
 function ChaptersNewHTMLSerializeCallback (chapter) {
   if (chapter.description) {
@@ -30,3 +32,30 @@ function ChaptersEditHTMLSerializeCallback (modifier, chapter) {
 }
 
 addCallback("chapters.edit.sync", ChaptersEditHTMLSerializeCallback);
+
+async function ChaptersEditCanonizeCallback (chapter) {
+  const posts = await Sequences.getAllPosts(chapter.sequenceId)
+  const sequence = await Sequences.find({_id:chapter.sequenceId}).fetch()[0]
+
+  _.range(posts.length).forEach((i) => {
+    const currentPost = posts[i]
+    if (currentPost.userId === sequence.userId) {
+      let prevPost = {slug:""}
+      let nextPost = {slug:""}
+      if (i-1>=0) {
+        prevPost = posts[i-1]
+      }
+      if (i+1<posts.length) {
+        nextPost = posts[i+1]
+      }
+      Posts.update({slug: currentPost.slug}, {$set: {
+        canonicalPrevPostSlug: prevPost.slug,
+        canonicalNextPostSlug: nextPost.slug,
+        canonicalSequenceId: chapter.sequenceId,
+      }});
+    }
+  })
+  return chapter
+}
+
+addCallback("chapters.edit.async", ChaptersEditCanonizeCallback);
