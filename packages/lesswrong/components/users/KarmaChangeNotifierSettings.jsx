@@ -145,35 +145,43 @@ class KarmaChangeNotifierSettings extends PureComponent {
         )}
       </RadioGroup>
       
-      <Typography variant="body2">
-        Batched updates occur at <Select
-          value={timeOfDay}
-          onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
-        >
-          { _.range(24).map(hour =>
-              <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
-            )
-          }
+      { (settings.updateFrequency==="daily" || settings.updateFrequency==="weekly") &&
+        <Typography variant="body2">
+          Batched updates occur at <Select
+            value={timeOfDay}
+            onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
+          >
+            { _.range(24).map(hour =>
+                <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
+              )
+            }
+            
+          </Select>
           
-        </Select>
-        
-        {moment().tz(timezone).format("z")}
-        
-        { settings.updateFrequency==="weekly" && <span>
-            on <Select value={dayOfWeek}
-              onChange={(event) => this.setBatchingDayOfWeek(event.target.value, timezone)}
-            >
-              <MenuItem value="Sunday">Sunday</MenuItem>
-              <MenuItem value="Monday">Monday</MenuItem>
-              <MenuItem value="Tuesday">Tuesday</MenuItem>
-              <MenuItem value="Wednesday">Wednesday</MenuItem>
-              <MenuItem value="Thursday">Thursday</MenuItem>
-              <MenuItem value="Friday">Friday</MenuItem>
-              <MenuItem value="Saturday">Saturday</MenuItem>
-            </Select>
-          </span>
-        }
-      </Typography>
+          {moment().tz(timezone).format("z")}
+          {" "}
+          
+          { settings.updateFrequency==="weekly" && <span>
+              on <Select value={dayOfWeek}
+                onChange={(event) => this.setBatchingDayOfWeek(event.target.value, timezone)}
+              >
+                <MenuItem value="Sunday">Sunday</MenuItem>
+                <MenuItem value="Monday">Monday</MenuItem>
+                <MenuItem value="Tuesday">Tuesday</MenuItem>
+                <MenuItem value="Wednesday">Wednesday</MenuItem>
+                <MenuItem value="Thursday">Thursday</MenuItem>
+                <MenuItem value="Friday">Friday</MenuItem>
+                <MenuItem value="Saturday">Saturday</MenuItem>
+              </Select>
+            </span>
+          }
+        </Typography>
+      }
+      { (settings.updateFrequency==="realtime") && <span>
+        Warning: Immediate karma updates may lead to over-updating on tiny amounts
+        of feedback, and to checking the site frequently when you'd rather be
+        doing something else.
+      </span> }
     </div>
   }
 }
