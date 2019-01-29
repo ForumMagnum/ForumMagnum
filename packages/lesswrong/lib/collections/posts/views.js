@@ -593,12 +593,16 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
       af: true,
     },
     options: {
-      sort: {lastCommentedAt:-1},
+      sort: {afLastCommentedAt:-1},
       limit: terms.limit || 12,
     }
   }
 })
-// Covered by the same index as `recentDiscussionThreadsList`
+ensureIndex(Posts,
+  augmentForDefaultView({ afLastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  { name: "posts.afRecentDiscussionThreadsList", }
+);
+
 
 // Used in Posts.find() in various places
 ensureIndex(Posts, {userId:1, createdAt:-1});
