@@ -6,24 +6,9 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import { draftToHTML } from '../../lib/editor/utils.js';
-import { convertFromRaw } from 'draft-js';
 import { dataToMarkdown } from '../../lib/collections/revisions/resolvers.js'
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
-
-const contentToHtml = (content) => {
-  if (content) {
-    try {
-      return draftToHTML(convertFromRaw(content));
-    } catch(e) {
-      //eslint-disable-next-line no-console
-      console.log("Failed to convert content to html:", e);
-    }
-  } else {
-    return null;
-  }
-}
 
 Comments.toAlgolia = (comment) => {
   const algoliaComment = {
