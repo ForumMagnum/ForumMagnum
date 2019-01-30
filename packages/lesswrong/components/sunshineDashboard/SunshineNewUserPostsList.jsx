@@ -33,8 +33,7 @@ const SunshineNewUserPostsList = ({loading, results, classes}) => {
 const withMultiOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
-  enableCache: true,
-  fetchPolicy: 'cache-and-network'
+  enableCache: true
 }
 
 registerComponent( 'SunshineNewUserPostsList', SunshineNewUserPostsList, [withMulti, withMultiOptions], withStyles(styles, {name:"SunshineNewUserPostsList"}))
