@@ -18,8 +18,7 @@ const SequencesNewForm = (props, context) => {
           cancelCallback={props.cancelCallback}
           removeSuccessCallback={props.removeSuccessCallback}
           prefilledProps={{userId: props.currentUser._id}}
-          fragment={getFragment('SequencesPageFragment')}
-          queryFragment={getFragment('SequencesPageFragment')}
+          queryFragment={getFragment('SequencesEdit')}
           mutationFragment={getFragment('SequencesPageFragment')}
         />
       </div>

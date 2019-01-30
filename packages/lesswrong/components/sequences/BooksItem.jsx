@@ -59,6 +59,7 @@ class BooksItem extends Component {
 
   render() {
     const { book, classes } = this.props;
+    const { html = "" } = book.description || {}
     if (this.state.edit) {
       return <Components.BooksEditForm
                 documentId={book._id}
@@ -69,8 +70,8 @@ class BooksItem extends Component {
         <Components.Section title={book.title}
           titleComponent={this.renderTitleComponent(book, this.props.canEdit)}
         >
-          {book.htmlDescription && book.plaintextDescription && <div className={classes.description}>
-            <div className="content-body" dangerouslySetInnerHTML={{__html: book.htmlDescription}}/>
+          {html  && <div className={classes.description}>
+            <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/>
           </div>}
 
           {book.posts && book.posts.length ? <div className={classes.posts}>

@@ -9,8 +9,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     title
-    description
-    htmlDescription
+    description {
+      html
+    }
     firstPageLink
     gridImageId
     books {

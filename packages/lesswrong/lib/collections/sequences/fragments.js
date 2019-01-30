@@ -9,8 +9,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     title
-    description
-    htmlDescription
+    description { 
+      html
+    }
     gridImageId
     bannerImageId
     color
@@ -22,6 +23,25 @@ registerFragment(`
     af
   }
 `);
+
+registerFragment(`
+  fragment SequencesEdit on Sequence {
+    ...SequencesPageFragment
+    description { 
+      version
+      updateType
+      editedAt
+      userId
+      canonicalContent
+      html
+      markdown
+      draftJS
+      wordCount
+      htmlHighlight
+      plaintextDescription
+    }
+  }
+`)
 
 registerFragment(`
   fragment SequencesNavigationFragment on Sequence {

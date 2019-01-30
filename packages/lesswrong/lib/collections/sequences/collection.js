@@ -1,6 +1,7 @@
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import schema from './schema.js';
+import { makeEditable } from '../../editor/make_editable.js';
 
 const options = {
   newCheck: (user, document) => {
@@ -19,7 +20,7 @@ const options = {
   },
 }
 
-const Sequences = createCollection({
+export const Sequences = createCollection({
 
   collectionName: 'Sequences',
 
@@ -33,3 +34,38 @@ const Sequences = createCollection({
 })
 
 export default Sequences;
+
+
+// description: {
+//   order:20,
+//   type: Object,
+//   optional: true,
+//   viewableBy: ['guests'],
+//   editableBy: ['members'],
+//   insertableBy: ['members'],
+//   control: 'EditorFormComponent',
+//   blackbox: true,
+//   placeholder:"Sequence Description (Supports Markdown and LaTeX)"
+// },
+
+// descriptionPlaintext: {
+//   type: String,
+//   optional: true,
+//   viewableBy: ['guests'],
+// },
+
+// htmlDescription: {
+//   type: String,
+//   optional: true,
+//   viewableBy: ['guests'],
+// },
+
+export const makeEditableOptions = {
+  order: 20,
+  fieldName: "description"
+}
+
+makeEditable({
+  collection: Sequences,
+  options: makeEditableOptions
+})

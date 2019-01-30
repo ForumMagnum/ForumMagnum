@@ -247,13 +247,13 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document && document[fieldName] && document[fieldName].canonicalContent.type
+      && document && document[fieldName] && document[fieldName].canonicalContent && document[fieldName].canonicalContent.type
       && document[fieldName].canonicalContent.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
     if (this.getCurrentEditorType() === "draftJS") {
       return (
-        <div className={classnames(heightClass, classes.root)}>
+        <div className={classnames(heightClass, classes.root, "editor-form-component")}>
           { editorWarning }
           <EditorForm
             isClient={Meteor.isClient}
@@ -268,7 +268,7 @@ class EditorFormComponent extends Component {
       const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
       
       return (
-        <div className={classes.root}>
+        <div className={classnames(classes.root, "editor-form-component")}>
           { editorWarning }
           <div className="mui-text-field">
             <Input

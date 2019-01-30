@@ -66,17 +66,10 @@ const styles = theme => ({
 })
 
 class CommentBody extends Component {
-
-  shouldRenderExcerpt = () => {
-    const { truncated, comment, collapsed, truncationCharCount } = this.props
-    const { markdown = "" } = comment.content || {}
-    return truncated && markdown.length > truncationCharCount && !collapsed
-  }
-
   render () {
-    const { comment, classes, collapsed, truncationCharCount } = this.props
+    const { comment, classes, collapsed, truncationCharCount, truncated } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
-    const { html } = comment.content || {}
+    const { html = "", markdown = ""} = comment.content || {}
 
     const bodyClasses = classNames(
       { [classes.commentStyling]: !comment.answer,
@@ -84,9 +77,13 @@ class CommentBody extends Component {
         [classes.retracted]: comment.retracted }
     );
 
+    const shouldRenderExcerpt = truncated && 
+      (markdown && markdown.length) > truncationCharCount && 
+      !collapsed
+
     if (comment.deleted) {
       return <CommentDeletedMetadata documentId={comment._id}/>
-    } else if (this.shouldRenderExcerpt()) {
+    } else if (shouldRenderExcerpt) {
       return (
         <div className={classes.root}>
           <ContentItemBody className={bodyClasses}

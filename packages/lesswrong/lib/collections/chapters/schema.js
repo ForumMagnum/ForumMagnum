@@ -28,6 +28,7 @@ const schema = {
     editableBy: ["admins"],
     insertableBy: ['admins'],
     placeholder:"Title",
+    order: 10,
   },
 
   subtitle: {
@@ -37,29 +38,30 @@ const schema = {
     editableBy: ["admins"],
     insertableBy: ['admins'],
     placeholder:"Subtitle",
+    order: 20
   },
 
-  description: {
-    type: Object,
-    blackbox: true,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ["admins"],
-    insertableBy: ['admins'],
-    control: 'EditorFormComponent',
-  },
+  // description: {
+  //   type: Object,
+  //   blackbox: true,
+  //   optional: true,
+  //   viewableBy: ['guests'],
+  //   editableBy: ["admins"],
+  //   insertableBy: ['admins'],
+  //   control: 'EditorFormComponent',
+  // },
 
-  plaintextDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
+  // plaintextDescription: {
+  //   type: String,
+  //   optional: true,
+  //   viewableBy: ['guests'],
+  // },
 
-  htmlDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
+  // htmlDescription: {
+  //   type: String,
+  //   optional: true,
+  //   viewableBy: ['guests'],
+  // },
 
   number: {
     type: Number,

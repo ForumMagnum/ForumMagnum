@@ -1,6 +1,7 @@
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 // import schema from './schema.js';
 import schema from './schema.js';
+import { makeEditable } from '../../editor/make_editable.js';
 
 export const Books = createCollection({
   collectionName: 'Books',
@@ -15,3 +16,13 @@ export const Books = createCollection({
 });
 
 export default Books;
+
+export const makeEditableOptions = {
+  order: 20,
+  fieldName: "description"
+}
+
+makeEditable({
+  collection: Books,
+  options: makeEditableOptions
+})

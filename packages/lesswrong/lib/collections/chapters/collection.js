@@ -2,6 +2,7 @@ import { createCollection, getDefaultResolvers, getDefaultMutations } from 'mete
 import schema from './schema.js';
 import Users from 'meteor/vulcan:users';
 import Sequences from '../sequences/collection.js';
+import { makeEditable } from '../../editor/make_editable.js';
 
 const options = {
   newCheck: (user, document) => {
@@ -38,3 +39,13 @@ export const Chapters = createCollection({
 })
 
 export default Chapters;
+
+export const makeEditableOptions = {
+  order: 30,
+  fieldName: "description"
+}
+
+makeEditable({
+  collection: Chapters,
+  options: makeEditableOptions
+})

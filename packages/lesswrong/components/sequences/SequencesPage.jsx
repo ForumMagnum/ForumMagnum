@@ -110,6 +110,7 @@ class SequencesPage extends Component {
     } else {
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
+      const { html = "" } = document.description || {}
 
       return (<div className={classes.root}>
         <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
@@ -150,7 +151,7 @@ class SequencesPage extends Component {
               <a onClick={this.showEdit}>edit</a></Components.SectionSubtitle>}
           </div>}>
           <div className={classNames(classes.description, "content-body")}>
-            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
+            {html && <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/>}
           </div>
         </Components.Section>
         <div className="sequences-chapters">
