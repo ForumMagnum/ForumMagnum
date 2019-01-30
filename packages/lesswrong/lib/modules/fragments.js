@@ -460,6 +460,21 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment WithVotePost on Post {
+    __typename
+    _id
+    currentUserVotes{
+      _id
+      voteType
+      power
+    }
+    baseScore
+    score
+    afBaseScore
+  }
+`);
+
+registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
     _id
