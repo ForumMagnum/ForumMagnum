@@ -84,6 +84,7 @@ extendFragment('UsersCurrent', `
   karmaChangeNotifierSettings
   karmaChanges {
     totalChange
+    updateFrequency
     startDate
     endDate
     posts {

@@ -57,6 +57,7 @@ class KarmaChangeNotifier extends PureComponent {
   state = {
     open: false,
     anchorEl: null,
+    cleared: false,
   };
   
   handleClick = (event) => {
@@ -64,12 +65,18 @@ class KarmaChangeNotifier extends PureComponent {
       open: true,
       anchorEl: event.currentTarget,
     });
-    this.props.editMutation({
-      documentId: this.props.currentUser._id,
-      set: {
-        karmaChangeLastOpened: new Date()
+    if (this.props.currentUser && this.props.currentUser.karmaChanges) {
+      this.props.editMutation({
+        documentId: this.props.currentUser._id,
+        set: {
+          karmaChangeLastOpened: this.props.currentUser.karmaChanges.endDate
+        }
+      });
+      
+      if (this.props.currentUser.karmaChanges.updateFrequency === "realtime") {
+        this.setState({cleared: true});
       }
-    });
+    }
   }
   
   handleRequestClose = () => {
@@ -101,6 +108,9 @@ class KarmaChangeNotifier extends PureComponent {
     
     const settings = currentUser.karmaChangeNotifierSettings;
     if (settings && settings.updateFrequency === "disabled")
+      return null;
+    
+    if (this.state.cleared && !this.state.open)
       return null;
     
     if (karmaChanges.comments.length===0 && karmaChanges.posts.length===0)

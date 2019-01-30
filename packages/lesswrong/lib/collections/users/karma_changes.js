@@ -21,6 +21,7 @@ addGraphQLSchema(`
     totalChange: Int
     startDate: Date
     endDate: Date
+    updateFrequency: String
     posts: [PostWithScoreChange]
     comments: [CommentWithScoreChange]
   }
@@ -51,6 +52,11 @@ addGraphQLResolvers({
         scoreChange: comment.scoreChange,
         comment: commentsById[comment._id],
       }));
+    },
+    updateFrequency: async (karmaChangesJSON, args, {currentUser}) => {
+      if (!currentUser) return null;
+      const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
+      return settings.updateFrequency;
     },
   }
 })
