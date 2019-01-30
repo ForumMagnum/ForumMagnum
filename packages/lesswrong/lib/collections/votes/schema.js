@@ -1,5 +1,9 @@
 import Users from 'meteor/vulcan:users';
 
+// Needed for `denormalized` field to be valid (even though no specific token
+// is being imported here).
+import '../../collectionUtils.js';
+
 const schema = {
 
   _id: {
@@ -30,7 +34,7 @@ const schema = {
     type: String,
     canRead: Users.owns,
   },
-
+  
   /**
     An optional vote type (for Facebook-style reactions)
   */
@@ -47,8 +51,12 @@ const schema = {
     type: Number,
     optional: true,
     canRead: Users.owns,
+    
+    // Can be inferred from userId+voteType+votedAt (votedAt necessary because
+    // the user's vote power may have changed over time)
+    denormalized: true,
   },
-
+  
   /**
     The vote timestamp
   */
