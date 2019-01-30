@@ -546,12 +546,10 @@ Posts.addView("communityResourcePosts", function () {
 // No index needed
 
 Posts.addView("sunshineNewPosts", function () {
-  const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
       reviewedByUserId: {$exists: false},
       frontpageDate: {$in: [false,null] },
-      createdAt: {$gt: twoDaysAgo},
       authorIsUnreviewed: null
     },
     options: {
