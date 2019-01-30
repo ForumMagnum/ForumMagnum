@@ -273,7 +273,7 @@ class EditorFormComponent extends Component {
           <div className="mui-text-field">
             <Input
               className={classnames(classes.markdownEditor, bodyStyles, {[classes.questionWidth]: document.question})}
-              value={currentEditorType === "html" ? htmlValue : markdownValue}
+              value={currentEditorType === "html" ? (htmlValue || "") : (markdownValue || "")}
               onChange={currentEditorType === "html" ? this.setHtml : this.setMarkdown}
               multiline={multiLine}
               rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
