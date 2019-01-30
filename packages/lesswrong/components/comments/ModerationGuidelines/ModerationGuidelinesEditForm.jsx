@@ -53,7 +53,7 @@ class ModerationGuidelinesEditForm extends PureComponent {
             Edit the moderation guidelines specific to this post:
           </Typography>
           {/* TODO: fix unerlying issues so we don't need this weird addFields hack. Fields does not parse properly for non-admins */}
-          <Components.SmartForm
+          <Components.WrappedSmartForm
             collection={Posts}
             documentId={postId}
             fields={['moderationGuidelines', 'moderationStyle']}

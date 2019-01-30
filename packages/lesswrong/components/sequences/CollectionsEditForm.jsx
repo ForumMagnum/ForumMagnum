@@ -6,7 +6,7 @@ import Collections from '../../lib/collections/collections/collection.js';
 const CollectionsEditForm = (props) => {
   return (
     <div className="chapters-edit-form">
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Collections}
         documentId={props.documentId}
         successCallback={props.successCallback}

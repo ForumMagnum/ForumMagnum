@@ -6,7 +6,7 @@ import { Comments } from "../../lib/collections/comments";
 const CommentsEditForm = (props, context) => {
   return (
     <div className="comments-edit-form">
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         layout="elementOnly"
         collection={Comments}
         documentId={props.comment._id}

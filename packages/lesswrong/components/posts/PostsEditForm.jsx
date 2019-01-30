@@ -13,7 +13,7 @@ class PostsEditForm extends PureComponent {
 
     return (
       <div className="posts-edit-form">
-        <Components.SmartForm
+        <Components.WrappedSmartForm
           collection={Posts}
           documentId={documentId}
           queryFragment={getFragment('PostsEdit')}
@@ -33,16 +33,6 @@ class PostsEditForm extends PureComponent {
             this.props.flash({ id: 'posts.delete_success', properties: { title: documentTitle }, type: 'success'});
             // todo: handle events in collection callbacks
             // this.context.events.track("post deleted", {_id: documentId});
-          }}
-          // LESSWRONG: Ugly callback to avoid weird errors with differences in queryFragment and input types. 
-          // If another error like this shows up, we should do something about this systematically
-          submitCallback={data => {
-            return {
-              ...data, 
-              moderationGuidelines: (data.moderationGuidelines && data.moderationGuidelines.canonicalContent && data.moderationGuidelines.canonicalContent.data) ? 
-                {canonicalContent: data.moderationGuidelines.canonicalContent} :
-                undefined
-            }
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}

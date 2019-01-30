@@ -51,7 +51,7 @@ const UsersEditForm = (props) => {
         Reset Password
       </Button>
 
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Users}
         {...terms}
         successCallback={user => {

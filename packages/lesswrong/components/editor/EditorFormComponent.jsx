@@ -133,11 +133,7 @@ class EditorFormComponent extends Component {
           data = htmlValue
           break
       }
-      if (data) {
-        return {...submission, [fieldName]: {canonicalContent: {type, data}, updateType}}
-      } else {
-        return submission
-      }
+      return {...submission, [fieldName]: data ? {canonicalContent: {type, data}, updateType} : undefined}
     }
     this.context.addToSubmitForm(submitData);
 

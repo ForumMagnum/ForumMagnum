@@ -7,7 +7,7 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 const SequencesEditForm = (props, context) => {
   return (
     <div className="sequences-edit-form">
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Sequences}
         documentId={props.params._id}
         successCallback={props.successCallback}

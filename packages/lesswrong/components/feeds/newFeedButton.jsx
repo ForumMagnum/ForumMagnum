@@ -18,7 +18,7 @@ class newFeedButton extends Component {
     if (user && currentUser) {
       return (
         <div>
-          <Components.SmartForm
+          <Components.WrappedSmartForm
             collection={RSSFeeds}
             mutationFragment={getFragment('newRSSFeedFragment')}
             prefilledProps={{userId: user._id}}

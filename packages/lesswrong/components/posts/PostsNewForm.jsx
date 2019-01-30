@@ -32,7 +32,7 @@ const PostsNewForm = ({router, currentUser, flash}) => {
   return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Posts}
         mutationFragment={getFragment('PostsPage')}
         prefilledProps={prefilledProps}

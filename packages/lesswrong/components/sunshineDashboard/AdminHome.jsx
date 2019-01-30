@@ -205,7 +205,7 @@ class AdminHome extends PureComponent {
             </div>
             <div className="admin-new-ip-bans">
               <h3>New IP Bans</h3>
-              <Components.SmartForm
+              <Components.WrappedSmartForm
                 collection={Bans}
               />
             </div>
