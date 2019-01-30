@@ -1,13 +1,20 @@
 import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withRouter } from 'react-router';
 
-const PostsTopSequencesNav = ({classes, post, sequenceId}) => {
+const PostsTopSequencesNav = ({post, sequenceId, router}) => {
   const { SequencesNavigation, CollectionsNavigation } = Components
   const canonicalCollectionSlug = post.canonicalCollectionSlug;
   const title = getNavTitle(post)
   const titleUrl = getNavTitleUrl(post)
 
-  if (sequenceId && !canonicalCollectionSlug) {
+  const isSequenceRoute = () => {
+    if ((router && router.routes && router.routes.length > 1) && router.routes[1]) {
+      return router.routes[1].name === "sequencesPost"
+    }
+  }
+
+  if (sequenceId && isSequenceRoute()) {
     return (
       <SequencesNavigation
         documentId={sequenceId}
@@ -29,7 +36,7 @@ const PostsTopSequencesNav = ({classes, post, sequenceId}) => {
   }
 }
 
-registerComponent('PostsTopSequencesNav', PostsTopSequencesNav)
+registerComponent('PostsTopSequencesNav', PostsTopSequencesNav, withRouter)
 
 function getNavTitleUrl(post) {
   if (post && post.canonicalSequence && post.canonicalSequence.title) {

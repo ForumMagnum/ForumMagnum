@@ -38,8 +38,15 @@ async function ChaptersEditCanonizeCallback (chapter) {
   const sequence = await Sequences.find({_id:chapter.sequenceId}).fetch()[0]
 
   _.range(posts.length).forEach((i) => {
+    
+    const validSequenceId = (currentPost, sequence) => {
+      // Only update a post if it either doesn't have a canonicalSequence, or if we're editing
+      // chapters *from* its canonicalSequence
+      return !currentPost.canonicalSequenceId || currentPost.canonicalSequenceId === sequence._id
+    }
+
     const currentPost = posts[i]
-    if (currentPost.userId === sequence.userId) {
+    if ((currentPost.userId === sequence.userId) && validSequenceId(currentPost, sequence)) {
       let prevPost = {slug:""}
       let nextPost = {slug:""}
       if (i-1>=0) {
@@ -58,4 +65,5 @@ async function ChaptersEditCanonizeCallback (chapter) {
   return chapter
 }
 
+addCallback("chapters.new.async", ChaptersEditCanonizeCallback);
 addCallback("chapters.edit.async", ChaptersEditCanonizeCallback);
