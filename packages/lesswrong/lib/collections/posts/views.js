@@ -550,7 +550,7 @@ Posts.addView("sunshineNewPosts", function () {
     selector: {
       reviewedByUserId: {$exists: false},
       frontpageDate: {$in: [false,null] },
-      authorIsUnreviewed: true
+      authorIsUnreviewed: null
     },
     options: {
       sort: {
