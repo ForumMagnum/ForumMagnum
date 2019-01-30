@@ -3,8 +3,8 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Popover from '@material-ui/core/Popover';
-import Tooltip from '@material-ui/core/Tooltip';
+import Popper from '@material-ui/core/Popper';
+import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
@@ -14,14 +14,18 @@ const styles = theme => ({
     paddingLeft: 3,
     minWidth: 0,
     verticalAlign: "text-bottom",
+    top: 5,
   },
   karmaNotifierButtonLabel: {
     textTransform: "none",
     fontSize: 16,
     fontWeight: 400,
   },
-  karmaNotifierPopover: {
+  karmaNotifierPaper: {
     padding: 10,
+  },
+  karmaNotifierPopper: {
+    zIndex: 10000,
   },
   
   votedItems: {
@@ -77,7 +81,7 @@ const ColoredNumber = ({n, classes}) => {
 const KarmaChangesDisplay = ({karmaChanges, classes}) => {
   const {FormatDate} = Components;
   return (
-    <div className={classes.karmaNotifierPopover}>
+    <div>
       Karma changes between <FormatDate date={karmaChanges.startDate}/> and <FormatDate date={karmaChanges.endDate}/>
       
       <div className={classes.votedItems}>
@@ -112,15 +116,15 @@ const KarmaChangesDisplay = ({karmaChanges, classes}) => {
 
 class KarmaChangeNotifier extends PureComponent {
   state = {
+    cleared: false,
     open: false,
     anchorEl: null,
-    cleared: false,
   };
   
-  handleClick = (event) => {
+  handleOpen = (event) => {
     this.setState({
       open: true,
-      anchorEl: event.currentTarget,
+      anchorEl: event.currentTarget
     });
     if (this.props.currentUser && this.props.currentUser.karmaChanges) {
       this.props.editMutation({
@@ -136,7 +140,7 @@ class KarmaChangeNotifier extends PureComponent {
     }
   }
   
-  handleRequestClose = () => {
+  handleClose = () => {
     this.setState({
       open: false,
       anchorEl: null,
@@ -145,6 +149,7 @@ class KarmaChangeNotifier extends PureComponent {
   
   render() {
     const {classes, currentUser} = this.props;
+    const {open, anchorEl} = this.state;
     if (!currentUser) return null;
     const karmaChanges = currentUser.karmaChanges;
     
@@ -152,27 +157,38 @@ class KarmaChangeNotifier extends PureComponent {
     if (settings && settings.updateFrequency === "disabled")
       return null;
     
-    if (this.state.cleared && !this.state.open)
+    if (this.state.cleared && !open)
       return null;
     
     if (karmaChanges.comments.length===0 && karmaChanges.posts.length===0)
       return null;
     
-    return (<React.Fragment>
-      <Button onClick={this.handleClick} className={classes.karmaNotifierButton}>
+    return (<div onMouseOver={this.handleOpen} onMouseLeave={this.handleClose}>}
+      <Button onClick={this.handleOpen} className={classes.karmaNotifierButton}>
         <span className={classes.karmaNotifierButtonLabel}>
           <ColoredNumber n={karmaChanges.totalChange} classes={classes}/>
         </span>
       </Button>
-      <Popover
-        open={this.state.open}
-        anchorEl={this.state.anchorEl}
-        anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-        onClose={this.handleRequestClose}
+      <Popper
+        open={open}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        className={classes.karmaNotifierPopper}
+        popperOptions={{
+          // Don't use CSS transform3d to position the popper, because that
+          // causes blurry text under some circumstances
+          modifiers: {
+            computeStyle: {
+              gpuAcceleration: false,
+            }
+          }
+        }}
       >
-        <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} />
-      </Popover>
-    </React.Fragment>);
+        <Paper className={classes.karmaNotifierPaper}>
+          <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} />
+        </Paper>
+      </Popper>
+    </div>);
   }
 }
 
