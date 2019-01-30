@@ -124,7 +124,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
       };
     case "realtime":
       return {
-        start: lastOpened,
+        start: lastOpened || new Date("1970-01-01"),
         end: now,
       }
   }
