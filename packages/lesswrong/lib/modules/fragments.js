@@ -341,6 +341,56 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment UsersEdit on User {
+    ...UsersProfile
+    # UI Settings
+    markDownPostEditor
+    hideIntercom
+    commentSorting
+    currentFrontpageFilter
+    noCollapseCommentsPosts
+    noCollapseCommentsFrontpage
+
+    # Emails
+    email
+    whenConfirmationEmailSent
+    emailSubscribedToCurated
+    
+    # Moderation
+    moderatorAssistance
+    collapseModerationGuidelines
+    bannedUserIds
+    bannedPersonalUserIds
+
+    # Ban & Purge
+    voteBanned
+    nullifyVotes
+    deleteContent
+    banned
+
+    # Name
+    username
+    displayName
+    fullName
+
+    # Location
+    mongoLocation
+    googleLocation
+    location
+
+    # Admin & Review
+    reviewedByUserId
+
+    # Alignment Forum
+    reviewForAlignmentForumUserId
+    groups
+    afApplicationText
+    afSubmittedApplication
+    
+  }
+`)
+
+registerFragment(`
   fragment unclaimedReportsList on Report {
     _id
     userId
