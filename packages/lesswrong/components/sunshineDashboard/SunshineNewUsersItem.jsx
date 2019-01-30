@@ -43,7 +43,6 @@ class SunshineNewUsersItem extends Component {
         },
         unset: {}
       })
-      client.resetStore()
     }
   }
 
@@ -54,6 +53,10 @@ class SunshineNewUsersItem extends Component {
 
     return (
         <SunshineListItem hover={hover}>
+          <div style={{display:"none"}}>
+            <SunshineNewUserPostsList terms={{userId: user._id, authorIsUnreviewed:true}}/>
+            <SunshineNewUserCommentsList terms={{userId: user._id}}/>
+          </div>
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
               <Link to={Users.getProfileUrl(user)}>
