@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popover from '@material-ui/core/Popover';
+import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
@@ -60,6 +61,55 @@ const styles = theme => ({
   },
 });
 
+// Given a number, return a span of it as a string, with a plus sign if it's
+// positive, and green, red, or black coloring for positive, negative, and
+// zero, respectively.
+const ColoredNumber = ({n, classes}) => {
+  if (n>0) {
+    return <span className={classes.gainedPoints}>{`+${n}`}</span>
+  } else if (n==0) {
+    return <span className={classes.zeroPoints}>{n}</span>
+  } else {
+    return <span className={classes.lostPoints}>{n}</span>
+  }
+}
+
+const KarmaChangesDisplay = ({karmaChanges, classes}) => {
+  const {FormatDate} = Components;
+  return (
+    <div className={classes.karmaNotifierPopover}>
+      Karma changes between <FormatDate date={karmaChanges.startDate}/> and <FormatDate date={karmaChanges.endDate}/>
+      
+      <div className={classes.votedItems}>
+        {karmaChanges.posts && karmaChanges.posts.map((postChange,i) => (
+          <div className={classes.votedItemRow} key={"post"+i}>
+            <div className={classes.votedItemScoreChange}>
+              <ColoredNumber n={postChange.scoreChange} classes={classes}/>
+            </div>
+            <div className={classes.votedItemDescription}>
+              <Link to={postChange.post.pageUrlRelative} className={classes.singleLinePreview}>
+                {postChange.post.title}
+              </Link>
+            </div>
+          </div>
+        ))}
+        {karmaChanges.comments && karmaChanges.comments.map((commentChange,i) => (
+          <div className={classes.votedItemRow} key={"comment"+i}>
+            <div className={classes.votedItemScoreChange}>
+              <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
+            </div>
+            <div className={classes.votedItemDescription}>
+              <Link to={commentChange.comment.pageUrlRelative} className={classes.singleLinePreview}>
+                {commentChange.comment.plaintextExcerpt}>
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 class KarmaChangeNotifier extends PureComponent {
   state = {
     open: false,
@@ -93,23 +143,8 @@ class KarmaChangeNotifier extends PureComponent {
     });
   }
   
-  // Given a number, return a string version of it which has a plus sign in
-  // front if it's strictly positive. Ie "+1", "0", "-1" (rather than the usual
-  // stringification, which would be "1", "0", "-1").
-  numberToColoredSpan(n) {
-    const { classes } = this.props;
-    if (n>0) {
-      return <span className={classes.gainedPoints}>{`+${n}`}</span>
-    } else if (n==0) {
-      return <span className={classes.zeroPoints}>{n}</span>
-    } else {
-      return <span className={classes.lostPoints}>{n}</span>
-    }
-  }
-  
   render() {
     const {classes, currentUser} = this.props;
-    const {FormatDate} = Components;
     if (!currentUser) return null;
     const karmaChanges = currentUser.karmaChanges;
     
@@ -126,7 +161,7 @@ class KarmaChangeNotifier extends PureComponent {
     return (<React.Fragment>
       <Button onClick={this.handleClick} className={classes.karmaNotifierButton}>
         <span className={classes.karmaNotifierButtonLabel}>
-        ({this.numberToColoredSpan(karmaChanges.totalChange)})
+          <ColoredNumber n={karmaChanges.totalChange} classes={classes}/>
         </span>
       </Button>
       <Popover
@@ -135,36 +170,7 @@ class KarmaChangeNotifier extends PureComponent {
         anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
         onClose={this.handleRequestClose}
       >
-        <div className={classes.karmaNotifierPopover}>
-          Karma changes between <FormatDate date={karmaChanges.startDate}/> and <FormatDate date={karmaChanges.endDate}/>
-          
-          <div className={classes.votedItems}>
-            {karmaChanges.posts && karmaChanges.posts.map((postChange,i) => (
-              <div className={classes.votedItemRow} key={"post"+i}>
-                <div className={classes.votedItemScoreChange}>
-                  {this.numberToColoredSpan(postChange.scoreChange)}
-                </div>
-                <div className={classes.votedItemDescription}>
-                  <Link to={postChange.post.pageUrlRelative} className={classes.singleLinePreview}>
-                    {postChange.post.title}
-                  </Link>
-                </div>
-              </div>
-            ))}
-            {karmaChanges.comments && karmaChanges.comments.map((commentChange,i) => (
-              <div className={classes.votedItemRow} key={"comment"+i}>
-                <div className={classes.votedItemScoreChange}>
-                  {this.numberToColoredSpan(commentChange.scoreChange)}
-                </div>
-                <div className={classes.votedItemDescription}>
-                  <Link to={commentChange.comment.pageUrlRelative} className={classes.singleLinePreview}>
-                    {commentChange.comment.plaintextExcerpt}>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} />
       </Popover>
     </React.Fragment>);
   }
