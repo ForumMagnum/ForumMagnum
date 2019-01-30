@@ -80,6 +80,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -337,6 +338,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 
@@ -445,6 +447,15 @@ registerFragment(`
   fragment VoteMinimumInfo on Vote {
     _id
     voteType
+  }
+`);
+
+
+registerFragment(`
+  fragment VoteFragment on Vote {
+    _id
+    voteType
+    power
   }
 `);
 

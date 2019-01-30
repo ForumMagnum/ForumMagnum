@@ -2,8 +2,16 @@ import React from 'react';
 import { Components } from 'meteor/vulcan:core';
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
-const schema = {
+export const formGroups = {
+  chapterDetails: {
+    name: "chapterDetails",
+    order: 25,
+    label: "Chapter Details",
+    startCollapsed: true,
+  },
+}
 
+const schema = {
   _id: {
     type: String,
     optional: true,
@@ -29,6 +37,7 @@ const schema = {
     insertableBy: ['admins'],
     placeholder:"Title",
     order: 10,
+    group: formGroups.chapterDetails
   },
 
   subtitle: {
@@ -38,18 +47,9 @@ const schema = {
     editableBy: ["admins"],
     insertableBy: ['admins'],
     placeholder:"Subtitle",
-    order: 20
+    order: 20,
+    group: formGroups.chapterDetails
   },
-
-  // description: {
-  //   type: Object,
-  //   blackbox: true,
-  //   optional: true,
-  //   viewableBy: ['guests'],
-  //   editableBy: ["admins"],
-  //   insertableBy: ['admins'],
-  //   control: 'EditorFormComponent',
-  // },
 
   // plaintextDescription: {
   //   type: String,
@@ -69,6 +69,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
+    group: formGroups.chapterDetails
   },
 
   sequenceId: {

@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 

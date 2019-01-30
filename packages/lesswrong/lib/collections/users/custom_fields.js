@@ -829,6 +829,26 @@ Users.addField([
       label: "Do not collapse comments (on home page)"
     }
   },
+
+  { 
+    fieldName: "shortformFeedId",
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['admins', 'sunshineRegiment'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      group: formGroups.adminOptions,
+      resolveAs: {
+        fieldName: 'shortformFeed',
+        type: 'Post',
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Posts', fieldName: 'shortformFeedId'}
+        ),
+        addOriginalField: true
+      },
+    }
+  }
 ]);
 
 export const makeEditableOptionsModeration = {
