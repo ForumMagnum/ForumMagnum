@@ -32,6 +32,17 @@ const styles = theme => ({
     marginLeft: 5,
   },
   
+  singleLinePreview: {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    display: "inline-block",
+    maxWidth: 400,
+    
+    verticalAlign: "middle",
+    position: "relative",
+    top: -1,
+  },
+  
   gainedPoints: {
     color: theme.palette.primary.main,
   },
@@ -115,7 +126,7 @@ class KarmaChangeNotifier extends PureComponent {
                   {this.numberToColoredSpan(postChange.scoreChange)}
                 </div>
                 <div className={classes.votedItemDescription}>
-                  <Link to={postChange.post.pageUrlRelative}>
+                  <Link to={postChange.post.pageUrlRelative} className={classes.singleLinePreview}>
                     {postChange.post.title}
                   </Link>
                 </div>
@@ -127,8 +138,8 @@ class KarmaChangeNotifier extends PureComponent {
                   {this.numberToColoredSpan(commentChange.scoreChange)}
                 </div>
                 <div className={classes.votedItemDescription}>
-                  <Link to={commentChange.comment.pageUrlRelative}>
-                    {commentChange.comment.body}
+                  <Link to={commentChange.comment.pageUrlRelative} className={classes.singleLinePreview}>
+                    {commentChange.comment.plaintextExcerpt}>
                   </Link>
                 </div>
               </div>

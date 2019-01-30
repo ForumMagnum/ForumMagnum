@@ -96,7 +96,7 @@ extendFragment('UsersCurrent', `
     comments {
       scoreChange
       comment {
-        body
+        plaintextExcerpt
         pageUrlRelative
       }
     }
