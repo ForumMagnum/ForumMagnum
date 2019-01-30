@@ -11,10 +11,7 @@ Sequences.getPageUrl = function(sequence, isAbsolute = false){
 };
 
 Sequences.getAllPosts = async (sequenceId) => {
-  const chapters = Chapters.find({sequenceId: sequenceId}).fetch()
-  let allPostsIds = []
-  chapters.forEach(chapter => {
-    allPostsIds = allPostsIds.concat(chapter.postIds);
-  })
-  return Posts.find({_id:{$in:allPostsIds}}).fetch()
+  const chapters = await Chapters.find({sequenceId: sequenceId}).fetch()
+  let allPostsIds = _.flatten(_.pluck(chapters, 'postIds'))
+  return await Posts.find({_id:{$in:allPostsIds}}).fetch()
 }

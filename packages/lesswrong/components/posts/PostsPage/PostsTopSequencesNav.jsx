@@ -8,11 +8,9 @@ const PostsTopSequencesNav = ({post, sequenceId, routes}) => {
   const title = getNavTitle(post)
   const titleUrl = getNavTitleUrl(post)
 
-  const isSequenceRoute = () => {
-    return _.some(routes, r => r.name === "sequencesPost")
-  }
+  const isSequenceRoute = _.some(routes, r => r.name === "sequencesPost")
 
-  if (sequenceId && isSequenceRoute()) {
+  if (sequenceId && isSequenceRoute) {
     return (
       <SequencesNavigation
         documentId={sequenceId}
