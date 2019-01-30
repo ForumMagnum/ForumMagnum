@@ -6,7 +6,6 @@ import withUser from '../common/withUser';
 const SequencesPostsList = ({posts, chapter, currentUser}) =>
 
   <div className="sequences-posts-list">
-    {console.log(posts)}
     {posts.map((post) => post && <Components.PostsItem key={post._id} post={post} chapter={chapter} currentUser={currentUser} />)}
   </div>
 
