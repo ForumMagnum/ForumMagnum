@@ -37,12 +37,7 @@ const SequencesNavigationLink = ({
 ) => {
   const button = (
     <Link to={documentUrl}>
-      <IconButton
-        classes={{
-          root: classnames(classes.root, classes.normal)
-        }}
-        onClick={() => router.push(documentUrl)}
-      >
+      <IconButton classes={{root: classnames(classes.root, classes.normal)}}>
         { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
       </IconButton>
     </Link>

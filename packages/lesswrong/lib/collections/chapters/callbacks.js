@@ -27,7 +27,7 @@ function ChaptersEditHTMLSerializeCallback (modifier, chapter) {
   } else if (modifier.$unset && modifier.$unset.description) {
     modifier.$unset.htmlDescription = true;
     modifier.$unset.plaintextDescription = true;
-  } 
+  }
   return modifier
 }
 
@@ -37,15 +37,14 @@ async function ChaptersEditCanonizeCallback (chapter) {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
-  _.range(posts.length).forEach((i) => {
-    
+  posts.forEach((currentPost, i) => {
+
     const validSequenceId = (currentPost, sequence) => {
       // Only update a post if it either doesn't have a canonicalSequence, or if we're editing
       // chapters *from* its canonicalSequence
       return !currentPost.canonicalSequenceId || currentPost.canonicalSequenceId === sequence._id
     }
 
-    const currentPost = posts[i]
     if ((currentPost.userId === sequence.userId) && validSequenceId(currentPost, sequence)) {
       let prevPost = {slug:""}
       let nextPost = {slug:""}
