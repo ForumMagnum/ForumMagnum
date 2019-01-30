@@ -35,7 +35,7 @@ addCallback("chapters.edit.sync", ChaptersEditHTMLSerializeCallback);
 
 async function ChaptersEditCanonizeCallback (chapter) {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
-  const sequence = await Sequences.find({_id:chapter.sequenceId}).fetch()[0]
+  const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
   _.range(posts.length).forEach((i) => {
     

@@ -2,16 +2,14 @@ import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router';
 
-const PostsTopSequencesNav = ({post, sequenceId, router}) => {
+const PostsTopSequencesNav = ({post, sequenceId, routes}) => {
   const { SequencesNavigation, CollectionsNavigation } = Components
   const canonicalCollectionSlug = post.canonicalCollectionSlug;
   const title = getNavTitle(post)
   const titleUrl = getNavTitleUrl(post)
 
   const isSequenceRoute = () => {
-    if ((router && router.routes && router.routes.length > 1) && router.routes[1]) {
-      return router.routes[1].name === "sequencesPost"
-    }
+    return _.some(routes, r => r.name === "sequencesPost")
   }
 
   if (sequenceId && isSequenceRoute()) {
@@ -30,6 +28,12 @@ const PostsTopSequencesNav = ({post, sequenceId, router}) => {
         nextPostSlug={post.canonicalNextPostSlug}
         prevPostSlug={post.canonicalPrevPostSlug}
       />
+    )
+  } else if (sequenceId){
+    return (
+      <SequencesNavigation
+        documentId={sequenceId}
+        post={post} />
     )
   } else {
     return null
