@@ -10,7 +10,14 @@ import Users from 'meteor/vulcan:users';
 
 const styles = theme => ({
   karmaNotifierButton: {
-    fontWeight: 500,
+    paddingLeft: 3,
+    minWidth: 0,
+    verticalAlign: "text-bottom",
+  },
+  karmaNotifierButtonLabel: {
+    textTransform: "none",
+    fontSize: 16,
+    fontWeight: 400,
   },
   karmaNotifierPopover: {
     padding: 10,
@@ -118,7 +125,9 @@ class KarmaChangeNotifier extends PureComponent {
     
     return (<React.Fragment>
       <Button onClick={this.handleClick} className={classes.karmaNotifierButton}>
+        <span className={classes.karmaNotifierButtonLabel}>
         ({this.numberToColoredSpan(karmaChanges.totalChange)})
+        </span>
       </Button>
       <Popover
         open={this.state.open}
