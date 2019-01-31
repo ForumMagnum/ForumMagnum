@@ -30,8 +30,8 @@ import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
 import './server/scripts/logMongoQueries.js';
 import './server/scripts/fillMissing.js';
-
 import './server/migrations';
+
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';

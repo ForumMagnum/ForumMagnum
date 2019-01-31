@@ -187,7 +187,6 @@ Comments.addView("postCommentsUnread", function (terms) {
 });
 
 Comments.addView("sunshineNewCommentsList", function (terms) {
-  const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
       $or: [
@@ -197,7 +196,6 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
       ],
       reviewedByUserId: {$exists:false},
       deleted: false,
-      postedAt: {$gt: twoDaysAgo},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };

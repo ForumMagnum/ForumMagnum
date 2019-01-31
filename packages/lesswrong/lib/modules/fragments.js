@@ -102,6 +102,7 @@ extendFragment('UsersCurrent', `
       }
     }
   }
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -528,6 +529,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 
