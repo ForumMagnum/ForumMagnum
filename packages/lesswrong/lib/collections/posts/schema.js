@@ -428,20 +428,6 @@ const schema = {
     group: formGroups.adminOptions,
   },
 
-  revision: {
-    type: String,
-    optional: true,
-    viewableBy: ['guest'],
-    resolveAs: {
-      type: 'String',
-      arguments: 'revisionId: String = 0',
-      resolver: (post, args, { Posts }) => {
-        return args.revisionId || "0"
-      }
-    }
-  },
-
-
   // Right now only admins can set whether a post has a major revision
   // In the future, we want to use some heuristic to determine whether a
   // revision counts as major, maybe with some UI elements
