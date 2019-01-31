@@ -5,27 +5,27 @@ import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
+import Typography from '@material-ui/core/Typography';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Badge from '@material-ui/core/Badge';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
+import { getHeaderTextColor } from '../common/Header';
 
 const styles = theme => ({
   karmaNotifierButton: {
-    paddingLeft: 3,
-    minWidth: 0,
-    verticalAlign: "text-bottom",
-    top: 5,
-  },
-  karmaNotifierButtonLabel: {
-    textTransform: "none",
-    fontSize: 16,
-    fontWeight: 400,
   },
   karmaNotifierPaper: {
     padding: 10,
   },
   karmaNotifierPopper: {
     zIndex: 10000,
+  },
+  starIcon: {
+    color: getHeaderTextColor(theme),
   },
   
   votedItems: {
@@ -36,7 +36,7 @@ const styles = theme => ({
   },
   votedItemScoreChange: {
     display: "inline-block",
-    width: 30,
+    width: 20,
     textAlign: "right",
   },
   votedItemDescription: {
@@ -48,7 +48,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     display: "inline-block",
-    maxWidth: 400,
+    maxWidth: 300,
     
     verticalAlign: "middle",
     position: "relative",
@@ -81,7 +81,7 @@ const ColoredNumber = ({n, classes}) => {
 const KarmaChangesDisplay = ({karmaChanges, classes}) => {
   const {FormatDate} = Components;
   return (
-    <div>
+    <Typography variant="body2">
       Karma changes between <FormatDate date={karmaChanges.startDate}/> and <FormatDate date={karmaChanges.endDate}/>
       
       <div className={classes.votedItems}>
@@ -110,7 +110,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes}) => {
           </div>
         ))}
       </div>
-    </div>
+    </Typography>
   );
 }
 
@@ -157,18 +157,15 @@ class KarmaChangeNotifier extends PureComponent {
     if (settings && settings.updateFrequency === "disabled")
       return null;
     
-    if (this.state.cleared && !open)
-      return null;
-    
-    if (karmaChanges.comments.length===0 && karmaChanges.posts.length===0)
-      return null;
-    
-    return (<div onMouseOver={this.handleOpen} onMouseLeave={this.handleClose}>}
-      <Button onClick={this.handleOpen} className={classes.karmaNotifierButton}>
-        <span className={classes.karmaNotifierButtonLabel}>
-          <ColoredNumber n={karmaChanges.totalChange} classes={classes}/>
-        </span>
-      </Button>
+    return <div>
+      <IconButton onClick={this.handleOpen} className={classes.karmaNotifierButton}>
+        {((karmaChanges.comments.length===0 && karmaChanges.posts.length===0) || this.state.cleared)
+          ? <StarBorderIcon className={classes.starIcon}/>
+          : <Badge badgeContent={<ColoredNumber n={karmaChanges.totalChange} classes={classes}/>}>
+              <StarIcon className={classes.starIcon}/>
+            </Badge>
+        }
+      </IconButton>
       <Popper
         open={open}
         anchorEl={anchorEl}
@@ -184,11 +181,13 @@ class KarmaChangeNotifier extends PureComponent {
           }
         }}
       >
-        <Paper className={classes.karmaNotifierPaper}>
-          <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} />
-        </Paper>
+        <ClickAwayListener onClickAway={this.handleClose}>
+          <Paper className={classes.karmaNotifierPaper}>
+            <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} />
+          </Paper>
+        </ClickAwayListener>
       </Popper>
-    </div>);
+    </div>;
   }
 }
 
