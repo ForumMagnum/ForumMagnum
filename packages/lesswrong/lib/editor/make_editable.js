@@ -4,7 +4,6 @@ import { ContentType } from '../collections/revisions/schema'
 import SimpleSchema from 'simpl-schema'
 
 const RevisionStorageType = new SimpleSchema({
-  revisionId: {type: String, optional: true},
   canonicalContent: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
   html: {type: String, optional: true},
