@@ -123,6 +123,7 @@ export function addUniversalFields({ collection }) {
       fieldSchema: {
         type: Number,
         canRead: ['guests'],
+        optional: true,
         ...schemaDefaultValue(1)
       }
     }
