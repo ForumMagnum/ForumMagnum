@@ -26,7 +26,18 @@ registerMigration({
             updateOne: {
               filter: {_id: post._id},
               update: {
-                
+                $set: {
+                  contents: {
+                      originalContents: {
+                          type: determineCanonicalType({draftJS: post.content, }),
+                          data: "htmlReference"
+                      },
+                      html: "htmlReference", 
+                      version: "1.0.0", 
+                      userId: "userIdReference", 
+                      editedAt: "postedAtReference" 
+                  }
+                }
               }
             }
           }

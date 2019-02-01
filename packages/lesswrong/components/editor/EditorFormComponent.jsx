@@ -193,11 +193,11 @@ class EditorFormComponent extends Component {
   getCurrentEditorType = () => {
     const { editorOverride } = this.state || {} // Since we can call this function before we initialize state
     const { document, currentUser, enableMarkDownEditor, fieldName } = this.props
-    const canonicalType = document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
+    const originalType = document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
     // If there is an override, return that
-    if (editorOverride) {return editorOverride}
+    if (editorOverride) { return editorOverride }
     // Otherwise, default to rich-text, but maybe show others
-    if (canonicalType) {return canonicalType}
+    if (originalType) { return originalType }
     else if (enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser)){
       return "markdown"
     } else {
