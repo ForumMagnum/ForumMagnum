@@ -149,6 +149,9 @@
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0"
   },
+  "resolutions": {
+    "**/cloudinary-core": "2.5.0"
+  },
   "private": true,
   "devDependencies": {
     "autoprefixer": "^6.3.6",
