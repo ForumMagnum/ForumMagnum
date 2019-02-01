@@ -193,7 +193,7 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
 function NewCommentsEmptyCheck (comment) {
-  const { data } = comment.content && comment.content.canonicalContent || {}
+  const { data } = comment.contents && comment.contents.originalContents || {}
   if (!data) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
@@ -204,7 +204,7 @@ function NewCommentsEmptyCheck (comment) {
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment) {
-  if (newComment.deleted && newComment.content && newComment.content.html) {
+  if (newComment.deleted && newComment.contents && newComment.contents.html) {
     const originalPost = await Posts.findOne(newComment.postId);
     const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
@@ -220,18 +220,18 @@ export async function CommentsDeleteSendPMAsync (newComment) {
       validate: false
     });
 
-    let firstMessageContent =
+    let firstMessageContents =
         `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content.`
     if (newComment.deletedReason) {
-      firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
+      firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
 
     const firstMessageData = {
       userId: lwAccount._id,
-      content: {
-        canonicalContent: {
+      contents: {
+        originalContents: {
           type: "html",
-          data: firstMessageContent
+          data: firstMessageContents
         }
       },
       conversationId: conversation.data._id
@@ -239,7 +239,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
 
     const secondMessageData = {
       userId: lwAccount._id,
-      content: newComment.content,
+      contents: newComment.contents,
       conversationId: conversation.data._id
     }
 

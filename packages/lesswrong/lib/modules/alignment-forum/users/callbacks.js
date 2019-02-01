@@ -54,8 +54,8 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
 
     const firstMessageData = {
       userId: lwAccount._id,
-      content: {
-        canonicalContent: {
+      contents: {
+        originalContents: {
           type: "html",
           data: firstMessageContent
         }

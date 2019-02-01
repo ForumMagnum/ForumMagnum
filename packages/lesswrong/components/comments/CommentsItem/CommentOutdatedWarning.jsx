@@ -15,11 +15,11 @@ const styles = theme => ({
 })
 
 function postHadMajorRevision(comment, post) {
-  if (!comment || !comment.postVersion || !post || !post.content || !post.content.version) {
+  if (!comment || !comment.postVersion || !post || !post.contents || !post.contents.version) {
     return false
   }
   const { major: origMajorPostVer } = extractVersionsFromSemver(comment.postVersion)
-  const { major: currentMajorPostVer } = extractVersionsFromSemver(post.content && post.content.version)
+  const { major: currentMajorPostVer } = extractVersionsFromSemver(post.contents && post.contents.version)
   return origMajorPostVer < currentMajorPostVer
 }
 

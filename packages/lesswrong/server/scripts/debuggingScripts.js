@@ -159,8 +159,8 @@ Vulcan.createStyledPost = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: makeStyledBody(),
         type: "html"
       }
@@ -171,8 +171,8 @@ Vulcan.createStyledPost = async () => {
 
   await createDummyComment(user, {
     postId: post._id,
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: makeStyledBody(),
         type: "html"
       }
@@ -187,8 +187,8 @@ Vulcan.createStyledAFPost = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: makeStyledBody(),
         type: "html"
       }
@@ -200,8 +200,8 @@ Vulcan.createStyledAFPost = async () => {
 
   await createDummyComment(user, {
     postId: post._id,
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: makeStyledBody(),
         type: "html"
       }
@@ -216,8 +216,8 @@ Vulcan.createStyledQuestion = async () => {
   const post = await createDummyPost(user, {
     title: "Styled Post",
     slug: "styled-post",
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: makeStyledBody(),
         type: "html"
       }
@@ -229,8 +229,8 @@ Vulcan.createStyledQuestion = async () => {
 
   await createDummyComment(user, {
     postId: post._id,
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: makeStyledBody(),
         type: "html"
       }
@@ -324,8 +324,8 @@ Vulcan.createBulkyTestPost = async ({
 
   let dummyPostFields = {
     title: postTitle,
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         data: body,
         type: "html"
       }
@@ -343,8 +343,8 @@ Vulcan.createBulkyTestPost = async ({
     //eslint-disable-next-line no-await-in-loop
     var rootComment = await createDummyComment(user, {
       postId: post._id,
-      content: {
-        canonicalContent: {
+      contents: {
+        originalContents: {
           data: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength),
           type: "html"
         }
@@ -357,8 +357,8 @@ Vulcan.createBulkyTestPost = async ({
       var childComment = await createDummyComment(user, {
         postId: post._id,
         parentCommentId: parentCommentId,
-        content: {
-          canonicalContent: {
+        contents: {
+          originalContents: {
             data: makeLoremIpsumBody(commentParagraphCount, commentParagraphLength),
             type: "html"
           }

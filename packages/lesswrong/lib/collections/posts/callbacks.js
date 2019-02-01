@@ -177,5 +177,4 @@ function AddReferrerToPost(post, properties)
 addCallback("post.create.before", AddReferrerToPost);
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
-
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})

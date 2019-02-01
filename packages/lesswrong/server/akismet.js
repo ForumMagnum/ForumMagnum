@@ -35,7 +35,7 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.content && document.content.html, 
+      comment_content : document.contents && document.contents.html, 
       is_test: Meteor.isDevelopment
     }
 }

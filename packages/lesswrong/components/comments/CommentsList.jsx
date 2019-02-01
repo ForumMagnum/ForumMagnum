@@ -32,7 +32,7 @@ class CommentsList extends Component {
     }
     
     if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id || 
-      (this.props.post.content && this.props.post.content.version !== nextProps.post.content && nextProps.post.content.version))
+      (this.props.post.contents && this.props.post.contents.version !== nextProps.post.contents && nextProps.post.contents.version))
       return true;
     
     if(this.commentTreesDiffer(this.props.comments, nextProps.comments))

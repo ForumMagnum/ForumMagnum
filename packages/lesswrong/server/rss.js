@@ -65,7 +65,7 @@ export const servePostRSS = (terms, url) => {
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem = {
       title: post.title,
-      description: `Published on ${formattedTime}<br/><br/>${(post.content && post.content.html) || ""}<br/><br/>${postLink}`,
+      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
@@ -101,7 +101,7 @@ export const serveCommentRSS = (terms, url) => {
 
     feed.item({
      title: 'Comment on ' + post.title,
-     description: `${markdownToHtml(comment.content && comment.content.html)}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${markdownToHtml(comment.contents && comment.contents.html)}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
      url: Comments.getPageUrl(comment, true),

@@ -133,7 +133,7 @@ class EditorFormComponent extends Component {
           data = htmlValue
           break
       }
-      return {...submission, [fieldName]: data ? {canonicalContent: {type, data}, updateType} : undefined}
+      return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
     }
     this.context.addToSubmitForm(submitData);
 
@@ -181,8 +181,8 @@ class EditorFormComponent extends Component {
   setMarkdown = (e) => {this.setState({markdownValue: e.target.value})}
 
   renderEditorWarning = () => {
-    const { classes, currentUser, document } = this.props
-    const { type } = document.content || {}
+    const { classes, currentUser, document, fieldName } = this.props
+    const { type } = document[fieldName] && document[fieldName].originalContents || {}
     return <Typography variant="body2" color="primary">
       This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
       <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
@@ -193,7 +193,7 @@ class EditorFormComponent extends Component {
   getCurrentEditorType = () => {
     const { editorOverride } = this.state || {} // Since we can call this function before we initialize state
     const { document, currentUser, enableMarkDownEditor, fieldName } = this.props
-    const canonicalType = document && document[fieldName] && document[fieldName].canonicalContent && document[fieldName].canonicalContent.type
+    const canonicalType = document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
     // If there is an override, return that
     if (editorOverride) {return editorOverride}
     // Otherwise, default to rich-text, but maybe show others
@@ -247,8 +247,8 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document && document[fieldName] && document[fieldName].canonicalContent && document[fieldName].canonicalContent.type
-      && document[fieldName].canonicalContent.type !== this.getUserDefaultEditor(currentUser)
+      && document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
+      && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
     if (this.getCurrentEditorType() === "draftJS") {

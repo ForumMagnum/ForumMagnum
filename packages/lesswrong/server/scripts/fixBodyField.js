@@ -8,7 +8,7 @@ if (runFix) {
   console.log("Running body field fix on database...");
   let postCount = 0;
   Posts.find().fetch().forEach((post) => {
-    const { html = "" } = post.content || {}
+    const { html = "" } = post.contents || {}
     if (html) {
       const plaintextBody = htmlToText.fromString(html);
       const excerpt =  plaintextBody.slice(0,140);

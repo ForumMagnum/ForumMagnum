@@ -1024,7 +1024,7 @@ Posts.addField([
         fieldName: "tableOfContents",
         type: GraphQLJSON,
         resolver: async (document, args, options) => {
-          const { html } = document.content || {}
+          const { html } = document.contents || {}
           let tocData
           if (document.question) {
 

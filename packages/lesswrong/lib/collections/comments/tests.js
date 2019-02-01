@@ -15,9 +15,9 @@ describe('createComment – ', async function() {
     const user = await createDummyUser()
     const query = `
       mutation {
-        createComment(data:{ content: { canonicalContent: { type: "markdown", data: "test" } } }){
+        createComment(data:{ contents: { originalContents: { type: "markdown", data: "test" } } }){
           data {
-            content {
+            contents {
               markdown
             }
           }
@@ -25,7 +25,7 @@ describe('createComment – ', async function() {
       }
     `;
     const response = runQuery(query, {}, {currentUser: user})
-    const expectedOutput = { data: { createComment: { data : {content: {markdown: "test" } } } } }
+    const expectedOutput = { data: { createComment: { data : {contents: {markdown: "test" } } } } }
     return response.should.eventually.deep.equal(expectedOutput);
   });
 });
@@ -40,12 +40,12 @@ describe('updateComment – ', async () => {
       { 
         user:user, 
         document:comment, 
-        fieldName:'content', 
+        fieldName:'contents', 
         collectionType: 'Comment', 
-        newValue: {canonicalContent: {type: "markdown", data: "stuff"}},
+        newValue: {originalContents: {type: "markdown", data: "stuff"}},
         fragment: `
-          content {
-            canonicalContent
+          contents {
+            originalContents
           }
         `
       }
@@ -60,12 +60,12 @@ describe('updateComment – ', async () => {
       { 
         user:user, 
         document:comment, 
-        fieldName:'content', 
+        fieldName:'contents', 
         collectionType: 'Comment', 
-        newValue: {canonicalContent: {type: "markdown", data: "stuff"}},
+        newValue: {originalContents: {type: "markdown", data: "stuff"}},
         fragment: `
-          content {
-            canonicalContent
+          contents {
+            originalContents
           }
         `
       }

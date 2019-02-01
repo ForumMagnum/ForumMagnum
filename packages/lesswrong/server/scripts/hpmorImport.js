@@ -29,8 +29,8 @@ if (hpmorImport) {
       title: "HPMOR Chapter: " + chapterNumber,
       userId: eliezerId,
       draft: true,
-      content: {
-        canonicalContent: {
+      contents: {
+        originalContents: {
           data: hpmor_data.chapters[chapterNumber],
           type: "html"
         }

@@ -31,7 +31,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    content { 
+    contents { 
       html
     }
     createdAt
@@ -236,12 +236,12 @@ registerFragment(`
     _id
     parentCommentId
     topLevelCommentId
-    content {
+    contents {
       version
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -269,12 +269,12 @@ registerFragment(`
   fragment commentInlineFragment on Comment {
     # example-forum
     _id
-    content {
+    contents {
       version
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -329,7 +329,7 @@ registerFragment(`
     sequenceDraftCount
     moderationStyle
     moderationGuidelines {
-      canonicalContent
+      originalContents
       html
       draftJS
       markdown

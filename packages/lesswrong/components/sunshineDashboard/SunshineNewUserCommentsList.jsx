@@ -25,7 +25,7 @@ const SunshineNewUserCommentsList = ({loading, results, classes}) => {
             Posted on <FormatDate date={comment.postedAt}/>
           </Link>
         </MetaInfo>
-        <div dangerouslySetInnerHTML={{__html: (comment.content && comment.content.html) || ""}} />
+        <div dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>
   } else {

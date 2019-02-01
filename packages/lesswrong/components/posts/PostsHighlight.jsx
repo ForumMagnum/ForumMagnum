@@ -17,7 +17,7 @@ const styles = theme => ({
 })
 
 const PostsHighlight = ({post, classes}) => {
-  const { htmlHighlight = "", wordCount = 0 } = post.content || {}
+  const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
   return <div className={classes.root}>
       <Components.LinkPostMessage post={post} />
       <div dangerouslySetInnerHTML={{__html: htmlHighlight}}/>

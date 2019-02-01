@@ -68,7 +68,7 @@ class LocalGroupMarker extends PureComponent {
   render() {
     const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
-    const { html = "" } = group.content || {}
+    const { html = "" } = group.contents || {}
     const htmlBody = {__html: html};
 
     var circleIcon = {

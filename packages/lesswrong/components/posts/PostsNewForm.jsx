@@ -18,7 +18,7 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     groupId: router.location.query && router.location.query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: moderationGuidelines ? {
-      canonicalContent: {
+      originalContents: {
         type: "html",
         data: moderationGuidelines
       }

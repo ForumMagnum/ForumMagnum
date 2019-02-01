@@ -11,7 +11,7 @@ Vulcan.runPostEditCallbacks = () => {
   //eslint-disable-next-line no-console
   console.log(`Found ${posts.length} posts, triggering Edit Callbacks`)
   posts.forEach((post) => {
-    const { html = "" } = post.content || {}
+    const { html = "" } = post.contents || {}
     if (html) {
       try {
         Posts.update(post._id,runCallbacks("posts.edit.sync", {$set: { html }}, post))

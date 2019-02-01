@@ -16,22 +16,22 @@ class RevisionTestComponent extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: props.document && props.document[props.path] || props.defaultValue || ""
+      contents: props.document && props.document[props.path] || props.defaultValue || ""
     }
   }
 
   componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({content: ""}))
+    this.context.addToSuccessForm(() => this.setState({contents: ""}))
     this.context.updateCurrentValues({
       [this.props.path]: this.props.document && this.props.document[this.props.path] || ""
     })
   }
 
   onChange = (event) => {
-    this.setState({content: event.target.value})
+    this.setState({contents: event.target.value})
     this.context.updateCurrentValues({
       [this.props.path]: {
-          canonicalContent: {type: "markdown", data: event.target.value}
+          originalContents: {type: "markdown", data: event.target.value}
       }
     })
   }
@@ -40,7 +40,7 @@ class RevisionTestComponent extends Component {
     return <div className="mui-text-field">
       <Input
         className={this.props.className}
-        value={this.state.content || ""}
+        value={this.state.contents || ""}
         label={this.props.label}
         onChange={this.onChange}
         multiline={this.props.multiLine}

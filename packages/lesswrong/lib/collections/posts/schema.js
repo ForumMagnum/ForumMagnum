@@ -9,6 +9,7 @@ import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vu
 import moment from 'moment';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
+import { extractVersionsFromSemver } from '../../editor/utils'
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
@@ -426,19 +427,6 @@ const schema = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
-  },
-
-  // Right now only admins can set whether a post has a major revision
-  // In the future, we want to use some heuristic to determine whether a
-  // revision counts as major, maybe with some UI elements
-  hasMajorRevision: {
-    type: Boolean,
-    optional: true,
-    ...schemaDefaultValue(false),
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions
   },
 };
 

@@ -61,7 +61,7 @@ const schema = {
       addOriginalField: true
     },
   },
-  canonicalContent: {
+  originalContents: {
     type: ContentType,
     viewableBy: ['guests'],
     editableBy: ['members']

@@ -34,7 +34,7 @@ describe('AlignmentForum PostsEdit', async () => {
     const post = await createDummyPost()
     const query = `
       mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"} ,data:{ content: { canonicalContent: {type: "markdown", data: "test"} } }) {
+        updatePost(selector: {_id:"${post._id}"} ,data:{ contents: { originalContents: {type: "markdown", data: "test"} } }) {
           data {
             title
           }

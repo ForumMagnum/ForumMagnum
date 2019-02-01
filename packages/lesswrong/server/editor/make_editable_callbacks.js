@@ -84,7 +84,7 @@ async function getNextVersion(documentId, updateType = 'minor') {
 
 export function addEditableCallbacks({collection, options = {}}) {
   const {
-    fieldName = "content",
+    fieldName = "contents",
     // deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
     // // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
   } = options
@@ -92,8 +92,8 @@ export function addEditableCallbacks({collection, options = {}}) {
   const { typeName } = collection.options
 
   async function editorSerializationNew (doc, { currentUser }) {
-    if (doc[fieldName] && doc[fieldName].canonicalContent) {
-      const { data, type } = doc[fieldName].canonicalContent
+    if (doc[fieldName] && doc[fieldName].originalContents) {
+      const { data, type } = doc[fieldName].originalContents
       const html = await dataToHTML(data, type)
       const version = getInitialVersion(doc)
       const userId = currentUser._id
@@ -108,8 +108,8 @@ export function addEditableCallbacks({collection, options = {}}) {
   // }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
-    if (docData[fieldName] && docData[fieldName].canonicalContent) {
-      const { data, type } = docData[fieldName].canonicalContent
+    if (docData[fieldName] && docData[fieldName].originalContents) {
+      const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type)
       const defaultUpdateType = (document.draft && !docData.draft) ? 'major' : 'minor'
       const version = await getNextVersion(document._id, docData[fieldName].updateType || defaultUpdateType)
@@ -123,7 +123,7 @@ export function addEditableCallbacks({collection, options = {}}) {
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
 
   async function editorSerializationCreateRevision(doc) {
-    if (doc[fieldName] && doc[fieldName].canonicalContent) {
+    if (doc[fieldName] && doc[fieldName].originalContents) {
       Revisions.insert({
         ...doc[fieldName],
         documentId: doc._id,

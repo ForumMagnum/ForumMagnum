@@ -182,8 +182,8 @@ export const createDummyComment = async (user, data) => {
   const defaultUser = await createDefaultUser();
   let defaultData = {
     userId: user._id,
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         type: "markdown",
         data: "This is a test comment"
       }
@@ -221,7 +221,7 @@ export const createDummyConversation = async (user, data) => {
 
 export const createDummyMessage = async (user, data) => {
   let defaultData = {
-    content: convertToRaw(ContentState.createFromText('Dummy Message Content')),
+    contents: convertToRaw(ContentState.createFromText('Dummy Message Content')),
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};

@@ -19,6 +19,7 @@ import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
+import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 
 // On th client URL is defined as a global, on the server it needs to be imported from 'URL'
 // So we rename it to URLClass and resolve depending on where we are
@@ -185,7 +186,7 @@ class PostsPage extends Component {
     } else if (!post) {
       return <Error404/>
     } else {
-      const { html, plaintextDescription, markdown, wordCount = 0 } = post.content || {}
+      const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
@@ -194,6 +195,8 @@ class PostsPage extends Component {
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLink = post.feed && post.feed.url && new URLClass(post.feed.url).hostname
+      const { major } = extractVersionsFromSemver(post.version)
+      const hasMajorRevision = major > 1
 
       return (
         <div className={classes.root}>
@@ -223,7 +226,7 @@ class PostsPage extends Component {
                       <FormatDate date={post.postedAt}/>
                     </span>}
                     {!post.isEvent && <span className={classes.desktopDate}>
-                      {post.hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
+                      {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
                     </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>

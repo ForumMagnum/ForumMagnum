@@ -104,7 +104,7 @@ class Answer extends Component {
     const { comment, post, classes, index, answerCount } = this.props
     const { showEdit } = this.state
     const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
-    const { html = "" } = comment.content || {}
+    const { html = "" } = comment.contents || {}
     return (
       <div className={classes.root}>
         { comment.deleted ?

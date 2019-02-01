@@ -142,7 +142,7 @@ registerFragment(`
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -150,12 +150,12 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
     }
-    content {
+    contents {
       version
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -175,7 +175,7 @@ registerFragment(`
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -202,13 +202,13 @@ registerFragment(`
     ...PostsDetails
 
     # Content & Revisions
-    hasMajorRevision
-    content {
+    version
+    contents {
       version
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -225,13 +225,13 @@ registerFragment(`
     ...PostsDetails
 
     # Content & Revisions
-    hasMajorRevision
-    content(version: $version) {
+    version
+    contents(version: $version) {
       version
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS
@@ -248,7 +248,7 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
 
-    content {
+    contents {
       htmlHighlight
     }
     feed {

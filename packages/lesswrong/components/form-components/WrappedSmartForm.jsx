@@ -16,14 +16,17 @@ function WrappedSmartForm(props) {
       {...props}
       submitCallback = {(data) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
+        
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
-        const editableFields = _.object(editableCollectionsFields[collectionName].map(fieldName => [
-          fieldName,
-          (data[fieldName] && data[fieldName].canonicalContent && data[fieldName].canonicalContent.data) ? // Ensure that we have data
-            {canonicalContent: data[fieldName].canonicalContent} : // If so, constrain it to correct shape
-            undefined // If not, set field to undefined
-        ])
-        )
+        const editableFields = _.object(editableCollectionsFields[collectionName].map(fieldName => {
+          const { originalContents, updateType } = data && data[fieldName] || {}
+          return [
+            fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
+            (originalContents && originalContents.data) ? // Ensure that we have data
+              { originalContents, updateType } : // If so, constrain it to correct shape
+              undefined // If not, set field to undefined
+          ]
+        }))
         return {...data, ...editableFields}
       }}
     />  

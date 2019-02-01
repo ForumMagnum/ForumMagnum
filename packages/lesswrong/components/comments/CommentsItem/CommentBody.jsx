@@ -69,7 +69,7 @@ class CommentBody extends Component {
   render () {
     const { comment, classes, collapsed, truncationCharCount, truncated } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
-    const { html = "", markdown = ""} = comment.content || {}
+    const { html = "", markdown = ""} = comment.contents || {}
 
     const bodyClasses = classNames(
       { [classes.commentStyling]: !comment.answer,

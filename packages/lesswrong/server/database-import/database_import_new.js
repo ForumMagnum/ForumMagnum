@@ -357,8 +357,8 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     legacyData: post,
     title: post.title,
     userId: user && user._id,
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         type: "html",
         data: post.article
       },
@@ -396,8 +396,8 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
     isDeleted: comment.isDeleted,
     createdAt: moment(comment.date).toDate(),
     postedAt: moment(comment.date).toDate(),
-    content: {
-      canonicalContent: {
+    contents: {
+      originalContents: {
         type: "markdown",
         data: comment.body
       },

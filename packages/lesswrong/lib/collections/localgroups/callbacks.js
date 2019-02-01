@@ -24,8 +24,8 @@ function GroupsNewDefaultPost (group, context) {
 addCallback("localgroups.new.after", GroupsNewDefaultPost);
 
 const groupWelcomePostTemplate = {
-  content: {
-    canonicalContent: {
+  contents: {
+    originalContents: {
       type: "html",
       data: `<p><em>(The following are our suggestions for what kind of information is best to include in the welcome post of your group, feel free to replace them with whatever you think is best)</em></p>
       <p><em>What kind of events does your group usually run? What does it usually do?</em></p>

@@ -59,7 +59,7 @@ Revisions.addField([
       type: String,
       resolveAs: {
         type: 'String',
-        resolver: ({canonicalContent: {data, type}}) => dataToMarkdown(data, type)
+        resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
       }
     }
   },
@@ -69,7 +69,7 @@ Revisions.addField([
       type: Object,
       resolveAs: {
         type: 'JSON',
-        resolver: ({canonicalContent: {data, type}}) => dataToDraftJS(data, type)
+        resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
       }
     }
   },
@@ -79,7 +79,7 @@ Revisions.addField([
       type: String,
       resolveAs: {
         type: 'Int',
-        resolver: ({canonicalContent: {data, type}}) => {
+        resolver: ({originalContents: {data, type}}) => {
           const markdown = dataToMarkdown(data, type) || ""
           return markdown.split(" ").length
         }

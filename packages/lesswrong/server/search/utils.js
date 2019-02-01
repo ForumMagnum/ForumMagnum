@@ -40,8 +40,8 @@ Comments.toAlgolia = (comment) => {
     algoliaComment.postSlug = parentPost.slug;
   }
   let body = ""
-  if (comment.content && comment.content.canonicalContent && comment.content.canonicalContent.type) {
-    const { data, type } = comment.content.canonicalContent
+  if (comment.contents && comment.contents.originalContents && comment.contents.originalContents.type) {
+    const { data, type } = comment.contents.originalContents
     body = dataToMarkdown(data, type)
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
@@ -133,8 +133,8 @@ Posts.toAlgolia = (post) => {
   let paragraphCounter =  0;
   let algoliaPost = {};
   let body = ""
-  if (post.content && post.content.canonicalContent && post.content.canonicalContent.type) {
-    const { data, type } = post.content.canonicalContent
+  if (post.contents && post.contents.originalContents && post.contents.originalContents.type) {
+    const { data, type } = post.contents.originalContents
     body = dataToMarkdown(data, type)
   }
   if (body) {

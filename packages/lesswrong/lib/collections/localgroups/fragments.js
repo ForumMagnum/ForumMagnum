@@ -14,12 +14,12 @@ registerFragment(`
     googleLocation
     mongoLocation
     types
-    content {
+    contents {
       version
       updateType
       editedAt
       userId
-      canonicalContent
+      originalContents
       html
       markdown
       draftJS

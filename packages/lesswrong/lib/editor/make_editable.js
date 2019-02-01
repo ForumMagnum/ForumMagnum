@@ -4,7 +4,7 @@ import { ContentType } from '../collections/revisions/schema'
 import SimpleSchema from 'simpl-schema'
 
 const RevisionStorageType = new SimpleSchema({
-  canonicalContent: {type: ContentType, optional: true},
+  originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
   html: {type: String, optional: true},
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
@@ -50,12 +50,12 @@ export const makeEditable = ({collection, options = {}}) => {
   editableCollections.push(collection.options.collectionName)
   editableCollectionsFields[collection.options.collectionName] = [
     ...(editableCollectionsFields[collection.options.collectionName] || []), 
-    fieldName || "content"
+    fieldName || "contents"
   ] 
 
   collection.addField([
     { 
-      fieldName: fieldName || "content",
+      fieldName: fieldName || "contents",
       fieldSchema: {
         type: RevisionStorageType,
         inputType: 'UpdateRevisionDataInput',
@@ -70,16 +70,18 @@ export const makeEditable = ({collection, options = {}}) => {
         resolveAs: {
           type: 'Revision',
           arguments: 'version: String',
-          resolver: async (doc, { version }, { Revisions }) => {
-            const field = fieldName || "content"
+          resolver: async (doc, { version }, { currentUser, Revisions }) => {
+            const field = fieldName || "contents"
+            const { checkAccess } = Revisions
             if (version) {
-              return await Revisions.findOne({documentId: doc._id, version, fieldName: field})
+              const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
+              return checkAccess(currentUser, revision) ? revision : null
             }
             return {
               editedAt: doc[field] && doc[field].editedAt || new Date(),
               userId: doc[field] && doc[field].userId,
-              canonicalContentType: doc[field] && doc[field].canonicalContentType || "html",
-              canonicalContent: doc[field] && doc[field].canonicalContent || {},
+              originalContentsType: doc[field] && doc[field].originalContentsType || "html",
+              originalContents: doc[field] && doc[field].originalContents || {},
               html: doc[field] && doc[field].html,
               updateType: doc[field] && doc[field].updateType,
               version: doc[field] && doc[field].version
@@ -91,7 +93,7 @@ export const makeEditable = ({collection, options = {}}) => {
           multiLine:true,
           fullWidth:true,
           disableUnderline:true,
-          fieldName: fieldName || "content",
+          fieldName: fieldName || "contents",
           commentEditor,
           commentStyles,
           getLocalStorageId,
@@ -110,7 +112,7 @@ export const makeEditable = ({collection, options = {}}) => {
           arguments: 'limit: Int = 5',
           resolver: async (post, { limit }, { currentUser, Revisions }) => {
             const { checkAccess } = Revisions
-            const field = fieldName || "content"
+            const field = fieldName || "contents"
             const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
             const filteredDocs = checkAccess ? _.filter(resolvedDocs, d => checkAccess(currentUser, d)) : resolvedDocs
             const restrictedDocs = Users.restrictViewableFields(currentUser, Revisions, filteredDocs)
@@ -119,6 +121,20 @@ export const makeEditable = ({collection, options = {}}) => {
         }
       }
     },
+    {
+      fieldName: Utils.camelCaseify(`${fieldName}Version`),
+      fieldSchema: {
+        type: String,
+        viewableBy: ['guests'],
+        optional: true,
+        resolveAs: {
+          type: 'String',
+          resolver: (post) => {
+            return post[fieldName || "contents"].version
+          }
+        }
+      }
+    }
     // /**
     //   Draft-js content
     // */

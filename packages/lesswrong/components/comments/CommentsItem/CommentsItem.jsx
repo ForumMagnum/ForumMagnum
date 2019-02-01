@@ -68,7 +68,7 @@ class CommentsItem extends Component {
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
       return true;
-    if ((nextProps.post && nextProps.post.content && nextProps.post.content.version) !== (this.props.post && this.props.post.content && this.props.post.content.version)) 
+    if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version)) 
       return true;
     return false;
   }
@@ -247,7 +247,7 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
-    const markdown = comment.content && comment.content.markdown || ""
+    const markdown = comment.contents && comment.contents.markdown || ""
 
     if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
