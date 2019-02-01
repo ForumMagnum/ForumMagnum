@@ -234,6 +234,7 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
+    const { MetaInfo } = Components
 
     if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
@@ -253,6 +254,7 @@ class CommentsItem extends Component {
             </div>
           }
           <div>
+            { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
             { showReplyButton &&
               <a className="comments-item-reply-link" onClick={this.showReply}>
                 <FormattedMessage id="comments.reply"/>
