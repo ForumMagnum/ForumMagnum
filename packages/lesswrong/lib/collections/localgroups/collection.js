@@ -3,6 +3,7 @@ import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import './permissions.js';
 import { makeEditable } from '../../editor/make_editable.js'
+import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
      newCheck: (user, document) => {
@@ -57,3 +58,5 @@ makeEditable({
 })
 
 export default Localgroups;
+
+addUniversalFields({collection: Localgroups})

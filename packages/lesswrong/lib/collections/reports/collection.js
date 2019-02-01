@@ -1,6 +1,7 @@
 import schema from './schema.js';
 import './permissions.js'
 import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
+import { addUniversalFields } from '../../collectionUtils'
 
 /**
  * @summary Telescope Messages namespace
@@ -22,3 +23,5 @@ const Reports = createCollection({
 });
 
 export default Reports;
+
+addUniversalFields({collection: Reports})

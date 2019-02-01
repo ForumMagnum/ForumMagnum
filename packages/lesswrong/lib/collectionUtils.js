@@ -115,3 +115,17 @@ export function schemaDefaultValue(defaultValue) {
     canAutofillDefault: true,
   }
 }
+
+export function addUniversalFields({ collection }) {
+  collection.addField([
+    {
+      fieldName: 'schemaVersion',
+      fieldSchema: {
+        type: Number,
+        canRead: ['guests'],
+        ...schemaDefaultValue(1)
+      }
+    }
+  ])
+  ensureIndex(collection, {schemaVersion: 1});
+}
