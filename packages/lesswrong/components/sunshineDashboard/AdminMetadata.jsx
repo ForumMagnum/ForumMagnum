@@ -22,16 +22,19 @@ const AdminMetadata = ({ adminMetadata, adminMetadataLoading, classes }) => {
   if (adminMetadataLoading)
     return <Components.Loading/>
   
+  let missingIndexes = JSON.parse(adminMetadata.missingIndexes);
+  let extraIndexes = JSON.parse(adminMetadata.extraIndexes);
+  
   return (<div>
     <h4>Missing Indexes</h4>
-    { adminMetadata.missingIndexes.length === 0
+    { missingIndexes.length === 0
       ? "No missing indexes"
       : <table className={classes.indexesTable}><tbody>
           <tr>
             <td>Collection</td>
             <td>Index</td>
           </tr>
-          {adminMetadata.missingIndexes.map((missingIndex,i) => (
+          {missingIndexes.map((missingIndex,i) => (
             <tr key={i}>
               <td>{missingIndex.collectionName}</td>
               <td className={classes.indexRow}>{JSON.stringify(missingIndex.index)}</td>
@@ -41,14 +44,14 @@ const AdminMetadata = ({ adminMetadata, adminMetadataLoading, classes }) => {
     }
     
     <h4>Extra Indexes</h4>
-    { adminMetadata.extraIndexes.length === 0
+    { extraIndexes.length === 0
       ? "No extra indexes"
       : <table className={classes.indexesTable}><tbody>
           <tr>
             <td>Collection</td>
             <td>Index</td>
           </tr>
-          {adminMetadata.extraIndexes.map((extraIndex,i) => (
+          {extraIndexes.map((extraIndex,i) => (
             <tr key={i}>
               <td>{extraIndex.collectionName}</td>
               <td className={classes.indexRow}>{JSON.stringify(extraIndex.index)}</td>

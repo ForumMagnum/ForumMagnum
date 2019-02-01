@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { Votes } from "meteor/vulcan:voting";
+import { Votes } from '../../collections/votes';
 import { addCallback } from 'meteor/vulcan:core';
 import { getVotePower } from '../voting/new_vote_types.js'
 import { getCollection } from 'meteor/vulcan:lib';

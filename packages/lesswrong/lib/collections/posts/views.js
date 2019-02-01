@@ -75,14 +75,14 @@ Posts.addView("userPosts", terms => ({
   options: {
     limit: 5,
     sort: {
-      score: -1,
+      postedAt: -1,
     }
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, score: -1 }),
+  augmentForDefaultView({ userId: 1, postedAt: -1 }),
   {
-    name: "posts.userId_score",
+    name: "posts.userId_postedAt",
   }
 );
 
@@ -486,6 +486,25 @@ Posts.addView("pastEvents", function (terms) {
 })
 // Same index as events
 
+Posts.addView("upcomingEvents", function (terms) {
+  const oneDayAgo = moment().subtract(1, 'days').toDate();
+
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      baseScore: {$gte: 1},
+      startTime: {$gte: oneDayAgo}
+    },
+    options: {
+      sort: {
+        startTime: 1,
+      }
+    }
+  }
+})
+// Same index as events
+
 Posts.addView("groupPosts", function (terms) {
   return {
     selector: {
@@ -527,12 +546,10 @@ Posts.addView("communityResourcePosts", function () {
 // No index needed
 
 Posts.addView("sunshineNewPosts", function () {
-  const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
       reviewedByUserId: {$exists: false},
       frontpageDate: {$in: [false,null] },
-      createdAt: {$gt: twoDaysAgo},
       authorIsUnreviewed: null
     },
     options: {
@@ -574,12 +591,16 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
       af: true,
     },
     options: {
-      sort: {lastCommentedAt:-1},
+      sort: {afLastCommentedAt:-1},
       limit: terms.limit || 12,
     }
   }
 })
-// Covered by the same index as `recentDiscussionThreadsList`
+ensureIndex(Posts,
+  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
+  { name: "posts.afRecentDiscussionThreadsList", }
+);
+
 
 // Used in Posts.find() in various places
 ensureIndex(Posts, {userId:1, createdAt:-1});

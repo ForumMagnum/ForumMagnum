@@ -43,6 +43,7 @@ const withListOptions = {
   collection: Posts,
   queryName: 'sunshineNewPostsListQuery',
   fragmentName: 'PostsList',
+  enableCache: true
 };
 
 registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withUser, withStyles(styles, {name:"SunshineNewPostsList"}));

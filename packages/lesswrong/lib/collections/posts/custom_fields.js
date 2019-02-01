@@ -1,6 +1,6 @@
 import { Posts } from './collection';
 import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
@@ -59,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser && currentUser.moderationGuidelinesHtmlBody)
+  return !!(currentUser && (currentUser.moderationGuidelinesHtmlBody || currentUser.moderationStyle))
 }
 
 Posts.addField([
@@ -347,8 +347,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
     }
   },
@@ -410,8 +410,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       resolveAs: {
         fieldName: 'canonicalSequence',
@@ -432,8 +432,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       hidden: false,
       control: "text",
       group: formGroups.canonicalSequence,
@@ -457,8 +457,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text",
@@ -479,8 +479,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
@@ -493,8 +493,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
@@ -1058,8 +1058,15 @@ Posts.addField([
             tocData = Utils.extractTableOfContents(document.htmlBody)
           }
           if (tocData) {
-            const commentCount = await Comments.find(
-              {answer:false, parentAnswerId:{$in:[undefined,null]}, postId: document._id }).count()
+            const selector = {
+              answer:false,
+              parentAnswerId:{$in:[undefined,null]},
+              postId: document._id
+            }
+            if (document.af && getSetting('AlignmentForum', false)) {
+              selector.af = true
+            }
+            const commentCount = await Comments.find(selector).count()
             tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
           }
           return tocData;

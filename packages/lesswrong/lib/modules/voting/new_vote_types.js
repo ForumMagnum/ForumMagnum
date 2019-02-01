@@ -1,4 +1,4 @@
-import { addVoteType } from 'meteor/vulcan:voting';
+import { addVoteType } from '../vote.js';
 // LESSWRONG – Added userSmallVotePower and userBigVotePower
 
 export const getVotePower = (karma, voteType) => {

@@ -1,6 +1,6 @@
 /* global Vulcan */
 import Users from 'meteor/vulcan:users';
-import { Votes } from 'meteor/vulcan:voting';
+import { Votes } from '../../lib/collections/votes';
 import { getCollection } from 'meteor/vulcan:lib';
 
 Vulcan.rerunAFVotes = () => {
