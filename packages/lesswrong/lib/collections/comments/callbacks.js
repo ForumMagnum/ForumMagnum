@@ -223,7 +223,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     });
 
     let firstMessageContent =
-        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content.`
+        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
       firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
