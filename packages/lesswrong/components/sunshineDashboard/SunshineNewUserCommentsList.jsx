@@ -16,10 +16,8 @@ const styles = theme => ({
 })
 
 const SunshineNewUserCommentsList = ({loading, results, classes}) => {
-  const { Loading, FormatDate, MetaInfo } = Components
-  if (loading) {
-    return <Loading />
-  } else if (results) {
+  const { FormatDate, MetaInfo } = Components
+  if (results) {
     return <div>
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <MetaInfo>

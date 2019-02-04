@@ -7,6 +7,7 @@ Posts collection
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { addUniversalFields } from '../../collectionUtils'
 
 /**
  * @summary The global namespace for Posts.
@@ -97,3 +98,5 @@ Posts.checkAccess = (currentUser, post) => {
     return Users.canDo(currentUser, `posts.view.${status.label}`);
   }
 }
+
+addUniversalFields({collection: Posts})

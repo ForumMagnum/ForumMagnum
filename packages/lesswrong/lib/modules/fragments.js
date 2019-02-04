@@ -98,6 +98,7 @@ extendFragment('UsersCurrent', `
       }
     }
   }
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -389,6 +390,8 @@ registerFragment(`
     bigUpvoteCount
     smallDownvoteCount
     bigDownvoteCount
+    banned
+    reviewedByUserId
   }
 `);
 
@@ -524,6 +527,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 

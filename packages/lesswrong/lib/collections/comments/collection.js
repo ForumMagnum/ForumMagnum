@@ -8,6 +8,7 @@ import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../posts';
+import { addUniversalFields } from '../../collectionUtils'
 /**
  * @summary The global namespace for Comments.
  * @namespace Comments
@@ -63,3 +64,5 @@ Comments.checkAccess = (currentUser, comment) => {
     return true;
   }
 }
+
+addUniversalFields({collection: Comments})

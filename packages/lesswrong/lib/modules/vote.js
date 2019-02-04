@@ -271,7 +271,7 @@ If power is a function, call it on user
 
 */
 const getVotePower = ({ user, voteType, document }) => {
-  const power = voteTypes[voteType] && voteTypes[voteType].power || 1;
+  const power = (voteTypes[voteType] && voteTypes[voteType].power) || 1;
   return typeof power === 'function' ? power(user, document) : power;
 };
 

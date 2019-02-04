@@ -1,6 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
+import { addUniversalFields } from '../../collectionUtils'
 
 /**
  * @summary Telescope Conversations namespace
@@ -44,3 +45,4 @@ const Conversations = createCollection({
 export default Conversations;
 
 // Conversations,
+addUniversalFields({collection: Conversations})

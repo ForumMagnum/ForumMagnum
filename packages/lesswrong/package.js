@@ -23,7 +23,6 @@ Package.onUse( function(api) {
     'vulcan:embed',
     'vulcan:admin',
     'vulcan:users',
-    'vulcan:routing',
   ]);
 
   api.mainModule('server.js', 'server');
