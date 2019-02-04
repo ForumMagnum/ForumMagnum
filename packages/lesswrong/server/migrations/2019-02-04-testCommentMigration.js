@@ -10,7 +10,9 @@ registerMigration({
       description: "Checking how long migrating a lot of comments takes",
       collection: Comments,
       batchSize: 1000,
-      unmigratedDocumentQuery: {}, 
+      unmigratedDocumentQuery: {
+        schemaVersion: {$lt: 1}
+      }, 
       migrate: async (documents) => {
         const updates = documents.map(comment => {
           return {
@@ -27,7 +29,8 @@ registerMigration({
                       userId: "userIdReference", 
                       editedAt: "postedAtReference" 
                   }
-                }
+                },
+                schemaVersion: 1
               }
             }
           }
