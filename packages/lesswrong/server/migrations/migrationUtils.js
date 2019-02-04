@@ -139,33 +139,3 @@ export async function migrateDocuments({ description, collection, batchSize, unm
   // eslint-disable-next-line no-console
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
-
-// Given a collection which has a field that has a default value (specified
-// with ...schemaDefaultValue), fill in the default value for any rows where it
-// is missing.
-export async function fillDefaultValues({ collection, fieldName })
-{
-  if (!collection) throw new Error("Missing required argument: collection");
-  if (!fieldName) throw new Error("Missing required argument: fieldName");
-  const schema = collection.simpleSchema()._schema
-  const defaultValue = schema[fieldName].defaultValue;
-  if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
-  if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
-  if (!schema[fieldName].canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
-  
-  // eslint-disable-next-line no-console
-  console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
-  
-  const writeResult = await collection.update({
-    [fieldName]: null
-  }, {
-    $set: {
-      [fieldName]: defaultValue
-    }
-  }, {
-    multi: true,
-  });
-  
-  // eslint-disable-next-line no-console
-  console.log(`Done. ${writeResult.nModified} rows affected`);
-}
