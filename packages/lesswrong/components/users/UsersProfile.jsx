@@ -141,9 +141,9 @@ const UsersProfile = (props) => {
 
     const displaySequenceSection = (canEdit, user)  => {
       if (getSetting('AlignmentForum', false)) {
-          return (canEdit && user.afSequenceDraftCount || user.afSequenceCount) || (!canEdit && user.afSequenceCount)
+          return ((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || (!canEdit && user.afSequenceCount)
       } else {
-          return (canEdit && user.sequenceDraftCount || user.sequenceCount) || (!canEdit && user.sequenceCount)
+          return ((canEdit && user.sequenceDraftCount) || user.sequenceCount) || (!canEdit && user.sequenceCount)
       }
     }
 

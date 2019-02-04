@@ -26,7 +26,7 @@ export default function getHeaderSubtitleData(routeName, query, params, client) 
     return communitySubtitle()
   } else if (routeName == "groups.post") {
     return communitySubtitle()
-  } else if (!getSetting('AlignmentForum', false) && routeName == "alignment.forum" || (query && query.af)) {
+  } else if ((!getSetting('AlignmentForum', false) && routeName == "alignment.forum") || (query && query.af)) {
     return alignmentSubtitle()
   }
 }

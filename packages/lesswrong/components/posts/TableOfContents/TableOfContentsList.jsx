@@ -30,7 +30,7 @@ class TableOfContentsList extends Component {
 
     const sections = sectionData ? sectionData.sections : []
 
-    const title = document && document.title || sectionData && sectionData.document && sectionData.document.title
+    const title = (document && document.title) || (sectionData && sectionData.document && sectionData.document.title);
     
     return <div>
       <div>
@@ -71,7 +71,7 @@ class TableOfContentsList extends Component {
     let anchor = document.getElementById(anchorName);
     if (anchor) {
       let anchorBounds = anchor.getBoundingClientRect();
-      return anchorBounds.top + anchorBounds.height/2;
+      return anchorBounds.top + (anchorBounds.height/2);
     } else {
       return null
     }
