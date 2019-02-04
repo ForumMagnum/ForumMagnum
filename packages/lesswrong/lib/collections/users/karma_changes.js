@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { getKarmaChanges } from "../../karmaChanges.js";
+import { getKarmaChanges, getKarmaChangeDateRange, karmaChangeNotifierDefaultSettings } from "../../karmaChanges.js";
 import { addGraphQLSchema, addGraphQLResolvers, Connectors } from 'meteor/vulcan:core';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
@@ -21,6 +21,7 @@ addGraphQLSchema(`
     totalChange: Int
     startDate: Date
     endDate: Date
+    updateFrequency: String
     posts: [PostWithScoreChange]
     comments: [CommentWithScoreChange]
   }
@@ -52,6 +53,11 @@ addGraphQLResolvers({
         comment: commentsById[comment._id],
       }));
     },
+    updateFrequency: async (karmaChangesJSON, args, {currentUser}) => {
+      if (!currentUser) return null;
+      const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
+      return settings.updateFrequency;
+    },
   }
 })
 
@@ -61,18 +67,22 @@ Users.addField([
     fieldSchema: {
       viewableBy: Users.owns,
       type: 'KarmaChanges',
+      optional: true,
       resolveAs: {
         arguments: 'startDate: Date, endDate: Date',
         type: 'KarmaChanges',
-        resolver: async (document, args, context) => {
-          let {startDate,endDate} = args;
+        resolver: async (document, {startDate,endDate}, {currentUser}) => {
+          if (!currentUser)
+            return null;
           
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
-            // TODO
-            const yesterday = new Date(new Date() - (60*60*24*1000));
-            startDate = yesterday;
-            endDate = new Date();
+            const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
+            const lastOpened = currentUser.karmaChangeLastOpened;
+            
+            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, now: new Date()})
+            startDate = start;
+            endDate = end;
           }
           
           return getKarmaChanges({

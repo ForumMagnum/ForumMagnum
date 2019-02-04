@@ -21,7 +21,7 @@ import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 
-const getTextColor = theme => {
+export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
     return theme.palette.primary.contrastText
   } else if (theme.palette.headerType === 'secondary') {
@@ -47,7 +47,7 @@ const styles = theme => ({
     flex: 1,
   },
   titleLink: {
-    color: getTextColor(theme),
+    color: getHeaderTextColor(theme),
     verticalAlign: 'middle',
     fontSize: 19,
     position: "relative",
@@ -182,9 +182,9 @@ class Header extends Component {
                   <NoSSR>
                     <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
                   </NoSSR>
+                  {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
                   <KarmaChangeNotifier/>
-                  {currentUser ? <UsersMenu color={getTextColor(theme)} /> : <UsersAccountMenu color={getTextColor(theme)} />}
-                  {currentUser && <NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                  {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>
             </AppBar>

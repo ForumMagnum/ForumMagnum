@@ -576,6 +576,38 @@ Users.addField([
       label: "Notifications For Replies to My Comments",
     }
   },
+  
+  /**
+    Karma-change notifier settings
+  */
+  {
+    fieldName: 'karmaChangeNotifierSettings',
+    fieldSchema: {
+      group: formGroups.notifications,
+      type: Object, // See KarmaChangeNotifierSettings.jsx
+      optional: true,
+      blackbox: true,
+      control: "KarmaChangeNotifierSettings",
+      canRead: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canCreate: [Users.owns, 'admins'],
+    },
+  },
+  
+  /**
+    Time at which the karma-change notification was last opened (clicked)
+  */
+  {
+    fieldName: 'karmaChangeLastOpened',
+    fieldSchema: {
+      hidden: true,
+      type: Date,
+      optional: true,
+      canCreate: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canRead: [Users.owns, 'admins'],
+    },
+  },
 
   /**
     Email settings

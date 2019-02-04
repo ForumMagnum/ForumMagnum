@@ -81,20 +81,24 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  karmaChangeNotifierSettings
   karmaChanges {
     totalChange
+    updateFrequency
     startDate
     endDate
     posts {
       scoreChange
       post {
         title
+        pageUrlRelative
       }
     }
     comments {
       scoreChange
       comment {
-        body
+        plaintextExcerpt
+        pageUrlRelative
       }
     }
   }
