@@ -29,7 +29,7 @@ registerMigration({
                 $set: {
                   contents: {
                       originalContents: {
-                          type: determineCanonicalType({draftJS: post.content, }),
+                          type: determineCanonicalType({draftJS: post.content, lastEditedAs: post.lastEditedAs}),
                           data: "htmlReference"
                       },
                       html: "htmlReference", 

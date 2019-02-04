@@ -125,8 +125,9 @@ export async function migrateDocuments({ description, collection, batchSize, unm
     // Migrate documents in the batch
     try {
       await migrate(documents);
-      
       documentsAffected += documents.length;
+      // eslint-disable-next-line no-console
+      console.log("Documents updated: ", documentsAffected)
     } catch(e) {
       // eslint-disable-next-line no-console
       console.error("Error running migration");
