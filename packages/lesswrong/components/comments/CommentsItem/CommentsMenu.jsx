@@ -53,9 +53,9 @@ class CommentsMenu extends PureComponent {
           <MoveToAlignmentMenuItem comment={comment} post={post}/>
           <SuggestAlignmentMenuItem comment={comment} post={post}/>
           { Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post) && <Divider />}
-          <MoveToAnswersMenuItem comment={comment}/>
+          <MoveToAnswersMenuItem comment={comment} post={post}/>
           <DeleteCommentMenuItem comment={comment} post={post}/>
-          <RetractCommentMenuItem comment={comment} pst={post}/>
+          <RetractCommentMenuItem comment={comment}/>
           <BanUserFromPostMenuItem comment={comment} post={post}/>
           <BanUserFromAllPostsMenuItem comment={comment} post={post}/>
           <BanUserFromAllPersonalPostsMenuItem comment={comment} post={post}/>

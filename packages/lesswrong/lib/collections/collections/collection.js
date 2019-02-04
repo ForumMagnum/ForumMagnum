@@ -2,6 +2,7 @@ import { createCollection, getDefaultResolvers, getDefaultMutations } from 'mete
 // import schema from './schema.js';
 import schema from './schema.js';
 import { makeEditable } from '../../editor/make_editable.js';
+import { addUniversalFields } from '../../collectionUtils'
 
 export const Collections = createCollection({
   collectionName: 'Collections',
@@ -26,3 +27,4 @@ makeEditable({
   collection: Collections,
   options: makeEditableOptions
 })
+addUniversalFields({collection: Collections})

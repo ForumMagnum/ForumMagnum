@@ -2,6 +2,7 @@ import { createCollection, getDefaultResolvers, getDefaultMutations } from 'mete
 import Users from 'meteor/vulcan:users';
 import schema from './schema.js';
 import { makeEditable } from '../../editor/make_editable.js';
+import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
   newCheck: (user, document) => {
@@ -69,3 +70,4 @@ makeEditable({
   collection: Sequences,
   options: makeEditableOptions
 })
+addUniversalFields({collection: Sequences})

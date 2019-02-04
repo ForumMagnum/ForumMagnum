@@ -3,6 +3,7 @@ import schema from './schema.js';
 import Users from 'meteor/vulcan:users';
 import Sequences from '../sequences/collection.js';
 import { makeEditable } from '../../editor/make_editable.js';
+import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
   newCheck: (user, document) => {
@@ -49,3 +50,4 @@ makeEditable({
   collection: Chapters,
   options: makeEditableOptions
 })
+addUniversalFields({collection: Chapters})

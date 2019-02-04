@@ -2,6 +2,7 @@ import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
+import { addUniversalFields } from '../../collectionUtils'
 
 export const formGroups = {
   moderationGroup: {
@@ -872,3 +873,5 @@ makeEditable({
   collection: Users,
   options: makeEditableOptionsModeration
 })
+
+addUniversalFields({collection: Users})
