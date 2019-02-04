@@ -53,26 +53,28 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const router = this.props.router;
+    const {router} = this.props;
+    const filters = (router.location.query && router.location.query.filters) || [];
+    
     const postsListTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
       limit: 5,
-      filters: router.location.query && router.location.query.filters || [],
+      filters: filters,
     }
     const groupsListTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
       limit: 3,
-      filters: router.location.query && router.location.query.filters || [],
+      filters: filters,
     }
     const mapEventTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      filters: router.location.query && router.location.query.filters || [],
+      filters: filters,
     }
     return (
       <div className="community-home">

@@ -36,8 +36,8 @@ class PostsViews extends Component {
     const query = props.router.location.query
     this.state = {
       anchorEl: null,
-      view: query && query.view || "new",
-      filter: query && query.filter || "all"
+      view: (query && query.view) || "new",
+      filter: (query && query.filter) || "all"
     }
   }
 
@@ -89,7 +89,7 @@ class PostsViews extends Component {
       views = views.concat(adminViews);
     }
     const query = _.clone(router.location.query);
-    const currentView = query && query.view || "new"
+    const currentView = (query && query.view) || "new"
 
     return (
       <div>

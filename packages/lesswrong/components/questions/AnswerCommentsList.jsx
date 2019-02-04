@@ -52,18 +52,18 @@ class AnswerCommentsList extends PureComponent {
 
   constructor(props) {
     super(props);
+    
+    const { lastEvent, post } = this.props;
+    
     this.state = {
       commenting: false,
       loadedMore: false,
-      highlightDate: this.props.lastEvent &&
-        this.props.lastEvent.properties &&
-        this.props.lastEvent.properties.createdAt &&
-        new Date(this.props.lastEvent.properties.createdAt)
-        ||
-        this.props.post &&
-        this.props.post.lastVisitedAt &&
-        new Date(this.props.post.lastVisitedAt) ||
-        new Date(),
+      highlightDate: 
+        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+          && new Date(lastEvent.properties.createdAt))
+        || (post && post.lastVisitedAt
+          && new Date(post.lastVisitedAt))
+        || new Date(),
     }
   }
 
