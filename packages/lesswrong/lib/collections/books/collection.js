@@ -1,6 +1,7 @@
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 // import schema from './schema.js';
 import schema from './schema.js';
+import { addUniversalFields } from '../../collectionUtils'
 
 export const Books = createCollection({
   collectionName: 'Books',
@@ -15,3 +16,5 @@ export const Books = createCollection({
 });
 
 export default Books;
+
+addUniversalFields({collection: Books})
