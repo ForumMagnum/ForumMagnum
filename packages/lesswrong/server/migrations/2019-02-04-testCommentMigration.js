@@ -28,9 +28,10 @@ registerMigration({
                       version: "1.0.0", 
                       userId: "userIdReference", 
                       editedAt: "postedAtReference" 
-                  }
+                  },
+                  schemaVersion: 1
                 },
-                schemaVersion: 1
+                
               }
             }
           }
