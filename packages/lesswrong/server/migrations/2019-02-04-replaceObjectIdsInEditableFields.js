@@ -16,22 +16,36 @@ registerMigration({
           _id: {$type: "objectId"}
         }, 
         migrate: async (documents) => {
-          const updates = documents.map(doc => {
-            return {
-              updateOne: {
-                filter: {_id: doc._id},
-                update: {
-                  $set: {
-                    _id: doc._id.valueOf()
-                  }
+          for (let doc of documents) {
+            await collection.remove({_id: doc._id}, true)
+            await collection.insert(
+              {
+                ...doc,
+                _id: doc._id.valueOf(),
+                username: doc.username + "x"
+              }
+            )
+          }
+        }
+      })
+      await migrateDocuments({
+        description: `Replace user Ids that are object ids with strings in ${collectionName}`,
+        collection,
+        batchSize: 1000,
+        unmigratedDocumentQuery: {
+          userId: {$type: "objectId"}
+        }, 
+        migrate: async (documents) => {
+          for (let doc of documents) {
+            await collection.update(
+              {_id: doc._id},
+              {
+                $set: {
+                  userId: doc.userId.valueOf()
                 }
               }
-            }
-          })
-          await collection.rawCollection().bulkWrite(
-            updates, 
-            { ordered: false }
-          )  
+            )
+          }
         }
       })  
     }
