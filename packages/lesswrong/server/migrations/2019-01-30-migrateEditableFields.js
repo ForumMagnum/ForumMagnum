@@ -40,20 +40,36 @@ registerMigration({
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
-          schemaVersion: {$lt: 2}
+          schemaVersion: {$lt: 3}
         }, 
         migrate: async (documents) => {
-          const updates = documents.map(post => {
+          const updates = documents.map(doc => {
             const newFields = _.object(editableCollectionsFields[collectionName].map((fieldName) => {
               if (fieldName === "contents") {
                 return [
                   "contents",
                   {
-                    originalContents: determineCanonicalContent(post),
-                    html: post.htmlBody,
-                    version: determineSemVer(post),
-                    userId: post.userId,
-                    editedAt: post.postedAt
+                    originalContents: determineCanonicalContent(doc),
+                    html: doc.htmlBody,
+                    version: determineSemVer(doc),
+                    userId: doc.userId,
+                    editedAt: doc.postedAt || doc.createdAt
+                  }
+                ]
+              }
+              if (fieldName === "description") { // Special case for sequences, books, collections and chapters
+                return [
+                  "contents",
+                  {
+                    originalContents: determineCanonicalContent({
+                      content: doc.description,
+                      body: doc.plaintextDescription,
+                      htmlBody: doc.htmlDescription
+                    }),
+                    html: doc.htmlDescription,
+                    version: determineSemVer(doc),
+                    userId: doc.userId,
+                    editedAt: doc.postedAt || doc.createdAt
                   }
                 ]
               }
@@ -61,24 +77,24 @@ registerMigration({
                 fieldName,
                 {
                   originalContents: determineCanonicalContent({
-                    content: post[`${fieldName}Content`], 
-                    lastEditedAs: post[`${fieldName}LastEditedAs`], 
-                    body: post[`${fieldName}Body`],
-                    htmlBody: post[`${fieldName}HtmlBody`]
+                    content: doc[`${fieldName}Content`], 
+                    lastEditedAs: doc[`${fieldName}LastEditedAs`], 
+                    body: doc[`${fieldName}Body`],
+                    htmlBody: doc[`${fieldName}HtmlBody`]
                   }),
-                  html: post[`${fieldName}HtmlBody`],
-                  version: determineSemVer(post),
-                  userId: post.userId,
-                  editedAt: post.postedAt
+                  html: doc[`${fieldName}HtmlBody`],
+                  version: determineSemVer(doc),
+                  userId: doc.userId,
+                  editedAt: doc.postedAt
                 }
               ]
             }))
             return {
               updateOne: {
-                filter: {_id: post._id},
+                filter: {_id: doc._id},
                 update: {
                   $set: {
-                    schemaVersion: 2,
+                    schemaVersion: 3,
                     ...newFields
                   }
                 }
