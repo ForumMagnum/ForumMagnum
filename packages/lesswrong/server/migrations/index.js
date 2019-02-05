@@ -6,3 +6,4 @@
 import './2019-01-30-migrateEditableFields'
 import './2019-02-04-testCommentMigration'
 import './2019-02-04-addSchemaVersionEverywhere'
+import './2019-02-04-replaceObjectIdsInEditableFields'
