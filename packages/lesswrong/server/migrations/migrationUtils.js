@@ -132,7 +132,7 @@ export async function migrateDocuments({ description, collection, batchSize, unm
       // eslint-disable-next-line no-console
       console.error("Error running migration");
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(JSON.stringify(e));
       throw(e);
     }
   }
