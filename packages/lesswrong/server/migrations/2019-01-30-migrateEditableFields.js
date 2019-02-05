@@ -1,107 +1,96 @@
-import { Votes } from '../../lib/collections/votes';
-import { Posts } from '../../lib/collections/posts'
-import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
-import { Collections } from 'meteor/vulcan:core';
+import { registerMigration, migrateDocuments } from './migrationUtils';
+import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import { getCollection } from 'meteor/vulcan:core'
+import { convertFromRaw, convertToRaw } from 'draft-js';
 
-function determineCanonicalType({ draftJS, lastEditedAs }) {
-  if (lastEditedAs) { return lastEditedAs }
-  if (draftJS) { return "draftJS" }
-  return "html"
+function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }) {
+  if (lastEditedAs) {
+    switch(lastEditedAs) {
+      case ("draft-js"): {
+        return {type: "draftJS", data: draftJS }
+      }
+      case ("markdown"): {
+        return {type: "markdown", data: markdown || ""}
+      }
+      default: {
+        return {type: "html", data: html || ""}
+      }
+    }
+  }
+  try {
+    convertFromRaw(draftJS)
+    return {type: "draftJS", data: draftJS}
+  } catch(e) {
+    return {type: "html", data: html || ""}
+  }
+}
+
+function determineSemVer({draft}) {
+  return draft ? "0.1.0" : "1.0.0"
 }
 
 registerMigration({
   name: "migrateEditableFields",
-//   idempotent: true,
+  idempotent: true,
   action: async () => {
-    await migrateDocuments({
-      description: "Migrate old posts",
-      collection: Posts,
-      batchSize: 100,
-      unmigratedDocumentQuery: {
-        htmlBody: {$exists: true}
-      }, 
-      migrate: async (documents) => {
-        const updates = documents.map(post => {
-          return {
-            updateOne: {
-              filter: {_id: post._id},
-              update: {
-                $set: {
-                  contents: {
-                      originalContents: {
-                          type: determineCanonicalType({draftJS: post.content, lastEditedAs: post.lastEditedAs}),
-                          data: "htmlReference"
-                      },
-                      html: "htmlReference", 
-                      version: "1.0.0", 
-                      userId: "userIdReference", 
-                      editedAt: "postedAtReference" 
+    for (let collectionName of editableCollections) {
+      const collection = getCollection(collectionName)
+      await migrateDocuments({
+        description: `Migrate ${collectionName} to new content fields`,
+        collection,
+        batchSize: 100,
+        unmigratedDocumentQuery: {
+          schemaVersion: {$lt: 1}
+        }, 
+        migrate: async (documents) => {
+          const updates = documents.map(post => {
+            const newFields = _.object(editableCollectionsFields[collectionName].map((fieldName) => {
+              if (fieldName === "contents") {
+                return [
+                  "contents",
+                  {
+                    originalContents: determineCanonicalContent(post),
+                    html: post.htmlBody,
+                    version: determineSemVer(post),
+                    userId: post.userId,
+                    editedAt: post.postedAt
+                  }
+                ]
+              }
+              return [
+                fieldName,
+                {
+                  originalContents: determineCanonicalContent({
+                    content: post[`${fieldName}Content`], 
+                    lastEditedAs: post[`${fieldName}LastEditedAs`], 
+                    body: post[`${fieldName}Body`],
+                    htmlBody: post[`${fieldName}HtmlBody`]
+                  }),
+                  html: post[`${fieldName}HtmlBody`],
+                  version: determineSemVer(post),
+                  userId: post.userId,
+                  editedAt: post.postedAt
+                }
+              ]
+            }))
+            return {
+              updateOne: {
+                filter: {_id: post._id},
+                update: {
+                  $set: {
+                    schemaVersion: 1,
+                    ...newFields
                   }
                 }
               }
             }
-          }
-        })
-      }
-    })
-    await migrateDocuments({
-      description: "Fill in authorId field",
-      collection: Votes,
-      batchSize: 100,
-      unmigratedDocumentQuery: {
-        authorId: {$exists:false},
-      },
-      migrate: async (documents) => {
-        // Get the set of collections that at least one vote in the batch
-        // is voting on
-        const collectionNames = _.uniq(_.pluck(documents, "collectionName"))
-        
-        for(let collectionName of collectionNames) {
-          const collection = _.find(Collections, c => c.collectionName==collectionName);
-          
-          // Go through the votes in the batch and pick out IDs of voted-on
-          // documents in this collection.
-          const votesToUpdate = _.filter(documents, doc => doc.collectionName==collectionName)
-          const idsToFind = _.pluck(votesToUpdate, "documentId");
-          
-          // Retrieve the voted-on documents.
-          const votedDocuments = collection.find({
-            _id: {$in: idsToFind}
-          }).fetch();
-          
-          // Extract author IDs from the voted-on documents.
-          let authorIdsByDocument = {};
-          _.each(votedDocuments, doc => authorIdsByDocument[doc._id] = doc.userId);
-          
-          // Fill in authorId on the votes.
-          const updates = _.map(votesToUpdate, vote => {
-            return {
-              updateOne: {
-                filter: {_id: vote._id},
-                update: {
-                  $set: {
-                    authorId: authorIdsByDocument[vote.documentId]
-                  }
-                },
-                upsert: false,
-              }
-            };
-          });
-          await Votes.rawCollection().bulkWrite(
-            updates,
+          })
+          await collection.rawCollection().bulkWrite(
+            updates, 
             { ordered: false }
-          );
+          )  
         }
-      },
-    });
-    
-    await fillDefaultValues({
-      collection: Votes,
-      fieldName: "cancelled",
-    });
-    await fillDefaultValues({
-      collection: Votes,
-      fieldName: "isUnvote",
-    });
+      })  
+    }
   },
 });

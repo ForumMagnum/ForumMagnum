@@ -20,6 +20,7 @@ function domBuilder(html) {
 
 
 export function dataToMarkdown(data, type) {
+  if (!data) return ""
   switch (type) {
     case "markdown": {
       return data

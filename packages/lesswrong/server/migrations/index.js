@@ -2,5 +2,7 @@
 // infrastructure was put in place) live in this directory (server/migrations),
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
-// import './2019-01-30-migrateEditableFields'
+
+import './2019-01-30-migrateEditableFields'
 import './2019-02-04-testCommentMigration'
+import './2019-02-04-addSchemaVersionEverywhere'

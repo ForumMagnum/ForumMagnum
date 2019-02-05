@@ -10,8 +10,7 @@ import { editableCollections, editableCollectionsFields } from '../../lib/editor
 function WrappedSmartForm(props) {
   const { collection } = props
   const collectionName = collection && collection.options && collection.options.collectionName
-
-  if (editableCollections.includes(collectionName)) {
+  if (editableCollections.has(collectionName)) {
     return <Components.SmartForm
       {...props}
       submitCallback = {(data) => {

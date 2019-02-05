@@ -31,7 +31,7 @@ const defaultOptions = {
   enableMarkDownEditor: true
 }
 
-export let editableCollections = []
+export let editableCollections = new Set()
 export let editableCollectionsFields = {}
 
 export const makeEditable = ({collection, options = {}}) => {
@@ -47,7 +47,7 @@ export const makeEditable = ({collection, options = {}}) => {
     enableMarkDownEditor
   } = options
 
-  editableCollections.push(collection.options.collectionName)
+  editableCollections.add(collection.options.collectionName)
   editableCollectionsFields[collection.options.collectionName] = [
     ...(editableCollectionsFields[collection.options.collectionName] || []), 
     fieldName || "contents"
