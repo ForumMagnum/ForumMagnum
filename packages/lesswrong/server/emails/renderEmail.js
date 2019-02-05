@@ -8,6 +8,9 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
 import { getSetting } from 'meteor/vulcan:core';
+import { UserContext } from '../../components/common/withUser';
+import { TimezoneContext } from '../../components/common/withTimezone';
+import moment from 'moment-timezone';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
@@ -24,6 +27,13 @@ const plainTextWordWrap = 80;
 // Doctype string at the header of HTML emails
 export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
+/*function getLoginTokenForEmail(user)
+{
+  // TODO: If there's already a non-expired login token, reuse it
+  let loginToken = Accounts._generateStampedLoginToken();
+  Accounts._insertLoginToken(user._id, loginToken);
+  return loginToken;
+}*/
 
 // Render an email. Arguments:
 //
@@ -47,10 +57,13 @@ export async function generateEmail({user, subject, bodyComponent})
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
-  //TODO: Get a loginToken corresponding to the right user
+  //const loginToken = getLoginTokenForEmail(user);
   const loginToken = null;
   const locale = null;
-  const apolloClient = createApolloClient({ loginToken, locale });
+  const apolloClient = createApolloClient({
+    loginToken, locale,
+    useMeteorAccounts: true,
+  });
   const reducers = {apollo: apolloClient.reducer()};
   const store = configureStore(reducers, {}, []);
   
@@ -60,13 +73,21 @@ export async function generateEmail({user, subject, bodyComponent})
     dangerouslyUseGlobalCSS: true
   });
   
+  // TODO: Keep track of individual users' preferred time zone, and set this
+  // accordingly so that time zones on posts/comments/etc are in that timezone.
+  const timezone = moment.tz.guess();
+  
   const wrappedBodyComponent = (
     <ApolloProvider store={store} client={apolloClient}>
-      <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-        <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
-          {bodyComponent}
-        </MuiThemeProvider>
-      </JssProvider>
+    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+    <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
+    <UserContext.Provider value={user}>
+    <TimezoneContext.Provider value={timezone}>
+      {bodyComponent}
+    </TimezoneContext.Provider>
+    </UserContext.Provider>
+    </MuiThemeProvider>
+    </JssProvider>
     </ApolloProvider>
   );
   

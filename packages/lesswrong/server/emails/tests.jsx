@@ -1,6 +1,5 @@
 import React from 'react';
 import { withDocument } from 'meteor/vulcan:core';
-//import { withCurrentUser } from 'meteor/vulcan:core';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils.js'
@@ -14,17 +13,17 @@ chai.use(chaiAsPromised);
 describe('renderEmail', async () => {
   it("Renders a simple component", async () => {
     const email = await generateEmail({
-      user: createDummyUser(),
+      user: await createDummyUser(),
       subject: "Unit test email",
       bodyComponent: <div>Hello</div>
     });
     
-    email.bodyHtml.should.equal(emailDoctype+'<body><div data-reactroot="">Hello</div></body>');
+    email.bodyHtml.should.equal(emailDoctype+'<body><div>Hello</div></body>');
   });
   
   it("Generates a textual representation of the body", async () => {
     const email = await generateEmail({
-      user: createDummyUser(),
+      user: await createDummyUser(),
       subject: "Unit test email",
       bodyComponent: <div>Hello</div>
     });
@@ -45,18 +44,17 @@ describe('renderEmail', async () => {
     
     
     const email = await generateEmail({
-      user: createDummyUser(),
+      user: await createDummyUser(),
       subject: "Unit test email",
       bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>
     });
     
-    email.bodyHtml.should.equal(emailDoctype+'<body><div data-reactroot="">Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
+    email.bodyHtml.should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
   });
   
   it("Can use Apollo HoCs", async () => {
-    const user = createDummyUser();
+    const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
-    console.log("Post ID: "+post._id);
     
     const queryOptions = {
       collection: Posts,
@@ -69,29 +67,59 @@ describe('renderEmail', async () => {
     );
     
     const email = await generateEmail({
-      user: createDummyUser(),
+      user: await createDummyUser(),
       subject: "Unit test email",
       bodyComponent: <PostTitleComponent documentId={post._id} />
     });
-    email.bodyHtml.should.equal(emailDoctype+'<body><div data-reactroot="">Email unit test post</div></body>');
+    email.bodyHtml.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
   });
   
   /*it("Supports the withCurrentUser HoC", async () => {
     // TODO: Not currently passing
-    const user = createDummyUser();
+    const user = await createDummyUser();
     
-    const MyEmailComponent = withCurrentUser()(
-      ({currentUser}) => <div>currentUser.username</div>
+    const MyEmailComponent = withCurrentUser(
+      ({currentUser}) => <div>{currentUser && currentUser.email}</div>
     );
     const email = await generateEmail({
       user: user,
       subject: "Unit test email",
       bodyComponent: <MyEmailComponent/>
     });
-    email.bodyHtml.should.equal(emailDoctype+'<body><div data-reactroot="">{user.email}</div></body>');
-  });*/
+    email.bodyHtml.should.equal(emailDoctype+`<body><div>${user.email}</div></body>`);
+  });
   
-  /*it("Restricts field accesses based on the current user", async () => {
-    // TODO: Write this test
+  it("Restricts field accesses based on the current user", async () => {
+    // TODO: Not currently passing
+    // user1 has a PM. user1 is allowed to see it, user2 isn't.
+    const user1 = await createDummyUser();
+    const user2 = await createDummyUser();
+    const conversation = await createDummyConversation(user1);
+    await createDummyMessage(conversation);
+    
+    const MessagesByConversationComponent = withList({
+      collection: Messages,
+      queryName: "PrivateMessageQuery",
+      fragmentName: "messageListFragment",
+      ssr: true,
+    })(
+      ({results}) => <div>{results.map((message, i) => <div key={i}>{message.htmlBody}</div>)}</div>
+    );
+    const ShowThePMComponent = () =>
+      <MessagesByConversationComponent terms={{view: 'messagesConversation', conversationId: conversation._id}} />
+    
+    const permissionGrantedEmail = await generateEmail({
+      user: user1,
+      subject: "Unit test email",
+      bodyComponent: <ShowThePMComponent/>
+    });
+    const permissionDeniedEmail = await generateEmail({
+      user: user2,
+      subject: "Unit test email",
+      bodyComponent: <ShowThePMComponent/>
+    });
+    
+    permissionGrantedEmail.bodyHtml.should.equal(emailDoctype+'<body><div><div>Message body</div></div></body>');
+    permissionDeniedEmail.bodyHtml.should.equal(emailDoctype+'<body><div></div></body>');
   });*/
 });
