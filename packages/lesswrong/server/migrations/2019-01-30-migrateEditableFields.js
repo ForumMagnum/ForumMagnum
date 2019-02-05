@@ -38,7 +38,7 @@ registerMigration({
       await migrateDocuments({
         description: `Migrate ${collectionName} to new content fields`,
         collection,
-        batchSize: 100,
+        batchSize: 1000,
         unmigratedDocumentQuery: {
           schemaVersion: {$lt: 1}
         }, 
