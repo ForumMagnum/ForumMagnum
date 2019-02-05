@@ -15,17 +15,7 @@ registerFragment(`
     mongoLocation
     types
     contents {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionDisplay
     }
     contactInfo
     facebookLink

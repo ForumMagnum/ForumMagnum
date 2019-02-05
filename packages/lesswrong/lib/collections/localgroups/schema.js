@@ -85,20 +85,6 @@ const schema = {
     optional: true,
   },
 
-  description: {
-    type: Object,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    control: 'EditorFormComponent',
-    blackbox: true,
-    hidden: true,
-    optional: true,
-    form: {
-      enableMarkDownEditor: false
-    }
-  },
-
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],

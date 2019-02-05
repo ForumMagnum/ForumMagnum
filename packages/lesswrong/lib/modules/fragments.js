@@ -239,17 +239,7 @@ registerFragment(`
     parentCommentId
     topLevelCommentId
     contents {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionDisplay
     }
     postedAt
     # vulcan:users
@@ -272,17 +262,7 @@ registerFragment(`
     # example-forum
     _id
     contents {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionDisplay
     }
     # vulcan:users
     userId
@@ -331,10 +311,7 @@ registerFragment(`
     sequenceDraftCount
     moderationStyle
     moderationGuidelines {
-      originalContents
-      html
-      draftJS
-      markdown
+      ...RevisionDisplay
     }
     bannedUserIds
     location
@@ -347,6 +324,11 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
+    # Moderation Guidelines editor information
+    moderationGuidelines {
+      ...RevisionEdit
+    }
+
     # UI Settings
     markDownPostEditor
     hideIntercom
@@ -504,3 +486,34 @@ registerFragment(/* GraphQL */`
     votedAt
   }
 `);
+
+registerFragment(`
+  fragment RevisionDisplay on Revision {
+    version
+    updateType
+    editedAt
+    userId
+    html
+    wordCount
+    htmlHighlight
+    plaintextDescription
+  }
+`)
+
+
+
+registerFragment(`
+  fragment RevisionEdit on Revision {
+    version
+    updateType
+    editedAt
+    userId
+    originalContents
+    html
+    markdown
+    draftJS
+    wordCount
+    htmlHighlight
+    plaintextDescription
+  }
+`)

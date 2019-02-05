@@ -12,8 +12,7 @@ const CollectionsEditForm = (props) => {
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
         showRemove={true}
-        fragment={getFragment('CollectionsPageFragment')}
-        queryFragment={getFragment('CollectionsPageFragment')}
+        queryFragment={getFragment('CollectionsEditFragment')}
         mutationFragment={getFragment('CollectionsPageFragment')}
       />
     </div>

@@ -27,7 +27,7 @@ class ChaptersItem extends Component {
 
   render() {
     const chapter = this.props.chapter;
-    const { html = "" } = chapter.description
+    const { html = "" } = chapter.contents
     if (this.state.edit) {
       return <Components.ChaptersEditForm
                 documentId={chapter._id}

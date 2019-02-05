@@ -1,7 +1,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { getCollection } from 'meteor/vulcan:core'
-import { convertFromRaw, convertToRaw } from 'draft-js';
+import { convertFromRaw } from 'draft-js';
 
 function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }) {
   if (lastEditedAs) {
@@ -17,12 +17,10 @@ function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markd
       }
     }
   }
-  try {
-    convertFromRaw(draftJS)
+  if (draftJS && draftJS.blocks) {
     return {type: "draftJS", data: draftJS}
-  } catch(e) {
-    return {type: "html", data: html || ""}
   }
+  return {type: "html", data: html || ""}
 }
 
 function determineSemVer({draft}) {
@@ -45,19 +43,7 @@ registerMigration({
         migrate: async (documents) => {
           const updates = documents.map(doc => {
             const newFields = _.object(editableCollectionsFields[collectionName].map((fieldName) => {
-              if (fieldName === "contents") {
-                return [
-                  "contents",
-                  {
-                    originalContents: determineCanonicalContent(doc),
-                    html: doc.htmlBody,
-                    version: determineSemVer(doc),
-                    userId: doc.userId,
-                    editedAt: doc.postedAt || doc.createdAt
-                  }
-                ]
-              }
-              if (fieldName === "description") { // Special case for sequences, books, collections and chapters
+              if (["Sequences", "Books", "Chapters", "Collections"].includes(collectionName)) { // Special case for sequences, books, collections and chapters
                 return [
                   "contents",
                   {
@@ -67,6 +53,18 @@ registerMigration({
                       htmlBody: doc.htmlDescription
                     }),
                     html: doc.htmlDescription,
+                    version: determineSemVer(doc),
+                    userId: doc.userId,
+                    editedAt: doc.postedAt || doc.createdAt
+                  }
+                ]
+              }
+              if (fieldName === "contents") {
+                return [
+                  "contents",
+                  {
+                    originalContents: determineCanonicalContent(doc),
+                    html: doc.htmlBody,
                     version: determineSemVer(doc),
                     userId: doc.userId,
                     editedAt: doc.postedAt || doc.createdAt

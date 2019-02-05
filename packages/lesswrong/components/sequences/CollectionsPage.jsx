@@ -70,7 +70,7 @@ class CollectionsPage extends Component {
       const startedReading = false; //TODO: Check whether user has started reading sequences
       const collection = document;
       const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
-      const { html = "" } = collection.description || {}
+      const { html = "" } = collection.contents || {}
       return (<div className={classes.root}>
         <Components.Section titleComponent={canEdit ? <a onClick={this.showEdit}>edit</a> : null}>
           <div className={classes.header}>

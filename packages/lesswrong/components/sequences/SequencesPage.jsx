@@ -110,7 +110,7 @@ class SequencesPage extends Component {
     } else {
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
-      const { html = "" } = document.description || {}
+      const { html = "" } = document.contents || {}
 
       return (<div className={classes.root}>
         <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>

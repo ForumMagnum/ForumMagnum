@@ -7,8 +7,8 @@ registerFragment(`
     title
     number
     subtitle
-    description {
-      html
+    contents {
+      ...RevisionDisplay
     }
     sequenceIds
     sequences {
@@ -19,5 +19,14 @@ registerFragment(`
       ...PostsList
     }
     collectionId
+  }
+`);
+
+registerFragment(`
+  fragment BookEdit on Book {
+    ...BookPageFragment
+    contents {
+      ...RevisionEdit
+    }
   }
 `);

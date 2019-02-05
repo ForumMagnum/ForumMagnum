@@ -19,8 +19,7 @@ export const Collections = createCollection({
 export default Collections;
 
 export const makeEditableOptions = {
-  order: 20,
-  fieldName: "description"
+  order: 20
 }
 
 makeEditable({

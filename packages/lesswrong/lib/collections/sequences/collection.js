@@ -62,8 +62,7 @@ export default Sequences;
 // },
 
 export const makeEditableOptions = {
-  order: 20,
-  fieldName: "description"
+  order: 20
 }
 
 makeEditable({

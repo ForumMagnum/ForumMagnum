@@ -9,8 +9,8 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     title
-    description { 
-      html
+    contents { 
+      ...RevisionDisplay
     }
     gridImageId
     bannerImageId
@@ -27,18 +27,8 @@ registerFragment(`
 registerFragment(`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
-    description { 
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+    contents { 
+      ...RevisionEdit
     }
   }
 `)

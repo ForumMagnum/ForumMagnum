@@ -138,30 +138,10 @@ registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
     moderationGuidelines {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionEdit
     }
     contents {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionEdit
     }
   }
 `);
@@ -171,17 +151,7 @@ registerFragment(`
 registerFragment(`
   fragment EditModerationGuidelines on Post {
     moderationGuidelines {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionEdit
     },
     moderationStyle
   }
@@ -204,17 +174,7 @@ registerFragment(`
     # Content & Revisions
     version
     contents {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionDisplay
     }
   }
 `)
@@ -227,17 +187,7 @@ registerFragment(`
     # Content & Revisions
     version
     contents(version: $version) {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionDisplay
     }
   }
 `)
@@ -250,11 +200,11 @@ registerFragment(`
 
     contents {
       htmlHighlight
+      wordCount
     }
     feed {
       ...RSSFeedMinimumInfo
     }
-    # vulcan:voting
   }
 `);
 

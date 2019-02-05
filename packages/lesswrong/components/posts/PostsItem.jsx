@@ -342,7 +342,7 @@ class PostsItem extends Component {
   // Render the thing that appears when you click "Show Highlight"
   renderHighlightMenu = () => {
     let { classes, post } = this.props;
-    const { wordCount = 0 } = post || {}
+    const { wordCount = 0 } = post.contents || {}
     return (
       <div className={classes.highlightFooter}>
         <Typography variant="body1" className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>

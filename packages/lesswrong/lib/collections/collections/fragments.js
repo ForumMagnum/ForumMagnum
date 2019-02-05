@@ -9,13 +9,22 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     title
-    description {
-      html
+    contents {
+      ...RevisionDisplay
     }
     firstPageLink
     gridImageId
     books {
       ...BookPageFragment
+    }
+  }
+`);
+
+registerFragment(`
+  fragment CollectionsEditFragment on Collection {
+    ...CollectionsPageFragment
+    contents {
+      ...RevisionEdit
     }
   }
 `);

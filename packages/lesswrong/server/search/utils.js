@@ -72,7 +72,7 @@ Sequences.toAlgolia = (sequence) => {
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
-  const { html = "" } = sequence.description || {};
+  const { html = "" } = sequence.contents || {};
   const plaintextBody = htmlToText.fromString(html);
   algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   return [algoliaSequence]

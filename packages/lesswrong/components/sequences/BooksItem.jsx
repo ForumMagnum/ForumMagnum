@@ -59,7 +59,7 @@ class BooksItem extends Component {
 
   render() {
     const { book, classes } = this.props;
-    const { html = "" } = book.description || {}
+    const { html = "" } = book.contents || {}
     if (this.state.edit) {
       return <Components.BooksEditForm
                 documentId={book._id}

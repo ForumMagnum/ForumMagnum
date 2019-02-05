@@ -8,17 +8,7 @@ registerFragment(`
     parentCommentId
     topLevelCommentId
     contents {
-      version
-      updateType
-      editedAt
-      userId
-      originalContents
-      html
-      markdown
-      draftJS
-      wordCount
-      htmlHighlight
-      plaintextDescription
+      ...RevisionDisplay
     }
     postedAt
     repliesBlockedUntil
@@ -47,5 +37,14 @@ registerFragment(`
     parentAnswerId
     retracted
     postVersion
+  }
+`);
+
+registerFragment(`
+  fragment CommentEdit on Comment {
+    ...CommentsList
+    contents {
+      ...RevisionEdit
+    }
   }
 `);

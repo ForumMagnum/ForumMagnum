@@ -43,7 +43,6 @@ export default Chapters;
 
 export const makeEditableOptions = {
   order: 30,
-  fieldName: "description"
 }
 
 makeEditable({
