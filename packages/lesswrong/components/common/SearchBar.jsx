@@ -55,7 +55,7 @@ const styles = theme => ({
       
       [theme.breakpoints.down('tiny')]: {
         backgroundColor: "#eee",
-        zIndex: 100000,
+        zIndex: theme.zIndexes.searchBar,
         width:110,
         height:36,
         paddingLeft:10

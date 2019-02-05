@@ -16,7 +16,7 @@ const styles = theme => ({
     right:0,
     width:250,
     marginTop:63,
-    zIndex: 1000,
+    zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",
     [theme.breakpoints.up('lg')]: {
       display:"block"
@@ -27,7 +27,7 @@ const styles = theme => ({
   },
   toggle: {
     position:"relative",
-    zIndex:1001,
+    zIndex: theme.zIndexes.sunshineSidebar,
     float: "right",
     margin: 12,
     cursor: "pointer",

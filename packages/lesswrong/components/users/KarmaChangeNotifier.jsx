@@ -22,7 +22,7 @@ const styles = theme => ({
     padding: 10,
   },
   karmaNotifierPopper: {
-    zIndex: 10000,
+    zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
     color: getHeaderTextColor(theme),
