@@ -7,10 +7,10 @@
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
     "start": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-dev.json",
-    "debug": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-dev.json debug",
+    "debug": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-dev.json --inspect run",
     "start-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-af.json",
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-af.json --port 3030",
-    "debug-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-af.json debug",
+    "debug-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-af.json --inspect run",
     "lint": "eslint --max-warnings 0 --cache --ext .jsx,js packages",
     "test-watch": "METEOR_PACKAGE_DIRS=../Vulcan/packages TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings-dev.json --port 3200 --full-app",
     "test": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
@@ -35,7 +35,8 @@
     "chalk": "^2.4.1",
     "cheerio": "^0.22",
     "classnames": "^2.2.6",
-    "cloudinary-react": "^1.0.4",
+    "cloudinary-core": "2.5.0",
+    "cloudinary-react": "1.0.6",
     "compression": "^1.7.3",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
@@ -148,6 +149,9 @@
     "underscore": "^1.9.1",
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0"
+  },
+  "resolutions": {
+    "**/cloudinary-core": "2.5.0"
   },
   "private": true,
   "devDependencies": {

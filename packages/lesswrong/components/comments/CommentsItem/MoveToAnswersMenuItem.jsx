@@ -34,8 +34,8 @@ class MoveToAnswersMenuItem extends PureComponent {
   }
 
   render() {
-    const { currentUser, comment } = this.props
-    if (!comment.topLevelCommentId &&
+    const { currentUser, comment, post } = this.props
+    if (!comment.topLevelCommentId && post.question &&
         (Users.canDo(currentUser, "comments.edit.all") || Users.owns(currentUser, comment))) {
 
         if (comment.answer) {
