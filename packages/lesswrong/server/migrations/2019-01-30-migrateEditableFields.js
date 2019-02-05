@@ -40,7 +40,7 @@ registerMigration({
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
-          schemaVersion: {$lt: 1}
+          schemaVersion: {$lt: 2}
         }, 
         migrate: async (documents) => {
           const updates = documents.map(post => {
@@ -78,7 +78,7 @@ registerMigration({
                 filter: {_id: post._id},
                 update: {
                   $set: {
-                    schemaVersion: 1,
+                    schemaVersion: 2,
                     ...newFields
                   }
                 }
