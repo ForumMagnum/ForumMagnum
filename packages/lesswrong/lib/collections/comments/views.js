@@ -81,7 +81,10 @@ Comments.addView("postCommentsTop", function (terms) {
 
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }));
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
+  { name: "comments.top_comments" }
+);
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
@@ -106,7 +109,10 @@ Comments.addView("postCommentsNew", function (terms) {
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }));
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }),
+  { name: "comments.new_comments" }
+);
 
 Comments.addView("postCommentsBest", function (terms) {
   return {

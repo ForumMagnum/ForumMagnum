@@ -373,6 +373,8 @@ registerFragment(`
     bigUpvoteCount
     smallDownvoteCount
     bigDownvoteCount
+    banned
+    reviewedByUserId
   }
 `);
 

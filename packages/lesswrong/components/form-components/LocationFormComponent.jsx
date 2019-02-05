@@ -8,14 +8,14 @@ class LocationFormComponent extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      location: props.document && props.document.location || ""
+      location: (props.document && props.document.location) || ""
     }
   }
 
   componentDidMount() {
     const { document } = this.props;
     this.context.updateCurrentValues({
-      location: document && document.location || "",
+      location: (document && document.location) || "",
       googleLocation: document && document.googleLocation,
       mongoLocation: document && document.mongoLocation
     })

@@ -1,6 +1,7 @@
 import schema from './schema.js';
 import Users from 'meteor/vulcan:users'
 import { getDefaultResolvers, getDefaultMutations, createCollection } from 'meteor/vulcan:core';
+import { addUniversalFields } from '../../collectionUtils'
 /**
  * @summary Initiate LWEvents collection
  * @namespace LWEvents
@@ -43,3 +44,5 @@ export const LWEvents = createCollection({
 });
 
 export default LWEvents;
+
+addUniversalFields({collection: LWEvents})
