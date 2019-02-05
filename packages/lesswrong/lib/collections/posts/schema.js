@@ -9,7 +9,6 @@ import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vu
 import moment from 'moment';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
-import { extractVersionsFromSemver } from '../../editor/utils'
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
