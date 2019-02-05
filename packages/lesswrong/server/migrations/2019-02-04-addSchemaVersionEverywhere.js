@@ -13,7 +13,7 @@ registerMigration({
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
-          schemaVersion: null
+          schemaVersion: {$exists: false}
         }, 
         migrate: async (documents) => {
           const updates = documents.map(doc => {
