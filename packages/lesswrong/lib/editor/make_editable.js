@@ -130,7 +130,7 @@ export const makeEditable = ({collection, options = {}}) => {
         resolveAs: {
           type: 'String',
           resolver: (post) => {
-            return post[fieldName || "contents"].version
+            return post[fieldName || "contents"] && post[fieldName || "contents"].version
           }
         }
       }
