@@ -1,4 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core';
+import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
@@ -38,10 +39,8 @@ import '../components/common/Section.jsx';
 import '../components/common/SectionSubtitle.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
-import '../components/common/VoteButton.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
-import '../components/common/VotesInfo.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
@@ -69,11 +68,13 @@ import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
 import '../components/users/LoginPopupLink.jsx';
+import '../components/users/AccountsResetPassword.jsx';
 
 // posts
 
 import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
+import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
 import '../components/posts/PostsHome.jsx';
@@ -95,6 +96,7 @@ import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
+import '../components/posts/HomePostsViews.jsx';
 import '../components/posts/PostsViews.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
@@ -112,11 +114,15 @@ import '../components/posts/PostsEditPage.jsx';
 import '../components/posts/PostsListHeader.jsx';
 import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
-import '../components/posts/PostsVote.jsx';
 import '../components/posts/PostsStats.jsx';
 import '../components/posts/TableOfContents';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
+
+import '../components/votes/VoteButton.jsx';
+import '../components/votes/VotesInfo.jsx';
+import '../components/votes/CommentsVote.jsx';
+import '../components/votes/PostsVote.jsx';
 
 import '../components/localGroups/CommunityHome.jsx';
 import '../components/localGroups/CommunityMap.jsx';
@@ -137,6 +143,7 @@ import '../components/localGroups/LocalGroupsItem.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx';
@@ -159,7 +166,6 @@ import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsLoadMore.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
-import '../components/comments/CommentsVote.jsx';
 import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
@@ -188,6 +194,7 @@ import '../components/search/SearchPagination.jsx';
 import '../components/admin/AdminDashboard.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
+import '../components/sunshineDashboard/AdminMetadata.jsx';
 import '../components/sunshineDashboard/ModerationLog.jsx';
 import '../components/sunshineDashboard/ReportForm.jsx';
 import '../components/sunshineDashboard/SunshineCommentsItemOverview.jsx';
@@ -197,6 +204,8 @@ import '../components/sunshineDashboard/AFSuggestPostsItem.jsx';
 import '../components/sunshineDashboard/AFSuggestPostsList.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersItem.jsx';
 import '../components/sunshineDashboard/AFSuggestUsersList.jsx';
+import '../components/sunshineDashboard/SunshineNewUserPostsList.jsx';
+import '../components/sunshineDashboard/SunshineNewUserCommentsList.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersItem.jsx';
 import '../components/sunshineDashboard/SunshineNewUsersList.jsx';
 import '../components/sunshineDashboard/SunshineNewPostsList.jsx';
@@ -207,7 +216,7 @@ import '../components/sunshineDashboard/SunshineReportedContentList.jsx';
 import '../components/sunshineDashboard/SunshineReportedItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsItem.jsx';
 import '../components/sunshineDashboard/SunshineCuratedSuggestionsList.jsx';
-import '../components/sunshineDashboard/SunshineSidebar.jsx';
+registerSplitComponent("SunshineSidebar", () => import('../components/sunshineDashboard/SunshineSidebar.jsx'));
 import '../components/sunshineDashboard/SunshineListTitle.jsx';
 import '../components/sunshineDashboard/SunshineListItem.jsx';
 import '../components/sunshineDashboard/SidebarHoverOver.jsx';

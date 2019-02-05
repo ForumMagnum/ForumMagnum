@@ -1,7 +1,7 @@
 import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
-import { performVoteServer } from 'meteor/vulcan:voting';
+import { performVoteServer } from '../../modules/vote.js';
 import Localgroups from '../localgroups/collection.js';
 
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
@@ -166,3 +166,18 @@ function PostsNewUserApprovedStatus (post) {
 }
 
 addCallback("posts.new.sync", PostsNewUserApprovedStatus);
+
+function AddReferrerToPost(post, properties)
+{
+  if (properties && properties.context && properties.context.headers) {
+    let referrer = properties.context.headers["referer"];
+    let userAgent = properties.context.headers["user-agent"];
+    
+    return {
+      ...post,
+      referrer: referrer,
+      userAgent: userAgent,
+    };
+  }
+}
+addCallback("post.create.before", AddReferrerToPost);

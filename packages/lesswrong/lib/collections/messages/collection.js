@@ -3,6 +3,7 @@ import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
 import Conversations from '../conversations/collection.js'
 import { makeEditable } from '../../editor/make_editable.js'
+import { addUniversalFields } from '../../collectionUtils'
 
 /**
  * @summary Telescope Messages namespace
@@ -65,3 +66,5 @@ makeEditable({
   collection: Messages,
   options: makeEditableOptions
 })
+
+addUniversalFields({collection: Messages})

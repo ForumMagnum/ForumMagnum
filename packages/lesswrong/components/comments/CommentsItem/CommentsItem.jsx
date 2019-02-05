@@ -11,7 +11,6 @@ import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
-import { commentBodyStyles } from '../../../themes/stylePiping'
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
@@ -20,13 +19,20 @@ const styles = theme => ({
       opacity:1
     }
   },
-  commentStyling: {
-    ...commentBodyStyles(theme)
-  },
   author: {
-    ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
+    marginRight: 10
+  },
+  authorAnswer: {
+    ...theme.typography.body2,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontWeight: 600,
+    marginRight: 10,
+    '& a, & a:hover': {
+      textShadow:"none",
+      backgroundImage: "none"
+    }
   },
   postTitle: {
     marginRight: 5,
@@ -35,6 +41,9 @@ const styles = theme => ({
     float:"right",
     opacity:.35,
     marginRight:-5
+  },
+  date: {
+    color: "rgba(0,0,0,0.5)",
   },
 })
 
@@ -155,18 +164,27 @@ class CommentsItem extends Component {
                     subdirectory_arrow_left
                   </Icon>
                 </Tooltip>}
-              { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { (postPage || this.props.collapsed) && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
               { comment.deleted || comment.hideAuthor || !comment.user ?
                 ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                <span className={classes.author}> <Components.UsersName user={comment.user}/> </span>
+                  <span>
+                  {!comment.answer ? <span className={classes.author}>
+                      <Components.UsersName user={comment.user}/>
+                    </span>
+                    :
+                    <span className={classes.authorAnswer}>
+                      Answer by <Components.UsersName user={comment.user}/>
+                    </span>
+                  }
+                  </span>
               }
-              <div className="comments-item-date">
+              <div className={comment.answer ? classes.answerDate : classes.date}>
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <Components.FormatDate date={comment.postedAt}/>
+                    <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
                     {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
@@ -216,6 +234,7 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
+    const { MetaInfo } = Components
 
     if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
@@ -235,6 +254,7 @@ class CommentsItem extends Component {
             </div>
           }
           <div>
+            { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
             { showReplyButton &&
               <a className="comments-item-reply-link" onClick={this.showReply}>
                 <FormattedMessage id="comments.reply"/>
@@ -247,9 +267,8 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
-
-    const { currentUser, post, comment, parentAnswerId } = this.props
+    const { currentUser, post, comment, parentAnswerId, nestingLevel=1 } = this.props
+    const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
@@ -260,10 +279,10 @@ class CommentsItem extends Component {
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
             af:Comments.defaultToAlignment(currentUser, post, comment),
-            parentAnswerId: parentAnswerId
+            parentCommentId: comment._id,
+            parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"
-          parentAnswerId={parentAnswerId}
         />
       </div>
     )

@@ -68,6 +68,8 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  moderationGuidelinesContent
+  moderationGuidelinesBody
   moderationGuidelinesHtmlBody
   markDownPostEditor
   commentSorting
@@ -79,6 +81,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -122,6 +125,10 @@ registerFragment(`
     userId
     user {
       ...UsersMinimumInfo
+      moderationGuidelinesHtmlBody
+      moderationGuidelinesContent
+      moderationGuidelinesBody
+      moderationStyle
     }
     coauthors {
       ...UsersMinimumInfo
@@ -172,6 +179,12 @@ registerFragment(`
     voteCount
     question
     authorIsUnreviewed
+    isFuture
+    hideAuthor
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
   }
 `);
 
@@ -360,6 +373,8 @@ registerFragment(`
     bigUpvoteCount
     smallDownvoteCount
     bigDownvoteCount
+    banned
+    reviewedByUserId
   }
 `);
 
@@ -495,6 +510,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 
@@ -555,6 +571,15 @@ registerFragment(`
   fragment VoteMinimumInfo on Vote {
     _id
     voteType
+  }
+`);
+
+
+registerFragment(`
+  fragment VoteFragment on Vote {
+    _id
+    voteType
+    power
   }
 `);
 

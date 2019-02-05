@@ -2,6 +2,7 @@ import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
+import { addUniversalFields } from '../../collectionUtils'
 
 export const formGroups = {
   moderationGroup: {
@@ -829,6 +830,26 @@ Users.addField([
       label: "Do not collapse comments (on home page)"
     }
   },
+
+  { 
+    fieldName: "shortformFeedId",
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['admins', 'sunshineRegiment'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      group: formGroups.adminOptions,
+      resolveAs: {
+        fieldName: 'shortformFeed',
+        type: 'Post',
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Posts', fieldName: 'shortformFeedId'}
+        ),
+        addOriginalField: true
+      },
+    }
+  }
 ]);
 
 export const makeEditableOptionsModeration = {
@@ -852,3 +873,5 @@ makeEditable({
   collection: Users,
   options: makeEditableOptionsModeration
 })
+
+addUniversalFields({collection: Users})

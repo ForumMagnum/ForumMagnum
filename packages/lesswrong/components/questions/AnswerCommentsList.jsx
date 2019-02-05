@@ -52,18 +52,18 @@ class AnswerCommentsList extends PureComponent {
 
   constructor(props) {
     super(props);
+    
+    const { lastEvent, post } = this.props;
+    
     this.state = {
       commenting: false,
       loadedMore: false,
-      highlightDate: this.props.lastEvent &&
-        this.props.lastEvent.properties &&
-        this.props.lastEvent.properties.createdAt &&
-        new Date(this.props.lastEvent.properties.createdAt)
-        ||
-        this.props.post &&
-        this.props.post.lastVisitedAt &&
-        new Date(this.props.post.lastVisitedAt) ||
-        new Date(),
+      highlightDate: 
+        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+          && new Date(lastEvent.properties.createdAt))
+        || (post && post.lastVisitedAt
+          && new Date(post.lastVisitedAt))
+        || new Date(),
     }
   }
 
@@ -76,12 +76,12 @@ class AnswerCommentsList extends PureComponent {
     const { loadMore, totalCount } = this.props
     if (totalCount > 3) {
       this.setState({loadedMore: true})
-      loadMore({limit: 10000})  
+      loadMore({limit: 10000})
     }
   }
 
   render() {
-    const { currentUser, results, loading, loadingMore, classes, totalCount, post, parentAnswerId } = this.props
+    const { currentUser, results, loading, loadingMore, classes, totalCount, post, parentAnswer } = this.props
     const { CommentsList, Loading, CommentsNewForm } = Components
     const { commenting, highlightDate, loadedMore } = this.state
     const noComments = (!results || !results.length) && !commenting
@@ -100,15 +100,15 @@ class AnswerCommentsList extends PureComponent {
               <div className={classes.editor}>
                 <CommentsNewForm
                   postId={post._id}
+                  parentComment={parentAnswer}
                   prefilledProps={{
                     af: Comments.defaultToAlignment(currentUser, post),
-                    parentAnswerId: parentAnswerId,
-                    parentCommentId: parentAnswerId
+                    parentAnswerId: parentAnswer._id,
+                    parentCommentId: parentAnswer._id,
                   }}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
-                  parentAnswerId={parentAnswerId._id}
                 />
               </div>
             }
@@ -127,7 +127,7 @@ class AnswerCommentsList extends PureComponent {
               comments={nestedComments}
               highlightDate={highlightDate}
               post={post}
-              parentAnswerId={parentAnswerId}
+              parentAnswerId={parentAnswer._id}
               postPage
               startThreadCollapsed
             />

@@ -64,12 +64,6 @@ then moved to more specific files as it becomes necessary.
   opacity: 1 !important;
 }
 
-// CSS modifications for comments
-
-.comments-item-meta{
-  font-size: $small-font;
-}
-
 // CSS Modifications for RSS Feed integration
 
 
@@ -130,7 +124,7 @@ div#mocha {
 .mjx-chtml.MJXc-display {
   overflow-x: auto;
   overflow-y: hidden;
-  
+
   // !important because the MathJax stylesheet (which gets embedded into posts)
   // has an ill-advised max-width:none in it.
   max-width: 100% !important;

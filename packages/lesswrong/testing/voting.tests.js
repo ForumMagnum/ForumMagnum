@@ -1,7 +1,9 @@
 import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { batchUpdateScore, recalculateScore, performVoteServer } from 'meteor/vulcan:voting';
+import { recalculateScore } from '../lib/modules/scoring.js';
+import { performVoteServer } from '../lib/modules/vote.js';
+import { batchUpdateScore } from '../server/updateScores.js';
 
 import {
   createDummyUser,
@@ -16,23 +18,6 @@ chai.use(chaiAsPromised);
 describe('Voting', async function() {
   describe('batchUpdating', async function() {
     this.timeout(20000)
-    it('updates if post in the future', async function(){
-      const user = await createDummyUser();
-      const currentTime = new Date();
-      const tomorrow = currentTime.getTime()+(1*24*60*60*1000)
-      const in_a_month = currentTime.getTime()+(30*24*60*60*1000)
-      const in_half_an_hour = currentTime.getTime()+(30*60*1000)
-      const in_ten_minutes = currentTime.getTime()+(10*60*1000)
-      const dates = [tomorrow, in_ten_minutes, in_half_an_hour, tomorrow, in_a_month];
-      dates.forEach(async date => {
-        const post = await createDummyPost(user, {postedAt: date});
-        await batchUpdateScore({collection: Posts});
-        const updatedPost = await Posts.find({_id: post._id}).fetch();
-
-        updatedPost[0].score.should.equal(0);
-        updatedPost[0].postedAt.should.be.closeTo(date, 1000);
-      })
-    });
     it('does not update if post is inactive', async () => {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)

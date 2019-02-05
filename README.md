@@ -12,7 +12,7 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 2. [React](https://facebook.github.io/react/) is a user interface programming library developed by Facebook that lets us define interface elements declaratively in the form of components. We use it to define how to render and manage state for all parts of the site.
 
-3. [GraphQL](https://graphql.org/) is a query language for the Mongo datastore. Vulcan mostly deals with GraphQL for us, but occasionally we use it to define APIs for accessing and mutating our data.
+3. [GraphQL](https://graphql.org/) is a query language that the browser uses to get data from our servers. Vulcan mostly deals with GraphQL for us, but occasionally we use it to define APIs for accessing and mutating our data.
 
 4. [Draft](https://draftjs.org/) is a framework developed by Facebook for creating text editors. The content and message editors on Lesswrong2 are implemented on top of Draft.
 
