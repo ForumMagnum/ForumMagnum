@@ -102,6 +102,7 @@ extendFragment('UsersCurrent', `
       }
     }
   }
+  karmaChangeLastOpened
   shortformFeedId
 `);
 

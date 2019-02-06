@@ -5,20 +5,6 @@ import moment from 'moment-timezone';
 // directory because we don't have a good way to make resolvers, or imports
 // used by resolvers, be server specific.
 
-export const karmaChangeNotifierDefaultSettings = {
-  // One of the string keys in karmaNotificationTimingChocies
-  updateFrequency: "daily",
-  
-  // Time of day at which daily/weekly batched updates are released, a number
-  // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  // Default corresponds to 3am PST.
-  timeOfDayGMT: 11,
-  
-  // A string day-of-the-week name, spelled out and capitalized like "Monday".
-  // Always in GMT, regardless of the user's timezone (timezone matters for day
-  // of the week because time zones could take it across midnight.)
-  dayOfWeekGMT: "Saturday",
-};
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -125,7 +111,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
     case "realtime":
       return {
         start: lastOpened || new Date("1970-01-01"),
-        end: now,
+        end: now
       }
   }
 }

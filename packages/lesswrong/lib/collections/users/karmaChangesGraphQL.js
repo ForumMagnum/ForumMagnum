@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { getKarmaChanges, getKarmaChangeDateRange, karmaChangeNotifierDefaultSettings } from "../../karmaChanges.js";
+import { getKarmaChanges, getKarmaChangeDateRange } from "../../karmaChanges.js";
 import { addGraphQLSchema, addGraphQLResolvers, Connectors } from 'meteor/vulcan:core';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
@@ -55,7 +55,7 @@ addGraphQLResolvers({
     },
     updateFrequency: async (karmaChangesJSON, args, {currentUser}) => {
       if (!currentUser) return null;
-      const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
+      const settings = currentUser.karmaChangeNotifierSettings
       return settings.updateFrequency;
     },
   }
@@ -75,10 +75,13 @@ Users.addField([
           if (!currentUser)
             return null;
           
+          // Grab new current user, because the current user gets set at the beginning of the request, which
+          // is out of date in this case, because we are depending on recent mutations being reflected on the current user
+          const newCurrentUser = await Users.findOne(currentUser._id)
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
-            const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
-            const lastOpened = currentUser.karmaChangeLastOpened;
+            const settings = newCurrentUser.karmaChangeNotifierSettings
+            const lastOpened = newCurrentUser.karmaChangeLastOpened;
             
             const {start, end} = getKarmaChangeDateRange({settings, lastOpened, now: new Date()})
             startDate = start;
