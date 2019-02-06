@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { getKarmaChanges, getKarmaChangeDateRange, karmaChangeNotifierDefaultSettings } from "../../karmaChanges.js";
+import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate, karmaChangeNotifierDefaultSettings } from "../../karmaChanges.js";
 import { addGraphQLSchema, addGraphQLResolvers, Connectors } from 'meteor/vulcan:core';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
@@ -75,19 +75,25 @@ Users.addField([
           if (!currentUser)
             return null;
           
+          const now = new Date();
+          const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
+          
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
-            const settings = currentUser.karmaChangeNotifierSettings || karmaChangeNotifierDefaultSettings;
             const lastOpened = currentUser.karmaChangeLastOpened;
+            const lastBatchStart = currentUser.karmaChangeBatchStart;
             
-            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, now: new Date()})
+            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now})
             startDate = start;
             endDate = end;
           }
           
+          const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
+          
           return getKarmaChanges({
             user: document,
-            startDate, endDate
+            startDate, endDate,
+            nextBatchDate,
           });
         },
       },

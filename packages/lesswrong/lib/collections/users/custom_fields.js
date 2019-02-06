@@ -608,6 +608,23 @@ Users.addField([
       canRead: [Users.owns, 'admins'],
     },
   },
+  
+  /**
+    If, the last time you opened the karma-change notifier, you saw more than
+    just the most recent batch (because there was a batch you hadn't viewed),
+    the start of the date range of that batch.
+  */
+  {
+    fieldName: 'karmaChangeBatchStart',
+    fieldSchema: {
+      hidden: true,
+      type: Date,
+      optional: true,
+      canCreate: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canRead: [Users.owns, 'admins'],
+    },
+  },
 
   /**
     Email settings

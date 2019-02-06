@@ -130,7 +130,8 @@ class KarmaChangeNotifier extends PureComponent {
       this.props.editMutation({
         documentId: this.props.currentUser._id,
         set: {
-          karmaChangeLastOpened: this.props.currentUser.karmaChanges.endDate
+          karmaChangeLastOpened: this.props.currentUser.karmaChanges.endDate,
+          karmaChangeBatchStart: this.props.currentUser.karmaChanges.startDate
         }
       });
       
