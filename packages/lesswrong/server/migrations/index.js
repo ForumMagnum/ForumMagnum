@@ -3,3 +3,5 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
+import './2019-01-04-voteSchema';
+import './2019-01-24-karmaChangeSettings';

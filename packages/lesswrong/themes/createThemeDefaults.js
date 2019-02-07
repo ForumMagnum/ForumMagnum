@@ -166,6 +166,17 @@ const createLWTheme = (theme) => {
         }
       }
     },
+    zIndexes: {
+      commentsMenu: 1,
+      postsVote: 1,
+      sidebarHoverOver: 200,
+      sunshineSidebar: 1000,
+      layout: 1100,
+      header: 1300,
+      karmaChangeNotifier: 1400,
+      notificationsMenu: 1500,
+      searchBar: 100000,
+    },
     voting: {
       strongVoteDelay: 1000,
     }

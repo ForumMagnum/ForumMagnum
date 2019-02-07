@@ -50,7 +50,11 @@ Test if a user has voted on the server
 
 */
 const hasVotedServer = async ({ document, voteType, user }) => {
-  const vote = await Connectors.get(Votes, {documentId: document._id, userId: user._id, voteType}, {}, true);
+  const vote = await Connectors.get(Votes, {
+    documentId: document._id,
+    userId: user._id, voteType,
+    cancelled: false,
+  }, {}, true);
   return vote;
 }
 
@@ -147,15 +151,39 @@ Clear all votes for a given document and user (server)
 */
 const clearVotesServer = async ({ document, user, collection, updateDocument }) => {
   const newDocument = _.clone(document);
-  const votes = await Connectors.find(Votes, { documentId: document._id, userId: user._id});
+  const votes = await Connectors.find(Votes, {
+    documentId: document._id,
+    userId: user._id,
+    cancelled: false,
+  });
   if (votes.length) {
-    await Connectors.delete(Votes, {documentId: document._id, userId: user._id}, {}, true);
-    votes.forEach((vote)=> {
+    // Cancel all the existing votes
+    await Connectors.update(Votes,
+      {documentId: document._id, userId: user._id},
+      {$set: {cancelled: true}},
+      {multi:true}, true);
+    votes.forEach((vote) => {
+      //eslint-disable-next-line no-unused-vars
+      const {_id, ...otherVoteFields} = vote;
+      // Create an un-vote for each of the existing votes
+      const unvote = {
+        ...otherVoteFields,
+        cancelled: true,
+        isUnvote: true,
+        power: -vote.power,
+        votedAt: new Date(),
+      };
+      Connectors.create(Votes, unvote);
+      
       runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
       runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
     })
     if (updateDocument) {
-      await Connectors.update(collection, {_id: document._id}, {$set: {baseScore: recalculateBaseScore(document) }}, {}, true);
+      await Connectors.update(collection,
+        {_id: document._id},
+        {$set: {baseScore: recalculateBaseScore(document) }},
+        {}, true
+      );
     }
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
@@ -171,9 +199,29 @@ Cancel votes of a specific type on a given document (server)
 export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }) => {
 
   const newDocument = _.clone(document);
-  const vote = Votes.findOne({documentId: document._id, userId: user._id, voteType})
-  // remove vote object
-  await Connectors.delete(Votes, {_id: vote._id}, {}, true);
+  const vote = Votes.findOne({
+    documentId: document._id,
+    userId: user._id,
+    voteType,
+    cancelled: false,
+  })
+  
+  //eslint-disable-next-line no-unused-vars
+  const {_id, ...otherVoteFields} = vote;
+  const unvote = {
+    ...otherVoteFields,
+    cancelled: true,
+    isUnvote: true,
+    power: -vote.power,
+    votedAt: new Date(),
+  };
+  Connectors.create(Votes, unvote);
+  
+  // Set the cancelled field on the vote object to true
+  await Connectors.update(Votes,
+    {_id: vote._id},
+    {$set: {cancelled: true}},
+    {}, true);
   newDocument.baseScore = recalculateBaseScore(newDocument);
   newDocument.score = recalculateScore(newDocument);
 
@@ -212,6 +260,9 @@ Create new vote object
 */
 const createVote = ({ document, collectionName, voteType, user, voteId }) => {
 
+  if (!document.userId)
+    throw new Error("Voted-on document does not have an author userId?");
+  
   const vote = {
     documentId: document._id,
     collectionName,
@@ -219,6 +270,8 @@ const createVote = ({ document, collectionName, voteType, user, voteId }) => {
     voteType: voteType,
     power: getVotePower({user, voteType, document}),
     votedAt: new Date(),
+    authorId: document.userId,
+    cancelled: false,
     __typename: 'Vote'
   }
 

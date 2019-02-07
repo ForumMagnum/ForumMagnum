@@ -5,7 +5,11 @@ import { getVotePower } from '../voting/new_vote_types.js'
 import { getCollection } from 'meteor/vulcan:lib';
 
 export const recalculateAFBaseScore = async (document) => {
-  let votes = await Votes.find({ documentId: document._id, afPower: {$exists: true} }).fetch()
+  let votes = await Votes.find({
+    documentId: document._id,
+    afPower: {$exists: true},
+    cancelled: false,
+  }).fetch()
   return votes ? votes.reduce((sum, vote) => { return vote.afPower + sum}, 0) : 0
 }
 

@@ -113,7 +113,7 @@ export async function migrateDocuments({ description, collection, batchSize, unm
     let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
     if (docsNotMigrated.length > 0) {
       let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
-
+      
       // eslint-disable-next-line no-console
       console.error(errorMessage);
       throw new Error(errorMessage);

@@ -81,6 +81,29 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  karmaChangeNotifierSettings
+  karmaChanges {
+    totalChange
+    updateFrequency
+    startDate
+    endDate
+    nextBatchDate
+    posts {
+      scoreChange
+      post {
+        title
+        pageUrlRelative
+      }
+    }
+    comments {
+      scoreChange
+      comment {
+        plaintextExcerpt
+        pageUrlRelative
+      }
+    }
+  }
+  karmaChangeLastOpened
   shortformFeedId
 `);
 
