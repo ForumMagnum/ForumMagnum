@@ -84,39 +84,73 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
   const lastDailyReset = todaysDailyReset.isAfter(now)
     ? moment(todaysDailyReset).subtract(1, 'days')
     : todaysDailyReset;
+
+  const previousBatchExists = !!lastBatchStart
   
   switch(settings.updateFrequency) {
     case "disabled":
       return null;
-    case "daily":
-      const oneDayPrior = moment(lastDailyReset).subtract(1, 'days');
+    case "daily": {
+      const oneDayPrior = moment(lastDailyReset).subtract(1, 'days')
       
-      if (lastOpened && lastOpened > lastDailyReset.toDate() && lastBatchStart) {
+      // Check whether the last time you opened the menu was in the same batch-period
+      const openedBeforeNextBatch = lastOpened && lastOpened > lastDailyReset.toDate()
+
+      // If you open the notification menu again before the next batch has started, just return 
+      // the previous batch 
+      if (previousBatchExists && openedBeforeNextBatch) {
+        // Since we know that we reopened the notifications before the next batch, the last batch
+        // will have ended at the last daily reset time
+        const lastBatchEnd = lastDailyReset 
         return {
           start: lastBatchStart,
-          end: lastDailyReset.toDate()
+          end: lastBatchEnd.toDate()
         };
       }
-      
+
+      // If you've never opened the menu before, then return the last daily batch, else
+      // create batch for all periods that happened since you last opened it
+      const startDate = lastOpened ? moment.min(oneDayPrior, moment(lastOpened)) : oneDayPrior
       return {
-        start: moment.min(oneDayPrior, moment(lastOpened)).toDate(),
+        start: startDate.toDate(),
         end: lastDailyReset.toDate(),
       };
-    case "weekly":
+    }
+    case "weekly": {
       // Target day of the week, as an integer 0-6
       const targetDayOfWeekNum = moment().day(settings.dayOfWeekGMT).day();
       const lastDailyResetDayOfWeekNum = lastDailyReset.day();
       
       // Number of days back from today's daily reset to get to a daily reset
       // of the correct day of the week
-      const daysOfWeekDifference = (lastDailyResetDayOfWeekNum - targetDayOfWeekNum + 7) % 7;
+      const daysOfWeekDifference = ((lastDailyResetDayOfWeekNum - targetDayOfWeekNum) + 7) % 7;
       
-      const lastWeeklyReset = moment(lastDailyReset).add(-daysOfWeekDifference, 'days');
-      const oneWeekPrior = moment(lastWeeklyReset).add(-7, 'days');
+      const lastWeeklyReset = moment(lastDailyReset).subtract(daysOfWeekDifference, 'days');
+      const oneWeekPrior = moment(lastWeeklyReset).subtract(7, 'days');
+
+      // Check whether the last time you opened the menu was in the same batch-period
+      const openedBeforeNextBatch = lastOpened && lastOpened > lastWeeklyReset.toDate()
+
+      // If you open the notification menu again before the next batch has started, just return 
+      // the previous batch 
+      if (previousBatchExists && openedBeforeNextBatch) {
+        // Since we know that we reopened the notifications before the next batch, the last batch
+        // will have ended at the last daily reset time
+        const lastBatchEnd = lastWeeklyReset 
+        return {
+          start: lastBatchStart,
+          end: lastBatchEnd.toDate()
+        };
+      }
+
+      // If you've never opened the menu before, then return the last daily batch, else
+      // create batch for all periods that happened since you last opened it
+      const startDate = lastOpened ? moment.min(oneWeekPrior, moment(lastOpened)) : oneWeekPrior
       return {
-        start: moment.min(oneWeekPrior, moment(lastOpened)).toDate(),
+        start: startDate.toDate(),
         end: lastWeeklyReset.toDate(),
       };
+    }
     case "realtime":
       return {
         start: lastOpened || new Date("1970-01-01"),
