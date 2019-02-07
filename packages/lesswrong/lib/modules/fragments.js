@@ -70,6 +70,9 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  moderationGuidelines {
+    ...RevisionEdit
+  }
   markDownPostEditor
   commentSorting
   location

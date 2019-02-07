@@ -8,7 +8,7 @@ import withUser from '../common/withUser'
 
 const PostsNewForm = ({router, currentUser, flash}) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
-  const moderationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.html
+  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
     isEvent: router.location.query && router.location.query.eventForm,
     types: router.location.query && router.location.query.ssc ? ['SSC'] : [],
@@ -17,12 +17,7 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     af: getSetting("AlignmentForum", false) || (router.location.query && !!router.location.query.af),
     groupId: router.location.query && router.location.query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: moderationGuidelines ? {
-      originalContents: {
-        type: "html",
-        data: moderationGuidelines
-      }
-    } : undefined 
+    moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
   
   if (!Posts.options.mutations.new.check(currentUser)) {

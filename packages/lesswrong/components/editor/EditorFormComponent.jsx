@@ -13,6 +13,7 @@ import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
@@ -68,7 +69,14 @@ class EditorFormComponent extends Component {
   }
 
   getEditorStatesFromType = (editorType) => {
-    const { document, fieldName } = this.props
+    const { document, fieldName, value } = this.props
+    if (value && value.originalContents && value.originalContents.data) {
+      return {
+        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
+        markdownValue: editorType === "markdown" ? value.originalContents.data : null,
+        htmlValue: editorType === "html" ? value.originalContents.data : null  
+      }
+    }
     const { draftJS, html, markdown } = document[fieldName] || {}
     return {
       draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
@@ -181,8 +189,8 @@ class EditorFormComponent extends Component {
   setMarkdown = (e) => {this.setState({markdownValue: e.target.value})}
 
   renderEditorWarning = () => {
-    const { classes, currentUser, document, fieldName } = this.props
-    const { type } = document[fieldName] && document[fieldName].originalContents || {}
+    const { classes, currentUser, document, fieldName, value } = this.props
+    const { type } = (value && value.originalContents) || (document[fieldName] && document[fieldName].originalContents) || {}
     return <Typography variant="body2" color="primary">
       This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
       <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
@@ -192,10 +200,14 @@ class EditorFormComponent extends Component {
 
   getCurrentEditorType = () => {
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
-    const { document, currentUser, enableMarkDownEditor, fieldName } = this.props
+    const { document, currentUser, enableMarkDownEditor, fieldName, value } = this.props
     const originalType = document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
     // If there is an override, return that
     if (editorOverride) { return editorOverride }
+    // Then check whether we are directly passed a value in the form context, with a type (as a default value for example)
+    if (value && value.originalContents && value.originalContents.type) {
+      return value.originalContents.type
+    }
     // Otherwise, default to rich-text, but maybe show others
     if (originalType) { return originalType }
     else if (enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser)){
@@ -297,4 +309,4 @@ EditorFormComponent.contextTypes = {
   addToSuccessForm: PropTypes.func
 };
 
-registerComponent('EditorFormComponent', EditorFormComponent, withUser, withStyles(styles, { name: "EditorFormComponent" }));
+registerComponent('EditorFormComponent', EditorFormComponent, withUser, withStyles(styles, { name: "EditorFormComponent" }), withErrorBoundary);
