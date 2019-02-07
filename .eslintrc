@@ -44,7 +44,9 @@
     "react/prop-types": 0,
     "meteor/audit-argument-checks": 0,
     "no-case-declarations": 0,
-    "react/no-unescaped-entities": 0
+    "react/no-unescaped-entities": 0,
+    "no-mixed-operators": 1,
+    "react-hooks/rules-of-hooks": "error"
   },
   "env": {
     "browser": true,
@@ -56,7 +58,8 @@
   "plugins": [
     "babel",
     "meteor",
-    "react"
+    "react",
+    "react-hooks"
   ],
   "settings": {
     "import/resolver": "meteor",

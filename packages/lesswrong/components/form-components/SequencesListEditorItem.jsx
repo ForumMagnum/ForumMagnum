@@ -15,7 +15,7 @@ const SequencesListEditorItem = ({document, loading, documentId, ...props}) => {
         </div>
         <div className="sequences-list-edit-item-meta">
           <div className="sequences-list-edit-item-author">
-            {document.user && document.user.displayName || "Undefined Author"}
+            {(document.user && document.user.displayName) || "Undefined Author"}
           </div>
           <div className="sequences-list-edit-item-karma">
             {document.karma || "undefined"} points

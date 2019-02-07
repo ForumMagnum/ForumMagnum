@@ -1,5 +1,5 @@
+import React, { useState } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles'
 import { postBodyStyles } from '../../themes/stylePiping'
@@ -91,79 +91,68 @@ const styles = theme => ({
   },
 })
 
-class Answer extends Component {
-  state = {
-    showEdit: false,
-    commenting: false,
-  }
-
-  showEdit = () => this.setState({showEdit: true})
-  hideEdit = () => this.setState({showEdit: false})
-
-  render () {
-    const { comment, post, classes, index, answerCount } = this.props
-    const { showEdit } = this.state
-    const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
-    const { html = "" } = comment.contents || {}
-    return (
-      <div className={classes.root}>
-        { comment.deleted ?
-          <div className={classes.deletedSection} id={comment._id}>
-            <Typography variant="body2" className={classes.deleted}>
-              Answer was deleted
-            </Typography>
-            <span className={classes.menu}>
-              <CommentsMenu
-                showEdit={this.showEdit}
-                comment={comment}
-                post={post}
-                icon={<MoreHorizIcon className={classes.menuIcon}/>}
-              />
-            </span>
-          </div>
-          :
-          <div>
-            {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
-              { <UsersName user={comment.user} />}
-            </Typography >}
-            <Typography variant="subheading" className={classes.date}>
-              <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
-                <Icon className="material-icons comments-item-permalink"> link </Icon>
-              </Link>
-            </Typography>
-            <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
-            <span className={classes.menu}>
-              <CommentsMenu
-                showEdit={this.showEdit}
-                comment={comment}
-                post={post}
-                icon={<MoreHorizIcon className={classes.menuIcon}/>}
-              />
-            </span>
-            { showEdit ?
-              <Components.CommentsEditForm
-                comment={comment}
-                successCallback={this.hideEdit}
-                cancelCallback={this.hideEdit}
-              />
-              :
-              <ContentItemBody
-                className={classes.postContent}
-                dangerouslySetInnerHTML={{__html: html}}
-              />
-            }
-            <AnswerCommentsList
-              terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
+const Answer = ({ comment, post, classes, index, answerCount }) => {
+  const [showEdit, setShowEdit] = useState(false);
+  const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
+  const { html = "" } = comment.contents || {}
+  return (
+    <div className={classes.root}>
+      { comment.deleted ?
+        <div className={classes.deletedSection} id={comment._id}>
+          <Typography variant="body2" className={classes.deleted}>
+            Answer was deleted
+          </Typography>
+          <span className={classes.menu}>
+            <CommentsMenu
+              showEdit={() => setShowEdit(true)}
+              comment={comment}
               post={post}
-              parentAnswer={comment}
-              />
-          </div>
-        }
-      {(index !== (answerCount-1)) && <hr className={classes.bottomDivider}/>}
-      </div>
-    )
-  }
+              icon={<MoreHorizIcon className={classes.menuIcon}/>}
+            />
+          </span>
+        </div>
+        :
+        <div>
+          {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
+            { <UsersName user={comment.user} />}
+          </Typography >}
+          <Typography variant="subheading" className={classes.date}>
+            <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
+              <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+              <Icon className="material-icons comments-item-permalink"> link </Icon>
+            </Link>
+          </Typography>
+          <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
+          <span className={classes.menu}>
+            <CommentsMenu
+              showEdit={() => setShowEdit(true)}
+              comment={comment}
+              post={post}
+              icon={<MoreHorizIcon className={classes.menuIcon}/>}
+            />
+          </span>
+          { showEdit ?
+            <Components.CommentsEditForm
+              comment={comment}
+              successCallback={() => setShowEdit(false)}
+              cancelCallback={() => setShowEdit(false)}
+            />
+            :
+            <ContentItemBody
+              className={classes.postContent}
+              dangerouslySetInnerHTML={{__html: html}}
+            />
+          }
+          <AnswerCommentsList
+            terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
+            post={post}
+            parentAnswer={comment}
+            />
+        </div>
+      }
+    {(index !== (answerCount-1)) && <hr className={classes.bottomDivider}/>}
+    </div>
+  )
 }
 
 Answer.propTypes = {
