@@ -60,3 +60,20 @@ function approveUnreviewedPosts (newUser, oldUser)
 }
 
 addCallback("users.edit.async", approveUnreviewedPosts);
+
+// When the very first user account is being created, add them to Sunshine
+// Regiment. Patterned after a similar callback in
+// vulcan-users/lib/server/callbacks.js which makes the first user an admin.
+function makeFirstUserAdminAndApproved (user) {
+  const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
+  if (realUsersCount === 0) {
+    user.reviewedByUserId = "firstAccount"; //HACK
+    
+    // Add the first user to the Sunshine Regiment
+    if (!user.groups) user.groups = [];
+    user.groups.push("sunshineRegiment");
+  }
+  return user;
+}
+
+addCallback('users.new.sync', makeFirstUserAdminAndApproved);

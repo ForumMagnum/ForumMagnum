@@ -1059,8 +1059,8 @@ Posts.addField([
           }
           if (tocData) {
             const selector = {
-              answer:false,
-              parentAnswerId:{$in:[undefined,null]},
+              answer: false,
+              parentAnswerId: null,
               postId: document._id
             }
             if (document.af && getSetting('AlignmentForum', false)) {
