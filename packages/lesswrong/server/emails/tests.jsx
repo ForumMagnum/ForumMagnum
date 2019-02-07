@@ -25,7 +25,7 @@ describe('renderEmail', async () => {
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
-    email.bodyHtml.should.equal(emailDoctype+'<body><div>Hello</div></body>');
+    email.html.should.equal(emailDoctype+'<body><div>Hello</div></body>');
   });
   
   it("Generates a textual representation of the body", async () => {
@@ -58,7 +58,7 @@ describe('renderEmail', async () => {
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
-    email.bodyHtml.should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
+    email.html.should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
   });
   
   it("Can use Apollo HoCs", async () => {
@@ -81,7 +81,7 @@ describe('renderEmail', async () => {
       bodyComponent: <PostTitleComponent documentId={post._id} />,
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
-    email.bodyHtml.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
+    email.html.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
   });
   
   /*it("Supports the withCurrentUser HoC", async () => {
@@ -97,7 +97,7 @@ describe('renderEmail', async () => {
       bodyComponent: <MyEmailComponent/>,
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
-    email.bodyHtml.should.equal(emailDoctype+`<body><div>${user.email}</div></body>`);
+    email.html.should.equal(emailDoctype+`<body><div>${user.email}</div></body>`);
   });
   
   it("Restricts field accesses based on the current user", async () => {
@@ -132,7 +132,7 @@ describe('renderEmail', async () => {
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
-    permissionGrantedEmail.bodyHtml.should.equal(emailDoctype+'<body><div><div>Message body</div></div></body>');
-    permissionDeniedEmail.bodyHtml.should.equal(emailDoctype+'<body><div></div></body>');
+    permissionGrantedEmail.html.should.equal(emailDoctype+'<body><div><div>Message body</div></div></body>');
+    permissionDeniedEmail.html.should.equal(emailDoctype+'<body><div></div></body>');
   });*/
 });
