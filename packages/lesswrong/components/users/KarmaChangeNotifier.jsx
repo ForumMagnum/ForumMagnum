@@ -196,9 +196,10 @@ class KarmaChangeNotifier extends PureComponent {
   
   render() {
     const {classes, currentUser} = this.props;
+    if (!currentUser) return null
     const {open, anchorEl, karmaChanges: stateKarmaChanges, karmaChangeLastOpened} = this.state;
     const karmaChanges = stateKarmaChanges || currentUser.karmaChanges // Covers special case when state was initialized when user wasn't logged in
-    if (!currentUser || !karmaChanges) return null;
+    if (!karmaChanges) return null;
     
     const { karmaChangeNotifierSettings: settings } = currentUser
     if (settings && settings.updateFrequency === "disabled")
