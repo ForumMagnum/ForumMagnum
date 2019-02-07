@@ -10,6 +10,7 @@ import htmlToText from 'html-to-text';
 import { getSetting } from 'meteor/vulcan:core';
 import { UserContext } from '../../components/common/withUser';
 import { TimezoneContext } from '../../components/common/withTimezone';
+import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 
 // TODO: We probably want to use a different theme than this for rendering
@@ -27,6 +28,50 @@ const plainTextWordWrap = 80;
 // Doctype string at the header of HTML emails
 export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
+// Global email CSS, inherited from Vulcan-Starter. Some of this is about
+// handling the top-level table layout; some of it looks like workarounds for
+// specific dysfunctional email clients (like the ".ExternalClass" and
+// ".yshortcuts" entries.)
+const emailGlobalCss = `
+  .ReadMsgBody { width: 100%; background-color: #ebebeb;}
+  .ExternalClass {width: 100%; background-color: #ebebeb;}
+  .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
+  body {-webkit-text-size-adjust:none; -ms-text-size-adjust:none;}
+  body {margin:0; padding:0;}
+  table {border-spacing:0;}
+  table td {border-collapse:collapse;}
+  .yshortcuts a {border-bottom: none !important;}
+
+  /* Constrain email width for small screens */
+  @media screen and (max-width: 600px) {
+      table[class="container"] {
+          width: 95% !important;
+      }
+      .main-container{
+        font-size: 14px !important;
+      }
+  }
+
+  /* Give content more room on mobile */
+  @media screen and (max-width: 480px) {
+      td[class="container-padding"] {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+      }
+  }
+  
+  /* Global styles that apply eg inside of posts */
+  a {
+    color: #5f9b65;
+  }
+  blockquote {
+    border-left: solid 3px #e0e0e0;
+    padding: .75em 2em;
+    margin: 0;
+    color: rgba(0,0,0, 0.87);
+  }
+`;
+
 /*function getLoginTokenForEmail(user)
 {
   // TODO: If there's already a non-expired login token, reuse it
@@ -35,6 +80,28 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
   return loginToken;
 }*/
 
+function addEmailBoilerplate({ css, title, body })
+{
+  return `
+    <html lang="en">
+    <head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8"/>
+      {/* So that mobile webkit will display zoomed in */}
+      <meta name="viewport" content="initial-scale=1.0"/>
+      {/* disable auto telephone linking in iOS */}
+      <meta name="format-detection" content="telephone=no"/>
+   
+      <title>${title}</title>
+      <style>
+        ${emailGlobalCss}
+        ${css}
+      </style>
+    </head>
+    ${body}
+    </html>
+  `;
+}
+
 // Render an email. Arguments:
 //
 //   user: A user object. The user the email is being sent to, and also the
@@ -42,6 +109,9 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 //     will get this user).
 //   subject: String. The email subject line.
 //   bodyComponent: A React component, which will be used to render the body.
+//   boilerplateGenerate: (optional) A function which takes a style block,
+//     title, and HTML body (string), and assembles HTML boilerplate. Override
+//     for simpler documents in unit tests.
 //
 // The same components HoCs that are used for rendering pages, can also be used
 // in emails, with some restrictions:
@@ -50,7 +120,7 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 //   * While any JSS in withStyles will be included in the email, only a very
 //     limited and inconsistent subset is supported by mail clients
 //
-export async function generateEmail({user, subject, bodyComponent})
+export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!subject) throw new Error("Missing required argument: subject");
@@ -101,9 +171,7 @@ export async function generateEmail({user, subject, bodyComponent})
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
   const css = sheetsRegistry.toString();
-  const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";
-  
-  const html = `${styleTag}<body>${body}</body>`;
+  const html = boilerplateGenerator({ css, body, title:subject })
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
@@ -130,7 +198,44 @@ export async function generateEmail({user, subject, bodyComponent})
     to: user.email,
     from: from,
     subject: taggedSubject,
-    bodyHtml: emailDoctype + inlinedHTML,
-    bodyText: plaintext,
+    html: emailDoctype + inlinedHTML,
+    text: plaintext,
   }
+}
+
+export async function sendEmail(renderedEmail)
+{
+  if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
+    console.log("//////// Sending email..."); //eslint-disable-line
+    console.log("to: " + renderedEmail.to); //eslint-disable-line
+    console.log("subject: " + renderedEmail.subject); //eslint-disable-line
+    
+    Email.send(renderedEmail); // From meteor's 'email' package
+  } else {
+    console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
+    console.log("to: " + renderedEmail.to); //eslint-disable-line
+    console.log("subject: " + renderedEmail.subject); //eslint-disable-line
+    console.log("//////// HTML version"); //eslint-disable-line
+    console.log(renderedEmail.html); //eslint-disable-line
+    console.log("//////// Plain-text version"); //eslint-disable-line
+    console.log(renderedEmail.text); //eslint-disable-line
+  }
+}
+
+export async function renderAndSendEmail(emailProps)
+{
+  const renderedEmail = await generateEmail(emailProps);
+  sendEmail(renderedEmail);
+}
+
+// Returns a string explanation of why we can't send emails to a given user, or
+// null if there is no such reason and we can email them.
+export function reasonUserCantReceiveEmails(user)
+{
+  if (!user.email)
+    return "No email address";
+  if (!Users.emailAddressIsVerified(user))
+    return "Address is not verified";
+  
+  return null;
 }

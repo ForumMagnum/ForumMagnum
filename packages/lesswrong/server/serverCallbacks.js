@@ -1,15 +1,18 @@
-import Notifications from '../collections/notifications/collection.js';
-import Messages from '../collections/messages/collection.js';
-import Conversations from '../collections/conversations/collection.js';
+import Notifications from '../lib/collections/notifications/collection.js';
+import Messages from '../lib/collections/messages/collection.js';
+import Conversations from '../lib/collections/conversations/collection.js';
 import { getCollection } from 'meteor/vulcan:lib';
-import Localgroups from '../collections/localgroups/collection.js';
-import { Bans } from '../collections/bans/collection.js';
+import Localgroups from '../lib/collections/localgroups/collection.js';
+import { Bans } from '../lib/collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
-import { Votes } from '../collections/votes';
-import { cancelVoteServer } from './vote.js';
-import { Posts } from '../collections/posts';
-import { Comments } from '../collections/comments'
-import VulcanEmail from 'meteor/vulcan:email'
+import { Votes } from '../lib/collections/votes';
+import { cancelVoteServer } from '../lib/modules/vote.js';
+import { Posts } from '../lib/collections/posts';
+import { Comments } from '../lib/collections/comments'
+import { renderAndSendEmail, reasonUserCantReceiveEmails } from './emails/renderEmail.js';
+import './emailComponents/EmailWrapper.jsx';
+import './emailComponents/NewPostEmail.jsx';
+
 import {
   addCallback,
   removeCallback,
@@ -21,7 +24,7 @@ import {
   runQuery
 } from 'meteor/vulcan:core';
 
-import { performSubscriptionAction } from '../subscriptions/mutations.js';
+import { performSubscriptionAction } from '../lib/subscriptions/mutations.js';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
@@ -69,19 +72,20 @@ const createNotifications = (userIds, notificationType, documentType, documentId
 const sendPostByEmail = async (users, postId) => {
   let post = Posts.findOne(postId);
 
-  let email = await VulcanEmail.build({
-    emailName: "newPost",
-    variables: {
-      documentId: post._id
-    },
-    locale: "en"
-  });
-
-  users.forEach(user => {
-    if(user.email) {
-      VulcanEmail.send(user.email, email.subject, email.html, email.text, false);
+  for(let user of users) {
+    if(!reasonUserCantReceiveEmails(user)) {
+      await renderAndSendEmail({
+        user,
+        subject: post.title,
+        bodyComponent: <Components.EmailWrapper>
+          <Components.NewPostEmail documentId={post._id}/>
+        </Components.EmailWrapper>
+      });
+    } else {
+      //eslint-disable-next-line no-console
+      console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);
     }
-  });
+  }
 }
 
 const getLink = (documentType, documentId) => {

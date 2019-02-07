@@ -10,12 +10,19 @@ import { Posts } from '../../lib/collections/posts';
 chai.should();
 chai.use(chaiAsPromised);
 
+const unitTestBoilerplateGenerator = ({css,title,body}) => {
+  const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";
+  const html = `${styleTag}<body>${body}</body>`;
+  return html;
+}
+
 describe('renderEmail', async () => {
   it("Renders a simple component", async () => {
     const email = await generateEmail({
       user: await createDummyUser(),
       subject: "Unit test email",
-      bodyComponent: <div>Hello</div>
+      bodyComponent: <div>Hello</div>,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
     email.bodyHtml.should.equal(emailDoctype+'<body><div>Hello</div></body>');
@@ -25,7 +32,8 @@ describe('renderEmail', async () => {
     const email = await generateEmail({
       user: await createDummyUser(),
       subject: "Unit test email",
-      bodyComponent: <div>Hello</div>
+      bodyComponent: <div>Hello</div>,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
     email.bodyText.should.equal("Hello");
@@ -46,7 +54,8 @@ describe('renderEmail', async () => {
     const email = await generateEmail({
       user: await createDummyUser(),
       subject: "Unit test email",
-      bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>
+      bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
     email.bodyHtml.should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
@@ -69,7 +78,8 @@ describe('renderEmail', async () => {
     const email = await generateEmail({
       user: await createDummyUser(),
       subject: "Unit test email",
-      bodyComponent: <PostTitleComponent documentId={post._id} />
+      bodyComponent: <PostTitleComponent documentId={post._id} />,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     email.bodyHtml.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
   });
@@ -84,7 +94,8 @@ describe('renderEmail', async () => {
     const email = await generateEmail({
       user: user,
       subject: "Unit test email",
-      bodyComponent: <MyEmailComponent/>
+      bodyComponent: <MyEmailComponent/>,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     email.bodyHtml.should.equal(emailDoctype+`<body><div>${user.email}</div></body>`);
   });
@@ -111,12 +122,14 @@ describe('renderEmail', async () => {
     const permissionGrantedEmail = await generateEmail({
       user: user1,
       subject: "Unit test email",
-      bodyComponent: <ShowThePMComponent/>
+      bodyComponent: <ShowThePMComponent/>,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     const permissionDeniedEmail = await generateEmail({
       user: user2,
       subject: "Unit test email",
-      bodyComponent: <ShowThePMComponent/>
+      bodyComponent: <ShowThePMComponent/>,
+      boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
     permissionGrantedEmail.bodyHtml.should.equal(emailDoctype+'<body><div><div>Message body</div></div></body>');
