@@ -56,7 +56,7 @@ const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
     optional: true,
-    allowedValues: ['disables', 'daily', 'weekly', 'realtime']
+    allowedValues: ['disabled', 'daily', 'weekly', 'realtime']
   },
   timeOfDayGMT: {
     type: SimpleSchema.Integer,
