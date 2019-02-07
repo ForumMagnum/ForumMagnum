@@ -13,7 +13,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import Tooltip from '@material-ui/core/Tooltip';
 import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
