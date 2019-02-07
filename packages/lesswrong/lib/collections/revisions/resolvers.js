@@ -28,9 +28,18 @@ export function dataToMarkdown(data, type) {
       return htmlToMarkdown(data)
     }
     case "draftJS": {
-      const contentState = convertFromRaw(data);
-      const html = draftToHTML(contentState)
-      return htmlToMarkdown(html)
+      if (data) {
+        try {
+          const contentState = convertFromRaw(data);
+          const html = draftToHTML(contentState)
+          return htmlToMarkdown(html)  
+        } catch(e) {
+          // eslint-disable-next-line no-console
+          console.error(e)
+        }
+        
+      } 
+      return ""
     }
   }
 }
