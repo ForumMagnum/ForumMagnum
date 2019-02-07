@@ -87,6 +87,7 @@ extendFragment('UsersCurrent', `
     updateFrequency
     startDate
     endDate
+    nextBatchDate
     posts {
       scoreChange
       post {

@@ -13,6 +13,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
+import Tooltip from '@material-ui/core/Tooltip';
 import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
@@ -21,8 +22,6 @@ const styles = theme => ({
   karmaNotifierButton: {
   },
   karmaNotifierPaper: {
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2
   },
   karmaNotifierPopper: {
     zIndex: theme.zIndexes.karmaChangeNotifier,
@@ -31,13 +30,13 @@ const styles = theme => ({
     color: getHeaderTextColor(theme),
   },
   title: {
-    color: theme.palette.grey[800],
-    paddingTop: 16,
-    paddingLeft: 16,
-    paddingRight: 16
+    display: 'block',
+    paddingTop: theme.spacing.unit * 2,
+    paddingLeft: theme.spacing.unit * 2,
+    paddingRight: theme.spacing.unit * 2,
+    paddingBottom: theme.spacing.unit
   },
   votedItems: {
-    paddingTop: 10,
   },
   votedItemRow: {
     height: 20
@@ -75,10 +74,14 @@ const styles = theme => ({
   settings: {
     display: 'block',
     textAlign: 'right',
+    paddingRight: theme.spacing.unit * 2,
+    paddingLeft: theme.spacing.unit * 2,
+    paddingBottom: theme.spacing.unit * 2,
     color: theme.palette.grey[600],
-    marginTop: theme.spacing.unit * 2,
-    paddingRight: 16,
-  }
+    '&:hover': {
+      color: theme.palette.grey[500]
+    }
+  },
 });
 
 // Given a number, return a span of it as a string, with a plus sign if it's
@@ -94,14 +97,14 @@ const ColoredNumber = ({n, classes}) => {
   }
 }
 
-const KarmaChangesDisplay = ({karmaChanges, classes, handleClose, currentUser}) => {
+const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   const { posts, comments, updateFrequency } = karmaChanges
   const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
   return (
     <Typography variant="body2">
-      {/* Recent karma changes between <FormatDate date={karmaChanges.startDate}/> and <FormatDate date={karmaChanges.endDate}/> */}
       {noKarmaChanges ? 
-        <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span> : 
+        <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
+        : 
         <div>
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
@@ -132,7 +135,12 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose, currentUser}) 
           </div>
         </div>
         }
-      <Link to={`/account`} className={classes.settings} onClick={handleClose}> Change Settings </Link>
+      <Link to={`/account`} onClick={handleClose}> 
+        <span className={classes.settings}>Change Settings </span>  
+        {/* <div className={classes.bottomSection}>
+          
+        </div> */}
+      </Link>  
     </Typography>
   );
 }
@@ -189,7 +197,8 @@ class KarmaChangeNotifier extends PureComponent {
   
   render() {
     const {classes, currentUser} = this.props;
-    const {open, anchorEl, karmaChanges, karmaChangeLastOpened} = this.state;
+    const {open, anchorEl, karmaChanges: stateKarmaChanges, karmaChangeLastOpened} = this.state;
+    const karmaChanges = stateKarmaChanges || currentUser.karmaChanges // Covers special case when state was initialized when user wasn't logged in
     if (!currentUser || !karmaChanges) return null;
     
     const { karmaChangeNotifierSettings: settings } = currentUser

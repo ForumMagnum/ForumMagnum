@@ -27,7 +27,7 @@ import moment from 'moment-timezone';
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate})
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -63,9 +63,10 @@ export async function getKarmaChanges({user, startDate, endDate})
   }
   
   return {
-    totalChange: totalChange,
-    startDate: startDate,
-    endDate: endDate,
+    totalChange,
+    startDate,
+    nextBatchDate,
+    endDate,
     documents: changedDocs,
   };
 }

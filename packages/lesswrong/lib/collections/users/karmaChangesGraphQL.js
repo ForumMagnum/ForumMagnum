@@ -21,6 +21,7 @@ addGraphQLSchema(`
     totalChange: Int
     startDate: Date
     endDate: Date
+    nextBatchDate: Date
     updateFrequency: String
     posts: [PostWithScoreChange]
     comments: [CommentWithScoreChange]
