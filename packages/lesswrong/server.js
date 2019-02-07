@@ -38,6 +38,7 @@ import './server/editor/utils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
+import './server/serverCallbacks.js';
 import './server/logging.js';
 import './server/rss.js';
 import './server/akismet.js';
