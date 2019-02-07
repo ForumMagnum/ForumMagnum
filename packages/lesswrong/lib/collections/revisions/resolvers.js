@@ -8,8 +8,7 @@ import htmlToText from 'html-to-text'
 
 const PLAINTEXT_DESCRIPTION_LENGTH = 500
 
-// We have to add this type definition to the global object to allow draft-convert to properly work on the server
-global.HTMLElement = new JSDOM().window.HTMLElement
+
 
 function domBuilder(html) {
   const jsdom = new JSDOM(html)
@@ -42,7 +41,14 @@ export function dataToDraftJS(data, type) {
       return data
     }
     case "html": {
+      // We have to add this type definition to the global object to allow draft-convert to properly work on the server
+      global.HTMLElement = new JSDOM().window.HTMLElement
+      // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
+      global.document = new JSDOM().window.document
       const draftJSContentState = htmlToDraft(data, {}, domBuilder)
+      // We do however at least remove it right afterwards
+      delete global.document
+      delete global.HTMLElement
       return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
     }
     case "markdown": {
