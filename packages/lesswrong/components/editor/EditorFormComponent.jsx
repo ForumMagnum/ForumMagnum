@@ -251,7 +251,7 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    if (this.getCurrentEditorType() === "draftJS") {
+    if (this.getCurrentEditorType() === "draftJS" && draftJSValue) {
       return (
         <div className={classnames(heightClass, classes.root, "editor-form-component")}>
           { editorWarning }
