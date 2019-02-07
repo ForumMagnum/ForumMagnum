@@ -5,20 +5,6 @@ import moment from 'moment-timezone';
 // directory because we don't have a good way to make resolvers, or imports
 // used by resolvers, be server specific.
 
-export const karmaChangeNotifierDefaultSettings = {
-  // One of the string keys in karmaNotificationTimingChocies
-  updateFrequency: "daily",
-  
-  // Time of day at which daily/weekly batched updates are released, a number
-  // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  // Default corresponds to 3am PST.
-  timeOfDayGMT: 11,
-  
-  // A string day-of-the-week name, spelled out and capitalized like "Monday".
-  // Always in GMT, regardless of the user's timezone (timezone matters for day
-  // of the week because time zones could take it across midnight.)
-  dayOfWeekGMT: "Saturday",
-};
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -41,7 +27,7 @@ export const karmaChangeNotifierDefaultSettings = {
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate})
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -77,14 +63,15 @@ export async function getKarmaChanges({user, startDate, endDate})
   }
   
   return {
-    totalChange: totalChange,
-    startDate: startDate,
-    endDate: endDate,
+    totalChange,
+    startDate,
+    nextBatchDate,
+    endDate,
     documents: changedDocs,
   };
 }
 
-export function getKarmaChangeDateRange({settings, now, lastOpened})
+export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null})
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.
@@ -103,6 +90,14 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
       return null;
     case "daily":
       const oneDayPrior = moment(lastDailyReset).subtract(1, 'days');
+      
+      if (lastOpened && lastOpened > lastDailyReset.toDate() && lastBatchStart) {
+        return {
+          start: lastBatchStart,
+          end: lastDailyReset.toDate()
+        };
+      }
+      
       return {
         start: moment.min(oneDayPrior, moment(lastOpened)).toDate(),
         end: lastDailyReset.toDate(),
@@ -125,7 +120,27 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
     case "realtime":
       return {
         start: lastOpened || new Date("1970-01-01"),
-        end: now,
+        end: now
       }
+  }
+}
+
+export function getKarmaChangeNextBatchDate({settings, now})
+{
+  switch(settings.updateFrequency) {
+    case "disabled":
+    case "realtime":
+      return null;
+    case "daily":
+      const lastDailyBatch = getKarmaChangeDateRange({settings, now});
+      const lastDailyReset = lastDailyBatch.end;
+      const nextDailyReset = moment(lastDailyReset).add(1, 'days');
+      return nextDailyReset.toDate();
+      
+    case "weekly":
+      const lastWeeklyBatch = getKarmaChangeDateRange({settings, now});
+      const lastWeeklyReset = lastWeeklyBatch.end;
+      const nextWeeklyReset = moment(lastWeeklyReset).add(7, 'days');
+      return nextWeeklyReset.toDate();
   }
 }

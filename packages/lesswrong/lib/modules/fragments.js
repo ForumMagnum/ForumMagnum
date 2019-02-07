@@ -87,6 +87,7 @@ extendFragment('UsersCurrent', `
     updateFrequency
     startDate
     endDate
+    nextBatchDate
     posts {
       scoreChange
       post {
@@ -102,6 +103,7 @@ extendFragment('UsersCurrent', `
       }
     }
   }
+  karmaChangeLastOpened
   shortformFeedId
 `);
 
