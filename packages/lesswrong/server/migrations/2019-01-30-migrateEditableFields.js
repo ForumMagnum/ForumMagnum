@@ -19,7 +19,10 @@ function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markd
   if (draftJS && draftJS.blocks) {
     return {type: "draftJS", data: draftJS}
   }
-  return {type: "html", data: html || ""}
+  if (html) {
+    return {type: "html", data: html}
+  }
+  return null
 }
 
 function determineSemVer({draft}) {
@@ -37,61 +40,74 @@ registerMigration({
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
-          schemaVersion: {$lt: 3}
+          schemaVersion: {$lt: 7}
         }, 
         migrate: async (documents) => {
           const updates = documents.map(doc => {
             const newFields = _.object(editableCollectionsFields[collectionName].map((fieldName) => {
               if (["Sequences", "Books", "Chapters", "Collections"].includes(collectionName)) { // Special case for sequences, books, collections and chapters
-                return [
-                  "contents",
-                  {
-                    originalContents: determineCanonicalContent({
-                      content: doc.description,
-                      body: doc.plaintextDescription,
-                      htmlBody: doc.htmlDescription
-                    }),
-                    html: doc.htmlDescription,
-                    version: determineSemVer(doc),
-                    userId: doc.userId,
-                    editedAt: doc.postedAt || doc.createdAt
-                  }
-                ]
+                const canonicalContents = determineCanonicalContent({
+                  content: doc.description,
+                  body: doc.plaintextDescription,
+                  htmlBody: doc.htmlDescription
+                })
+                if (canonicalContents) {
+                  return [
+                    "contents",
+                    {
+                      originalContents: canonicalContents,
+                      html: doc.htmlDescription,
+                      version: determineSemVer(doc),
+                      userId: doc.userId,
+                      editedAt: doc.postedAt || doc.createdAt
+                    }
+                  ]
+                }
+                return []
               }
               if (fieldName === "contents") {
+                const canonicalContents = determineCanonicalContent(doc)
+                if (canonicalContents) {
+                  return [
+                    "contents",
+                    {
+                      originalContents: determineCanonicalContent(doc),
+                      html: doc.htmlBody,
+                      version: determineSemVer(doc),
+                      userId: doc.userId,
+                      editedAt: doc.postedAt || doc.createdAt
+                    }
+                  ]
+                }
+                return []
+              }
+              const canonicalContents = determineCanonicalContent({
+                content: doc[`${fieldName}Content`], 
+                lastEditedAs: doc[`${fieldName}LastEditedAs`], 
+                body: doc[`${fieldName}Body`],
+                htmlBody: doc[`${fieldName}HtmlBody`]
+              })
+              if (canonicalContents) {
                 return [
-                  "contents",
+                  fieldName,
                   {
-                    originalContents: determineCanonicalContent(doc),
-                    html: doc.htmlBody,
+                    originalContents: canonicalContents,
+                    html: doc[`${fieldName}HtmlBody`],
                     version: determineSemVer(doc),
                     userId: doc.userId,
-                    editedAt: doc.postedAt || doc.createdAt
+                    editedAt: doc.postedAt
                   }
                 ]
+              } else {
+                return []
               }
-              return [
-                fieldName,
-                {
-                  originalContents: determineCanonicalContent({
-                    content: doc[`${fieldName}Content`], 
-                    lastEditedAs: doc[`${fieldName}LastEditedAs`], 
-                    body: doc[`${fieldName}Body`],
-                    htmlBody: doc[`${fieldName}HtmlBody`]
-                  }),
-                  html: doc[`${fieldName}HtmlBody`],
-                  version: determineSemVer(doc),
-                  userId: doc.userId,
-                  editedAt: doc.postedAt
-                }
-              ]
             }))
             return {
               updateOne: {
                 filter: {_id: doc._id},
                 update: {
                   $set: {
-                    schemaVersion: 3,
+                    schemaVersion: 7,
                     ...newFields
                   }
                 }
