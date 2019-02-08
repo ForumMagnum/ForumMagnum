@@ -100,7 +100,9 @@ extendFragment('UsersCurrent', `
     comments {
       scoreChange
       comment {
-        plaintextExcerpt
+        contents {
+          plaintextDescription
+        }
         pageUrlRelative
       }
     }
