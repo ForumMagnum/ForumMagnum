@@ -18,13 +18,14 @@ registerMigration({
         migrate: async (documents) => {
           const updates = documents.map((doc) => {
             return {
-              replaceOne: {
+              deleteOne: {
                 filter: {_id: doc._id},
-                replacement: {
-                  ...doc, 
+              },
+              insertOne: {
+                document: {
+                  ...doc,
                   _id: doc._id.valueOf()
-                },
-                upsert: false
+                }
               }
             }
           })
