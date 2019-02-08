@@ -403,7 +403,7 @@ registerFragment(`
     
     # Karma Settings
     karmaChangeLastOpened
-    karmaChangeNotifierSettings
+    karmaChangeNotifierSettings 
   }
 `)
 
