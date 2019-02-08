@@ -11,7 +11,7 @@ registerMigration({
       await migrateDocuments({
         description: `Replace object ids with strings in ${collectionName}`,
         collection,
-        batchSize: 100,
+        batchSize: 1000,
         unmigratedDocumentQuery: {
           _id: {$type: "objectId"}
         }, 
