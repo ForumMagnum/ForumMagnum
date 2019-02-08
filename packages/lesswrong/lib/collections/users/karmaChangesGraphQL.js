@@ -79,15 +79,18 @@ Users.addField([
           // Grab new current user, because the current user gets set at the beginning of the request, which
           // is out of date in this case, because we are depending on recent mutations being reflected on the current user
           const newCurrentUser = await Users.findOne(currentUser._id)
+          
           const settings = newCurrentUser.karmaChangeNotifierSettings
           const now = new Date();
           
           // If date range isn't specified, infer it from user settings
           if (!startDate || !endDate) {
+            // If the user has karmaChanges disabled, don't return anything
+            if (settings.updateFrequency === "disabled") return null
             const lastOpened = newCurrentUser.karmaChangeLastOpened;
             const lastBatchStart = newCurrentUser.karmaChangeBatchStart;
             
-            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now})
+            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now}) 
             startDate = start;
             endDate = end;
           }
