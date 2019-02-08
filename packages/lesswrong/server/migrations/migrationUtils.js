@@ -39,7 +39,7 @@ export function registerMigration({ name, idempotent, action })
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues({ collection, fieldName })
+export async function fillDefaultValues({ collection, fieldName, batchOptions })
 {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
@@ -51,7 +51,44 @@ export async function fillDefaultValues({ collection, fieldName })
 
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
+  if (batchOptions) {
+    // Apply default values to batchOptions
+    batchOptions = { bucketSize: 10000, fieldName: '_id', ...batchOptions }
 
+    // Get total collection size
+    const { count: collectionSize } = await collection.rawCollection().stats()
+
+    // Calculate target number of buckets
+    const bucketCount = Math.floor(collectionSize / batchOptions.bucketSize)
+
+    // Calculate target sample size
+    const sampleSize = 20 * bucketCount
+
+    // Calculate percentiles using Mongo aggregate
+    const percentiles = await collection.rawCollection().aggregate([
+      { $sample: { size: sampleSize } },
+      { $sort: {[batchOptions.fieldName]: 1} },
+      { $bucketAuto: { groupBy: ('$' + batchOptions.fieldName), buckets: bucketCount}},
+      { $project: {value: '$_id.max', _id: 0}}
+    ]).toArray()
+
+    // Starting at the lowest percentile, modify everything
+    for (const percentile of percentiles) {
+      const query = {
+        [fieldName]: null,
+        [batchOptions.fieldName]: {$lt: percentile.value},
+      }
+      const mutation = { $set: {
+        [fieldName]: defaultValue
+        }
+      }
+      const options = { multi: true }
+      const writeResult = await collection.update(query, mutation, options)
+      console.log(`Bucket with max ${percentile} done. ${writeResult.nModified || 0} rows affected`);
+    }
+    return
+  } 
+    
   const writeResult = await collection.update({
     [fieldName]: null
   }, {
