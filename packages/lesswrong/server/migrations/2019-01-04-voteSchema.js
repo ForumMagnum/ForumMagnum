@@ -41,6 +41,11 @@ registerMigration({
             if (!authorIdsByDocument[vote.documentId]) {
               // eslint-disable-next-line no-console
               console.log("Vote without corresponding authorId ", vote)
+              return { 
+                deleteOne: {
+                  filter: {_id: vote._id}
+                }
+              }
             }
             return {
               updateOne: {
