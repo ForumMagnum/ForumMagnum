@@ -193,6 +193,7 @@ const schema = {
   */
   lastCommentedAt: {
     type: Date,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
   },
@@ -317,6 +318,7 @@ const schema = {
   */
   author: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     onEdit: (modifier, document, currentUser) => {
@@ -331,6 +333,7 @@ const schema = {
   */
   userId: {
     type: String,
+    foreignKey: 'Users',
     optional: true,
     control: 'select',
     viewableBy: ['guests'],
@@ -395,6 +398,7 @@ const schema = {
 
   postedAtFormatted: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
@@ -420,6 +424,7 @@ const schema = {
 
   commentIds: {
     type: Object,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
@@ -480,6 +485,7 @@ const schema = {
   authorIsUnreviewed: {
     type: Boolean,
     optional: true,
+    denormalized: true,
     ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],

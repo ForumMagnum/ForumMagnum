@@ -1,5 +1,5 @@
 /* global Vulcan */
-import { Collections } from 'meteor/vulcan:lib';
+import { Collections, getCollection } from 'meteor/vulcan:lib';
 
 // Given a collection and a batch size, run a callback for each row in the
 // collection, grouped into batches of up to the given size. Rows created or
@@ -17,7 +17,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
   let rows = collection.find({}, {limit: batchSize});
   
   do {
-    callback(rows);
+    await callback(rows);
     
     const lastID = _.max(rows, row => row._id);
     rows = await collection.find(
@@ -29,8 +29,12 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
 
 // Validate a collection against its attached schema. Checks that _id is always
 // a string, that required fields are present, that unrecognized keys are not
-// present, and that fields are of the specified type. Outputs a summary of any
-// problems found through console.log, and returns nothing.
+// present, that fields are of the specified type, and that foreign-key fields
+// point to rows that actually exist. (CAVEAT: foreign-key fields inside a
+// nested schema are not currently handled, only top-level fields.)
+//
+// Outputs a summary of any problems found through console.log, and returns
+// nothing.
 export async function validateCollection(collection)
 {
   const collectionName = collection.collectionName;
@@ -60,19 +64,80 @@ export async function validateCollection(collection)
   
   await forEachDocumentBatchInCollection({
     collection, batchSize: 10000,
-    callback: (batch) => {
+    callback: async (batch) => {
+      function recordError(field, errorType) {
+        if (!errorsByField[field])
+          errorsByField[field] = {};
+        if (!errorsByField[field][errorType])
+          errorsByField[field][errorType] = 0;
+        
+        errorsByField[field][errorType]++;
+      }
+      
+      // Validate documents against their batch with simpl-schema
       for (const document of batch) {
         validationContext.validate(document);
         
         if (!validationContext.isValid()) {
           let errors = validationContext.validationErrors();
           for (let error of errors) {
-            if (!errorsByField[error.name])
-              errorsByField[error.name] = {};
-            if (!errorsByField[error.name][error.type])
-              errorsByField[error.name][error.type] = 0;
-            
-            errorsByField[error.name][error.type]++;
+            recordError(error.name, error.type);
+          }
+        }
+      }
+      
+      // Iterate through fields checking for the foreignKey property (which
+      // simpl-schema doesn't handle), and verifying that the keys actually
+      // exist
+      for (let fieldName in schema._schema) {
+        // TODO: Nested-field foreign key constraints aren't yet supported
+        if (fieldName.indexOf("$") >= 0)
+          continue;
+        
+        const foreignKeySpec = schema._schema[fieldName].foreignKey;
+        
+        if (foreignKeySpec) {
+          // Get a list of foreign values to check for
+          let foreignValuesDict = {};
+          for (const document of batch) {
+            if (document[fieldName])
+              foreignValuesDict[document[fieldName]] = true;
+          }
+          const foreignValues = Object.keys(foreignValuesDict);
+          
+          let foreignField, foreignCollectionName;
+          if (typeof foreignKeySpec === "string") {
+            foreignField = "_id";
+            foreignCollectionName = foreignKeySpec;
+          } else {
+            foreignField = foreignKeySpec.field;
+            foreignCollectionName = foreignKeySpec.collection
+            if (typeof foreignField !== "string")
+              throw new Error("Expected a field name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string");
+            if (typeof foreignCollectionName !== "string")
+              throw new Error("Expected a collection name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string");
+          }
+          const foreignCollection = getCollection(foreignCollectionName);
+          
+          if (!foreignCollection) {
+              //eslint-disable-next-line no-console
+              console.error(`    Cannot find collection for foreign-key validation: ${foreignCollectionName}`);
+              return;
+          }
+          
+          // Get reduced versions of rows that the foreign-key field refers to
+          const foreignRows = await foreignCollection.find({ [foreignField]: {$in: foreignValues} }, { [foreignField]:1 })
+          
+          // Collect a list of values present
+          const foreignValuesFound = {};
+          for (const foreignRow of foreignRows)
+            foreignValuesFound[foreignRow[foreignField]] = true;
+          
+          // Compare against values referred to, and report an error for any missing
+          for (const document of batch) {
+            if (document[fieldName] && !(document[fieldName] in foreignValuesFound)) {
+              recordError(fieldName, "foreignKeyViolation");
+            }
           }
         }
       }

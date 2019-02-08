@@ -23,6 +23,7 @@ const schema = {
 
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
@@ -101,11 +102,13 @@ const schema = {
 
   'books.$': {
     type: String,
+    foreignKey: "Books",
     optional: true,
   },
 
   gridImageId: {
     type: String,
+    // Corresponds to a Cloudinary ID
     optional: true,
     viewableBy: ["guests"],
     editableBy: ['admins'],

@@ -84,6 +84,7 @@ const schema = {
 
   sequenceId: {
     type: String,
+    foreignKey: "Sequences",
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
@@ -118,6 +119,7 @@ const schema = {
 
   "postIds.$": {
     type: String,
+    foreignKey: "Posts",
     optional: true,
   },
 }

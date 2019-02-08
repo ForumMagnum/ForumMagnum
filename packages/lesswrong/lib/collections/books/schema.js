@@ -71,6 +71,7 @@ const schema = {
 
   collectionId: {
     type: String,
+    foreignKey: "Collections",
     optional: false,
     viewableBy: ['guests'],
     editableBy: ['admins'],
@@ -106,6 +107,7 @@ const schema = {
 
   'postIds.$': {
     type: String,
+    foreignKey: "Posts",
     optional: true,
   },
 
@@ -128,6 +130,7 @@ const schema = {
 
   'sequenceIds.$': {
     type: String,
+    foreignKey: "Sequences",
     optional: true,
   }
 

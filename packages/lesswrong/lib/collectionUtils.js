@@ -10,6 +10,22 @@ SimpleSchema.extendOptions([ 'canAutofillDefault' ]);
 // attached.
 SimpleSchema.extendOptions([ 'denormalized' ]);
 
+// foreignKey: In a schema entry, this is either an object {collection,field},
+// or just a string, in which case the string is the collection name and field
+// is _id. Indicates that if this field is present and not null, its value
+// must correspond to an existing row in the named collection. For example,
+//
+//   foreignKey: 'Users'
+//   means that the value of this field must be the _id of a user;
+//
+//   foreignKey: {
+//     collection: 'Posts',
+//     field: 'slug'
+//   }
+//   means that the value of this field must be the slug of a post.
+//
+SimpleSchema.extendOptions([ 'foreignKey' ]);
+
 export let expectedIndexes = {};
 
 // Returns true if the specified index has a name, and the collection has an
