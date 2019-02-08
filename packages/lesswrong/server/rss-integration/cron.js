@@ -92,4 +92,6 @@ const addJob = function () {
 };
 
 
-Meteor.startup(addJob);
+if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+  Meteor.startup(addJob);
+}

@@ -177,6 +177,8 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
       }
     }
   }))
-  if (itemUpdates && itemUpdates.length) {await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});}
+  if (itemUpdates && itemUpdates.length) {
+    await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});
+  }
   return updatedDocumentsCounter;
 }

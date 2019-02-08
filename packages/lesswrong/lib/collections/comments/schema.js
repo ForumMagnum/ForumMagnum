@@ -178,10 +178,21 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     resolveAs: {
-      fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
         return context.Comments.getPageUrl(comment, true)
+      },
+    }
+  },
+
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, context) => {
+        return context.Comments.getPageUrl(comment, false)
       },
     }
   },

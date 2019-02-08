@@ -91,6 +91,7 @@
     "jsdom": "^13.1.0",
     "juice": "^1.11.0",
     "local-storage": "^1.4.2",
+    "lolex": "^3.0.0",
     "mailchimp": "^1.1.6",
     "markdown-it": "^8.4.2",
     "markdown-it-container": "^2.0.0",
