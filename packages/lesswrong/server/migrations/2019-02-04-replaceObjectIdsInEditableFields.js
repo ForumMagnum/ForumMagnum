@@ -3,10 +3,10 @@ import { editableCollections } from '../../lib/editor/make_editable'
 import { getCollection } from 'meteor/vulcan:core'
 
 registerMigration({
-  name: "replaceObjectIdsInEditableFields",
+  name: "replaceObjectIdsInEditableFieldsAndVotes",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections) {
+    for (let collectionName of [...editableCollections, "Votes"]) {
       const collection = getCollection(collectionName)
       await migrateDocuments({
         description: `Replace object ids with strings in ${collectionName}`,
@@ -21,8 +21,7 @@ registerMigration({
             await collection.insert(
               {
                 ...doc,
-                _id: doc._id.valueOf(),
-                username: doc.username + "x"
+                _id: doc._id.valueOf()
               }
             )
           }
