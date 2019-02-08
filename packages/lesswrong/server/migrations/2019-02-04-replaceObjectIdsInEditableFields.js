@@ -17,7 +17,7 @@ registerMigration({
         }, 
         migrate: async (documents) => {
           for (let doc of documents) {
-            await collection.remove({_id: doc._id}, true)
+            await collection.remove({_id: doc._id})
             await collection.insert(
               {
                 ...doc,
