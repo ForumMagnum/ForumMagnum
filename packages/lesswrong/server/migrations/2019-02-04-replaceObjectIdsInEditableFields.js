@@ -11,21 +11,20 @@ registerMigration({
       await migrateDocuments({
         description: `Replace object ids with strings in ${collectionName}`,
         collection,
-        batchSize: 1000,
+        batchSize: 100,
         unmigratedDocumentQuery: {
           _id: {$type: "objectId"}
         }, 
         migrate: async (documents) => {
           const updates = documents.map((doc) => {
             return {
-              deleteOne: {
-                filter: {_id: doc._id},
-              },
-              insertOne: {
-                document: {
+              updateOne: {
+                filter: {_id: doc._id.valueOf()},
+                update: {
                   ...doc,
                   _id: doc._id.valueOf()
-                }
+                },
+                upsert: true 
               }
             }
           })
@@ -33,6 +32,8 @@ registerMigration({
             updates, 
             { ordered: false }
           )
+          const _ids = _.pluck(documents, '_id')
+          await collection.remove({_id: {$in: _ids}})
         }
       })
       await migrateDocuments({
