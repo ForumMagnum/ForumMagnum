@@ -625,8 +625,8 @@ Users.addField([
       optional: true,
       control: "KarmaChangeNotifierSettings",
       canRead: [Users.owns, 'admins'],
-      canUpdate: [Users.owns, 'admins'],
-      canCreate: [Users.owns, 'admins'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment'],
       ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
     },
   },
