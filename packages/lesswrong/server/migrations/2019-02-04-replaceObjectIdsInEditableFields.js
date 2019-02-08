@@ -16,15 +16,22 @@ registerMigration({
           _id: {$type: "objectId"}
         }, 
         migrate: async (documents) => {
-          for (let doc of documents) {
-            await collection.remove({_id: doc._id})
-            await collection.insert(
-              {
-                ...doc,
-                _id: doc._id.valueOf()
+          const updates = documents.map((doc) => {
+            return {
+              replaceOne: {
+                filter: {_id: doc._id},
+                replacement: {
+                  ...doc, 
+                  _id: doc._id.valueOf()
+                },
+                upsert: false
               }
-            )
-          }
+            }
+          })
+          await collection.rawCollection().bulkWrite(
+            updates, 
+            { ordered: false }
+          )
         }
       })
       await migrateDocuments({
