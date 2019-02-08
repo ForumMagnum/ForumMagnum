@@ -401,6 +401,9 @@ registerFragment(`
     afApplicationText
     afSubmittedApplication
     
+    # Karma Settings
+    karmaChangeLastOpened
+    karmaChangeNotifierSettings
   }
 `)
 
