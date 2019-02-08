@@ -14,7 +14,6 @@ const generalGuidelines = `
   <p>
     <b>Be curious.</b> Approach disagreements with curiosity; focus on understanding other people
     rather than proving them wrong. Try to figure out the truth together.
-    supportively</a>.
   </p>
   <p>
     See our <a href="https://forum.effectivealtruism.org/about">guide to the Forum</a> for more notes on commenting.
