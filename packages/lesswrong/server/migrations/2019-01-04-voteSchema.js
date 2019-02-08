@@ -38,6 +38,10 @@ registerMigration({
           
           // Fill in authorId on the votes.
           const updates = _.map(votesToUpdate, vote => {
+            if (!authorIdsByDocument[vote.documentId]) {
+              // eslint-disable-next-line no-console
+              console.log("Vote without corresponding authorId ", vote)
+            }
             return {
               updateOne: {
                 filter: {_id: vote._id},
