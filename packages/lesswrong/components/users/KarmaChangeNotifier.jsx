@@ -73,6 +73,7 @@ const styles = theme => ({
   settings: {
     display: 'block',
     textAlign: 'right',
+    paddingTop: theme.spacing.unit,
     paddingRight: theme.spacing.unit * 2,
     paddingLeft: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit * 2,
