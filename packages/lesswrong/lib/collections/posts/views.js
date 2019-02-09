@@ -152,10 +152,11 @@ ensureIndex(Posts,
   }
 );
 
+const frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
+if (getSetting('EAForum')) frontpageSelector.meta = {$ne: true}
+
 Posts.addView("frontpage", terms => ({
-  selector: {
-    frontpageDate: {$gt: new Date(0)},
-  },
+  selector: frontpageSelector,
   options: {
     sort: {sticky: -1, score: -1}
   }
@@ -164,14 +165,12 @@ ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
   {
     name: "posts.frontpage",
-    partialFilterExpression: { frontpageDate: {$gt: new Date(0)} },
+    partialFilterExpression: frontpageSelector,
   }
 );
 
 Posts.addView("frontpage-rss", terms => ({
-  selector: {
-    frontpageDate: {$gt: new Date(0)},
-  },
+  selector: frontpageSelector,
   options: {
     sort: {frontpageDate: -1, postedAt: -1}
   }
