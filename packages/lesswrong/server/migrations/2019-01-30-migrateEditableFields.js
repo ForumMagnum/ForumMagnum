@@ -1,6 +1,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { getCollection } from 'meteor/vulcan:core'
+import { Revisions } from '../../lib/index';
 
 function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }) {
   if (lastEditedAs) {
@@ -40,11 +41,15 @@ registerMigration({
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
-          schemaVersion: {$lt: 7}
+          schemaVersion: {$lt: 8}
         }, 
         migrate: async (documents) => {
-          const updates = documents.map(doc => {
-            const newFields = _.object(editableCollectionsFields[collectionName].map((fieldName) => {
+          let collectionUpdates = []
+          let newRevisions = []
+          documents.forEach(doc => {
+            editableCollectionsFields[collectionName].forEach((fieldName) => {
+              let contentFields
+              let newFieldName
               if (["Sequences", "Books", "Chapters", "Collections"].includes(collectionName)) { // Special case for sequences, books, collections and chapters
                 const canonicalContents = determineCanonicalContent({
                   content: doc.description,
@@ -52,70 +57,83 @@ registerMigration({
                   htmlBody: doc.htmlDescription
                 })
                 if (canonicalContents) {
-                  return [
-                    "contents",
-                    {
-                      originalContents: canonicalContents,
-                      html: doc.htmlDescription,
-                      version: determineSemVer(doc),
-                      userId: doc.userId,
-                      editedAt: doc.postedAt || doc.createdAt
-                    }
-                  ]
+                  contentFields = {
+                    originalContents: canonicalContents,
+                    html: doc.htmlDescription,
+                    version: determineSemVer(doc),
+                    userId: doc.userId,
+                    editedAt: doc.postedAt || doc.createdAt
+                  }
+                  newFieldName = "contents"
                 }
-                return []
-              }
-              if (fieldName === "contents") {
+              } else if (fieldName === "contents") {
                 const canonicalContents = determineCanonicalContent(doc)
                 if (canonicalContents) {
-                  return [
-                    "contents",
-                    {
-                      originalContents: determineCanonicalContent(doc),
-                      html: doc.htmlBody,
-                      version: determineSemVer(doc),
-                      userId: doc.userId,
-                      editedAt: doc.postedAt || doc.createdAt
-                    }
-                  ]
+                  contentFields = {
+                    originalContents: determineCanonicalContent(doc),
+                    html: doc.htmlBody,
+                    version: determineSemVer(doc),
+                    userId: doc.userId,
+                    editedAt: doc.postedAt || doc.createdAt
+                  }
+                  newFieldName = "contents"
                 }
-                return []
-              }
-              const canonicalContents = determineCanonicalContent({
-                content: doc[`${fieldName}Content`], 
-                lastEditedAs: doc[`${fieldName}LastEditedAs`], 
-                body: doc[`${fieldName}Body`],
-                htmlBody: doc[`${fieldName}HtmlBody`]
-              })
-              if (canonicalContents) {
-                return [
-                  fieldName,
-                  {
+              } else {
+                const canonicalContents = determineCanonicalContent({
+                  content: doc[`${fieldName}Content`], 
+                  lastEditedAs: doc[`${fieldName}LastEditedAs`], 
+                  body: doc[`${fieldName}Body`],
+                  htmlBody: doc[`${fieldName}HtmlBody`]
+                })
+                if (canonicalContents) {
+                  contentFields = {
                     originalContents: canonicalContents,
                     html: doc[`${fieldName}HtmlBody`],
                     version: determineSemVer(doc),
                     userId: doc.userId,
                     editedAt: doc.postedAt
                   }
-                ]
-              } else {
-                return []
+                  newFieldName = fieldName
+                } 
               }
-            }))
-            return {
-              updateOne: {
-                filter: {_id: doc._id},
-                update: {
-                  $set: {
-                    schemaVersion: 7,
-                    ...newFields
+              if (contentFields && newFieldName) {
+                collectionUpdates.push({
+                  updateOne: {
+                    filter: {_id: doc._id},
+                    update: {
+                      $set: {
+                        [newFieldName]: contentFields,
+                        schemaVersion: 8,
+                      }
+                    }
                   }
-                }
+                })
+                newRevisions.push({
+                  insertOne: {
+                    document: {
+                      ...contentFields,
+                      documentId: doc._id,
+                      fieldName: [newFieldName],
+                      schemaVersion: 8
+                    }
+                  }
+                })
+              } else {
+                collectionUpdates.push({
+                  updateOne: {
+                    filter: {_id: doc._id},
+                    update: {$set: {schemaVersion: 8}}
+                  }
+                })
               }
-            }
+            })
           })
           await collection.rawCollection().bulkWrite(
-            updates, 
+            collectionUpdates, 
+            { ordered: false }
+          )
+          await Revisions.rawCollection().bulkWrite(
+            collectionUpdates,
             { ordered: false }
           )  
         }
