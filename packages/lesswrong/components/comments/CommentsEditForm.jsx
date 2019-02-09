@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from "../../lib/collections/comments";
 
-const CommentsEditForm = (props, context) => {
+const CommentsEditForm = (props) => {
   return (
     <div className="comments-edit-form">
       <Components.WrappedSmartForm
@@ -13,7 +13,7 @@ const CommentsEditForm = (props, context) => {
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
         showRemove={false}
-        queryFragment={getFragment('CommentsList')}
+        queryFragment={getFragment('CommentEdit')}
         mutationFragment={getFragment('CommentsList')}
         submitLabel="Save"
       />

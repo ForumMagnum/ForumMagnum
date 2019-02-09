@@ -241,7 +241,7 @@ const schema = {
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {
       const post = await Posts.findOne({_id: newDocument.postId})
-      return post && post.contents && post.contents.version || "1.0.0"
+      return (post && post.contents && post.contents.version) || "1.0.0"
     }
   }
 };

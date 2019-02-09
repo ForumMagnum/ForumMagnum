@@ -30,6 +30,8 @@ function determineSemVer({draft}) {
   return draft ? "0.1.0" : "1.0.0"
 }
 
+const TARGET_SCHEMA_VERSION = 12
+
 registerMigration({
   name: "migrateEditableFields",
   idempotent: true,
@@ -41,7 +43,7 @@ registerMigration({
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
-          schemaVersion: {$lt: 8}
+          schemaVersion: {$lt: TARGET_SCHEMA_VERSION}
         }, 
         migrate: async (documents) => {
           let collectionUpdates = []
@@ -74,7 +76,8 @@ registerMigration({
                     html: doc.htmlBody,
                     version: determineSemVer(doc),
                     userId: doc.userId,
-                    editedAt: doc.postedAt || doc.createdAt
+                    editedAt: doc.postedAt || doc.createdAt,
+                    // Special case for comments: Add the `postVersion` field.
                   }
                   newFieldName = "contents"
                 }
@@ -103,7 +106,8 @@ registerMigration({
                     update: {
                       $set: {
                         [newFieldName]: contentFields,
-                        schemaVersion: 8,
+                        schemaVersion: TARGET_SCHEMA_VERSION,
+                        postVersion: (collectionName === "Comments") ? "1.0.0" : undefined 
                       }
                     }
                   }
@@ -114,7 +118,7 @@ registerMigration({
                       ...contentFields,
                       documentId: doc._id,
                       fieldName: [newFieldName],
-                      schemaVersion: 8
+                      schemaVersion: TARGET_SCHEMA_VERSION
                     }
                   }
                 })
@@ -122,20 +126,24 @@ registerMigration({
                 collectionUpdates.push({
                   updateOne: {
                     filter: {_id: doc._id},
-                    update: {$set: {schemaVersion: 8}}
+                    update: {$set: {schemaVersion: TARGET_SCHEMA_VERSION}}
                   }
                 })
               }
             })
           })
-          await collection.rawCollection().bulkWrite(
-            collectionUpdates, 
-            { ordered: false }
-          )
-          await Revisions.rawCollection().bulkWrite(
-            collectionUpdates,
-            { ordered: false }
-          )  
+          if (collectionUpdates && collectionUpdates.length) {
+            await collection.rawCollection().bulkWrite(
+              collectionUpdates, 
+              { ordered: false }
+            )
+          }
+          if (newRevisions && newRevisions.length) {
+            await Revisions.rawCollection().bulkWrite(
+              newRevisions,
+              { ordered: false }
+            ) 
+          }
         }
       })  
     }
