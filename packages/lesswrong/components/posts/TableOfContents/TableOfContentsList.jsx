@@ -1,4 +1,4 @@
-import React, { PureComponent, Component } from 'react';
+import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
@@ -25,12 +25,10 @@ class TableOfContentsList extends Component {
     const { TableOfContentsRow } = Components;
     // const Row = TableOfContentsRow;
 
-    if (!sectionData)
-      return <div/>
+    if (!sectionData) return <div/>
 
-    const sections = sectionData ? sectionData.sections : []
-
-    const title = (document && document.title) || (sectionData && sectionData.document && sectionData.document.title);
+    const { sections } = sectionData
+    const title = (document && document.title) || (sectionData.document && sectionData.document.title);
     
     return <div>
       <div>

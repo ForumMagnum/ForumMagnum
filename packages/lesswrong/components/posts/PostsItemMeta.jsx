@@ -73,7 +73,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
         <PostsStats post={post} />
       }
 
-      { afBaseScore && <MetaInfo>
+      { (afBaseScore || afBaseScore === 0) && <MetaInfo>
         <Tooltip title={<div>
           { afBaseScore || 0 } karma on alignmentforum.org
         </div>}>

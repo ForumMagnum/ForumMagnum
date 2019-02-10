@@ -40,7 +40,8 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser, hover } = this.props
-    const voteCount = comment ? comment.voteCount : 0;
+    if (!comment) return null
+    const voteCount = comment.voteCount || 0
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
@@ -50,7 +51,7 @@ class CommentsVote extends PureComponent {
     )
 
     return (
-      <div className={classNames("comments-item-vote"), classes.vote}>
+      <div className={classNames("comments-item-vote", classes.vote)}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
             <Tooltip

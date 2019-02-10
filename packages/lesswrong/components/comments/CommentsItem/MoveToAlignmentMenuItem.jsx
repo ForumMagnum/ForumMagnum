@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, withUpdate, Components } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
-import PropTypes from 'prop-types';
 import { withApollo } from 'react-apollo'
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
@@ -68,34 +67,32 @@ class MoveToAlignmentMenuItem extends PureComponent {
   render() {
     const { comment, post, currentUser, classes } = this.props
     const { OmegaIcon } = Components
-    if (post.af && Users.canDo(currentUser, 'comments.alignment.move.all')) {
-      if (!comment.af) {
-        return (
-          <MenuItem onClick={ this.handleMoveToAlignmentForum}>
-            <ListItemIcon>
-              <span className={classes.iconRoot}>
-                <OmegaIcon className={classes.omegaIcon}/>
-                <ArrowRightAlt className={classes.moveIcon}/>
-              </span>
-            </ListItemIcon>
-            Move to Alignment
-          </MenuItem>
-        )
-      } else if (comment.af) {
-        return (
-          <MenuItem onClick={ this.handleRemoveFromAlignmentForum }>
-            <ListItemIcon>
-              <span className={classes.iconRoot}>
-                <OmegaIcon className={classes.omegaIcon} />
-                <Undo className={classes.undoIcon}/>
-              </span>
-            </ListItemIcon>
-            Remove from Alignment
-          </MenuItem>
-        )
-      }
-    } else  {
-      return null
+    if (!post.af || !Users.canDo(currentUser, 'comments.alignment.move.all')) return null
+
+    if (!comment.af) {
+      return (
+        <MenuItem onClick={ this.handleMoveToAlignmentForum}>
+          <ListItemIcon>
+            <span className={classes.iconRoot}>
+              <OmegaIcon className={classes.omegaIcon}/>
+              <ArrowRightAlt className={classes.moveIcon}/>
+            </span>
+          </ListItemIcon>
+          Move to Alignment
+        </MenuItem>
+      )
+    } else {
+      return (
+        <MenuItem onClick={ this.handleRemoveFromAlignmentForum }>
+          <ListItemIcon>
+            <span className={classes.iconRoot}>
+              <OmegaIcon className={classes.omegaIcon} />
+              <Undo className={classes.undoIcon}/>
+            </span>
+          </ListItemIcon>
+          Remove from Alignment
+        </MenuItem>
+      )
     }
   }
 }

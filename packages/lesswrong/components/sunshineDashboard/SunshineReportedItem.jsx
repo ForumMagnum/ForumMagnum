@@ -63,8 +63,8 @@ class SunshineReportedItem extends Component {
 
   render () {
     const { report, hover, anchorEl } = this.props
-    const comment = report.comment
-    const post = report.post
+    const { comment, post, user, description } = report
+    if (!post) return null
 
     return (
           <Components.SunshineListItem hover={hover}>
@@ -74,13 +74,13 @@ class SunshineReportedItem extends Component {
                   Post: <strong>{ post.title }</strong>
                 </Link>
                 {comment && <Components.CommentBody comment={comment}/>}
-                {post && !comment && <Components.PostsHighlight post={post}/>}
+                {!comment && <Components.PostsHighlight post={post}/>}
               </Typography>
             </Components.SidebarHoverOver>
             {comment && <Components.SunshineCommentsItemOverview comment={comment}/>}
             <Components.SidebarInfo>
-              {post && !comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
-              <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <Components.FormatDate date={report.createdAt}/>
+              {!comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
+              <em>"{ description }"</em> – {user && user.displayName}, <Components.FormatDate date={report.createdAt}/>
             </Components.SidebarInfo>
             {hover && <Components.SidebarActionMenu>
               <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>

@@ -188,6 +188,7 @@ const upsertProcessedPosts = async (posts, postMap) => {
 }
 
 const upsertProcessedUsers = async (users, userMap) => {
+  if (!users || (users.length <= 0)) return null
   let userCounter = 0;
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
@@ -196,8 +197,8 @@ const upsertProcessedUsers = async (users, userMap) => {
   const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
-  if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
-  if (usersToInsert && _.size(usersToInsert)) {
+  if (_.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
+  if (_.size(usersToInsert)) {
     for(let key in usersToInsert) {
       await insertUser(usersToInsert[key]);
       userCounter++;
@@ -306,17 +307,17 @@ const upsertProcessedComments = async (comments, commentMap) => {
       })
     }
   })
-  if (postUpdates && _.size(postUpdates)) {
+  if (_.size(postUpdates) > 0) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("postUpdateCursor", postUpdateCursor);
   }
-  if (userUpdates && _.size(userUpdates)) {
+  if (_.size(userUpdates) > 0) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("userUpdateCursor", userUpdateCursor);
   }
-  if (commentUpdates && _.size(commentUpdates)) {
+  if (_.size(commentUpdates) > 0) {
     const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("commentUpdateCursor", commentUpdateCursor);

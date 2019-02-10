@@ -107,7 +107,7 @@ class SearchBar extends Component {
     addCallback('router.onUpdate', this.routerUpdateCallback);
   }
 
-  componentWillUmount() {
+  componentWillUnmount() {
     if (this.routerUpdateCallback) {
       removeCallback('router.onUpdate', this.routerUpdateCallback);
       this.routerUpdateCallback = null;
@@ -130,7 +130,7 @@ class SearchBar extends Component {
   }
 
   handleSearchTap = () => {
-    this.setState({inputOpen: true, searchOpen: this.state.currentQuery});
+    this.setState(prevState => ({inputOpen: true, searchOpen: !!prevState.currentQuery}));
     if (this.props.onSetIsActive)
       this.props.onSetIsActive(true);
   }
@@ -201,7 +201,6 @@ class SearchBar extends Component {
 }
 
 SearchBar.propTypes = {
-  color: PropTypes.string,
   onSetIsActive: PropTypes.func,
 };
 
