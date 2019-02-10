@@ -36,7 +36,7 @@ async function conflictingIndexExists(collection, index, options)
 
 export async function ensureIndex(collection, index, options={})
 {
-  if (Meteor.isServer) {
+  if (Meteor.isServer && options) {
     try {
       if (options.name && await conflictingIndexExists(collection, index, options)) {
         //eslint-disable-next-line no-console
@@ -51,7 +51,7 @@ export async function ensureIndex(collection, index, options={})
         expectedIndexes[collection.collectionName] = [];
       expectedIndexes[collection.collectionName].push({
         key: index,
-        partialFilterExpression: options && options.partialFilterExpression,
+        partialFilterExpression: options.partialFilterExpression,
       });
     } catch(e) {
       //eslint-disable-next-line no-console

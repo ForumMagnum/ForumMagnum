@@ -122,7 +122,6 @@ import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
 
 import '../components/votes/VoteButton.jsx';
-import '../components/votes/VotesInfo.jsx';
 import '../components/votes/CommentsVote.jsx';
 import '../components/votes/PostsVote.jsx';
 

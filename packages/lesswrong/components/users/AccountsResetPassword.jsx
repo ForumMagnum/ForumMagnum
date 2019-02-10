@@ -19,8 +19,7 @@ AccountsResetPassword.contextTypes = {
   intl: intlShape
 }
 
-AccountsResetPassword.propsTypes = {
-  currentUser: PropTypes.object,
+AccountsResetPassword.propTypes = {
   params: PropTypes.object,
 };
 

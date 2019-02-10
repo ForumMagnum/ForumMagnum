@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
@@ -103,7 +103,6 @@ class CommentsItem extends Component {
     event.preventDefault()
     this.props.router.replace({...router.location, hash: "#" + comment._id})
     this.props.scrollIntoView(event);
-    return false;
   }
 
   getTruncationCharCount = () => {
@@ -122,114 +121,110 @@ class CommentsItem extends Component {
 
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, parentAnswerId } = this.props
-
+    if (!comment || !post) return null
     const { showEdit } = this.state
     const { CommentsMenu } = Components
 
-    if (comment && post) {
-      return (
-        <div className={
-          classNames(
-            classes.root,
-            "comments-item",
-            "recent-comments-node",
-            {
-              deleted: comment.deleted && !comment.deletedPublic,
-              "public-deleted": comment.deletedPublic,
-              "showParent": this.state.showParent,
-            },
-          )}
-        >
+    return (
+      <div className={
+        classNames(
+          classes.root,
+          "comments-item",
+          "recent-comments-node",
+          {
+            deleted: comment.deleted && !comment.deletedPublic,
+            "public-deleted": comment.deletedPublic,
+            "showParent": this.state.showParent,
+          },
+        )}
+      >
 
-          { comment.parentCommentId && this.state.showParent && (
-            <div className="recent-comment-parent root">
-              <Components.RecentCommentsSingle
-                currentUser={currentUser}
-                documentId={comment.parentCommentId}
-                level={nestingLevel + 1}
-                truncated={false}
-                key={comment.parentCommentId}
-              />
-            </div>
-          )}
+        { comment.parentCommentId && this.state.showParent && (
+          <div className="recent-comment-parent root">
+            <Components.RecentCommentsSingle
+              currentUser={currentUser}
+              documentId={comment.parentCommentId}
+              level={nestingLevel + 1}
+              truncated={false}
+              key={comment.parentCommentId}
+            />
+          </div>
+        )}
 
-          <div className="comments-item-body">
-            <div className="comments-item-meta">
-              {(comment.parentCommentId && (parentAnswerId !== comment.parentCommentId) && (nestingLevel === 1)) &&
-                <Tooltip title="Show previous comment">
-                  <Icon
-                    onClick={this.toggleShowParent}
-                    className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
-                  >
-                    subdirectory_arrow_left
-                  </Icon>
-                </Tooltip>}
-              { (postPage || this.props.collapsed) && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
-                [<span>{this.props.collapsed ? "+" : "-"}</span>]
-              </a>
-              }
-              { comment.deleted || comment.hideAuthor || !comment.user ?
-                ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                  <span>
-                  {!comment.answer ? <span className={classes.author}>
-                      <Components.UsersName user={comment.user}/>
-                    </span>
-                    :
-                    <span className={classes.authorAnswer}>
-                      Answer by <Components.UsersName user={comment.user}/>
-                    </span>
-                  }
+        <div className="comments-item-body">
+          <div className="comments-item-meta">
+            {(comment.parentCommentId && (parentAnswerId !== comment.parentCommentId) && (nestingLevel === 1)) &&
+              <Tooltip title="Show previous comment">
+                <Icon
+                  onClick={this.toggleShowParent}
+                  className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
+                >
+                  subdirectory_arrow_left
+                </Icon>
+              </Tooltip>}
+            { (postPage || this.props.collapsed) && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              [<span>{this.props.collapsed ? "+" : "-"}</span>]
+            </a>
+            }
+            { comment.deleted || comment.hideAuthor || !comment.user ?
+              ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
+                <span>
+                {!comment.answer ? <span className={classes.author}>
+                    <Components.UsersName user={comment.user}/>
                   </span>
-              }
-              <div className={comment.answer ? classes.answerDate : classes.date}>
-                { !postPage ?
-                  <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
-                    <Icon className="material-icons comments-item-permalink"> link
-                    </Icon>
-                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
-                  </Link>
-                :
-                <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  <Components.FormatDate date={comment.postedAt}/>
+                  :
+                  <span className={classes.authorAnswer}>
+                    Answer by <Components.UsersName user={comment.user}/>
+                  </span>
+                }
+                </span>
+            }
+            <div className={comment.answer ? classes.answerDate : classes.date}>
+              { !postPage ?
+                <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
+                  <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
                   <Icon className="material-icons comments-item-permalink"> link
                   </Icon>
-                  {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
-                </a>
-                }
-              </div>
-              <Components.CommentsVote comment={comment} currentUser={currentUser} />
-              <span className={classes.menu}>
-                <CommentsMenu
-                  comment={comment}
-                  post={post}
-                  showEdit={this.showEdit}
-                />
-              </span>
+                  {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
+                </Link>
+              :
+              <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
+                <Components.FormatDate date={comment.postedAt}/>
+                <Icon className="material-icons comments-item-permalink"> link
+                </Icon>
+                {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
+              </a>
+              }
             </div>
-            { showEdit ? (
-              <Components.CommentsEditForm
-                  comment={comment}
-                  successCallback={this.editSuccessCallback}
-                  cancelCallback={this.editCancelCallback}
-                />
-            ) : (
-              <Components.CommentBody
-                truncationCharCount={this.getTruncationCharCount()}
-                truncated={truncated}
-                collapsed={collapsed}
+            <Components.CommentsVote comment={comment} currentUser={currentUser} />
+            <span className={classes.menu}>
+              <CommentsMenu
                 comment={comment}
+                post={post}
+                showEdit={this.showEdit}
               />
-            ) }
-
-            {!comment.deleted && !collapsed && this.renderCommentBottom()}
+            </span>
           </div>
-          { this.state.showReply && !this.props.collapsed && this.renderReply() }
+          { showEdit ? (
+            <Components.CommentsEditForm
+                comment={comment}
+                successCallback={this.editSuccessCallback}
+                cancelCallback={this.editCancelCallback}
+              />
+          ) : (
+            <Components.CommentBody
+              truncationCharCount={this.getTruncationCharCount()}
+              truncated={truncated}
+              collapsed={collapsed}
+              comment={comment}
+            />
+          ) }
+
+          {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>
-      )
-    } else {
-      return null
-    }
+        { this.state.showReply && !this.props.collapsed && this.renderReply() }
+      </div>
+    )
   }
 
   renderCommentBottom = () => {

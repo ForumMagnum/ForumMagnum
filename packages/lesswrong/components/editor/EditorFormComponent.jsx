@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getDynamicComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -118,8 +118,9 @@ class EditorFormComponent extends Component {
   render() {
     const AsyncEditor = this.state.editor
     const { editorOverride } = this.state
-    const { document, currentUser, formType, name } = this.props
-    const commentStyles = this.props.form && this.props.form.commentStyles
+    const { document, currentUser, formType, name, form } = this.props
+    if (!document) return null
+    const commentStyles = form && form.commentStyles
     const { classes, ...passedDownProps } = this.props
 
     // The class which determines clickable height (as tall as a comment editor,
@@ -132,7 +133,7 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document && document.lastEditedAs
+      && document.lastEditedAs
       && document.lastEditedAs !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 

@@ -5,7 +5,7 @@ const defaulGetDocumentStorageId = (doc, name) => {
   if (_id) { return {id: _id, verify: true }}
   if (conversationId) { return {id: conversationId, verify: true }}
   if (name) { return {id: name, verify: true }}
-  else { throw Error("Can't get storage ID for this document:", doc)}
+  else { throw Error(`Can't get storage ID for this document: ${doc}`)}
 }
 
 export const getLSHandlers = (getLocalStorageId = null) => {

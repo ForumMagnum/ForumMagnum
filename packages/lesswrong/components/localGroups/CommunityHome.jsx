@@ -54,6 +54,9 @@ class CommunityHome extends Component {
 
   render() {
     const {router} = this.props;
+    const { currentUserLocation } = this.state
+    if (!currentUserLocation) return null
+
     const filters = (router.location.query && router.location.query.filters) || [];
     
     const postsListTerms = {
@@ -95,18 +98,17 @@ class CommunityHome extends Component {
             <Link to="/upcomingEvents">See upcoming events</Link>
           </Components.SectionSubtitle>
         </div>}>
-          {this.state.currentUserLocation &&
-            <div>
-              { this.state.currentUserLocation.loading
-                ? <Components.Loading />
-                : <Components.LocalGroupsList
-                    terms={groupsListTerms}
-                    showHeader={false} />}
-              <hr className="community-home-list-divider"/>
-              <Components.PostsList
-                terms={postsListTerms}
-                showHeader={false} />
-            </div>}
+          <div>
+            { this.state.currentUserLocation.loading
+              ? <Components.Loading />
+              : <Components.LocalGroupsList
+                  terms={groupsListTerms}
+                  showHeader={false} />}
+            <hr className="community-home-list-divider"/>
+            <Components.PostsList
+              terms={postsListTerms}
+              showHeader={false} />
+          </div>
         </Components.Section>
         <Components.Section title="Resources">
           <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />

@@ -78,7 +78,7 @@ const BottomNavigation = ({sequence, chapter, post, previousPost, nextPost, next
       { nextTitle ?
         <div className="sequences-navigation-bottom-next-sequence">
           <Link className="sequences-navigation-next-sequence" to={nextLink || post.nextPageLink}>
-            <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle || post.nextPageTitle}
+            <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle}
           </Link>
         </div>
       : (
