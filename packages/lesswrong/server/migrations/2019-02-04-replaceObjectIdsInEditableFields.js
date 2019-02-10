@@ -22,7 +22,8 @@ registerMigration({
                 filter: {_id: doc._id.valueOf()},
                 update: {
                   ...doc,
-                  _id: doc._id.valueOf()
+                  _id: doc._id.valueOf(),
+                  username: doc.username ? `Imported-${doc.username}` : undefined
                 },
                 upsert: true 
               }
