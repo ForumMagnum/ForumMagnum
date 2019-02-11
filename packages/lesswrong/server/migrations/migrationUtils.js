@@ -1,3 +1,5 @@
+import { write } from "fs";
+
 /*global Vulcan*/
 
 export function registerMigration({ name, idempotent, action })
@@ -84,8 +86,11 @@ export async function fillDefaultValues({ collection, fieldName, batchOptions })
       }
       const options = { multi: true }
       const writeResult = await collection.update(query, mutation, options)
-      console.log(`Bucket with max ${percentile} done. ${writeResult.nModified || 0} rows affected`);
+      console.log(`Bucket with max ${JSON.stringify(percentile.value)} done. Writeresult: ${JSON.stringify(writeResult)}`);
     }
+    // Then clean up the stragglers that weren't in any of the buckets (because of measurement error)
+    const writeResult = await collection.update({[fieldName]: null}, {$set: {[fieldName]: defaultValue}}, { multi: true })
+    console.log(`Cleaned up stragglers. Writeresult: ${JSON.stringify(writeResult)}`)
     return
   } 
     
