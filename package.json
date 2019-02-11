@@ -7,6 +7,7 @@
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
     "start": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-dev.json",
+    "start-root": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-dev.json --allow-superuser",
     "debug": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-dev.json --inspect run",
     "start-af": "METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-af.json",
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor METEOR_PACKAGE_DIRS=../Vulcan/packages meteor --settings settings-af.json --port 3030",
