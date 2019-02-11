@@ -472,7 +472,6 @@ workflows:
     jobs:
       - build
       - cypress/run:
-          record: true
           start: 'npm run prestart && npm run start-root'
           yarn: true
           wait-on: 'http://localhost:3000'
