@@ -32,6 +32,13 @@ fi
 
 }
 
+if [ ! -d ../Vulcan ]; then
+  (
+    cd ..
+    echo "Checkout Vulcan in $PWD/Vulcan"
+    git clone https://github.com/Lesswrong2/Vulcan
+  )
+fi
 
 test -f settings.json || (echo "🛠  ${blue}Creating your own settings.json file...\n"; cp sample_settings.json settings.json;)
 
