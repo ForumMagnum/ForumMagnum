@@ -15,10 +15,8 @@ const styles = theme => ({
 })
 
 const SunshineNewUserPostsList = ({loading, results, classes}) => {
-  const { Loading, PostsItemTitle } = Components
-  if (loading) {
-    return <Loading />
-  } else if (results) {
+  const { PostsItemTitle } = Components
+  if (results) {
     return <div>
       {results.map(post=><div className={classes.post} key={post._id}>
         <Link to={`/posts/${post._id}`}>
@@ -35,6 +33,7 @@ const SunshineNewUserPostsList = ({loading, results, classes}) => {
 const withMultiOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
+  enableCache: true
 }
 
 registerComponent( 'SunshineNewUserPostsList', SunshineNewUserPostsList, [withMulti, withMultiOptions], withStyles(styles, {name:"SunshineNewUserPostsList"}))

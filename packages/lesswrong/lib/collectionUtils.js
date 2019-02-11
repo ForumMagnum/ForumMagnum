@@ -1,6 +1,14 @@
 import SimpleSchema from 'simpl-schema';
 
+// canAutofillDefault: Marks a field where, if its value is null, it should
+// be auto-replaced with defaultValue in migration scripts.
 SimpleSchema.extendOptions([ 'canAutofillDefault' ]);
+
+// denormalized: In a schema entry, denormalized:true means that this field can
+// (in principle) be regenerated from other fields. For now, it's a glorified
+// machine-readable comment; in the future, it may have other infrastructure
+// attached.
+SimpleSchema.extendOptions([ 'denormalized' ]);
 
 export let expectedIndexes = {};
 
@@ -26,24 +34,29 @@ async function conflictingIndexExists(collection, index, options)
   return false;
 }
 
-export async function ensureIndex(collection, index, options)
+export async function ensureIndex(collection, index, options={})
 {
   if (Meteor.isServer) {
-    if (options.name && await conflictingIndexExists(collection, index, options)) {
+    try {
+      if (options.name && await conflictingIndexExists(collection, index, options)) {
+        //eslint-disable-next-line no-console
+        console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
+        collection.rawCollection().dropIndex(options.name);
+      }
+      
+      const mergedOptions = {background: true, ...options};
+      collection._ensureIndex(index, mergedOptions);
+      
+      if (!expectedIndexes[collection.collectionName])
+        expectedIndexes[collection.collectionName] = [];
+      expectedIndexes[collection.collectionName].push({
+        key: index,
+        partialFilterExpression: options && options.partialFilterExpression,
+      });
+    } catch(e) {
       //eslint-disable-next-line no-console
-      console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
-      collection.rawCollection().dropIndex(options.name);
+      console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
     }
-    
-    const mergedOptions = {background: true, ...options};
-    collection._ensureIndex(index, mergedOptions);
-    
-    if (!expectedIndexes[collection.collectionName])
-      expectedIndexes[collection.collectionName] = [];
-    expectedIndexes[collection.collectionName].push({
-      key: index,
-      partialFilterExpression: options && options.partialFilterExpression,
-    });
   }
 }
 
@@ -101,4 +114,19 @@ export function schemaDefaultValue(defaultValue) {
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,
   }
+}
+
+export function addUniversalFields({ collection }) {
+  collection.addField([
+    {
+      fieldName: 'schemaVersion',
+      fieldSchema: {
+        type: Number,
+        canRead: ['guests'],
+        optional: true,
+        ...schemaDefaultValue(1)
+      }
+    }
+  ])
+  ensureIndex(collection, {schemaVersion: 1});
 }

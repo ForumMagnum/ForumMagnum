@@ -164,7 +164,7 @@ class CommentsItem extends Component {
                     subdirectory_arrow_left
                   </Icon>
                 </Tooltip>}
-              { postPage && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { (postPage || this.props.collapsed) && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
@@ -234,6 +234,7 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
+    const { MetaInfo } = Components
 
     if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
@@ -253,6 +254,7 @@ class CommentsItem extends Component {
             </div>
           }
           <div>
+            { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
             { showReplyButton &&
               <a className="comments-item-reply-link" onClick={this.showReply}>
                 <FormattedMessage id="comments.reply"/>
@@ -265,9 +267,8 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const levelClass = ((this.props.nestingLevel || 1) + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
-
-    const { currentUser, post, comment, parentAnswerId } = this.props
+    const { currentUser, post, comment, parentAnswerId, nestingLevel=1 } = this.props
+    const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>

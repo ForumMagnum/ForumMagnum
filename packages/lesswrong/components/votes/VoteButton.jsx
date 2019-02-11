@@ -2,7 +2,8 @@ import { Components, registerComponent, withMessages } from 'meteor/vulcan:core'
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withVote, hasVotedClient } from 'meteor/vulcan:voting';
+import { withVote } from './withVote';
+import { hasVotedClient } from '../../lib/modules/vote.js';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp'
