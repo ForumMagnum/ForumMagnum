@@ -26,7 +26,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 
     if ! which mongo >/dev/null; then
       if which apt-get >/dev/null; then
-        sudo apt-get install mongodb-org
+        apt-get install mongodb-org
       fi
     fi
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
