@@ -2,7 +2,9 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  cypress: cypress-io/cypress@1
 jobs:
   build:
     docker:
@@ -105,6 +107,7 @@ jobs:
           paths:
             - app
             - build-temp
+  
   test:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -465,6 +468,12 @@ jobs:
 
 workflows:
   version: 2
+  cypress-testing:
+    jobs:
+      - build
+      - cypress/run:
+          record: true
+          start: 'npm start'
   build-test-and-deploy:
     jobs:
       - build
