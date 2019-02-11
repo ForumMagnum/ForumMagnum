@@ -4,7 +4,7 @@ import { Comments } from './collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { convertFromRaw } from 'draft-js';
-import { performVoteServer } from 'meteor/vulcan:voting';
+import { performVoteServer } from '../../modules/vote.js';
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
@@ -70,7 +70,6 @@ addCallback('comments.new.sync', CommentsNewOperations);
 function UpvoteAsyncCallbacksAfterDocumentInsert(item, user, collection) {
   runCallbacksAsync('upvote.async', item, user, collection, 'upvote');
 }
-
 addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
 
 //////////////////////////////////////////////////////
@@ -98,7 +97,6 @@ function CommentsRemovePostCommenters (comment, currentUser) {
 
   return comment;
 }
-
 addCallback('comments.remove.async', CommentsRemovePostCommenters);
 
 function CommentsRemoveChildrenComments (comment, currentUser) {
@@ -117,7 +115,6 @@ function CommentsRemoveChildrenComments (comment, currentUser) {
 
   return comment;
 }
-
 addCallback('comments.remove.async', CommentsRemoveChildrenComments);
 
 //////////////////////////////////////////////////////
@@ -167,7 +164,9 @@ function CommentsNewRateLimit (comment, user) {
 addCallback('comments.new.validate', CommentsNewRateLimit);
 
 
-// LESSWRONG CALLBACKS
+//////////////////////////////////////////////////////
+// LessWrong callbacks                              //
+//////////////////////////////////////////////////////
 
 function CommentsEditSoftDeleteCallback (comment, oldComment) {
   if (comment.deleted && !oldComment.deleted) {
@@ -203,7 +202,6 @@ function NewCommentsEmptyCheck (comment, user) {
   }
   return comment;
 }
-
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment) {
@@ -224,7 +222,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     });
 
     let firstMessageContent =
-        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content.`
+        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
       firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
@@ -259,20 +257,17 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     console.log("Sent moderation messages for comment", newComment)
   }
 }
-
 addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
 
 /**
  * @summary Make users upvote their own new comments
  */
-
  // LESSWRONG – bigUpvote
 async function LWCommentsNewUpvoteOwnComment(comment) {
   var commentAuthor = Users.findOne(comment.userId);
   const votedComment = await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
   return {...comment, ...votedComment};
 }
-
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
 
 function NewCommentNeedsReview (comment) {
@@ -324,7 +319,6 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
   }
   return modifier
 }
-
 addCallback("comments.edit.sync", validateDeleteOperations)
 
 async function moveToAnswers (modifier, comment) {
@@ -337,5 +331,27 @@ async function moveToAnswers (modifier, comment) {
   }
   return modifier
 }
-
 addCallback("comments.edit.sync", moveToAnswers)
+
+function HandleReplyToAnswer (comment, properties)
+{
+  if (comment.parentCommentId) {
+    let parentComment = Comments.findOne(comment.parentCommentId)
+    if (parentComment) {
+      let modifiedComment = {...comment};
+      
+      if (parentComment.answer) {
+        modifiedComment.parentAnswerId = parentComment._id;
+      }
+      if (parentComment.parentAnswerId) {
+        modifiedComment.parentAnswerId = parentComment.parentAnswerId;
+      }
+      if (parentComment.topLevelCommentId) {
+        modifiedComment.topLevelCommentId = parentComment.topLevelCommentId;
+      }
+      
+      return modifiedComment;
+    }
+  }
+}
+addCallback('comment.create.before', HandleReplyToAnswer);

@@ -182,7 +182,7 @@ Posts.getPageUrl = function(post, isAbsolute = false){
 };
 
 Posts.getCommentCount = (post) => {
-  if (getSetting('AlignmentForum')) {
+  if (getSetting('AlignmentForum', false)) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;

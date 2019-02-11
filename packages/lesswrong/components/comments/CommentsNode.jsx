@@ -221,7 +221,7 @@ class CommentsNode extends Component {
                 postPage={postPage}
                 nestingLevel={nestingLevel}
                 showPostTitle={showPostTitle}
-                parentAnswerId={parentAnswerId || comment.answer && comment._id}
+                parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
               />
             </div>
             {!collapsed && <div className="comments-children">
@@ -241,7 +241,7 @@ class CommentsNode extends Component {
                   editMutation={editMutation}
                   post={post}
                   postPage={postPage}
-                  parentAnswerId={parentAnswerId || comment.answer && comment._id}
+                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                 />)}
             </div>}
           </div>

@@ -14,6 +14,9 @@ Comments.addDefaultView(terms => {
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,
+    },
+    options: {
+      sort: {postedAt: -1},
     }
   });
 })
@@ -22,8 +25,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {deleted:1, deletedPublic:1},
-    suffix: {hideAuthor:1, userId:1, af:1},
+    prefix: {},
+    suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
 
@@ -40,7 +43,7 @@ Comments.addView("commentReplies", function (terms) {
       parentCommentId: terms.parentCommentId,
     },
     options: {
-      sort: {createdAt: -1}
+      sort: {postedAt: -1}
     }
   }
 })
@@ -78,7 +81,10 @@ Comments.addView("postCommentsTop", function (terms) {
 
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }));
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
+  { name: "comments.top_comments" }
+);
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
@@ -103,7 +109,10 @@ Comments.addView("postCommentsNew", function (terms) {
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }));
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }),
+  { name: "comments.new_comments" }
+);
 
 Comments.addView("postCommentsBest", function (terms) {
   return {
@@ -188,7 +197,6 @@ Comments.addView("postCommentsUnread", function (terms) {
 });
 
 Comments.addView("sunshineNewCommentsList", function (terms) {
-  const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
       $or: [
@@ -198,7 +206,6 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
       ],
       reviewedByUserId: {$exists:false},
       deleted: false,
-      postedAt: {$gt: twoDaysAgo},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };

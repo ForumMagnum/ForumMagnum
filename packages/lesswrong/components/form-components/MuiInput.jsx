@@ -16,14 +16,14 @@ class MuiInput extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: props.document && props.document[props.path] || props.defaultValue || ""
+      content: (props.document && props.document[props.path]) || props.defaultValue || ""
     }
   }
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({content: ""}))
     this.context.updateCurrentValues({
-      [this.props.path]: this.props.document && this.props.document[this.props.path] || ""
+      [this.props.path]: (this.props.document && this.props.document[this.props.path]) || ""
     })
   }
 

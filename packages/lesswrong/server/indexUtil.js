@@ -21,6 +21,8 @@ function indexesMatch(indexA, indexB)
 function isUnrecognizedIndex(collection, index)
 {
   let expectedIndexesForCollection = expectedIndexes[collection.collectionName]
+  if (!expectedIndexesForCollection)
+    return true;
   
   if (index.name === '_id_')
     return false;

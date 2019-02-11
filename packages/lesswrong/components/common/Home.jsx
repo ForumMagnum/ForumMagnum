@@ -7,6 +7,7 @@ const Home = (props, context) => {
   const { currentUser, router } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || 'frontpage'
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
+  const shortformFeedId = currentUser && currentUser.shortformFeedId
 
   recentPostsTerms.forum = true
 
@@ -30,7 +31,20 @@ const Home = (props, context) => {
       >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
-      <Components.Section title="Recent Discussion" titleLink="/AllComments">
+      <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
+        <div>
+          {shortformFeedId && <Components.SectionSubtitle>
+            {/* TODO: set up a proper link url */}
+            <Link to={`posts/${shortformFeedId}`}>Shortform Feed</Link>
+          </Components.SectionSubtitle>}
+        </div>
+      }>
+      {/*<Components.Section title="Recent Discussion" titleLink="/AllComments">*/}
+        <Components.PostsList
+          terms={eventsListTerms}
+          showLoadMore={false}
+          showHeader={false} />
+      </Components.Section>
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
       </Components.Section>
     </div>

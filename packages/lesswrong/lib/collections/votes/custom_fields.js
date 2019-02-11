@@ -1,5 +1,5 @@
-import { Votes } from "meteor/vulcan:voting";
-import { VoteableCollections } from 'meteor/vulcan:voting';
+import { Votes } from './collection.js';
+import { VoteableCollections } from '../../modules/make_voteable.js';
 import { getWithLoader } from "../../loaders.js";
 
 Votes.addField([
@@ -92,3 +92,30 @@ VoteableCollections.forEach(collection => {
     }
   ]);
 });
+
+
+
+/* From vulcan:voting, but not currently used.
+Users.addField([
+  // An array containing votes
+  {
+    fieldName: 'votes',
+    fieldSchema: {
+      type: Array,
+      optional: true,
+      canRead: Users.owns,
+      resolveAs: {
+        type: '[Vote]',
+        arguments: 'collectionName: String',
+        resolver: async (user, args, context) => {8
+      },
+    }
+  },
+  {
+    fieldName: 'votes.$',
+    fieldSchema: {
+      type: Object,
+      optional: true
+    }
+  },
+]);*/

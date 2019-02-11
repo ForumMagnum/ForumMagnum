@@ -5,7 +5,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router'
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
-import { getVotePower } from 'meteor/vulcan:voting';
+import { getVotePower } from '../../lib/modules/vote.js';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({

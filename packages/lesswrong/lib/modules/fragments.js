@@ -68,6 +68,8 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  moderationGuidelinesContent
+  moderationGuidelinesBody
   moderationGuidelinesHtmlBody
   markDownPostEditor
   commentSorting
@@ -79,6 +81,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -370,6 +373,8 @@ registerFragment(`
     bigUpvoteCount
     smallDownvoteCount
     bigDownvoteCount
+    banned
+    reviewedByUserId
   }
 `);
 
@@ -505,6 +510,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 
@@ -565,6 +571,15 @@ registerFragment(`
   fragment VoteMinimumInfo on Vote {
     _id
     voteType
+  }
+`);
+
+
+registerFragment(`
+  fragment VoteFragment on Vote {
+    _id
+    voteType
+    power
   }
 `);
 

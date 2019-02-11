@@ -17,7 +17,7 @@ Picker.route('/out', ({ query}, req, res, next) => {
       const post = Posts.findOne({url: {$regex: escapeStringRegexp(query.url)}}, {sort: {postedAt: -1, createdAt: -1}});
 
       if (post) {
-        const ip = req.headers && req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const ip = (req.headers && req.headers['x-forwarded-for']) || req.connection.remoteAddress;
 
         runCallbacksAsync('posts.click.async', post, ip);
 
