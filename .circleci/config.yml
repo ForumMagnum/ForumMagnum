@@ -475,6 +475,7 @@ workflows:
           record: true
           start: 'npm start'
           yarn: true
+          wait-on: 'http://localhost:3000'
   build-test-and-deploy:
     jobs:
       - build
