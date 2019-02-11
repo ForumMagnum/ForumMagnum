@@ -474,6 +474,7 @@ workflows:
       - cypress/run:
           record: true
           start: 'npm start'
+          yarn: true
   build-test-and-deploy:
     jobs:
       - build
