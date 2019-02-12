@@ -13,7 +13,7 @@ const styles = theme => ({
 
 class SunshineNewCommentsList extends Component {
   render () {
-    const { results, classes } = this.props
+    const { results, classes, refetch } = this.props
     if (results && results.length) {
       return (
         <div className={classes.root}>
@@ -22,7 +22,7 @@ class SunshineNewCommentsList extends Component {
           </Components.SunshineListTitle>
           {this.props.results.map(comment =>
             <div key={comment._id} >
-              <Components.SunshineNewCommentsItem comment={comment}/>
+              <Components.SunshineNewCommentsItem comment={comment} refetchComments={refetch}/>
             </div>
           )}
         </div>

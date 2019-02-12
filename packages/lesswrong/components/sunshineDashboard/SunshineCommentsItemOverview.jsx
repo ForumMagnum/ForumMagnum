@@ -20,7 +20,7 @@ class SunshineCommentsItemOverview extends Component {
 
   render () {
     const { comment, classes } = this.props
-    let commentExcerpt = comment.body.substring(0,38);
+    let commentExcerpt = comment.body && comment.body.substring(0,38);
     return (
       <div>
         <Typography variant="body2">
