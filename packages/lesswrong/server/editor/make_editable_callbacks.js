@@ -3,6 +3,7 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
+import { ensureIndex } from '../../lib/collectionUtils'
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
@@ -78,9 +79,7 @@ async function getNextVersion(documentId, updateType = 'minor') {
   }
 }
 
-
-
-
+ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
 export function addEditableCallbacks({collection, options = {}}) {
   const {
