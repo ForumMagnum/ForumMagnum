@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 const styles = theme => ({
   root: {
     position:"relative",
-    zIndex:1,
   },
   hoverInfo: {
     position: "relative",
@@ -15,7 +14,7 @@ const styles = theme => ({
     padding: theme.spacing.unit*2,
     border: "solid 1px rgba(0,0,0,.1)",
     boxShadow: "-3px 0 5px 0px rgba(0,0,0,.1)",
-    zIndex: 200,
+    zIndex: theme.zIndexes.sidebarHoverOver,
   }
 })
 

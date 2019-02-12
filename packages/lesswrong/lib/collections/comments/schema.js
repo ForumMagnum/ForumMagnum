@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 /**
  * @summary Comments schema
@@ -120,6 +121,12 @@ const schema = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    onInsert: (document, currentUser) => {
+      // if userId is changing, change the author name too
+      if (document.userId) {
+        return Users.getDisplayNameById(document.userId)
+      }
+    },
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
@@ -167,6 +174,9 @@ const schema = {
   },
   /**
     Whether the comment is deleted. Delete comments' content doesn't appear on the site.
+    FIXME: Not a real field. We inherited this from vulcan-starter, but
+    implemented our own, unrelated soft delete mechanism with the field named
+    `deleted` rather than `isDeleted`.
   */
   isDeleted: {
     type: Boolean,
@@ -196,10 +206,21 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     resolveAs: {
-      fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
         return context.Comments.getPageUrl(comment, true)
+      },
+    }
+  },
+
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, context) => {
+        return context.Comments.getPageUrl(comment, false)
       },
     }
   },
@@ -211,11 +232,11 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 
   parentAnswerId: {
     type: String,
-    max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,
@@ -237,6 +258,7 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 };
 

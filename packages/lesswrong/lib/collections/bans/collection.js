@@ -1,6 +1,7 @@
 import schema from './schema.js';
 import Users from 'meteor/vulcan:users'
 import { getDefaultResolvers, getDefaultMutations, createCollection } from 'meteor/vulcan:core';
+import { addUniversalFields } from '../../collectionUtils'
 /**
  * @summary Initiate Bans collection
  * @namespace Bans
@@ -41,3 +42,6 @@ export const Bans = createCollection({
   mutations: getDefaultMutations('Bans', options),
 
 });
+
+
+addUniversalFields({collection: Bans})

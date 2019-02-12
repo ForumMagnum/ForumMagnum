@@ -68,6 +68,8 @@ extendFragment('UsersCurrent', `
   groups
   bannedUserIds
   moderationStyle
+  moderationGuidelinesContent
+  moderationGuidelinesBody
   moderationGuidelinesHtmlBody
   markDownPostEditor
   commentSorting
@@ -77,6 +79,32 @@ extendFragment('UsersCurrent', `
   emailSubscribedToCurated
   emails
   whenConfirmationEmailSent
+  noCollapseCommentsFrontpage
+  noCollapseCommentsPosts
+  karmaChangeNotifierSettings
+  karmaChanges {
+    totalChange
+    updateFrequency
+    startDate
+    endDate
+    nextBatchDate
+    posts {
+      scoreChange
+      post {
+        title
+        pageUrlRelative
+      }
+    }
+    comments {
+      scoreChange
+      comment {
+        plaintextExcerpt
+        pageUrlRelative
+      }
+    }
+  }
+  karmaChangeLastOpened
+  shortformFeedId
 `);
 
 registerFragment(`
@@ -108,6 +136,8 @@ registerFragment(`
     status
     frontpageDate
     meta
+    draft
+    deletedDraft
     # body # We replaced this with content
     excerpt # This won't work with content
     htmlHighlight
@@ -118,6 +148,10 @@ registerFragment(`
     userId
     user {
       ...UsersMinimumInfo
+      moderationGuidelinesHtmlBody
+      moderationGuidelinesContent
+      moderationGuidelinesBody
+      moderationStyle
     }
     coauthors {
       ...UsersMinimumInfo
@@ -167,6 +201,13 @@ registerFragment(`
     afSticky
     voteCount
     question
+    authorIsUnreviewed
+    isFuture
+    hideAuthor
+    moderationGuidelinesHtmlBody
+    moderationGuidelinesContent
+    moderationGuidelinesBody
+    moderationStyle
   }
 `);
 
@@ -194,6 +235,7 @@ registerFragment(`
     lastEditedAs
     body
     htmlBody
+    tableOfContents
     content
     plaintextExcerpt
     draft
@@ -354,6 +396,8 @@ registerFragment(`
     bigUpvoteCount
     smallDownvoteCount
     bigDownvoteCount
+    banned
+    reviewedByUserId
   }
 `);
 
@@ -489,6 +533,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    shortformFeedId
   }
 `);
 
@@ -540,6 +585,8 @@ registerFragment(`
     }
     link
     description
+    reportedAsSpam
+    markedAsSpam
   }
 `);
 
@@ -547,6 +594,15 @@ registerFragment(`
   fragment VoteMinimumInfo on Vote {
     _id
     voteType
+  }
+`);
+
+
+registerFragment(`
+  fragment VoteFragment on Vote {
+    _id
+    voteType
+    power
   }
 `);
 

@@ -4,12 +4,21 @@ import moment from 'moment-timezone';
 import Tooltip from '@material-ui/core/Tooltip';
 import withTimezone from '../common/withTimezone';
 
+const ExpandedDate = withTimezone(
+  ({date, timezone}) =>
+    moment(new Date(date)).tz(timezone).format("LLL z")
+);
+
 /// A relative time/date, like "4d". Hover over for the actual (non-relative)
 /// date/time.
-const FromNowDate = ({date, timezone}) => {
-  return <Tooltip title={moment(new Date(date)).tz(timezone).format('LLL z')}>
+const FormatDate = ({date, timezone, format}) => {
+  return <Tooltip title={<ExpandedDate date={date}/>}>
+    {format ?
+      <span>{moment(new Date(date)).format(format)}</span>
+      :
       <span>{moment(new Date(date)).fromNow()}</span>
+    }
   </Tooltip>
 };
 
-registerComponent('FromNowDate', FromNowDate, withTimezone);
+registerComponent('FormatDate', FormatDate);

@@ -1,5 +1,4 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -11,26 +10,45 @@ import withTimezone from '../common/withTimezone';
 const styles = theme => ({
   read: {
     opacity: ".8"
-  }
+  },
+  karma: {
+    minWidth:20,
+    textAlign: "center",
+    display: "inline-block",
+    color: "rgba(0,0,0,.3)"
+  },
 })
 
-const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
+const DateWithoutTime = withTimezone(
+  ({date, timezone}) => 
+    <span>{moment(date).tz(timezone).format("MMM Do")}</span>
+);
+
+const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
-  const { MetaInfo, PostsEdit, FromNowDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
+  const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
-      { Posts.canEdit(currentUser,post) && <MetaInfo>
-        <PostsEdit post={post}/>
-      </MetaInfo>}
+
+      <MetaInfo>
+        <Tooltip title={<div>
+          This post has { baseScore || 0 } karma<br/>
+          ({ post.voteCount} votes)
+        </div>}>
+          <span className={classes.karma}>
+            { baseScore || 0 }
+          </span>
+        </Tooltip>
+      </MetaInfo>
 
       { post.isEvent && <MetaInfo>
-        <Tooltip title={
-          post.startTime ? <EventTime post={post} /> : <span>To Be Determined</span>}
-          >
-          {post.startTime ? <span>{moment(post.startTime).tz(timezone).format("MMM Do")}</span>
-            : <span>TBD</span>
-          }
-        </Tooltip>
+        {post.startTime
+          ? <Tooltip title={<EventTime post={post} />}>
+              <DateWithoutTime date={post.startTime} />
+            </Tooltip>
+          : <Tooltip title={<span>To Be Determined</span>}>
+              <span>TBD</span>
+            </Tooltip>}
       </MetaInfo>}
 
       { post.isEvent && <MetaInfo>
@@ -41,30 +59,28 @@ const PostsItemMeta = ({classes, currentUser, post, read, timezone}) => {
         <PostsUserAndCoauthors post={post}/>
       </MetaInfo>}
 
-      { post.feed && post.feed.user && <MetaInfo>
-        {post.feed.nickname}
-      </MetaInfo>}
-
-      <MetaInfo>
-        { baseScore || 0 } { baseScore == 1 ? "point" : "points"}
-      </MetaInfo>
-
-      { afBaseScore && <MetaInfo>
-        Ω { afBaseScore || 0 }
-      </MetaInfo>}
-
       {post.postedAt && !post.isEvent && <MetaInfo>
-        <FromNowDate date={post.postedAt}/>
+        <FormatDate date={post.postedAt}/>
       </MetaInfo>}
 
       {post.wordCount && !post.isEvent && <MetaInfo>
-        {parseInt(post.wordCount/300) || 1 } min read
+        <Tooltip title={`${post.wordCount} words`}>
+          <span>{parseInt(post.wordCount/300) || 1 } min read</span>
+        </Tooltip>
       </MetaInfo>}
 
       { currentUser && currentUser.isAdmin &&
         <PostsStats post={post} />
       }
+
+      { afBaseScore && <MetaInfo>
+        <Tooltip title={<div>
+          { afBaseScore || 0 } karma on alignmentforum.org
+        </div>}>
+          <span>Ω { afBaseScore || 0 }</span>
+        </Tooltip>
+      </MetaInfo>}
     </span>
 };
 
-registerComponent('PostsItemMeta', PostsItemMeta, withUser, withStyles(styles, {name: "PostsItemMeta"}), withTimezone)
+registerComponent('PostsItemMeta', PostsItemMeta, withUser, withStyles(styles, {name: "PostsItemMeta"}))

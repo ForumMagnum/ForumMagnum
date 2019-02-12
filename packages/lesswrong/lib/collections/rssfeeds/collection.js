@@ -1,6 +1,7 @@
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { addUniversalFields } from '../../collectionUtils'
 
 /**
  * @summary Telescope Messages namespace
@@ -42,3 +43,5 @@ const RSSFeeds = createCollection({
 });
 
 export default RSSFeeds;
+
+addUniversalFields({collection: RSSFeeds})

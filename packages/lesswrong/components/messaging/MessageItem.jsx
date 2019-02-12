@@ -54,7 +54,7 @@ class MessageItem extends Component {
                 <Components.UsersName user={message.user}/>
               </Components.MetaInfo>}
               {message.createdAt && <Components.MetaInfo>
-                <Components.FromNowDate date={message.createdAt}/>
+                <Components.FormatDate date={message.createdAt}/>
               </Components.MetaInfo>}
             </div>
             <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>

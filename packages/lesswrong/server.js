@@ -29,6 +29,9 @@ import './server/scripts/invites.js';
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
 import './server/scripts/logMongoQueries.js';
+import './server/scripts/fillMissing.js';
+import './server/migrations';
+
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
@@ -38,6 +41,10 @@ import './server/posts/index.js';
 import './server/logging.js';
 import './server/rss.js';
 import './server/akismet.js';
+import './server/votingCron.js';
+import './server/votingGraphQL.js';
+import './server/updateScores.js';
+import './server/siteAdminMetadata.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
@@ -50,6 +57,7 @@ import './lib/collections/messages/callbacks.js';
 import './lib/collections/users/validate_login.js';
 import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
+import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/events/server.js';

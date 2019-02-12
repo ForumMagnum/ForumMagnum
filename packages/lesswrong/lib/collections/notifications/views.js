@@ -20,7 +20,7 @@ Notifications.addView("userNotifications", (terms) => {
     selector: {
       userId: terms.userId,
       type: terms.type || null,
-      viewed: terms.viewed == null ? null : (terms.viewed || {$in: [false,null]})
+      viewed: terms.viewed == null ? null : (terms.viewed || false)
     }, //Ugly construction to deal with falsy viewed values and null != false in Mongo
     options: {sort: {createdAt: -1}}
   }
@@ -38,3 +38,7 @@ Notifications.addView("unreadUserNotifications", (terms) => {
   }
 })
 ensureIndex(Notifications, {userId:1, type:1, createdAt:-1});
+
+// Index used in callbacks for finding notifications related to a document
+// that is being deleted
+ensureIndex(Notifications, {documentId:1});

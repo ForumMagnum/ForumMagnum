@@ -22,29 +22,26 @@ const showPostActions = (currentUser, post) => {
     Posts.canEdit(currentUser, post)
 }
 
-const PostsPageMobileActions = ({classes, post, setMenuAnchor, anchorEl, currentUser}) => {
+const PostsPageActions = ({classes, post, setMenuAnchor, anchorEl, currentUser}) => {
   if (showPostActions(currentUser, post)) {
-    return <div>
+    return <span>
       <MoreHorizIcon className={classes.icon} onClick={e => setMenuAnchor(e.target)}/>
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => setMenuAnchor(null)}
       >
-        { Posts.canEdit(currentUser,post) && <MenuItem>
-          <Components.PostsEdit post={post}/>
-        </MenuItem> }
         <Components.PostActions Container={MenuItem} post={post}/>
       </Menu>
-    </div>
+    </span>
   } else {
     return null
   }
 }
 
 
-registerComponent('PostsPageMobileActions', PostsPageMobileActions,
-  withStyles(styles, {name: "PostsPageMobileActions"}),
+registerComponent('PostsPageActions', PostsPageActions,
+  withStyles(styles, {name: "PostsPageActions"}),
   withState('anchorEl', 'setMenuAnchor', null),
   withUser
 )

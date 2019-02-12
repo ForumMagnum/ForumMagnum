@@ -88,7 +88,7 @@ class InboxNavigation extends Component {
                 <Typography variant="body2" className={classes.conversationItem}>
                   { Conversations.getTitle(conversation, currentUser) }
                   <span className={classes.conversationItemLatestActivity}>
-                    {conversation.latestActivity && <Components.FromNowDate date={conversation.latestActivity}/>}
+                    {conversation.latestActivity && <Components.FormatDate date={conversation.latestActivity}/>}
                   </span>
                 </Typography>
             </Link>)

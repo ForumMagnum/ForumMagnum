@@ -105,6 +105,25 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
   },
+  /*
+    Only set when report is closed. Indicates whether content is spam or not.
+  */
+  markedAsSpam: {
+    optional: true, 
+    type: Boolean, 
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+  },
+  /*
+    Set when report is created, indicates whether content was reported as spam (currently only used for Akismet integration)
+  */
+  reportedAsSpam: {
+    optional: true,
+    type: Boolean,
+    viewableBy: ['guests'], 
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['members']
+  }
 };
 
 export default schema;
