@@ -20,7 +20,7 @@ const styles = theme => ({
 
 class PostsRevisionSelector extends Component {
   state = {
-    anchorEl: false
+    anchorEl: null
   }
   openMenu = (event) => {
     this.setState({anchorEl: event.currentTarget})
