@@ -1,6 +1,7 @@
 import { Components, registerComponent, withCurrentUser} from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
+import { Link } from 'react-router';
 import withUser from '../common/withUser';
 
 const Home = (props, context) => {
@@ -39,12 +40,6 @@ const Home = (props, context) => {
           </Components.SectionSubtitle>}
         </div>
       }>
-      {/*<Components.Section title="Recent Discussion" titleLink="/AllComments">*/}
-        <Components.PostsList
-          terms={eventsListTerms}
-          showLoadMore={false}
-          showHeader={false} />
-      </Components.Section>
         <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
       </Components.Section>
     </div>

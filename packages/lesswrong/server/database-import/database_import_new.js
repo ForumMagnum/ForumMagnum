@@ -3,7 +3,7 @@ import Users from 'meteor/vulcan:users';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';
-import { batchUpdateScore } from 'meteor/vulcan:voting';
+import { batchUpdateScore } from '../../lib/modules/scoring';
 import moment from 'moment';
 import marked from 'marked';
 import pgp from 'pg-promise';
