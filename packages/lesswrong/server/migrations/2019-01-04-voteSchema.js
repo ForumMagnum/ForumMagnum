@@ -38,6 +38,15 @@ registerMigration({
           
           // Fill in authorId on the votes.
           const updates = _.map(votesToUpdate, vote => {
+            if (!authorIdsByDocument[vote.documentId]) {
+              // eslint-disable-next-line no-console
+              console.log("Vote without corresponding authorId ", vote)
+              return { 
+                deleteOne: {
+                  filter: {_id: vote._id}
+                }
+              }
+            }
             return {
               updateOne: {
                 filter: {_id: vote._id},
@@ -61,10 +70,16 @@ registerMigration({
     await fillDefaultValues({
       collection: Votes,
       fieldName: "cancelled",
+      batchOptions: {
+        bucketSize: 100000
+      }
     });
     await fillDefaultValues({
       collection: Votes,
       fieldName: "isUnvote",
+      batchOptions: {
+        bucketSize: 100000
+      }
     });
   },
 });

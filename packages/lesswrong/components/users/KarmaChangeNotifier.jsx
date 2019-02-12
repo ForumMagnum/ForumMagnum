@@ -128,7 +128,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
-                  {commentChange.comment.plaintextExcerpt}
+                  {commentChange.comment && commentChange.comment.contents && commentChange.comment.contents.plaintextDescription}
                 </div>
               </MenuItem>
             ))}
@@ -137,9 +137,6 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
         }
       <Link to={`/account`} onClick={handleClose}> 
         <span className={classes.settings}>Change Settings </span>  
-        {/* <div className={classes.bottomSection}>
-          
-        </div> */}
       </Link>  
     </Typography>
   );

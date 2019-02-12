@@ -22,7 +22,7 @@ async function constructAkismetReport({document, type = "post"}) {
     if (type !== "post") {
       post = await Posts.findOne(document.postId)
     }
-    const link = Posts.getPageUrl(post)  // Don't get link if we create a comment without a post
+    const link = post && Posts.getPageUrl(post) || ""  // Don't get link if we create a comment without a post
     const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
     const ip = events && events[0] && events[0].properties && events[0].properties.ip
     const userAgent = events && events[0] && events[0].properties && events[0].properties.userAgent
@@ -35,7 +35,7 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.body, 
+      comment_content : document.contents && document.contents.html, 
       is_test: Meteor.isDevelopment
     }
 }
@@ -154,9 +154,9 @@ async function akismetReportSpamHam(report) {
     if (report.commentId) {
       comment = Comments.findOne(report.commentId)
     }
-    const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
-    const akismetReport = await constructAkismetReport(akismetReportArguments)
     if (!report.markedAsSpam) {
+      const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
+      const akismetReport = await constructAkismetReport(akismetReportArguments)
       client.submitHam(akismetReport, (err) => {
         // eslint-disable-next-line no-console
         if (!err) { console.log("Reported Akismet false positive", akismetReport)}

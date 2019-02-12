@@ -19,8 +19,7 @@ import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 
 import { withStyles } from '@material-ui/core/styles';
-import { postExcerptFromHTML, postExcerptMaxChars } from '../../lib/editor/ellipsize'
-
+import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
@@ -68,7 +67,7 @@ class RecentDiscussionThread extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showExcerpt: false,
+      showHighlight: false,
       readStatus: false,
     };
   }
@@ -108,8 +107,8 @@ class RecentDiscussionThread extends PureComponent {
       }
   }
 
-  showExcerpt = () => {
-    this.setState({showExcerpt:!this.state.showExcerpt});
+  showHighlight = () => {
+    this.setState({showHighlight:!this.state.showHighlight});
     this.setState({readStatus:true});
     this.handleMarkAsRead()
   }
@@ -117,7 +116,7 @@ class RecentDiscussionThread extends PureComponent {
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
 
-    const { ContentItemBody, LinkPostMessage, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode } = Components
+    const { ContentItemBody, LinkPostMessage, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
     const nestedComments = unflattenComments(results);
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
@@ -141,36 +140,27 @@ class RecentDiscussionThread extends PureComponent {
             <PostsItemTitle post={post} />
           </Link>
 
-          <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
+          <div className="recent-discussion-thread-meta" onClick={this.showHighlight}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>
             }
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
               className={"recent-discussion-show-highlight"}
-              open={this.state.showExcerpt}/>
+              open={this.state.showHighlight}/>
           </div>
         </div>
-
-        { this.state.showExcerpt ?
+        { this.state.showHighlight ?
           <div className={highlightClasses}>
             <LinkPostMessage post={post} />
-            { post.htmlHighlight ?
-              <div>
-                <div className={classNames(classes.postHighlight, classes.postBody)} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
-                { post.wordCount > postExcerptMaxChars && <div className={classes.continueReading}>
-                  <Link to={Posts.getPageUrl(post)}>
-                    (Continue Reading {` – ${post.wordCount - postExcerptMaxChars} more words`})
-                  </Link>
-                </div>}
-              </div>
-              :
-              <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.htmlHighlight)}}/>
-            }
+            <PostsHighlight post={post} />
           </div>
-          : <div className={highlightClasses} onClick={() => { this.showExcerpt() }}>
-              <Components.LinkPostMessage post={post} />
-              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <ContentItemBody className={classes.postHighlight} dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.htmlHighlight)}}/>}
+          : <div className={highlightClasses} onClick={this.showHighlight}>
+              <LinkPostMessage post={post} />
+              { (!post.lastVisitedAt || post.commentCount === null) && 
+                <ContentItemBody 
+                  className={classes.postHighlight} 
+                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
             </div>
         }
         <div className="recent-discussion-thread-comment-list">

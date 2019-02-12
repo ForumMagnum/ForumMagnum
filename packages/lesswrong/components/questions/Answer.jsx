@@ -94,7 +94,7 @@ const styles = theme => ({
 const Answer = ({ comment, post, classes, index, answerCount }) => {
   const [showEdit, setShowEdit] = useState(false);
   const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
-
+  const { html = "" } = comment.contents || {}
   return (
     <div className={classes.root}>
       { comment.deleted ?
@@ -140,7 +140,7 @@ const Answer = ({ comment, post, classes, index, answerCount }) => {
             :
             <ContentItemBody
               className={classes.postContent}
-              dangerouslySetInnerHTML={{__html:comment.htmlBody}}
+              dangerouslySetInnerHTML={{__html: html}}
             />
           }
           <AnswerCommentsList

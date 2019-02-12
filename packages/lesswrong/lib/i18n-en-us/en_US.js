@@ -12,7 +12,6 @@ addStrings('en', {
   'posts.delete_success': 'Post “{title}” deleted.',
   'posts.title': 'Title',
   'posts.url': 'URL',
-  'posts.body': 'Body',
   'posts.categories': 'Categories',
   'posts.thumbnailUrl': 'Thumbnail URL',
   'posts.status': 'Status',
@@ -62,7 +61,6 @@ addStrings('en', {
   'comments.please_log_in': 'Please log in to comment.',
   'comments.parentCommentId': 'Parent Comment ID',
   'comments.topLevelCommentId': 'Top Level Comment ID',
-  'comments.body': 'Body',
   'comments.rate_limit_error': 'Please wait {value} seconds before commenting again.',
 
   'categories': 'Categories',

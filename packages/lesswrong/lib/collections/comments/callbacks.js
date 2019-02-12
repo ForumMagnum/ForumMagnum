@@ -3,7 +3,6 @@ import { Posts } from "../posts";
 import { Comments } from './collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { convertFromRaw } from 'draft-js';
 import { performVoteServer } from '../../modules/vote.js';
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
@@ -192,11 +191,10 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
-function NewCommentsEmptyCheck (comment, user) {
-  if (!comment.htmlBody &&
-      !comment.body &&
-      (!comment.content || !convertFromRaw(comment.content).hasText())) {
-    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
+function NewCommentsEmptyCheck (comment) {
+  const { data } = comment.contents && comment.contents.originalContents || {}
+  if (!data) {
+    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
   return comment;
@@ -204,7 +202,7 @@ function NewCommentsEmptyCheck (comment, user) {
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment) {
-  if (newComment.deleted && newComment.htmlBody) {
+  if (newComment.deleted && newComment.contents && newComment.contents.html) {
     const originalPost = await Posts.findOne(newComment.postId);
     const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
@@ -223,18 +221,23 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     let firstMessageContent =
         `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
-      firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
+      firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
 
     const firstMessageData = {
       userId: lwAccount._id,
-      htmlBody: firstMessageContent,
+      contents: {
+        originalContents: {
+          type: "html",
+          data: firstMessageContents
+        }
+      },
       conversationId: conversation.data._id
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
-      htmlBody: newComment.htmlBody,
+      contents: newComment.contents,
       conversationId: conversation.data._id
     }
 
