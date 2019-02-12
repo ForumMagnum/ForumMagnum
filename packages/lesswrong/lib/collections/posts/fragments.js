@@ -131,8 +131,23 @@ registerFragment(`
     currentUserVotes{
       ...VoteFragment
     }
+    feed {
+      ...RSSFeedMinimumInfo
+    }
   }
 `);
+
+registerFragment(`
+  fragment PostsPage on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents {
+      ...RevisionDisplay
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsEdit on Post {
@@ -167,17 +182,7 @@ registerFragment(`
   }
 `)
 
-registerFragment(`
-  fragment PostsPage on Post {
-    ...PostsDetails
 
-    # Content & Revisions
-    version
-    contents {
-      ...RevisionDisplay
-    }
-  }
-`)
 
 // Same as PostsPage just optional arguments to the content field
 registerFragment(`
