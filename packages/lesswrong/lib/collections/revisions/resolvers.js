@@ -28,20 +28,29 @@ export function dataToMarkdown(data, type) {
       return htmlToMarkdown(data)
     }
     case "draftJS": {
-      if (data) {
-        try {
-          const contentState = convertFromRaw(data);
-          const html = draftToHTML(contentState)
-          return htmlToMarkdown(html)  
-        } catch(e) {
-          // eslint-disable-next-line no-console
-          console.error(e)
-        }
-        
-      } 
+      try {
+        const contentState = convertFromRaw(data);
+        const html = draftToHTML(contentState)
+        return htmlToMarkdown(html)  
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(e)
+      }
       return ""
     }
   }
+}
+
+function htmlToDraftServer(...args) {
+  // We have to add this type definition to the global object to allow draft-convert to properly work on the server
+  global.HTMLElement = new JSDOM().window.HTMLElement
+  // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
+  global.document = new JSDOM().window.document
+  const result = htmlToDraft(...args) 
+  // We do however at least remove it right afterwards
+  delete global.document
+  delete global.HTMLElement
+  return result
 }
 
 export function dataToDraftJS(data, type) {
@@ -50,19 +59,12 @@ export function dataToDraftJS(data, type) {
       return data
     }
     case "html": {
-      // We have to add this type definition to the global object to allow draft-convert to properly work on the server
-      global.HTMLElement = new JSDOM().window.HTMLElement
-      // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
-      global.document = new JSDOM().window.document
-      const draftJSContentState = htmlToDraft(data, {}, domBuilder)
-      // We do however at least remove it right afterwards
-      delete global.document
-      delete global.HTMLElement
+      const draftJSContentState = htmlToDraftServer(data, {}, domBuilder)
       return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
     }
     case "markdown": {
       const html = markdownToHtml(data)
-      const draftJSContentState = htmlToDraft(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
+      const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
       return convertToRaw(draftJSContentState) 
     }
   }

@@ -70,13 +70,18 @@ class EditorFormComponent extends Component {
 
   getEditorStatesFromType = (editorType) => {
     const { document, fieldName, value } = this.props
-    if (value && value.originalContents && value.originalContents.data) {
+    const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
+
+    // Initialize the editor to whatever the canonicalContent is
+    if (value && value.originalContents && value.originalContents.data && !editorOverride && editorType === value.originalContents.type ) {
       return {
         draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
         markdownValue: editorType === "markdown" ? value.originalContents.data : null,
         htmlValue: editorType === "html" ? value.originalContents.data : null  
       }
     }
+
+    // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown } = document[fieldName] || {}
     return {
       draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
