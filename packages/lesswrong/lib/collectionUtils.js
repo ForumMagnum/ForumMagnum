@@ -131,3 +131,13 @@ export function addUniversalFields({ collection, schemaVersion=1 }) {
   ])
   ensureIndex(collection, {schemaVersion: 1});
 }
+
+export function isUnbackedCollection(collection)
+{
+  if (collection.collectionName === 'Settings' || collection.collectionName === 'Callbacks') {
+    // Vulcan collections with no backing database table
+    return true;
+  }
+  
+  return false;
+}
