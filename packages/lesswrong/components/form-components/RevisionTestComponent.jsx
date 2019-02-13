@@ -16,14 +16,14 @@ class RevisionTestComponent extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      contents: props.document && props.document[props.path] || props.defaultValue || ""
+      contents: (props.document && props.document[props.path]) || props.defaultValue || ""
     }
   }
 
   componentDidMount() {
     this.context.addToSuccessForm(() => this.setState({contents: ""}))
     this.context.updateCurrentValues({
-      [this.props.path]: this.props.document && this.props.document[this.props.path] || ""
+      [this.props.path]: (this.props.document && this.props.document[this.props.path]) || ""
     })
   }
 

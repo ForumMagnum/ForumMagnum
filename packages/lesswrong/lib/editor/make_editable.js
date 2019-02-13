@@ -78,10 +78,10 @@ export const makeEditable = ({collection, options = {}}) => {
               return checkAccess(currentUser, revision) ? revision : null
             }
             return {
-              editedAt: doc[field] && doc[field].editedAt || new Date(),
+              editedAt: (doc[field] && doc[field].editedAt) || new Date(),
               userId: doc[field] && doc[field].userId,
-              originalContentsType: doc[field] && doc[field].originalContentsType || "html",
-              originalContents: doc[field] && doc[field].originalContents || {},
+              originalContentsType: (doc[field] && doc[field].originalContentsType) || "html",
+              originalContents: (doc[field] && doc[field].originalContents) || {},
               html: doc[field] && doc[field].html,
               updateType: doc[field] && doc[field].updateType,
               version: doc[field] && doc[field].version
