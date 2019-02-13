@@ -116,7 +116,7 @@ export function schemaDefaultValue(defaultValue) {
   }
 }
 
-export function addUniversalFields({ collection }) {
+export function addUniversalFields({ collection, schemaVersion=1 }) {
   collection.addField([
     {
       fieldName: 'schemaVersion',
@@ -124,9 +124,20 @@ export function addUniversalFields({ collection }) {
         type: Number,
         canRead: ['guests'],
         optional: true,
-        ...schemaDefaultValue(1)
+        ...schemaDefaultValue(schemaVersion),
+        onUpdate: () => schemaVersion
       }
     }
   ])
   ensureIndex(collection, {schemaVersion: 1});
+}
+
+export function isUnbackedCollection(collection)
+{
+  if (collection.collectionName === 'Settings' || collection.collectionName === 'Callbacks') {
+    // Vulcan collections with no backing database table
+    return true;
+  }
+  
+  return false;
 }
