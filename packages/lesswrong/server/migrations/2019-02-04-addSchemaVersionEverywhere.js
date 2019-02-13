@@ -1,20 +1,22 @@
+import { Collections } from 'meteor/vulcan:core'
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { editableCollections } from '../../lib/editor/make_editable'
-import { getCollection } from 'meteor/vulcan:core'
+import { isUnbackedCollection } from '../../lib/collectionUtils';
 
 registerMigration({
-  name: "addSchemaVersionToEditableCollections",
+  name: "addSchemaVersionEverywhere",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections) {
-      const collection = getCollection(collectionName)
+    for (let collection of Collections) {
+      if (isUnbackedCollection(collection))
+        continue;
+      
       await migrateDocuments({
-        description: `Add schema version to ${collectionName}`,
+        description: `Add schema version to ${collection.collectionName}`,
         collection,
         batchSize: 1000,
         unmigratedDocumentQuery: {
           schemaVersion: {$exists: false}
-        }, 
+        },
         migrate: async (documents) => {
           const updates = documents.map(doc => {
             return {
@@ -29,11 +31,11 @@ registerMigration({
             }
           })
           await collection.rawCollection().bulkWrite(
-            updates, 
+            updates,
             { ordered: false }
-          )  
+          )
         }
-      })  
+      })
     }
   },
 });
