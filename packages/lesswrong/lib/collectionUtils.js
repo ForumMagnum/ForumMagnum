@@ -116,7 +116,7 @@ export function schemaDefaultValue(defaultValue) {
   }
 }
 
-export function addUniversalFields({ collection }) {
+export function addUniversalFields({ collection, schemaVersion=1 }) {
   collection.addField([
     {
       fieldName: 'schemaVersion',
@@ -124,7 +124,8 @@ export function addUniversalFields({ collection }) {
         type: Number,
         canRead: ['guests'],
         optional: true,
-        ...schemaDefaultValue(1)
+        ...schemaDefaultValue(schemaVersion),
+        onUpdate: () => schemaVersion
       }
     }
   ])
