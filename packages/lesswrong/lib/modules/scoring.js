@@ -1,7 +1,12 @@
 import Votes from '../collections/votes/collection.js';
 
 export const recalculateBaseScore = (document, power) => {
-  const votes = Votes.find({ documentId: document._id }).fetch() || [];
+  const votes = Votes.find(
+    {
+      documentId: document._id,
+      cancelled: false
+    }
+  ).fetch() || [];
   return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
 }
 

@@ -12,6 +12,7 @@ import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
+
 /**
  * @summary Posts config namespace
  * @type {Object}
@@ -125,38 +126,6 @@ const schema = {
     }
   },
   /**
-    Post body (markdown)
-  */
-  body: {
-    type: String,
-    optional: true,
-    max: 3000,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: 'textarea',
-    order: 30
-  },
-  /**
-    HTML version of the post body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     return Utils.sanitize(marked(post.body));
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
    Post Excerpt
    */
   excerpt: {
@@ -164,20 +133,6 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     searchable: true,
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     // excerpt length is configurable via the settings (30 words by default, ~255 characters)
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(post.body)), excerptLength);
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(modifier.$set.body)), excerptLength);
-    //   }
-    // }
   },
   /**
     Count of how many times the post's page was viewed
@@ -380,6 +335,18 @@ const schema = {
       },
     }
   },
+  
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        return Posts.getPageUrl(post, false);
+      },
+    }
+  },
 
   linkUrl: {
     type: String,
@@ -415,20 +382,6 @@ const schema = {
         const commentsCount = Comments.find({ postId: post._id }).count();
         return commentsCount;
       },
-    }
-  },
-
-  commentIds: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'comments',
-      arguments: 'limit: Int = 5',
-      type: '[Comment]',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'commentIds'}
-      ),
     }
   },
 
@@ -486,7 +439,6 @@ const schema = {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
-
 };
 
 export default schema;

@@ -17,7 +17,7 @@ class ReportForm extends PureComponent {
         onClose={onClose}
       >
         <DialogContent>
-          <Components.SmartForm
+          <Components.WrappedSmartForm
             collection={Reports}
             mutationFragment={getFragment('unclaimedReportsList')}
             prefilledProps={{

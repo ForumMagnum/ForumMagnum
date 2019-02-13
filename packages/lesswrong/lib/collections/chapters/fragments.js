@@ -6,8 +6,9 @@ registerFragment(`
     createdAt
     title
     subtitle
-    description
-    htmlDescription
+    contents {
+      ...RevisionDisplay
+    }
     number
     sequenceId
     postIds

@@ -1,5 +1,6 @@
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
+import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
 import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
@@ -549,7 +550,7 @@ Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
       reviewedByUserId: {$exists: false},
-      frontpageDate: {$in: [false,null] },
+      frontpageDate: viewFieldNullOrMissing,
       authorIsUnreviewed: null
     },
     options: {

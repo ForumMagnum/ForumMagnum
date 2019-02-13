@@ -8,6 +8,7 @@ import withUser from '../common/withUser'
 
 const PostsNewForm = ({router, currentUser, flash}) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
     isEvent: router.location.query && router.location.query.eventForm,
     types: router.location.query && router.location.query.ssc ? ['SSC'] : [],
@@ -16,7 +17,7 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     af: getSetting("AlignmentForum", false) || (router.location.query && !!router.location.query.af),
     groupId: router.location.query && router.location.query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelinesHtmlBody: currentUser && currentUser.moderationGuidelinesHtmlBody,
+    moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
   
   if (!Posts.options.mutations.new.check(currentUser)) {
@@ -26,7 +27,7 @@ const PostsNewForm = ({router, currentUser, flash}) => {
   return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Posts}
         mutationFragment={getFragment('PostsPage')}
         prefilledProps={prefilledProps}

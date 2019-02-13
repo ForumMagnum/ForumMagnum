@@ -15,7 +15,7 @@ import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 
 const styles = theme => ({
-  userButton: {
+  userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
@@ -63,7 +63,7 @@ class UsersMenu extends PureComponent {
     return (
       <div className="users-menu">
         <Button onClick={this.handleClick}>
-          <span className={classes.userButton} style={{ color: color }}>
+          <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
             {getSetting('AlignmentForum', false) && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
           </span>

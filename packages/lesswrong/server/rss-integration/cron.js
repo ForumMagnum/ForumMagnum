@@ -61,7 +61,12 @@ const addJob = function () {
             var post = {
               title: newPost.title,
               userId: feed.userId,
-              htmlBody: body,
+              contents: {
+                originalContents: {
+                  type: "html",
+                  data: body
+                }
+              },
               feedId: feed._id,
               feedLink: newPost.link
             };
@@ -87,4 +92,6 @@ const addJob = function () {
 };
 
 
-Meteor.startup(addJob);
+if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+  Meteor.startup(addJob);
+}

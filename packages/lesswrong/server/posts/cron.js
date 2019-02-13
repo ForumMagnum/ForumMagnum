@@ -34,6 +34,8 @@ const addJob = function () {
   });
 };
 
-Meteor.startup(function () {
-  addJob();
-});
+if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+  Meteor.startup(function () {
+    addJob();
+  });
+}
