@@ -247,7 +247,7 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
-    const markdown = comment.contents && comment.contents.markdown || ""
+    const markdown = (comment.contents && comment.contents.markdown) || ""
     const { MetaInfo } = Components
 
     if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
