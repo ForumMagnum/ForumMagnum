@@ -22,7 +22,7 @@ registerMigration({
                 filter: {_id: doc._id},
                 update: {
                   $set: {
-                    schemaVersion: 0,
+                    schemaVersion: 1,
                   }
                 }
               }

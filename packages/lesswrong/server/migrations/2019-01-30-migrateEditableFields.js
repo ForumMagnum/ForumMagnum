@@ -30,7 +30,7 @@ function determineSemVer({draft}) {
   return draft ? "0.1.0" : "1.0.0"
 }
 
-const TARGET_SCHEMA_VERSION = 12
+const TARGET_SCHEMA_VERSION = 2
 
 registerMigration({
   name: "migrateEditableFields",
@@ -132,13 +132,13 @@ registerMigration({
               }
             })
           })
-          if (collectionUpdates && collectionUpdates.length) {
+          if (collectionUpdates.length) {
             await collection.rawCollection().bulkWrite(
               collectionUpdates, 
               { ordered: false }
             )
           }
-          if (newRevisions && newRevisions.length) {
+          if (newRevisions.length) {
             await Revisions.rawCollection().bulkWrite(
               newRevisions,
               { ordered: false }
