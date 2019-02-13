@@ -3,4 +3,4 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
-import '2019-02-04-addSchemaVersionEverywhere'
+import './2019-02-04-addSchemaVersionEverywhere'
