@@ -192,7 +192,7 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
 function NewCommentsEmptyCheck (comment) {
-  const { data } = comment.contents && comment.contents.originalContents || {}
+  const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
@@ -218,7 +218,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
       validate: false
     });
 
-    let firstMessageContent =
+    let firstMessageContents =
         `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
       firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
