@@ -243,7 +243,31 @@ const schema = {
       const post = await Posts.findOne({_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
-  }
+  },
+  
+  // DEPRECATED fields for GreaterWrong backwards compatibility
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'Int',
+      resolver: (comment, args, { Comments }) => {
+        const contents = comment.contents;
+        return contents.wordCount;
+      }
+    }
+  },
+  htmlBody: {
+    type: String,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, { Comments }) => {
+        const contents = comment.contents;
+        return contents.html;
+      }
+    }
+  },
 };
 
 export default schema;
