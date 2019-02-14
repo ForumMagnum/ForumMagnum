@@ -2,6 +2,7 @@ import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
+import { addUniversalFields } from '../../collectionUtils'
 
 export const formGroups = {
   moderationGroup: {
@@ -306,11 +307,25 @@ Users.addField([
       group: formGroups.moderationGroup,
       label: "I'm happy for LW site moderators to help enforce my policy",
       canRead: ['guests'],
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members', 'sunshineRegiment', 'admins'],
       control: 'checkbox',
-      blackbox: true,
       order: 55,
+    }
+  },
+
+  {
+    fieldName: 'collapseModerationGuidelines',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      group: formGroups.moderationGroup,
+      label: "On my posts, collapse my moderation guidelines by default",
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
+      control: 'checkbox',
+      order: 56,
     }
   },
 
@@ -681,7 +696,7 @@ Users.addField([
       canRead: ['sunshineRegiment', 'admins'],
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
-      hidden: true,
+      group: formGroups.adminOptions,
       resolveAs: {
         fieldName: 'reviewedByUser',
         type: 'User',
@@ -784,6 +799,56 @@ Users.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment']
     }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsPosts',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (in large threads on Post Pages)"
+    }
+  },
+
+  {
+    fieldName: 'noCollapseCommentsFrontpage',
+    fieldSchema: {
+      order: 70,
+      type: Boolean,
+      optional: true,
+      defaultValue: false,
+      canRead: ['guests'],
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: ['members'],
+      control: 'checkbox',
+      label: "Do not collapse comments (on home page)"
+    }
+  },
+
+  { 
+    fieldName: "shortformFeedId",
+    fieldSchema: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['admins', 'sunshineRegiment'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      group: formGroups.adminOptions,
+      resolveAs: {
+        fieldName: 'shortformFeed',
+        type: 'Post',
+        resolver: generateIdResolverSingle(
+          {collectionName: 'Posts', fieldName: 'shortformFeedId'}
+        ),
+        addOriginalField: true
+      },
+    }
   }
 ]);
 
@@ -808,3 +873,5 @@ makeEditable({
   collection: Users,
   options: makeEditableOptionsModeration
 })
+
+addUniversalFields({collection: Users})

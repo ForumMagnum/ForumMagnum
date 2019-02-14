@@ -8,7 +8,9 @@ import { Components, registerComponent, getSetting} from 'meteor/vulcan:core';
 const SmallMapPreviewWrapper = (props) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   let document = props.post || props.group;
-  let location = document.googleLocation && document.googleLocation.geometry && document.googleLocation.geometry.location || {lat: 37.871853, lng: -122.258423};
+  const googleLocation = document.googleLocation;
+  const defaultLocation = {lat: 37.871853, lng: -122.258423};
+  let location = (googleLocation && googleLocation.geometry && googleLocation.geometry.location) || defaultLocation;
   return <div className="small-map-preview-wrapper">
     <Components.SmallMapPreview
       {...props}

@@ -4,7 +4,7 @@ import {
   withMutation,
   getActions,
 } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { Posts } from "../../lib/collections/posts";
@@ -19,6 +19,8 @@ import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import Typography from '@material-ui/core/Typography';
+import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const styles = theme => ({
   root: {
@@ -32,17 +34,17 @@ const styles = theme => ({
   },
   postsItem: {
     position: "relative",
-    
+
     "&:hover": {
       backgroundColor: "rgba(0,0,0,.025) !important",
     },
-    
+
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: "rgba(0,0,0,0.3)",
     },
   },
-  
+
   paperShowHighlight: {
     "&:hover": {
       backgroundColor: "white !important",
@@ -51,13 +53,13 @@ const styles = theme => ({
   contentShowHighlight: {
     background: "white !important",
   },
-  
+
   highlight: {
     maxWidth:570,
     padding:theme.spacing.unit*2,
     ...postHighlightStyles(theme),
   },
-  
+
   meta: {
     display: "block",
     color: "rgba(0,0,0,0.55)",
@@ -68,7 +70,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
     overflow: "hidden",
-    
+
     [legacyBreakpoints.maxTiny]: {
       width: 320,
       paddingLeft: 3,
@@ -78,8 +80,12 @@ const styles = theme => ({
         opacity: 0.7,
       }
     },
+    '&:hover $actions': {
+      display: "inline-block",
+      opacity: 0.5,
+    }
   },
-  
+
   content: {
     paddingLeft:10,
     paddingTop:10,
@@ -119,13 +125,13 @@ const styles = theme => ({
   unreadComments: {
     color: theme.palette.secondary.light,
   },
-  
+
   recentCommentsTitle: {
     padding: "10px 0",
     fontSize: 14,
     fontWeight: 600,
   },
-  
+
   collapseIcon: {
     fontSize: "12px !important",
     height: 12,
@@ -134,7 +140,7 @@ const styles = theme => ({
     top: 1,
     color: "rgba(0,0,0,.4) !important",
   },
-  
+
   ////////////////////////////////////////////////////////////////////////////
   // Used for the highlight (in renderHighlightMenu, and the button)
   ////////////////////////////////////////////////////////////////////////////
@@ -148,7 +154,7 @@ const styles = theme => ({
     clear: "both",
     overflow: "auto",
   },
-  
+
   highlightFooterButton: {
     color: "rgba(0,0,0,.6)",
     fontSize: "12px",
@@ -156,7 +162,6 @@ const styles = theme => ({
     position: "absolute",
     padding: "10px 0",
     bottom: 0,
-    height: 35,
     background: "white",
     borderTop: "solid 1px rgba(0,0,0,.05)",
 
@@ -176,7 +181,7 @@ const styles = theme => ({
     textAlign: "center",
     width: "50%",
   },
-  
+
   ////////////////////////////////////////////////////////////////////////////
   // Used on the comments speech-bubble icon/button
   ////////////////////////////////////////////////////////////////////////////
@@ -197,14 +202,14 @@ const styles = theme => ({
     borderLeft: "solid 1px rgba(0,0,0,.05)",
     backgroundColor: "rgba(0,0,0,.02)",
   },
-  
-  
+
+
   ////////////////////////////////////////////////////////////////////////////
   // Used in the New Comments view (when you click the comments icon)
   ////////////////////////////////////////////////////////////////////////////
   newCommentsSection: {
     backgroundColor: "rgba(0,0,0,.05)",
-    padding: "7px 9px 25px 9px",
+    padding: "7px 9px 50px 9px",
   },
   newCommentsHeader: {
   },
@@ -219,7 +224,6 @@ const styles = theme => ({
     fontSize: "12px",
     cursor: "pointer",
     padding: 10,
-    height: 35,
     "&:hover": {
       color: "rgba(0,0,0,.35)",
       backgroundColor: "rgba(0,0,0,.1)",
@@ -237,6 +241,14 @@ const styles = theme => ({
     textAlign: "center",
     width: "50%",
   },
+  actions: {
+    display: "inline-block",
+    opacity: 0,
+    marginTop: -5,
+    '&:hover': {
+      opacity: 1
+    },
+  }
 })
 
 const isSticky = (post, terms) => {
@@ -249,7 +261,7 @@ const isSticky = (post, terms) => {
   }
 }
 
-class PostsItem extends PureComponent {
+class PostsItem extends Component {
   constructor(props, context) {
     super(props)
     this.state = {
@@ -271,6 +283,25 @@ class PostsItem extends PureComponent {
     this.setState({showHighlight: !this.state.showHighlight});
     this.setState({showNewComments: false});
   }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!shallowEqual(this.state, nextState)) {
+      return true;
+    }
+
+    // Deep compare rather than shallow compare 'terms', because it gets reconstructed but is simple
+    if (!_.isEqual(this.props.terms, nextProps.terms)) {
+      return true;
+    }
+
+    // Exclude mutators from comparison
+    if (!shallowEqualExcept(this.props, nextProps, ["terms", "increasePostViewCount", "createLWEvent", "newMutation"])) {
+      return true;
+    }
+
+    return false;
+  }
+
 
   async handleMarkAsRead () {
     // try {
@@ -313,16 +344,16 @@ class PostsItem extends PureComponent {
     let { classes } = this.props;
     return (
       <div className={classes.highlightFooter}>
-        <span className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
+        <Typography variant="body1" className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
           <Icon className={classes.collapseIcon}>
             subdirectory_arrow_left
           </Icon>
           Collapse
-        </span>
+        </Typography>
         <Link to={this.getPostLink()}>
-          <span className={classNames(classes.highlightFooterButton, classes.viewFullPost)}>
-            Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
-          </span>
+        <Typography className={classNames(classes.highlightFooterButton, classes.viewFullPost)} variant="body1">
+          Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
+        </Typography>
         </Link>
       </div>
     )
@@ -337,6 +368,9 @@ class PostsItem extends PureComponent {
 
     const { post, currentUser, terms, classes } = this.props;
     const { lastVisitedAt } = post
+
+    const { PostsPageActions } = Components
+
     const lastCommentedAt = Posts.getLastCommentedAt(post)
 
     let commentCount = Posts.getCommentCount(post)
@@ -391,6 +425,9 @@ class PostsItem extends PureComponent {
                 <Components.ShowOrHideHighlightButton
                   className={classes.showHighlightButton}
                   open={this.state.showHighlight}/>
+                <span className={classes.actions} onClick={(event)=>event.stopPropagation()}>
+                  <PostsPageActions post={post}/>
+                </span>
               </div>
             </div>
             <Components.CategoryDisplay
@@ -410,17 +447,21 @@ class PostsItem extends PureComponent {
           { this.state.showNewComments &&
             <div className={classes.newCommentsSection}>
               <div className={classes.newCommentsHeader}>
-                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
+                <Typography variant="body1" className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
-                </span>
-                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
-                  View All Comments
-                </Link>
+                </Typography>
+                <Typography variant="body1">
+                  <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
+                    View All Comments
+                  </Link>
+                </Typography>
               </div>
-              <div className={classes.recentCommentsTitle}>Recent Comments</div>
+              <Typography variant="body1" className={classes.recentCommentsTitle}>
+                Recent Comments
+              </Typography>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={lastVisitedAt}
@@ -428,15 +469,17 @@ class PostsItem extends PureComponent {
                 post={post}
               />
               <div className={classes.newCommentsFooter}>
-                <span className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
+                <Typography variant="body1" className={classNames(classes.hideComments, classes.newCommentsActions)} onClick={this.toggleNewComments}>
                   <Icon className={classes.collapseIcon}>
                     subdirectory_arrow_left
                   </Icon>
                   Collapse
-                </span>
-                <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
-                  View All Comments
-                </Link>
+                </Typography>
+                <Typography variant="body1">
+                  <Link className={classNames(classes.viewAllComments, classes.newCommentsActions)} to={this.getPostLink() + "#comments"}>
+                    View All Comments
+                  </Link>
+                </Typography>
               </div>
             </div>
           }

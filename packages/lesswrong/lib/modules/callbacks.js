@@ -5,7 +5,8 @@ import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../collections/localgroups/collection.js';
 import { Bans } from '../collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
-import { cancelVoteServer, Votes } from 'meteor/vulcan:voting';
+import { Votes } from '../collections/votes';
+import { cancelVoteServer } from './vote.js';
 import { Posts } from '../collections/posts';
 import { Comments } from '../collections/comments'
 import VulcanEmail from 'meteor/vulcan:email'
@@ -198,7 +199,7 @@ addCallback("posts.undraft.async", PostsUndraftNotification);
  * @summary Add new post notification callback on post submit
  */
 function postsNewNotifications (post) {
-  if (!post.draft && post.status !== Posts.config.STATUS_PENDING) {
+  if (!post.draft && post.status === Posts.config.STATUS_APPROVED) {
     // add users who get notifications for all new posts
     let usersToNotify = _.pluck(Users.find({'notifications_posts': true}, {fields: {_id:1}}).fetch(), '_id');
 
@@ -403,7 +404,20 @@ function userDeleteContent(user) {
       currentUser: user,
       validate: false,
     })
+
+    const notifications = Notifications.find({documentId: post._id}).fetch();
+    //eslint-disable-next-line no-console
+    console.info(`Deleting notifications for post ${post._id}: `, notifications);
+    notifications.forEach((notification) => {
+      removeMutation({
+        collection: Notifications,
+        documentId: notification._id,
+      })
+    })
+    
+    runCallbacksAsync('posts.purge.async', post)
   })
+
   const comments = Comments.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
@@ -428,6 +442,8 @@ function userDeleteContent(user) {
         documentId: notification._id,
       })
     })
+
+    runCallbacksAsync('comments.purge.async', comment)
   })
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
@@ -444,14 +460,16 @@ addCallback("users.ban.async", userResetLoginTokens);
 async function userIPBan(user) {
   const query = `
     query UserIPBan($userId:String) {
-      UsersSingle(documentId: $userId) {
-        IPs
+      user(input:{selector: {_id: $userId}}) {
+        result {
+          IPs
+        }
       }
     }
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.UsersSingle.IPs.forEach(ip => {
+    IPs.data.user.data.IPs.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {

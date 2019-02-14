@@ -38,6 +38,7 @@ const styles = theme => ({
     },
   },
   description: {
+    marginTop: -6,
     marginLeft: 10,
     ...postBodyStyles(theme),
   },
@@ -134,7 +135,7 @@ class SequencesPage extends Component {
         <Components.Section titleComponent={
           <div className={classes.meta}>
             <Typography variant="subheading"><strong>
-              <Components.SimpleDate date={document.createdAt}/>
+              <Components.FormatDate date={document.createdAt} format="MMM DD, YYYY"/>
             </strong></Typography>
             { this.commentsEnabled() && (
               <div className="sequences-comment-count">

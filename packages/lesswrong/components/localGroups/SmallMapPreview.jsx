@@ -20,11 +20,11 @@ class SmallMapPreview extends Component {
   }
 
   render() {
-    const { post, group } = this.props;
+    const { post, group, center, zoom } = this.props;
     return (
       <GoogleMap
-        defaultCenter={this.props.center}
-        defaultZoom={this.props.zoom}
+        defaultCenter={center}
+        defaultZoom={zoom}
         options={{
           styles: mapStyle,
           keyboardShortcuts: false,

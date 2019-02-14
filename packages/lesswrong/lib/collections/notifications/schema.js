@@ -5,6 +5,7 @@ A SimpleSchema-compatible JSON schema
 */
 
 import Users from 'meteor/vulcan:users';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 //define schema
 const schema = {
@@ -63,6 +64,7 @@ const schema = {
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: ['members'],
+    ...schemaDefaultValue(false),
   },
 };
 

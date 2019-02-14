@@ -5,6 +5,7 @@ import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
   order: 50,
@@ -46,7 +47,7 @@ Comments.addField([
       type: Boolean,
       optional: true,
       hidden: true,
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
@@ -134,6 +135,7 @@ Comments.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -152,6 +154,7 @@ Comments.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       control: "checkbox",
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -164,6 +167,7 @@ Comments.addField([
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -186,7 +190,12 @@ Comments.addField([
       optional: true,
       canRead: ['guests'],
       canCreate: ['members'],
-      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      onEdit: (modifier, document, currentUser) => {
+        if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
+          return new Date()
+        }
+      },
       hidden: true,
     }
   },
@@ -197,9 +206,14 @@ Comments.addField([
       type: String,
       optional: true,
       canRead: ['guests'],
-      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['members'],
       hidden: true,
+      onEdit: (modifier, document, currentUser) => {
+        if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
+          return modifier.$set.deletedByUserId || currentUser._id
+        }
+      },
       resolveAs: {
         fieldName: 'deletedByUser',
         type: 'User',
@@ -226,6 +240,7 @@ Comments.addField([
       canUpdate: ['admins'],
       control: "checkbox",
       hidden: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -303,6 +318,7 @@ Comments.addField([
       optional: true,
       canRead: ['guests'],
       canUpdate: ['admins'],
+      ...schemaDefaultValue(false),
     }
   },
 ]);

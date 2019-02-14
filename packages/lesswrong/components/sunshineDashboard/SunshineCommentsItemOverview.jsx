@@ -41,7 +41,7 @@ class SunshineCommentsItemOverview extends Component {
           </Components.SidebarInfo>
           <Components.SidebarInfo>
             <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              <Components.FromNowDate date={comment.postedAt}/>
+              <Components.FormatDate date={comment.postedAt}/>
               <Icon className={"material-icons comments-item-permalink"}> link </Icon>
             </Link>
           </Components.SidebarInfo>

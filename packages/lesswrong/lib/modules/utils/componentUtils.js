@@ -25,7 +25,7 @@ export function debugShouldComponentUpdate(description, log, oldProps, oldState,
 // every key k, and both objects have the same set of keys.
 export function shallowEqual(a,b) {
   if (!a && !b) { return true; }
-  if (!a && b || a && !b) { return false; }
+  if ((!a && b) || (a && !b)) { return false; }
 
   let numKeysA = 0, numKeysB = 0, key;
   for (key in b) {
@@ -46,7 +46,7 @@ export function shallowEqual(a,b) {
 // same set of keys.
 export function shallowEqualExcept(a,b, ignoredKeys) {
   if (!a && !b) { return true; }
-  if (!a && b || a && !b) { return false; }
+  if ((!a && b) || (a && !b)) { return false; }
 
   let numKeysA = 0, numKeysB = 0, key;
   for (key in b) {

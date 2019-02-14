@@ -35,7 +35,7 @@ const alignmentPostResolvers = {
     alignmentPost(root, { postId, af }, context) {
       const post = context.Posts.findOne(postId)
 
-      if (Users.canDo(context.currentUser, "posts.alignment.move.all")) {
+      if (Users.canMakeAlignmentPost(context.currentUser, post)) {
         let modifier = { $set: {af: af} };
         modifier = runCallbacks('posts.alignment.sync', modifier);
         context.Posts.update({_id: postId}, modifier);
@@ -43,7 +43,7 @@ const alignmentPostResolvers = {
         runCallbacksAsync('posts.alignment.async', updatedPost, post, context);
         return context.Users.restrictViewableFields(context.currentUser, context.Posts, updatedPost);
       } else {
-        throw new Error({id: `app.user_cannot_edit_post_alignment_forum_status`});
+        throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);
       }
     }
   }

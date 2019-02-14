@@ -52,11 +52,6 @@ then moved to more specific files as it becomes necessary.
 .comments-item {
   line-height: 1.25;
   color: rgba(0,0,0,0.87);
-  .comment-context-link{
-    font-weight: 300;
-    font-size: 13px;
-    color: rgba(0,0,0,0.5);
-  }
 }
 
 // CSS Modifications for Navbar buttons and styles
@@ -67,16 +62,6 @@ then moved to more specific files as it becomes necessary.
   // With Bootstrap's default hover effect for <a> links, this would look like
   // it's grayed out.
   opacity: 1 !important;
-}
-
-// CSS modifications for comments
-
-.comments-item-meta{
-  font-size: $small-font;
-
-  .comment-edit{
-    margin-right: $hmargin;
-  }
 }
 
 // CSS Modifications for RSS Feed integration
@@ -139,7 +124,7 @@ div#mocha {
 .mjx-chtml.MJXc-display {
   overflow-x: auto;
   overflow-y: hidden;
-  
+
   // !important because the MathJax stylesheet (which gets embedded into posts)
   // has an ill-advised max-width:none in it.
   max-width: 100% !important;

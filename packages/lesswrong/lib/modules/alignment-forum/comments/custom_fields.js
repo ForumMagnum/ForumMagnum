@@ -1,5 +1,7 @@
 import { Comments } from "../../../collections/comments";
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../../modules/utils/schemaUtils'
+import { getSetting } from 'meteor/vulcan:core'
+import { schemaDefaultValue } from '../../../collectionUtils';
 
 export const alignmentOptionsGroup = {
   order: 50,
@@ -8,6 +10,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
+const alignmentForum = getSetting('AlignmentForum', false)
 
 Comments.addField([
   {
@@ -16,10 +19,11 @@ Comments.addField([
       type: Boolean,
       optional: true,
       label: "AI Alignment Forum",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['guests'],
       editableBy: ['alignmentForum', 'admins'],
       insertableBy: ['alignmentForum', 'admins'],
+      hidden: (props) => alignmentForum || !props.alignmentForumPost
     }
   },
 

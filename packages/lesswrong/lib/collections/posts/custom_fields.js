@@ -1,11 +1,16 @@
 import { Posts } from './collection';
 import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
+import { Utils } from 'meteor/vulcan:core';
+import GraphQLJSON from 'graphql-type-json';
+import { Comments } from '../comments'
+import { questionAnswersSort } from '../comments/views';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 export const formGroups = {
   adminOptions: {
@@ -54,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser.moderationGuidelinesHtmlBody)
+  return !!(currentUser && (currentUser.moderationGuidelinesHtmlBody || currentUser.moderationStyle))
 }
 
 Posts.addField([
@@ -342,8 +347,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
     }
   },
@@ -405,8 +410,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       resolveAs: {
         fieldName: 'canonicalSequence',
@@ -427,8 +432,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       hidden: false,
       control: "text",
       group: formGroups.canonicalSequence,
@@ -452,8 +457,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text",
@@ -474,8 +479,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
@@ -488,8 +493,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
@@ -512,16 +517,7 @@ Posts.addField([
       control: "checkbox",
       order: 11,
       group: formGroups.adminOptions,
-      onInsert: (document, currentUser) => {
-        if (!document.unlisted) {
-          return false;
-        }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.unlisted === null || modifier.$unset.unlisted) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -536,7 +532,7 @@ Posts.addField([
       label: 'Save to Drafts',
       type: Boolean,
       optional: true,
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['members'],
       insertableBy: ['members'],
       editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -560,16 +556,7 @@ Posts.addField([
       hidden: true,
       label: "Publish to meta",
       control: "checkbox",
-      onInsert: (document, currentUser) => {
-          if (!document.meta) {
-            return false
-          }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.meta === null || modifier.$unset.meta) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false)
     }
   },
 
@@ -583,6 +570,7 @@ Posts.addField([
       insertableBy: ['admins'],
       control: 'checkbox',
       group: formGroups.moderationGroup,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -745,7 +733,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment'],
       insertableBy: ['members'],
-      optional: true
+      optional: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -931,7 +920,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       label: "Sticky (Meta)",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['admins'],
@@ -1021,6 +1010,68 @@ Posts.addField([
       editableBy: ['admins'],
       optional: true,
       group: formGroups.adminOptions,
+      ...schemaDefaultValue(false),
+    }
+  },
+
+  {
+    fieldName: 'tableOfContents',
+    fieldSchema: {
+      type: Object,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        fieldName: "tableOfContents",
+        type: GraphQLJSON,
+        resolver: async (document, args, options) => {
+          let tocData
+          if (document.question) {
+
+            const answers = await Comments.find(
+              {answer:true, postId: document._id, deleted:false},
+              {sort:questionAnswersSort}
+            ).fetch()
+
+            if (answers && answers.length) {
+              tocData = Utils.extractTableOfContents(document.htmlBody, true) || {
+                html: null,
+                headingsCount: 0,
+                sections: []
+              }
+
+              const answerSections = answers.map((answer) => ({
+                title: answer.author + "'s answer",
+                anchor: answer._id,
+                level: 2
+              }))
+              tocData = {
+                html: tocData.html,
+                headingsCount: tocData.headingsCount,
+                sections: [
+                  ...tocData.sections,
+                  {anchor:"answers", level:1, title:"Answers"},
+                  ...answerSections
+                ]
+              }
+            }
+          } else {
+            tocData = Utils.extractTableOfContents(document.htmlBody)
+          }
+          if (tocData) {
+            const selector = {
+              answer:false,
+              parentAnswerId:{$in:[undefined,null]},
+              postId: document._id
+            }
+            if (document.af && getSetting('AlignmentForum', false)) {
+              selector.af = true
+            }
+            const commentCount = await Comments.find(selector).count()
+            tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
+          }
+          return tocData;
+        },
+      },
     }
   },
 
@@ -1045,10 +1096,11 @@ Posts.addField([
             }
             const sort = {sort:{createdAt:-1}}
             const event = await LWEvents.findOne(query, sort);
+            const author = await Users.findOne({_id: post.userId});
             if (event) {
               return event && event.properties && event.properties.targetState
             } else {
-              return true
+              return author.collapseModerationGuidelines ? false : (post.moderationGuidelinesHtmlBody || post.moderationStyle)
             }
           } else {
             return false

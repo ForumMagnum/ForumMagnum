@@ -1,12 +1,15 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { Posts } from '../../lib/collections/posts'
+import { Posts } from '../../../lib/collections/posts'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import withUser from '../../common/withUser';
 
 const styles = theme => ({
   formButton: {
@@ -42,11 +45,19 @@ class ModerationGuidelinesEditForm extends PureComponent {
         open={true}
         onClose={onClose}
       >
+        <DialogTitle>
+          Moderation Guidelines Edit Form
+        </DialogTitle>
         <DialogContent>
+          <Typography variant="body2">
+            Edit the moderation guidelines specific to this post:
+          </Typography>
+          {/* TODO: fix unerlying issues so we don't need this weird addFields hack. Fields does not parse properly for non-admins */}
           <Components.SmartForm
             collection={Posts}
             documentId={postId}
             fields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
+            addFields={['moderationGuidelinesContent', 'moderationGuidelinesBody', 'moderationStyle']}
             mutationFragment={getFragment("LWPostsPage")}
             successCallback={onClose}
             SubmitComponent={SubmitComponent}
@@ -83,4 +94,4 @@ ModerationGuidelinesEditForm.propTypes = {
   postId: PropTypes.string,
 }
 
-registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, withStyles(styles, { name: "ModerationGuidelinesEditForm" }));
+registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, withStyles(styles, { name: "ModerationGuidelinesEditForm" }), withUser);

@@ -2,6 +2,7 @@ import { createCollection, getDefaultResolvers, getDefaultMutations } from 'mete
 import schema from './schema.js';
 import Users from 'meteor/vulcan:users';
 import Sequences from '../sequences/collection.js';
+import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
   newCheck: (user, document) => {
@@ -38,3 +39,5 @@ export const Chapters = createCollection({
 })
 
 export default Chapters;
+
+addUniversalFields({collection: Chapters})

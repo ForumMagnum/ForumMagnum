@@ -1,5 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { addCallback } from 'meteor/vulcan:core';
+import { Posts } from '../posts'
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -46,3 +47,33 @@ function maybeSendVerificationEmail (modifier, user)
 addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
+
+
+
+
+function approveUnreviewedPosts (newUser, oldUser)
+{
+  if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
+  {
+    Posts.update({userId:newUser._id}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+  }
+}
+
+addCallback("users.edit.async", approveUnreviewedPosts);
+
+// When the very first user account is being created, add them to Sunshine
+// Regiment. Patterned after a similar callback in
+// vulcan-users/lib/server/callbacks.js which makes the first user an admin.
+function makeFirstUserAdminAndApproved (user) {
+  const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
+  if (realUsersCount === 0) {
+    user.reviewedByUserId = "firstAccount"; //HACK
+    
+    // Add the first user to the Sunshine Regiment
+    if (!user.groups) user.groups = [];
+    user.groups.push("sunshineRegiment");
+  }
+  return user;
+}
+
+addCallback('users.new.sync', makeFirstUserAdminAndApproved);

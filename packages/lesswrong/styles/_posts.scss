@@ -459,7 +459,6 @@ svg.drag-handle {
 
 .moderation-guidelines-link {
   float: left;
-  display: inline-block;
   margin-top: 8px;
   margin-left: 12px;
   margin-bottom: 5px;
@@ -499,11 +498,6 @@ svg.drag-handle {
 }
 
 @include max-small() {
-  .comments-new-form {
-    .form-submit {
-      text-align: left;
-    }
-  }
   .primary-form-submit-button {
     float: left;
   }
