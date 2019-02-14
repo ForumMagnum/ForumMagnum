@@ -1,5 +1,11 @@
 /*global Vulcan*/
 
+// When running migrations with split batches, the fraction of time spent
+// running those batches (as opposed to sleeping). Used to limit database
+// load, since maxing out database capacity with a migration script could bring
+// the site down otherwise. See `loadLimit`.
+const defaultLoadFactor = 0.5;
+
 export function registerMigration({ name, idempotent, action })
 {
   // The 'idempotent' parameter is mostly about forcing you to explicitly think
@@ -69,7 +75,7 @@ export async function loadLimit(loadFactor, func)
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues({ collection, fieldName, batchOptions, loadFactor=0.5 })
+export async function fillDefaultValues({ collection, fieldName, batchOptions, loadFactor=defaultLoadFactor })
 {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
@@ -157,7 +163,7 @@ export async function fillDefaultValues({ collection, fieldName, batchOptions, l
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=0.5 })
+export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=defaultLoadFactor })
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
