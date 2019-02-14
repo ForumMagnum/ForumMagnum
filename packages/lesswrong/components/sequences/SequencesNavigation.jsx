@@ -17,7 +17,7 @@ const SequencesNavigation = ({
   const { nextPost, prevPost } = Utils.getSequencePostLinks(document, post)
   
   return <Components.CollectionsNavigation
-    nextPostUrl={nextPost && "/s/" + document._id +  ("/p/" + nextPost._id)}
+    nextPostUrl={nextPost && `/s/${document._id}/p/${nextPost._id}`}
     prevPostUrl={prevPost && "/s/" + document._id + ("/p/" + prevPost._id)}
     title={title}
     titleUrl={titleUrl}
