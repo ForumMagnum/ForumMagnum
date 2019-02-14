@@ -47,28 +47,6 @@ const schema = {
     insertableBy: ['members'],
   },
 
-  description: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
-    control: 'EditorFormComponent',
-    blackbox: true,
-  },
-
-  plaintextDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
-  htmlDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   collectionId: {
     type: String,
     foreignKey: "Collections",

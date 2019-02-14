@@ -6,6 +6,7 @@ Comments schema
 
 import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
+import { Posts } from '../posts/collection'
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -85,35 +86,6 @@ const schema = {
     onInsert: (document, currentUser) => {
       return new Date();
     }
-  },
-  /**
-    The comment body (Markdown)
-  */
-  body: {
-    type: String,
-    max: 3000,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: "textarea"
-  },
-  /**
-    The HTML version of the comment body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    // onInsert: (comment) => {
-    //   if (comment.body) {
-    //     return Utils.sanitize(marked(comment.body));
-    //   }
-    // },
-    // onEdit: (modifier, comment) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
   },
   /**
     The comment author's name
@@ -209,10 +181,21 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     resolveAs: {
-      fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
         return context.Comments.getPageUrl(comment, true)
+      },
+    }
+  },
+
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, context) => {
+        return context.Comments.getPageUrl(comment, false)
       },
     }
   },
@@ -254,6 +237,18 @@ const schema = {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
+
+  // The semver-style version of the post that this comment was made against
+  // This gets automatically created in a callback on creation
+  postVersion: {
+    type: String, 
+    optional: true,
+    canRead: ['guests'],
+    onCreate: async ({newDocument}) => {
+      const post = await Posts.findOne({_id: newDocument.postId})
+      return (post && post.contents && post.contents.version) || "1.0.0"
+    }
+  }
 };
 
 export default schema;

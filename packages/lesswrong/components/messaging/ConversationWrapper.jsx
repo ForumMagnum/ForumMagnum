@@ -55,7 +55,7 @@ class ConversationWrapper extends Component {
           <Components.ConversationDetails conversation={conversation}/>
           {this.renderMessages(results, currentUser)}
           <div className={classes.editor}>
-            <Components.SmartForm
+            <Components.WrappedSmartForm
               key={conversation._id}
               collection={Messages}
               prefilledProps={ {conversationId: conversation._id} }

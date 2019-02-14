@@ -13,7 +13,9 @@ if (runSSCFix) {
           createdAt
           userId
           title
-          description
+          contents {
+            html
+          }
           gridImageId
           firstPageLink
           books {

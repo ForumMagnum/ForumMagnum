@@ -50,6 +50,8 @@ class SunshineNewPostsItem extends Component {
   render () {
     const { post, hover, anchorEl } = this.props
     const { MetaInfo } = Components
+    const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
+    const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
     return (
       <Components.SunshineListItem hover={hover}>
@@ -69,9 +71,9 @@ class SunshineNewPostsItem extends Component {
           </div>
           <div>
             <MetaInfo>
-              { (post.moderationGuidelinesHtmlBody || post.user.moderationGuidelinesHtmlBody) && <span>Mod Guidelines: </span> }
-              <span dangerouslySetInnerHTML={{__html: post.moderationGuidelinesHtmlBody || post.user.moderationGuidelinesHtmlBody}}/>
-              {!post.moderationGuidelinesHtmlBody && post.user.moderationGuidelinesHtmlBody && <span> (Default User Guideline)</span>}
+              { (modGuidelinesHtml || userGuidelinesHtml) && <span>Mod Guidelines: </span> }
+              <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+              {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
             </MetaInfo>
           </div>
           <Components.PostsHighlight post={post}/>

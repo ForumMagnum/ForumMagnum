@@ -1,7 +1,4 @@
 
-.sequences-posts-list {
-  margin-top: -10px;
-}
 
 .chapters-item-description {
   margin-left: 10px;
@@ -193,6 +190,14 @@
   top:0;
   left:0;
   width:100%;
+
+  .editor-form-component {
+    max-width: 650px;
+    margin: auto;
+    position: relative;
+    left: 45px;
+    padding: 10px;
+  }
 
   .form-input-errors {
     font-size:1em;

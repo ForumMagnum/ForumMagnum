@@ -60,7 +60,7 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
   if (Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return (
       <div className={classes.root}>
-        <Components.SmartForm
+        <Components.WrappedSmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
           successCallback={successCallback}

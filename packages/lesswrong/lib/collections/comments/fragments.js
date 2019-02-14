@@ -7,9 +7,9 @@ registerFragment(`
     postId
     parentCommentId
     topLevelCommentId
-    body
-    htmlBody
-    content
+    contents {
+      ...RevisionDisplay
+    }
     postedAt
     repliesBlockedUntil
     # vulcan:users
@@ -36,5 +36,15 @@ registerFragment(`
     answer
     parentAnswerId
     retracted
+    postVersion
+  }
+`);
+
+registerFragment(`
+  fragment CommentEdit on Comment {
+    ...CommentsList
+    contents {
+      ...RevisionEdit
+    }
   }
 `);

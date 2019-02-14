@@ -1,15 +1,6 @@
 import { expectedIndexes } from '../lib/collectionUtils';
 import { Collections } from 'meteor/vulcan:lib';
-
-function isUnbackedCollection(collection)
-{
-  if (collection.collectionName === 'Settings' || collection.collectionName === 'Callbacks') {
-    // Vulcan collections with no backing database table
-    return true;
-  }
-  
-  return false;
-}
+import { isUnbackedCollection } from '../lib/collectionUtils';
 
 function indexesMatch(indexA, indexB)
 {

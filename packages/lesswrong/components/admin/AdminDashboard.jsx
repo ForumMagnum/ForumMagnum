@@ -67,7 +67,7 @@ const AdminHome = ({ currentUser }) => {
     <div className="admin-home page">
       <div>
         <h2>New IP Ban</h2>
-        <Components.SmartForm
+        <Components.WrappedSmartForm
           collection={Bans}
         />
         <h2>Current IP Bans</h2>

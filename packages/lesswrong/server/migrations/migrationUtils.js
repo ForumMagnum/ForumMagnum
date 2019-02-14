@@ -39,7 +39,7 @@ export function registerMigration({ name, idempotent, action })
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues({ collection, fieldName })
+export async function fillDefaultValues({ collection, fieldName, batchOptions })
 {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
@@ -51,7 +51,49 @@ export async function fillDefaultValues({ collection, fieldName })
 
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
+  if (batchOptions) {
+    // Apply default values to batchOptions
+    batchOptions = { bucketSize: 10000, fieldName: '_id', ...batchOptions }
 
+    // Get total collection size
+    const { count: collectionSize } = await collection.rawCollection().stats()
+
+    // Calculate target number of buckets
+    const bucketCount = Math.floor(collectionSize / batchOptions.bucketSize)
+
+    // Calculate target sample size
+    const sampleSize = 20 * bucketCount
+
+    // Calculate percentiles using Mongo aggregate
+    const percentiles = await collection.rawCollection().aggregate([
+      { $sample: { size: sampleSize } },
+      { $sort: {[batchOptions.fieldName]: 1} },
+      { $bucketAuto: { groupBy: ('$' + batchOptions.fieldName), buckets: bucketCount}},
+      { $project: {value: '$_id.max', _id: 0}}
+    ]).toArray()
+
+    // Starting at the lowest percentile, modify everything
+    for (const percentile of percentiles) {
+      const query = {
+        [fieldName]: null,
+        [batchOptions.fieldName]: {$lt: percentile.value},
+      }
+      const mutation = { $set: {
+        [fieldName]: defaultValue
+        }
+      }
+      const options = { multi: true }
+      const writeResult = await collection.update(query, mutation, options)
+      // eslint-disable-next-line no-console
+      console.log(`Bucket with max ${JSON.stringify(percentile.value)} done. Writeresult: ${JSON.stringify(writeResult)}`);
+    }
+    // Then clean up the stragglers that weren't in any of the buckets (because of measurement error)
+    const writeResult = await collection.update({[fieldName]: null}, {$set: {[fieldName]: defaultValue}}, { multi: true })
+    // eslint-disable-next-line no-console
+    console.log(`Cleaned up stragglers. Writeresult: ${JSON.stringify(writeResult)}`)
+    return
+  } 
+    
   const writeResult = await collection.update({
     [fieldName]: null
   }, {
@@ -113,7 +155,7 @@ export async function migrateDocuments({ description, collection, batchSize, unm
     let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
     if (docsNotMigrated.length > 0) {
       let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
-
+      
       // eslint-disable-next-line no-console
       console.error(errorMessage);
       throw new Error(errorMessage);
@@ -125,13 +167,14 @@ export async function migrateDocuments({ description, collection, batchSize, unm
     // Migrate documents in the batch
     try {
       await migrate(documents);
-      
       documentsAffected += documents.length;
+      // eslint-disable-next-line no-console
+      console.log("Documents updated: ", documentsAffected)
     } catch(e) {
       // eslint-disable-next-line no-console
       console.error("Error running migration");
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(JSON.stringify(e));
       throw(e);
     }
   }

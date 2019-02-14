@@ -27,7 +27,7 @@ const styles = theme => ({
   drawerPaper: {
     width: 270,
     boxShadow: "rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px",
-    zIndex: 1500,
+    zIndex: theme.zIndexes.notificationsMenu,
   },
   badgeContainer: {
     padding: "none",
@@ -144,11 +144,11 @@ class NotificationsMenu extends Component {
                     {notificationCategoryTabs.map(notificationCategory =>
                       <Tab
                         icon={
-                          <span title={notificationCategory.title}>
+                          <span title={notificationCategory.name}>
                             {notificationCategory.icon()}
                           </span>
                         }
-                        key={notificationCategory.title}
+                        key={notificationCategory.name}
                         className={classes.tabLabel}
                       />
                     )}

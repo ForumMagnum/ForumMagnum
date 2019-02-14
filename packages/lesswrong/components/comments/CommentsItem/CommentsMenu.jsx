@@ -18,7 +18,7 @@ const styles = theme => ({
     position:"absolute",
     right:0,
     top:0,
-    zIndex: 1,
+    zIndex: theme.zIndexes.commentsMenu,
   }
 })
 
