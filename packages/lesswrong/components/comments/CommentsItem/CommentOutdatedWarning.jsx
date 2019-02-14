@@ -19,7 +19,7 @@ function postHadMajorRevision(comment, post) {
     return false
   }
   const { major: origMajorPostVer } = extractVersionsFromSemver(comment.postVersion)
-  const { major: currentMajorPostVer } = extractVersionsFromSemver(post.contents && post.contents.version)
+  const { major: currentMajorPostVer } = extractVersionsFromSemver(post.contents.version)
   return origMajorPostVer < currentMajorPostVer
 }
 

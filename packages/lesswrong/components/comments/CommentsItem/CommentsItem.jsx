@@ -247,7 +247,7 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
-    const markdown = comment.contents && comment.contents.markdown || ""
+    const markdown = (comment.contents && comment.contents.markdown) || ""
     const { MetaInfo } = Components
 
     if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
@@ -289,6 +289,7 @@ class CommentsItem extends Component {
         <Components.CommentsNewForm
           postId={comment.postId}
           parentComment={comment}
+          alignmentForumPost={post.af}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{

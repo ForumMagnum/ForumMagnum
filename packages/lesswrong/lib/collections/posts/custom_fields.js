@@ -1028,10 +1028,16 @@ Posts.addField([
           let tocData
           if (document.question) {
 
-            const answers = await Comments.find(
-              {answer:true, postId: document._id, deleted:false},
-              {sort:questionAnswersSort}
-            ).fetch()
+            let answersTerms = {
+              answer:true, 
+              postId: document._id, 
+              deleted:false, 
+            }
+            if (getSetting('AlignmentForum', false)) {
+              answersTerms.af = true
+            }
+
+            const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
 
             if (answers && answers.length) {
               tocData = Utils.extractTableOfContents(html, true) || {
