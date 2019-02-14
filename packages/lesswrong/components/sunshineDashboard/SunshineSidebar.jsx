@@ -45,7 +45,7 @@ class SunshineSidebar extends Component {
   render () {
     const { currentUser, classes } = this.props
     const { showSidebar } = this.state
-    const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList } = Components
+    const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
     
     return (
       <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>

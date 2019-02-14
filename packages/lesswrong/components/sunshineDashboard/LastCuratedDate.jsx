@@ -1,17 +1,10 @@
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { Posts } from '../../lib/collections/posts';
-
-const styles = theme => ({
-  overflow: {
-    color: "red"
-  }
-})
 
 class LastCuratedDate extends Component {
   render () {
-    const { classes, results } = this.props
+    const { results } = this.props
     const { MetaInfo, FormatDate } = Components
     const curatedDate = results && results.length && results[0].curatedDate
     if (curatedDate) {
@@ -33,6 +26,5 @@ const withListOptions = {
 registerComponent(
   'LastCuratedDate',
   LastCuratedDate,
-  [withList, withListOptions], 
-  withStyles(styles, {name: "LastCuratedDate"})
+  [withList, withListOptions],
 );
