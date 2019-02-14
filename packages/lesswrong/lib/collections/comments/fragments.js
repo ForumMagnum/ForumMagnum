@@ -37,6 +37,7 @@ registerFragment(`
     parentAnswerId
     retracted
     postVersion
+    reviewedByUserId
   }
 `);
 

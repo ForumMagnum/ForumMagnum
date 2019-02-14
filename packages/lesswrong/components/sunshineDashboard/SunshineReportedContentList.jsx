@@ -18,16 +18,17 @@ const styles = theme => ({
 
 class SunshineReportedContentList extends Component {
   render () {
-    const { results, editMutation, classes } = this.props
+    const { results, editMutation, classes, totalCount } = this.props
+    const { SunshineListTitle, SunshineReportedItem, SunshineListCount } = Components
     if (results && results.length) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>
-            Flagged Content
-          </Components.SunshineListTitle>
+          <SunshineListTitle>
+            Flagged Content <SunshineListCount count={totalCount} />
+          </SunshineListTitle>
           {results.map(report =>
             <div key={report._id} >
-              <Components.SunshineReportedItem
+              <SunshineReportedItem
                 report={report}
                 reportEditMutation={editMutation}
               />
@@ -51,6 +52,7 @@ const withListOptions = {
   collection: Reports,
   queryName: 'sunshineReportsListQuery',
   fragmentName: 'unclaimedReportsList',
+  enableTotal: true,
 };
 
 const withEditOptions = {

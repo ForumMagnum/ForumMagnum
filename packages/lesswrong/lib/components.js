@@ -225,6 +225,8 @@ import '../components/sunshineDashboard/SidebarHoverOver.jsx';
 import '../components/sunshineDashboard/SidebarInfo.jsx';
 import '../components/sunshineDashboard/SidebarActionMenu.jsx';
 import '../components/sunshineDashboard/SidebarAction.jsx';
+import '../components/sunshineDashboard/SunshineListCount.jsx';
+import '../components/sunshineDashboard/LastCuratedDate';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

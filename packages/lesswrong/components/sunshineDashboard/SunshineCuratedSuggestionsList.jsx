@@ -18,15 +18,17 @@ const styles = theme => ({
 class SunshineCuratedSuggestionsList extends Component {
   render () {
     const { results, classes } = this.props
+    const { SunshineListTitle, SunshineCuratedSuggestionsItem, LastCuratedDate } = Components
     if (results && results.length) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>
+          <SunshineListTitle>
             Suggestions for Curated
-          </Components.SunshineListTitle>
+            <LastCuratedDate terms={{view:'curated', limit:1}}/>
+          </SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
-              <Components.SunshineCuratedSuggestionsItem post={post}/>
+              <SunshineCuratedSuggestionsItem post={post}/>
             </div>
           )}
         </div>
