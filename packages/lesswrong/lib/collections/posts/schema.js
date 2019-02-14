@@ -439,6 +439,32 @@ const schema = {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
+  
+  // DEPRECATED fields for GreaterWrong backwards compatibility
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'Int',
+      resolver: (post, args, { Posts }) => {
+        const contents = post.contents;
+        return contents.wordCount;
+      }
+    }
+  },
+  htmlBody: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        const contents = post.contents;
+        return contents.html;
+      }
+    }
+  },
 };
 
 export default schema;
