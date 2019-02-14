@@ -444,6 +444,7 @@ const schema = {
   wordCount: {
     type: Number,
     viewableBy: ['guests'],
+    optional: true,
     resolveAs: {
       type: 'Int',
       resolver: (post, args, { Posts }) => {
@@ -455,6 +456,7 @@ const schema = {
   htmlBody: {
     type: String,
     viewableBy: ['guests'],
+    optional: true,
     resolveAs: {
       type: 'String',
       resolver: (post, args, { Posts }) => {

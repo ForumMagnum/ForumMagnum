@@ -249,6 +249,7 @@ const schema = {
   wordCount: {
     type: Number,
     viewableBy: ['guests'],
+    optional: true,
     resolveAs: {
       type: 'Int',
       resolver: (comment, args, { Comments }) => {
@@ -260,6 +261,7 @@ const schema = {
   htmlBody: {
     type: String,
     viewableBy: ['guests'],
+    optional: true,
     resolveAs: {
       type: 'String',
       resolver: (comment, args, { Comments }) => {
