@@ -98,8 +98,9 @@ Revisions.addField([
       resolveAs: {
         type: 'Int',
         resolver: ({originalContents: {data, type}}) => {
-          const markdown = dataToMarkdown(data, type) || ""
-          return markdown.split(" ").length
+          //const markdown = dataToMarkdown(data, type) || ""
+          //return markdown.split(" ").length
+          return 0;
         }
       }
     }
