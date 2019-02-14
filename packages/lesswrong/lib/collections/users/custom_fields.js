@@ -3,6 +3,9 @@ import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
+import SimpleSchema from 'simpl-schema'
+import { schemaDefaultValue } from '../../collectionUtils';
+
 
 export const formGroups = {
   moderationGroup: {
@@ -33,6 +36,40 @@ export const formGroups = {
     startCollapsed: true,
   },
 }
+
+export const karmaChangeNotifierDefaultSettings = {
+  // One of the string keys in karmaNotificationTimingChocies
+  updateFrequency: "daily",
+  
+  // Time of day at which daily/weekly batched updates are released, a number
+  // of hours [0,24). Always in GMT, regardless of the user's time zone.
+  // Default corresponds to 3am PST.
+  timeOfDayGMT: 11,
+  
+  // A string day-of-the-week name, spelled out and capitalized like "Monday".
+  // Always in GMT, regardless of the user's timezone (timezone matters for day
+  // of the week because time zones could take it across midnight.)
+  dayOfWeekGMT: "Saturday",
+};
+
+const karmaChangeSettingsType = new SimpleSchema({
+  updateFrequency: {
+    type: String,
+    optional: true,
+    allowedValues: ['disabled', 'daily', 'weekly', 'realtime']
+  },
+  timeOfDayGMT: {
+    type: SimpleSchema.Integer,
+    optional: true,
+    min: 0,
+    max: 23
+  },
+  dayOfWeekGMT: {
+    type: String,
+    optional: true,
+    allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  }
+})
 
 Users.addField([
 
@@ -584,13 +621,13 @@ Users.addField([
     fieldName: 'karmaChangeNotifierSettings',
     fieldSchema: {
       group: formGroups.notifications,
-      type: Object, // See KarmaChangeNotifierSettings.jsx
+      type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.jsx
       optional: true,
-      blackbox: true,
       control: "KarmaChangeNotifierSettings",
       canRead: [Users.owns, 'admins'],
-      canUpdate: [Users.owns, 'admins'],
-      canCreate: [Users.owns, 'admins'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment'],
+      ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
     },
   },
   
@@ -599,6 +636,23 @@ Users.addField([
   */
   {
     fieldName: 'karmaChangeLastOpened',
+    fieldSchema: {
+      hidden: true,
+      type: Date,
+      optional: true,
+      canCreate: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canRead: [Users.owns, 'admins'],
+    },
+  },
+  
+  /**
+    If, the last time you opened the karma-change notifier, you saw more than
+    just the most recent batch (because there was a batch you hadn't viewed),
+    the start of the date range of that batch.
+  */
+  {
+    fieldName: 'karmaChangeBatchStart',
     fieldSchema: {
       hidden: true,
       type: Date,

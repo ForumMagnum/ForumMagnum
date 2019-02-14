@@ -1,10 +1,12 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withRouter } from 'react-router';
 import React from 'react';
 
-const PostsSingle = (props, context) => {
-  return <Components.PostsPage documentId={props.params._id} />
+const PostsSingle = ({params, router}, context) => {
+  const version = router.location && router.location.query && router.location.query.revision
+  return <Components.PostsPage documentId={params._id} version={version} />
 };
 
 PostsSingle.displayName = "PostsSingle";
 
-registerComponent('PostsSingle', PostsSingle);
+registerComponent('PostsSingle', PostsSingle, withRouter);

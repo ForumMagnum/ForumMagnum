@@ -357,7 +357,13 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     legacyData: post,
     title: post.title,
     userId: user && user._id,
-    htmlBody: post.article,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: post.article
+      },
+      html: post.article
+    },
     userIP: post.ip,
     status: post.deleted || post.spam ? 3 : 2,
     legacySpam: post.spam,
@@ -366,7 +372,6 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     createdAt: moment(post.date).toDate(),
     postedAt: moment(post.date).toDate(),
     slug: Utils.slugify(post.title),
-    body: body,
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
@@ -386,13 +391,18 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
     postId: parentPost && parentPost._id,
     userId: author && author._id,
     baseScore: comment.ups - comment.downs,
-    body: comment.body,
     retracted: comment.retracted,
     deleted: comment.deleted,
     isDeleted: comment.isDeleted,
     createdAt: moment(comment.date).toDate(),
     postedAt: moment(comment.date).toDate(),
-    htmlBody: comment.body && Utils.sanitize(marked(comment.body)),
+    contents: {
+      originalContents: {
+        type: "markdown",
+        data: comment.body
+      },
+      html: comment.body && Utils.sanitize(marked(comment.body))
+    },
   };
 }
 

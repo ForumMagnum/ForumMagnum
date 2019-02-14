@@ -73,7 +73,7 @@ class NewQuestionDialog extends PureComponent {
         fullScreen={fullScreen}
       >
         <DialogContent>
-          <Components.SmartForm
+          <Components.WrappedSmartForm
             collection={Posts}
             fields={['title', 'content', 'body', 'question', 'draft']}
             mutationFragment={getFragment('PostsList')}

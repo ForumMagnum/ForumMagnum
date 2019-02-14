@@ -1,19 +1,18 @@
-import { registerMigration, migrateDocuments } from './migrationUtils';
-import { karmaChangeNotifierDefaultSettings } from '../../lib/karmaChanges';
+import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
+
 import Users from 'meteor/vulcan:users';
 
 registerMigration({
-  name: "Apply karma change widget defaults",
+  name: "applyKarmaChangeWidgetDefaults",
   idempotent: true,
   action: async () => {
     let now = new Date();
     
     await migrateDocuments({
-      description: "Set user karmaChangeLastOpened and karmaChangeNotifierSettings",
+      description: "Set user karmaChangeLastOpened",
       collection: Users,
       batchSize: 100,
       unmigratedDocumentQuery: {
-        karmaChangeNotifierSettings: {$exists:false},
         karmaChangeLastOpened: {$exists:false},
       },
       migrate: async (documents) => {
@@ -23,7 +22,6 @@ registerMigration({
               filter: {_id: user._id},
               update: {
                 $set: {
-                  karmaChangeNotifierSettings: karmaChangeNotifierDefaultSettings,
                   karmaChangeLastOpened: now,
                 }
               },
@@ -35,6 +33,10 @@ registerMigration({
           { ordered: false }
         );
       }
+    });
+    await fillDefaultValues({
+      collection: Users,
+      fieldName: "karmaChangeNotifierSettings",
     });
   },
 });

@@ -9,7 +9,7 @@ const SequencesNewForm = (props, context) => {
   if (props.currentUser) {
     return (
       <div className="sequences-new-form">
-        <Components.SmartForm
+        <Components.WrappedSmartForm
           collection={Sequences}
           successCallback={(sequence) => {
             props.router.push({pathname: props.redirect || '/s/' + sequence._id });
@@ -18,8 +18,7 @@ const SequencesNewForm = (props, context) => {
           cancelCallback={props.cancelCallback}
           removeSuccessCallback={props.removeSuccessCallback}
           prefilledProps={{userId: props.currentUser._id}}
-          fragment={getFragment('SequencesPageFragment')}
-          queryFragment={getFragment('SequencesPageFragment')}
+          queryFragment={getFragment('SequencesEdit')}
           mutationFragment={getFragment('SequencesPageFragment')}
         />
       </div>

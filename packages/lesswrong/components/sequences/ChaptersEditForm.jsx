@@ -9,7 +9,7 @@ const ChaptersEditForm = (props) => {
   return (
     <div className="chapters-edit-form">
       <h3>Add/Remove Posts</h3>
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Chapters}
         documentId={props.documentId}
         successCallback={props.successCallback}

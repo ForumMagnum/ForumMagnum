@@ -59,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser && (currentUser.moderationGuidelinesHtmlBody || currentUser.moderationStyle))
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
 Posts.addField([
@@ -1024,6 +1024,7 @@ Posts.addField([
         fieldName: "tableOfContents",
         type: GraphQLJSON,
         resolver: async (document, args, options) => {
+          const { html } = document.contents || {}
           let tocData
           if (document.question) {
 
@@ -1033,7 +1034,7 @@ Posts.addField([
             ).fetch()
 
             if (answers && answers.length) {
-              tocData = Utils.extractTableOfContents(document.htmlBody, true) || {
+              tocData = Utils.extractTableOfContents(html, true) || {
                 html: null,
                 headingsCount: 0,
                 sections: []
@@ -1055,12 +1056,12 @@ Posts.addField([
               }
             }
           } else {
-            tocData = Utils.extractTableOfContents(document.htmlBody)
+            tocData = Utils.extractTableOfContents(html)
           }
           if (tocData) {
             const selector = {
-              answer:false,
-              parentAnswerId:{$in:[undefined,null]},
+              answer: false,
+              parentAnswerId: null,
               postId: document._id
             }
             if (document.af && getSetting('AlignmentForum', false)) {
@@ -1100,7 +1101,7 @@ Posts.addField([
             if (event) {
               return event && event.properties && event.properties.targetState
             } else {
-              return author.collapseModerationGuidelines ? false : (post.moderationGuidelinesHtmlBody || post.moderationStyle)
+              return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
             }
           } else {
             return false

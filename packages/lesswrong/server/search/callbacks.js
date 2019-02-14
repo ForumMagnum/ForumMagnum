@@ -1,11 +1,9 @@
 import { addCallback } from 'meteor/vulcan:core';
-import { Posts } from '../collections/posts';
-import { Comments } from '../collections/comments'
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
-import Sequences from '../collections/sequences/collection.js';
+import Sequences from '../../lib/collections/sequences/collection.js';
 import { algoliaDocumentExport } from './utils.js';
-import { Components } from 'meteor/vulcan:core';
-import ReactDOMServer from 'react-dom/server';
 
 function newCommentAlgoliaIndex(comment) {
   algoliaDocumentExport([comment], Comments, 'test_comments', Comments.toAlgolia, (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}}))

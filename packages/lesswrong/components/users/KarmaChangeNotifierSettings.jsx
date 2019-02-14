@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import Radio from '@material-ui/core/Radio';
@@ -8,7 +8,6 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import { karmaChangeNotifierDefaultSettings } from '../../lib/karmaChanges.js';
 import withTimezone from '../common/withTimezone';
 import moment from 'moment-timezone';
 
@@ -25,24 +24,32 @@ const styles = theme => ({
   },
 });
 
-const karmaNotificationTimingChoices = {
+export const karmaNotificationTimingChoices = {
   disabled: {
     label: "Disabled",
+    infoText: "Karma changes are disabled",
+    emptyText: "Karma changes are disabled"
   },
   daily: {
     label: "Batched daily (default)",
+    infoText: "Karma Changes (batched daily):",
+    emptyText: "No karma changes yesterday"
   },
   weekly: {
     label: "Batched weekly",
+    infoText: "Karma Changes (batched weekly):",
+    emptyText: "No karma changes last week"
   },
   realtime: {
     label: "Realtime",
+    infoText: "Recent Karma Changes",
+    emptyText: "No karma changes since you last checked"
   },
 };
 
 class KarmaChangeNotifierSettings extends PureComponent {
   setUpdateFrequency = (updateFrequency) => {
-    const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
+    const oldSettings = this.props.value
     const settings = { ...oldSettings, updateFrequency:updateFrequency };
     this.context.updateCurrentValues({
       [this.props.path]: settings
@@ -57,7 +64,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
     };
     const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
-    const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
+    const oldSettings = this.props.value
     const newSettings = {
       ...oldSettings,
       timeOfDayGMT: newTimeGMT.timeOfDay,
@@ -76,7 +83,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
     };
     const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
-    const oldSettings = this.props.value || karmaChangeNotifierDefaultSettings;
+    const oldSettings = this.props.value
     const newSettings = {
       ...oldSettings,
       timeOfDayGMT: newTimeGMT.timeOfDay,
@@ -100,7 +107,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   }
   
   getBatchingTimeLocalTZ = () => {
-    const settings = this.props.value || karmaChangeNotifierDefaultSettings;
+    const settings = this.props.value
     const { timeOfDayGMT, dayOfWeekGMT } = settings;
     const { timeOfDay, dayOfWeek } = this.convertTimezone(timeOfDayGMT, dayOfWeekGMT, "GMT", this.props.timezone);
     return { timeOfDay, dayOfWeek };
@@ -108,7 +115,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   
   render() {
     const { timezone, classes } = this.props;
-    const settings = this.props.value || karmaChangeNotifierDefaultSettings;
+    const settings = this.props.value
     
     const {timeOfDay, dayOfWeek} = this.getBatchingTimeLocalTZ();
     

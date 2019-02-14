@@ -21,14 +21,14 @@ class MuiInput extends Component {
   }
 
   componentDidMount() {
-    this.context.addToSuccessForm(() => this.setState({content: ""}))
+    this.context.addToSuccessForm(() => this.setState({contents: ""}))
     this.context.updateCurrentValues({
       [this.props.path]: (this.props.document && this.props.document[this.props.path]) || ""
     })
   }
 
   onChange = (event) => {
-    this.setState({content: event.target.value})
+    this.setState({contents: event.target.value})
     this.context.updateCurrentValues({
       [this.props.path]: event.target.value
     })
@@ -38,7 +38,7 @@ class MuiInput extends Component {
     return <div className="mui-text-field">
       <Input
         className={this.props.className}
-        value={this.state.content || ""}
+        value={this.state.contents || ""}
         label={this.props.label}
         onChange={this.onChange}
         multiline={this.props.multiLine}

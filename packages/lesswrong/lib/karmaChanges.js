@@ -5,20 +5,6 @@ import moment from 'moment-timezone';
 // directory because we don't have a good way to make resolvers, or imports
 // used by resolvers, be server specific.
 
-export const karmaChangeNotifierDefaultSettings = {
-  // One of the string keys in karmaNotificationTimingChocies
-  updateFrequency: "daily",
-  
-  // Time of day at which daily/weekly batched updates are released, a number
-  // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  // Default corresponds to 3am PST.
-  timeOfDayGMT: 11,
-  
-  // A string day-of-the-week name, spelled out and capitalized like "Monday".
-  // Always in GMT, regardless of the user's timezone (timezone matters for day
-  // of the week because time zones could take it across midnight.)
-  dayOfWeekGMT: "Saturday",
-};
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -41,7 +27,7 @@ export const karmaChangeNotifierDefaultSettings = {
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate})
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -77,14 +63,15 @@ export async function getKarmaChanges({user, startDate, endDate})
   }
   
   return {
-    totalChange: totalChange,
-    startDate: startDate,
-    endDate: endDate,
+    totalChange,
+    startDate,
+    nextBatchDate,
+    endDate,
     documents: changedDocs,
   };
 }
 
-export function getKarmaChangeDateRange({settings, now, lastOpened})
+export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null})
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.
@@ -97,35 +84,97 @@ export function getKarmaChangeDateRange({settings, now, lastOpened})
   const lastDailyReset = todaysDailyReset.isAfter(now)
     ? moment(todaysDailyReset).subtract(1, 'days')
     : todaysDailyReset;
+
+  const previousBatchExists = !!lastBatchStart
   
   switch(settings.updateFrequency) {
     case "disabled":
       return null;
-    case "daily":
-      const oneDayPrior = moment(lastDailyReset).subtract(1, 'days');
+    case "daily": {
+      const oneDayPrior = moment(lastDailyReset).subtract(1, 'days')
+      
+      // Check whether the last time you opened the menu was in the same batch-period
+      const openedBeforeNextBatch = lastOpened && lastOpened > lastDailyReset.toDate()
+
+      // If you open the notification menu again before the next batch has started, just return 
+      // the previous batch 
+      if (previousBatchExists && openedBeforeNextBatch) {
+        // Since we know that we reopened the notifications before the next batch, the last batch
+        // will have ended at the last daily reset time
+        const lastBatchEnd = lastDailyReset 
+        return {
+          start: lastBatchStart,
+          end: lastBatchEnd.toDate()
+        };
+      }
+
+      // If you've never opened the menu before, then return the last daily batch, else
+      // create batch for all periods that happened since you last opened it
+      const startDate = lastOpened ? moment.min(oneDayPrior, moment(lastOpened)) : oneDayPrior
       return {
-        start: moment.min(oneDayPrior, moment(lastOpened)).toDate(),
+        start: startDate.toDate(),
         end: lastDailyReset.toDate(),
       };
-    case "weekly":
+    }
+    case "weekly": {
       // Target day of the week, as an integer 0-6
       const targetDayOfWeekNum = moment().day(settings.dayOfWeekGMT).day();
       const lastDailyResetDayOfWeekNum = lastDailyReset.day();
       
       // Number of days back from today's daily reset to get to a daily reset
       // of the correct day of the week
-      const daysOfWeekDifference = (lastDailyResetDayOfWeekNum - targetDayOfWeekNum + 7) % 7;
+      const daysOfWeekDifference = ((lastDailyResetDayOfWeekNum - targetDayOfWeekNum) + 7) % 7;
       
-      const lastWeeklyReset = moment(lastDailyReset).add(-daysOfWeekDifference, 'days');
-      const oneWeekPrior = moment(lastWeeklyReset).add(-7, 'days');
+      const lastWeeklyReset = moment(lastDailyReset).subtract(daysOfWeekDifference, 'days');
+      const oneWeekPrior = moment(lastWeeklyReset).subtract(7, 'days');
+
+      // Check whether the last time you opened the menu was in the same batch-period
+      const openedBeforeNextBatch = lastOpened && lastOpened > lastWeeklyReset.toDate()
+
+      // If you open the notification menu again before the next batch has started, just return 
+      // the previous batch 
+      if (previousBatchExists && openedBeforeNextBatch) {
+        // Since we know that we reopened the notifications before the next batch, the last batch
+        // will have ended at the last daily reset time
+        const lastBatchEnd = lastWeeklyReset 
+        return {
+          start: lastBatchStart,
+          end: lastBatchEnd.toDate()
+        };
+      }
+
+      // If you've never opened the menu before, then return the last daily batch, else
+      // create batch for all periods that happened since you last opened it
+      const startDate = lastOpened ? moment.min(oneWeekPrior, moment(lastOpened)) : oneWeekPrior
       return {
-        start: moment.min(oneWeekPrior, moment(lastOpened)).toDate(),
+        start: startDate.toDate(),
         end: lastWeeklyReset.toDate(),
       };
+    }
     case "realtime":
       return {
         start: lastOpened || new Date("1970-01-01"),
-        end: now,
+        end: now
       }
+  }
+}
+
+export function getKarmaChangeNextBatchDate({settings, now})
+{
+  switch(settings.updateFrequency) {
+    case "disabled":
+    case "realtime":
+      return null;
+    case "daily":
+      const lastDailyBatch = getKarmaChangeDateRange({settings, now});
+      const lastDailyReset = lastDailyBatch.end;
+      const nextDailyReset = moment(lastDailyReset).add(1, 'days');
+      return nextDailyReset.toDate();
+      
+    case "weekly":
+      const lastWeeklyBatch = getKarmaChangeDateRange({settings, now});
+      const lastWeeklyReset = lastWeeklyBatch.end;
+      const nextWeeklyReset = moment(lastWeeklyReset).add(7, 'days');
+      return nextWeeklyReset.toDate();
   }
 }
