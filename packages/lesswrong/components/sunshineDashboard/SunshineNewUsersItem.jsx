@@ -74,18 +74,18 @@ class SunshineNewUsersItem extends Component {
           </SidebarHoverOver>
           <div>
             <MetaInfo>
+              { user.karma || 0 }
+            </MetaInfo>
+            <MetaInfo>
               <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
                   {user.displayName}
               </Link>
             </MetaInfo>
             <MetaInfo>
-              { user.karma || 0 }
+              <FormatDate date={user.createdAt}/>
             </MetaInfo>
             <MetaInfo>
               { user.email }
-            </MetaInfo>
-            <MetaInfo>
-              <FormatDate date={user.createdAt}/>
             </MetaInfo>
           </div>
 
