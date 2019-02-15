@@ -1,7 +1,7 @@
 import Revisions from './collection'
-import { draftToHTML, htmlToDraft } from '../../editor/utils';
-import { convertFromRaw, convertToRaw } from 'draft-js';
-import { htmlToMarkdown, markdownToHtml, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
+import { htmlToDraft } from '../../editor/utils';
+import { convertToRaw } from 'draft-js';
+import { markdownToHtml, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
 import { JSDOM } from 'jsdom'
 import htmlToText from 'html-to-text'
