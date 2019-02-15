@@ -10,7 +10,7 @@ const RevisionStorageType = new SimpleSchema({
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
   editedAt: {type: Date, optional: true},
-  wordCount: {type: Number, optional: true, denormalized: true}
+  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true}
 })
 
 SimpleSchema.extendOptions([ 'inputType' ]);
