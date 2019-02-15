@@ -549,6 +549,7 @@ Posts.addView("communityResourcePosts", function () {
 Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
+      status: null, // allow sunshines to read posts marked as spam
       reviewedByUserId: {$exists: false},
       frontpageDate: viewFieldNullOrMissing,
       authorIsUnreviewed: null
@@ -560,7 +561,31 @@ Posts.addView("sunshineNewPosts", function () {
     }
   }
 })
-// Covered by the same index as `new`
+ensureIndex(Posts,
+  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1 }),
+  { name: "posts.sunshineNewPosts" }
+);
+
+Posts.addView("sunshineNewUsersPosts", function (terms) {
+  return {
+    selector: {
+      status: null, // allow sunshines to see posts marked as spam
+      userId: terms.userId,
+      reviewedByUserId: {$exists: false},
+      frontpageDate: viewFieldNullOrMissing,
+      authorIsUnreviewed: null
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ status:1, userId:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
+  { name: "posts.sunshineNewUsersPosts" }
+);
 
 Posts.addView("sunshineCuratedSuggestions", function () {
   return {

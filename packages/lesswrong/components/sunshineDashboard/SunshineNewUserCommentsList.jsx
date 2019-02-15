@@ -22,9 +22,10 @@ const SunshineNewUserCommentsList = ({loading, results, classes}) => {
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <MetaInfo>
           <Link to={`/posts/${comment.postId}`}>
-            Posted on <FormatDate date={comment.postedAt}/>
+            Posted on <FormatDate date={comment.postedAt}/> {comment.status}
           </Link>
         </MetaInfo>
+        <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>
         <div dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>

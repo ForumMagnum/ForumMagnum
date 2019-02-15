@@ -37,7 +37,7 @@ export const formGroups = {
     defaultStyle: true,
     flexStyle: true
   },
-  content: {
+  content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
     defaultStyle: true,
@@ -1052,10 +1052,16 @@ Posts.addField([
           let tocData
           if (document.question) {
 
-            const answers = await Comments.find(
-              {answer:true, postId: document._id, deleted:false},
-              {sort:questionAnswersSort}
-            ).fetch()
+            let answersTerms = {
+              answer:true, 
+              postId: document._id, 
+              deleted:false, 
+            }
+            if (getSetting('AlignmentForum', false)) {
+              answersTerms.af = true
+            }
+
+            const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
 
             if (answers && answers.length) {
               tocData = Utils.extractTableOfContents(html, true) || {
@@ -1123,7 +1129,7 @@ Posts.addField([
             const event = await LWEvents.findOne(query, sort);
             const author = await Users.findOne({_id: post.userId});
             if (event) {
-              return event && event.properties && event.properties.targetState
+              return event.properties && event.properties.targetState
             } else {
               return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
             }
