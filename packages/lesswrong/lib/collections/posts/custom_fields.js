@@ -37,7 +37,7 @@ export const formGroups = {
     defaultStyle: true,
     flexStyle: true
   },
-  content: {
+  content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
     defaultStyle: true,

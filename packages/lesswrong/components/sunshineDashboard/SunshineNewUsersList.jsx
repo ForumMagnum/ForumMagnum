@@ -6,16 +6,17 @@ import PropTypes from 'prop-types';
 
 class SunshineNewUsersList extends Component {
   render () {
-    const { results } = this.props
+    const { results, totalCount } = this.props
+    const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem } = Components
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
         <div>
-          <Components.SunshineListTitle>
-            New Users
-          </Components.SunshineListTitle>
+          <SunshineListTitle>
+            New Users <SunshineListCount count={totalCount}/>
+          </SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
-              <Components.SunshineNewUsersItem user={user}/>
+              <SunshineNewUsersItem user={user}/>
             </div>
           )}
         </div>
@@ -34,6 +35,7 @@ const withListOptions = {
   collection: Users,
   queryName: 'sunshineNewPostsListQuery',
   fragmentName: 'SunshineUsersList',
+  enableTotal: true,
 };
 
 registerComponent('SunshineNewUsersList', SunshineNewUsersList, [withList, withListOptions], withUser);
