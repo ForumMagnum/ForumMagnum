@@ -16,6 +16,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    deletedReason
     hideAuthor
     user {
       ...UsersMinimumInfo
@@ -37,6 +38,7 @@ registerFragment(`
     parentAnswerId
     retracted
     postVersion
+    reviewedByUserId
   }
 `);
 
