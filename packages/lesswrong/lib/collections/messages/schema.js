@@ -15,6 +15,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     viewableBy: ['members'],
     insertableBy: Users.owns,
     resolveAs: {
@@ -37,6 +38,7 @@ const schema = {
   },
   conversationId: {
     type: String,
+    foreignKey: "Conversations",
     viewableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,

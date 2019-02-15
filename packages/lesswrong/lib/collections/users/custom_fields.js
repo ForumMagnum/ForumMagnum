@@ -395,6 +395,7 @@ Users.addField([
     fieldName: 'bannedUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -420,6 +421,7 @@ Users.addField([
     fieldName: 'bannedPersonalUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -700,6 +702,7 @@ Users.addField([
     fieldName: 'frontpagePostCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
@@ -714,6 +717,7 @@ Users.addField([
     fieldName: 'sequenceCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
@@ -728,6 +732,7 @@ Users.addField([
     fieldName: 'sequenceDraftCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
@@ -778,6 +783,7 @@ Users.addField([
     fieldName: 'reviewedByUserId',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
       canRead: ['sunshineRegiment', 'admins'],
       canUpdate: ['sunshineRegiment', 'admins'],
@@ -837,6 +843,7 @@ Users.addField([
     fieldName: 'voteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       label: "Small Upvote Count",
       canRead: ['guests'],
@@ -847,6 +854,7 @@ Users.addField([
     fieldName: 'smallUpvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -856,6 +864,7 @@ Users.addField([
     fieldName: 'smallDownvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -865,6 +874,7 @@ Users.addField([
     fieldName: 'bigUpvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -874,6 +884,7 @@ Users.addField([
     fieldName: 'bigDownvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
