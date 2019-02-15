@@ -1,7 +1,7 @@
 import Revisions from './collection'
 import { draftToHTML, htmlToDraft } from '../../editor/utils';
 import { convertFromRaw, convertToRaw } from 'draft-js';
-import { htmlToMarkdown, markdownToHtml } from '../../../server/editor/make_editable_callbacks'
+import { htmlToMarkdown, markdownToHtml, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
 import { JSDOM } from 'jsdom'
 import htmlToText from 'html-to-text'
@@ -17,29 +17,6 @@ function domBuilder(html) {
   return bodyEl
 }
 
-
-export function dataToMarkdown(data, type) {
-  if (!data) return ""
-  switch (type) {
-    case "markdown": {
-      return data
-    }
-    case "html": {
-      return htmlToMarkdown(data)
-    }
-    case "draftJS": {
-      try {
-        const contentState = convertFromRaw(data);
-        const html = draftToHTML(contentState)
-        return htmlToMarkdown(html)  
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error(e)
-      }
-      return ""
-    }
-  }
-}
 
 function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
@@ -91,20 +68,6 @@ Revisions.addField([
       }
     }
   },
-  {
-    fieldName: 'wordCount',
-    fieldSchema: {
-      type: String,
-      resolveAs: {
-        type: 'Int',
-        resolver: ({originalContents: {data, type}}) => {
-          //const markdown = dataToMarkdown(data, type) || ""
-          //return markdown.split(" ").length
-          return 0;
-        }
-      }
-    }
-  }, 
   {
     fieldName: 'htmlHighlight',
     fieldSchema: {
