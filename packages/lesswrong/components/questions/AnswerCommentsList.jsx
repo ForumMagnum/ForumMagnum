@@ -146,7 +146,7 @@ class AnswerCommentsList extends PureComponent {
 AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  parentAnswerId: PropTypes.string,
+  parentAnswer: PropTypes.object,
   loading: PropTypes.bool,
   results: PropTypes.array,
 };

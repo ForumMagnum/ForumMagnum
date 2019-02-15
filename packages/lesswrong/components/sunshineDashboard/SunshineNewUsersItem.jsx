@@ -67,8 +67,8 @@ class SunshineNewUsersItem extends Component {
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
 
-                <SunshineNewUserPostsList terms={{userId: user._id, authorIsUnreviewed:true}}/>
-                <SunshineNewUserCommentsList terms={{userId: user._id}}/>
+                <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+                <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
               </MetaInfo>
             </Typography>
           </SidebarHoverOver>
