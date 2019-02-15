@@ -23,6 +23,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     viewableBy: ['members'],
     insertableBy: ['members'],
     resolveAs: {
@@ -42,6 +43,7 @@ const schema = {
   },
   documentId: {
     type: String,
+    // No explicit foreign-key relationship because documentId refers to different collections based on event type
     optional: true,
     viewableBy: ['members'],
     insertableBy: ['members'],

@@ -22,6 +22,7 @@ const SunshineNewUserPostsList = ({loading, results, classes}) => {
         <Link to={`/posts/${post._id}`}>
           <PostsItemTitle post={post} />
         </Link>
+        {!(post.status ==2) && `Flagged as Spam ${post.status}`}
         <div dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
       </div>)}
     </div>

@@ -33,6 +33,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
