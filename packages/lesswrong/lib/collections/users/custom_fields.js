@@ -938,6 +938,19 @@ Users.addField([
         addOriginalField: true
       },
     }
+  },
+
+  { 
+    fieldName: "viewUnreviewedComments",
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['admins', 'sunshineRegiment'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      group: formGroups.adminOptions,
+      order: 0,
+    }
   }
 ]);
 

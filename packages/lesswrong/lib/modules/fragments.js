@@ -109,6 +109,7 @@ extendFragment('UsersCurrent', `
   }
   karmaChangeLastOpened
   shortformFeedId
+  viewUnreviewedComments
 `);
 
 registerFragment(`
@@ -346,6 +347,7 @@ registerFragment(`
     googleLocation
     mongoLocation
     shortformFeedId
+    viewUnreviewedComments
   }
 `);
 

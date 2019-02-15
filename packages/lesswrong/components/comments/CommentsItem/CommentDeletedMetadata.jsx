@@ -6,19 +6,18 @@ const CommentDeletedMetadata = ({document}) => {
   if (document && document.deleted) {
     const deletedByUsername = document.deletedByUser && document.deletedByUser.displayName;
     return (
-      <p className="comments-item-deleted-info">
-        {document.deletedReason &&
-          <span className="comments-item-deleted-info-reason">
-            Reason: {document.deletedReason}
-          </span>
-        }
-        <span className="comments-item-deleted-info-meta">
-          {deletedByUsername && <span> by {deletedByUsername}</span>}
-          {document.deletedDate && <span>
+      <div className="comments-item-deleted-info">
+        <div className="comments-item-deleted-info-meta">
+          {deletedByUsername && <span>Deleted by {deletedByUsername}</span>}, {document.deletedDate && <span>
             <Components.CalendarDate date={document.deletedDate}/>
-          </span>}
-        </span>
-      </p>
+          </span>} 
+        </div>
+        {document.deletedReason &&
+          <div className="comments-item-deleted-info-meta">
+            Reason: {document.deletedReason}
+          </div>
+        }
+      </div>
     )
   } else {
     return null
