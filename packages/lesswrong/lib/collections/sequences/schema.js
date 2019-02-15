@@ -23,6 +23,7 @@ const schema = {
 
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -97,6 +98,7 @@ const schema = {
 
   'chaptersDummy.$': {
     type: String,
+    foreignKey: "Chapters",
     optional: true,
   },
 
@@ -162,6 +164,10 @@ const schema = {
 
   canonicalCollectionSlug: {
     type: String,
+    foreignKey: {
+      collection: "Collections",
+      field: "slug",
+    },
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['admins'],

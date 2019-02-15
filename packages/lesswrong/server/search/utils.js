@@ -6,7 +6,7 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import { dataToMarkdown } from '../../lib/collections/revisions/resolvers.js'
+import { dataToMarkdown } from '../editor/make_editable_callbacks'
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
