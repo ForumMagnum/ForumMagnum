@@ -16,6 +16,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    deletedReason
     hideAuthor
     user {
       ...UsersMinimumInfo

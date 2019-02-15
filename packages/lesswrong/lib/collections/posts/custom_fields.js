@@ -1105,7 +1105,7 @@ Posts.addField([
             const event = await LWEvents.findOne(query, sort);
             const author = await Users.findOne({_id: post.userId});
             if (event) {
-              return event && event.properties && event.properties.targetState
+              return event.properties && event.properties.targetState
             } else {
               return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
             }
