@@ -226,6 +226,7 @@ Comments.addView("sunshineNewUsersComments", function (terms) {
   return {
     selector: {
       userId: terms.userId,
+      // Don't hide deleted
       $or: null,
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
