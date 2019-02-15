@@ -3,8 +3,8 @@
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
 // load, since maxing out database capacity with a migration script could bring
-// the site down otherwise. See `loadLimit`.
-const defaultLoadFactor = 0.5;
+// the site down otherwise. See `runThenSleep`.
+const DEFAULT_LOAD_FACTOR = 0.5;
 
 export function registerMigration({ name, idempotent, action })
 {
@@ -52,7 +52,7 @@ function sleep(ms)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function loadLimit(loadFactor, func)
+export async function runThenSleep(loadFactor, func)
 {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
@@ -75,7 +75,7 @@ export async function loadLimit(loadFactor, func)
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues({ collection, fieldName, batchOptions, loadFactor=defaultLoadFactor })
+export async function fillDefaultValues({ collection, fieldName, batchOptions, loadFactor=DEFAULT_LOAD_FACTOR })
 {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
@@ -110,7 +110,7 @@ export async function fillDefaultValues({ collection, fieldName, batchOptions, l
 
     // Starting at the lowest percentile, modify everything
     for (const percentile of percentiles) {
-      await loadLimit(loadFactor, async () => {
+      await runThenSleep(loadFactor, async () => {
         const query = {
           [fieldName]: null,
           [batchOptions.fieldName]: {$lt: percentile.value},
@@ -163,7 +163,7 @@ export async function fillDefaultValues({ collection, fieldName, batchOptions, l
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=defaultLoadFactor })
+export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR })
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
@@ -184,7 +184,7 @@ export async function migrateDocuments({ description, collection, batchSize, unm
   
   // eslint-disable-next-line no-constant-condition
   while(!done) {
-    await loadLimit(loadFactor, async () => {
+    await runThenSleep(loadFactor, async () => {
       let documents = collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
       
       if (!documents.length) {
