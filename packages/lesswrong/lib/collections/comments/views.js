@@ -231,7 +231,7 @@ Comments.addView("sunshineNewUsersComments", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
-// TODO – ask Jim about indices
+ensureIndex(Comments, {userId:1}); // TODO - Ask Jim about indices
 
 Comments.addView('repliesToAnswer', function (terms) {
   return {

@@ -549,7 +549,7 @@ Posts.addView("communityResourcePosts", function () {
 Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
-      status: null,
+      status: null, // allow sunshines to read posts marked as spam
       reviewedByUserId: {$exists: false},
       frontpageDate: viewFieldNullOrMissing,
       authorIsUnreviewed: null
@@ -569,7 +569,7 @@ ensureIndex(Posts,
 Posts.addView("sunshineNewUsersPosts", function (terms) {
   return {
     selector: {
-      status: null,
+      status: null, // allow sunshines to see posts marked as spam
       userId: terms.userId,
       reviewedByUserId: {$exists: false},
       frontpageDate: viewFieldNullOrMissing,
