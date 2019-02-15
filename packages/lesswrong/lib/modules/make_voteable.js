@@ -119,6 +119,22 @@ export const makeVoteable = collection => {
       }
     },
     /**
+      The number of votes on the document
+    */
+    {
+      fieldName: 'voteCount',
+      fieldSchema: {
+        type: Number,
+        optional: true,
+        defaultValue: 0,
+        canRead: ['guests'],
+        onInsert: document => {
+          // default to 0 if empty
+          return document.voteCount || 0;
+        }
+      }
+    },
+    /**
       The document's current score (factoring in age)
     */
     {

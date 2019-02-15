@@ -14,6 +14,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     hidden: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],

@@ -169,7 +169,7 @@ const createLWTheme = (theme) => {
     zIndexes: {
       commentsMenu: 1,
       postsVote: 1,
-      sidebarHoverOver: 200,
+      sidebarHoverOver: 2,
       sunshineSidebar: 1000,
       layout: 1100,
       header: 1300,
