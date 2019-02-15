@@ -38,22 +38,22 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
 export async function validateCollection(collection)
 {
   const collectionName = collection.collectionName;
-  console.log(`Checking ${collectionName}`); // eslint-disable-line
-  const numRows = await collection.rawCollection().count();
-  console.log(`    ${numRows} rows`); // eslint-disable-line
+  console.log(`Checking ${collectionName}`); // eslint-disable-line no-console
+  const numRows = await collection.find({}).count();
+  console.log(`    ${numRows} rows`); // eslint-disable-line no-console
   
   // Check for mixed _id type (string vs ObjectID)
-  const rowsWithObjectID = await collection.rawCollection().count({
+  const rowsWithObjectID = await collection.find({
     _id: {$type: "objectId"}
-  });
+  }).count();
   if (rowsWithObjectID > 0) {
-    console.log(`    ${rowsWithObjectID} have keys of type ObjectID`); // eslint-disable-line
+    console.log(`    ${rowsWithObjectID} have keys of type ObjectID`); // eslint-disable-line no-console
   }
   
   // Validate rows
   const schema = collection.simpleSchema();
   if (!schema) {
-    console.log(`    Collection does not have a schema`); // eslint-disable-line
+    console.log(`    Collection does not have a schema`); // eslint-disable-line no-console
     return;
   }
   
@@ -62,18 +62,19 @@ export async function validateCollection(collection)
   // Dictionary field=>type=>count
   const errorsByField = {};
   
+  function recordError(field, errorType) {
+    if (!errorsByField[field])
+      errorsByField[field] = {};
+    if (!errorsByField[field][errorType])
+      errorsByField[field][errorType] = 0;
+    
+    errorsByField[field][errorType]++;
+  }
+  
+  
   await forEachDocumentBatchInCollection({
     collection, batchSize: 10000,
     callback: async (batch) => {
-      function recordError(field, errorType) {
-        if (!errorsByField[field])
-          errorsByField[field] = {};
-        if (!errorsByField[field][errorType])
-          errorsByField[field][errorType] = 0;
-        
-        errorsByField[field][errorType]++;
-      }
-      
       // Validate documents against their batch with simpl-schema
       for (const document of batch) {
         validationContext.validate(document);
@@ -147,7 +148,7 @@ export async function validateCollection(collection)
   for (const fieldName of Object.keys(errorsByField)) {
     for (const errorType of Object.keys(errorsByField[fieldName])) {
       const count = errorsByField[fieldName][errorType];
-      console.log(`    ${collectionName}.${fieldName}: ${errorType} (${count} rows)`); //eslint-disable-line
+      console.log(`    ${collectionName}.${fieldName}: ${errorType} (${count} rows)`); //eslint-disable-line no-console
     }
   }
 }
