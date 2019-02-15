@@ -24,6 +24,7 @@ const schema = {
   documentId: {
     type: String,
     canRead: ['guests'],
+    // No explicit foreign-key relation because which collection this is depends on collectionName
   },
 
   // The name of the collection the document belongs to
@@ -36,6 +37,7 @@ const schema = {
   userId: {
     type: String,
     canRead: Users.owns,
+    foreignKey: 'Users',
   },
   
   // The ID of the author of the document that was voted on
@@ -43,6 +45,7 @@ const schema = {
     type: String,
     denormalized: true, // Can be inferred from documentId
     canRead: ['guests'],
+    foreignKey: 'Users',
   },
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
