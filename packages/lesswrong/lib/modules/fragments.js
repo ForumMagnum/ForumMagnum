@@ -488,6 +488,7 @@ registerFragment(`
     baseScore
     score
     afBaseScore
+    voteCount
   }
 `);
 
@@ -503,6 +504,7 @@ registerFragment(`
     baseScore
     score
     afBaseScore
+    voteCount
   }
 `);
 

@@ -4,6 +4,7 @@
 // script was written.
 
 import './2019-01-04-voteSchema';
+import './2019-01-21-denormalizeVoteCount';
 import './2019-01-24-karmaChangeSettings';
 import './2019-01-30-migrateEditableFields'
 import './2019-02-04-testCommentMigration'
