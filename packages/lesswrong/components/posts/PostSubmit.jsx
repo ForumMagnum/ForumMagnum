@@ -10,8 +10,6 @@ import { withTheme, withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 
-const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
-
 const styles = theme => ({
   formSubmit: {
     display: "flex",
@@ -20,7 +18,7 @@ const styles = theme => ({
   },
   formButton: {
     paddingBottom: 4,
-    fontFamily: commentFonts,
+    fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
     marginLeft: 5,
     fontWeight: 500,
@@ -54,7 +52,7 @@ const styles = theme => ({
   },
   checkboxLabel: {
     fontWeight:500,
-    fontFamily: commentFonts,
+    fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
     color: "rgba(0,0,0,0.4)",
   },
