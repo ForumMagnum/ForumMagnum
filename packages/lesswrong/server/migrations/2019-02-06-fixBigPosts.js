@@ -21,8 +21,7 @@ registerMigration({
           const { body, content, htmlBody } = doc
           let newHtml
           if (content) {
-            const contentState = convertFromRaw(content);
-            newHtml = await draftJSToHtmlWithLatex(contentState)
+            newHtml = await draftJSToHtmlWithLatex(content)
           } else if (body) {
             newHtml = await markdownToHtmlWithLatex(body)
           } else {

@@ -28,7 +28,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
 
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
-  return draftToHTML(draftJSWithLatex)
+  return draftToHTML(convertFromRaw(draftJSWithLatex))
 }
 
 export function htmlToMarkdown(html) {
@@ -49,8 +49,7 @@ async function dataToHTML(data, type) {
     case "html":
       return data
     case "draftJS":
-      const contentState = convertFromRaw(data);
-      return await draftJSToHtmlWithLatex(contentState)
+      return await draftJSToHtmlWithLatex(data)
     case "markdown":
       return await markdownToHtmlWithLatex(data)
   }
