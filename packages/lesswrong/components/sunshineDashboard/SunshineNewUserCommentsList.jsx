@@ -17,8 +17,12 @@ const styles = theme => ({
 
 const SunshineNewUserCommentsList = ({loading, results, classes}) => {
   const { FormatDate, MetaInfo, Loading } = Components
-  if (results) {
-    return <div>
+
+  if (!results && loading) return <Loading />
+  if (!results) return null 
+
+  return (
+    <div>
       {loading && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <MetaInfo>
@@ -30,11 +34,7 @@ const SunshineNewUserCommentsList = ({loading, results, classes}) => {
         <div dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>
-  } else if (loading) {
-    return <Loading />
-  } else {
-    return null
-  }
+  )
 }
 
 const withMultiOptions = {
