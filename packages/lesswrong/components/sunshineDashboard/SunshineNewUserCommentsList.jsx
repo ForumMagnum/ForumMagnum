@@ -16,9 +16,14 @@ const styles = theme => ({
 })
 
 const SunshineNewUserCommentsList = ({loading, results, classes}) => {
-  const { FormatDate, MetaInfo } = Components
-  if (results) {
-    return <div>
+  const { FormatDate, MetaInfo, Loading } = Components
+
+  if (!results && loading) return <Loading />
+  if (!results) return null 
+
+  return (
+    <div>
+      {loading && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <MetaInfo>
           <Link to={`/posts/${comment.postId}`}>
@@ -29,9 +34,7 @@ const SunshineNewUserCommentsList = ({loading, results, classes}) => {
         <div dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>
-  } else {
-    return null
-  }
+  )
 }
 
 const withMultiOptions = {

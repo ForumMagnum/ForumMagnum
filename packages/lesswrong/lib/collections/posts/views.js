@@ -569,6 +569,7 @@ Posts.addView("sunshineNewUsersPosts", function (terms) {
     selector: {
       status: null, // allow sunshines to see posts marked as spam
       userId: terms.userId,
+      authorIsUnreviewed: null
     },
     options: {
       sort: {
