@@ -3,7 +3,6 @@ import { registerMigration, migrateDocuments } from './migrationUtils';
 import { draftJSToHtmlWithLatex, markdownToHtmlWithLatex } from '../editor/make_editable_callbacks'
 import { Posts } from '../../lib/collections/posts'
 import { editMutation } from 'meteor/vulcan:core';
-import { convertFromRaw } from 'draft-js';
 
 registerMigration({
   name: "fixBigPosts",
@@ -21,8 +20,7 @@ registerMigration({
           const { body, content, htmlBody } = doc
           let newHtml
           if (content) {
-            const contentState = convertFromRaw(content);
-            newHtml = await draftJSToHtmlWithLatex(contentState)
+            newHtml = await draftJSToHtmlWithLatex(content)
           } else if (body) {
             newHtml = await markdownToHtmlWithLatex(body)
           } else {
