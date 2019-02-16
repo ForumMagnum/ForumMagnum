@@ -70,6 +70,7 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    submitToFrontpage
   }
 `);
 
