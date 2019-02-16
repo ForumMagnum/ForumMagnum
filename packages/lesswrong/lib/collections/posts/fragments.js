@@ -22,6 +22,7 @@ registerFragment(`
     clickCount
     question
     commentCount
+    voteCount
     baseScore
     unlisted
     score
