@@ -96,16 +96,19 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
       // Check whether the last time you opened the menu was in the same batch-period
       const openedBeforeNextBatch = lastOpened && lastOpened > lastDailyReset.toDate()
 
-      // If you open the notification menu again before the next batch has started, just return 
-      // the previous batch 
+      // If you open the notification menu again before the next batch has started, just return
+      // the previous batch
       if (previousBatchExists && openedBeforeNextBatch) {
         // Since we know that we reopened the notifications before the next batch, the last batch
         // will have ended at the last daily reset time
-        const lastBatchEnd = lastDailyReset 
-        return {
-          start: lastBatchStart,
-          end: lastBatchEnd.toDate()
-        };
+        const lastBatchEnd = lastDailyReset
+        // Sanity check in case lastBatchStart is invalid (eg not cleared after a settings change)
+        if (lastBatchStart < lastBatchEnd.toDate()) {
+          return {
+            start: lastBatchStart,
+            end: lastBatchEnd.toDate()
+          };
+        }
       }
 
       // If you've never opened the menu before, then return the last daily batch, else
@@ -131,16 +134,19 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
       // Check whether the last time you opened the menu was in the same batch-period
       const openedBeforeNextBatch = lastOpened && lastOpened > lastWeeklyReset.toDate()
 
-      // If you open the notification menu again before the next batch has started, just return 
-      // the previous batch 
+      // If you open the notification menu again before the next batch has started, just return
+      // the previous batch
       if (previousBatchExists && openedBeforeNextBatch) {
         // Since we know that we reopened the notifications before the next batch, the last batch
         // will have ended at the last daily reset time
-        const lastBatchEnd = lastWeeklyReset 
-        return {
-          start: lastBatchStart,
-          end: lastBatchEnd.toDate()
-        };
+        const lastBatchEnd = lastWeeklyReset
+        // Sanity check in case lastBatchStart is invalid (eg not cleared after a settings change)
+        if (lastBatchStart < lastBatchEnd.toDate()) {
+          return {
+            start: lastBatchStart,
+            end: lastBatchEnd.toDate()
+          };
+        }
       }
 
       // If you've never opened the menu before, then return the last daily batch, else
