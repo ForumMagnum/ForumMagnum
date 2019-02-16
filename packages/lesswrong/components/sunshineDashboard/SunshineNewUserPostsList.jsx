@@ -15,9 +15,14 @@ const styles = theme => ({
 })
 
 const SunshineNewUserPostsList = ({loading, results, classes}) => {
-  const { PostsItemTitle } = Components
-  if (results) {
-    return <div>
+  const { PostsItemTitle, Loading } = Components
+ 
+  if (!results && loading) return <Loading />
+  if (!results) return null
+
+  return (
+    <div>
+      {loading && <Loading />}
       {results.map(post=><div className={classes.post} key={post._id}>
         <Link to={`/posts/${post._id}`}>
           <PostsItemTitle post={post} />
@@ -26,9 +31,7 @@ const SunshineNewUserPostsList = ({loading, results, classes}) => {
         <div dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
       </div>)}
     </div>
-  } else {
-    return null
-  }
+  )
 }
 
 const withMultiOptions = {

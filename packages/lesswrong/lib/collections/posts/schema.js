@@ -470,6 +470,14 @@ const schema = {
       }
     }
   },
+  submitToFrontpage: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    hidden: true,
+  }
 };
 
 export default schema;
