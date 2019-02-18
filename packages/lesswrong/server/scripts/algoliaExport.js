@@ -8,13 +8,13 @@ import { getSetting } from 'meteor/vulcan:core'
 import { wrapVulcanAsyncScript } from './utils'
 import { batchAdd, getAlgoliaAdminClient } from '../search/utils';
 
-async function algoliaExport(collection, indexName, selector = {}, updateFunction) {
+async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
   // eslint-disable-next-line no-console
-  console.log(`Exporting ${indexName}...`)
-  let algoliaIndex = client.initIndex(indexName)
+  console.log(`Exporting ${collection.algoliaIndexName}...`)
+  let algoliaIndex = client.initIndex(collection.algoliaIndexName)
   
   // eslint-disable-next-line no-console
   console.log("Initiated Index connection")
@@ -64,16 +64,16 @@ async function algoliaExport(collection, indexName, selector = {}, updateFunctio
 async function algoliaExportByCollectionName(collectionName) {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, 'test_posts', {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
+      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
       break
     case 'Comments':
-      await algoliaExport(Comments, 'test_comments', {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
+      await algoliaExport(Comments, {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
       break
     case 'Users':
-      await algoliaExport(Users, 'test_users', {deleted: {$ne: true}})
+      await algoliaExport(Users, {deleted: {$ne: true}})
       break
     case 'Sequences':
-      await algoliaExport(Sequences, 'test_sequences')
+      await algoliaExport(Sequences)
       break
     default:
       throw new Error(`Did not recognize collectionName: ${collectionName}`)

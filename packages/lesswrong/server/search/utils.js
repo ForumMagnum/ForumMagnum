@@ -149,6 +149,11 @@ Posts.toAlgolia = (post) => {
   return postBatch;
 }
 
+Comments.algoliaIndexName = 'test_comments';
+Posts.algoliaIndexName = 'test_posts';
+Users.algoliaIndexName = 'test_users';
+Sequences.algoliaIndexName = 'test_sequences';
+
 // Slightly gross function to turn these callback-accepting functions
 // into async ones
 // If waitForFinish is false, let algolia index the post on it's own time. This
@@ -220,20 +225,20 @@ export function getAlgoliaAdminClient()
   return client;
 }
 
-export async function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
+export async function algoliaDocumentExport({ documents, collection, updateFunction} ) {
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
   let client = getAlgoliaAdminClient();
   if (!client) return;
-  let algoliaIndex = client.initIndex(indexName);
+  let algoliaIndex = client.initIndex(collection.algoliaIndexName);
 
   let importCount = 0;
   let importBatch = [];
   let totalErrors = [];
   for (let item of documents) {
     if (updateFunction) updateFunction(item);
-    let batchContainer = exportFunction(item);
+    let batchContainer = collection.toAlgolia(item);
     importBatch = [...importBatch, ...batchContainer];
     importCount++;
     if (importCount % 100 == 0) {
