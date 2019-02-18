@@ -99,7 +99,7 @@
     "mathjax-node": "^2.1.1",
     "mathjax-node-page": "^3.0.0",
     "meteor-node-stubs": "^0.2.3",
-    "mingo": "^2.2.0",
+    "mingo": "^2.2.11",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",
     "optics-agent": "^1.1.6",
