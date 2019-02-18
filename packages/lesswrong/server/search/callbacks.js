@@ -10,8 +10,8 @@ const postIndexName = 'test_posts';
 const userIndexName = 'test_users';
 const sequenceIndexName = 'test_sequences';
 
-function commentAlgoliaIndex(comment) {
-  algoliaDocumentExport({
+async function commentAlgoliaIndex(comment) {
+  await algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
     indexName: commentIndexName,
@@ -22,10 +22,10 @@ function commentAlgoliaIndex(comment) {
 addCallback("comments.new.async", commentAlgoliaIndex)
 addCallback("comments.edit.async", commentAlgoliaIndex)
 
-function postAlgoliaIndex(post) {
+async function postAlgoliaIndex(post) {
   if (post.draft) return null;
   
-  algoliaDocumentExport({
+  await algoliaDocumentExport({
     documents: [post],
     collection: Posts,
     indexName: postIndexName,
@@ -36,8 +36,8 @@ function postAlgoliaIndex(post) {
 addCallback("posts.new.async", postAlgoliaIndex)
 addCallback("posts.edit.async", postAlgoliaIndex)
 
-function userAlgoliaIndex(user) {
-  algoliaDocumentExport({
+async function userAlgoliaIndex(user) {
+  await algoliaDocumentExport({
     documents: [user],
     collection: Users,
     indexName: userIndexName,
@@ -48,8 +48,8 @@ function userAlgoliaIndex(user) {
 addCallback("users.new.async", userAlgoliaIndex)
 addCallback("users.edit.async", userAlgoliaIndex)
 
-function sequenceAlgoliaIndex(sequence) {
-  algoliaDocumentExport({
+async function sequenceAlgoliaIndex(sequence) {
+  await algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
     indexName: sequenceIndexName,

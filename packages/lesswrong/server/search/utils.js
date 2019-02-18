@@ -203,7 +203,7 @@ export async function batchAdd(algoliaIndex, objects, waitForFinish) {
   }
 }
 
-export function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
+export async function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
