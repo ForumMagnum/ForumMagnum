@@ -193,6 +193,7 @@ export function algoliaCollectionExport(collection, indexName, exportFunction, s
     algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
       if(error) {
         // console.log("Algolia Error: ", error)
+        totalErrors.push(error);
       }
       // console.log("write operation received: " + content);
       algoliaIndex.waitTask(content, function contentIndexed() {
@@ -207,7 +208,7 @@ export function algoliaCollectionExport(collection, indexName, exportFunction, s
   }
 }
 
-export function algoliaDocumentExport(documents, collection, indexName, exportFunction, updateFunction) {
+export function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
@@ -245,13 +246,15 @@ export function algoliaDocumentExport(documents, collection, indexName, exportFu
     algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
       if(error) {
         // console.log("Algolia Error: ", error)
+        totalErrors.push(error);
       }
       // console.log("write operation received: " + content);
       algoliaIndex.waitTask(content, function contentIndexed() {
         // console.log("object " + content + " indexed");
       });
     });
-    // console.log("Encountered the following errors: ", totalErrors)
+    //eslint-disable-next-line no-console
+    console.error("Encountered the following errors: ", totalErrors)
   } else {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
       //eslint-disable-next-line no-console
