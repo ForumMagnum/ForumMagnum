@@ -225,37 +225,21 @@ export async function algoliaDocumentExport({ documents, collection, indexName, 
   let importBatch = [];
   let batchContainer = [];
   let totalErrors = [];
-  documents.forEach((item) => {
+  for (let item of documents) {
     if (updateFunction) updateFunction(item);
     batchContainer = exportFunction(item);
     importBatch = [...importBatch, ...batchContainer];
     importCount++;
     if (importCount % 100 == 0) {
-      // console.log("Imported n posts: ",  importCount, importBatch.length)
-      algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
-        if(error) {
-          // console.log("Algolia Error: ", error);
-          totalErrors.push(error);
-        }
-        // console.log("write operation received: ", content);
-        algoliaIndex.waitTask(content, function contentIndexed() {
-          // console.log("object " + content + " indexed");
-        });
-      });
+      let error = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
+      if(error) totalErrors.push(error);
       importBatch = [];
     }
-  })
-  // console.log("Exporting last n documents ", importCount);
-  algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
-    if(error) {
-      // console.log("Algolia Error: ", error)
-      totalErrors.push(error);
-    }
-    // console.log("write operation received: " + content);
-    algoliaIndex.waitTask(content, function contentIndexed() {
-      // console.log("object " + content + " indexed");
-    });
-  });
+  }
+  
+  let error = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
+  if(error) totalErrors.push(error);
+  
   //eslint-disable-next-line no-console
   console.error("Encountered the following errors: ", totalErrors)
 }
