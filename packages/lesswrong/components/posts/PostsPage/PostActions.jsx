@@ -7,6 +7,8 @@ import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from 'react-router'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import EditIcon from '@material-ui/icons/Edit'
 
 const styles = theme => ({
   root: {
@@ -82,11 +84,19 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, Container, currentUser } = this.props
+    const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
     return (
       <div className={classes.actions}>
       { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-        <MenuItem>Edit</MenuItem>
+        <MenuItem>
+          <ListItemIcon>
+            <EditIcon />
+          </ListItemIcon>
+          Edit
+        </MenuItem>
       </Link>}
+      <ReportPostMenuItem post={post}/>
+
         { Users.canDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
@@ -112,7 +122,7 @@ class PostActions extends Component {
             }
           </span>
         }
-        <Components.SuggestAlignment post={post} Container={Container}/>
+        <SuggestAlignment post={post} Container={Container}/>
         { Users.canMakeAlignmentPost(currentUser, post) &&
           !post.af && <div onClick={this.handleMoveToAlignmentForum }>
             <Container>
@@ -126,9 +136,9 @@ class PostActions extends Component {
             </Container>
           </div>
         }
-        <Components.SuggestCurated post={post} Container={Container}/>
-        <Components.MoveToDraft post={post} Container={Container}/>
-        <Components.DeleteDraft post={post} Container={Container}/>
+        <SuggestCurated post={post} Container={Container}/>
+        <MoveToDraft post={post} Container={Container}/>
+        <DeleteDraft post={post} Container={Container}/>
       </div>
     )
   }
