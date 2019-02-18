@@ -10,7 +10,7 @@ const postIndexName = 'test_posts';
 const userIndexName = 'test_users';
 const sequenceIndexName = 'test_sequences';
 
-function newCommentAlgoliaIndex(comment) {
+function commentAlgoliaIndex(comment) {
   algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
@@ -19,20 +19,10 @@ function newCommentAlgoliaIndex(comment) {
     updateFunction: (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
-addCallback("comments.new.async", newCommentAlgoliaIndex)
+addCallback("comments.new.async", commentAlgoliaIndex)
+addCallback("comments.edit.async", commentAlgoliaIndex)
 
-function editCommentAlgoliaIndex(comment) {
-  algoliaDocumentExport({
-    documents: [comment],
-    collection: Comments,
-    indexName: commentIndexName,
-    exportFunction: Comments.toAlgolia,
-    updateFunction: (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}})
-  })
-}
-addCallback("comments.edit.async", editCommentAlgoliaIndex)
-
-function newPostAlgoliaIndex(post) {
+function postAlgoliaIndex(post) {
   if (!post.draft) {
     algoliaDocumentExport({
       documents: [post],
@@ -43,22 +33,10 @@ function newPostAlgoliaIndex(post) {
     })
   }
 }
-addCallback("posts.new.async", newPostAlgoliaIndex)
+addCallback("posts.new.async", postAlgoliaIndex)
+addCallback("posts.edit.async", postAlgoliaIndex)
 
-function editPostAlgoliaIndex(post) {
-  if (!post.draft) {
-    algoliaDocumentExport({
-      documents: [post],
-      collection: Posts,
-      indexName: postIndexName,
-      exportFunction: Posts.toAlgolia,
-      updateFunction: (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}})
-    })
-  }
-}
-addCallback("posts.edit.async", editPostAlgoliaIndex)
-
-function newUserAlgoliaIndex(user) {
+function userAlgoliaIndex(user) {
   algoliaDocumentExport({
     documents: [user],
     collection: Users,
@@ -67,20 +45,10 @@ function newUserAlgoliaIndex(user) {
     updateFunction: (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
-addCallback("users.new.async", newUserAlgoliaIndex)
+addCallback("users.new.async", userAlgoliaIndex)
+addCallback("users.edit.async", userAlgoliaIndex)
 
-function editUserAlgoliaIndex(user) {
-  algoliaDocumentExport({
-    documents: [user],
-    collection: Users,
-    indexName: userIndexName,
-    exportFunction: Users.toAlgolia,
-    updateFunction: (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}})
-  })
-}
-addCallback("users.edit.async", editUserAlgoliaIndex)
-
-function newSequenceAlgoliaIndex(sequence) {
+function sequenceAlgoliaIndex(sequence) {
   algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
@@ -89,15 +57,5 @@ function newSequenceAlgoliaIndex(sequence) {
     updateFunction: (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
-addCallback("sequences.new.async", newSequenceAlgoliaIndex)
-
-function editSequenceAlgoliaIndex(sequence) {
-  algoliaDocumentExport({
-    documents: [sequence],
-    collection: Sequences,
-    indexName: sequenceIndexName,
-    exportFunction: Sequences.toAlgolia,
-    updateFunction: (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}})
-  })
-}
-addCallback("sequences.edit.async", editSequenceAlgoliaIndex);
+addCallback("sequences.new.async", sequenceAlgoliaIndex)
+addCallback("sequences.edit.async", sequenceAlgoliaIndex);
