@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
@@ -50,7 +50,7 @@ class ReportPostMenuItem extends PureComponent {
 
 ReportPostMenuItem.propTypes = {
   currentUser: PropTypes.object,
-  comment: PropTypes.object.isRequired
+  post: PropTypes.object.isRequired
 }
 
 registerComponent('ReportPostMenuItem', ReportPostMenuItem, withUser, withDialog, withStyles(styles, {name: "ReportPostMenuItem"}));
