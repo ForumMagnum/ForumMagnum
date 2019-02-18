@@ -6,21 +6,21 @@ import Sequences from '../../lib/collections/sequences/collection.js'
 import algoliasearch from 'algoliasearch'
 import { getSetting } from 'meteor/vulcan:core'
 import { wrapVulcanAsyncScript } from './utils'
-import { batchAdd } from '../search/utils';
+import { batchAdd, getAlgoliaAdminClient } from '../search/utils';
 
 async function algoliaExport(collection, indexName, selector = {}, updateFunction) {
-  const algoliaAppId = getSetting('algolia.appId')
-  const algoliaAdminKey = getSetting('algolia.adminKey')
-  let client = algoliasearch(algoliaAppId, algoliaAdminKey)
+  let client = getAlgoliaAdminClient();
+  if (!client) return;
+  
   // eslint-disable-next-line no-console
   console.log(`Exporting ${indexName}...`)
   let algoliaIndex = client.initIndex(indexName)
+  
   // eslint-disable-next-line no-console
   console.log("Initiated Index connection")
 
   let importCount = 0
   let importBatch = []
-  let batchContainer
   const totalErrors = []
   const documents = collection.find(selector)
   const numItems = documents.count()
@@ -28,7 +28,7 @@ async function algoliaExport(collection, indexName, selector = {}, updateFunctio
   console.log(`Beginning to import ${numItems} ${collection._name}`)
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
-    batchContainer = collection.toAlgolia(item)
+    let batchContainer = collection.toAlgolia(item)
     importBatch = [...importBatch, ...batchContainer]
     importCount++
     if (importCount % 100 === 0) {

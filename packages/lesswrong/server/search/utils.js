@@ -203,10 +203,8 @@ export async function batchAdd(algoliaIndex, objects, waitForFinish) {
   }
 }
 
-export async function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
-  // if (Meteor.isDevelopment) {  // Only run document export in production environment
-  //   return null
-  // }
+export function getAlgoliaAdminClient()
+{
   const algoliaAppId = getSetting('algolia.appId');
   const algoliaAdminKey = getSetting('algolia.adminKey');
   
@@ -215,19 +213,27 @@ export async function algoliaDocumentExport({ documents, collection, indexName, 
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
     }
-    return;
+    return null;;
   }
   
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
+  return client;
+}
+
+export async function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
+  // if (Meteor.isDevelopment) {  // Only run document export in production environment
+  //   return null
+  // }
+  let client = getAlgoliaAdminClient();
+  if (!client) return;
   let algoliaIndex = client.initIndex(indexName);
 
   let importCount = 0;
   let importBatch = [];
-  let batchContainer = [];
   let totalErrors = [];
   for (let item of documents) {
     if (updateFunction) updateFunction(item);
-    batchContainer = exportFunction(item);
+    let batchContainer = exportFunction(item);
     importBatch = [...importBatch, ...batchContainer];
     importCount++;
     if (importCount % 100 == 0) {
