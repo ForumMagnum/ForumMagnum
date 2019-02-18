@@ -153,7 +153,7 @@ Posts.toAlgolia = (post) => {
   return postBatch;
 }
 
-export function algoliaCollectionExport(Collection, indexName, exportFunction, selector = {}, updateFunction) {
+export function algoliaCollectionExport(collection, indexName, exportFunction, selector = {}, updateFunction) {
   const algoliaAppId = getSetting('algolia.appId');
   const algoliaAdminKey = getSetting('algolia.adminKey');
   if (algoliaAppId && algoliaAdminKey) {
@@ -168,7 +168,7 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
     let importBatch = [];
     let batchContainer = [];
     let totalErrors = [];
-    Collection.find(selector).fetch().forEach((item) => {
+    collection.find(selector).fetch().forEach((item) => {
       if (updateFunction) updateFunction(item);
       batchContainer = exportFunction(item);
       importBatch = [...importBatch, ...batchContainer];
@@ -207,7 +207,7 @@ export function algoliaCollectionExport(Collection, indexName, exportFunction, s
   }
 }
 
-export function algoliaDocumentExport(documents, Collection, indexName, exportFunction, updateFunction) {
+export function algoliaDocumentExport(documents, collection, indexName, exportFunction, updateFunction) {
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
   // }

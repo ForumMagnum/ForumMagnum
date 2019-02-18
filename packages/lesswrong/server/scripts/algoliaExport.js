@@ -61,7 +61,7 @@ async function batchAdd(algoliaIndex, objects, waitForFinish) {
   }
 }
 
-async function algoliaExport(Collection, indexName, selector = {}, updateFunction) {
+async function algoliaExport(collection, indexName, selector = {}, updateFunction) {
   const algoliaAppId = getSetting('algolia.appId')
   const algoliaAdminKey = getSetting('algolia.adminKey')
   let client = algoliasearch(algoliaAppId, algoliaAdminKey)
@@ -75,13 +75,13 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
   let importBatch = []
   let batchContainer
   const totalErrors = []
-  const documents = Collection.find(selector)
+  const documents = collection.find(selector)
   const numItems = documents.count()
   // eslint-disable-next-line no-console
-  console.log(`Beginning to import ${numItems} ${Collection._name}`)
+  console.log(`Beginning to import ${numItems} ${collection._name}`)
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
-    batchContainer = Collection.toAlgolia(item)
+    batchContainer = collection.toAlgolia(item)
     importBatch = [...importBatch, ...batchContainer]
     importCount++
     if (importCount % 100 === 0) {
@@ -107,10 +107,10 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
   }
   if (totalErrors.length) {
     // eslint-disable-next-line no-console
-    console.log(`${Collection._name} indexing encountered the following errors:`, totalErrors)
+    console.log(`${collection._name} indexing encountered the following errors:`, totalErrors)
   } else {
     // eslint-disable-next-line no-console
-    console.log('No errors found when indexing', Collection._name)
+    console.log('No errors found when indexing', collection._name)
   }
 }
 
