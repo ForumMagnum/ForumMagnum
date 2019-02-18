@@ -5,11 +5,16 @@ import Users from 'meteor/vulcan:users';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import { algoliaDocumentExport } from './utils.js';
 
+const commentIndexName = 'test_comments';
+const postIndexName = 'test_posts';
+const userIndexName = 'test_users';
+const sequenceIndexName = 'test_sequences';
+
 function newCommentAlgoliaIndex(comment) {
   algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
-    indexName: 'test_comments',
+    indexName: commentIndexName,
     exportFunction: Comments.toAlgolia,
     updateFunction: (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}})
   })
@@ -20,7 +25,7 @@ function editCommentAlgoliaIndex(comment) {
   algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
-    indexName: 'test_comments',
+    indexName: commentIndexName,
     exportFunction: Comments.toAlgolia,
     updateFunction: (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}})
   })
@@ -32,7 +37,7 @@ function newPostAlgoliaIndex(post) {
     algoliaDocumentExport({
       documents: [post],
       collection: Posts,
-      indexName: 'test_posts',
+      indexName: postIndexName,
       exportFunction: Posts.toAlgolia,
       updateFunction: (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}})
     })
@@ -45,7 +50,7 @@ function editPostAlgoliaIndex(post) {
     algoliaDocumentExport({
       documents: [post],
       collection: Posts,
-      indexName: 'test_posts',
+      indexName: postIndexName,
       exportFunction: Posts.toAlgolia,
       updateFunction: (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}})
     })
@@ -57,7 +62,7 @@ function newUserAlgoliaIndex(user) {
   algoliaDocumentExport({
     documents: [user],
     collection: Users,
-    indexName: 'test_users',
+    indexName: userIndexName,
     exportFunction: Users.toAlgolia,
     updateFunction: (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}})
   })
@@ -68,7 +73,7 @@ function editUserAlgoliaIndex(user) {
   algoliaDocumentExport({
     documents: [user],
     collection: Users,
-    indexName: 'test_users',
+    indexName: userIndexName,
     exportFunction: Users.toAlgolia,
     updateFunction: (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}})
   })
@@ -79,7 +84,7 @@ function newSequenceAlgoliaIndex(sequence) {
   algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
-    indexName: 'test_sequences',
+    indexName: sequenceIndexName,
     exportFunction: Sequences.toAlgolia,
     updateFunction: (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}})
   })
@@ -90,7 +95,7 @@ function editSequenceAlgoliaIndex(sequence) {
   algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
-    indexName: 'test_sequences',
+    indexName: sequenceIndexName,
     exportFunction: Sequences.toAlgolia,
     updateFunction: (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}})
   })
