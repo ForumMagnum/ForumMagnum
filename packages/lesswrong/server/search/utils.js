@@ -149,6 +149,60 @@ Posts.toAlgolia = (post) => {
   return postBatch;
 }
 
+// Slightly gross function to turn these callback-accepting functions
+// into async ones
+// If waitForFinish is false, let algolia index the post on it's own time. This
+// takes forever, so it should usually be false. It tries to give you any errors
+// ahead of time.
+export async function batchAdd(algoliaIndex, objects, waitForFinish) {
+  const addObjectsPartialAsync = () => {
+    return new Promise((resolve, reject) => {
+      algoliaIndex.addObjects(objects, (err, content) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(content)
+      })
+    })
+  }
+  const awaitObjectInsert = (taskID) => {
+    return new Promise((resolve, reject) => {
+      algoliaIndex.waitTask(taskID, (err) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve()
+      })
+    })
+  }
+  try {
+    const content = await addObjectsPartialAsync()
+    if (waitForFinish) {
+      await awaitObjectInsert(content.taskID)
+    } else {
+      algoliaIndex.waitTask(content.taskID, (err) => {
+        // We really hope it's rare for it to error only after finishing
+        // indexing. If we have to wait for this error every time, it'll take
+        // possibly >24hr to export comments.
+        if (err) {
+          // eslint-disable-next-line no-console
+          console.error(
+            'Apparently algolia sometimes errors even after the first ack\n' +
+            'Please make a note of this error and then be frustrated about' +
+            'how to change the code to do a better job of catching it.'
+          )
+          // eslint-disable-next-line no-console
+          console.error(err)
+        }
+      })
+    }
+  } catch (err) {
+    return err
+  }
+}
+
 export function algoliaDocumentExport({ documents, collection, indexName, exportFunction, updateFunction} ) {
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
