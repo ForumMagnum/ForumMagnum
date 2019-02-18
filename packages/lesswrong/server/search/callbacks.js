@@ -23,15 +23,15 @@ addCallback("comments.new.async", commentAlgoliaIndex)
 addCallback("comments.edit.async", commentAlgoliaIndex)
 
 function postAlgoliaIndex(post) {
-  if (!post.draft) {
-    algoliaDocumentExport({
-      documents: [post],
-      collection: Posts,
-      indexName: postIndexName,
-      exportFunction: Posts.toAlgolia,
-      updateFunction: (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}})
-    })
-  }
+  if (post.draft) return null;
+  
+  algoliaDocumentExport({
+    documents: [post],
+    collection: Posts,
+    indexName: postIndexName,
+    exportFunction: Posts.toAlgolia,
+    updateFunction: (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}})
+  })
 }
 addCallback("posts.new.async", postAlgoliaIndex)
 addCallback("posts.edit.async", postAlgoliaIndex)

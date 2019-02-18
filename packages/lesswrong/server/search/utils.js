@@ -130,22 +130,18 @@ Posts.toAlgolia = (post) => {
     algoliaMetaInfo.feedLink = post.feedLink;
   }
   let postBatch = [];
-  let paragraphCounter =  0;
-  let algoliaPost = {};
   let body = ""
   if (post.contents && post.contents.originalContents && post.contents.originalContents.type) {
     const { data, type } = post.contents.originalContents
     body = dataToMarkdown(data, type)
   }
   if (body) {
-    body.split("\n\n").forEach((paragraph) => {
-      algoliaPost = {
+    body.split("\n\n").forEach((paragraph, paragraphCounter) => {
+      postBatch.push(_.clone({
         ...algoliaMetaInfo,
         objectID: post._id + "_" + paragraphCounter,
         body: paragraph,
-      }
-      paragraphCounter++;
-      postBatch.push(_.clone(algoliaPost));
+      }));
     })
   } else {
     postBatch.push(_.clone(algoliaMetaInfo));
@@ -159,51 +155,53 @@ export function algoliaDocumentExport({ documents, collection, indexName, export
   // }
   const algoliaAppId = getSetting('algolia.appId');
   const algoliaAdminKey = getSetting('algolia.adminKey');
-  if (algoliaAppId && algoliaAdminKey) {
-    let client = algoliasearch(algoliaAppId, algoliaAdminKey);
-    let algoliaIndex = client.initIndex(indexName);
-
-    let importCount = 0;
-    let importBatch = [];
-    let batchContainer = [];
-    let totalErrors = [];
-    documents.forEach((item) => {
-      if (updateFunction) updateFunction(item);
-      batchContainer = exportFunction(item);
-      importBatch = [...importBatch, ...batchContainer];
-      importCount++;
-      if (importCount % 100 == 0) {
-        // console.log("Imported n posts: ",  importCount, importBatch.length)
-        algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
-          if(error) {
-            // console.log("Algolia Error: ", error);
-            totalErrors.push(error);
-          }
-          // console.log("write operation received: ", content);
-          algoliaIndex.waitTask(content, function contentIndexed() {
-            // console.log("object " + content + " indexed");
-          });
-        });
-        importBatch = [];
-      }
-    })
-    // console.log("Exporting last n documents ", importCount);
-    algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
-      if(error) {
-        // console.log("Algolia Error: ", error)
-        totalErrors.push(error);
-      }
-      // console.log("write operation received: " + content);
-      algoliaIndex.waitTask(content, function contentIndexed() {
-        // console.log("object " + content + " indexed");
-      });
-    });
-    //eslint-disable-next-line no-console
-    console.error("Encountered the following errors: ", totalErrors)
-  } else {
+  
+  if (!algoliaAppId || !algoliaAdminKey) {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
     }
+    return;
   }
+  
+  let client = algoliasearch(algoliaAppId, algoliaAdminKey);
+  let algoliaIndex = client.initIndex(indexName);
+
+  let importCount = 0;
+  let importBatch = [];
+  let batchContainer = [];
+  let totalErrors = [];
+  documents.forEach((item) => {
+    if (updateFunction) updateFunction(item);
+    batchContainer = exportFunction(item);
+    importBatch = [...importBatch, ...batchContainer];
+    importCount++;
+    if (importCount % 100 == 0) {
+      // console.log("Imported n posts: ",  importCount, importBatch.length)
+      algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
+        if(error) {
+          // console.log("Algolia Error: ", error);
+          totalErrors.push(error);
+        }
+        // console.log("write operation received: ", content);
+        algoliaIndex.waitTask(content, function contentIndexed() {
+          // console.log("object " + content + " indexed");
+        });
+      });
+      importBatch = [];
+    }
+  })
+  // console.log("Exporting last n documents ", importCount);
+  algoliaIndex.addObjects(_.map(importBatch, _.clone), function gotTaskID(error, content) {
+    if(error) {
+      // console.log("Algolia Error: ", error)
+      totalErrors.push(error);
+    }
+    // console.log("write operation received: " + content);
+    algoliaIndex.waitTask(content, function contentIndexed() {
+      // console.log("object " + content + " indexed");
+    });
+  });
+  //eslint-disable-next-line no-console
+  console.error("Encountered the following errors: ", totalErrors)
 }
