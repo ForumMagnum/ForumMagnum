@@ -10,7 +10,6 @@ async function commentAlgoliaIndex(comment) {
   await algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
-    updateFunction: (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
 addCallback("comments.new.async", commentAlgoliaIndex)
@@ -22,7 +21,6 @@ async function postAlgoliaIndex(post) {
   await algoliaDocumentExport({
     documents: [post],
     collection: Posts,
-    updateFunction: (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
 addCallback("posts.new.async", postAlgoliaIndex)
@@ -32,7 +30,6 @@ async function userAlgoliaIndex(user) {
   await algoliaDocumentExport({
     documents: [user],
     collection: Users,
-    updateFunction: (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
 addCallback("users.new.async", userAlgoliaIndex)
@@ -42,7 +39,6 @@ async function sequenceAlgoliaIndex(sequence) {
   await algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
-    updateFunction: (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}})
   })
 }
 addCallback("sequences.new.async", sequenceAlgoliaIndex)

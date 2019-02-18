@@ -61,7 +61,6 @@ Sequences.toAlgolia = (sequence) => {
     isDeleted: sequence.isDeleted,
     createdAt: sequence.createdAt,
     postedAt: sequence.postedAt,
-    algoliaIndexAt: sequence.algoliaIndexAt,
     af: sequence.af
   };
   const sequenceAuthor = Users.findOne({_id: sequence.userId});

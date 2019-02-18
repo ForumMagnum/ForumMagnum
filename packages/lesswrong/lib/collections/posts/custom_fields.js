@@ -329,20 +329,6 @@ Posts.addField([
     }
   },
 
-  /**
-    algoliaIndexAt: The last time at which the post has been indexed in Algolia's search Index.
-    Undefined if it is has not been indexed.
-  */
-
-  {
-    fieldName: 'algoliaIndexAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      viewableBy: ['guests'],
-    }
-  },
-
   {
     fieldName: 'collectionTitle',
     fieldSchema: {
