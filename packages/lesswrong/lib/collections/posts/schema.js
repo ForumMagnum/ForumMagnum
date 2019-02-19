@@ -477,7 +477,7 @@ const schema = {
     editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
-    defaultValue: true
+    ...schemaDefaultValue(true)
   }
 };
 
