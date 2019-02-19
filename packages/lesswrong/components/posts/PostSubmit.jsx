@@ -88,46 +88,42 @@ const styles = theme => ({
 });
 
 class PostSubmit extends PureComponent {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      submitToFrontpage: true,
-    };
-  }
+  state = { submitToFrontpage: true }
 
   render() {
-    const { submitLabel = "Submit", cancelLabel = "Cancel", cancelCallback, document, collectionName, classes } = this.props
+    const { submitLabel = "Submit", cancelLabel = "Cancel", cancelCallback, document, collectionName, classes, router } = this.props
 
     const { updateCurrentValues } = this.context
-    const eventForm = this.props.router.location.query && this.props.router.location.query.eventForm;
+    
+    // FIXME: Have this use something other than a query parameter so that (among possible other things) it doesn't behave weird when you open a question dialog while viewing an editEvent page
+    const eventForm = router.location && router.location.query && router.location.query.eventForm;
     const submitToFrontpage = this.state.submitToFrontpage && !eventForm
 
     return (
       <div className={classes.formSubmit}>
         <div className={classes.submitToFrontpageWrapper}>
-            <Tooltip title={<div className={classes.tooltip}>
-                <p>LW moderators will consider this post for frontpage</p>
-                <p className={classes.guidelines}>Things to aim for:</p>
-                <ul>
-                  <li className={classes.guidelines}>
-                    Usefulness, novelty and fun
-                  </li>
-                  <li className={classes.guidelines}>
-                    Timeless content (minimize reference to current events)
-                  </li>
-                  <li className={classes.guidelines}>
-                    Explain rather than persuade
-                  </li>
-                </ul>
-              </div>
-              }>
-              <div className={classes.submitToFrontpage}>
-                {!eventForm && <div>
-                  <Checkbox checked={submitToFrontpage} onClick={() => this.setState({submitToFrontpage: !submitToFrontpage})}/>
-                  <span className={classes.checkboxLabel}>Moderators may promote</span></div>}
-              </div>
-            </Tooltip>
+          <Tooltip title={<div className={classes.tooltip}>
+              <p>LW moderators will consider this post for frontpage</p>
+              <p className={classes.guidelines}>Things to aim for:</p>
+              <ul>
+                <li className={classes.guidelines}>
+                  Usefulness, novelty and fun
+                </li>
+                <li className={classes.guidelines}>
+                  Timeless content (minimize reference to current events)
+                </li>
+                <li className={classes.guidelines}>
+                  Explain rather than persuade
+                </li>
+              </ul>
+            </div>
+            }>
+            <div className={classes.submitToFrontpage}>
+              {!eventForm && <div>
+                <Checkbox checked={submitToFrontpage} onClick={() => this.setState({submitToFrontpage: !submitToFrontpage})}/>
+                <span className={classes.checkboxLabel}>Moderators may promote</span></div>}
+            </div>
+          </Tooltip>
         </div>
 
         {!!cancelCallback &&
