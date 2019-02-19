@@ -256,7 +256,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
     if (updateFunction) updateFunction(item)
     let algoliaEntries = collection.toAlgolia(item)
     if (algoliaEntries) {
-      importBatch = [...importBatch, ...algoliaEntries]
+      importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     }
   }
   
