@@ -72,7 +72,10 @@ class SubmitToFrontpageCheckbox extends Component {
       }>
       <div className={classes.submitToFrontpage}>
         <div>
-          <Checkbox checked={value} onClick={() => updateCurrentValues({submitToFrontpage: !value})}/>
+          <Checkbox checked={value} onClick={() => {
+            updateCurrentValues({submitToFrontpage: !value})
+            this.setState({submitToFrontpage: !value})
+          }}/>
           <span className={classes.checkboxLabel}>Moderators may promote</span>
         </div>
       </div>
