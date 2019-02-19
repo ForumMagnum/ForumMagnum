@@ -9,6 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
+import { withRouter } from 'react-router'
 
 const styles = theme => ({
   formSubmit: {
@@ -34,6 +35,7 @@ const styles = theme => ({
 
   submitButton: {
     color: theme.palette.secondary.main,
+    maxWidth:100,
   },
   submitToFrontpageWrapper: {
     flexGrow: 3,
@@ -48,6 +50,9 @@ const styles = theme => ({
     maxWidth: 300,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
+      maxWidth: "none",
+      justifyContent: "flex-end",
+      paddingRight: theme.spacing.unit*3,
     }
   },
   checkboxLabel: {
@@ -72,61 +77,71 @@ const styles = theme => ({
     fontStyle: "italic"
   },
   cancelButton: {
+    flexGrow:1,
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
   },
   draft: {
-
+    maxWidth:150,
   }
 });
 
 class PostSubmit extends PureComponent {
-  state = { submitToFrontpage: true}
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      submitToFrontpage: true,
+    };
+  }
 
   render() {
     const { submitLabel = "Submit", cancelLabel = "Cancel", cancelCallback, document, collectionName, classes } = this.props
 
     const { updateCurrentValues } = this.context
-
-    const { submitToFrontpage } = this.state
+    const eventForm = this.props.router.location.query && this.props.router.location.query.eventForm;
+    const submitToFrontpage = this.state.submitToFrontpage && !eventForm
 
     return (
       <div className={classes.formSubmit}>
         <div className={classes.submitToFrontpageWrapper}>
             <Tooltip title={<div className={classes.tooltip}>
-              <p>LW moderators will consider this post for frontpage</p>
-              <p className={classes.guidelines}>Things to aim for:</p>
-              <ul>
-                <li className={classes.guidelines}>
-                  Usefulness, novelty and fun
-                </li>
-                <li className={classes.guidelines}>
-                  Timeless content (minimize reference to current events)
-                </li>
-                <li className={classes.guidelines}>
-                  Explain rather than persuade
-                </li>
-              </ul>
-            </div>
-            }>
+                <p>LW moderators will consider this post for frontpage</p>
+                <p className={classes.guidelines}>Things to aim for:</p>
+                <ul>
+                  <li className={classes.guidelines}>
+                    Usefulness, novelty and fun
+                  </li>
+                  <li className={classes.guidelines}>
+                    Timeless content (minimize reference to current events)
+                  </li>
+                  <li className={classes.guidelines}>
+                    Explain rather than persuade
+                  </li>
+                </ul>
+              </div>
+              }>
               <div className={classes.submitToFrontpage}>
-                <Checkbox checked={submitToFrontpage} onClick={() => this.setState({submitToFrontpage: !submitToFrontpage})}/>
-                <span className={classes.checkboxLabel}>Moderators may promote</span>
+                {!eventForm && <div>
+                  <Checkbox checked={submitToFrontpage} onClick={() => this.setState({submitToFrontpage: !submitToFrontpage})}/>
+                  <span className={classes.checkboxLabel}>Moderators may promote</span></div>}
               </div>
             </Tooltip>
         </div>
 
         {!!cancelCallback &&
-          <Button
-            className={classNames("form-cancel", classes.formButton, classes.secondaryButton, classes.cancelButton)}
-            onClick={(e) => {
-              e.preventDefault();
-              cancelCallback(document)
-            }}
-          >
-            {cancelLabel}
-          </Button>
+          <div className={classes.cancelButton}>
+            <Button
+              className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+              onClick={(e) => {
+                e.preventDefault();
+                cancelCallback(document)
+              }}
+            >
+              {cancelLabel}
+            </Button>
+          </div>
         }
 
         <Button type="submit"
@@ -167,6 +182,6 @@ PostSubmit.contextTypes = {
 
 // Replaces FormSubmit from vulcan-forms.
 replaceComponent('PostSubmit', PostSubmit,
-  withUser, withTheme(),
+  withUser, withTheme(), withRouter,
   withStyles(styles, { name: "PostSubmit" })
 );
