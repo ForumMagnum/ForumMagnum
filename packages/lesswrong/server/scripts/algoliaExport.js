@@ -3,10 +3,9 @@ import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users'
 import Sequences from '../../lib/collections/sequences/collection.js'
-import algoliasearch from 'algoliasearch'
-import { getSetting } from 'meteor/vulcan:core'
 import { wrapVulcanAsyncScript } from './utils'
 import { batchAdd, getAlgoliaAdminClient } from '../search/utils';
+import { forEachDocumentBatchInCollection } from '../queryUtil';
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
@@ -18,42 +17,30 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   
   // eslint-disable-next-line no-console
   console.log("Initiated Index connection")
-
-  let importCount = 0
-  let importBatch = []
-  const totalErrors = []
-  const documents = collection.find(selector)
-  const numItems = documents.count()
-  // eslint-disable-next-line no-console
-  console.log(`Beginning to import ${numItems} ${collection._name}`)
-  for (let item of documents) {
-    if (updateFunction) updateFunction(item)
-    let algoliaEntries = collection.toAlgolia(item)
-    if (algoliaEntries) {
-      importBatch = [...importBatch, ...algoliaEntries]
-      importCount++
-      if (importCount % 100 === 0) {
-        // Could be more algolia objects than documents
-        // eslint-disable-next-line no-console
-        console.log(`Exporting ${importBatch.length} algolia objects`)
-        // eslint-disable-next-line no-console
-        console.log('Documents so far:', importCount)
-        // eslint-disable-next-line no-console
-        console.log('Total documents: ', numItems)
-        const err = await batchAdd(algoliaIndex, importBatch, false)
-        if (err) {
-          totalErrors.push(err)
-        }
-        importBatch = []
+  
+  const totalErrors = [];
+  const totalItems = collection.find(selector).count();
+  let exportedSoFar = 0;
+  
+  await forEachDocumentBatchInCollection(collection, 100, async (documents) => {
+    let importBatch = [];
+    
+    for (let item of documents) {
+      if (updateFunction) updateFunction(item)
+      let algoliaEntries = collection.toAlgolia(item)
+      if (algoliaEntries) {
+        importBatch = [...importBatch, ...algoliaEntries]
       }
     }
-  }
-  // eslint-disable-next-line no-console
-  console.log(`Exporting last ${importBatch.length} algolia objects`)
-  const err = await batchAdd(algoliaIndex, importBatch, false)
-  if (err) {
-    totalErrors.push(err)
-  }
+    
+    const err = await batchAdd(algoliaIndex, importBatch, false)
+    if (err) totalErrors.push(err)
+    
+    exportedSoFar += documents.length;
+    // eslint-disable-next-line no-console
+    console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
+  });
+  
   if (totalErrors.length) {
     // eslint-disable-next-line no-console
     console.log(`${collection._name} indexing encountered the following errors:`, totalErrors)

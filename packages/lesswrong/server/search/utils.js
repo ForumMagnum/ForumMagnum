@@ -224,7 +224,7 @@ export function getAlgoliaAdminClient()
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
     }
-    return null;;
+    return null;
   }
   
   let client = algoliasearch(algoliaAppId, algoliaAdminKey);
