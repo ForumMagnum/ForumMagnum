@@ -25,10 +25,9 @@ const PostsNewForm = ({router, currentUser, flash}) => {
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<AccountsLoginForm />);
   }
-  const NewPostsSubmit = (props, context) => {
-    const { updateCurrentValues } = context
+  const NewPostsSubmit = (props) => {
     return <div>
-      {eventForm && <SubmitToFrontpageCheckbox updateCurrentValues={updateCurrentValues} />}
+      {eventForm && <SubmitToFrontpageCheckbox />}
       <PostSubmit {...props} />
     </div>
   }

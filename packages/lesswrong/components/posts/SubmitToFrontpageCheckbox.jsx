@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from 'meteor/vulcan:core';
@@ -51,7 +52,8 @@ class SubmitToFrontpageCheckbox extends Component {
     value: false
   }
   render() {
-    const { classes, updateCurrentValues } = this.props
+    const { classes } = this.props
+    const { updateCurrentValues } = this.context
     const { value } = this.state
     return <div className={classes.submitToFrontpageWrapper}>
     <Tooltip title={<div className={classes.tooltip}>
@@ -74,7 +76,7 @@ class SubmitToFrontpageCheckbox extends Component {
         <div>
           <Checkbox checked={value} onClick={() => {
             updateCurrentValues({submitToFrontpage: !value})
-            this.setState({submitToFrontpage: !value})
+            this.setState({value: !value})
           }}/>
           <span className={classes.checkboxLabel}>Moderators may promote</span>
         </div>
@@ -83,6 +85,10 @@ class SubmitToFrontpageCheckbox extends Component {
   </div>
   }
 } 
+
+SubmitToFrontpageCheckbox.contextTypes = {
+  updateCurrentValues: PropTypes.func,
+}
 
 
 registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox,

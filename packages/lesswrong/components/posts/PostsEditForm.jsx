@@ -10,7 +10,13 @@ class PostsEditForm extends PureComponent {
   render() {
     const { documentId, document, eventForm } = this.props;
     const isDraft = document && document.draft;
-    const { WrappedSmartForm, PostSubmit } = Components
+    const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+    const EditPostsSubmit = (props) => {
+      return <div>
+        {eventForm && <SubmitToFrontpageCheckbox />}
+        <PostSubmit {...props} />
+      </div>
+    }
 
     return (
       <div className="posts-edit-form">
@@ -37,7 +43,7 @@ class PostsEditForm extends PureComponent {
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
-          SubmitComponent={PostSubmit}
+          SubmitComponent={EditPostsSubmit}
           extraVariables={{
             version: 'String'
           }}

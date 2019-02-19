@@ -15,10 +15,8 @@ class NewQuestionDialog extends PureComponent {
     const { onClose, currentUser, router, flash, fullScreen } = this.props
     const { PostSubmit, SubmitToFrontpageCheckbox } = Components
     const QuestionSubmit = (props, context) => {
-      const { updateCurrentValues } = context
-
       return <div>
-        <SubmitToFrontpageCheckbox updateCurrentValues={updateCurrentValues} />
+        <SubmitToFrontpageCheckbox />
         <PostSubmit {...props} />
       </div>
     }
