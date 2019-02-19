@@ -214,6 +214,19 @@ export async function batchAdd(algoliaIndex, objects, waitForFinish) {
   }
 }
 
+async function batchDelete(algoliaIndex, ids) {
+  return new Promise((resolve, reject) => {
+    algoliaIndex.deleteObjects(ids, (err, taskID) => {
+      if (err)
+        reject(err);
+      algoliaIndex.waitTask(taskID, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  });
+}
+
 export function getAlgoliaAdminClient()
 {
   const algoliaAppId = getSetting('algolia.appId');
@@ -251,15 +264,25 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
 export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
 {
   let importBatch = [];
+  let itemsToDelete = [];
   
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
     let algoliaEntries = collection.toAlgolia(item)
     if (algoliaEntries) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
+    } else {
+      itemsToDelete.push(item);
     }
   }
   
-  const err = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false)
-  if (err) errors.push(err)
+  if (importBatch.length > 0) {
+    const err = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
+    if (err) errors.push(err)
+  }
+  
+  if (itemsToDelete.length > 0) {
+    const err = await batchDelete(algoliaIndex, itemsToDelete, true);
+    if (err) errors.push(err)
+  }
 }
