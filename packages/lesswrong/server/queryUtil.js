@@ -24,3 +24,57 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
     );
   } while(rows.length > 0)
 }
+
+// Given a collection, an optional filter, and a target batch size, partition
+// the collection into buckets of approximately that size, and call a function
+// with a series of selectors that narrow the collection to each of those
+// buckets.
+//
+// collection: The collection to iterate over.
+// filter: (Optional) A mongo query which constrains the subset of documents
+//     iterated over.
+// bucketSize: Approximate number of results in each bucket. This will not
+//     be exact, both because buckets will be approximately balanced (so eg if
+//     you ask for 2k-row buckets of a 3k-row collection, you actually get
+//     1.5k-row average buckets), and because bucket boundaries are generated
+//     by a statistical approximation using sampling.
+// fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
+//     selector, which includes both an _id range (either one- or two-sided)
+//     and also the selector from `filter`.
+export async function forEachBucketRangeInCollection({collection, filter, bucketSize, fn})
+{
+  // Get filtered collection size and use it to calculate a number of buckets
+  const count = await collection.find(filter).count();
+
+  // Calculate target number of buckets
+  const bucketCount = Math.max(1, Math.floor(count / bucketSize));
+
+  // Calculate target sample size
+  const sampleSize = 20 * bucketCount
+
+  // Calculate bucket boundaries using Mongo aggregate
+  const bucketBoundaries = await collection.rawCollection().aggregate([
+    ...(filter && { $match: filter }),
+    { $sample: { size: sampleSize } },
+    { $sort: {_id: 1} },
+    { $bucketAuto: { groupBy: '$_id', buckets: bucketCount}},
+    { $project: {value: '$_id.max', _id: 0}}
+  ]).toArray()
+
+  // Starting at the lowest bucket boundary, iterate over buckets
+  const firstBucket = {_id: {$lt: bucketBoundaries[0].value}};
+  await fn(firstBucket);
+  
+  for (let i=0; i<bucketBoundaries.length-1; i++) {
+    fn({
+      _id: {
+        $ge: bucketBoundaries[i].value,
+        $lt: bucketBoundaries[i+1].value,
+      },
+      ...filter
+    })
+  }
+  
+  const lastBucket = {_id: {$ge: bucketBoundaries[bucketBoundaries.length-1].value}};
+  await fn(lastBucket);
+}
