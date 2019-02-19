@@ -9,14 +9,23 @@ import { Posts } from '../../lib/collections/posts/collection.js'
 import withUser from '../common/withUser';
 import { withRouter } from 'react-router';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  formSubmit: {
+    display: "flex",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+  }
+})
 
 class NewQuestionDialog extends PureComponent {
   render() {
-    const { onClose, currentUser, router, flash, fullScreen } = this.props
+    const { onClose, currentUser, router, flash, fullScreen, classes } = this.props
     const { PostSubmit, SubmitToFrontpageCheckbox } = Components
-    const QuestionSubmit = (props, context) => {
-      return <div>
-        <SubmitToFrontpageCheckbox />
+    const QuestionSubmit = (props) => {
+      return <div className={classes.formSubmit}>
+        <SubmitToFrontpageCheckbox {...props}/>
         <PostSubmit {...props} />
       </div>
     }
@@ -54,4 +63,4 @@ NewQuestionDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
 }
 
-registerComponent('NewQuestionDialog', NewQuestionDialog, withUser, withRouter, withMessages, withMobileDialog())
+registerComponent('NewQuestionDialog', NewQuestionDialog, withUser, withRouter, withMessages, withMobileDialog(), withStyles(styles, { name: "NewQuestionDialog" }))

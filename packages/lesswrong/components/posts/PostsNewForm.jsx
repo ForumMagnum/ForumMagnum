@@ -1,12 +1,21 @@
-import { Components, registerComponent, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent,  getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
+import { withStyles } from '@material-ui/core/styles';
 
-const PostsNewForm = ({router, currentUser, flash}) => {
+const styles = theme => ({
+  formSubmit: {
+    display: "flex",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+  }
+})
+
+const PostsNewForm = ({router, currentUser, flash, classes}) => {
   const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
@@ -26,8 +35,8 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     return (<AccountsLoginForm />);
   }
   const NewPostsSubmit = (props) => {
-    return <div>
-      {eventForm && <SubmitToFrontpageCheckbox />}
+    return <div className={classes.formSubmit}>
+      {eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }
@@ -60,4 +69,4 @@ PostsNewForm.propTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser);
+registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser, withStyles(styles, { name: "PostsNewForm" }));

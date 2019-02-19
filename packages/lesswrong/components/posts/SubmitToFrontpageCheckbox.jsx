@@ -29,6 +29,7 @@ const styles = theme => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
     color: "rgba(0,0,0,0.4)",
+    verticalAlign: 'middle'
   },
   tooltip: {
     '& ul': {
@@ -48,41 +49,47 @@ const styles = theme => ({
 });
 
 class SubmitToFrontpageCheckbox extends Component {
-  state = {
-    value: false
+  handleClick = () => {
+    const { updateCurrentValues } = this.context
+    updateCurrentValues({submitToFrontpage: !this.getCurrentValue()})
+  }
+  getCurrentValue = () => {
+    const { currentValues, document } = this.props
+    let submitToFrontpage = true
+    if ('submitToFrontpage' in currentValues) {
+      submitToFrontpage = currentValues.submitToFrontpage
+    } else if ('submitToFrontpage' in document) {
+      submitToFrontpage = document.submitToFrontpage
+    }
+    return submitToFrontpage
   }
   render() {
     const { classes } = this.props
-    const { updateCurrentValues } = this.context
-    const { value } = this.state
     return <div className={classes.submitToFrontpageWrapper}>
-    <Tooltip title={<div className={classes.tooltip}>
-        <p>LW moderators will consider this post for frontpage</p>
-        <p className={classes.guidelines}>Things to aim for:</p>
-        <ul>
-          <li className={classes.guidelines}>
-            Usefulness, novelty and fun
-          </li>
-          <li className={classes.guidelines}>
-            Timeless content (minimize reference to current events)
-          </li>
-          <li className={classes.guidelines}>
-            Explain rather than persuade
-          </li>
-        </ul>
-      </div>
-      }>
-      <div className={classes.submitToFrontpage}>
-        <div>
-          <Checkbox checked={value} onClick={() => {
-            updateCurrentValues({submitToFrontpage: !value})
-            this.setState({value: !value})
-          }}/>
-          <span className={classes.checkboxLabel}>Moderators may promote</span>
+      <Tooltip title={<div className={classes.tooltip}>
+          <p>LW moderators will consider this post for frontpage</p>
+          <p className={classes.guidelines}>Things to aim for:</p>
+          <ul>
+            <li className={classes.guidelines}>
+              Usefulness, novelty and fun
+            </li>
+            <li className={classes.guidelines}>
+              Timeless content (minimize reference to current events)
+            </li>
+            <li className={classes.guidelines}>
+              Explain rather than persuade
+            </li>
+          </ul>
         </div>
-      </div>
-    </Tooltip>
-  </div>
+        }>
+        <div className={classes.submitToFrontpage}>
+          <div>
+            <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick}/>
+            <span className={classes.checkboxLabel}>Moderators may promote</span>
+          </div>
+        </div>
+      </Tooltip>
+    </div>
   }
 } 
 
