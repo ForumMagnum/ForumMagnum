@@ -1,25 +1,24 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
-import withUser from '../../common/withUser';
-import withDialog from '../../common/withDialog'
+import withUser from '../common/withUser';
+import withDialog from '../common/withDialog'
 import Report from '@material-ui/icons/Report';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-class ReportCommentMenuItem extends PureComponent {
+class ReportPostMenuItem extends PureComponent {
 
-  showReport = (event) => {
-    const { openDialog, comment, currentUser } = this.props;
+  showReport = () => {
+    const { openDialog, post, currentUser } = this.props;
     if (!Users.canDo(currentUser, "reports.new")) return
     
     openDialog({
       componentName: "ReportForm",
       componentProps: {
-        commentId: comment._id,
-        postId: comment.postId,
-        link: "/posts/" + comment.postId + "/a/" + comment._id,
+        postId: post._id,
+        link: "/posts/" + post._id,
         userId: currentUser._id,
       }
     });
@@ -35,9 +34,9 @@ class ReportCommentMenuItem extends PureComponent {
   }
 }
 
-ReportCommentMenuItem.propTypes = {
+ReportPostMenuItem.propTypes = {
   currentUser: PropTypes.object,
-  comment: PropTypes.object.isRequired
+  post: PropTypes.object.isRequired
 }
 
-registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, withUser, withDialog);
+registerComponent('ReportPostMenuItem', ReportPostMenuItem, withUser, withDialog);

@@ -1,6 +1,8 @@
 import Notifications from '../collections/notifications/collection.js';
 import Messages from '../collections/messages/collection.js';
 import Conversations from '../collections/conversations/collection.js';
+import Reports from '../collections/reports/collection.js';
+
 import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../collections/localgroups/collection.js';
 import { Bans } from '../collections/bans/collection.js';
@@ -418,6 +420,16 @@ function userDeleteContent(user) {
         documentId: notification._id,
       })
     })
+
+    const reports = Reports.find({postId: post._id}).fetch();
+    //eslint-disable-next-line no-console
+    console.info(`Deleting reports for post ${post._id}: `, reports);
+    reports.forEach((report) => {
+      removeMutation({
+        collection: Reports,
+        documentId: report._id,
+      })
+    })
     
     runCallbacksAsync('posts.purge.async', post)
   })
@@ -444,6 +456,16 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+      })
+    })
+
+    const reports = Reports.find({commentId: comment._id}).fetch();
+    //eslint-disable-next-line no-console
+    console.info(`Deleting reports for comment ${comment._id}: `, reports);
+    reports.forEach((report) => {
+      removeMutation({
+        collection: Reports,
+        documentId: report._id,
       })
     })
 
