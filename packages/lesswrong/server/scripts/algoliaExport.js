@@ -4,7 +4,7 @@ import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users'
 import Sequences from '../../lib/collections/sequences/collection.js'
 import { wrapVulcanAsyncScript } from './utils'
-import { batchAdd, getAlgoliaAdminClient } from '../search/utils';
+import { getAlgoliaAdminClient, algoliaIndexDocumentBatch } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
@@ -23,18 +23,8 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   let exportedSoFar = 0;
   
   await forEachDocumentBatchInCollection(collection, 100, async (documents) => {
-    let importBatch = [];
-    
-    for (let item of documents) {
-      if (updateFunction) updateFunction(item)
-      let algoliaEntries = collection.toAlgolia(item)
-      if (algoliaEntries) {
-        importBatch = [...importBatch, ...algoliaEntries]
-      }
-    }
-    
-    const err = await batchAdd(algoliaIndex, importBatch, false)
-    if (err) totalErrors.push(err)
+    algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
+      errors: totalErrors, updateFunction });
     
     exportedSoFar += documents.length;
     // eslint-disable-next-line no-console

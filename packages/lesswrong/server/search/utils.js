@@ -238,29 +238,28 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   let client = getAlgoliaAdminClient();
   if (!client) return;
   let algoliaIndex = client.initIndex(collection.algoliaIndexName);
-
-  let importCount = 0;
-  let importBatch = [];
+  
   let totalErrors = [];
+  
+  algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
+    errors: totalErrors, updateFunction });
+  
+  //eslint-disable-next-line no-console
+  console.error("Encountered the following errors while exporting to Algolia: ", totalErrors)
+}
+
+export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
+{
+  let importBatch = [];
+  
   for (let item of documents) {
-    if (updateFunction)
-      updateFunction(item);
-    
-    let algoliaEntries = collection.toAlgolia(item);
+    if (updateFunction) updateFunction(item)
+    let algoliaEntries = collection.toAlgolia(item)
     if (algoliaEntries) {
-      importBatch = [...importBatch, ...algoliaEntries];
-      importCount++;
-      if (importCount % 100 == 0) {
-        let error = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
-        if(error) totalErrors.push(error);
-        importBatch = [];
-      }
+      importBatch = [...importBatch, ...algoliaEntries]
     }
   }
   
-  let error = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
-  if(error) totalErrors.push(error);
-  
-  //eslint-disable-next-line no-console
-  console.error("Encountered the following errors: ", totalErrors)
+  const err = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false)
+  if (err) errors.push(err)
 }
