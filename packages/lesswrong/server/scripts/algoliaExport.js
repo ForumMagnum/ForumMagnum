@@ -28,22 +28,24 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   console.log(`Beginning to import ${numItems} ${collection._name}`)
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
-    let batchContainer = collection.toAlgolia(item)
-    importBatch = [...importBatch, ...batchContainer]
-    importCount++
-    if (importCount % 100 === 0) {
-      // Could be more algolia objects than documents
-      // eslint-disable-next-line no-console
-      console.log(`Exporting ${importBatch.length} algolia objects`)
-      // eslint-disable-next-line no-console
-      console.log('Documents so far:', importCount)
-      // eslint-disable-next-line no-console
-      console.log('Total documents: ', numItems)
-      const err = await batchAdd(algoliaIndex, importBatch, false)
-      if (err) {
-        totalErrors.push(err)
+    let algoliaEntries = collection.toAlgolia(item)
+    if (algoliaEntries) {
+      importBatch = [...importBatch, ...algoliaEntries]
+      importCount++
+      if (importCount % 100 === 0) {
+        // Could be more algolia objects than documents
+        // eslint-disable-next-line no-console
+        console.log(`Exporting ${importBatch.length} algolia objects`)
+        // eslint-disable-next-line no-console
+        console.log('Documents so far:', importCount)
+        // eslint-disable-next-line no-console
+        console.log('Total documents: ', numItems)
+        const err = await batchAdd(algoliaIndex, importBatch, false)
+        if (err) {
+          totalErrors.push(err)
+        }
+        importBatch = []
       }
-      importBatch = []
     }
   }
   // eslint-disable-next-line no-console

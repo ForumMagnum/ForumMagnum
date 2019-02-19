@@ -11,6 +11,8 @@ import { dataToMarkdown } from '../editor/make_editable_callbacks'
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
 Comments.toAlgolia = (comment) => {
+  if (comment.deleted) return null;
+  
   const algoliaComment = {
     objectID: comment._id,
     _id: comment._id,
@@ -78,6 +80,8 @@ Sequences.toAlgolia = (sequence) => {
 }
 
 Users.toAlgolia = (user) => {
+  if (user.deleted) return null;
+  
   const algoliaUser = {
     objectID: user._id,
     username: user.username,
@@ -94,9 +98,12 @@ Users.toAlgolia = (user) => {
   return [algoliaUser];
 }
 
-
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
 Posts.toAlgolia = (post) => {
+  if (post.draft) return null;
+  if (post.deleted) return null;
+  if (post.status !== Posts.config.STATUS_APPROVED) return null;
+  
   const algoliaMetaInfo = {
     _id: post._id,
     userId: post.userId,
@@ -236,14 +243,18 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   let importBatch = [];
   let totalErrors = [];
   for (let item of documents) {
-    if (updateFunction) updateFunction(item);
-    let batchContainer = collection.toAlgolia(item);
-    importBatch = [...importBatch, ...batchContainer];
-    importCount++;
-    if (importCount % 100 == 0) {
-      let error = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
-      if(error) totalErrors.push(error);
-      importBatch = [];
+    if (updateFunction)
+      updateFunction(item);
+    
+    let algoliaEntries = collection.toAlgolia(item);
+    if (algoliaEntries) {
+      importBatch = [...importBatch, ...algoliaEntries];
+      importCount++;
+      if (importCount % 100 == 0) {
+        let error = await batchAdd(algoliaIndex, _.map(importBatch, _.clone), false);
+        if(error) totalErrors.push(error);
+        importBatch = [];
+      }
     }
   }
   

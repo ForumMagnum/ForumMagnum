@@ -16,8 +16,6 @@ addCallback("comments.new.async", commentAlgoliaIndex)
 addCallback("comments.edit.async", commentAlgoliaIndex)
 
 async function postAlgoliaIndex(post) {
-  if (post.draft) return null;
-  
   await algoliaDocumentExport({
     documents: [post],
     collection: Posts,
