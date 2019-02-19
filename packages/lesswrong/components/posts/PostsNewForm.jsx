@@ -7,7 +7,7 @@ import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
 
 const PostsNewForm = ({router, currentUser, flash}) => {
-  const { PostSubmit, WrappedSmartForm, AccountsLoginForm} = Components
+  const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
@@ -20,9 +20,17 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
+  const eventForm = router.location.query && router.location.query.eventForm
 
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<AccountsLoginForm />);
+  }
+  const NewPostsSubmit = (props, context) => {
+    const { updateCurrentValues } = context
+    return <div>
+      {eventForm && <SubmitToFrontpageCheckbox updateCurrentValues={updateCurrentValues} />}
+      <PostSubmit {...props} />
+    </div>
   }
 
   return (
@@ -36,9 +44,9 @@ const PostsNewForm = ({router, currentUser, flash}) => {
           router.push({pathname: Posts.getPageUrl(post)});
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        eventForm={router.location.query && router.location.query.eventForm}
+        eventForm={eventForm}
         repeatErrors
-        SubmitComponent={PostSubmit}
+        SubmitComponent={NewPostsSubmit}
       />
     </div>
   );

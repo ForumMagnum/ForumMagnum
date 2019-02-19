@@ -13,7 +13,15 @@ import withMobileDialog from '@material-ui/core/withMobileDialog';
 class NewQuestionDialog extends PureComponent {
   render() {
     const { onClose, currentUser, router, flash, fullScreen } = this.props
-    const { PostSubmit } = Components
+    const { PostSubmit, SubmitToFrontpageCheckbox } = Components
+    const QuestionSubmit = (props, context) => {
+      const { updateCurrentValues } = context
+
+      return <div>
+        <SubmitToFrontpageCheckbox updateCurrentValues={updateCurrentValues} />
+        <PostSubmit {...props} />
+      </div>
+    }
     return (
       <Dialog
         open={true}
@@ -35,7 +43,7 @@ class NewQuestionDialog extends PureComponent {
               flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
               onClose()
             }}
-            SubmitComponent={PostSubmit}
+            SubmitComponent={QuestionSubmit}
           />
         </DialogContent>
       </Dialog>

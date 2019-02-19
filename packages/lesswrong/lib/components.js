@@ -121,6 +121,7 @@ import '../components/posts/TableOfContents';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
 import '../components/posts/PostSubmit.jsx';
+import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 
 
