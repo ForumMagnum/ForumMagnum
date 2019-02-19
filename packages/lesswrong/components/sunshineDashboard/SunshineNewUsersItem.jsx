@@ -17,6 +17,7 @@ const styles = theme => ({
      color: red['A100']
   },
   info: {
+    // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
     wordBreak: "break-word",
     display: "inline-block"
   }
