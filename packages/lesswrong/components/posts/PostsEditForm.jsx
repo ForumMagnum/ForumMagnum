@@ -8,7 +8,6 @@ import { withRouter } from 'react-router'
 class PostsEditForm extends PureComponent {
 
   render() {
-    console.log('PostEditForm???')
     const { documentId, document, eventForm } = this.props;
     const isDraft = document && document.draft;
 

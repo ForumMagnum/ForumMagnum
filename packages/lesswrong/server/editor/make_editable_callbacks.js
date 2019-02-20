@@ -75,7 +75,6 @@ export const htmlToMarkdown = (html) => {
 
 const convertFromHTML = (html, sanitize, fieldName = "") => {
   const body = htmlToMarkdown(html)
-  // One question is when is sanitize true / false
   const htmlBody = sanitize ? Utils.sanitize(html) : html
   return {
     [camel(`${fieldName}HtmlBody`)]: htmlBody,
