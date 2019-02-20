@@ -26,7 +26,6 @@ class EditorFormContainer extends Component {
     if (savedState) {
       try {
         // eslint-disable-next-line no-console
-        console.log("Restoring saved document state: ", savedState);
         state = EditorState.createWithContent(convertFromRaw(savedState))
         return state;
       } catch(e) {
@@ -107,7 +106,6 @@ class EditorFormContainer extends Component {
   }
 
   render() {
-    console.log('EditorFormContainer render')
     const { className } = this.props;
     const { editorState } = this.state;
     return (

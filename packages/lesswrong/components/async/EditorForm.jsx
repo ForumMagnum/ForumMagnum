@@ -150,7 +150,6 @@ class EditorForm extends Component {
   }
 
   render() {
-    console.log('EditorForm render')
     const { theme, editorState, onChange } = this.props
 
     const InlineToolbar = this.plugins[0].InlineToolbar;

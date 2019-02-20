@@ -10,10 +10,6 @@ const CommentsEditForm = (props, context) => {
         layout="elementOnly"
         collection={Comments}
         documentId={props.comment._id}
-        submitCallback={data => {
-          console.log('submit callback data', data)
-          return data
-        }}
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
         showRemove={false}

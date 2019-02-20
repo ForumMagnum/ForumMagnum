@@ -1,49 +1,13 @@
-import React, { Component } from 'react'
-import unionClassNames from 'union-class-names'
-import linkifyIt from 'linkify-it'
-import tlds from 'tlds'
-import { Modifier, RichUtils, EditorState } from 'draft-js'
+import React, { Component } from 'react';
+import unionClassNames from 'union-class-names';
+import linkifyIt from 'linkify-it';
+import tlds from 'tlds';
 
-const linkify = linkifyIt()
-linkify.tlds(tlds)
+const linkify = linkifyIt();
+linkify.tlds(tlds);
 
 // The component we render when we encounter a hyperlink in the text
 export default class Link extends Component {
-
-  UNSAFE_componentWillReceiveProps () {
-    const editorState = getEditorState()
-    console.log('EditorState', editorState)
-    const selectionState = editorState.getSelection()
-    console.log('selection', selectionState)
-    const start = selectionState.getStartOffset();
-    const end = selectionState.getEndOffset();
-    console.log('start, end', start, end)
-    console.log('contentState', contentState)
-    // fakeSelectionState =
-    const newContentState = contentState.createEntity({
-      type: 'LINK',
-      mutability: 'MUTABLE',
-      data: {href: 'http://foo.net'}
-    })
-    console.log('newContentState', newContentState)
-
-    console.log('whats this about an entityKey', entityKey)
-
-    const contentStateWithEntity = contentState.createEntity(
-      'LINK',
-      'MUTABLE',
-      {url: 'http://foo.net'}
-    );
-    const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
-    this.setState({
-      editorState: RichUtils.toggleLink(
-        newEditorState,
-        selectionState,
-        entityKey
-      ),
-    })
-  }
-
   render() {
     const {
       decoratedText = '',
@@ -59,14 +23,11 @@ export default class Link extends Component {
       setEditorState, // eslint-disable-line no-unused-vars
       contentState, // eslint-disable-line no-unused-vars
       ...otherProps
-    } = this.props
-    const {
-      depth
-    } = this.state
+    } = this.props;
 
-    const combinedClassName = unionClassNames(theme.link, className)
-    const links = linkify.match(decoratedText)
-    const href = links && links[0] ? links[0].url : ''
+    const combinedClassName = unionClassNames(theme.link, className);
+    const links = linkify.match(decoratedText);
+    const href = links && links[0] ? links[0].url : '';
 
     const props = {
       ...otherProps,
@@ -74,10 +35,10 @@ export default class Link extends Component {
       target,
       rel,
       className: combinedClassName,
-    }
+    };
 
     return component
       ? React.createElement(component, props)
-      : <a {...props} />
+      : <a {...props} />; // eslint-disable-line jsx-a11y/anchor-has-content
   }
 }

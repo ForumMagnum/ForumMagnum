@@ -27,12 +27,8 @@ const CommentsNewForm = (props, context) => {
         <Components.SmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
-          successCallback={props.successCallback}
-          cancelCallback={props.type === "reply" ? props.cancelCallback : null}
-          submitCallback={data => {
-            console.log('submit callback data', data)
-            return data
-          }}
+          successCallback={successCallback}
+          cancelCallback={cancelCallback}
           prefilledProps={prefilledProps}
           layout="elementOnly"
         />
