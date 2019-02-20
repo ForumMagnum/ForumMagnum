@@ -4,7 +4,7 @@ import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
 import '../../lib/algoliaIndexNames.js';
-import { Sequences } from '../../lib/collections/sequences';
+import { Sequences } from '../../lib/collections/sequences/collection';
 
 const SequencesSearchAutoComplete = ({clickAction}) => {
   const algoliaAppId = getSetting('algolia.appId')
