@@ -70,7 +70,6 @@ class EditorFormContainer extends Component {
     }
     this.context.addToSuccessForm(resetEditor);
 
-    // TODO; here's one!
     const submitRawContentState = (data) => {
       const contentState = this.state.editorState.getCurrentContent();
       if (contentState.hasText()){
@@ -83,7 +82,6 @@ class EditorFormContainer extends Component {
     this.context.addToSubmitForm(submitRawContentState);
   }
 
-  // TODO; uhhh, not the way I've usually seen it
   changeCount = 0;
 
   onChange = (editorState) => {

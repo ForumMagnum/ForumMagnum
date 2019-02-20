@@ -52,7 +52,6 @@ class EditorFormComponent extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    // TODO; what even, man. Will it ever actually show loading?
     this.setState({editor: DraftJSEditor});
 
     const removeUnusedFields = (data) => {

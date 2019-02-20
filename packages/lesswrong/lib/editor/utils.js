@@ -11,7 +11,7 @@ const linkify = linkifyIt()
 // export
 function autolink(text) {
   const matches = linkify.match(text)
-  if (!matches) return `<p>${text}</p>` // TODO; p tags?
+  if (!matches) return `<p>${text}</p>`
   let resultPieces = ['<p>']
   let lastLinkEndIndex = 0
   for (const match of matches) {

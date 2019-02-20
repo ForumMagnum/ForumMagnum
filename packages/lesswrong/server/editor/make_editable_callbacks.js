@@ -75,7 +75,6 @@ export const htmlToMarkdown = (html) => {
 
 const convertFromHTML = (html, sanitize, fieldName = "") => {
   const body = htmlToMarkdown(html)
-  // TODO; figure out how to have autolinking here
   // One question is when is sanitize true / false
   const htmlBody = sanitize ? Utils.sanitize(html) : html
   return {
