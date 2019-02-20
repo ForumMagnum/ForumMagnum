@@ -208,6 +208,15 @@ async function algoliaGetObjects(algoliaIndex, ids)
   });
 }
 
+export async function algoliaDoSearch(algoliaIndex, query) {
+  return new Promise((resolve,reject) => {
+    algoliaIndex.search(query, (err,content) => {
+      if (err) reject(err);
+      else resolve(content);
+    });
+  });
+}
+
 
 // Given a list of objects that should be in the Algolia index, check whether
 // they are, and whether all fields on them match. If there are any differences,
@@ -302,4 +311,13 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
     const err = await deleteIfPresent(algoliaIndex, itemsToDelete, true);
     if (err) errors.push(err)
   }
+}
+
+
+export async function subsetOfIdsAlgoliaShouldntIndex(collection, ids) {
+  let items = collection.find({ _id: {$in: ids} }).fetch();
+  let itemsToIndex = _.filter(items, item => collection.toAlgolia(item));
+  let itemsToIndexById = _.keyBy(itemsToIndex, o=>o._id);
+  
+  return _.filter(ids, id => !(id in itemsToIndexById));
 }

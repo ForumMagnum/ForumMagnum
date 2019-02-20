@@ -4,8 +4,9 @@ import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users'
 import Sequences from '../../lib/collections/sequences/collection.js'
 import { wrapVulcanAsyncScript } from './utils'
-import { getAlgoliaAdminClient, algoliaIndexDocumentBatch } from '../search/utils';
+import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, algoliaDoSearch, subsetOfIdsAlgoliaShouldntIndex } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
+
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
@@ -63,10 +64,49 @@ Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', async (colle
   await algoliaExportByCollectionName(collectionName)
 })
 
+const indexedCollections = { Posts, Users, Sequences, Comments };
+
 Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', async () => {
-  await algoliaExportByCollectionName('Posts')
-  await algoliaExportByCollectionName('Users')
-  await algoliaExportByCollectionName('Sequences')
-  // Comments last because there's so. many.
-  await algoliaExportByCollectionName('Comments')
+  for (let collection of indexedCollections)
+    await algoliaExportByCollectionName(collection.collectionName);
 })
+
+
+// Go through the Algolia index for a collection, removing any documents which
+// don't exist in mongodb or which exist but shouldn't be indexed. This plus
+// algoliaExport together should result in a fully up to date Algolia index,
+// regardless of the starting state.
+async function algoliaCleanIndex(collection)
+{
+  let client = getAlgoliaAdminClient();
+  if (!client) return;
+  
+  // eslint-disable-next-line no-console
+  console.log(`Deleting spurious documents from Algolia index for ${collection.collectionName}`);
+  let algoliaIndex = client.initIndex(collection.algoliaIndexName);
+  
+  let currentPage = 0;
+  let pageResults;
+  do {
+    pageResults = await algoliaDoSearch(algoliaIndex, {
+      query: "",
+      attributesToRetrieve: ['objectID'],
+      hitsPerPage: 1000,
+      page: currentPage,
+    });
+    currentPage++;
+    
+    const ids = _.map(pageResults.hits, hit=>hit._id);
+    const idsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids);
+    if (idsToDelete.length > 0) {
+      await algoliaDeleteIds(algoliaIndex, idsToDelete);
+    }
+    
+  } while(pageResults.hits.length > 0)
+}
+
+Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
+Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanAll', async () => {
+  for (let collection of indexedCollections)
+    await algoliaCleanIndex(collection);
+});
