@@ -7,6 +7,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, algoliaDoSearch, subsetOfIdsAlgoliaShouldntIndex } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
 
+const indexedCollections = { Posts, Users, Sequences, Comments };
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
@@ -60,16 +61,14 @@ async function algoliaExportByCollectionName(collectionName) {
   }
 }
 
-Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', async (collectionName) => {
-  await algoliaExportByCollectionName(collectionName)
-})
-
-const indexedCollections = { Posts, Users, Sequences, Comments };
-
-Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', async () => {
+export async function algoliaExportAll() {
   for (let collection of indexedCollections)
     await algoliaExportByCollectionName(collection.collectionName);
-})
+}
+
+
+Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
+Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
 
 
 // Go through the Algolia index for a collection, removing any documents which
@@ -105,8 +104,10 @@ async function algoliaCleanIndex(collection)
   } while(pageResults.hits.length > 0)
 }
 
-Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
-Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanAll', async () => {
+export async function algoliaCleanAll() {
   for (let collection of indexedCollections)
     await algoliaCleanIndex(collection);
-});
+}
+
+Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
+Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);

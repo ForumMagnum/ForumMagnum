@@ -71,6 +71,7 @@ import './lib/modules/connection_logs.js';
 // Algolia Search Integration
 import './server/search/utils.js';
 import './server/search/callbacks.js';
+import './server/search/algoliaCron.js';
 
 //eslint-disable-next-line no-console
 console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
