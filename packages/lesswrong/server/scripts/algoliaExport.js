@@ -24,14 +24,14 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   const totalItems = collection.find(selector).count();
   let exportedSoFar = 0;
   
-  await forEachDocumentBatchInCollection(collection, 100, async (documents) => {
+  await forEachDocumentBatchInCollection({collection, batchSize: 100, fn: async (documents) => {
     algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
       errors: totalErrors, updateFunction });
     
     exportedSoFar += documents.length;
     // eslint-disable-next-line no-console
     console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
-  });
+  }});
   
   if (totalErrors.length) {
     // eslint-disable-next-line no-console

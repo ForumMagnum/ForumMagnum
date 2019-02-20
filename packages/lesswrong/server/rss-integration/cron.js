@@ -1,5 +1,4 @@
 import { addCronJob } from '../cronUtil';
-import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
 import { newMutation, editMutation } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';

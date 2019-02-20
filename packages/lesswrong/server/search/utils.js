@@ -185,7 +185,7 @@ async function algoliaAddObjects(algoliaIndex, objects) {
 // callback-accepting function. Returns a content object with a taskID
 // and a list objectIDs.
 // https://www.algolia.com/doc/api-reference/api-methods/delete-objects/
-async function algoliaDeleteIds(algoliaIndex, ids)
+export async function algoliaDeleteIds(algoliaIndex, ids)
 {
   return new Promise((resolve,reject) => {
     algoliaIndex.deleteObjects(ids, (err, content) => {
@@ -308,7 +308,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
   
   if (itemsToDelete.length > 0) {
-    const err = await deleteIfPresent(algoliaIndex, itemsToDelete, true);
+    const err = await deleteIfPresent(algoliaIndex, itemsToDelete);
     if (err) errors.push(err)
   }
 }
