@@ -9,7 +9,6 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   formSubmit: {
     display: "flex",
-    justifyContent: "flex-end",
     flexWrap: "wrap",
   }
 })
@@ -22,7 +21,7 @@ class PostsEditForm extends PureComponent {
     const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
     const EditPostsSubmit = (props) => {
       return <div className={classes.formSubmit}>
-        {eventForm && <SubmitToFrontpageCheckbox {...props} />}
+        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
         <PostSubmit {...props} />
       </div>
     }

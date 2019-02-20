@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   submitToFrontpageWrapper: {
-    flexGrow: 3,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       order:1

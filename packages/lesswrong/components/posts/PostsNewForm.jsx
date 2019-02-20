@@ -10,7 +10,6 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   formSubmit: {
     display: "flex",
-    justifyContent: "flex-end",
     flexWrap: "wrap",
   }
 })
@@ -36,7 +35,7 @@ const PostsNewForm = ({router, currentUser, flash, classes}) => {
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
-      {eventForm && <SubmitToFrontpageCheckbox {...props} />}
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }

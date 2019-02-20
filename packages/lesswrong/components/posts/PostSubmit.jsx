@@ -20,7 +20,6 @@ const styles = theme => ({
     fontSize: 16,
     marginLeft: 5,
     fontWeight: 500,
-    flexGrow:1,
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     }
@@ -32,7 +31,6 @@ const styles = theme => ({
 
   submitButton: {
     color: theme.palette.secondary.main,
-    maxWidth:100,
   },
   cancelButton: {
     flexGrow:1,
@@ -41,7 +39,7 @@ const styles = theme => ({
     }
   },
   draft: {
-    maxWidth:150,
+    marginLeft: 'auto'
   }
 });
 
