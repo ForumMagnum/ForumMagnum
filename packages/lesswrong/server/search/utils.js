@@ -7,6 +7,7 @@ import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import { dataToMarkdown } from '../editor/make_editable_callbacks'
+import '../../lib/algoliaIndexNames.js';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
@@ -154,11 +155,6 @@ Posts.toAlgolia = (post) => {
   }
   return postBatch;
 }
-
-Comments.algoliaIndexName = 'test_comments';
-Posts.algoliaIndexName = 'test_posts';
-Users.algoliaIndexName = 'test_users';
-Sequences.algoliaIndexName = 'test_sequences';
 
 // Do algoliaIndex.waitTask as an async function rather than a
 // callback-accepting function.

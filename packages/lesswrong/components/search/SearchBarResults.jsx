@@ -5,6 +5,10 @@ import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
+import '../../lib/algoliaIndexNames.js';
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
+import Users from 'meteor/vulcan:users';
 
 const styles = theme => ({
   root: {
@@ -67,7 +71,7 @@ class SearchBarResults extends Component {
         <CurrentRefinements />
         <Components.ErrorBoundary>
           <Grid item xs={12} sm={6} md={5} className={classes.searchList}>
-            <Index indexName="test_posts">
+            <Index indexName={Posts.algoliaIndexName}>
               <div className={classes.header}>
                 <Typography variant="display1">Posts</Typography>
                 <Components.SearchPagination />
@@ -80,7 +84,7 @@ class SearchBarResults extends Component {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Grid item xs={12} sm={6} md={4} className={classes.searchList}>
-            <Index indexName="test_comments">
+            <Index indexName={Comments.algoliaIndexName}>
               <div className={classes.header}>
                 <Typography variant="display1">Comments</Typography>
                 <Components.SearchPagination />
@@ -92,7 +96,7 @@ class SearchBarResults extends Component {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Grid item xs={12} sm={4} md={3} className={classes.searchList}>
-            <Index indexName= "test_users">
+            <Index indexName={Users.algoliaIndexName}>
               <div className={classes.header}>
                 <Typography variant="display1">Users</Typography>
                 <Components.SearchPagination />
