@@ -160,54 +160,93 @@ Posts.algoliaIndexName = 'test_posts';
 Users.algoliaIndexName = 'test_users';
 Sequences.algoliaIndexName = 'test_sequences';
 
-// Slightly gross function to turn these callback-accepting functions
-// into async ones
-export async function batchAdd(algoliaIndex, objects) {
-  const addObjectsPartialAsync = () => {
-    return new Promise((resolve, reject) => {
-      algoliaIndex.addObjects(objects, (err, content) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve(content)
-      })
-    })
-  }
-  try {
-    const content = await addObjectsPartialAsync()
-    algoliaIndex.waitTask(content.taskID, (err) => {
-      // We really hope it's rare for it to error only after finishing
-      // indexing. If we have to wait for this error every time, it'll take
-      // possibly >24hr to export comments.
-      if (err) {
-        // eslint-disable-next-line no-console
-        console.error(
-          'Apparently algolia sometimes errors even after the first ack\n' +
-          'Please make a note of this error and then be frustrated about' +
-          'how to change the code to do a better job of catching it.'
-        )
-        // eslint-disable-next-line no-console
-        console.error(err)
-      }
-    })
-  } catch (err) {
-    return err
-  }
-}
-
-async function batchDelete(algoliaIndex, ids) {
-  return new Promise((resolve, reject) => {
-    algoliaIndex.deleteObjects(ids, (err, taskID) => {
-      if (err)
-        reject(err);
-      algoliaIndex.waitTask(taskID, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
+// Do algoliaIndex.waitTask as an async function rather than a
+// callback-accepting function.
+async function algoliaWaitForTask(algoliaIndex, taskID) {
+  return new Promise((resolve,reject) => {
+    algoliaIndex.waitTask(taskID, (err) => {
+      if (err) reject(err);
+      else resolve();
     });
   });
 }
+
+// Do algoliaIndex.addObjects as an async function rather than a
+// callback-accepting function. Returns a content object with a taskID
+// and a list objectIDs.
+//
+// https://www.algolia.com/doc/api-reference/api-methods/add-objects/
+async function algoliaAddObjects(algoliaIndex, objects) {
+  return new Promise((resolve,reject) => {
+    algoliaIndex.addObjects(objects, (err, content) => {
+      if (err) reject(err);
+      else resolve(content);
+    });
+  });
+}
+
+// Do algoliaIndex.deleteObjects as an async function rather than a
+// callback-accepting function. Returns a content object with a taskID
+// and a list objectIDs.
+// https://www.algolia.com/doc/api-reference/api-methods/delete-objects/
+async function algoliaDeleteIds(algoliaIndex, ids)
+{
+  return new Promise((resolve,reject) => {
+    algoliaIndex.deleteObjects(ids, (err, content) => {
+      if (err) reject(err);
+      else resolve(content);
+    });
+  });
+}
+
+// Do algoliaIndex.getObjects as an async function rather than a
+// callback-accepting function. Returns a content object with a results field.
+// https://www.algolia.com/doc/api-reference/api-methods/get-objects/
+async function algoliaGetObjects(algoliaIndex, ids)
+{
+  return new Promise((resolve,reject) => {
+    algoliaIndex.getObjects(ids, (err,content) => {
+      if (err) reject(err);
+      else resolve(content);
+    });
+  });
+}
+
+
+// Given a list of objects that should be in the Algolia index, check whether
+// they are, and whether all fields on them match. If there are any differences,
+// correct them.
+//
+// (We do this rather than add blindly, because addObjects called are expensive
+// -- both in the traditional performance sense, and also in the sense that
+// Algolia's usage-based billing is built around it.)
+async function addOrUpdateIfNeeded(algoliaIndex, objects) {
+  let ids = _.map(objects, o=>o._id);
+  let algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
+  let algoliaObjectsById = _.keyBy(algoliaObjects, o=>o._id);
+  
+  let objectsToSync = _.filter(objects,
+    obj => !_.isEqual(obj, algoliaObjectsById[obj._id]));
+  
+  if (objectsToSync.length > 0) {
+    let response = await algoliaAddObjects(algoliaIndex, objectsToSync);
+    await algoliaWaitForTask(algoliaIndex, response.taskID);
+  }
+}
+
+// Given a list of IDs that should *not* be in the Algolia index, check whether
+// any are, and (if any are), delete them.
+async function deleteIfPresent(algoliaIndex, ids) {
+  let algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
+  let algoliaObjectsById = _.keyBy(algoliaObjects, o=>o._id);
+  let idsToDelete = _.filter(ids, id => id in algoliaObjectsById);
+  
+  if (idsToDelete.length > 0) {
+    let response = await algoliaDeleteIds(algoliaIndex, idsToDelete);
+    await algoliaWaitForTask(algoliaIndex, response.taskID);
+  }
+}
+
 
 export function getAlgoliaAdminClient()
 {
@@ -259,12 +298,12 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
   
   if (importBatch.length > 0) {
-    const err = await batchAdd(algoliaIndex, _.map(importBatch, _.clone));
+    const err = await addOrUpdateIfNeeded(algoliaIndex, _.map(importBatch, _.clone));
     if (err) errors.push(err)
   }
   
   if (itemsToDelete.length > 0) {
-    const err = await batchDelete(algoliaIndex, itemsToDelete, true);
+    const err = await deleteIfPresent(algoliaIndex, itemsToDelete, true);
     if (err) errors.push(err)
   }
 }
