@@ -144,11 +144,11 @@ class NotificationsMenu extends Component {
                     {notificationCategoryTabs.map(notificationCategory =>
                       <Tab
                         icon={
-                          <span title={notificationCategory.title}>
+                          <span title={notificationCategory.name}>
                             {notificationCategory.icon()}
                           </span>
                         }
-                        key={notificationCategory.title}
+                        key={notificationCategory.name}
                         className={classes.tabLabel}
                       />
                     )}

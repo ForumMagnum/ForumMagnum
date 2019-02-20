@@ -222,6 +222,18 @@ ensureIndex(Comments, {legacyId: "hashed"});
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
 
+Comments.addView("sunshineNewUsersComments", function (terms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      // Don't hide deleted
+      $or: null,
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+  };
+});
+ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
+
 Comments.addView('repliesToAnswer', function (terms) {
   return {
     selector: {parentAnswerId: terms.parentAnswerId},

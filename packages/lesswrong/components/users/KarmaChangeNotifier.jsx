@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -128,7 +128,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
-                  {commentChange.comment.plaintextExcerpt}
+                  {commentChange.comment.contents && commentChange.comment.contents.plaintextDescription}
                 </div>
               </MenuItem>
             ))}
@@ -137,9 +137,6 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
         }
       <Link to={`/account`} onClick={handleClose}> 
         <span className={classes.settings}>Change Settings </span>  
-        {/* <div className={classes.bottomSection}>
-          
-        </div> */}
       </Link>  
     </Typography>
   );

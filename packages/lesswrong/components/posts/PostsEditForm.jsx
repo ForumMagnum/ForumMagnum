@@ -10,13 +10,15 @@ class PostsEditForm extends PureComponent {
   render() {
     const { documentId, document, eventForm } = this.props;
     const isDraft = document && document.draft;
+    const { WrappedSmartForm, PostSubmit } = Components
 
     return (
       <div className="posts-edit-form">
-        <Components.SmartForm
+        <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
-          mutationFragment={getFragment('LWPostsPage')}
+          queryFragment={getFragment('PostsEdit')}
+          mutationFragment={getFragment('PostsRevision')}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
             this.props.router.push({pathname: Posts.getPageUrl(post)});
@@ -35,6 +37,10 @@ class PostsEditForm extends PureComponent {
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
+          SubmitComponent={PostSubmit}
+          extraVariables={{
+            version: 'String'
+          }}
           repeatErrors
         />
       </div>
@@ -55,7 +61,7 @@ PostsEditForm.contextTypes = {
 const documentQuery = {
   collection: Posts,
   queryName: 'PostsEditFormQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'PostsPage',
   ssr: true
 };
 

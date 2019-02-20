@@ -37,7 +37,7 @@ export const formGroups = {
     defaultStyle: true,
     flexStyle: true
   },
-  content: {
+  content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
     defaultStyle: true,
@@ -59,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser && (currentUser.moderationGuidelinesHtmlBody || currentUser.moderationStyle))
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
 Posts.addField([
@@ -230,6 +230,7 @@ Posts.addField([
     fieldName: 'lastCommentedAt',
     fieldSchema: {
       type: Date,
+      denormalized: true,
       optional: true,
       hidden: true,
       viewableBy: ['guests'],
@@ -307,7 +308,8 @@ Posts.addField([
     fieldName: 'suggestForCuratedUserIds.$',
     fieldSchema: {
       type: String,
-      optional: true
+      foreignKey: 'Users',
+      optional: true,
     }
   },
 
@@ -357,6 +359,7 @@ Posts.addField([
     fieldName: 'userId',
     fieldSchema: {
       type: String,
+      foreignKey: 'Users',
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins'],
@@ -400,6 +403,7 @@ Posts.addField([
     fieldName: 'coauthorUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: 'Users',
       optional: true
     }
   },
@@ -408,6 +412,7 @@ Posts.addField([
     fieldName: 'canonicalSequenceId',
     fieldSchema: {
       type: String,
+      foreignKey: 'Sequences',
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins', 'sunshineRegiment'],
@@ -422,7 +427,7 @@ Posts.addField([
         ),
       },
       hidden: false,
-      control: "text"
+      control: "text",
     }
   },
 
@@ -430,6 +435,10 @@ Posts.addField([
     fieldName: 'canonicalCollectionSlug',
     fieldSchema: {
       type: String,
+      foreignKey: {
+        collection: 'Collections',
+        field: 'slug'
+      },
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins', 'sunshineRegiment'],
@@ -447,7 +456,7 @@ Posts.addField([
           if (!post.canonicalCollectionSlug) return null;
           return context.Collections.findOne({slug: post.canonicalCollectionSlug})
         }
-      }
+      },
     }
   },
 
@@ -455,6 +464,7 @@ Posts.addField([
     fieldName: 'canonicalBookId',
     fieldSchema: {
       type: String,
+      foreignKey: 'Books',
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins', 'sunshineRegiment'],
@@ -477,6 +487,10 @@ Posts.addField([
     fieldName: 'canonicalNextPostSlug',
     fieldSchema: {
       type: String,
+      foreignKey: {
+        collection: "Posts",
+        field: 'slug',
+      },
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins', 'sunshineRegiment'],
@@ -491,6 +505,10 @@ Posts.addField([
     fieldName: 'canonicalPrevPostSlug',
     fieldSchema: {
       type: String,
+      foreignKey: {
+        collection: "Posts",
+        field: 'slug',
+      },
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins', 'sunshineRegiment'],
@@ -653,6 +671,7 @@ Posts.addField([
     fieldName: 'bannedUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -699,6 +718,7 @@ Posts.addField([
     fieldName: 'organizerIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
     }
   },
@@ -707,6 +727,7 @@ Posts.addField([
     fieldName: 'groupId',
     fieldSchema: {
       type: String,
+      foreignKey: "Localgroups",
       viewableBy: ['guests'],
       editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
@@ -742,6 +763,7 @@ Posts.addField([
     fieldName: 'reviewedByUserId',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
@@ -762,6 +784,7 @@ Posts.addField([
     fieldName: 'reviewForCuratedUserId',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
@@ -980,6 +1003,7 @@ Posts.addField([
     fieldName: 'shareWithUsers.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -1024,16 +1048,23 @@ Posts.addField([
         fieldName: "tableOfContents",
         type: GraphQLJSON,
         resolver: async (document, args, options) => {
+          const { html } = document.contents || {}
           let tocData
           if (document.question) {
 
-            const answers = await Comments.find(
-              {answer:true, postId: document._id, deleted:false},
-              {sort:questionAnswersSort}
-            ).fetch()
+            let answersTerms = {
+              answer:true, 
+              postId: document._id, 
+              deleted:false, 
+            }
+            if (getSetting('AlignmentForum', false)) {
+              answersTerms.af = true
+            }
+
+            const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
 
             if (answers && answers.length) {
-              tocData = Utils.extractTableOfContents(document.htmlBody, true) || {
+              tocData = Utils.extractTableOfContents(html, true) || {
                 html: null,
                 headingsCount: 0,
                 sections: []
@@ -1055,7 +1086,7 @@ Posts.addField([
               }
             }
           } else {
-            tocData = Utils.extractTableOfContents(document.htmlBody)
+            tocData = Utils.extractTableOfContents(html)
           }
           if (tocData) {
             const selector = {
@@ -1098,9 +1129,9 @@ Posts.addField([
             const event = await LWEvents.findOne(query, sort);
             const author = await Users.findOne({_id: post.userId});
             if (event) {
-              return event && event.properties && event.properties.targetState
+              return event.properties && event.properties.targetState
             } else {
-              return author.collapseModerationGuidelines ? false : (post.moderationGuidelinesHtmlBody || post.moderationStyle)
+              return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
             }
           } else {
             return false
@@ -1186,6 +1217,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
+      denormalized: true,
       defaultValue: 0,
       viewableBy: ['guests'],
     }

@@ -6,6 +6,7 @@ Comments schema
 
 import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
+import { Posts } from '../posts/collection'
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -28,7 +29,7 @@ const schema = {
   */
   parentCommentId: {
     type: String,
-    // regEx: SimpleSchema.RegEx.Id,
+    foreignKey: "Comments",
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -48,7 +49,8 @@ const schema = {
   */
   topLevelCommentId: {
     type: String,
-    // regEx: SimpleSchema.RegEx.Id,
+    foreignKey: "Comments",
+    denormalized: true,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -86,35 +88,6 @@ const schema = {
     }
   },
   /**
-    The comment body (Markdown)
-  */
-  body: {
-    type: String,
-    max: 3000,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: "textarea"
-  },
-  /**
-    The HTML version of the comment body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    // onInsert: (comment) => {
-    //   if (comment.body) {
-    //     return Utils.sanitize(marked(comment.body));
-    //   }
-    // },
-    // onEdit: (modifier, comment) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
     The comment author's name
   */
   author: {
@@ -139,6 +112,7 @@ const schema = {
   */
   postId: {
     type: String,
+    foreignKey: "Posts",
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -159,6 +133,7 @@ const schema = {
   */
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -237,6 +212,8 @@ const schema = {
 
   parentAnswerId: {
     type: String,
+    denormalized: true,
+    foreignKey: "Comments",
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,
@@ -259,6 +236,44 @@ const schema = {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
+  },
+
+  // The semver-style version of the post that this comment was made against
+  // This gets automatically created in a callback on creation
+  postVersion: {
+    type: String, 
+    optional: true,
+    canRead: ['guests'],
+    onCreate: async ({newDocument}) => {
+      const post = await Posts.findOne({_id: newDocument.postId})
+      return (post && post.contents && post.contents.version) || "1.0.0"
+    }
+  },
+  
+  // DEPRECATED fields for GreaterWrong backwards compatibility
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'Int',
+      resolver: (comment, args, { Comments }) => {
+        const contents = comment.contents;
+        return contents.wordCount;
+      }
+    }
+  },
+  htmlBody: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, { Comments }) => {
+        const contents = comment.contents;
+        return contents.html;
+      }
+    }
   },
 };
 

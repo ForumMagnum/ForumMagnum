@@ -60,6 +60,5 @@ Comments.defaultToAlignment = (currentUser, post, comment) => {
 }
 
 Comments.getDefaultView = (post, currentUser) => {
-
   return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
 }

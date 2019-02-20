@@ -102,10 +102,11 @@ class AnswerCommentsList extends PureComponent {
                   postId={post._id}
                   parentComment={parentAnswer}
                   prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post),
+                    af: Comments.defaultToAlignment(currentUser, post, parentAnswer),
                     parentAnswerId: parentAnswer._id,
                     parentCommentId: parentAnswer._id,
                   }}
+                  alignmentForumPost={post.af}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
@@ -145,7 +146,7 @@ class AnswerCommentsList extends PureComponent {
 AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  parentAnswerId: PropTypes.string,
+  parentAnswer: PropTypes.object,
   loading: PropTypes.bool,
   results: PropTypes.array,
 };

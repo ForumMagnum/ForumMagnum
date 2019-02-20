@@ -89,23 +89,6 @@ VoteableCollections.forEach(collection => {
         type: Number,
         optional: true,
         viewableBy: ['guests'],
-        resolveAs: {
-          type: 'Int',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await getWithLoader(Votes, "votesByDocument",
-              // Base query
-              {
-                cancelled: false,
-              },
-              // Selector
-              "documentId", document._id,
-              // Projection
-              {documentId:1}
-            );
-            
-            return votes.length;
-          }
-        }
       }
     }
   ]);

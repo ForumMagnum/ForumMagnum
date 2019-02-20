@@ -1,5 +1,11 @@
 /*global Vulcan*/
 
+// When running migrations with split batches, the fraction of time spent
+// running those batches (as opposed to sleeping). Used to limit database
+// load, since maxing out database capacity with a migration script could bring
+// the site down otherwise. See `runThenSleep`.
+const DEFAULT_LOAD_FACTOR = 0.5;
+
 export function registerMigration({ name, idempotent, action })
 {
   // The 'idempotent' parameter is mostly about forcing you to explicitly think
@@ -36,10 +42,40 @@ export function registerMigration({ name, idempotent, action })
   };
 }
 
+function sleep(ms)
+{
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Run a function, timing how long it took, then sleep for an amount of time
+// such that if you apply this to each of a series of batches, the fraction of
+// time spent not sleeping is equal to `loadFactor`. Used when doing a batch
+// migration or similarly slow operation, which can be broken into smaller
+// steps, to keep the database load low enough for the site to keep running.
+export async function runThenSleep(loadFactor, func)
+{
+  if (loadFactor <=0 || loadFactor > 1)
+    throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
+  
+  const startTime = new Date();
+  try {
+    await func();
+  } finally {
+    const endTime = new Date();
+    const timeSpentMs = endTime-startTime;
+    
+    // loadFactor = timeSpentMs / (timeSpentMs + sleepTimeMs)
+    //   [Algebra happens]
+    // sleepTimeMs = timeSpentMs * (1/loadFactor - 1)
+    const sleepTimeMs = timeSpentMs * ((1/loadFactor) - 1);
+    await sleep(sleepTimeMs);
+  }
+}
+
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues({ collection, fieldName })
+export async function fillDefaultValues({ collection, fieldName, batchOptions, loadFactor=DEFAULT_LOAD_FACTOR })
 {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
@@ -51,7 +87,51 @@ export async function fillDefaultValues({ collection, fieldName })
 
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
+  if (batchOptions) {
+    // Apply default values to batchOptions
+    batchOptions = { bucketSize: 10000, fieldName: '_id', ...batchOptions }
 
+    // Get total collection size
+    const { count: collectionSize } = await collection.rawCollection().stats()
+
+    // Calculate target number of buckets
+    const bucketCount = Math.floor(collectionSize / batchOptions.bucketSize)
+
+    // Calculate target sample size
+    const sampleSize = 20 * bucketCount
+
+    // Calculate percentiles using Mongo aggregate
+    const percentiles = await collection.rawCollection().aggregate([
+      { $sample: { size: sampleSize } },
+      { $sort: {[batchOptions.fieldName]: 1} },
+      { $bucketAuto: { groupBy: ('$' + batchOptions.fieldName), buckets: bucketCount}},
+      { $project: {value: '$_id.max', _id: 0}}
+    ]).toArray()
+
+    // Starting at the lowest percentile, modify everything
+    for (const percentile of percentiles) {
+      await runThenSleep(loadFactor, async () => {
+        const query = {
+          [fieldName]: null,
+          [batchOptions.fieldName]: {$lt: percentile.value},
+        }
+        const mutation = { $set: {
+          [fieldName]: defaultValue
+          }
+        }
+        const options = { multi: true }
+        const writeResult = await collection.update(query, mutation, options)
+        // eslint-disable-next-line no-console
+        console.log(`Bucket with max ${JSON.stringify(percentile.value)} done. Writeresult: ${JSON.stringify(writeResult)}`);
+      });
+    }
+    // Then clean up the stragglers that weren't in any of the buckets (because of measurement error)
+    const writeResult = await collection.update({[fieldName]: null}, {$set: {[fieldName]: defaultValue}}, { multi: true })
+    // eslint-disable-next-line no-console
+    console.log(`Cleaned up stragglers. Writeresult: ${JSON.stringify(writeResult)}`)
+    return
+  }
+  
   const writeResult = await collection.update({
     [fieldName]: null
   }, {
@@ -83,7 +163,7 @@ export async function fillDefaultValues({ collection, fieldName })
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate })
+export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR })
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
@@ -100,40 +180,46 @@ export async function migrateDocuments({ description, collection, batchSize, unm
   
   let previousDocumentIds = {};
   let documentsAffected = 0;
+  let done = false;
   
   // eslint-disable-next-line no-constant-condition
-  while(true) {
-    let documents = collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
-    
-    if (!documents.length)
-      break;
-    
-    // Check if any of the documents returned were supposed to have been
-    // migrated by the previous batch's update operation.
-    let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
-    if (docsNotMigrated.length > 0) {
-      let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
+  while(!done) {
+    await runThenSleep(loadFactor, async () => {
+      let documents = collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
       
-      // eslint-disable-next-line no-console
-      console.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-    
-    previousDocumentIds = {};
-    _.each(documents, doc => previousDocumentIds[doc._id] = true);
-    
-    // Migrate documents in the batch
-    try {
-      await migrate(documents);
+      if (!documents.length) {
+        done = true;
+        return;
+      }
       
-      documentsAffected += documents.length;
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error("Error running migration");
-      // eslint-disable-next-line no-console
-      console.error(e);
-      throw(e);
-    }
+      // Check if any of the documents returned were supposed to have been
+      // migrated by the previous batch's update operation.
+      let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
+      if (docsNotMigrated.length > 0) {
+        let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
+        
+        // eslint-disable-next-line no-console
+        console.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+      
+      previousDocumentIds = {};
+      _.each(documents, doc => previousDocumentIds[doc._id] = true);
+      
+      // Migrate documents in the batch
+      try {
+        await migrate(documents);
+        documentsAffected += documents.length;
+        // eslint-disable-next-line no-console
+        console.log("Documents updated: ", documentsAffected)
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error("Error running migration");
+        // eslint-disable-next-line no-console
+        console.error(JSON.stringify(e));
+        throw(e);
+      }
+    });
   }
   
   // eslint-disable-next-line no-console
