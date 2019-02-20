@@ -15,8 +15,8 @@ PostsSingleSlug.displayName = "PostsSingleSlug";
 
 const options = {
   collection: Posts,
-  queryName: 'LWPostsPageSlugQuery',
-  fragmentName: 'LWPostsPage',
+  queryName: 'PostsPageSlugQuery',
+  fragmentName: 'PostsPage',
   limit: 1,
   enableTotal: false,
   ssr: true,

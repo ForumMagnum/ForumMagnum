@@ -16,7 +16,6 @@ Package.onUse( function(api) {
     'vulcan:core',
 
     // vulcan packages
-    'vulcan:voting',
     'vulcan:accounts',
     'vulcan:email',
     'vulcan:forms',
@@ -24,11 +23,11 @@ Package.onUse( function(api) {
     'vulcan:embed',
     'vulcan:admin',
     'vulcan:users',
-    'vulcan:voting',
+    'vulcan:routing',
   ]);
 
-  api.mainModule('server.js', 'server');
   api.mainModule('client.js', 'client');
+  api.mainModule('server.js', 'server');
 
   api.addFiles([
     'styles/main.scss',
@@ -47,7 +46,6 @@ Package.onTest(function(api) {
     'fourseven:scss',
     'vulcan:core',
     'vulcan:users',
-    'vulcan:voting',
     'practicalmeteor:sinon',
     'coffeescript',
     'meteortesting:mocha',

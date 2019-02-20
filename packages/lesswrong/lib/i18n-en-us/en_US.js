@@ -12,7 +12,6 @@ addStrings('en', {
   'posts.delete_success': 'Post “{title}” deleted.',
   'posts.title': 'Title',
   'posts.url': 'URL',
-  'posts.body': 'Body',
   'posts.categories': 'Categories',
   'posts.thumbnailUrl': 'Thumbnail URL',
   'posts.status': 'Status',
@@ -62,7 +61,6 @@ addStrings('en', {
   'comments.please_log_in': 'Please log in to comment.',
   'comments.parentCommentId': 'Parent Comment ID',
   'comments.topLevelCommentId': 'Top Level Comment ID',
-  'comments.body': 'Body',
   'comments.rate_limit_error': 'Please wait {value} seconds before commenting again.',
 
   'categories': 'Categories',
@@ -132,4 +130,9 @@ addStrings('en', {
   "alignment.move_comment": "Comment and its parents moved to AI Alignment Forum",
   "alignment.suggest_comment": "Comment has been suggested for the AI Alignment Forum",
   "alignment.unsuggest_comment": "You are no longer suggesting this comment for AI Alignment Forum",
+})
+
+addStrings('en', {
+  "questions.comments.moved_to_answers": "Comment moved to the Answers section.",
+  "questions.comments.moved_to_comments": "Answer moved to the Comments section.",
 })

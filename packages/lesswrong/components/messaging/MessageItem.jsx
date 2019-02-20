@@ -41,11 +41,10 @@ class MessageItem extends Component {
 
   render() {
     const { currentUser, message, classes } = this.props;
-
     const isCurrentUser = (currentUser && message && message.user) && currentUser._id == message.user._id
-
-    if (message.htmlBody) {
-      const htmlBody = {__html: message.htmlBody};
+    const { html = "" } = message.contents || {}
+    if (html) {
+      const htmlBody = {__html: html};
       return (
         <Components.ErrorBoundary>
           <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
@@ -54,7 +53,7 @@ class MessageItem extends Component {
                 <Components.UsersName user={message.user}/>
               </Components.MetaInfo>}
               {message.createdAt && <Components.MetaInfo>
-                <Components.FromNowDate date={message.createdAt}/>
+                <Components.FormatDate date={message.createdAt}/>
               </Components.MetaInfo>}
             </div>
             <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>

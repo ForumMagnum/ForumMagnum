@@ -14,16 +14,17 @@ const styles = theme => ({
 
 class SunshineNewPostsList extends Component {
   render () {
-    const { results, classes } = this.props
+    const { results, classes, totalCount } = this.props
+    const { SunshineListCount, SunshineListTitle, SunshineNewPostsItem } = Components
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>
-            Unreviewed Posts
-          </Components.SunshineListTitle>
+          <SunshineListTitle>
+            Unreviewed Posts <SunshineListCount count={totalCount}/>
+          </SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
-              <Components.SunshineNewPostsItem post={post}/>
+              <SunshineNewPostsItem post={post}/>
             </div>
           )}
         </div>
@@ -43,6 +44,8 @@ const withListOptions = {
   collection: Posts,
   queryName: 'sunshineNewPostsListQuery',
   fragmentName: 'PostsList',
+  enableCache: true,
+  enableTotal: true,
 };
 
 registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withUser, withStyles(styles, {name:"SunshineNewPostsList"}));

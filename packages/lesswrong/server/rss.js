@@ -4,6 +4,7 @@ import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
+import { markdownToHtml } from './editor/make_editable_callbacks'
 import moment from 'moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
@@ -64,10 +65,7 @@ export const servePostRSS = (terms, url) => {
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem = {
       title: post.title,
-      // LESSWRONG - this was added to handle karmaThresholds
-      // description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
-
-      description: `Published on ${formattedTime}<br/><br/>${post.htmlBody || ""}<br/><br/>${postLink}`,
+      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
@@ -103,7 +101,7 @@ export const serveCommentRSS = (terms, url) => {
 
     feed.item({
      title: 'Comment on ' + post.title,
-     description: `${comment.body}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${markdownToHtml(comment.contents && comment.contents.html)}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
      url: Comments.getPageUrl(comment, true),

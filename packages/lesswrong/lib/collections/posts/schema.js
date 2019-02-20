@@ -8,19 +8,23 @@ import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
-//import marked from 'marked';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
+
 
 /**
  * @summary Posts config namespace
  * @type {Object}
  */
 const formGroups = {
-  admin: {
-    name: 'admin',
-    order: 2
-  }
+  // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: "Admin Options",
+    startCollapsed: true,
+  },
 };
 
 /**
@@ -57,7 +61,7 @@ const schema = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'datetime',
-    group: formGroups.admin,
+    group: formGroups.adminOptions,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && getCollection('Posts').getDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
@@ -122,38 +126,6 @@ const schema = {
     }
   },
   /**
-    Post body (markdown)
-  */
-  body: {
-    type: String,
-    optional: true,
-    max: 3000,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: 'textarea',
-    order: 30
-  },
-  /**
-    HTML version of the post body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     return Utils.sanitize(marked(post.body));
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
    Post Excerpt
    */
   excerpt: {
@@ -161,20 +133,6 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     searchable: true,
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     // excerpt length is configurable via the settings (30 words by default, ~255 characters)
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(post.body)), excerptLength);
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(modifier.$set.body)), excerptLength);
-    //   }
-    // }
   },
   /**
     Count of how many times the post's page was viewed
@@ -190,6 +148,7 @@ const schema = {
   */
   lastCommentedAt: {
     type: Date,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
   },
@@ -202,8 +161,18 @@ const schema = {
     viewableBy: ['admins'],
     defaultValue: 0
   },
+
+  deletedDraft: {
+    type: Boolean,
+    optional: true,
+    ...schemaDefaultValue(false),
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    hidden: true,
+  },
+
   /**
-    The post's status. One of pending (`1`), approved (`2`), or deleted (`3`)
+    The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   */
   status: {
     type: Number,
@@ -224,7 +193,7 @@ const schema = {
       }
     },
     options: () => getCollection('Posts').statuses,
-    group: formGroups.admin
+    group: formGroups.adminOptions
   },
   /**
     Whether a post is scheduled in the future or not
@@ -239,6 +208,8 @@ const schema = {
         const postTime = new Date(post.postedAt).getTime();
         const currentTime = new Date().getTime() + 1000;
         return postTime > currentTime; // round up to the second
+      } else {
+        return false;
       }
     },
     onEdit: (modifier, post) => {
@@ -262,12 +233,12 @@ const schema = {
   sticky: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'checkbox',
-    group: formGroups.admin,
+    group: formGroups.adminOptions,
     onInsert: (post) => {
       if(!post.sticky) {
         return false;
@@ -302,6 +273,7 @@ const schema = {
   */
   author: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     onEdit: (modifier, document, currentUser) => {
@@ -316,6 +288,7 @@ const schema = {
   */
   userId: {
     type: String,
+    foreignKey: 'Users',
     optional: true,
     control: 'select',
     viewableBy: ['guests'],
@@ -365,6 +338,18 @@ const schema = {
       },
     }
   },
+  
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        return Posts.getPageUrl(post, false);
+      },
+    }
+  },
 
   linkUrl: {
     type: String,
@@ -380,6 +365,7 @@ const schema = {
 
   postedAtFormatted: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
@@ -400,20 +386,6 @@ const schema = {
         const commentsCount = Comments.find({ postId: post._id }).count();
         return commentsCount;
       },
-    }
-  },
-
-  commentIds: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'comments',
-      arguments: 'limit: Int = 5',
-      type: '[Comment]',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'commentIds'}
-      ),
     }
   },
 
@@ -456,12 +428,57 @@ const schema = {
   question: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
   },
 
+  authorIsUnreviewed: {
+    type: Boolean,
+    optional: true,
+    denormalized: true,
+    ...schemaDefaultValue(false),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+  },
+  
+  // DEPRECATED fields for GreaterWrong backwards compatibility
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'Int',
+      resolver: (post, args, { Posts }) => {
+        const contents = post.contents;
+        return contents.wordCount;
+      }
+    }
+  },
+  htmlBody: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        const contents = post.contents;
+        return contents.html;
+      }
+    }
+  },
+  submitToFrontpage: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(true)
+  }
 };
 
 export default schema;

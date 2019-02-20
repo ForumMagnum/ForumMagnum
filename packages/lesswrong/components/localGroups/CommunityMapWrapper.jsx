@@ -3,25 +3,26 @@ import { Components, registerComponent, getSetting, withList} from 'meteor/vulca
 import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router';
 
-const CommunityMapWrapper = (props) => {
+const CommunityMapWrapper = ({router, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
-    return (
-      <Components.CommunityMap
-        terms={props.groupQueryTerms || {view: "all", filters: props.router.location.query && props.router.location.query.filters || []}}
-        loadingElement= {<div style={{ height: `100%` }} />}
-        events={props.results}
-        containerElement= {<div style={{height: "500px"}} className="community-map"/>}
-        mapElement= {<div style={{ height: `100%` }} />}
-        googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&v=3.exp&libraries=geometry,drawing,places`}
-        center={props.currentUserLocation}
-        {...props.mapOptions}
-      />
-    )
+  
+  return (
+    <Components.CommunityMap
+      terms={groupQueryTerms || {view: "all", filters: (router.location.query && router.location.query.filters) || []}}
+      loadingElement= {<div style={{ height: `100%` }} />}
+      events={results}
+      containerElement= {<div style={{height: "500px"}} className="community-map"/>}
+      mapElement= {<div style={{ height: `100%` }} />}
+      googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&v=3.exp&libraries=geometry,drawing,places`}
+      center={currentUserLocation}
+      {...mapOptions}
+    />
+  )
 }
 const listOptions = {
   collection: Posts,
   queryName: "communityMapEventsQuery",
-  fragmentName: "EventsList",
+  fragmentName: "PostsList",
   limit: 500,
 }
 

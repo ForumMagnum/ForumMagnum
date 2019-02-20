@@ -117,7 +117,7 @@ async function algoliaExport(Collection, indexName, selector = {}, updateFunctio
 async function algoliaExportByCollectionName(collectionName) {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, 'test_posts', {baseScore: {$gt: 0}, draft: {$ne: true}})
+      await algoliaExport(Posts, 'test_posts', {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
       break
     case 'Comments':
       await algoliaExport(Comments, 'test_comments', {baseScore: {$gt: 0}, isDeleted: {$ne: true}})

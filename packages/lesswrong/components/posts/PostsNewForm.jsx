@@ -6,38 +6,42 @@ import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
 
-const PostsNewForm = (props, context) => {
+const PostsNewForm = ({router, currentUser, flash}) => {
+  const { PostSubmit, WrappedSmartForm, AccountsLoginForm} = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
-    isEvent: props.router.location.query && props.router.location.query.eventForm,
-    types: props.router.location.query && props.router.location.query.ssc ? ['SSC'] : [],
-    meta: props.router.location.query && !!props.router.location.query.meta,
+    isEvent: router.location.query && router.location.query.eventForm,
+    types: router.location.query && router.location.query.ssc ? ['SSC'] : [],
+    meta: router.location.query && !!router.location.query.meta,
     frontpageDate: getSetting("AlignmentForum", false) ? new Date() : null,
-    af: getSetting("AlignmentForum", false) || (props.router.location.query && !!props.router.location.query.af),
-    groupId: props.router.location.query && props.router.location.query.groupId,
-    moderationStyle: props.currentUser && props.currentUser.moderationStyle,
-    moderationGuidelinesHtmlBody: props.currentUser && props.currentUser.moderationGuidelinesHtmlBody,
+    af: getSetting("AlignmentForum", false) || (router.location.query && !!router.location.query.af),
+    groupId: router.location.query && router.location.query.groupId,
+    moderationStyle: currentUser && currentUser.moderationStyle,
+    moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
-  return <Components.ShowIf
-    check={Posts.options.mutations.new.check}
-    failureComponent={<Components.AccountsLoginForm />}
-         >
+
+  if (!Posts.options.mutations.new.check(currentUser)) {
+    return (<AccountsLoginForm />);
+  }
+
+  return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <Components.SmartForm
+      <WrappedSmartForm
         collection={Posts}
         mutationFragment={getFragment('PostsPage')}
         prefilledProps={prefilledProps}
         successCallback={post => {
-          props.router.push({pathname: Posts.getPageUrl(post)});
-          props.flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+          router.push({pathname: Posts.getPageUrl(post)});
+          flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        eventForm={props.router.location.query && props.router.location.query.eventForm}
-        submitLabel="Publish"
+        eventForm={router.location.query && router.location.query.eventForm}
         repeatErrors
+        SubmitComponent={PostSubmit}
       />
     </div>
-  </Components.ShowIf>
+  );
 }
 
 

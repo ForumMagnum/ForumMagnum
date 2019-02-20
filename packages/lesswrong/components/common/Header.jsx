@@ -10,6 +10,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withApollo } from 'react-apollo';
@@ -17,8 +18,10 @@ import Users from 'meteor/vulcan:users';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
+import withErrorBoundary from '../common/withErrorBoundary';
+import classNames from 'classnames';
 
-const getTextColor = theme => {
+export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
     return theme.palette.primary.contrastText
   } else if (theme.palette.headerType === 'secondary') {
@@ -44,7 +47,7 @@ const styles = theme => ({
     flex: 1,
   },
   titleLink: {
-    color: getTextColor(theme),
+    color: getHeaderTextColor(theme),
     verticalAlign: 'middle',
     fontSize: 19,
     position: "relative",
@@ -67,25 +70,35 @@ const styles = theme => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
-  }
+  },
+  headroomPinnedOpen: {
+    "& .headroom--unpinned": {
+      transform: "none",
+    },
+    "& .headroom--unfixed": {
+      position: "fixed",
+    },
+  },
 });
 
 class Header extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      navigationOpen: false,
-      notificationOpen: false,
-      notificationHasOpened: false,
-    };
+  state = {
+    navigationOpen: false,
+    notificationOpen: false,
+    notificationHasOpened: false,
+    headroomPinnedOpen: false,
   }
 
   setNavigationOpen = (open) => {
     this.setState({navigationOpen: open})
   }
 
-  handleNotificationToggle = (muiState) => {
-    if(!this.state.notificationOpen) {
+  handleNotificationToggle = () => {
+    this.handleSetNotificationDrawerOpen(!this.state.notificationOpen);
+  }
+  
+  handleSetNotificationDrawerOpen = (isOpen) => {
+    if (isOpen) {
       this.props.editMutation({
         documentId: this.props.currentUser._id,
         set: {lastNotificationsCheck: new Date()},
@@ -99,24 +112,54 @@ class Header extends Component {
       this.setState({notificationOpen: false})
     }
   }
-  handleNotificationClose = () => this.setState({notificationOpen: false});
+  
+  // Set whether Headroom (the auto-hiding top bar) is pinned so it doesn't
+  // hide on scroll. Called by SearchBar, which pins the header open when a
+  // search is active.
+  setHeadroomPinnedOpen = (isPinned) => {
+    this.setState({
+      headroomPinnedOpen: isPinned
+    });
+  }
 
   render() {
-    const { currentUser, classes, routes, location, params, client, theme } = this.props
-    const { notificationOpen, notificationHasOpened, navigationOpen } = this.state
+    const { currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea } = this.props
+    const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
     const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
+    
+    const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
+      NavigationMenu, NotificationsMenu, KarmaChangeNotifier } = Components;
 
     return (
-      <Components.ErrorBoundary>
         <div className={classes.root}>
-          <Headroom disableInlineStyles downTolerance={10} upTolerance={10} >
+          <Headroom
+            disableInlineStyles
+            downTolerance={10} upTolerance={10}
+            className={classNames({
+              [classes.headroomPinnedOpen]: headroomPinnedOpen
+            })}
+          >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
-                <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={()=>this.setNavigationOpen(true)}>
-                  <MenuIcon />
+                <IconButton
+                  className={classes.menuButton} color="inherit"
+                  aria-label="Menu"
+                  onClick={()=>this.setNavigationOpen(true)}
+                >
+                {/* Show the ToC icon if there's a table of contents being displayed  */}
+                  {toc && toc.sections ? (
+                    <span>
+                      <Hidden smDown implementation="css">
+                        <MenuIcon />
+                      </Hidden>
+                      <Hidden mdUp implementation="css">
+                        <TocIcon />
+                      </Hidden>
+                    </span>
+                  ) : <MenuIcon />}
                 </IconButton>
                 <Typography className={classes.title} variant="title" color="textSecondary">
                   <Hidden smDown implementation="css">
@@ -136,21 +179,19 @@ class Header extends Component {
                   </Hidden>
                 </Typography>
                 <div className={classes.rightHeaderItems}>
-                  <NoSSR><Components.ErrorBoundary>
-                    <Components.SearchBar/>
-                  </Components.ErrorBoundary></NoSSR>
-                  {currentUser ? <Components.UsersMenu color={getTextColor(theme)} /> : <Components.UsersAccountMenu color={getTextColor(theme)} />}
-                  {currentUser && <Components.NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                  <NoSSR>
+                    <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
+                  </NoSSR>
+                  {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                  <KarmaChangeNotifier/>
+                  {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>
             </AppBar>
-            <Components.NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} />
+            <NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} toc={toc} />
           </Headroom>
-          <Components.ErrorBoundary>
-            <Components.NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} handleToggle={this.handleNotificationToggle} />
-          </Components.ErrorBoundary>
+          <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />
         </div>
-      </Components.ErrorBoundary>
     )
   }
 }
@@ -164,6 +205,7 @@ Header.propTypes = {
   location: PropTypes.object.isRequired,
   params: PropTypes.object,
   client: PropTypes.object.isRequired,
+  searchResultsArea: PropTypes.object,
 };
 
 const withEditOptions = {
@@ -171,4 +213,4 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

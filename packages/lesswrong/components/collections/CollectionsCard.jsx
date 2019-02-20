@@ -1,9 +1,10 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { CardMedia } from 'material-ui/Card';
 import { withRouter, Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import Hidden from '@material-ui/core/Hidden';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -18,6 +19,10 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       height: "auto",
     },
+    [theme.breakpoints.down('xs')]: {
+      height: "auto",
+      padding: theme.spacing.unit*1.25,
+    },
     flexWrap: "wrap",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -29,12 +34,17 @@ const styles = theme => ({
     borderTop: "solid 4px black",
     paddingTop: theme.spacing.unit*1.5
   },
+  mergeTitle: {
+    display: "inline",
+    marginRight: 10,
+  },
   text: {
     ...theme.typography.postStyle,
   },
   author: {
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
+    display: "inline-block",
   },
   media: {
     '& img':{
@@ -45,7 +55,17 @@ const styles = theme => ({
         overflow: "hidden"
       },
     }
-  }
+  },
+  thumbnailImage: { // Used only on XS screens
+    float: "left",
+    position: "relative",
+    marginRight: 15,
+    
+    '& img': {
+      width: 50,
+      height: 41,
+    }
+  },
 })
 
 class CollectionsCard extends PureComponent {
@@ -55,13 +75,22 @@ class CollectionsCard extends PureComponent {
   }
 
   render() {
-    const { collection, url, classes } = this.props
+    const { collection, url, mergeTitle=false, classes } = this.props
     const cardContentStyle = {borderTopColor: collection.color}
 
     return <div className={classes.root} onClick={this.handleClick}>
         <div className={classes.card}>
           <div className={classes.content} style={cardContentStyle}>
-            <Typography variant="title" className={classes.title}>
+            <Hidden smUp implementation="css">
+              <div className={classes.thumbnailImage}>
+                <Components.CloudinaryImage
+                  publicId={collection.imageId}
+                  width={50}
+                  height={41}
+                />
+              </div>
+            </Hidden>
+            <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
               <Link to={url}>{collection.title}</Link>
             </Typography>
             <Typography variant="subheading" className={classes.author}>
@@ -71,9 +100,11 @@ class CollectionsCard extends PureComponent {
               {collection.summary}
             </Typography>
           </div>
-          <CardMedia className={classes.media}>
-            <Components.CloudinaryImage publicId={collection.imageId} />
-          </CardMedia>
+          <Hidden xsDown implementation="css">
+            <div className={classes.media}>
+              <Components.CloudinaryImage publicId={collection.imageId} />
+            </div>
+          </Hidden>
         </div>
     </div>
   }

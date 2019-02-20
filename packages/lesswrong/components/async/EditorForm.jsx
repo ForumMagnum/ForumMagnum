@@ -160,7 +160,7 @@ class EditorForm extends Component {
         <NoSsr>
         <div
           className={classNames(
-            { "content-editor-is-empty": !editorState.getCurrentContent().hasText() },
+            { "content-editor-is-empty": !(editorState && editorState.getCurrentContent && editorState.getCurrentContent().hasText()) },
             this.props.className
           )}
           onClick={this.focus}

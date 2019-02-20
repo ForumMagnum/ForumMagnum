@@ -5,6 +5,7 @@ A SimpleSchema-compatible JSON schema
 */
 
 import Users from 'meteor/vulcan:users';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 //define schema
 const schema = {
@@ -15,6 +16,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     viewableBy: Users.owns,
   },
@@ -28,6 +30,7 @@ const schema = {
   },
   documentId: {
     type: String,
+    // No explicit foreign-key relation because which collection this is depends on notification type
     optional: true,
     viewableBy: Users.owns,
   },
@@ -63,6 +66,7 @@ const schema = {
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: ['members'],
+    ...schemaDefaultValue(false),
   },
 };
 

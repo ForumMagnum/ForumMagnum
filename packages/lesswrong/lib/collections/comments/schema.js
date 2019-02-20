@@ -6,8 +6,10 @@ Comments schema
 
 import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
+import { Posts } from '../posts/collection'
 //import marked from 'marked';
 //import { Utils } from 'meteor/vulcan:core';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 /**
  * @summary Comments schema
@@ -27,7 +29,7 @@ const schema = {
   */
   parentCommentId: {
     type: String,
-    // regEx: SimpleSchema.RegEx.Id,
+    foreignKey: "Comments",
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -47,7 +49,8 @@ const schema = {
   */
   topLevelCommentId: {
     type: String,
-    // regEx: SimpleSchema.RegEx.Id,
+    foreignKey: "Comments",
+    denormalized: true,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -85,41 +88,18 @@ const schema = {
     }
   },
   /**
-    The comment body (Markdown)
-  */
-  body: {
-    type: String,
-    max: 3000,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: "textarea"
-  },
-  /**
-    The HTML version of the comment body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    // onInsert: (comment) => {
-    //   if (comment.body) {
-    //     return Utils.sanitize(marked(comment.body));
-    //   }
-    // },
-    // onEdit: (modifier, comment) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
     The comment author's name
   */
   author: {
     type: String,
     optional: true,
     canRead: ['guests'],
+    onInsert: (document, currentUser) => {
+      // if userId is changing, change the author name too
+      if (document.userId) {
+        return Users.getDisplayNameById(document.userId)
+      }
+    },
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
@@ -132,6 +112,7 @@ const schema = {
   */
   postId: {
     type: String,
+    foreignKey: "Posts",
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -152,6 +133,7 @@ const schema = {
   */
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -167,6 +149,9 @@ const schema = {
   },
   /**
     Whether the comment is deleted. Delete comments' content doesn't appear on the site.
+    FIXME: Not a real field. We inherited this from vulcan-starter, but
+    implemented our own, unrelated soft delete mechanism with the field named
+    `deleted` rather than `isDeleted`.
   */
   isDeleted: {
     type: Boolean,
@@ -196,10 +181,21 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     resolveAs: {
-      fieldName: 'pageUrl',
       type: 'String',
       resolver: (comment, args, context) => {
         return context.Comments.getPageUrl(comment, true)
+      },
+    }
+  },
+
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, context) => {
+        return context.Comments.getPageUrl(comment, false)
       },
     }
   },
@@ -211,11 +207,13 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 
   parentAnswerId: {
     type: String,
-    max: 500,
+    denormalized: true,
+    foreignKey: "Comments",
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,
@@ -237,6 +235,45 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
+
+  // The semver-style version of the post that this comment was made against
+  // This gets automatically created in a callback on creation
+  postVersion: {
+    type: String, 
+    optional: true,
+    canRead: ['guests'],
+    onCreate: async ({newDocument}) => {
+      const post = await Posts.findOne({_id: newDocument.postId})
+      return (post && post.contents && post.contents.version) || "1.0.0"
+    }
+  },
+  
+  // DEPRECATED fields for GreaterWrong backwards compatibility
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'Int',
+      resolver: (comment, args, { Comments }) => {
+        const contents = comment.contents;
+        return contents.wordCount;
+      }
+    }
+  },
+  htmlBody: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'String',
+      resolver: (comment, args, { Comments }) => {
+        const contents = comment.contents;
+        return contents.html;
+      }
+    }
   },
 };
 

@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { Votes } from 'meteor/vulcan:voting';
+import { Votes } from '../../lib/collections/votes';
 import { getSetting } from 'meteor/vulcan:core';
 import { Random } from 'meteor/random';
 

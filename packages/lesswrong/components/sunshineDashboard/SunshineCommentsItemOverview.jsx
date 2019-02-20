@@ -17,10 +17,10 @@ const styles = theme => ({
 })
 
 class SunshineCommentsItemOverview extends Component {
-
   render () {
     const { comment, classes } = this.props
-    let commentExcerpt = comment.body.substring(0,38);
+    const { markdown = "" } = comment.contents || {}
+    const commentExcerpt = markdown && markdown.substring(0,38);
     return (
       <div>
         <Typography variant="body2">
@@ -41,7 +41,7 @@ class SunshineCommentsItemOverview extends Component {
           </Components.SidebarInfo>
           <Components.SidebarInfo>
             <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              <Components.FromNowDate date={comment.postedAt}/>
+              <Components.FormatDate date={comment.postedAt}/>
               <Icon className={"material-icons comments-item-permalink"}> link </Icon>
             </Link>
           </Components.SidebarInfo>

@@ -23,6 +23,13 @@ function autolink(text) {
   return resultPieces.join('')
 }
 
+// This currently only supports our limited subset of semVer
+export function extractVersionsFromSemver(semver) {
+  semver = semver || "1.0.0"
+  const [major, minor, patch] = semver.split(".").map((n) => parseInt(n, 10))
+  return { major, minor, patch }
+}
+
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
     if (nodeName === 'img') {
@@ -49,7 +56,7 @@ export const htmlToDraft = convertFromHTML({
     // }
   },
   htmlToBlock: (nodeName, node, lastList, inBlock) => {
-    if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG' || (nodeName === 'img' && inBlock !== 'atomic')) {
+    if ((nodeName === 'figure' && node.firstChild.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
         return 'atomic';
     }
     // if (nodeName === 'blockquote') {
@@ -83,10 +90,7 @@ export const draftToHTML = convertToHTML({
       if (entity.data.alignment) {
         classNames = classNames + entity.data.alignment;
       }
-      let style = ""
-      if (entity.data.width) {
-        style = "width:" + entity.data.width + "%";
-      }
+      let style = "width:" + (entity.data.width || 40) + "%"
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
     if (entity.type === 'LINK') {

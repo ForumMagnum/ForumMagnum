@@ -83,7 +83,8 @@ const createLWTheme = (theme) => {
       },
       display3: {
         color: grey[800],
-        marginTop: '1.2em'
+        marginTop: '1.2em',
+        fontSize: '3rem'
       },
       display4: {
         color: grey[800],
@@ -164,6 +165,17 @@ const createLWTheme = (theme) => {
           color:grey[300]
         }
       }
+    },
+    zIndexes: {
+      commentsMenu: 1,
+      postsVote: 1,
+      sidebarHoverOver: 2,
+      sunshineSidebar: 1000,
+      layout: 1100,
+      header: 1300,
+      karmaChangeNotifier: 1400,
+      notificationsMenu: 1500,
+      searchBar: 100000,
     },
     voting: {
       strongVoteDelay: 1000,

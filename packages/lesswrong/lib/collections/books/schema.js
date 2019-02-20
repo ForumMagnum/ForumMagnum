@@ -47,30 +47,9 @@ const schema = {
     insertableBy: ['members'],
   },
 
-  description: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
-    control: 'EditorFormComponent',
-    blackbox: true,
-  },
-
-  plaintextDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
-  htmlDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   collectionId: {
     type: String,
+    foreignKey: "Collections",
     optional: false,
     viewableBy: ['guests'],
     editableBy: ['admins'],
@@ -106,6 +85,7 @@ const schema = {
 
   'postIds.$': {
     type: String,
+    foreignKey: "Posts",
     optional: true,
   },
 
@@ -128,6 +108,7 @@ const schema = {
 
   'sequenceIds.$': {
     type: String,
+    foreignKey: "Sequences",
     optional: true,
   }
 

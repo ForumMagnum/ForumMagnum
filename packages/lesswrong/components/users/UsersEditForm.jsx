@@ -51,7 +51,7 @@ const UsersEditForm = (props) => {
         Reset Password
       </Button>
 
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Users}
         {...terms}
         successCallback={user => {
@@ -59,6 +59,7 @@ const UsersEditForm = (props) => {
           client.resetStore()
           props.router.push(Users.getProfileUrl(user));
         }}
+        queryFragment={getFragment('UsersEdit')}
         mutationFragment={getFragment('UsersProfile')}
         showRemove={false}
       />

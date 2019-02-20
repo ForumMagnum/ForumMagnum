@@ -1,11 +1,16 @@
 import { Posts } from './collection';
 import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
+import { Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
+import { Utils } from 'meteor/vulcan:core';
+import GraphQLJSON from 'graphql-type-json';
+import { Comments } from '../comments'
+import { questionAnswersSort } from '../comments/views';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 export const formGroups = {
   adminOptions: {
@@ -32,7 +37,7 @@ export const formGroups = {
     defaultStyle: true,
     flexStyle: true
   },
-  content: {
+  content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
     defaultStyle: true,
@@ -54,7 +59,7 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser.moderationGuidelinesHtmlBody)
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
 Posts.addField([
@@ -225,6 +230,7 @@ Posts.addField([
     fieldName: 'lastCommentedAt',
     fieldSchema: {
       type: Date,
+      denormalized: true,
       optional: true,
       hidden: true,
       viewableBy: ['guests'],
@@ -302,7 +308,8 @@ Posts.addField([
     fieldName: 'suggestForCuratedUserIds.$',
     fieldSchema: {
       type: String,
-      optional: true
+      foreignKey: 'Users',
+      optional: true,
     }
   },
 
@@ -342,8 +349,8 @@ Posts.addField([
       type: String,
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
     }
   },
@@ -352,6 +359,7 @@ Posts.addField([
     fieldName: 'userId',
     fieldSchema: {
       type: String,
+      foreignKey: 'Users',
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['admins'],
@@ -395,6 +403,7 @@ Posts.addField([
     fieldName: 'coauthorUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: 'Users',
       optional: true
     }
   },
@@ -403,10 +412,11 @@ Posts.addField([
     fieldName: 'canonicalSequenceId',
     fieldSchema: {
       type: String,
+      foreignKey: 'Sequences',
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       resolveAs: {
         fieldName: 'canonicalSequence',
@@ -417,7 +427,7 @@ Posts.addField([
         ),
       },
       hidden: false,
-      control: "text"
+      control: "text",
     }
   },
 
@@ -425,10 +435,14 @@ Posts.addField([
     fieldName: 'canonicalCollectionSlug',
     fieldSchema: {
       type: String,
+      foreignKey: {
+        collection: 'Collections',
+        field: 'slug'
+      },
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       hidden: false,
       control: "text",
       group: formGroups.canonicalSequence,
@@ -442,7 +456,7 @@ Posts.addField([
           if (!post.canonicalCollectionSlug) return null;
           return context.Collections.findOne({slug: post.canonicalCollectionSlug})
         }
-      }
+      },
     }
   },
 
@@ -450,10 +464,11 @@ Posts.addField([
     fieldName: 'canonicalBookId',
     fieldSchema: {
       type: String,
+      foreignKey: 'Books',
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text",
@@ -472,10 +487,14 @@ Posts.addField([
     fieldName: 'canonicalNextPostSlug',
     fieldSchema: {
       type: String,
+      foreignKey: {
+        collection: "Posts",
+        field: 'slug',
+      },
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
@@ -486,10 +505,14 @@ Posts.addField([
     fieldName: 'canonicalPrevPostSlug',
     fieldSchema: {
       type: String,
+      foreignKey: {
+        collection: "Posts",
+        field: 'slug',
+      },
       optional: true,
       viewableBy: ['guests'],
-      editableBy: ['admins'],
-      insertableBy: ['admins'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.canonicalSequence,
       hidden: false,
       control: "text"
@@ -512,16 +535,7 @@ Posts.addField([
       control: "checkbox",
       order: 11,
       group: formGroups.adminOptions,
-      onInsert: (document, currentUser) => {
-        if (!document.unlisted) {
-          return false;
-        }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.unlisted === null || modifier.$unset.unlisted) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -536,7 +550,7 @@ Posts.addField([
       label: 'Save to Drafts',
       type: Boolean,
       optional: true,
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       viewableBy: ['members'],
       insertableBy: ['members'],
       editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -560,16 +574,7 @@ Posts.addField([
       hidden: true,
       label: "Publish to meta",
       control: "checkbox",
-      onInsert: (document, currentUser) => {
-          if (!document.meta) {
-            return false
-          }
-      },
-      onEdit: (modifier, post) => {
-        if (modifier.$set.meta === null || modifier.$unset.meta) {
-          return false;
-        }
-      }
+      ...schemaDefaultValue(false)
     }
   },
 
@@ -583,6 +588,7 @@ Posts.addField([
       insertableBy: ['admins'],
       control: 'checkbox',
       group: formGroups.moderationGroup,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -665,6 +671,7 @@ Posts.addField([
     fieldName: 'bannedUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -711,6 +718,7 @@ Posts.addField([
     fieldName: 'organizerIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
     }
   },
@@ -719,6 +727,7 @@ Posts.addField([
     fieldName: 'groupId',
     fieldSchema: {
       type: String,
+      foreignKey: "Localgroups",
       viewableBy: ['guests'],
       editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
       insertableBy: ['members'],
@@ -745,7 +754,8 @@ Posts.addField([
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment'],
       insertableBy: ['members'],
-      optional: true
+      optional: true,
+      ...schemaDefaultValue(false),
     }
   },
 
@@ -753,6 +763,7 @@ Posts.addField([
     fieldName: 'reviewedByUserId',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
@@ -773,6 +784,7 @@ Posts.addField([
     fieldName: 'reviewForCuratedUserId',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
       viewableBy: ['guests'],
       editableBy: ['sunshineRegiment', 'admins'],
@@ -931,7 +943,7 @@ Posts.addField([
       type: Boolean,
       optional: true,
       label: "Sticky (Meta)",
-      defaultValue: false,
+      ...schemaDefaultValue(false),
       group: formGroups.adminOptions,
       viewableBy: ['guests'],
       editableBy: ['admins'],
@@ -991,6 +1003,7 @@ Posts.addField([
     fieldName: 'shareWithUsers.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -1021,6 +1034,75 @@ Posts.addField([
       editableBy: ['admins'],
       optional: true,
       group: formGroups.adminOptions,
+      ...schemaDefaultValue(false),
+    }
+  },
+
+  {
+    fieldName: 'tableOfContents',
+    fieldSchema: {
+      type: Object,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        fieldName: "tableOfContents",
+        type: GraphQLJSON,
+        resolver: async (document, args, options) => {
+          const { html } = document.contents || {}
+          let tocData
+          if (document.question) {
+
+            let answersTerms = {
+              answer:true, 
+              postId: document._id, 
+              deleted:false, 
+            }
+            if (getSetting('AlignmentForum', false)) {
+              answersTerms.af = true
+            }
+
+            const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
+
+            if (answers && answers.length) {
+              tocData = Utils.extractTableOfContents(html, true) || {
+                html: null,
+                headingsCount: 0,
+                sections: []
+              }
+
+              const answerSections = answers.map((answer) => ({
+                title: answer.author + "'s answer",
+                anchor: answer._id,
+                level: 2
+              }))
+              tocData = {
+                html: tocData.html,
+                headingsCount: tocData.headingsCount,
+                sections: [
+                  ...tocData.sections,
+                  {anchor:"answers", level:1, title:"Answers"},
+                  ...answerSections
+                ]
+              }
+            }
+          } else {
+            tocData = Utils.extractTableOfContents(html)
+          }
+          if (tocData) {
+            const selector = {
+              answer: false,
+              parentAnswerId: null,
+              postId: document._id
+            }
+            if (document.af && getSetting('AlignmentForum', false)) {
+              selector.af = true
+            }
+            const commentCount = await Comments.find(selector).count()
+            tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
+          }
+          return tocData;
+        },
+      },
     }
   },
 
@@ -1045,10 +1127,11 @@ Posts.addField([
             }
             const sort = {sort:{createdAt:-1}}
             const event = await LWEvents.findOne(query, sort);
+            const author = await Users.findOne({_id: post.userId});
             if (event) {
-              return event && event.properties && event.properties.targetState
+              return event.properties && event.properties.targetState
             } else {
-              return true
+              return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
             }
           } else {
             return false
@@ -1134,6 +1217,7 @@ Users.addField([
     fieldSchema: {
       type: Number,
       optional: true,
+      denormalized: true,
       defaultValue: 0,
       viewableBy: ['guests'],
     }

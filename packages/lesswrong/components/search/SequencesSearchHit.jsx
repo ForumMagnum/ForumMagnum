@@ -15,7 +15,7 @@ const SequencesSearchHit = ({hit, clickAction}) => {
             <div className="sequences-item-author">{hit.authorDisplayName}</div>
             <div className="sequences-item-karma">{hit.karma} points </div>
             <div className="sequences-item-created-date">
-              <Components.FromNowDate date={hit.createdAt}/>
+              <Components.FormatDate date={hit.createdAt}/>
             </div>
           </div>
         </div>

@@ -87,7 +87,7 @@ class SunshineCuratedSuggestionsItem extends Component {
             </Link>
           </Components.SidebarInfo>
           {post.postedAt && <Components.SidebarInfo>
-            <Components.FromNowDate date={post.postedAt}/>
+            <Components.FormatDate date={post.postedAt}/>
           </Components.SidebarInfo>}
         </div>
         <Components.SidebarInfo>

@@ -2,6 +2,7 @@ import ls from 'local-storage';
 
 const defaulGetDocumentStorageId = (doc, name) => {
   const { _id, conversationId } = doc
+  if (_id && name) { return {id: `${_id}${name}`, verify: true}}
   if (_id) { return {id: _id, verify: true }}
   if (conversationId) { return {id: conversationId, verify: true }}
   if (name) { return {id: name, verify: true }}

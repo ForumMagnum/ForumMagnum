@@ -1,5 +1,5 @@
-import { Votes } from "meteor/vulcan:voting";
-import { VoteableCollections } from 'meteor/vulcan:voting';
+import { Votes } from './collection.js';
+import { VoteableCollections } from '../../modules/make_voteable.js';
 import { getWithLoader } from "../../loaders.js";
 
 Votes.addField([
@@ -31,7 +31,15 @@ VoteableCollections.forEach(collection => {
           type: '[Vote]',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
             if (!currentUser) return [];
-            const votes = await getWithLoader(Votes, `votesByUser${currentUser._id}`, {userId: currentUser._id}, "documentId", document._id);
+            const votes = await getWithLoader(Votes,
+              `votesByUser${currentUser._id}`,
+              {
+                userId: currentUser._id,
+                cancelled: false,
+              },
+              "documentId", document._id
+            );
+            
             if (!votes.length) return [];
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
@@ -54,7 +62,14 @@ VoteableCollections.forEach(collection => {
         resolveAs: {
           type: '[Vote]',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await getWithLoader(Votes, "votesByDocument", {}, "documentId", document._id)
+            const votes = await getWithLoader(Votes,
+              "votesByDocument",
+              {
+                cancelled: false,
+              },
+              "documentId", document._id
+            );
+            
             if (!votes.length) return [];
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
@@ -74,21 +89,34 @@ VoteableCollections.forEach(collection => {
         type: Number,
         optional: true,
         viewableBy: ['guests'],
-        resolveAs: {
-          type: 'Int',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await getWithLoader(Votes, "votesByDocument",
-              // Base query
-              {},
-              // Selector
-              "documentId", document._id,
-              // Projection
-              {documentId:1}
-            )
-            return votes.length;
-          }
-        }
       }
     }
   ]);
 });
+
+
+
+/* From vulcan:voting, but not currently used.
+Users.addField([
+  // An array containing votes
+  {
+    fieldName: 'votes',
+    fieldSchema: {
+      type: Array,
+      optional: true,
+      canRead: Users.owns,
+      resolveAs: {
+        type: '[Vote]',
+        arguments: 'collectionName: String',
+        resolver: async (user, args, context) => {8
+      },
+    }
+  },
+  {
+    fieldName: 'votes.$',
+    fieldSchema: {
+      type: Object,
+      optional: true
+    }
+  },
+]);*/

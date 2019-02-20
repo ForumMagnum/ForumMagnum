@@ -97,10 +97,14 @@ import './collections/posts/custom_fields.js';
 import './collections/posts/views.js';
 import './collections/posts/permissions.js';
 import './collections/posts/helpers.js';
+
+// Revisions
+import Revisions from './collections/revisions/collection.js'
 //
 // Users
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
+import './collections/users/karmaChangesGraphQL.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
 
@@ -122,10 +126,6 @@ import './modules/callbacks.js';
 import './helpers.js'
 import './routes.js';
 import './scrollRestoration.js';
-
-// Algolia Search Integration
-import './search/utils.js';
-import './search/callbacks.js';
 
 import './components.js';
 
@@ -171,5 +171,6 @@ export {
   Localgroups,
   generateIdResolverMulti,
   generateIdResolverSingle,
-  Comments
+  Comments,
+  Revisions
 }

@@ -23,6 +23,7 @@ const schema = {
 
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
@@ -53,28 +54,6 @@ const schema = {
     insertableBy: ['admins'],
   },
 
-  description: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    control: 'EditorFormComponent',
-    blackbox: true,
-  },
-
-  plaintextDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
-  htmlDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   /*
     Dummy field that resolves to the array of books that belong to a sequence
   */
@@ -101,11 +80,13 @@ const schema = {
 
   'books.$': {
     type: String,
+    foreignKey: "Books",
     optional: true,
   },
 
   gridImageId: {
     type: String,
+    // Corresponds to a Cloudinary ID
     optional: true,
     viewableBy: ["guests"],
     editableBy: ['admins'],

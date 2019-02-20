@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
 import { LWEvents } from '../collections/lwevents/collection.js';
+import { shallowEqual } from '../modules/utils/componentUtils';
 
 
 /*
@@ -19,6 +20,16 @@ function withNewEvents(WrappedComponent) {
       this.registerEvent = this.registerEvent.bind(this);
       this.closeEvent = this.closeEvent.bind(this);
     }
+    
+    // Don't update on changes to state.events (which is this component's
+    // only state), because that doesn't affect rendering at all and gets
+    // modified in mount events.
+    shouldComponentUpdate(nextProps, nextState) {
+      if (!shallowEqual(this.props, nextProps))
+        return true;
+      return false;
+    }
+    
     registerEvent(name, properties) {
       const newMutation = this.props.newMutation;
       const { userId, documentId, important, intercom, ...rest} = properties;
@@ -87,5 +98,4 @@ const newEventOptions = {
   fragmentName: 'newEventFragment',
 }
 
-// export default withNew(newEventOptions)(withEvents);
 export default withNewEvents;

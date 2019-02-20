@@ -23,10 +23,6 @@ $small-font: 1.1rem;
       display: inline-block;
     }
     margin-bottom: 8px;
-    .users-name {
-      margin-right: 10px;
-      font-weight: 600;
-    }
   }
 
   .comments-item-bottom {
@@ -39,10 +35,6 @@ $small-font: 1.1rem;
   }
 
   .comments-item-bottom, .comments-item-meta {
-    a {
-      color: rgba(0,0,0,0.87);
-      text-decoration: none;
-    }
     .vote {
       display: inline;
     }
@@ -56,23 +48,6 @@ $small-font: 1.1rem;
 }
 
 
-
-/*
-
-New CSS File
-
-*/
-
-.posts-comments-thread {
-  font-weight:400;
-  font-family: $comments-font;
-  max-width:720px;
-  margin:80px auto $vmargin auto;
-}
-
-.posts-comments-thread .content-editor-is-empty {
-  font-size:15px !important;
-}
 
 .comments-item-body, .recent-comments-item-body {
   font-family: $comments-font;
@@ -102,19 +77,6 @@ New CSS File
 .comments-node-linked {
   border-left: solid 5px rgba(88, 143, 39, 0.3);
   animation: lw-green-fade 5s ease-in-out 0s;
-}
-
-.recent-comments-item {
-  .recent-comments-item-meta {
-    .users-name {
-      color: rgba(0,0,0,0.87);
-    }
-  }
-}
-
-.comments-subscribe:hover {
-  text-decoration: none;
-  color: inherit;
 }
 
 .comments-item-body{
@@ -148,10 +110,6 @@ New CSS File
     margin-right: 5px;
   }
 
-  .users-name{
-    margin-right: $hmargin;
-  }
-
   .comments-collapse{
     margin-right: 5px;
     opacity: 0.8;
@@ -166,21 +124,6 @@ New CSS File
     }
   }
 
-  .comments-item-date{
-    display: inline-block;
-    margin-right: 2px;
-    color: rgba(0,0,0,0.5);
-    font-size: $small-font;
-    a {
-      color: rgba(0,0,0,0.5);
-    }
-  }
-  .comment-edit, .comment-delete {
-    font-size: $small-font;
-  }
-  .comment-delete {
-    margin-left: 8px;
-  }
   .comments-item-origin {
     display: inline-block;
     color: rgba(0,0,0,0.4);
@@ -224,7 +167,7 @@ New CSS File
   }
 }
 
-.comments-edit-form, .comments-new-form{
+.comments-edit-form {
   position:relative;
   padding-bottom:12px;
   .form-submit {
@@ -241,7 +184,7 @@ New CSS File
   margin-top: $vmargin;
   padding:10px;
   border:solid 1px rgba(0,0,0,.2);
-  .comments-new-form, .comments-edit-form {
+  .comments-edit-form {
     padding-bottom: 0px;
   }
 }
@@ -256,10 +199,6 @@ New CSS File
   @include max-tiny() {
     margin:0px;
   }
-}
-
-.recent-comments-item {
-  padding-bottom: 3px;
 }
 
 .comments-item-text.collapsed {
@@ -370,13 +309,6 @@ New CSS File
     margin-bottom:.8em;
     position:inherit;
   }
-}
-
-.comment-context-link {
-  font-family: $comments-font;
-  text-align:right;
-  color:rgba(0,0,0,.5);
-  margin-right:10px;
 }
 
 .posts-item-new-comments-wrapper .comment-new .comments-node.comments-node-root {
