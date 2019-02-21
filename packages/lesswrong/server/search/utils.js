@@ -224,6 +224,40 @@ export async function algoliaDoSearch(algoliaIndex, query) {
   });
 }
 
+// Do a query, but get all of the results, instead of just the first page of
+// results. Since Algolia searches have a maximum page size of 1000, this
+// requires doing multiple queries with pagination.
+//
+// Because it does multiple queries for different pages, this may return
+// duplicate results or omit results, if the index is modified while it is
+// running.
+async function algoliaDoCompleteSearch(algoliaIndex, query) {
+  let allResults = [];
+  let pageSize = 1000; // Max permitted by API
+  
+  let firstPageResults = await algoliaDoSearch(algoliaIndex, {
+    ...query,
+    hitsPerPage: pageSize,
+  });
+  console.log(firstPageResults);
+  for (let hit of firstPageResults.hits) {
+    allResults.push(hit);
+  }
+  
+  for (let i=1; i<firstPageResults.nbPages; i++) {
+    let pageResults = await algoliaDoSearch(algoliaIndex, {
+      ...query,
+      hitsPerPage: pageSize,
+      offset: pageSize*i,
+    });
+    
+    for (let hit of pageResults.hits)
+      allResults.push(hit);
+  }
+  
+  return allResults;
+}
+
 
 // Given a list of objects that should be in the Algolia index, check whether
 // they are, and whether all fields on them match. If there are any differences,
@@ -248,15 +282,29 @@ async function addOrUpdateIfNeeded(algoliaIndex, objects) {
   }
 }
 
-// Given a list of IDs that should *not* be in the Algolia index, check whether
-// any are, and (if any are), delete them.
+// Given a list of mongo IDs that should *not* be in the Algolia index, check
+// whether any are, and (if any are), delete them.
+//
+// We first do a series of queries, one per mongo ID, to collect the indexed
+// pieces of the deleted documents (since they're split into multiple index
+// entries by paragraph).
 async function deleteIfPresent(algoliaIndex, ids) {
-  let algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
-  let algoliaObjectsById = keyBy(algoliaObjects, o=>o._id);
-  let idsToDelete = _.filter(ids, id => id in algoliaObjectsById);
+  let algoliaIdsToDelete = [];
   
-  if (idsToDelete.length > 0) {
-    let response = await algoliaDeleteIds(algoliaIndex, idsToDelete);
+  for (const mongoId of ids) {
+    console.log(`Searching for Algolia index entries with _id: ${mongoId}`);
+    const results = await algoliaDoCompleteSearch(algoliaIndex, {
+      query: mongoId,
+      restrictSearchableAttributes: ["_id"],
+      attributesToRetrieve: ['objectID','_id'],
+    });
+    console.log(results);
+    for (const hit of results)
+      algoliaIdsToDelete.push(hit.objectID);
+  }
+  
+  if (algoliaIdsToDelete.length > 0) {
+    const response = await algoliaDeleteIds(algoliaIndex, algoliaIdsToDelete);
     await algoliaWaitForTask(algoliaIndex, response.taskID);
   }
 }
@@ -271,8 +319,6 @@ export function getAlgoliaAdminClient()
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
-      console.info("algoliaAppId="+algoliaAppId);
-      console.info("algoliaAdminKey="+algoliaAdminKey);
     }
     return null;
   }
@@ -295,7 +341,9 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
     errors: totalErrors, updateFunction });
   
   //eslint-disable-next-line no-console
-  console.error("Encountered the following errors while exporting to Algolia: ", totalErrors)
+  if (totalErrors.length > 0) {
+    console.error("Encountered the following errors while exporting to Algolia: ", totalErrors)
+  }
 }
 
 export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
@@ -309,7 +357,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
     if (algoliaEntries) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
-      itemsToDelete.push(item);
+      itemsToDelete.push(item._id);
     }
   }
   
