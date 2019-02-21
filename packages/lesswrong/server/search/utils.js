@@ -8,6 +8,7 @@ import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import { dataToMarkdown } from '../editor/make_editable_callbacks'
 import '../../lib/algoliaIndexNames.js';
+import keyBy from 'lodash/keyBy';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
@@ -84,6 +85,7 @@ Users.toAlgolia = (user) => {
   if (user.deleted) return null;
   
   const algoliaUser = {
+    _id: user._id,
     objectID: user._id,
     username: user.username,
     displayName: user.displayName,
@@ -151,10 +153,15 @@ Posts.toAlgolia = (post) => {
       }));
     })
   } else {
-    postBatch.push(_.clone(algoliaMetaInfo));
+    postBatch.push(_.clone({
+      ...algoliaMetaInfo,
+      objectID: post._id + "_0",
+      body: ""
+    }));
   }
   return postBatch;
 }
+
 
 // Do algoliaIndex.waitTask as an async function rather than a
 // callback-accepting function.
@@ -226,15 +233,17 @@ export async function algoliaDoSearch(algoliaIndex, query) {
 // -- both in the traditional performance sense, and also in the sense that
 // Algolia's usage-based billing is built around it.)
 async function addOrUpdateIfNeeded(algoliaIndex, objects) {
-  let ids = _.map(objects, o=>o._id);
-  let algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
-  let algoliaObjectsById = _.keyBy(algoliaObjects, o=>o._id);
+  if (objects.length == 0) return;
   
-  let objectsToSync = _.filter(objects,
+  const ids = _.map(objects, o=>o._id);
+  const algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
+  const algoliaObjectsById = keyBy(algoliaObjects, o=>o._id);
+  
+  const objectsToSync = _.filter(objects,
     obj => !_.isEqual(obj, algoliaObjectsById[obj._id]));
   
   if (objectsToSync.length > 0) {
-    let response = await algoliaAddObjects(algoliaIndex, objectsToSync);
+    const response = await algoliaAddObjects(algoliaIndex, objectsToSync);
     await algoliaWaitForTask(algoliaIndex, response.taskID);
   }
 }
@@ -243,7 +252,7 @@ async function addOrUpdateIfNeeded(algoliaIndex, objects) {
 // any are, and (if any are), delete them.
 async function deleteIfPresent(algoliaIndex, ids) {
   let algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
-  let algoliaObjectsById = _.keyBy(algoliaObjects, o=>o._id);
+  let algoliaObjectsById = keyBy(algoliaObjects, o=>o._id);
   let idsToDelete = _.filter(ids, id => id in algoliaObjectsById);
   
   if (idsToDelete.length > 0) {
@@ -262,6 +271,8 @@ export function getAlgoliaAdminClient()
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
+      console.info("algoliaAppId="+algoliaAppId);
+      console.info("algoliaAdminKey="+algoliaAdminKey);
     }
     return null;
   }
@@ -317,7 +328,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
 export async function subsetOfIdsAlgoliaShouldntIndex(collection, ids) {
   let items = collection.find({ _id: {$in: ids} }).fetch();
   let itemsToIndex = _.filter(items, item => collection.toAlgolia(item));
-  let itemsToIndexById = _.keyBy(itemsToIndex, o=>o._id);
+  let itemsToIndexById = keyBy(itemsToIndex, o=>o._id);
   
   return _.filter(ids, id => !(id in itemsToIndexById));
 }

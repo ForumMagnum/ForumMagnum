@@ -6,8 +6,9 @@ import Sequences from '../../lib/collections/sequences/collection.js'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, algoliaDoSearch, subsetOfIdsAlgoliaShouldntIndex } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
+import keyBy from 'lodash/keyBy';
 
-const indexedCollections = { Posts, Users, Sequences, Comments };
+const indexedCollections = [ Posts, Users, Sequences, Comments ];
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
@@ -24,8 +25,8 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   const totalItems = collection.find(selector).count();
   let exportedSoFar = 0;
   
-  await forEachDocumentBatchInCollection({collection, batchSize: 100, fn: async (documents) => {
-    algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
+  await forEachDocumentBatchInCollection({collection, batchSize: 100, callback: async (documents) => {
+    await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
       errors: totalErrors, updateFunction });
     
     exportedSoFar += documents.length;
@@ -69,6 +70,7 @@ export async function algoliaExportAll() {
 
 Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
 Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
+Vulcan.algoliaExportAll = algoliaExportAll
 
 
 // Go through the Algolia index for a collection, removing any documents which
@@ -87,18 +89,29 @@ async function algoliaCleanIndex(collection)
   let currentPage = 0;
   let pageResults;
   do {
+    // FIXME: If rows actually get deleted, then this shifts the pagination
+    // boundaries, so deleting n documents means skipping the check on the
+    // first n results on the next page.
+    // Unfortunately we can't just naively skip advancing the page whenever
+    // something is deleted, because that has the potential to be
+    // catastrophically slow; if the index consists of (pagesize-1) valid
+    // documents followed by many invalid documents, then we handle the invalid
+    // documents only one at a time.
     pageResults = await algoliaDoSearch(algoliaIndex, {
       query: "",
-      attributesToRetrieve: ['objectID'],
+      attributesToRetrieve: ['objectID', '_id'],
       hitsPerPage: 1000,
       page: currentPage,
     });
     currentPage++;
     
     const ids = _.map(pageResults.hits, hit=>hit._id);
-    const idsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids);
-    if (idsToDelete.length > 0) {
-      await algoliaDeleteIds(algoliaIndex, idsToDelete);
+    const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids);
+    const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
+    if (mongoIdsToDelete.length > 0) {
+      const hitsToDelete = _.filter(pageResults.hits, hit=>hit._id in mongoIdsToDeleteDict);
+      const objectIdsToDelete = _.map(hitsToDelete, hit=>hit.objectID);
+      await algoliaDeleteIds(algoliaIndex, objectIdsToDelete);
     }
     
   } while(pageResults.hits.length > 0)
@@ -110,4 +123,5 @@ export async function algoliaCleanAll() {
 }
 
 Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
-Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
+Vulcan.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
+Vulcan.algoliaCleanAll = algoliaCleanAll

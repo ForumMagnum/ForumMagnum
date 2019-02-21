@@ -12,7 +12,7 @@
 // have _id of type ObjectID instead of string.
 export async function forEachDocumentBatchInCollection({collection, batchSize, callback})
 {
-  let rows = collection.find({}, {limit: batchSize});
+  let rows = collection.find({}, {limit: batchSize}).fetch();
   
   do {
     await callback(rows);
@@ -21,7 +21,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
     rows = await collection.find(
       { _id: {$gt: lastID} },
       { limit: batchSize }
-    );
+    ).fetch();
   } while(rows.length > 0)
 }
 
