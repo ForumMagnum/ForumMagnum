@@ -7,15 +7,16 @@ registerFragment(`
     postId
     parentCommentId
     topLevelCommentId
-    body
-    htmlBody
-    content
+    contents {
+      ...RevisionDisplay
+    }
     postedAt
     repliesBlockedUntil
     # vulcan:users
     userId
     deleted
     deletedPublic
+    deletedReason
     hideAuthor
     user {
       ...UsersMinimumInfo
@@ -36,5 +37,16 @@ registerFragment(`
     answer
     parentAnswerId
     retracted
+    postVersion
+    reviewedByUserId
+  }
+`);
+
+registerFragment(`
+  fragment CommentEdit on Comment {
+    ...CommentsList
+    contents {
+      ...RevisionEdit
+    }
   }
 `);

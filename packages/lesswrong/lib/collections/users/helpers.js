@@ -39,13 +39,13 @@ Users.canModeratePost = (user, post) => {
     (
       Users.canDo(user,"posts.moderate.own") &&
       Users.owns(user, post) &&
-      (post.moderationGuidelinesHtmlBody || post.moderationStyle)
+      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
     )
     ||
     (
       Users.canDo(user, "posts.moderate.own.personal") &&
       Users.owns(user, post) &&
-      (post.moderationGuidelinesHtmlBody || post.moderationStyle) &&
+      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle) &&
       !post.frontpageDate
     )
   )
@@ -250,7 +250,11 @@ Users.getAggregateKarma = async (user) => {
   const documentIds = [...posts, ...comments]
 
   return await Votes.rawCollection().aggregate([
-    {$match: {documentId: {$in:documentIds}, userId: {$ne: user._id}}},
+    {$match: {
+      documentId: {$in:documentIds},
+      userId: {$ne: user._id},
+      cancelled: false
+    }},
     {$group: { _id: null, totalPower: { $sum: '$power' }}},
   ]).toArray()[0].totalPower;
 }

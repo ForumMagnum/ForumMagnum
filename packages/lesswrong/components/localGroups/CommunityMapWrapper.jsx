@@ -22,7 +22,7 @@ const CommunityMapWrapper = ({router, groupQueryTerms, results, currentUserLocat
 const listOptions = {
   collection: Posts,
   queryName: "communityMapEventsQuery",
-  fragmentName: "EventsList",
+  fragmentName: "PostsList",
   limit: 500,
 }
 

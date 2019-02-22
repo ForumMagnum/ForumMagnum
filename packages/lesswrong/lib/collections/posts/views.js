@@ -1,5 +1,6 @@
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
+import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
 import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
@@ -184,7 +185,7 @@ ensureIndex(Posts,
   }
 );
 
-const frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
+let frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
 if (getSetting('EAForum')) frontpageSelector.meta = {$ne: true}
 
 Posts.addView("frontpage", terms => ({
@@ -548,7 +549,25 @@ Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
       reviewedByUserId: {$exists: false},
-      frontpageDate: {$in: [false,null] },
+      frontpageDate: viewFieldNullOrMissing,
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1 }),
+  { name: "posts.sunshineNewPosts" }
+);
+
+Posts.addView("sunshineNewUsersPosts", function (terms) {
+  return {
+    selector: {
+      status: null, // allow sunshines to see posts marked as spam
+      userId: terms.userId,
       authorIsUnreviewed: null
     },
     options: {
@@ -558,7 +577,10 @@ Posts.addView("sunshineNewPosts", function () {
     }
   }
 })
-// Covered by the same index as `new`
+ensureIndex(Posts,
+  augmentForDefaultView({ status:1, userId:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
+  { name: "posts.sunshineNewUsersPosts" }
+);
 
 Posts.addView("sunshineCuratedSuggestions", function () {
   return {

@@ -13,6 +13,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
@@ -28,6 +29,7 @@ const schema = {
   },
   commentId: {
     type: String,
+    foreignKey: "Comments",
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -43,6 +45,7 @@ const schema = {
   },
   postId: {
     type: String,
+    foreignKey: "Posts",
     optional: false,
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -66,6 +69,7 @@ const schema = {
   },
   claimedUserId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     viewableBy: ['guests'],
     hidden: true,

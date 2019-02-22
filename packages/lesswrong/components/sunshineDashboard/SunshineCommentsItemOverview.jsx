@@ -17,10 +17,10 @@ const styles = theme => ({
 })
 
 class SunshineCommentsItemOverview extends Component {
-
   render () {
     const { comment, classes } = this.props
-    let commentExcerpt = comment.body && comment.body.substring(0,38);
+    const { markdown = "" } = comment.contents || {}
+    const commentExcerpt = markdown && markdown.substring(0,38);
     return (
       <div>
         <Typography variant="body2">

@@ -46,7 +46,7 @@ const styles = theme => ({
   },
   searchResultsArea: {
     position: "absolute",
-    zIndex: 1100,
+    zIndex: theme.zIndexes.layout,
     top: 0,
     width: "100%",
   },

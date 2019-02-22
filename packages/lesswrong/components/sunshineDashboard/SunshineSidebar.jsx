@@ -18,7 +18,7 @@ const styles = theme => ({
     right:0,
     width:250,
     marginTop:63,
-    zIndex: 1000,
+    zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",
     [theme.breakpoints.up('lg')]: {
       display:"block"
@@ -29,7 +29,7 @@ const styles = theme => ({
   },
   toggle: {
     position:"relative",
-    zIndex:1001,
+    zIndex: theme.zIndexes.sunshineSidebar,
     float: "right",
     margin: 12,
     cursor: "pointer",
@@ -47,6 +47,7 @@ class SunshineSidebar extends Component {
   render () {
     const { currentUser, classes } = this.props
     const { showSidebar } = this.state
+    const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
     
     return (
       <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
@@ -59,16 +60,16 @@ class SunshineSidebar extends Component {
             onClick={this.toggleSidebar}
           />}
         { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
-          <Components.SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
-          <Components.SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-          <Components.SunshineReportedContentList terms={{view:"sunshineSidebarReports"}}/>
-          <Components.SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>
-          <Components.SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
+          <SunshineNewUsersList terms={{view:"sunshineNewUsers"}}/>
+          <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
+          <SunshineReportedContentList terms={{view:"sunshineSidebarReports"}}/>
+          {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
+          <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
         </div>}
         { showSidebar && currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
-          <Components.AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
-          <Components.AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <Components.AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
+          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
+          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
         </div>}
       </div>
     )

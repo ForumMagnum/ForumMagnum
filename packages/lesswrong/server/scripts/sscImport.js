@@ -43,7 +43,12 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
           draft: false,
           legacy: true,
           userId: userId,
-          htmlBody: body,
+          contents: {
+            originalContents: {
+              data: body,
+              type: "html"
+            }
+          },
         };
 
         const lwUser = Users.findOne({_id: userId});

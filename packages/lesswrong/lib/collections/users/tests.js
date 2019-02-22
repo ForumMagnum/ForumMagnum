@@ -83,7 +83,7 @@ describe('updateUser – ', async () => {
     await userUpdateFieldFails({
       user:user,
       document:user,
-      fieldName:'banned',
+      fieldName: 'banned',
       newValue: new Date(),
       collectionType:'User',
     })

@@ -21,7 +21,7 @@ const styles = theme => ({
     color: theme.palette.grey[500],
     paddingLeft: 1, // For some weird reason having this padding here makes it look more centered
     position: 'relative',
-    zIndex: 1,
+    zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
   },
   secondaryVoteScore: {

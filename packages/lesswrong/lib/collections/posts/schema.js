@@ -12,6 +12,7 @@ import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
+
 /**
  * @summary Posts config namespace
  * @type {Object}
@@ -125,38 +126,6 @@ const schema = {
     }
   },
   /**
-    Post body (markdown)
-  */
-  body: {
-    type: String,
-    optional: true,
-    max: 3000,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: 'textarea',
-    order: 30
-  },
-  /**
-    HTML version of the post body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     return Utils.sanitize(marked(post.body));
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
    Post Excerpt
    */
   excerpt: {
@@ -164,20 +133,6 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     searchable: true,
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     // excerpt length is configurable via the settings (30 words by default, ~255 characters)
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(post.body)), excerptLength);
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(modifier.$set.body)), excerptLength);
-    //   }
-    // }
   },
   /**
     Count of how many times the post's page was viewed
@@ -193,6 +148,7 @@ const schema = {
   */
   lastCommentedAt: {
     type: Date,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
   },
@@ -317,6 +273,7 @@ const schema = {
   */
   author: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     onEdit: (modifier, document, currentUser) => {
@@ -331,6 +288,7 @@ const schema = {
   */
   userId: {
     type: String,
+    foreignKey: 'Users',
     optional: true,
     control: 'select',
     viewableBy: ['guests'],
@@ -380,6 +338,18 @@ const schema = {
       },
     }
   },
+  
+  pageUrlRelative: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        return Posts.getPageUrl(post, false);
+      },
+    }
+  },
 
   linkUrl: {
     type: String,
@@ -395,6 +365,7 @@ const schema = {
 
   postedAtFormatted: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     resolveAs: {
@@ -415,20 +386,6 @@ const schema = {
         const commentsCount = Comments.find({ postId: post._id }).count();
         return commentsCount;
       },
-    }
-  },
-
-  commentIds: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'comments',
-      arguments: 'limit: Int = 5',
-      type: '[Comment]',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'commentIds'}
-      ),
     }
   },
 
@@ -480,13 +437,48 @@ const schema = {
   authorIsUnreviewed: {
     type: Boolean,
     optional: true,
+    denormalized: true,
     ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
-
+  
+  // DEPRECATED fields for GreaterWrong backwards compatibility
+  wordCount: {
+    type: Number,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'Int',
+      resolver: (post, args, { Posts }) => {
+        const contents = post.contents;
+        return contents.wordCount;
+      }
+    }
+  },
+  htmlBody: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'String',
+      resolver: (post, args, { Posts }) => {
+        const contents = post.contents;
+        return contents.html;
+      }
+    }
+  },
+  submitToFrontpage: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(true)
+  }
 };
 
 export default schema;

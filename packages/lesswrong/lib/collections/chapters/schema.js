@@ -12,7 +12,6 @@ export const formGroups = {
 }
 
 const schema = {
-
   _id: {
     type: String,
     optional: true,
@@ -37,6 +36,7 @@ const schema = {
     editableBy: ["admins"],
     insertableBy: ['admins'],
     placeholder:"Title",
+    order: 10,
     group: formGroups.chapterDetails
   },
 
@@ -47,31 +47,21 @@ const schema = {
     editableBy: ["admins"],
     insertableBy: ['admins'],
     placeholder:"Subtitle",
+    order: 20,
     group: formGroups.chapterDetails
   },
 
-  description: {
-    type: Object,
-    blackbox: true,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ["admins"],
-    insertableBy: ['admins'],
-    control: 'EditorFormComponent',
-    group: formGroups.chapterDetails
-  },
+  // plaintextDescription: {
+  //   type: String,
+  //   optional: true,
+  //   viewableBy: ['guests'],
+  // },
 
-  plaintextDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
-  htmlDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
+  // htmlDescription: {
+  //   type: String,
+  //   optional: true,
+  //   viewableBy: ['guests'],
+  // },
 
   number: {
     type: Number,
@@ -84,6 +74,7 @@ const schema = {
 
   sequenceId: {
     type: String,
+    foreignKey: "Sequences",
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
@@ -118,6 +109,7 @@ const schema = {
 
   "postIds.$": {
     type: String,
+    foreignKey: "Posts",
     optional: true,
   },
 }

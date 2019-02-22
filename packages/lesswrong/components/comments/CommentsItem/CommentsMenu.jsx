@@ -18,7 +18,7 @@ const styles = theme => ({
     position:"absolute",
     right:0,
     top:0,
-    zIndex: 1,
+    zIndex: theme.zIndexes.commentsMenu,
   }
 })
 
@@ -37,6 +37,9 @@ class CommentsMenu extends PureComponent {
     const { currentUser, children, classes, className, comment, post, showEdit, icon } = this.props
     const { anchorEl } = this.state
     const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem } = Components
+    
+    if (!currentUser) return null
+    
     return (
       <span className={className}>
         <span onClick={this.handleClick}>

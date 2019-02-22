@@ -9,7 +9,7 @@ const ChaptersNewForm = (props) => {
   return (
     <div className="chapters-new-form">
       <h3>Add Chapter</h3>
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Chapters}
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}

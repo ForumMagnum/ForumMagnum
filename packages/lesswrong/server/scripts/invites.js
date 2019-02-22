@@ -8,13 +8,13 @@ if (!Meteor.isPackageTest) {
     return 'Activate your Account on the EA Forum Internal Beta';
   };
   Accounts.emailTemplates.enrollAccount.text = (user, url) => {
-    return 'You are invited to participate in the EA Forum Internal Beta'
+    return 'You are invited to participate in the EA Forum'
       + ' To register an account, simply click the link below:\n\n'
       + url;
   };
 
   Accounts.emailTemplates.resetPassword.subject = (user) => {
-    return 'Reset your password on the EA Forum Internal Beta';
+    return 'Reset your password on the EA Forum';
   };
 
   Accounts.emailTemplates.resetPassword.from = () => {
@@ -25,7 +25,7 @@ if (!Meteor.isPackageTest) {
 
   // TODO change these
   Accounts.emailTemplates.resetPassword.text = (user, url) => {
-    return 'You\'ve requested to reset your password for the EA Forum Internal Beta. \n\n'
+    return 'You\'ve requested to reset your password for the EA Forum. \n\n'
       + 'To reset your password, click on the link below. The link in this email will expire within 2 days.\n \n'
       + url;
   };
