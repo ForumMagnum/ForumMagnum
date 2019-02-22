@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withDocument, withEdit } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -102,15 +102,15 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
   return (
     <Typography variant="body2">
-      {noKarmaChanges ? 
+      {noKarmaChanges ?
         <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
-        : 
+        :
         <div>
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
             {karmaChanges.posts && karmaChanges.posts.map((postChange,i) => (
-              <MenuItem 
-                className={classes.votedItemRow} 
+              <MenuItem
+                className={classes.votedItemRow}
                 component={Link} to={postChange.post.pageUrlRelative} key={i} >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
@@ -118,10 +118,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
                 <div className={classes.votedItemDescription}>
                   {postChange.post.title}
                 </div>
-                </MenuItem>   
+                </MenuItem>
             ))}
             {karmaChanges.comments && karmaChanges.comments.map((commentChange,i) => (
-              <MenuItem className={classes.votedItemRow} 
+              <MenuItem className={classes.votedItemRow}
                 component={Link} to={commentChange.comment.pageUrlRelative} key={i}
                 >
                 <span className={classes.votedItemScoreChange}>
@@ -135,9 +135,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
           </div>
         </div>
         }
-      <Link to={`/account`} onClick={handleClose}> 
-        <span className={classes.settings}>Change Settings </span>  
-      </Link>  
+      <Link to={`/account`} onClick={handleClose}>
+        <span className={classes.settings}>Change Settings </span>
+      </Link>
     </Typography>
   );
 }
@@ -193,11 +193,11 @@ class KarmaChangeNotifier extends PureComponent {
   }
   
   render() {
-    const {classes, currentUser} = this.props;
-    if (!currentUser) return null
+    const {document, classes, currentUser} = this.props;
+    if (!currentUser || !document) return null
     if (!currentUser.groups || !currentUser.groups.includes('sunshineRegiment')) return null
     const {open, anchorEl, karmaChanges: stateKarmaChanges, karmaChangeLastOpened} = this.state;
-    const karmaChanges = stateKarmaChanges || currentUser.karmaChanges // Covers special case when state was initialized when user wasn't logged in
+    const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
     if (!karmaChanges) return null;
     
     const { karmaChangeNotifierSettings: settings } = currentUser
@@ -206,7 +206,7 @@ class KarmaChangeNotifier extends PureComponent {
     
     const { posts, comments, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
-    const newKarmaChangesSinceLastVisit = (new Date(karmaChangeLastOpened || 0) - new Date(endDate || 0)) < 0 
+    const newKarmaChangesSinceLastVisit = (new Date(karmaChangeLastOpened || 0) - new Date(endDate || 0)) < 0
     return <div>
         <IconButton onClick={this.handleToggle} className={classes.karmaNotifierButton}>
           {((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
@@ -234,21 +234,23 @@ class KarmaChangeNotifier extends PureComponent {
           <ClickAwayListener onClickAway={this.handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
               <KarmaChangesDisplay karmaChanges={karmaChanges}classes={classes} handleClose={this.handleClose} />
-            </Paper> 
+            </Paper>
           </ClickAwayListener>
         </Popper>
-      </div>  
-      
+      </div>
   }
 }
 
-const withEditOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-};
-
 registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
   withUser, withErrorBoundary,
-  [withEdit, withEditOptions],
+  [withDocument, {
+    collection: Users,
+    queryName: 'UserKarmaChangesQuery',
+    fragmentName: 'UserKarmaChanges'
+  }],
+  [withEdit, {
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }],
   withStyles(styles, {name: 'KarmaChangeNotifier'})
 );
