@@ -28,7 +28,7 @@ const Revisions = createCollection({
 // we will hide those revisions unless they are marked as post-1.0.0 releases. This is not ideal, but
 // seems acceptable
 Revisions.checkAccess = function (user, revision) {
-  if (user._id === revision.userId) return true
+  if ((user && user._id) === revision.userId) return true
   const { major } = extractVersionsFromSemver(revision.version)
   return major > 0
 }
