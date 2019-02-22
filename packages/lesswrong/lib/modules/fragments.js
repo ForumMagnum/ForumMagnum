@@ -97,22 +97,8 @@ registerFragment(`
       startDate
       endDate
       nextBatchDate
-      posts {
-        scoreChange
-        post {
-          title
-          pageUrlRelative
-        }
-      }
-      comments {
-        scoreChange
-        comment {
-          contents {
-            plaintextDescription
-          }
-          pageUrlRelative
-        }
-      }
+      posts
+      comments
     }
   }
 `);

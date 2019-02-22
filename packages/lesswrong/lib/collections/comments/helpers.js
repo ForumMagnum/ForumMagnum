@@ -18,13 +18,18 @@ Comments.getAuthorName = function (comment) {
  * @param {Object} comment
  */
 // LW: Overwrite the original example-forum Comments.getPageUrl
-Comments.getPageUrl = function(comment, isAbsolute = false){
+Comments.getPageUrl = function(comment, isAbsolute = false) {
   const post = Posts.findOne(comment.postId);
   return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
 };
 
+Comments.getPageUrlFromIds = function(postId, postSlug, commentId, isAbsolute=false) {
+  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+}
+
 // URL for RSS feed of all direct replies
-Comments.getRSSUrl = function(comment, isAbsolute = false){
+Comments.getRSSUrl = function(comment, isAbsolute = false) {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };

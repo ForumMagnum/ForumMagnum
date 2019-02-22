@@ -161,6 +161,7 @@ describe('Voting', async function() {
         _id: post._id,
         collectionName: "Posts",
         scoreChange: 1,
+        title: post.title,
       });
       
       // TODO
