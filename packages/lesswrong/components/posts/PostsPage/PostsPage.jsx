@@ -197,7 +197,6 @@ class PostsPage extends Component {
       const feedLink = post.feed && post.feed.url && new URLClass(post.feed.url).hostname
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
-      console.log(post.version, major, hasMajorRevision)
 
       return (
         <div className={classes.root}>
