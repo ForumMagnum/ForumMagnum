@@ -4,14 +4,21 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 const styles = theme => ({
+  root: {
+    marginTop: theme.spacing.unit*4,
+    '&:first-child': {
+      marginTop: theme.spacing.unit,
+    }
+  },
   dayTitle: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing.unit*2,
     whiteSpace: "pre",
     textOverflow: "ellipsis",
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    fontWeight: 600
   },
   noPosts: {
     marginLeft: "23px",
@@ -26,8 +33,8 @@ class PostsDay extends PureComponent {
     const noPosts = posts.length === 0;
 
     return (
-      <div className="posts-day">
-        <Typography variant="display2" className={classes.dayTitle}>
+      <div className={classNames("posts-day", classes.root)}>
+        <Typography variant="body2" className={classes.dayTitle}>
           <Hidden xsDown implementation="css">
             {date.format('dddd, MMMM Do YYYY')}
           </Hidden>

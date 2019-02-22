@@ -99,7 +99,7 @@ const styles = theme => ({
   paperNotExpanded: {
     backgroundColor: 'inherit',
     outline: "none",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
   },
   commentCountIcon: {
     position:"absolute",

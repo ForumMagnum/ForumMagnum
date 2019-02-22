@@ -65,6 +65,10 @@ extendFragment('UsersCurrent', `
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
+  allPostsView
+  allPostsFilter
+  allPostsShowLowKarma
+  allPostsOpenSettings
   lastNotificationsCheck
   subscribedItems
   groups
