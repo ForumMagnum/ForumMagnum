@@ -1,28 +1,14 @@
-import { Posts } from '../collections/posts';
-import { Comments } from '../collections/comments'
+import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
-import RSSFeeds from '../collections/rssfeeds/collection.js';
-import Sequences from '../collections/sequences/collection.js';
+import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+import Sequences from '../../lib/collections/sequences/collection.js';
 import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
-import { Components } from 'meteor/vulcan:core';
-import React from 'react';
-import { draftToHTML } from '../editor/utils.js';
-import { convertFromRaw } from 'draft-js';
+import { dataToMarkdown } from '../editor/make_editable_callbacks'
 
-const contentToHtml = (content) => {
-  if (content) {
-    try {
-      return draftToHTML(convertFromRaw(content));
-    } catch(e) {
-      //eslint-disable-next-line no-console
-      console.log("Failed to convert content to html:", e);
-    }
-  } else {
-    return null;
-  }
-}
+const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
 Comments.toAlgolia = (comment) => {
   const algoliaComment = {
@@ -53,18 +39,14 @@ Comments.toAlgolia = (comment) => {
     algoliaComment.postTitle = parentPost.title;
     algoliaComment.postSlug = parentPost.slug;
   }
-  //  Limit comment size to ensure we stay below Algolia search Limit
-  // TODO: Actually limit by encoding size as opposed to characters
-  if (comment.htmlBody) {
-    const plaintextBody = htmlToText.fromString(comment.htmlBody);
-    algoliaComment.body = plaintextBody.slice(0, 2000);
-  } else if (comment.body) {
-    algoliaComment.body = comment.body.slice(0,2000);
-  } else if (comment.content) {
-    const html = contentToHtml(comment.content)
-    const plaintextBody = htmlToText.fromString(html);
-    algoliaComment.body = plaintextBody.slice(0, 2000);
+  let body = ""
+  if (comment.contents && comment.contents.originalContents && comment.contents.originalContents.type) {
+    const { data, type } = comment.contents.originalContents
+    body = dataToMarkdown(data, type)
   }
+  //  Limit comment size to ensure we stay below Algolia search Limit
+  //  TODO: Actually limit by encoding size as opposed to characters
+  algoliaComment.body = body.slice(0, COMMENT_MAX_SEARCH_CHARACTERS)
   return [algoliaComment]
 }
 
@@ -90,13 +72,9 @@ Sequences.toAlgolia = (sequence) => {
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
-  if (sequence.description) {
-    const html = contentToHtml(sequence.description);
-    const plaintextBody = htmlToText.fromString(html);
-    algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
-  } else if (sequence.plaintextDescription) {
-    algoliaSequence.plaintextDescription = sequence.plaintextDescription.slice(0,2000);
-  }
+  const { html = "" } = sequence.contents || {};
+  const plaintextBody = htmlToText.fromString(html);
+  algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   return [algoliaSequence]
 }
 
@@ -118,6 +96,7 @@ Users.toAlgolia = (user) => {
 }
 
 
+// TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
 Posts.toAlgolia = (post) => {
   const algoliaMetaInfo = {
     _id: post._id,
@@ -153,11 +132,11 @@ Posts.toAlgolia = (post) => {
   let postBatch = [];
   let paragraphCounter =  0;
   let algoliaPost = {};
-  const body = post.htmlBody ?
-    htmlToText.fromString(post.htmlBody) :
-    post.body
-      ? post.body :
-        post.content && htmlToText.fromString(contentToHtml(post.content))
+  let body = ""
+  if (post.contents && post.contents.originalContents && post.contents.originalContents.type) {
+    const { data, type } = post.contents.originalContents
+    body = dataToMarkdown(data, type)
+  }
   if (body) {
     body.split("\n\n").forEach((paragraph) => {
       algoliaPost = {

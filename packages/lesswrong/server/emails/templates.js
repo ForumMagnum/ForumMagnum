@@ -11,7 +11,6 @@ const postsQuery = `
         pageUrl
         linkUrl
         postedAt
-        htmlBody
         thumbnailUrl
         user{
           pageUrl

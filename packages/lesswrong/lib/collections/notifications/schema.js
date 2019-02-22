@@ -16,6 +16,7 @@ const schema = {
   },
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     viewableBy: Users.owns,
   },
@@ -29,6 +30,7 @@ const schema = {
   },
   documentId: {
     type: String,
+    // No explicit foreign-key relation because which collection this is depends on notification type
     optional: true,
     viewableBy: Users.owns,
   },

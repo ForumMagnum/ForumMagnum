@@ -27,6 +27,7 @@ class ChaptersItem extends Component {
 
   render() {
     const chapter = this.props.chapter;
+    const { html = "" } = chapter.contents
     if (this.state.edit) {
       return <Components.ChaptersEditForm
                 documentId={chapter._id}
@@ -37,7 +38,9 @@ class ChaptersItem extends Component {
         <Components.Section title={chapter.title}
           titleComponent={this.renderTitleComponent(chapter, this.props.canEdit)}
         >
-          {chapter.htmlDescription && <div className="chapters-item-description"> <div className="content-body" dangerouslySetInnerHTML={{__html: chapter.htmlDescription}}/> </div>}
+          {html && <div className="chapters-item-description"> 
+            <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/> 
+          </div>}
           <div className="chapters-item-posts">
             <Components.SequencesPostsList posts={chapter.posts} chapter={chapter} />
           </div>

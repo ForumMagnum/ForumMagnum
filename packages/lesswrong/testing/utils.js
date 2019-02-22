@@ -182,7 +182,12 @@ export const createDummyComment = async (user, data) => {
   const defaultUser = await createDefaultUser();
   let defaultData = {
     userId: user._id,
-    body: "This is a test comment",
+    contents: {
+      originalContents: {
+        type: "markdown",
+        data: "This is a test comment"
+      }
+    },
   }
   if (!data.postId) {
     defaultData.postId = Posts.findOne()._id; // By default, just grab ID from a random post
@@ -216,7 +221,7 @@ export const createDummyConversation = async (user, data) => {
 
 export const createDummyMessage = async (user, data) => {
   let defaultData = {
-    content: convertToRaw(ContentState.createFromText('Dummy Message Content')),
+    contents: convertToRaw(ContentState.createFromText('Dummy Message Content')),
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};
@@ -242,17 +247,40 @@ export const clearDatabase = async () => {
   })
 }
 
-export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType}) => {
+// Replacement for JSON.stringify, because that puts quotes around keys, and GraphQL does not
+// accept objects with quotes around the keys. 
+// Copied from here: https://stackoverflow.com/a/11233515/8083739
+
+// Jim's note: This will not work on objects that contain arrays that contain objects
+function stringifyObject(obj_from_json){
+  if(typeof obj_from_json !== "object" || Array.isArray(obj_from_json) || obj_from_json instanceof Date){
+      // not an object or is a Date, stringify using native function
+      return JSON.stringify(obj_from_json);
+  }
+  // Implements recursive object serialization according to JSON spec
+  // but without quotes around the keys.
+  let props = Object
+      .keys(obj_from_json)
+      .map(key => `${key}:${stringifyObject(obj_from_json[key])}`)
+      .join(",");
+  return `{${props}}`;
+}
+
+export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType, fragment}) => {
   if (newValue === undefined) {
     newValue = Random.id()
   }
-  const newValueJson = JSON.stringify(newValue);
+
+  let newValueString = JSON.stringify(newValue)
+  if (typeof newValue === "object") {
+    newValueString = stringifyObject(newValue)
+  } 
 
   const query = `
     mutation {
-      update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueJson}}) {
+      update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueString}}) {
         data {
-          ${fieldName}
+          ${fragment || fieldName}
         }
       }
     }
@@ -261,7 +289,7 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
   await response.should.be.rejected;
 }
 
-export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue}) => {
+export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue, fragment}) => {
 
   let comparedValue = newValue
 
@@ -269,13 +297,17 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
     comparedValue = Random.id()
     newValue = comparedValue;
   }
-  const newValueJson = JSON.stringify(newValue);
+
+  let newValueString = JSON.stringify(newValue)
+  if (typeof newValue === "object") {
+    newValueString = stringifyObject(newValue)
+  }
 
   const query = `
       mutation {
-        update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueJson}}) {
+        update${collectionType}(selector: {_id:"${document._id}"},data:{${fieldName}:${newValueString}}) {
           data {
-            ${fieldName}
+            ${fragment || fieldName}
           }
         }
       }

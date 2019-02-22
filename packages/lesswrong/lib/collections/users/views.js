@@ -56,7 +56,7 @@ Users.addView("sunshineNewUsers", function () {
   return {
     selector: {
       $or: [
-        { voteCount: {$gt: 0}},
+        { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
         { postCount: {$gt: 0}},
       ],

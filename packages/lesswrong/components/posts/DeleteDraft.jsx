@@ -12,7 +12,7 @@ class DeleteDraft extends Component {
 
       editMutation({
         documentId: post._id,
-        set: {deletedDraft:true},
+        set: {deletedDraft:true, draft: true},
         unset: {}
       })
     }
