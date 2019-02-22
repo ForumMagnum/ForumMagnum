@@ -3,25 +3,6 @@ import { Comments } from './index'
 import Users from "meteor/vulcan:users"
 import { getSetting } from 'meteor/vulcan:core'
 
-// Example Forum Helpers
-
-
-//////////////////
-// Link Helpers //
-//////////////////
-
-/**
- * @summary Get URL of a comment page.
- * @param {Object} comment
- */
-Comments.getPageUrl = function(comment, isAbsolute = false){
-  const post = Posts.findOne(comment.postId);
-  return `${Posts.getPageUrl(post, isAbsolute)}/#${comment._id}`;
-};
-
-///////////////////
-// Other Helpers //
-///////////////////
 
 /**
  * @summary Get a comment author's name
@@ -31,8 +12,6 @@ Comments.getAuthorName = function (comment) {
   var user = Users.findOne(comment.userId);
   return user ? Users.getDisplayName(user) : comment.author;
 };
-
-// LessWrong Helpers
 
 /**
  * @summary Get URL of a comment page.
