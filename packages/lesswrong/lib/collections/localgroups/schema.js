@@ -54,11 +54,13 @@ const schema = {
 
   'organizerIds.$': {
     type: String,
+    foreignKey: "Users",
     optional: true,
   },
 
   lastActivity: {
     type: Date,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],

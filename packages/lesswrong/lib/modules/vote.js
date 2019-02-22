@@ -75,6 +75,7 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
   // create new vote and add it to currentUserVotes array
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
   newDocument.currentUserVotes = [...newDocument.currentUserVotes, vote];
+  newDocument.voteCount = (newDocument.voteCount||0) + 1;
 
   // increment baseScore
   newDocument.baseScore += vote.power;
@@ -101,10 +102,22 @@ const addVoteServer = async (voteOptions) => {
   // LESSWRONG – recalculateBaseScore
   newDocument.baseScore = recalculateBaseScore(newDocument)
   newDocument.score = recalculateScore(newDocument);
+  newDocument.voteCount++;
 
   if (updateDocument) {
     // update document score & set item as active
-    await Connectors.update(collection, {_id: document._id}, {$set: {inactive: false, baseScore: newDocument.baseScore, score: newDocument.score}}, {}, true);
+    await Connectors.update(collection,
+      {_id: document._id},
+      {
+        $set: {
+          inactive: false,
+          baseScore: newDocument.baseScore,
+          score: newDocument.score
+        },
+        $inc: { voteCount: 1 },
+      },
+      {}, true
+    );
   }
   return {newDocument, vote};
 }
@@ -122,6 +135,8 @@ const cancelVoteClient = ({ document, voteType }) => {
     newDocument.baseScore -= vote.power;
     newDocument.score = recalculateScore(newDocument);
 
+    newDocument.voteCount--;
+    
     const newVotes = _.reject(document.currentUserVotes, vote => vote.voteType === voteType);
 
     // clear out vote of this type
@@ -140,6 +155,7 @@ const clearVotesClient = ({ document }) => {
   const newDocument = _.clone(document);
   newDocument.baseScore -= calculateTotalPower(document.currentUserVotes);
   newDocument.score = recalculateScore(newDocument);
+  newDocument.voteCount -= newDocument.currentUserVotes.length
   newDocument.currentUserVotes = [];
   return newDocument
 }
@@ -181,12 +197,16 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     if (updateDocument) {
       await Connectors.update(collection,
         {_id: document._id},
-        {$set: {baseScore: recalculateBaseScore(document) }},
+        {
+          $set: {baseScore: recalculateBaseScore(document) },
+          $inc: {voteCount: -votes.length},
+        },
         {}, true
       );
     }
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
+    newDocument.voteCount -= votes.length;
   }
   return newDocument;
 }
@@ -224,17 +244,23 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     {}, true);
   newDocument.baseScore = recalculateBaseScore(newDocument);
   newDocument.score = recalculateScore(newDocument);
+  newDocument.voteCount--;
 
   if (updateDocument) {
     // update document score
     await Connectors.update(
       collection,
       {_id: document._id},
-      {$set: {
-        inactive: false,
-        score: newDocument.score,
-        baseScore: newDocument.baseScore
-      }},
+      {
+        $set: {
+          inactive: false,
+          score: newDocument.score,
+          baseScore: newDocument.baseScore
+        },
+        $inc: {
+          voteCount: -1
+        }
+      },
       {},
       true
     );

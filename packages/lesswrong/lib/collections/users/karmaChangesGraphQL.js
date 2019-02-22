@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../../karmaChanges.js";
-import { addGraphQLSchema, addGraphQLResolvers, Connectors } from 'meteor/vulcan:core';
+import { addGraphQLSchema, addGraphQLResolvers, Connectors, getSetting } from 'meteor/vulcan:core';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
 
@@ -97,10 +97,12 @@ Users.addField([
           
           const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
           
+          const alignmentForum = getSetting('AlignmentForum', false);
           return getKarmaChanges({
             user: document,
             startDate, endDate,
             nextBatchDate,
+            af: alignmentForum,
           });
         },
       },

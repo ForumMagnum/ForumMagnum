@@ -427,6 +427,9 @@ registerFragment(`
         ...UsersMinimumInfo
       }
       baseScore
+      contents {
+        ...RevisionDisplay
+      }
       postedAt
       deleted
       postId
@@ -443,6 +446,9 @@ registerFragment(`
       slug
       title
       isEvent
+      contents {
+        ...RevisionDisplay
+      }
     }
     closedAt
     createdAt
@@ -488,6 +494,7 @@ registerFragment(`
     baseScore
     score
     afBaseScore
+    voteCount
   }
 `);
 
@@ -503,6 +510,7 @@ registerFragment(`
     baseScore
     score
     afBaseScore
+    voteCount
   }
 `);
 

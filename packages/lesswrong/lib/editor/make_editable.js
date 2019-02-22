@@ -6,10 +6,11 @@ import SimpleSchema from 'simpl-schema'
 const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
-  html: {type: String, optional: true},
+  html: {type: String, optional: true, denormalized: true},
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
-  editedAt: {type: Date, optional: true}
+  editedAt: {type: Date, optional: true},
+  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true}
 })
 
 SimpleSchema.extendOptions([ 'inputType' ]);
@@ -84,7 +85,8 @@ export const makeEditable = ({collection, options = {}}) => {
               originalContents: (doc[field] && doc[field].originalContents) || {},
               html: doc[field] && doc[field].html,
               updateType: doc[field] && doc[field].updateType,
-              version: doc[field] && doc[field].version
+              version: doc[field] && doc[field].version,
+              wordCount: doc[field] && doc[field].wordCount,
             }
           }
         },

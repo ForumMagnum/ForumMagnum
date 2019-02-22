@@ -29,7 +29,7 @@ const schema = {
   */
   parentCommentId: {
     type: String,
-    // regEx: SimpleSchema.RegEx.Id,
+    foreignKey: "Comments",
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -49,7 +49,8 @@ const schema = {
   */
   topLevelCommentId: {
     type: String,
-    // regEx: SimpleSchema.RegEx.Id,
+    foreignKey: "Comments",
+    denormalized: true,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -111,6 +112,7 @@ const schema = {
   */
   postId: {
     type: String,
+    foreignKey: "Posts",
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -131,6 +133,7 @@ const schema = {
   */
   userId: {
     type: String,
+    foreignKey: "Users",
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -209,6 +212,8 @@ const schema = {
 
   parentAnswerId: {
     type: String,
+    denormalized: true,
+    foreignKey: "Comments",
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,

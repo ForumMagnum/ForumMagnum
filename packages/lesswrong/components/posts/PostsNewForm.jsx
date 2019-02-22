@@ -7,6 +7,7 @@ import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
 
 const PostsNewForm = ({router, currentUser, flash}) => {
+  const { PostSubmit, WrappedSmartForm, AccountsLoginForm} = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
@@ -19,15 +20,15 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
-  
+
   if (!Posts.options.mutations.new.check(currentUser)) {
-    return (<Components.AccountsLoginForm />);
+    return (<AccountsLoginForm />);
   }
-  
+
   return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collection={Posts}
         mutationFragment={getFragment('PostsPage')}
         prefilledProps={prefilledProps}
@@ -36,8 +37,8 @@ const PostsNewForm = ({router, currentUser, flash}) => {
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
         eventForm={router.location.query && router.location.query.eventForm}
-        submitLabel="Publish"
         repeatErrors
+        SubmitComponent={PostSubmit}
       />
     </div>
   );

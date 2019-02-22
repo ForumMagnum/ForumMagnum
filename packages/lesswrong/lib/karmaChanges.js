@@ -27,7 +27,7 @@ import moment from 'moment-timezone';
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate, nextBatchDate})
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -41,13 +41,14 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate})
       authorId: user._id,
       votedAt: {$gte: startDate, $lte: endDate},
       userId: {$ne: user._id}, //Exclude self-votes
+      ...(af && {afPower: {$exists: true}})
     }},
     
     // Group by thing-that-was-voted-on and calculate the total karma change
     {$group: {
       _id: "$documentId",
       collectionName: { $first: "$collectionName" },
-      scoreChange: { $sum: "$power" },
+      scoreChange: { $sum: af ? "$afPower" : "$power" },
     }},
     
     // Filter out things with zero net change (eg where someone voted and then

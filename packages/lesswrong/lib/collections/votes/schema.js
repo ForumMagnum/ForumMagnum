@@ -1,10 +1,6 @@
 import Users from 'meteor/vulcan:users';
 import { schemaDefaultValue } from '../../collectionUtils';
 
-// Needed for `denormalized` field to be valid (even though no specific token
-// is being imported here).
-import '../../collectionUtils.js';
-
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -28,6 +24,7 @@ const schema = {
   documentId: {
     type: String,
     canRead: ['guests'],
+    // No explicit foreign-key relation because which collection this is depends on collectionName
   },
 
   // The name of the collection the document belongs to
@@ -40,6 +37,7 @@ const schema = {
   userId: {
     type: String,
     canRead: Users.owns,
+    foreignKey: 'Users',
   },
   
   // The ID of the author of the document that was voted on
@@ -47,6 +45,7 @@ const schema = {
     type: String,
     denormalized: true, // Can be inferred from documentId
     canRead: ['guests'],
+    foreignKey: 'Users',
   },
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
