@@ -239,7 +239,6 @@ async function algoliaDoCompleteSearch(algoliaIndex, query) {
     ...query,
     hitsPerPage: pageSize,
   });
-  console.log(firstPageResults);
   for (let hit of firstPageResults.hits) {
     allResults.push(hit);
   }
@@ -292,13 +291,11 @@ async function deleteIfPresent(algoliaIndex, ids) {
   let algoliaIdsToDelete = [];
   
   for (const mongoId of ids) {
-    console.log(`Searching for Algolia index entries with _id: ${mongoId}`);
     const results = await algoliaDoCompleteSearch(algoliaIndex, {
       query: mongoId,
       restrictSearchableAttributes: ["_id"],
       attributesToRetrieve: ['objectID','_id'],
     });
-    console.log(results);
     for (const hit of results)
       algoliaIdsToDelete.push(hit.objectID);
   }
@@ -340,8 +337,8 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
     errors: totalErrors, updateFunction });
   
-  //eslint-disable-next-line no-console
   if (totalErrors.length > 0) {
+    //eslint-disable-next-line no-console
     console.error("Encountered the following errors while exporting to Algolia: ", totalErrors)
   }
 }
