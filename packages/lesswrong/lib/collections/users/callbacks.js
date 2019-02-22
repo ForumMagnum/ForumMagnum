@@ -55,7 +55,7 @@ function approveUnreviewedPosts (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
-    Posts.update({userId:newUser._id}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
   }
 }
 

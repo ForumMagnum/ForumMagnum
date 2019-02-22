@@ -22,6 +22,7 @@ registerFragment(`
     clickCount
     question
     commentCount
+    voteCount
     baseScore
     unlisted
     score
@@ -69,6 +70,7 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    submitToFrontpage
   }
 `);
 

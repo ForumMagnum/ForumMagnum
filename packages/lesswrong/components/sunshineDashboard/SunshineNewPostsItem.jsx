@@ -97,9 +97,9 @@ class SunshineNewPostsItem extends Component {
           <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
             done
           </Components.SidebarAction>
-          <Components.SidebarAction title="Move to Frontpage" onClick={this.handleFrontpage}>
+          {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handleFrontpage}>
             thumb_up
-          </Components.SidebarAction>
+          </Components.SidebarAction>}
           <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
             clear
           </Components.SidebarAction>

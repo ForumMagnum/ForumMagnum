@@ -28,7 +28,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
 
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
-  return draftToHTML(draftJSWithLatex)
+  return draftToHTML(convertFromRaw(draftJSWithLatex))
 }
 
 export function htmlToMarkdown(html) {
@@ -49,11 +49,38 @@ async function dataToHTML(data, type) {
     case "html":
       return data
     case "draftJS":
-      const contentState = convertFromRaw(data);
-      return await draftJSToHtmlWithLatex(contentState)
+      return await draftJSToHtmlWithLatex(data)
     case "markdown":
       return await markdownToHtmlWithLatex(data)
   }
+}
+
+export function dataToMarkdown(data, type) {
+  if (!data) return ""
+  switch (type) {
+    case "markdown": {
+      return data
+    }
+    case "html": {
+      return htmlToMarkdown(data)
+    }
+    case "draftJS": {
+      try {
+        const contentState = convertFromRaw(data);
+        const html = draftToHTML(contentState)
+        return htmlToMarkdown(html)  
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(e)
+      }
+      return ""
+    }
+  }
+}
+
+export async function dataToWordCount(data, type) {
+  const markdown = dataToMarkdown(data, type) || ""
+  return markdown.split(" ").length
 }
 
 function getInitialVersion(document) {
@@ -94,10 +121,11 @@ export function addEditableCallbacks({collection, options = {}}) {
     if (doc[fieldName] && doc[fieldName].originalContents) {
       const { data, type } = doc[fieldName].originalContents
       const html = await dataToHTML(data, type)
+      const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt}}  
+      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount}}  
     }
     return doc
   }
@@ -110,11 +138,12 @@ export function addEditableCallbacks({collection, options = {}}) {
     if (docData[fieldName] && docData[fieldName].originalContents) {
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type)
+      const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = (document.draft && !docData.draft) ? 'major' : 'minor'
       const version = await getNextVersion(document._id, docData[fieldName].updateType || defaultUpdateType)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt}}
+      return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt, wordCount}}
     } 
     return docData
   }

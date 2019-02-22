@@ -185,10 +185,11 @@ ensureIndex(Posts,
   }
 );
 
+let frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
+if (getSetting('EAForum')) frontpageSelector.meta = {$ne: true}
+
 Posts.addView("frontpage", terms => ({
-  selector: {
-    frontpageDate: {$gt: new Date(0)},
-  },
+  selector: frontpageSelector,
   options: {
     sort: {sticky: -1, score: -1}
   }
@@ -197,14 +198,12 @@ ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
   {
     name: "posts.frontpage",
-    partialFilterExpression: { frontpageDate: {$gt: new Date(0)} },
+    partialFilterExpression: frontpageSelector,
   }
 );
 
 Posts.addView("frontpage-rss", terms => ({
-  selector: {
-    frontpageDate: {$gt: new Date(0)},
-  },
+  selector: frontpageSelector,
   options: {
     sort: {frontpageDate: -1, postedAt: -1}
   }
@@ -551,6 +550,24 @@ Posts.addView("sunshineNewPosts", function () {
     selector: {
       reviewedByUserId: {$exists: false},
       frontpageDate: viewFieldNullOrMissing,
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1 }),
+  { name: "posts.sunshineNewPosts" }
+);
+
+Posts.addView("sunshineNewUsersPosts", function (terms) {
+  return {
+    selector: {
+      status: null, // allow sunshines to see posts marked as spam
+      userId: terms.userId,
       authorIsUnreviewed: null
     },
     options: {
@@ -560,7 +577,10 @@ Posts.addView("sunshineNewPosts", function () {
     }
   }
 })
-// Covered by the same index as `new`
+ensureIndex(Posts,
+  augmentForDefaultView({ status:1, userId:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
+  { name: "posts.sunshineNewUsersPosts" }
+);
 
 Posts.addView("sunshineCuratedSuggestions", function () {
   return {

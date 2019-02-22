@@ -177,8 +177,9 @@ class EditorFormComponent extends Component {
   setDraftJS = (value) => { // Takes in an editorstate
     const { document, name } = this.props
     const { draftJSValue } = this.state
+    const currentContent = draftJSValue.getCurrentContent()
     const newContent = value.getCurrentContent()
-    if (draftJSValue !== newContent) {
+    if (currentContent !== newContent) {
       // Only save to localStorage on every 30th content change
       // TODO: Consider debouncing rather than saving every 30th change
       // TODO: Consider saving on blur

@@ -120,6 +120,9 @@ import '../components/posts/PostsStats.jsx';
 import '../components/posts/TableOfContents';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
+import '../components/posts/PostSubmit.jsx';
+import '../components/posts/ReportPostMenuItem.jsx';
+
 
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/CommentsVote.jsx';
@@ -225,6 +228,8 @@ import '../components/sunshineDashboard/SidebarHoverOver.jsx';
 import '../components/sunshineDashboard/SidebarInfo.jsx';
 import '../components/sunshineDashboard/SidebarActionMenu.jsx';
 import '../components/sunshineDashboard/SidebarAction.jsx';
+import '../components/sunshineDashboard/SunshineListCount.jsx';
+import '../components/sunshineDashboard/LastCuratedDate';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';
@@ -304,5 +309,4 @@ import '../components/questions/AnswersSection.jsx';
 import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
-import '../components/questions/AnswerMeta.jsx';
 import '../components/questions/QuestionsPage.jsx';
