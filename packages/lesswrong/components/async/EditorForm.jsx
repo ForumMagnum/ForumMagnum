@@ -9,6 +9,7 @@ import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
+import createLinkifyPlugin from 'draft-js-linkify-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
@@ -25,7 +26,6 @@ import {
   BlockquoteButton,
 } from 'draft-js-buttons';
 import NoSsr from '@material-ui/core/NoSsr';
-import createLinkifyPlugin from './editor-plugins/custom-linkify-plugin'
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
