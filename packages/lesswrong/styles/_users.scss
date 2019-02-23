@@ -36,17 +36,6 @@
   }
 }
 
-.users-profile-recent-posts {
-  .search-form {
-    width: 120px;
-    margin-left: auto;
-    margin-bottom: 15px;
-    @include max-tiny() {
-      width:auto;
-    }
-  }
-}
-
 .users-profile-header {
   h2:before {
     display:none;
