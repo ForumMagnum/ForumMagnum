@@ -7,7 +7,7 @@ import { batchUpdateScore } from '../server/updateScores.js';
 import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../lib/karmaChanges.js';
-import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';
+import { Utils, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 import lolex from 'lolex';
 
 chai.should();
@@ -162,6 +162,7 @@ describe('Voting', async function() {
         collectionName: "Posts",
         scoreChange: 1,
         title: post.title,
+        slug: Utils.slugify(post.title),
       });
       
       // TODO
