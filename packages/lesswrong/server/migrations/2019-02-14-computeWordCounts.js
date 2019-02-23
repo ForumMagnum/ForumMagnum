@@ -21,19 +21,25 @@ registerMigration({
         let updates = [];
         
         for (let doc of documents) {
-          const { data, type } = doc.originalContents;
-          const wordCount = await dataToWordCount(data, type);
-          
-          updates.push({
-            updateOne: {
-              filter: { _id: doc._id },
-              update: {
-                $set: {
-                  wordCount: wordCount
+          try {
+            const { data, type } = doc.originalContents;
+            const wordCount = await dataToWordCount(data, type);
+            
+            updates.push({
+              updateOne: {
+                filter: { _id: doc._id },
+                update: {
+                  $set: {
+                    wordCount: wordCount
+                  }
                 }
               }
-            }
-          });
+            });
+          } catch(e) {
+            // eslint-disable-next-line no-console
+            console.error("Error trying to migrate revision: ", doc)
+            throw(e)
+          }
         }
         
         await Revisions.rawCollection().bulkWrite(updates, { ordered: false });
