@@ -79,7 +79,6 @@ import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
-import '../components/posts/PostsHome.jsx';
 import '../components/posts/PostsSingle.jsx';
 import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
