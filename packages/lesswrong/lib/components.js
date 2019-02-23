@@ -59,7 +59,6 @@ import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
 import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
-import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
 import '../components/users/UsersNameDisplay.jsx';
