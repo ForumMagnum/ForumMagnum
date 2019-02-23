@@ -8,8 +8,7 @@ const linkify = linkifyIt()
 // linkify-plugin's linkStrategy.
 //
 // Export for testing
-// export
-function autolink(text) {
+export function autolink(text) {
   const matches = linkify.match(text)
   if (!matches) return `<p>${text}</p>`
   let resultPieces = ['<p>']
