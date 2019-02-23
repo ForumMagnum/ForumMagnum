@@ -7,6 +7,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, algoliaDoSearch, subsetOfIdsAlgoliaShouldntIndex } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
 import keyBy from 'lodash/keyBy';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
 
 const indexedCollections = [ Posts, Users, Sequences, Comments ];
 
@@ -14,9 +15,10 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
+  const indexName = algoliaIndexNames[collection.collectionName];
   // eslint-disable-next-line no-console
-  console.log(`Exporting ${collection.algoliaIndexName}...`)
-  let algoliaIndex = client.initIndex(collection.algoliaIndexName)
+  console.log(`Exporting ${indexName}...`)
+  let algoliaIndex = client.initIndex(indexName)
   
   // eslint-disable-next-line no-console
   console.log("Initiated Index connection")
@@ -84,7 +86,7 @@ async function algoliaCleanIndex(collection)
   
   // eslint-disable-next-line no-console
   console.log(`Deleting spurious documents from Algolia index for ${collection.collectionName}`);
-  let algoliaIndex = client.initIndex(collection.algoliaIndexName);
+  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
   
   let currentPage = 0;
   let pageResults;

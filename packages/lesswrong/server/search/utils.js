@@ -7,7 +7,7 @@ import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import { dataToMarkdown } from '../editor/make_editable_callbacks'
-import '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 import keyBy from 'lodash/keyBy';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
@@ -328,7 +328,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   // }
   let client = getAlgoliaAdminClient();
   if (!client) return;
-  let algoliaIndex = client.initIndex(collection.algoliaIndexName);
+  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
   
   let totalErrors = [];
   

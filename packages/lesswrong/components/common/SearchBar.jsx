@@ -9,8 +9,7 @@ import Portal from '@material-ui/core/Portal';
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 import { withRouter } from 'react-router'
 import withErrorBoundary from '../common/withErrorBoundary';
-import { Posts } from '../../lib/collections/posts';
-import '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -172,7 +171,7 @@ class SearchBar extends Component {
 
     return <div onKeyDown={this.handleKeyDown}>
       <InstantSearch
-        indexName={Posts.algoliaIndexName}
+        indexName={algoliaIndexNames.Posts}
         appId={algoliaAppId}
         apiKey={algoliaSearchKey}
         onSearchStateChange={this.queryStateControl}
