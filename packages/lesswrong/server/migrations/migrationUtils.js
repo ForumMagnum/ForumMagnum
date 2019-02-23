@@ -17,21 +17,21 @@ export function registerMigration({ name, idempotent, action })
   if (!idempotent) {
     throw new Error(`Migration ${name} is not marked as idempotent; it can't use registerMigration unless it's marked as (and is) idempotent.`);
   }
-  
+
   // Put the migration function in a dictionary Vulcan.migrations to make it
   // accessible in meteor shell, working around awkward inability to import
   // things non-relatively there.
   if (!Vulcan.migrations) {
     Vulcan.migrations = {};
   }
-  
+
   Vulcan.migrations[name] = async () => {
     // eslint-disable-next-line no-console
     console.log(`Beginning migration: ${name}`);
-    
+
     try {
       await action();
-      
+
       // eslint-disable-next-line no-console
       console.log(`Finished migration: ${name}`);
     } catch(e) {
@@ -57,14 +57,14 @@ export async function runThenSleep(loadFactor, func)
 {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
-  
+
   const startTime = new Date();
   try {
     await func();
   } finally {
     const endTime = new Date();
     const timeSpentMs = endTime-startTime;
-    
+
     // loadFactor = timeSpentMs / (timeSpentMs + sleepTimeMs)
     //   [Algebra happens]
     // sleepTimeMs = timeSpentMs * (1/loadFactor - 1)
@@ -139,41 +139,41 @@ export async function migrateDocuments({ description, collection, batchSize, unm
   if (!migrate) throw new Error("Missing required argument: migrate");
   if (!batchSize || !(batchSize>0))
     throw new Error("Invalid batch size");
-  
+
   if (!description)
     description = "Migration on "+collection.collectionName;
-  
+
   // eslint-disable-next-line no-console
   console.log(`Beginning migration step: ${description}`);
-  
+
   let previousDocumentIds = {};
   let documentsAffected = 0;
   let done = false;
-  
+
   // eslint-disable-next-line no-constant-condition
   while(!done) {
     await runThenSleep(loadFactor, async () => {
       let documents = collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
-      
+
       if (!documents.length) {
         done = true;
         return;
       }
-      
+
       // Check if any of the documents returned were supposed to have been
       // migrated by the previous batch's update operation.
       let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
       if (docsNotMigrated.length > 0) {
         let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
-        
+
         // eslint-disable-next-line no-console
         console.error(errorMessage);
         throw new Error(errorMessage);
       }
-      
+
       previousDocumentIds = {};
       _.each(documents, doc => previousDocumentIds[doc._id] = true);
-      
+
       // Migrate documents in the batch
       try {
         await migrate(documents);
@@ -189,7 +189,7 @@ export async function migrateDocuments({ description, collection, batchSize, unm
       }
     });
   }
-  
+
   // eslint-disable-next-line no-console
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
