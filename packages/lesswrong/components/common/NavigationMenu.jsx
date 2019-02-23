@@ -157,8 +157,8 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           <Public/>
         </Link>
       </Tooltip>
-      <Tooltip title="Posts by Date" placement="right">
-        <Link to="/daily" className={classes.navButton}>
+      <Tooltip title="All Posts" placement="right">
+        <Link to="/allPosts" className={classes.navButton}>
           <ListAlt/>
         </Link>
       </Tooltip>

@@ -5,7 +5,7 @@ import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 
-export const DEFAULT_LOW_KARMA_THRESHOLD = 1
+export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
 /**

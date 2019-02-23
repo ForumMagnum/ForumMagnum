@@ -52,7 +52,7 @@ const PostsList = ({
     if (results && results.length) {
       return <div>
         { loading && <Loading />}
-        <div className={classNames("posts-list-wrapper", {[classes.loading]: dimWhenLoading && loading})}>
+        <div className="posts-list-wrapper">
           {results.map(post => <ErrorBoundary key={post._id}>
             <PostsItem post={post} currentUser={currentUser} terms={terms} />
           </ErrorBoundary>)}

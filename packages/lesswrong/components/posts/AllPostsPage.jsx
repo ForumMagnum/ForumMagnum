@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
 import { withRouter } from 'react-router';
-import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import withUser from '../common/withUser';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
+import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 const styles = theme => ({
   allPostsContent: {
@@ -44,16 +44,18 @@ class AllPostsPage extends Component {
   }
 
   render() {
-    const { classes, currentUser } = this.props
+    const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
     const { AllPostsPageSettings, PostsList, SingleColumnSection, SectionTitle } = Components
-    const query = _.clone(this.props.router.location.query) || {}
+    const query = _.clone(router.location.query) || {}
 
-    const view = query.view || (currentUser && currentUser.allPostsView) || "daily"
+    const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
+    const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"
+    const currentShowLowKarma = (query.karmaThreshold && (query.karmaThreshold == MAX_LOW_KARMA_THRESHOLD)) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     const terms = {
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      view: view,
+      view: currentView,
       ...query,
       limit:50
     }
@@ -74,9 +76,14 @@ class AllPostsPage extends Component {
             <SettingsIcon className={classes.settingsIcon} onClick={this.toggleSettings}/>
           </Tooltip>
         </SectionTitle>
-        <AllPostsPageSettings hidden={!showSettings}/>
+        <AllPostsPageSettings 
+          hidden={!showSettings} 
+          currentView={currentView} 
+          currentFilter={currentFilter}
+          currentShowLowKarma={currentShowLowKarma}
+        />
         <div className={classes.allPostsContent}>
-          {view === "daily" ?
+          {currentView === "daily" ?
             <Components.PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={true} />
             :
             <PostsList terms={terms} showHeader={false} dimWhenLoading={true} />

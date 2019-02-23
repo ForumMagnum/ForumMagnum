@@ -95,8 +95,21 @@ class AllPostsPageSettings extends Component {
     }
   }
 
+  setShowLowKarma = (newSetting) => {
+    const { updateUser, currentUser } = this.props
+    if (currentUser) {
+      updateUser({
+        selector: { _id: currentUser._id},
+        data: {
+          allPostsShowLowKarma: newSetting,
+        },
+      })  
+    }
+  }
+
+
   render () {
-    const { router, classes, hidden } = this.props
+    const { router, classes, hidden, currentView, currentFilter, currentShowLowKarma } = this.props
     const { MetaInfo } = Components
 
     const views = [
@@ -130,11 +143,6 @@ class AllPostsPageSettings extends Component {
         tooltip: "Posts relating to LessWrong itself"
       },
     ]
-
-    const query = _.clone(router.location.query) || {};
-    const currentView = query.view || "daily"
-    const currentFilter = query.filter || "all"
-    const currentShowLowKarma = query.karmaThreshold && (query.karmaThreshold == MAX_LOW_KARMA_THRESHOLD)
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
@@ -181,12 +189,19 @@ class AllPostsPageSettings extends Component {
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
           <Link 
             className={classes.checkboxGroup}
+            onClick={() => this.setShowLowKarma(!currentShowLowKarma)}
             to={loc=> ({...loc, query: {...loc.query, karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}})}
           >
-            <Checkbox
-              classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
-              checked={currentShowLowKarma}
-            />
+            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} /> 
+
+            {/* {currentShowLowKarma ? 
+            // Looks like Checkbox doesn't play nicely with the Link/route based check-status-setting/
+            // This works fine but feels a bit hacky
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked /> 
+              : 
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}}/>
+            } */}
+
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>
