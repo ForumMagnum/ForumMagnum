@@ -25,7 +25,7 @@ const PostsList = ({
   count,
   totalCount,
   loadMore,
-  showHeader = true,
+  showHeader = false,
   showLoadMore = true,
   showNoResults = true,
   networkStatus,

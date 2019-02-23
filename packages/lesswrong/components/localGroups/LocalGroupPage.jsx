@@ -101,7 +101,7 @@ class LocalGroupPage extends Component {
               </div>
               <div dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
             </div>}
-            <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} showHeader={false} />
+            <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} />
           </Components.Section>
         </div>
       )

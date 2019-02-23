@@ -118,8 +118,8 @@ const UsersProfile = (props) => {
                 </div>
               }
             >
-              <Components.PostsList terms={draftTerms} showHeader={false}/>
-              <Components.PostsList terms={unlistedTerms} showHeader={false} showNoResults={false}/>
+              <Components.PostsList terms={draftTerms}/>
+              <Components.PostsList terms={unlistedTerms} showNoResults={false}/>
             </Components.Section>
           }
         </div>
@@ -134,7 +134,7 @@ const UsersProfile = (props) => {
               <Components.PostsViews defaultView="community" hideDaily={true}/>
             </div>}
         >
-          <Components.PostsList terms={terms} showHeader={false} />
+          <Components.PostsList terms={terms} />
         </Components.Section>
       )
     }

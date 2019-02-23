@@ -114,13 +114,11 @@ class CommunityHome extends Component {
                     terms={groupsListTerms}
                     showHeader={false} />}
               <hr className={classes.listDivider}/>
-              <Components.PostsList
-                terms={postsListTerms}
-                showHeader={false} />
+              <Components.PostsList terms={postsListTerms} />
             </div>}
         </Components.Section>
         <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />
+          <Components.PostsList terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
         </Components.Section>
       </div>
     )
