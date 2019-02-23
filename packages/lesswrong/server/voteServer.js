@@ -4,7 +4,7 @@ import Users from 'meteor/vulcan:users';
 import { recalculateScore, recalculateBaseScore } from '../lib/modules/scoring.js';
 import { createError } from 'apollo-errors';
 import { voteTypes, createVote } from '../lib/modules/vote.js';
-//import { algoliaDocumentExport } from '../search/utils';
+import { algoliaDocumentExport } from './search/utils';
 
 /*
 
@@ -54,7 +54,7 @@ const addVoteServer = async (voteOptions) => {
       },
       {}, true
     );
-    //algoliaDocumentExport({ documents: [newDocument], collection });
+    algoliaDocumentExport({ documents: [newDocument], collection });
   }
   return {newDocument, vote};
 }
@@ -106,7 +106,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
-    //algoliaDocumentExport({ documents: [newDocument], collection });
+    algoliaDocumentExport({ documents: [newDocument], collection });
   }
   return newDocument;
 }
@@ -164,7 +164,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
       {},
       true
     );
-    //algoliaDocumentExport({ documents: [newDocument], collection });
+    algoliaDocumentExport({ documents: [newDocument], collection });
   }
   return {newDocument, vote};
 }
