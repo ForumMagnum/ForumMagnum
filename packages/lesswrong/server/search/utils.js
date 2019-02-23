@@ -103,9 +103,7 @@ Users.toAlgolia = (user) => {
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
 Posts.toAlgolia = (post) => {
-  if (post.draft) return null;
   if (post.deleted) return null;
-  if (post.status !== Posts.config.STATUS_APPROVED) return null;
   
   const algoliaMetaInfo = {
     _id: post._id,
@@ -350,7 +348,8 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
-    let algoliaEntries = collection.toAlgolia(item)
+    
+    let algoliaEntries = collection.checkAccess(null, item) ? collection.toAlgolia(item) : null;
     if (algoliaEntries) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
