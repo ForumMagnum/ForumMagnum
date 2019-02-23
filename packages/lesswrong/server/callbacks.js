@@ -8,7 +8,7 @@ import Localgroups from '../lib/collections/localgroups/collection.js';
 import { Bans } from '../lib/collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Votes } from '../lib/collections/votes';
-import { cancelVoteServer } from './vote.js';
+import { cancelVoteServer } from './voteServer.js';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import VulcanEmail from 'meteor/vulcan:email'
@@ -23,7 +23,7 @@ import {
   runQuery
 } from 'meteor/vulcan:core';
 
-import { performSubscriptionAction } from '../subscriptions/mutations.js';
+import { performSubscriptionAction } from '../lib/subscriptions/mutations.js';
 import ReactDOMServer from 'react-dom/server';
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';

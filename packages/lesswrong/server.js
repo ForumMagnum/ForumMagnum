@@ -47,6 +47,7 @@ import './server/votingGraphQL.js';
 import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
 import './server/callbacks.js';
+import './server/voteServer.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
