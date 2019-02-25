@@ -8,32 +8,34 @@ import { addEditableCallbacks } from '../../../server/editor/make_editable_callb
 async function getCompleteCollection(id) {
   const query = `
   query CodexComplete {
-    CollectionsSingle(documentId:"${id}") {
-      _id
-      slug
-      books {
+    collection(input: {selector: {documentId:"${id}"}}) {
+      result{
         _id
-        posts {
-          slug
-          canonicalCollectionSlug
-          canonicalPrevPostSlug
-          canonicalNextPostSlug
-        }
-        sequences {
+        slug
+        books {
           _id
-          title
-          chapters {
-            number
-            posts {
-              slug
-              canonicalCollectionSlug
-              canonicalPrevPostSlug
-              canonicalNextPostSlug
+          posts {
+            slug
+            canonicalCollectionSlug
+            canonicalPrevPostSlug
+            canonicalNextPostSlug
+          }
+          sequences {
+            _id
+            title
+            chapters {
+              number
+              posts {
+                slug
+                canonicalCollectionSlug
+                canonicalPrevPostSlug
+                canonicalNextPostSlug
+              }
             }
           }
         }
       }
-    }
+    }   
   }`;
   const result = await runQuery(query)
   return result
@@ -44,8 +46,7 @@ async function getAllCollectionPosts(id) {
 
   let allCollectionPosts = [];
   let allCollectionSequences = [];
-
-  const collection = queryResult.data.CollectionsSingle
+  const collection = queryResult.data.collection.result
 
   collection.books.forEach((book) => {
     const bookPosts = book.posts.map((post) => {
