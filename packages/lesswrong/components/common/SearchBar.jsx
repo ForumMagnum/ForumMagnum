@@ -107,7 +107,7 @@ class SearchBar extends Component {
     addCallback('router.onUpdate', this.routerUpdateCallback);
   }
 
-  componentWillUmount() {
+  componentWillUnmount() {
     if (this.routerUpdateCallback) {
       removeCallback('router.onUpdate', this.routerUpdateCallback);
       this.routerUpdateCallback = null;
