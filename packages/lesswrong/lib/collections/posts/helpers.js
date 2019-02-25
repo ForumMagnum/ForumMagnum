@@ -39,15 +39,6 @@ Posts.getLinkTarget = function (post) {
   return !!post.url ? '_blank' : '';
 };
 
-/**
- * @summary Get URL of a post page.
- * @param {Object} post
- */
-Posts.getPageUrl = function(post, isAbsolute = false){
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/posts/${post._id}/${post.slug}`;
-};
-
 ///////////////////
 // Other Helpers //
 ///////////////////
