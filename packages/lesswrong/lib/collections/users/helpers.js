@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting, Utils } from 'meteor/vulcan:core';
 import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
@@ -168,6 +168,24 @@ Users.emailAddressIsVerified = (user) => {
   }
   return false;
 };
+
+// Replaces Users.getProfileUrl from the vulcan-users package.
+Users.getProfileUrl = (user, isAbsolute=false) => {
+  if (!user) return "";
+  
+  if (user.slug) {
+    return Users.getProfileUrlFromSlug(user.slug, isAbsolute);
+  } else {
+    return "";
+  }
+}
+
+Users.getProfileUrlFromSlug = (userSlug, isAbsolute=false) => {
+  if (!userSlug) return "";
+  
+  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  return `${prefix}/users/${userSlug}`;
+}
 
 
 

@@ -1,10 +1,11 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import { withRouter } from 'react-router';
+import Users from "meteor/vulcan:users";
 
 const UsersSingle = ({params, router}) => {
   const slug = Utils.slugify(params.slug);
-  const canonicalUrl = `/users/${slug}`;
+  const canonicalUrl = Users.getProfileUrlFromSlug(slug);
   if (router.location.pathname !== canonicalUrl) {
     router.replace(canonicalUrl);
     return null;
