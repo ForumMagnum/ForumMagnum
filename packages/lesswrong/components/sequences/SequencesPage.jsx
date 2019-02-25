@@ -100,7 +100,7 @@ class SequencesPage extends Component {
     const { document, currentUser, loading, classes } = this.props;
     if (document && document.isDeleted) {
       return <h3>This sequence has been deleted</h3>
-    } if (loading || !document) {
+    } else if (loading || !document) {
       return <Components.Loading />
     } else if (this.state.edit) {
       return <Components.SequencesEditForm
