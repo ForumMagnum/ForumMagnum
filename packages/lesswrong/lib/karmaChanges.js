@@ -112,16 +112,15 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
   
-  // Merge post and comment results
-  let changedDocs = [...changedPosts, ...changedComments];
-  let totalChange = sumBy(changedDocs, doc => doc.scoreChange);
+  let totalChange = sumBy(changedPosts, doc=>doc.scoreChange) + sumBy(changedComments, doc=>doc.scoreChange);
   
   return {
     totalChange,
     startDate,
     nextBatchDate,
     endDate,
-    documents: changedDocs,
+    posts: changedPosts,
+    comments: changedComments,
   };
 }
 

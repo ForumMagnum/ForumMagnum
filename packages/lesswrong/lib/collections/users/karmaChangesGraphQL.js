@@ -16,14 +16,6 @@ addGraphQLSchema(`
 
 addGraphQLResolvers({
   KarmaChanges: {
-    posts: async (karmaChangesJSON, args, context) => {
-      let postChanges = _.filter(karmaChangesJSON.documents, d=>d.collectionName==="Posts");
-      return postChanges;
-    },
-    comments: async (karmaChangesJSON, args, context) => {
-      let commentChanges = _.filter(karmaChangesJSON.documents, d=>d.collectionName==="Comments");
-      return commentChanges;
-    },
     updateFrequency: async (karmaChangesJSON, args, {currentUser}) => {
       if (!currentUser) return null;
       const settings = currentUser.karmaChangeNotifierSettings
