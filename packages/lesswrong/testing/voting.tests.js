@@ -2,7 +2,7 @@ import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { recalculateScore } from '../lib/modules/scoring.js';
-import { performVoteServer } from './voteServer.js';
+import { performVoteServer } from '../server/voteServer.js';
 import { batchUpdateScore } from '../server/updateScores.js';
 import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
