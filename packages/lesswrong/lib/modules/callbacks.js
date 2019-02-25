@@ -425,9 +425,13 @@ function userDeleteContent(user) {
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
     reports.forEach((report) => {
-      removeMutation({
+      editMutation({
         collection: Reports,
         documentId: report._id,
+        set: {closedAt: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
       })
     })
     
@@ -463,9 +467,13 @@ function userDeleteContent(user) {
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
     reports.forEach((report) => {
-      removeMutation({
+      editMutation({
         collection: Reports,
         documentId: report._id,
+        set: {closedAt: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
       })
     })
 

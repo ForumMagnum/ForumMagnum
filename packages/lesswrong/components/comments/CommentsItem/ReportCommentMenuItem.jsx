@@ -12,7 +12,6 @@ class ReportCommentMenuItem extends PureComponent {
 
   showReport = (event) => {
     const { openDialog, comment, currentUser } = this.props;
-    if (!Users.canDo(currentUser, "reports.new")) return
     
     openDialog({
       componentName: "ReportForm",
@@ -26,6 +25,10 @@ class ReportCommentMenuItem extends PureComponent {
   }
 
   render() {
+    const { currentUser } = this.props;
+
+    if (!Users.canDo(currentUser, "reports.new")) return null
+
     return <MenuItem onClick={this.showReport}>
       <ListItemIcon>
         <Report />
