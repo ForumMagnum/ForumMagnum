@@ -87,7 +87,6 @@ export const postBodyStyles = (theme, fontSize) => {
       fontSize: '0.9em',
       paddingTop: 40,
       borderTop: 'solid 1px rgba(0,0,0,0.2)',
-      textAlign: 'justify',
       '& sup': {
         marginRight: 10,
       }
