@@ -222,13 +222,6 @@ class AllPostsPageSettings extends Component {
 
 AllPostsPageSettings.propTypes = {
   currentUser: PropTypes.object,
-  defaultView: PropTypes.string,
-  showPostTypes: PropTypes.bool,
-};
-
-AllPostsPageSettings.defaultProps = {
-  defaultView: 'daily',
-  showPostTypes: true,
 };
 
 AllPostsPageSettings.displayName = 'AllPostsPageSettings';
