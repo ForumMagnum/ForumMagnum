@@ -477,7 +477,19 @@ const schema = {
     editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
-    ...schemaDefaultValue(true)
+    ...schemaDefaultValue(true),
+    onCreate: ({newDocument}) => {
+      if (newDocument.isEvent) return false
+      if ('submitToFrontpage' in newDocument) return newDocument.submitToFrontpage
+      return true
+    },
+    onUpdate: ({data, document}) => {
+      // Not actually the real new document, but good enough for checking the two fields we care about
+      const newDocument= {...document, ...data} 
+      const updatedDocIsEvent = ('isEvent' in newDocument) ? newDocument.isEvent : false
+      if (updatedDocIsEvent) return false
+      return ('submitToFrontpage' in newDocument) ? newDocument.submitToFrontpage : true
+    }
   }
 };
 

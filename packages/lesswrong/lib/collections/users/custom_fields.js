@@ -228,6 +228,49 @@ Users.addField([
     }
   },
   {
+    fieldName: 'allPostsFilter',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsView',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+    }
+  },
+  {
+    fieldName: 'allPostsShowLowKarma',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsOpenSettings',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
     fieldName: 'lastNotificationsCheck',
     fieldSchema: {
       type: Date,

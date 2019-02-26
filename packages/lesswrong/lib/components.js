@@ -36,6 +36,8 @@ import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
+import '../components/common/SingleColumnSection';
+import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
@@ -48,6 +50,7 @@ import '../components/common/CloudinaryImage.jsx';
 import '../components/common/Logo.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
+
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -83,6 +86,7 @@ import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
 import '../components/posts/PostsDailyList.jsx';
 import '../components/posts/AllPostsPage.jsx';
+import '../components/posts/AllPostsPageSettings.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/DeleteDraft.jsx';
@@ -117,6 +121,7 @@ import '../components/posts/TableOfContents';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
 import '../components/posts/PostSubmit.jsx';
+import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 
 
