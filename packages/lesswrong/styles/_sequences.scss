@@ -1,37 +1,4 @@
 
-.sequences-page-content-footer {
-  margin-bottom: 30px;
-  margin-left: 150px;
-  .sequences-page-content-footer-voting {
-    text-align: center;
-    margin-bottom: 15px;
-    .vote {
-      position: relative;
-      font-size: 30px;
-      color: rgba(0,0,0,0.5);
-      .material-icons {
-        color: rgba(0,0,0,0.4) !important;
-        border-radius: 100%;
-        font-size: 45px !important;
-      }
-
-      .material-icons:hover {
-        background-color: rgba(0,0,0,0.05);
-      }
-    }
-  }
-  .sequences-page-content-footer-author {
-    text-align: center;
-    color: rgba(0,0,0,0.5);
-    font-size: 20px;
-
-    a:hover, a:active {
-      text-decoration: none;
-      color: rgba(0,0,0,0.3);
-    }
-  }
-}
-
 .sequences-list-edit-item-title {
   display: inline;
   margin-right: 10px;
@@ -135,9 +102,6 @@
       width: inherit !important;
       text-align: center;
     }
-  }
-  .sequences-page-content-footer {
-    margin-left: 0px;
   }
 }
 
