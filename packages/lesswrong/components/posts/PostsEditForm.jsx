@@ -4,13 +4,27 @@ import { Components, registerComponent, getFragment, withMessages, withDocument 
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router'
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  formSubmit: {
+    display: "flex",
+    flexWrap: "wrap",
+  }
+})
 
 class PostsEditForm extends PureComponent {
 
   render() {
-    const { documentId, document, eventForm } = this.props;
+    const { documentId, document, eventForm, classes } = this.props;
     const isDraft = document && document.draft;
-    const { WrappedSmartForm, PostSubmit } = Components
+    const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+    const EditPostsSubmit = (props) => {
+      return <div className={classes.formSubmit}>
+        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+        <PostSubmit {...props} />
+      </div>
+    }
 
     return (
       <div className="posts-edit-form">
@@ -37,7 +51,7 @@ class PostsEditForm extends PureComponent {
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
-          SubmitComponent={PostSubmit}
+          SubmitComponent={EditPostsSubmit}
           extraVariables={{
             version: 'String'
           }}
@@ -67,4 +81,6 @@ const documentQuery = {
 
 registerComponent('PostsEditForm', PostsEditForm,
   [withDocument, documentQuery],
-  withMessages, withRouter);
+  withMessages, withRouter,
+  withStyles(styles, { name: "PostsEditForm" })
+  );
