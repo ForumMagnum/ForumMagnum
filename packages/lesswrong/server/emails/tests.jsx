@@ -68,7 +68,7 @@ describe('renderEmail', async () => {
     const queryOptions = {
       collection: Posts,
       queryName: 'postsSingleQuery',
-      fragmentName: 'LWPostsPage',
+      fragmentName: 'PostsRevision',
       ssr: true
     };
     const PostTitleComponent = withDocument(queryOptions)(
