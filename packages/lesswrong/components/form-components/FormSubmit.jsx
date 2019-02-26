@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, replaceComponent } from 'meteor/vulcan:core';
+import { replaceComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
 import { withTheme, withStyles } from '@material-ui/core/styles';
