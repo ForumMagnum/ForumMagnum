@@ -30,7 +30,6 @@ import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/NavigationMenu.jsx';
-// import '../components/common/TabNavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
 import '../components/common/RecommendedReading.jsx';

@@ -53,9 +53,7 @@ const PostsList = ({
       return <div>
         { loading && <Loading />}
         <div className="posts-list-wrapper">
-          {results.map(post => <ErrorBoundary key={post._id}>
-            <PostsItem post={post} currentUser={currentUser} terms={terms} />
-          </ErrorBoundary>)}
+          {results.map(post => <PostsItem key={post._id} post={post} currentUser={currentUser} terms={terms} /> )}
         </div>
         {showLoadMore ? <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
