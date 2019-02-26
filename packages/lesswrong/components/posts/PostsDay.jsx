@@ -8,10 +8,8 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit*4,
-    '&:first-child': {
-      marginTop: theme.spacing.unit,
-    }
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit*3
   },
   dayTitle: {
     marginBottom: theme.spacing.unit*2,

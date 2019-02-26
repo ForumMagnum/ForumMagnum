@@ -23,30 +23,29 @@ const styles = theme => ({
 });
 
 class AllPostsPage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showSettings: (props.currentUser && props.currentUser.allPostsOpenSettings) || false,
-    };
-  }
+  state = { 
+    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false 
+  };
 
   toggleSettings = () => {
     const { currentUser, updateUser } = this.props
-    this.setState({showSettings: !this.state.showSettings})
-    if (currentUser) {
-      updateUser({
-        selector: { _id: currentUser._id},
-        data: {
-          allPostsOpenSettings: !this.state.showSettings,
-        },
-      })  
-    }
+    
+    this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
+      if (currentUser) {
+        updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            allPostsOpenSettings: this.state.showSettings,
+          },
+        })  
+      }
+    })
   }
 
   render() {
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { AllPostsPageSettings, PostsList, SingleColumnSection, SectionTitle } = Components
+    const { AllPostsPageSettings, PostsList, SingleColumnSection, SectionTitle, PostsDailyList } = Components
     const query = _.clone(router.location.query) || {}
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
@@ -84,9 +83,9 @@ class AllPostsPage extends Component {
         />
         <div className={classes.allPostsContent}>
           {currentView === "daily" ?
-            <Components.PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={true} />
+            <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
             :
-            <PostsList terms={terms} showHeader={false} dimWhenLoading={true} />
+            <PostsList terms={terms} showHeader={false} dimWhenLoading={showSettings} />
           }
         </div>
       </SingleColumnSection>

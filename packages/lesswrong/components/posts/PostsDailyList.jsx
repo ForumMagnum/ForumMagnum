@@ -5,7 +5,16 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withCurrentUser, withList, getSetting, Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
+import { withStyles } from '@material-ui/core/styles'
 
+const styles = theme => ({
+  loading: {
+    opacity: .4,
+  }
+})
+
+
+import classNames from 'classnames';
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
@@ -110,14 +119,15 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
+    const { dimWhenLoading, loading, classes } = this.props
     const posts = this.props.results;
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
     
-    if (this.props.loading && (!posts || !posts.length)) {
+    if (loading && (!posts || !posts.length)) {
       return <Components.PostsLoading />
     } else {
       return (
-        <div className="posts-daily">
+        <div className={classNames("posts-daily", {[classes.loading]: loading && dimWhenLoading})}>
           {/* <Components.PostsListHeader /> */}
           {dates.map((date, index) =>
             <Components.PostsDay key={index} number={index}
@@ -153,4 +163,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone);
+registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));

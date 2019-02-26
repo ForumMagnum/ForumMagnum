@@ -152,12 +152,12 @@ class AllPostsPageSettings extends Component {
           {views.map(view => {
             return (
               <Link 
-                key={view['name']} 
-                onClick={() => this.setView(view['name'])}
-                to={loc=> ({...loc, query: {...loc.query, view: view['name']}})}
+                key={view.name} 
+                onClick={() => this.setView(view.name)}
+                to={loc=> ({...loc, query: {...loc.query, view: view.name}})}
               >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === view['name']})}>
-                  { view['label'] }
+                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === view.name})}>
+                  { view.label }
                 </MetaInfo>
               </Link>
             )
@@ -171,13 +171,13 @@ class AllPostsPageSettings extends Component {
           {filters.map(filter => {
             return (
               <Link 
-                key={filter['name']} 
-                onClick={() => this.setFilter(filter['name'])}
-                to={loc=> ({...loc, query: {...loc.query, filter: filter['name']}})}
+                key={filter.name} 
+                onClick={() => this.setFilter(filter.name)}
+                to={loc=> ({...loc, query: {...loc.query, filter: filter.name}})}
               >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentFilter === filter['name']})}>
+                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentFilter === filter.name})}>
                   <Tooltip title={<div>{filter['tooltip']}</div>} placement="left-start">
-                    <span>{ filter['label'] }</span>
+                    <span>{ filter.label }</span>
                   </Tooltip>
                 </MetaInfo>
               </Link>
@@ -220,10 +220,6 @@ AllPostsPageSettings.propTypes = {
 AllPostsPageSettings.defaultProps = {
   defaultView: 'daily',
   showPostTypes: true,
-};
-
-AllPostsPageSettings.contextTypes = {
-  currentRoute: PropTypes.object,
 };
 
 AllPostsPageSettings.displayName = 'AllPostsPageSettings';
