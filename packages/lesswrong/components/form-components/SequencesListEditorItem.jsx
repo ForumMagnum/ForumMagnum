@@ -6,6 +6,13 @@ import RemoveIcon from '@material-ui/icons/Close';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  box: {
+    display: "block",
+    marginLeft: 30,
+    "&:hover $remove": {
+      opacity: 1,
+    }
+  },
   title: {
     display: "inline",
     marginRight: 10,
@@ -21,6 +28,12 @@ const styles = theme => ({
       marginRight: 5,
     }
   },
+  remove: {
+    opacity: 0,
+    position: "absolute",
+    right: 0,
+    cursor: "pointer",
+  },
   removeIcon: {
     color: "rgba(0,0,0,0.3) !important"
   },
@@ -30,7 +43,7 @@ const SequencesListEditorItem = ({document, loading, documentId, classes, ...pro
   if (document && !loading) {
     return <div>
       <DragIcon className="drag-handle"/>
-      <div className="sequences-list-edit-item-box">
+      <div className={classes.box}>
         <div className={classes.title}>
           {document.title || "Undefined Title"}
         </div>
@@ -44,7 +57,7 @@ const SequencesListEditorItem = ({document, loading, documentId, classes, ...pro
           <div className="sequences-list-edit-item-comments">
             {document.commentCount || "?"} comments
           </div>
-          <div className="sequences-list-edit-item-remove">
+          <div className={classes.remove}>
             <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(documentId)} />
           </div>
         </div>
