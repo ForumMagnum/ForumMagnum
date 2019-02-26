@@ -220,14 +220,6 @@
       }
     }
 }
-.sequences-editor-banner {
-  margin-top:65px;
-  background-color: rgba(0,0,0,0.25);
-  height: 380px;
-  @include mui-breakpoint-down-sm {
-    margin-top:40px;
-  }
-}
 
 .sequences-editor-title {
   height:1em;
