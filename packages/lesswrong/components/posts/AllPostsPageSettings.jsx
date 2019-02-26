@@ -24,6 +24,7 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit*2,
     marginRight: theme.spacing.unit*2,
+    flexWrap: "wrap",
     marginLeft: 3,
     [theme.breakpoints.down('md')]: {
       paddingLeft: theme.spacing.unit*2,
@@ -46,6 +47,10 @@ const styles = theme => ({
   },
   selectionList: {
     marginRight: theme.spacing.unit*2,
+    [theme.breakpoints.down('xs')]: {
+      flex: `1 0 calc(50% - ${theme.spacing.unit*4}px)`,
+      order: 1
+    }
   },
   selectionTitle: {
     display: "block",
@@ -64,6 +69,11 @@ const styles = theme => ({
   checkboxGroup: {
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: theme.spacing.unit*2,
+      flex: `1 0 100%`,
+      order: 0
+    }
   },
 })
 
