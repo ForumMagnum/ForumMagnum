@@ -20,11 +20,10 @@ AccountsResetPassword.contextTypes = {
 }
 
 AccountsResetPassword.propTypes = {
-  currentUser: PropTypes.object,
   params: PropTypes.object,
 };
 
 AccountsResetPassword.displayName = 'AccountsResetPassword';
 
 // Shadows AccountsResetPassword from vulcan:accounts
-registerComponent('AccountsResetPassword', AccountsResetPassword, withCurrentUser);
+registerComponent('AccountsResetPassword', AccountsResetPassword);
