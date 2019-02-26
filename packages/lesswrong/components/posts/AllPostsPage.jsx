@@ -50,7 +50,7 @@ class AllPostsPage extends Component {
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
     const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"
-    const currentShowLowKarma = (query.karmaThreshold && (query.karmaThreshold == MAX_LOW_KARMA_THRESHOLD)) || (currentUser && currentUser.allPostsShowLowKarma) || false
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     const terms = {
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,

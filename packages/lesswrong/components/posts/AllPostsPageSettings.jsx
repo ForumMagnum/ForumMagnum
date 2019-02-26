@@ -79,7 +79,6 @@ const styles = theme => ({
 
 class AllPostsPageSettings extends Component {
 
-
   setFilter = (filter) => {
     const { updateUser, currentUser } = this.props
     if (currentUser) {
