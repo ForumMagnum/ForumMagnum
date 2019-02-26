@@ -19,26 +19,6 @@
   padding: 5px;
 }
 
-.sequences-item-title{
-  display: inline;
-  font-size: $large-font;
-  font-variant: small-caps;
-  margin-right: 8px;
-  text-decoration: none;
-  a:hover{
-    color: inherit;
-  }
-}
-
-.sequences-item-meta {
-  display: inline-block;
-  color: rgba(0,0,0,0.5);
-  div {
-    display: inline-block;
-    margin-right: 5px;
-  }
-}
-
 .sequences-navigation-bottom-next-sequence {
   margin-top:-22px;
   padding:0;

@@ -21,6 +21,9 @@ const styles = theme => ({
       marginRight: 5,
     }
   },
+  removeIcon: {
+    color: "rgba(0,0,0,0.3) !important"
+  },
 });
 
 const SequencesListEditorItem = ({document, loading, documentId, classes, ...props}) => {
@@ -42,7 +45,7 @@ const SequencesListEditorItem = ({document, loading, documentId, classes, ...pro
             {document.commentCount || "?"} comments
           </div>
           <div className="sequences-list-edit-item-remove">
-            <RemoveIcon className="remove-icon" onClick={() => props.removeItem(documentId)} />
+            <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(documentId)} />
           </div>
         </div>
       </div>
