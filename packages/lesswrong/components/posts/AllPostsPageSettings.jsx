@@ -1,7 +1,6 @@
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -109,7 +108,7 @@ class AllPostsPageSettings extends Component {
 
 
   render () {
-    const { router, classes, hidden, currentView, currentFilter, currentShowLowKarma } = this.props
+    const { classes, hidden, currentView, currentFilter, currentShowLowKarma } = this.props
     const { MetaInfo } = Components
 
     const views = [
@@ -234,4 +233,4 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('AllPostsPageSettings', AllPostsPageSettings, withUser, withRouter, withStyles(styles, {name:"AllPostsPageSettings"}), [withUpdate, withUpdateOptions]);
+registerComponent('AllPostsPageSettings', AllPostsPageSettings, withUser, withStyles(styles, {name:"AllPostsPageSettings"}), [withUpdate, withUpdateOptions]);
