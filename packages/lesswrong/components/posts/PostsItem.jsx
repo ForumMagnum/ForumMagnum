@@ -21,6 +21,8 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import withErrorBoundary from '../common/withErrorBoundary'
+
 
 const styles = theme => ({
   root: {
@@ -99,7 +101,7 @@ const styles = theme => ({
   paperNotExpanded: {
     backgroundColor: 'inherit',
     outline: "none",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
   },
   commentCountIcon: {
     position:"absolute",
@@ -512,5 +514,6 @@ registerComponent(
   withMutation(mutationOptions),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles, { name: "PostsItem" })
+  withStyles(styles, { name: "PostsItem" }),
+  withErrorBoundary
 );

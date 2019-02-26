@@ -370,7 +370,7 @@ Vulcan.createBulkyTestPost = async ({
 }
 
 // Create a set of test posts that are back-dated, one per hour for the past
-// ten days. Primarily for testing time-zone handling on /daily.
+// ten days. Primarily for testing time-zone handling on /allPosts (in daily mode).
 Vulcan.createBackdatedPosts = async () =>
 {
   //eslint-disable-next-line no-console

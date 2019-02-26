@@ -15,12 +15,11 @@ const styles = theme => ({
     minWidth:20,
     textAlign: "center",
     display: "inline-block",
-    color: "rgba(0,0,0,.3)"
   },
 })
 
 const DateWithoutTime = withTimezone(
-  ({date, timezone}) => 
+  ({date, timezone}) =>
     <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 );
 
