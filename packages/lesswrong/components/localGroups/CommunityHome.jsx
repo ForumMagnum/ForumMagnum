@@ -113,10 +113,8 @@ class CommunityHome extends Component {
                 terms={groupsListTerms}
                 showHeader={false} />
           }
-          <hr className="community-home-list-divider"/>
-          <Components.PostsList
-            terms={postsListTerms}
-            showHeader={false} />
+          <hr className={classes.listDivider}/>
+          <Components.PostsList terms={postsListTerms} />
         </div>
         </Components.Section>
         <Components.Section title="Resources">
