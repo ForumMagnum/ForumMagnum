@@ -116,7 +116,6 @@ class CommentsItem extends Component {
     event.preventDefault()
     this.props.router.replace({...router.location, hash: "#" + comment._id})
     this.props.scrollIntoView(event);
-    return false;
   }
 
   getTruncationCharCount = () => {
