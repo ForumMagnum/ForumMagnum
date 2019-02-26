@@ -3,17 +3,35 @@ import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  title: {
+    display: "inline",
+    marginRight: 10,
+    fontVariant: "small-caps",
+    fontSize: 20,
+    lineHeight: 1.25,
+  },
+  meta: {
+    display: "inline-block",
+    color: "rgba(0,0,0,0.5)",
+    "& div": {
+      display: "inline-block",
+      marginRight: 5,
+    }
+  },
+});
 
-const SequencesListEditorItem = ({document, loading, documentId, ...props}) => {
+const SequencesListEditorItem = ({document, loading, documentId, classes, ...props}) => {
   if (document && !loading) {
     return <div>
       <DragIcon className="drag-handle"/>
       <div className="sequences-list-edit-item-box">
-        <div className="sequences-list-edit-item-title">
+        <div className={classes.title}>
           {document.title || "Undefined Title"}
         </div>
-        <div className="sequences-list-edit-item-meta">
+        <div className={classes.meta}>
           <div className="sequences-list-edit-item-author">
             {(document.user && document.user.displayName) || "Undefined Author"}
           </div>
@@ -40,4 +58,7 @@ const options = {
   fragmentName: 'SequencesPageFragment',
 };
 
-registerComponent('SequencesListEditorItem', SequencesListEditorItem, [withDocument, options]);
+registerComponent('SequencesListEditorItem', SequencesListEditorItem,
+  [withDocument, options],
+  withStyles(styles, {name: "SequencesListEditorItem"})
+);

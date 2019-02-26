@@ -1,21 +1,4 @@
 
-.sequences-list-edit-item-title {
-  display: inline;
-  margin-right: 10px;
-  font-variant: small-caps;
-  font-size: 20px;
-  line-height: 1.25;
-}
-
-.sequences-list-edit-item-meta {
-  display: inline-block;
-  color: rgba(0,0,0,0.5);
-  div {
-    display: inline-block;
-    margin-right: 5px;
-  }
-}
-
 .sequences-list-edit-item-box {
   display: block;
   margin-left: 30px;
@@ -24,9 +7,6 @@
     position: absolute;
     right: 0px;
     cursor: pointer;
-    .remove-icon {
-    color: rgba(0,0,0,0.3) !important;
-    }
   }
   &:hover .sequences-list-edit-item-remove {
     opacity: 1;
