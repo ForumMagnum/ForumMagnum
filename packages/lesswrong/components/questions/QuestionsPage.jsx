@@ -12,7 +12,7 @@ const QuestionsPage = () => {
 
   return (
     <Section title="Questions">
-      <PostsList terms={terms} showHeader={false}/>
+      <PostsList terms={terms}/>
     </Section>
   )
 };

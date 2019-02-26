@@ -1,14 +1,6 @@
 
 .wrapper {
-  @include mui-breakpoint-down-sm {
-    .collections-page {
-      margin-right: 0px;
-    }
-  }
   @include max-tiny() {
-    .collection-card {
-      padding: 0px !important;
-    }
     .posts-list {
       .posts-list-content {
         margin-left: 0px;

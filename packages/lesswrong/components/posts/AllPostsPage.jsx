@@ -83,7 +83,7 @@ class AllPostsPage extends Component {
 
     return (
       <Section title="All Posts" titleComponent={this.renderTitle()}>
-          <PostsList terms={terms} showHeader={false}/>
+          <PostsList terms={terms} />
       </Section>
     )
   }
