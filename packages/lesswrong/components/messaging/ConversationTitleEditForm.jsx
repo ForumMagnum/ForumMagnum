@@ -4,7 +4,7 @@ A component to configure the "Edit Title" form.
 
 */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent, getFragment } from "meteor/vulcan:core";
 import Conversations from '../../lib/collections/conversations/collection.js';
 

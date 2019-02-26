@@ -1,5 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
+import React from 'react';
 import { Textarea } from 'formsy-react-components';
 
 const EditSequenceTitle = (props) => {

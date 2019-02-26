@@ -1,6 +1,5 @@
 import { Components, registerComponent, registerSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from './PostsDaily';
 import { withRouter } from 'react-router';

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
-import { withCurrentUser, withList, getSetting, Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
 
 class PostsDailyList extends PureComponent {

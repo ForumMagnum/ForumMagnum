@@ -1,4 +1,4 @@
-import React, { PureComponent, Component } from 'react';
+import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
