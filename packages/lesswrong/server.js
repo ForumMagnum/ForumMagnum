@@ -10,6 +10,7 @@ import './server/database-import/cleanup_scripts.js';
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
+import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';

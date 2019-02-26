@@ -255,6 +255,23 @@ async function algoliaDoCompleteSearch(algoliaIndex, query) {
   return allResults;
 }
 
+export async function algoliaSetIndexSettings(algoliaIndex, settings) {
+  return new Promise((resolve,reject) => {
+    algoliaIndex.setSettings(settings,
+      { forwardToReplicas: true },
+      (err, content) => {
+        if (err) reject(err);
+        else resolve(content);
+      }
+    );
+  });
+}
+
+export async function algoliaSetIndexSettingsAndWait(algoliaIndex, settings) {
+  let result = await algoliaSetIndexSettings(algoliaIndex, settings);
+  await algoliaWaitForTask(algoliaIndex, result.taskID);
+}
+
 
 // Given a list of objects that should be in the Algolia index, check whether
 // they are, and whether all fields on them match. If there are any differences,

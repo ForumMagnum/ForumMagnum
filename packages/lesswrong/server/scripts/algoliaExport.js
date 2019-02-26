@@ -2,14 +2,13 @@
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users'
+import { getCollection } from 'meteor/vulcan:lib';
 import Sequences from '../../lib/collections/sequences/collection.js'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, algoliaDoSearch, subsetOfIdsAlgoliaShouldntIndex } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
 import keyBy from 'lodash/keyBy';
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
-
-const indexedCollections = [ Posts, Users, Sequences, Comments ];
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
@@ -65,8 +64,8 @@ async function algoliaExportByCollectionName(collectionName) {
 }
 
 export async function algoliaExportAll() {
-  for (let collection of indexedCollections)
-    await algoliaExportByCollectionName(collection.collectionName);
+  for (let collectionName in algoliaIndexNames)
+    await algoliaExportByCollectionName(collectionName);
 }
 
 
@@ -120,8 +119,8 @@ async function algoliaCleanIndex(collection)
 }
 
 export async function algoliaCleanAll() {
-  for (let collection of indexedCollections)
-    await algoliaCleanIndex(collection);
+  for (let collectionName in algoliaIndexNames)
+    await algoliaCleanIndex(getCollection(collectionName));
 }
 
 Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
