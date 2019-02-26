@@ -264,7 +264,6 @@ import '../components/collections/BigCollectionsCard.jsx';
 import '../components/sequences/CoreSequences.jsx';
 import '../components/sequences/HPMOR.jsx';
 import '../components/sequences/Codex.jsx';
-import '../components/sequences/ComingSoon.jsx';
 import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';
