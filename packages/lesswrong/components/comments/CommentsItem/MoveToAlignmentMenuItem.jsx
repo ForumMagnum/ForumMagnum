@@ -80,7 +80,7 @@ class MoveToAlignmentMenuItem extends PureComponent {
             Move to Alignment
           </MenuItem>
         )
-      } else if (comment.af) {
+      } else {
         return (
           <MenuItem onClick={ this.handleRemoveFromAlignmentForum }>
             <ListItemIcon>

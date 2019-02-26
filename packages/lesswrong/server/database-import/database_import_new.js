@@ -306,17 +306,17 @@ const upsertProcessedComments = async (comments, commentMap) => {
       })
     }
   })
-  if (postUpdates && _.size(postUpdates)) {
+  if (_.size(postUpdates)) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("postUpdateCursor", postUpdateCursor);
   }
-  if (userUpdates && _.size(userUpdates)) {
+  if (_.size(userUpdates)) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("userUpdateCursor", userUpdateCursor);
   }
-  if (commentUpdates && _.size(commentUpdates)) {
+  if (_.size(commentUpdates)) {
     const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("commentUpdateCursor", commentUpdateCursor);

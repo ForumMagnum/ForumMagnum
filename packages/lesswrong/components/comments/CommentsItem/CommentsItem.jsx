@@ -200,7 +200,7 @@ class CommentsItem extends Component {
                     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
-                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
+                    {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
