@@ -1,3 +1,10 @@
+// Top-level SCSS. This imports the rest of the SCSS files in
+// packages/lesswrong/styles, and is included on every page on the site. We are
+// generally moving away from SCSS and towards JSS; rather than adding things
+// here, add them as JSS. If class-names come from an outside library, use
+// JSS descendent selectors on a component which encloses the usages of that
+// library.
+
 @import "clear-style";
 @import "breakpoints";
 @import "variables";
@@ -21,22 +28,6 @@
 .upvoted .upvote{
   opacity: 0.3;
 }
-
-
-/*
-
-Old custom.scss file TODO: Refactor this properly into the main code
-
-*/
-
-/*
-
-CSS File with general modifications. Usually stuff gets added here first and
-then moved to more specific files as it becomes necessary.
-
-
-*/
-
 
 // Recent Comments Page CSS Modifications
 
