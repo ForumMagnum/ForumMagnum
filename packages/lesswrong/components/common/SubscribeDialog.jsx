@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "../../lib/modules/rss_urls.js";
 import { CopyToClipboard } from 'react-copy-to-clipboard';

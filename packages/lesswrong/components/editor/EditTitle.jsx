@@ -1,6 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Textarea } from 'formsy-react-components';
 import { withStyles } from '@material-ui/core/styles';
 

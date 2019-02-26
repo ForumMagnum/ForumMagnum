@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import React from 'react';
+import { registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 
 const LocalGroupsItem = ({group}) => {

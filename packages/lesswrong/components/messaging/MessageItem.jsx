@@ -5,7 +5,6 @@ Display of a single message in the Conversation Wrapper
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';

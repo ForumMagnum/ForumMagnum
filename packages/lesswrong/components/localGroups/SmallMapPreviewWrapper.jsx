@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Components, registerComponent, getSetting} from 'meteor/vulcan:core';
+import React from 'react';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 
 /*
   Wrapper around SmallMapPreview to ensure the defaultProps are accessibel to the HoCs
