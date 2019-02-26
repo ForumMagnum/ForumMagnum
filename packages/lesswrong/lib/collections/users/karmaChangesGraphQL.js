@@ -3,14 +3,32 @@ import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate }
 import { addGraphQLSchema, addGraphQLResolvers, getSetting } from 'meteor/vulcan:core';
 
 addGraphQLSchema(`
+  type PostKarmaChange {
+    _id: String
+    scoreChange: Int
+    title: String
+    slug: String
+  }
+`);
+
+addGraphQLSchema(`
+  type CommentKarmaChange {
+    _id: String
+    scoreChange: Int
+    description: String
+    postId: String
+  }
+`);
+
+addGraphQLSchema(`
   type KarmaChanges {
     totalChange: Int
     startDate: Date
     endDate: Date
     nextBatchDate: Date
     updateFrequency: String
-    posts: JSON
-    comments: JSON
+    posts: [PostKarmaChange]
+    comments: [CommentKarmaChange]
   }
 `);
 

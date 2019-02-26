@@ -156,10 +156,9 @@ describe('Voting', async function() {
       
       karmaChanges.totalChange.should.equal(1);
       
-      karmaChanges.documents.length.should.equal(1);
-      karmaChanges.documents[0].should.deep.equal({
+      karmaChanges.posts.length.should.equal(1);
+      karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
-        collectionName: "Posts",
         scoreChange: 1,
         title: post.title,
         slug: Utils.slugify(post.title),

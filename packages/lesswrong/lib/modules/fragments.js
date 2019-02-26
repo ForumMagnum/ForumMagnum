@@ -97,8 +97,18 @@ registerFragment(`
       startDate
       endDate
       nextBatchDate
-      posts
-      comments
+      posts {
+        _id
+        scoreChange
+        title
+        slug
+      }
+      comments {
+        _id
+        scoreChange
+        description
+        postId
+      }
     }
   }
 `);
