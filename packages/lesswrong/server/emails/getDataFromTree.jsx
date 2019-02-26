@@ -19,7 +19,7 @@ function providesChildContext(instance) {
 // Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 // or recurse into its child elements.
-function walkTree(element, context, visitor) {
+export function walkTree(element, context, visitor) {
     if (Array.isArray(element)) {
         element.forEach(function (item) { return walkTree(item, context, visitor); });
         return;
@@ -140,7 +140,6 @@ function walkTree(element, context, visitor) {
     }
     // TODO: Portals?
 }
-exports.walkTree = walkTree;
 function hasFetchDataFunction(instance) {
     return typeof instance.fetchData === 'function';
 }
@@ -186,7 +185,7 @@ function processErrors(errors) {
             throw wrapperError;
     }
 }
-function getDataFromTree(rootElement, rootContext) {
+export function getDataFromTree(rootElement, rootContext) {
     if (rootContext === void 0) { rootContext = {}; }
     var errors = [];
     var storeError = function (error) { return errors.push(error); };
@@ -194,4 +193,4 @@ function getDataFromTree(rootElement, rootContext) {
         return processErrors(errors);
     });
 }
-exports["default"] = getDataFromTree;
+export default getDataFromTree;
