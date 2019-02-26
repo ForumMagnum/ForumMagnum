@@ -7,6 +7,12 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  root: {
+    display: "inline-block",
+    verticalAlign: "text-bottom",
+    marginTop: 5,
+    color: "rgba(0,0,0,0.5) !important",
+  },
   userButton: {
     fontSize: '14px',
     fontWeight: 400,
@@ -40,7 +46,7 @@ class UsersAccountMenu extends PureComponent {
     const { color, classes } = this.props
 
     return (
-      <div className="users-menu">
+      <div className={classes.root}>
         <Button onClick={this.handleClick}>
           <span className={classes.userButton} style={{ color: color }}>
             Login

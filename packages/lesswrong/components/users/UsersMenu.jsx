@@ -15,6 +15,12 @@ import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 
 const styles = theme => ({
+  root: {
+    display: "inline-block",
+    verticalAlign: "text-bottom",
+    marginTop: 5,
+    color: "rgba(0,0,0,0.5) !important",
+  },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
@@ -61,7 +67,7 @@ class UsersMenu extends PureComponent {
 
 
     return (
-      <div className="users-menu">
+      <div className={classes.root}>
         <Button onClick={this.handleClick}>
           <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
