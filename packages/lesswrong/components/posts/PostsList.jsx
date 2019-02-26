@@ -64,7 +64,6 @@ const PostsList = ({
   }
   return (
     <div className={classNames(className, 'posts-list', {[classes.loading]: loading && dimWhenLoading})}>
-      {showHeader ? <Components.PostsListHeader/> : null}
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
       <div className="posts-list-content">
         { renderContent() }
@@ -83,7 +82,6 @@ PostsList.propTypes = {
   count: PropTypes.number,
   totalCount: PropTypes.number,
   loadMore: PropTypes.func,
-  showHeader: PropTypes.bool,
   dimWhenLoading: PropTypes.bool
 };
 
