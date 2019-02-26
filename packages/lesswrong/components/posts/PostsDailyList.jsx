@@ -118,7 +118,6 @@ class PostsDailyList extends PureComponent {
     } else {
       return (
         <div className="posts-daily">
-          {/* <Components.PostsListHeader /> */}
           {dates.map((date, index) =>
             <Components.PostsDay key={index} number={index}
               date={moment(date)}

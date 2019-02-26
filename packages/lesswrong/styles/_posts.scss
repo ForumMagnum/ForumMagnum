@@ -3,14 +3,6 @@
 // Post List                                        //
 //////////////////////////////////////////////////////
 
-.posts-list-header{
-  @include mui-breakpoint-up-sm{
-    @include flex-center;
-    justify-content: space-between;
-  }
-  margin-bottom: $vmargin;
-}
-
 .recent-posts-title-component {
   font-style: italic;
   margin-top: 20px;
@@ -155,15 +147,6 @@
 
 .posts-views-chip-inactive:hover {
   color: rgba(0, 0, 0, .3);
-}
-
-
-.posts-list-header{
-  @include mui-breakpoint-up-sm{
-    .search-form, .posts-views button{
-      width: 160px;
-    }
-  }
 }
 
 .posts-load-more, .comments-load-more{

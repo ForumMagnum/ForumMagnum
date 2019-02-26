@@ -41,7 +41,7 @@ const AlignmentForumHome = ({currentUser, classes}) => {
       </Components.Section>
       <Components.Section title="AI Alignment Posts"
         titleComponent={renderRecentPostsTitle()}>
-        <Components.PostsList terms={recentPostsTerms} showHeader={false} />
+        <Components.PostsList terms={recentPostsTerms} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments">
         <Components.RecentDiscussionThreadsList
