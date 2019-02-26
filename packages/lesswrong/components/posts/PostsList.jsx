@@ -24,7 +24,6 @@ const PostsList = ({
   count,
   totalCount,
   loadMore,
-  showHeader = true,
   showLoadMore = true,
   showNoResults = true,
   networkStatus,
@@ -84,8 +83,11 @@ PostsList.propTypes = {
   count: PropTypes.number,
   totalCount: PropTypes.number,
   loadMore: PropTypes.func,
+<<<<<<< HEAD
   showHeader: PropTypes.bool,
   dimWhenLoading: PropTypes.bool
+=======
+>>>>>>> devel
 };
 
 PostsList.contextTypes = {
