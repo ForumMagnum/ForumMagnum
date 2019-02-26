@@ -79,7 +79,7 @@ const UsersProfile = (props) => {
         </Components.MetaInfo>}
         { !!afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
         { !!afKarma && <Components.MetaInfo title="Alignment Karma">
-            {afKarma || 0}
+            {afKarma}
           </Components.MetaInfo>
         }
         <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
