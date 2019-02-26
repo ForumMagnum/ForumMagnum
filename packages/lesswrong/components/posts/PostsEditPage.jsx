@@ -7,7 +7,7 @@ class PostsEditPage extends PureComponent {
 
   render() {
     const postId = this.props.location.query.postId;
-    const eventForm = this.props.router.location.query && this.props.router.location.query.eventForm;
+    const eventForm = !!(this.props.router.location.query && (this.props.router.location.query.eventForm === "true"));
     const mapsAPIKey = getSetting('googleMaps.apiKey', null);
     
     return <div>

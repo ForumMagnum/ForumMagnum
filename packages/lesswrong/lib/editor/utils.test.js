@@ -5,7 +5,7 @@ import { autolink } from './utils'
 
 chai.should()
 
-describe.only('Autolink', () => {
+describe('Autolink', () => {
   it('autolinks multiple links', () => {
     const textIn = 'text1 https://www.google.com/ text2 https://www.google.com/foo text3'
     const want = [

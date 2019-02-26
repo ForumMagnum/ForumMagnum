@@ -5,9 +5,17 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
+import { withStyles } from '@material-ui/core/styles';
 
-const PostsNewForm = ({router, currentUser, flash}) => {
-  const { PostSubmit, WrappedSmartForm, AccountsLoginForm} = Components
+const styles = theme => ({
+  formSubmit: {
+    display: "flex",
+    flexWrap: "wrap",
+  }
+})
+
+const PostsNewForm = ({router, currentUser, flash, classes}) => {
+  const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
@@ -20,9 +28,16 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
+  const eventForm = router.location.query && router.location.query.eventForm
 
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<AccountsLoginForm />);
+  }
+  const NewPostsSubmit = (props) => {
+    return <div className={classes.formSubmit}>
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit {...props} />
+    </div>
   }
 
   return (
@@ -36,9 +51,9 @@ const PostsNewForm = ({router, currentUser, flash}) => {
           router.push({pathname: Posts.getPageUrl(post)});
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        eventForm={router.location.query && router.location.query.eventForm}
+        eventForm={eventForm}
         repeatErrors
-        SubmitComponent={PostSubmit}
+        SubmitComponent={NewPostsSubmit}
       />
     </div>
   );
@@ -53,4 +68,4 @@ PostsNewForm.propTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser);
+registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser, withStyles(styles, { name: "PostsNewForm" }));

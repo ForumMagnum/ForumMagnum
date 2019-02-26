@@ -9,6 +9,17 @@ import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  listDivider: {
+    marginTop: 12,
+    marginRight: 37,
+    marginLeft: 32,
+    border: 0,
+    borderTop: "1px solid #eee",
+  },
+});
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -53,7 +64,7 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const {router} = this.props;
+    const {classes, router} = this.props;
     const filters = (router.location.query && router.location.query.filters) || [];
     
     const postsListTerms = {
@@ -109,7 +120,7 @@ class CommunityHome extends Component {
         </div>
         </Components.Section>
         <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />
+          <Components.PostsList terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
         </Components.Section>
       </div>
     )
@@ -122,4 +133,7 @@ const withEditOptions = {
   fragmentName: 'UsersProfile',
 };
 
-registerComponent('CommunityHome', CommunityHome, withUser, withMessages, withRouter, [withEdit, withEditOptions]);
+registerComponent('CommunityHome', CommunityHome,
+  withUser, withMessages, withRouter,
+  [withEdit, withEditOptions],
+  withStyles(styles, { name: "CommunityHome" }));

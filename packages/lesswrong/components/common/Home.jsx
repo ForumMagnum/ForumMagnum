@@ -56,7 +56,7 @@ const Home = (props, context) => {
       <Components.RecommendedReading />
       {currentUser &&
         <Components.Section title="Curated Content">
-          <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
+          <Components.PostsList terms={curatedPostsTerms} showLoadMore={false}/>
         </Components.Section>}
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
@@ -64,7 +64,7 @@ const Home = (props, context) => {
         </div>}
         subscribeLinks={<Components.SubscribeWidget view={recentPostsTerms.view} />}
       >
-        <Components.PostsList terms={recentPostsTerms} showHeader={false} />
+        <Components.PostsList terms={recentPostsTerms} />
       </Components.Section>
       <Components.Section
         title="Community"
@@ -75,10 +75,7 @@ const Home = (props, context) => {
           </Components.SectionSubtitle>
         </div>}
       >
-        <Components.PostsList
-          terms={eventsListTerms}
-          showLoadMore={false}
-          showHeader={false} />
+        <Components.PostsList terms={eventsListTerms} showLoadMore={false} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
         <div>

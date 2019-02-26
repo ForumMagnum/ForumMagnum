@@ -27,9 +27,7 @@ class EventsUpcoming extends Component {
     return <div className={classes.dailyWrapper}>
       <Components.Section title="Upcoming Events">
         <div className={classes.dailyContentWrapper}>
-          <Components.PostsList
-            terms={postsListTerms}
-            showHeader={false} />
+          <Components.PostsList terms={postsListTerms} />
         </div>
       </Components.Section>
     </div>
