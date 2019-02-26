@@ -95,18 +95,18 @@ class CommunityHome extends Component {
             <Link to="/upcomingEvents">See upcoming events</Link>
           </Components.SectionSubtitle>
         </div>}>
-          {this.state.currentUserLocation &&
-            <div>
-              { this.state.currentUserLocation.loading
-                ? <Components.Loading />
-                : <Components.LocalGroupsList
-                    terms={groupsListTerms}
-                    showHeader={false} />}
-              <hr className="community-home-list-divider"/>
-              <Components.PostsList
-                terms={postsListTerms}
+        <div>
+          { this.state.currentUserLocation.loading
+            ? <Components.Loading />
+            : <Components.LocalGroupsList
+                terms={groupsListTerms}
                 showHeader={false} />
-            </div>}
+          }
+          <hr className="community-home-list-divider"/>
+          <Components.PostsList
+            terms={postsListTerms}
+            showHeader={false} />
+        </div>
         </Components.Section>
         <Components.Section title="Resources">
           <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />

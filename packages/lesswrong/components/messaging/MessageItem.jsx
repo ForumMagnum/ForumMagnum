@@ -40,7 +40,8 @@ class MessageItem extends Component {
 
   render() {
     const { currentUser, message, classes } = this.props;
-    const isCurrentUser = (currentUser && message && message.user) && currentUser._id == message.user._id
+    if (!message) return null;
+    const isCurrentUser = (currentUser && message.user) && currentUser._id == message.user._id
     const { html = "" } = message.contents || {}
     if (html) {
       const htmlBody = {__html: html};
