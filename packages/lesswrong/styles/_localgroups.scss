@@ -1,5 +1,3 @@
-$lw-green: #588f27;
-
 .community-home, .local-group-page {
   margin-top: 500px;
 }
@@ -125,25 +123,3 @@ $lw-green: #588f27;
   overflow: visible;
   padding-bottom: 20px;
 }
-
-.local-groups-item {
-  margin-left:13px;
-  font-size:14px;
-  padding-left:10px;
-  padding-bottom:5px;
-
-  @include max-tiny() {
-      margin-left:0;
-      padding-left:0;
-  }
-
-  a:hover {
-    text-decoration:none;
-    color:rgba(0,0,0,.4);
-  }
-}
-.local-group-organizer, .local-groups-item-location {
-  color:rgba(0,0,0,.4);
-  margin-right:8px;
-}
-
