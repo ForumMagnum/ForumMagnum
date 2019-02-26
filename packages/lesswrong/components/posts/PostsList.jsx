@@ -48,7 +48,7 @@ const PostsList = ({
   const loadingMore = networkStatus === 2 || networkStatus === 1;
   const renderContent = () => {
 
-    const { Loading, PostsItem, ErrorBoundary, PostsLoadMore, PostsNoResults } = Components
+    const { Loading, PostsItem, PostsLoadMore, PostsNoResults } = Components
     if (results && results.length) {
       return <div>
         { loading && <Loading />}
@@ -64,7 +64,7 @@ const PostsList = ({
     }
   }
   return (
-    <div className={classNames(className, 'posts-list', {[classes.loading]: loadingMore})}>
+    <div className={classNames(className, 'posts-list', {[classes.loading]: loading && dimWhenLoading})}>
       {showHeader ? <Components.PostsListHeader/> : null}
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
       <div className="posts-list-content">
@@ -85,6 +85,7 @@ PostsList.propTypes = {
   totalCount: PropTypes.number,
   loadMore: PropTypes.func,
   showHeader: PropTypes.bool,
+  dimWhenLoading: PropTypes.bool
 };
 
 PostsList.contextTypes = {
