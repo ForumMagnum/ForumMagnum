@@ -4,7 +4,6 @@ import {
   withDocument,
   registerComponent,
 } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';

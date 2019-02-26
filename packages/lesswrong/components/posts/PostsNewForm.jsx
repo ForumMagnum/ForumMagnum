@@ -1,6 +1,6 @@
-import { Components, registerComponent, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';

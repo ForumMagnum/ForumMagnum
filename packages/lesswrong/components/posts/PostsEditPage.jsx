@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withRouter } from 'react-router'
 import Helmet from 'react-helmet';

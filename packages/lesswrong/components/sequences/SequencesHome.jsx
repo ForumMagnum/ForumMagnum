@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';

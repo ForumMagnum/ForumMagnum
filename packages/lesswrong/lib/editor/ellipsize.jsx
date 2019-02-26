@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import truncatise from 'truncatise';
 import { Utils } from 'meteor/vulcan:core';
 
