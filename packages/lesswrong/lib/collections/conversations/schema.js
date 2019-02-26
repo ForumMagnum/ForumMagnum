@@ -49,10 +49,12 @@ const schema = {
 
   'participantIds.$': {
     type: String,
+    foreignKey: "Users",
     optional: true,
   },
   latestActivity: {
     type: Date,
+    denormalized: true,
     viewableBy: ['members'],
     onInsert: (document) => {
       return new Date(); // if this is an insert, set createdAt to current timestamp

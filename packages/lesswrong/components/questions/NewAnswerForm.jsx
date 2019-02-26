@@ -56,7 +56,7 @@ const FormGroupComponent = (props) => {
   </React.Fragment>
 }
 
-const NewAnswerForm = ({postId, classes, currentUser}) => {
+const NewAnswerForm = ({post, classes, currentUser}) => {
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
@@ -69,7 +69,11 @@ const NewAnswerForm = ({postId, classes, currentUser}) => {
     </div>
   }
 
-  const prefilledProps = { postId: postId, answer: true }
+  const prefilledProps = { 
+    postId: post._id, 
+    answer: true,
+    af: Comments.defaultToAlignment(currentUser, post),
+  }
   const { SmartForm } = Components
   
   if (!Comments.options.mutations.new.check(currentUser, prefilledProps)) {
@@ -87,6 +91,7 @@ const NewAnswerForm = ({postId, classes, currentUser}) => {
         SubmitComponent={SubmitComponent}
         mutationFragment={getFragment('CommentsList')}
         prefilledProps={prefilledProps}
+        alignmentForumPost={post.af}
         layout="elementOnly"
       />
     </div>
@@ -95,7 +100,7 @@ const NewAnswerForm = ({postId, classes, currentUser}) => {
 
 NewAnswerForm.propTypes = {
   classes: PropTypes.object.isRequired,
-  postId: PropTypes.string.isRequired,
+  post: PropTypes.object.isRequired,
   prefilledProps: PropTypes.object
 };
 

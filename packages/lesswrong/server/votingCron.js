@@ -18,26 +18,28 @@ SyncedCron.options = {
 };
 
 Meteor.startup(function () {
-  SyncedCron.add({
-    name: 'updateScoreActiveDocuments',
-    schedule(parser) {
-      return parser.text(`every 30 seconds`);
-    },
-    job() {
-      VoteableCollections.forEach(collection => {
-        batchUpdateScore({collection});
-      });
-    }
-  });
-  SyncedCron.add({
-    name: 'updateScoreInactiveDocuments',
-    schedule(parser) {
-      return parser.text('every 24 hours');
-    },
-    job() {
-      VoteableCollections.forEach(collection => {
-        batchUpdateScore({collection, inactive: true});
-      });
-    }
-  });
+  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+    SyncedCron.add({
+      name: 'updateScoreActiveDocuments',
+      schedule(parser) {
+        return parser.text(`every 30 seconds`);
+      },
+      job() {
+        VoteableCollections.forEach(collection => {
+          batchUpdateScore({collection});
+        });
+      }
+    });
+    SyncedCron.add({
+      name: 'updateScoreInactiveDocuments',
+      schedule(parser) {
+        return parser.text('every 24 hours');
+      },
+      job() {
+        VoteableCollections.forEach(collection => {
+          batchUpdateScore({collection, inactive: true});
+        });
+      }
+    });
+  }
 });

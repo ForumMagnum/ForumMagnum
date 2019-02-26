@@ -39,7 +39,7 @@ const NewPostEmail = ({document, classes}) => {
     </div>
     
     <div className="post-body" dangerouslySetInnerHTML={{
-      __html: document.htmlBody
+      __html: document.contents.html
     }} />
     
     <a href={Posts.getPageUrl(document, true)}>Discuss</a><br/><br/>
@@ -51,7 +51,7 @@ const NewPostEmail = ({document, classes}) => {
 const withDocumentOptions = {
   collection: Posts,
   queryName: "postsSingleQuery",
-  fragmentName: "LWPostsPage",
+  fragmentName: "PostsRevision",
   ssr: true,
 };
 

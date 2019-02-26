@@ -22,10 +22,11 @@ Package.onUse( function(api) {
     'vulcan:embed',
     'vulcan:admin',
     'vulcan:users',
+    'vulcan:routing',
   ]);
 
-  api.mainModule('server.js', 'server');
   api.mainModule('client.js', 'client');
+  api.mainModule('server.js', 'server');
 
   api.addFiles([
     'styles/main.scss',

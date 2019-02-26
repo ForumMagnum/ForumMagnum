@@ -7,8 +7,8 @@ export const excerptMaxChars = 700;
 export const postExcerptMaxChars = 600;
 
 export const highlightFromMarkdown = (body, mdi) => {
-  const htmlBody = mdi.render(body);
-  return highlightFromHTML(htmlBody);
+  const html = mdi.render(body);
+  return highlightFromHTML(html);
 }
 
 export const highlightFromHTML = (html) => {
@@ -47,6 +47,6 @@ export const commentExcerptFromHTML = (html, truncationCharCount) => {
 };
 
 export const excerptFromMarkdown = (body, mdi) => {
-  const htmlBody = mdi.render(body);
-  return commentExcerptFromHTML(htmlBody);
+  const html = mdi.render(body);
+  return commentExcerptFromHTML(html);
 }

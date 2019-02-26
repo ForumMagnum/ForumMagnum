@@ -1,6 +1,8 @@
 import Notifications from '../lib/collections/notifications/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
 import Conversations from '../lib/collections/conversations/collection.js';
+import Reports from '../lib/collections/reports/collection.js';
+
 import { getCollection } from 'meteor/vulcan:lib';
 import Localgroups from '../lib/collections/localgroups/collection.js';
 import { Bans } from '../lib/collections/bans/collection.js';
@@ -369,7 +371,11 @@ const reverseVote = (vote) => {
 
 const nullifyVotesForUserAndCollection = async (user, collection) => {
   const collectionName = Utils.capitalize(collection._name);
-  const votes = await Votes.find({collectionName: collectionName, userId: user._id}).fetch();
+  const votes = await Votes.find({
+    collectionName: collectionName,
+    userId: user._id,
+    cancelled: false,
+  }).fetch();
   votes.forEach((vote) => {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
@@ -418,6 +424,20 @@ function userDeleteContent(user) {
         documentId: notification._id,
       })
     })
+
+    const reports = Reports.find({postId: post._id}).fetch();
+    //eslint-disable-next-line no-console
+    console.info(`Deleting reports for post ${post._id}: `, reports);
+    reports.forEach((report) => {
+      editMutation({
+        collection: Reports,
+        documentId: report._id,
+        set: {closedAt: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
+      })
+    })
     
     runCallbacksAsync('posts.purge.async', post)
   })
@@ -444,6 +464,20 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+      })
+    })
+
+    const reports = Reports.find({commentId: comment._id}).fetch();
+    //eslint-disable-next-line no-console
+    console.info(`Deleting reports for comment ${comment._id}: `, reports);
+    reports.forEach((report) => {
+      editMutation({
+        collection: Reports,
+        documentId: report._id,
+        set: {closedAt: new Date()},
+        unset: {},
+        currentUser: user,
+        validate: false,
       })
     })
 

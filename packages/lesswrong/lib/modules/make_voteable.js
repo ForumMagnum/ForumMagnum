@@ -20,7 +20,11 @@ export const makeVoteable = collection => {
           type: '[Vote]',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
             if (!currentUser) return [];
-            const votes = await Connectors.find(Votes, {userId: currentUser._id, documentId: document._id});
+            const votes = await Connectors.find(Votes, {
+              userId: currentUser._id,
+              documentId: document._id,
+              cancelled: false,
+            });
             if (!votes.length) return [];
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
@@ -47,7 +51,10 @@ export const makeVoteable = collection => {
         resolveAs: {
           type: '[Vote]',
           resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await Connectors.find(Votes, { documentId: document._id });
+            const votes = await Connectors.find(Votes, {
+              documentId: document._id,
+              cancelled: false,
+            });
             if (!votes.length) return [];
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
@@ -74,7 +81,10 @@ export const makeVoteable = collection => {
     //       type: '[User]',
     //       resolver: async (document, args, { currentUser, Users, Votes }) => {
     //         // eslint-disable-next-line no-undef
-    //         const votes = await Connectors.find(Votes, { documentId: document._id});
+    //         const votes = await Connectors.find(Votes, {
+    //           documentId: document._id,
+    //           cancelled: false,
+    //         });
     //         const votersIds = _.pluck(votes, 'userId');
     //         // eslint-disable-next-line no-undef
     //         const voters = await Connectors.find(Users, {_id: {$in: votersIds}});
@@ -105,6 +115,22 @@ export const makeVoteable = collection => {
         onInsert: document => {
           // default to 0 if empty
           return document.baseScore || 0;
+        }
+      }
+    },
+    /**
+      The number of votes on the document
+    */
+    {
+      fieldName: 'voteCount',
+      fieldSchema: {
+        type: Number,
+        optional: true,
+        defaultValue: 0,
+        canRead: ['guests'],
+        onInsert: document => {
+          // default to 0 if empty
+          return document.voteCount || 0;
         }
       }
     },

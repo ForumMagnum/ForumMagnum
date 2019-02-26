@@ -46,7 +46,7 @@ class GroupFormLink extends Component {
         onClose={this.handleCloseGroupForm}
       >
         <DialogContent className={dialogClasses}>
-          <Components.SmartForm
+          <Components.WrappedSmartForm
             collection={Localgroups}
             documentId={this.props.documentId}
             mutationFragment={getFragment('localGroupsHomeFragment')}

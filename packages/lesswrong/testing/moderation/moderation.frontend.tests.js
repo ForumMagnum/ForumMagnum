@@ -128,7 +128,14 @@ describe('Commenting while banned from post --', async () => {
     )
     expect(commentsListSection.find("#posts-thread-new-comment")).to.have.length(0);
   });
-  it('commentsListSection does NOT render banned_message when user is NOT in a User bannedUserIds list', () => {
+  
+  // These tests are disabled because they were built on a brittle assumption
+  // which no longer holds: that the relevant part of the resulting React tree
+  // is present when only a shallow render is done (as opposed to a full
+  // render). We can't do a full render in this context because we don't have
+  // Apollo, and we also can't provide a user correctly without a full render
+  // because shallow rendering can't do context variables.
+  /*it('commentsListSection does NOT render banned_message when user is NOT in a User bannedUserIds list', () => {
     const commentsListSection = shallow(
       <CommentsListSection
         { ...commentListMockProps}
@@ -160,7 +167,7 @@ describe('Commenting while banned from post --', async () => {
       {context:{client:mockClient}}
     )
     expect(commentsListSection.find(".author_has_banned_you")).to.have.length(1);
-  });
+  });*/
 });
 
 // describe('BanUserSubmenu --', () => {

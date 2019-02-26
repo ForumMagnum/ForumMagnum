@@ -83,16 +83,17 @@ class ModerationGuidelinesBox extends PureComponent {
       Suffix: "... (Read More)",
       Strict: false
     }
-    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle]}</span> <br/>` : ""}
-    ${document.moderationGuidelinesHtmlBody || ""}`
+    const { html = "" } = document.moderationGuidelines
+    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</span> <br/>` : ""}
+    ${html || ""}`
 
     const combinedGuidelines = `
-      ${(document.moderationGuidelinesHtmlBody || moderationStyle) ? userGuidelines : ""}
-      ${(document.moderationGuidelinesHtmlBody && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
+      ${(html || moderationStyle) ? userGuidelines : ""}
+      ${(html && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
-              (document.moderationGuidelinesHtmlBody || moderationStyle) ?
+              (html || moderationStyle) ?
                 "" :
                 defaultGuidelines
             )
@@ -117,6 +118,8 @@ class ModerationGuidelinesBox extends PureComponent {
   render() {
     const { document, classes, currentUser } = this.props;
     const { open } = this.state
+    if (!document) return null
+    
     const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
     const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
     return (
@@ -146,7 +149,7 @@ const moderationStyleLookup = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'PostsPage',
   enableTotal: false,
   enableCache: true,
 };

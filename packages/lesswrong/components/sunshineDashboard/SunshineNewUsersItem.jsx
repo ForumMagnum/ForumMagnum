@@ -15,6 +15,11 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   negativeKarma: {
      color: red['A100']
+  },
+  info: {
+    // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
+    wordBreak: "break-word",
+    display: "inline-block"
   }
 })
 class SunshineNewUsersItem extends Component {
@@ -57,6 +62,7 @@ class SunshineNewUsersItem extends Component {
               <Link to={Users.getProfileUrl(user)}>
                 { user.displayName }
               </Link>
+              <div><MetaInfo>{ user.email }</MetaInfo></div>
               <br/>
               <MetaInfo>
                 <div>Posts: { user.postCount || 0 }</div>
@@ -67,25 +73,25 @@ class SunshineNewUsersItem extends Component {
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
 
-                <SunshineNewUserPostsList terms={{userId: user._id, authorIsUnreviewed:true}}/>
-                <SunshineNewUserCommentsList terms={{userId: user._id}}/>
+                <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+                <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
               </MetaInfo>
             </Typography>
           </SidebarHoverOver>
           <div>
-            <MetaInfo>
+            <MetaInfo className={classes.info}>
+              { user.karma || 0 }
+            </MetaInfo>
+            <MetaInfo className={classes.info}>
               <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
                   {user.displayName}
               </Link>
             </MetaInfo>
-            <MetaInfo>
-              { user.karma || 0 }
-            </MetaInfo>
-            <MetaInfo>
-              { user.email }
-            </MetaInfo>
-            <MetaInfo>
+            <MetaInfo className={classes.info}>
               <FormatDate date={user.createdAt}/>
+            </MetaInfo>
+            <MetaInfo className={classes.info}>
+              { user.email }
             </MetaInfo>
           </div>
 

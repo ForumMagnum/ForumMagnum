@@ -21,6 +21,8 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import withErrorBoundary from '../common/withErrorBoundary'
+
 
 const styles = theme => ({
   root: {
@@ -99,7 +101,7 @@ const styles = theme => ({
   paperNotExpanded: {
     backgroundColor: 'inherit',
     outline: "none",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
   },
   commentCountIcon: {
     position:"absolute",
@@ -341,7 +343,8 @@ class PostsItem extends Component {
 
   // Render the thing that appears when you click "Show Highlight"
   renderHighlightMenu = () => {
-    let { classes } = this.props;
+    let { classes, post } = this.props;
+    const { wordCount = 0 } = post.contents || {}
     return (
       <div className={classes.highlightFooter}>
         <Typography variant="body1" className={classNames(classes.highlightFooterButton, classes.hideHighlight)} onClick={this.toggleHighlight}>
@@ -352,7 +355,7 @@ class PostsItem extends Component {
         </Typography>
         <Link to={this.getPostLink()}>
         <Typography className={classNames(classes.highlightFooterButton, classes.viewFullPost)} variant="body1">
-          Continue to Full Post {this.props.post.wordCount && <span> ({this.props.post.wordCount} words)</span>}
+          Continue to Full Post {wordCount && <span> ({wordCount} words)</span>}
         </Typography>
         </Link>
       </div>
@@ -511,5 +514,6 @@ registerComponent(
   withMutation(mutationOptions),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles, { name: "PostsItem" })
+  withStyles(styles, { name: "PostsItem" }),
+  withErrorBoundary
 );

@@ -14,7 +14,7 @@ class AFApplicationForm extends PureComponent {
   state = { applicationText: "" }
 
   handleSubmission = (event) => {
-    const { currentUser, updateUser, flash, onRequestClose } = this.props
+    const { currentUser, updateUser, flash, onClose } = this.props
     event.preventDefault();
     updateUser({
       selector: { _id: currentUser._id },
@@ -24,14 +24,14 @@ class AFApplicationForm extends PureComponent {
       }
     }).then(()=>{
       flash({messageString: "Successfully submitted application", type: "success"})
-      onRequestClose()
+      onClose()
     }).catch(/* error */);
   }
 
   render() {
-    const { onRequestClose } = this.props
+    const { onClose } = this.props
     return (
-      <Dialog open={true} onClose={onRequestClose}>
+      <Dialog open={true} onClose={onClose}>
         <DialogTitle>
           AI Alignment Forum Membership Application
         </DialogTitle>
@@ -59,7 +59,7 @@ class AFApplicationForm extends PureComponent {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={onRequestClose}>
+          <Button onClick={onClose}>
             Cancel
           </Button>
           <Button color="primary" onClick={this.handleSubmission}>

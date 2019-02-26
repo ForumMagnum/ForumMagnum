@@ -54,11 +54,13 @@ const schema = {
 
   'organizerIds.$': {
     type: String,
+    foreignKey: "Users",
     optional: true,
   },
 
   lastActivity: {
     type: Date,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -83,20 +85,6 @@ const schema = {
   'types.$': {
     type: String,
     optional: true,
-  },
-
-  description: {
-    type: Object,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    control: 'EditorFormComponent',
-    blackbox: true,
-    hidden: true,
-    optional: true,
-    form: {
-      enableMarkDownEditor: false
-    }
   },
 
   mongoLocation: {

@@ -38,9 +38,20 @@ const styles = theme => ({
     marginRight: 5,
   },
   menu: {
-    float:"right",
     opacity:.35,
     marginRight:-5
+  },
+  metaRight: {
+    float: "right"
+  },
+  outdatedWarning: {
+    float: "right",
+    position: 'relative',
+    [theme.breakpoints.down('xs')]: {
+      float: "none",
+      marginTop: 7,
+      display: 'block'
+    }
   },
   date: {
     color: "rgba(0,0,0,0.5)",
@@ -61,6 +72,8 @@ class CommentsItem extends Component {
     if(!shallowEqual(this.state, nextState))
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
+      return true;
+    if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version)) 
       return true;
     return false;
   }
@@ -90,7 +103,7 @@ class CommentsItem extends Component {
     this.setState({showEdit: false});
   }
 
-  removeSuccessCallback = ({documentId}) => {
+  removeSuccessCallback = () => {
     this.props.flash({messageString: "Successfully deleted comment", type: "success"});
   }
 
@@ -199,12 +212,18 @@ class CommentsItem extends Component {
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
-              <span className={classes.menu}>
-                <CommentsMenu
-                  comment={comment}
-                  post={post}
-                  showEdit={this.showEdit}
-                />
+                            
+              <span className={classes.metaRight}> 
+                <span className={classes.menu}>
+                  <CommentsMenu
+                    comment={comment}
+                    post={post}
+                    showEdit={this.showEdit}
+                  />
+                </span>
+              </span>
+              <span className={classes.outdatedWarning}>
+                  <Components.CommentOutdatedWarning comment={comment} post={post} />
               </span>
             </div>
             { showEdit ? (
@@ -221,7 +240,6 @@ class CommentsItem extends Component {
                 comment={comment}
               />
             ) }
-
             {!comment.deleted && !collapsed && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
@@ -234,9 +252,10 @@ class CommentsItem extends Component {
 
   renderCommentBottom = () => {
     const { comment, currentUser, truncated, collapsed } = this.props;
+    const markdown = (comment.contents && comment.contents.markdown) || ""
     const { MetaInfo } = Components
 
-    if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
+    if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
@@ -275,6 +294,7 @@ class CommentsItem extends Component {
         <Components.CommentsNewForm
           postId={comment.postId}
           parentComment={comment}
+          alignmentForumPost={post.af}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{

@@ -15,16 +15,16 @@ const styles = theme => ({
     minWidth:20,
     textAlign: "center",
     display: "inline-block",
-    color: "rgba(0,0,0,.3)"
   },
 })
 
 const DateWithoutTime = withTimezone(
-  ({date, timezone}) => 
+  ({date, timezone}) =>
     <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 );
 
 const PostsItemMeta = ({classes, currentUser, post, read}) => {
+  const { wordCount = 0 } = post.contents || {}
   const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
   const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
   const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
@@ -63,9 +63,9 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
         <FormatDate date={post.postedAt}/>
       </MetaInfo>}
 
-      {post.wordCount && !post.isEvent && <MetaInfo>
-        <Tooltip title={`${post.wordCount} words`}>
-          <span>{parseInt(post.wordCount/300) || 1 } min read</span>
+      {!!wordCount && !post.isEvent && <MetaInfo>
+        <Tooltip title={`${wordCount} words`}>
+          <span>{parseInt(wordCount/300) || 1 } min read</span>
         </Tooltip>
       </MetaInfo>}
 

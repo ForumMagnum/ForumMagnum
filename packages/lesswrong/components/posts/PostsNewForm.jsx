@@ -1,13 +1,23 @@
-import { Components, registerComponent, getRawComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent,  getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
+import { withStyles } from '@material-ui/core/styles';
 
-const PostsNewForm = ({router, currentUser, flash}) => {
+const styles = theme => ({
+  formSubmit: {
+    display: "flex",
+    flexWrap: "wrap",
+  }
+})
+
+const PostsNewForm = ({router, currentUser, flash, classes}) => {
+  const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
     isEvent: router.location.query && router.location.query.eventForm,
     types: router.location.query && router.location.query.ssc ? ['SSC'] : [],
@@ -16,17 +26,24 @@ const PostsNewForm = ({router, currentUser, flash}) => {
     af: getSetting("AlignmentForum", false) || (router.location.query && !!router.location.query.af),
     groupId: router.location.query && router.location.query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelinesHtmlBody: currentUser && currentUser.moderationGuidelinesHtmlBody,
+    moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
   }
-  
+  const eventForm = router.location.query && router.location.query.eventForm
+
   if (!Posts.options.mutations.new.check(currentUser)) {
-    return (<Components.AccountsLoginForm />);
+    return (<AccountsLoginForm />);
   }
-  
+  const NewPostsSubmit = (props) => {
+    return <div className={classes.formSubmit}>
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit {...props} />
+    </div>
+  }
+
   return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <Components.SmartForm
+      <WrappedSmartForm
         collection={Posts}
         mutationFragment={getFragment('PostsPage')}
         prefilledProps={prefilledProps}
@@ -34,9 +51,9 @@ const PostsNewForm = ({router, currentUser, flash}) => {
           router.push({pathname: Posts.getPageUrl(post)});
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        eventForm={router.location.query && router.location.query.eventForm}
-        submitLabel="Publish"
+        eventForm={eventForm}
         repeatErrors
+        SubmitComponent={NewPostsSubmit}
       />
     </div>
   );
@@ -51,4 +68,4 @@ PostsNewForm.propTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser);
+registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser, withStyles(styles, { name: "PostsNewForm" }));

@@ -3,6 +3,9 @@ import { getSetting } from "meteor/vulcan:core"
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
+import SimpleSchema from 'simpl-schema'
+import { schemaDefaultValue } from '../../collectionUtils';
+
 
 export const formGroups = {
   moderationGroup: {
@@ -33,6 +36,40 @@ export const formGroups = {
     startCollapsed: true,
   },
 }
+
+export const karmaChangeNotifierDefaultSettings = {
+  // One of the string keys in karmaNotificationTimingChocies
+  updateFrequency: "daily",
+  
+  // Time of day at which daily/weekly batched updates are released, a number
+  // of hours [0,24). Always in GMT, regardless of the user's time zone.
+  // Default corresponds to 3am PST.
+  timeOfDayGMT: 11,
+  
+  // A string day-of-the-week name, spelled out and capitalized like "Monday".
+  // Always in GMT, regardless of the user's timezone (timezone matters for day
+  // of the week because time zones could take it across midnight.)
+  dayOfWeekGMT: "Saturday",
+};
+
+const karmaChangeSettingsType = new SimpleSchema({
+  updateFrequency: {
+    type: String,
+    optional: true,
+    allowedValues: ['disabled', 'daily', 'weekly', 'realtime']
+  },
+  timeOfDayGMT: {
+    type: SimpleSchema.Integer,
+    optional: true,
+    min: 0,
+    max: 23
+  },
+  dayOfWeekGMT: {
+    type: String,
+    optional: true,
+    allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  }
+})
 
 Users.addField([
 
@@ -183,6 +220,49 @@ Users.addField([
     fieldName: 'currentFrontpageFilter',
     fieldSchema: {
       type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsFilter',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsView',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+    }
+  },
+  {
+    fieldName: 'allPostsShowLowKarma',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsOpenSettings',
+    fieldSchema: {
+      type: Boolean,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -358,6 +438,7 @@ Users.addField([
     fieldName: 'bannedUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -383,6 +464,7 @@ Users.addField([
     fieldName: 'bannedPersonalUserIds.$',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true
     }
   },
@@ -576,6 +658,55 @@ Users.addField([
       label: "Notifications For Replies to My Comments",
     }
   },
+  
+  /**
+    Karma-change notifier settings
+  */
+  {
+    fieldName: 'karmaChangeNotifierSettings',
+    fieldSchema: {
+      group: formGroups.notifications,
+      type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.jsx
+      optional: true,
+      control: "KarmaChangeNotifierSettings",
+      canRead: [Users.owns, 'admins'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment'],
+      ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
+    },
+  },
+  
+  /**
+    Time at which the karma-change notification was last opened (clicked)
+  */
+  {
+    fieldName: 'karmaChangeLastOpened',
+    fieldSchema: {
+      hidden: true,
+      type: Date,
+      optional: true,
+      canCreate: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canRead: [Users.owns, 'admins'],
+    },
+  },
+  
+  /**
+    If, the last time you opened the karma-change notifier, you saw more than
+    just the most recent batch (because there was a batch you hadn't viewed),
+    the start of the date range of that batch.
+  */
+  {
+    fieldName: 'karmaChangeBatchStart',
+    fieldSchema: {
+      hidden: true,
+      type: Date,
+      optional: true,
+      canCreate: [Users.owns, 'admins'],
+      canUpdate: [Users.owns, 'admins'],
+      canRead: [Users.owns, 'admins'],
+    },
+  },
 
   /**
     Email settings
@@ -614,6 +745,7 @@ Users.addField([
     fieldName: 'frontpagePostCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
@@ -628,6 +760,7 @@ Users.addField([
     fieldName: 'sequenceCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
@@ -642,6 +775,7 @@ Users.addField([
     fieldName: 'sequenceDraftCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
@@ -692,6 +826,7 @@ Users.addField([
     fieldName: 'reviewedByUserId',
     fieldSchema: {
       type: String,
+      foreignKey: "Users",
       optional: true,
       canRead: ['sunshineRegiment', 'admins'],
       canUpdate: ['sunshineRegiment', 'admins'],
@@ -717,7 +852,10 @@ Users.addField([
       resolveAs: {
         type: '[Vote]',
         resolver: async (document, args, { Users, Votes, currentUser }) => {
-          const votes = await Votes.find({ userId: document._id }).fetch();
+          const votes = await Votes.find({
+            userId: document._id,
+            cancelled: false,
+          }).fetch();
           if (!votes.length) return [];
           return Users.restrictViewableFields(currentUser, Votes, votes);
         },
@@ -748,6 +886,7 @@ Users.addField([
     fieldName: 'voteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       label: "Small Upvote Count",
       canRead: ['guests'],
@@ -758,6 +897,7 @@ Users.addField([
     fieldName: 'smallUpvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -767,6 +907,7 @@ Users.addField([
     fieldName: 'smallDownvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -776,6 +917,7 @@ Users.addField([
     fieldName: 'bigUpvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -785,6 +927,7 @@ Users.addField([
     fieldName: 'bigDownvoteCount',
     fieldSchema: {
       type: Number,
+      denormalized: true,
       optional: true,
       canRead: ['guests'],
     }
@@ -848,6 +991,19 @@ Users.addField([
         ),
         addOriginalField: true
       },
+    }
+  },
+
+  { 
+    fieldName: "viewUnreviewedComments",
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['admins', 'sunshineRegiment'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      group: formGroups.adminOptions,
+      order: 0,
     }
   }
 ]);

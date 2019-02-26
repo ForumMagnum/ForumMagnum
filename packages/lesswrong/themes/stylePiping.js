@@ -75,6 +75,22 @@ export const postBodyStyles = (theme, fontSize) => {
     '& img': {
       maxWidth: "100%"
     },
+    '& sup': {
+      verticalAlign: 'baseline',
+      top: '-0.6em',
+      fontSize: '65%',
+      position: 'relative'
+    },
+    // Currently here for R:A-Z imports, but might also want to use it for markdown footnotes
+    '& .footnotes': {
+      marginTop: 40,
+      fontSize: '0.9em',
+      paddingTop: 40,
+      borderTop: 'solid 1px rgba(0,0,0,0.2)',
+      '& sup': {
+        marginRight: 10,
+      }
+    },
     '& a, & a:hover, & a:active': {
       ...linkStyle({
         theme: theme,

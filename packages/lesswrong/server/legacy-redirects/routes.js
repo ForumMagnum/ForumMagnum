@@ -222,6 +222,10 @@ Picker.route('/rss/comments.xml', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?type=comments');
 });
 
+Picker.route('/daily', (params, req, res, next) => {
+  return makeRedirect(res, '/allPosts');
+});
+
 // Route for old general RSS (all posts)
 Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml');
