@@ -10,8 +10,9 @@ async function ChaptersEditCanonizeCallback (chapter) {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
-  const allPostsInSequence = Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
-  const removedPosts = _.difference(_.pluck(allPostsInSequence, '_id'), _.pluck(posts, '_id'))
+  const postsWithCanonicalSequenceId = Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
+  const removedPosts = _.difference(_.pluck(postsWithCanonicalSequenceId, '_id'), _.pluck(posts, '_id'))
+
   removedPosts.forEach((postId) => {
     Posts.update({_id: postId}, {$unset: {
       canonicalPrevPostSlug: true,
