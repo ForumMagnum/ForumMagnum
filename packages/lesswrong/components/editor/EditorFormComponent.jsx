@@ -237,7 +237,7 @@ class EditorFormComponent extends Component {
 
   renderUpdateTypeSelect = () => {
     const { currentUser, formType, classes } = this.props
-    if (!currentUser.isAdmin || formType !== "edit") { return null }
+    if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
       value={this.state.updateType}
       onChange={this.handleUpdateTypeSelect}
