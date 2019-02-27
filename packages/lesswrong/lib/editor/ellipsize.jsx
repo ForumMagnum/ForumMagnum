@@ -19,6 +19,14 @@ export const highlightFromHTML = (html) => {
   }));
 };
 
+export const truncate = (html, truncateLength) => {
+  return Utils.sanitize(truncatise(html, {
+    TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
+    TruncateBy: "characters",
+    Suffix: "...",
+  }));
+}
+
 export const postExcerptFromHTML = (html, truncationCharCount) => {
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""

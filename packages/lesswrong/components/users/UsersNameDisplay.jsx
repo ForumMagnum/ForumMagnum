@@ -4,16 +4,19 @@ import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import Tooltip from '@material-ui/core/Tooltip';
+import { truncate } from '../../lib/editor/ellipsize';
 
-const UsersNameDisplay = ({user}) => {
+const UsersNameDisplay = ({user, classes}) => {
   const { htmlBio } = user
+
+  const truncatedBio = truncate(htmlBio, 500)
 
   const userLink = <Link to={Users.getProfileUrl(user)}>
     {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
   </Link>
 
-  if (htmlBio) {
-    return <Tooltip title={<div dangerouslySetInnerHTML={{__html: htmlBio}}/>}>{ userLink }</Tooltip>
+  if (truncatedBio) {
+    return <Tooltip title={<div dangerouslySetInnerHTML={{__html: truncatedBio}}/>}>{ userLink }</Tooltip>
   } else {
     return userLink
   }
