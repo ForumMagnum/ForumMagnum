@@ -259,6 +259,7 @@ const schema = {
       type: 'Int',
       resolver: (comment, args, { Comments }) => {
         const contents = comment.contents;
+        if (!contents) return 0;
         return contents.wordCount;
       }
     }
@@ -271,6 +272,7 @@ const schema = {
       type: 'String',
       resolver: (comment, args, { Comments }) => {
         const contents = comment.contents;
+        if (!contents) return "";
         return contents.html;
       }
     }

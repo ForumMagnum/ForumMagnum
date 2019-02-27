@@ -454,6 +454,7 @@ const schema = {
       type: 'Int',
       resolver: (post, args, { Posts }) => {
         const contents = post.contents;
+        if (!contents) return 0;
         return contents.wordCount;
       }
     }
@@ -466,6 +467,7 @@ const schema = {
       type: 'String',
       resolver: (post, args, { Posts }) => {
         const contents = post.contents;
+        if (!contents) return "";
         return contents.html;
       }
     }
