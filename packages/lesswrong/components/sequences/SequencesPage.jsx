@@ -4,7 +4,6 @@ import {
   withDocument,
   registerComponent,
 } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import NoSSR from 'react-no-ssr';
 import { Link } from 'react-router';
@@ -100,7 +99,7 @@ class SequencesPage extends Component {
     const { document, currentUser, loading, classes } = this.props;
     if (document && document.isDeleted) {
       return <h3>This sequence has been deleted</h3>
-    } if (loading || !document) {
+    } else if (loading || !document) {
       return <Components.Loading />
     } else if (this.state.edit) {
       return <Components.SequencesEditForm

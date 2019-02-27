@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';

@@ -1,4 +1,3 @@
-import { Components } from 'meteor/vulcan:core';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 

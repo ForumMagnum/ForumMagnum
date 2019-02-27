@@ -40,7 +40,8 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser, hover } = this.props
-    const voteCount = comment ? comment.voteCount : 0;
+    if (!comment) return null;
+    const voteCount = comment.voteCount;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (

@@ -5,7 +5,6 @@ Display of a single message in the Conversation Wrapper
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
@@ -41,7 +40,8 @@ class MessageItem extends Component {
 
   render() {
     const { currentUser, message, classes } = this.props;
-    const isCurrentUser = (currentUser && message && message.user) && currentUser._id == message.user._id
+    if (!message) return null;
+    const isCurrentUser = (currentUser && message.user) && currentUser._id == message.user._id
     const { html = "" } = message.contents || {}
     if (html) {
       const htmlBody = {__html: html};

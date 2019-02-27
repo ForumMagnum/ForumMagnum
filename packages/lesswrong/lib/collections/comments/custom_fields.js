@@ -1,5 +1,3 @@
-import React from 'react'
-import { Components } from "meteor/vulcan:core";
 import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'

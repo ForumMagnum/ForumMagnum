@@ -4,6 +4,23 @@ import React from 'react';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 
+function getPostsSectionTitle(view, currentUser) {
+  switch (view) {
+    case "frontpage":
+      return "Frontpage Posts";
+    case "curated":
+      if (currentUser) {
+        return "More Curated";
+      } else {
+        return "Curated Posts";
+      }
+    case "community":
+      return "All Posts";
+    default:
+      return "Recent Posts";
+  }
+}
+
 const Home = (props, context) => {
   const { currentUser, router } = props;
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
@@ -16,21 +33,7 @@ const Home = (props, context) => {
   }
 
   const curatedPostsTerms = {view:"curated", limit:3}
-  let recentPostsTitle = "Recent Posts"
-  switch (recentPostsTerms.view) {
-    case "frontpage":
-      recentPostsTitle = "Frontpage Posts"; break;
-    case "curated":
-      if (currentUser) {
-        recentPostsTitle = "More Curated"; break;
-      } else {
-        recentPostsTitle = "Curated Posts"; break;
-      }
-    case "community":
-      recentPostsTitle = "All Posts"; break;
-    default:
-      return "Recent Posts";
-  }
+  const recentPostsTitle = getPostsSectionTitle(recentPostsTerms.view, currentUser);
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]

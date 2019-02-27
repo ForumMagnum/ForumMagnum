@@ -1,7 +1,5 @@
 import { Posts } from './collection';
-import ReactDOMServer from 'react-dom/server';
-import { Components, getSetting } from 'meteor/vulcan:core';
-import React from 'react';
+import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
