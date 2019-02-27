@@ -6,6 +6,7 @@ import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   groupSidebar: {
@@ -94,7 +95,7 @@ class LocalGroupPage extends Component {
           />
           <Components.Section titleComponent={this.renderTitleComponent()}>
             {group && <div className={classes.groupDescription}>
-              <h2 className={classes.groupName}>{group.name}</h2>
+              <Typography variant="display2" className={classes.groupName}>{group.name}</Typography>
               <div className={classes.groupSubtitle}>
                 <div className={classes.groupLocation}>{group.location}</div>
                 <div className={classes.groupLinks}><Components.GroupLinks document={group} /></div>
