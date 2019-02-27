@@ -17,7 +17,7 @@ const PostsStats = ({post, classes}) => {
     <span className={classes.root}>
       {post.score &&
         <C.MetaInfo title="Score">
-          {Math.floor((post.score || 0)*10000)/10000}
+          {Math.floor(post.score*10000)/10000}
         </C.MetaInfo>
       }
       <C.MetaInfo title="Views">

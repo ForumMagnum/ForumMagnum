@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withMessages } from 'meteor/vulcan:core';
+import { replaceComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { intlShape } from 'meteor/vulcan:i18n';

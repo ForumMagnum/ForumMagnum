@@ -1,4 +1,3 @@
-import React from 'react';
 import { Posts } from "../posts";
 import { Comments } from './collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
@@ -186,7 +185,8 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
       lastCommentedAt:new Date(lastCommentedAt),
       commentCount:comments.length
     },
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);

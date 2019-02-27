@@ -4,7 +4,6 @@ import { expect } from 'meteor/practicalmeteor:chai';
 import CommentsItem from './CommentsItem.jsx'
 import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter() })
-import { Components } from 'meteor/vulcan:core';
 
 export const commentMockProps = {
   router: {params:""},

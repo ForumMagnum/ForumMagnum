@@ -24,9 +24,6 @@ import {
 } from 'meteor/vulcan:core';
 
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
-import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
-import React from 'react';
 
 
 function updateConversationActivity (message) {
@@ -375,7 +372,7 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   votes.forEach((vote) => {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    reverseVote(vote, collection);
+    reverseVote(vote);
   });
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
@@ -418,6 +415,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -460,6 +458,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -503,7 +502,7 @@ async function userIPBan(user) {
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.user.data.IPs.forEach(ip => {
+    IPs.data.user.result.IPs.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {

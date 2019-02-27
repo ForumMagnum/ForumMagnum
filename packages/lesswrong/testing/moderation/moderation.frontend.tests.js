@@ -7,8 +7,6 @@ import commentMockProps from '../../components/comments/CommentsItem/_comments-u
 import CommentsItem from '../../components/comments/CommentsItem/CommentsItem.jsx'
 import CommentsListSection from '../../components/comments/CommentsListSection.jsx'
 
-import { Components } from 'meteor/vulcan:core';
-
 import Adapter from 'enzyme-adapter-react-16';
 import ApolloClient from 'apollo-client';
 
