@@ -502,7 +502,7 @@ async function userIPBan(user) {
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.user.data.IPs.forEach(ip => {
+    IPs.data.user.result.IPs.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {
