@@ -6,14 +6,14 @@ import { Link } from 'react-router';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const UsersNameDisplay = ({user}) => {
-  const bio = !!user.bio && user.bio
+  const { htmlBio } = user
 
   const userLink = <Link to={Users.getProfileUrl(user)}>
     {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
   </Link>
 
-  if (bio) {
-    return <Tooltip title={bio}>{ userLink }</Tooltip>
+  if (htmlBio) {
+    return <Tooltip title={<div dangerouslySetInnerHTML={{__html: htmlBio}}/>}>{ userLink }</Tooltip>
   } else {
     return userLink
   }
