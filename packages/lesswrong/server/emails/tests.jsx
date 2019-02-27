@@ -36,7 +36,7 @@ describe('renderEmail', async () => {
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     
-    email.bodyText.should.equal("Hello");
+    email.text.should.equal("Hello");
   });
   
   it("Renders styles with withStyles", async () => {
@@ -67,9 +67,12 @@ describe('renderEmail', async () => {
     
     const queryOptions = {
       collection: Posts,
-      queryName: 'postsSingleQuery',
+      queryName: 'emailTestPostsSingleQuery',
       fragmentName: 'PostsRevision',
-      ssr: true
+      ssr: true,
+      extraVariables: {
+        version: 'String'
+      }
     };
     const PostTitleComponent = withDocument(queryOptions)(
       ({document}) => <div>{document.title}</div>
@@ -78,7 +81,7 @@ describe('renderEmail', async () => {
     const email = await generateEmail({
       user: await createDummyUser(),
       subject: "Unit test email",
-      bodyComponent: <PostTitleComponent documentId={post._id} />,
+      bodyComponent: <PostTitleComponent documentId={post._id} version={null} />,
       boilerplateGenerator: unitTestBoilerplateGenerator,
     });
     email.html.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
