@@ -1,4 +1,14 @@
+import { getSetting } from 'meteor/vulcan:core';
+
 const postViewSections = {
+  'curated': {
+    label: "Curated Posts",
+    description: "Curated - Recent, high quality posts selected by the LessWrong moderation team.",
+    learnMoreLink: "/posts/tKTcrnKn2YSdxkxKG/frontpage-posting-and-commenting-guidelines",
+    categoryIcon:"star",
+    rssView: "curated-rss",
+    rss:true
+  },
   'frontpage': {
     label:'Frontpage Posts',
     description: "Posts meeting our frontpage guidelines:\n • interesting, insightful, useful\n • aim to explain, not to persuade\n • avoid meta discussion \n • relevant to people whether or not they \nare involved with the EA community.",
@@ -34,6 +44,10 @@ const postViewSections = {
   'rejected': 'rejected posts',
   'scheduled': 'scheduled posts',
   'all_drafts': 'all drafts',
+}
+
+if (getSetting('EAForum')) {
+  delete postViewSections.curated
 }
 
 export default postViewSections;
