@@ -254,6 +254,8 @@ class EditorFormComponent extends Component {
     const { document, currentUser, formType, form, classes, fieldName } = this.props
     const commentStyles = form && form.commentStyles
     const currentEditorType = this.getCurrentEditorType()
+    
+    if (!document) return null;
 
     // The class which determines clickable height (as tall as a comment editor,
     // or as tall as a post editor) needs to be applied deeper in the tree, for
@@ -265,7 +267,7 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
+      && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 

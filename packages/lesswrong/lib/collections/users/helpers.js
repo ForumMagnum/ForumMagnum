@@ -65,9 +65,9 @@ Users.canCommentLock = (user, post) => {
 }
 
 Users.userIsBannedFromPost = (user, post) => {
+  if (!post) return false;
   const postAuthor = post.user || Users.findOne(post.userId)
   return !!(
-    post &&
     post.bannedUserIds &&
     post.bannedUserIds.includes(user._id) &&
     Users.owns(postAuthor, post)

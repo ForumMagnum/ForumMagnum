@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Collections from '../../lib/collections/collections/collection.js';
 
 const CollectionsEditForm = (props) => {

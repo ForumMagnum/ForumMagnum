@@ -29,7 +29,9 @@ class DialogGroup extends Component {
 
   render() {
     //eslint-disable-next-line react/jsx-key
-    const actions = this.props.actions.map(action => <span onClick={this.handleClose}>{action}</span>)
+    const actions = this.props.actions.map((action, i) =>
+      <span key={i} onClick={this.handleClose}>{action}</span>
+    )
 
     return (
       <span className="dialog-trigger-group">

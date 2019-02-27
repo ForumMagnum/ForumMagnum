@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -54,9 +54,10 @@ class UsersMenu extends PureComponent {
   render() {
     let { currentUser, client, classes, color, openDialog } = this.props;
 
+    if (!currentUser) return null;
 
     const showNewButtons = !getSetting('AlignmentForum') || Users.canDo(currentUser, 'posts.alignment.new')
-    const showNewShortformButton = showNewButtons && currentUser && !!currentUser.shortformFeedId
+    const showNewShortformButton = showNewButtons && !!currentUser.shortformFeedId
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
 

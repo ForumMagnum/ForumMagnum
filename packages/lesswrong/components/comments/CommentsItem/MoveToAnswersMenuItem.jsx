@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components, withUpdate, withMessages } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate, withMessages } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';

@@ -1,7 +1,6 @@
+import React from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Link } from 'react-router';
-
-import React, { PureComponent } from 'react';
 
 const SequencesSearchHit = ({hit, clickAction}) => {
   const linkProperties = clickAction ? {onClick: () => clickAction(hit._id)} : {to: "sequences/" + hit._id};

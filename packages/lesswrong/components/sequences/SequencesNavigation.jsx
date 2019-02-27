@@ -13,13 +13,13 @@ const SequencesNavigation = ({
     return <Components.CollectionsNavigation loading={true}/>
   }
   
-  let title = document ? document.title : ""
+  let title = document.title;
   let titleUrl = documentId ? "/s/" + documentId : ""
   const { nextPost, prevPost } = Utils.getSequencePostLinks(document, post)
   
   return <Components.CollectionsNavigation
-    nextPostUrl={document && nextPost && "/s/" + document._id + (nextPost ? ("/p/" + nextPost._id) : "")}
-    prevPostUrl={document && prevPost && "/s/" + document._id + (prevPost ? ("/p/" + prevPost._id) : "")}
+    nextPostUrl={nextPost && `/s/${document._id}/p/${nextPost._id}`}
+    prevPostUrl={prevPost && `/s/${document._id}/p/${prevPost._id}`}
     title={title}
     titleUrl={titleUrl}
     nextPostId={nextPost && nextPost._id}

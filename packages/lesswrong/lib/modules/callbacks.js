@@ -24,9 +24,6 @@ import {
 } from 'meteor/vulcan:core';
 
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
-import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
-import React from 'react';
 
 
 function updateConversationActivity (message) {
@@ -375,7 +372,7 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   votes.forEach((vote) => {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    reverseVote(vote, collection);
+    reverseVote(vote);
   });
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
