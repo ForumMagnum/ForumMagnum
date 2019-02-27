@@ -3,8 +3,6 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 
-import React, { PureComponent } from 'react';
-
 const styles = theme => ({
   title: {
     display: "inline",
