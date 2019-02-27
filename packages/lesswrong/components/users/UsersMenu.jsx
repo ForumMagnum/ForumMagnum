@@ -16,10 +16,7 @@ import withDialog from '../common/withDialog'
 
 const styles = theme => ({
   root: {
-    display: "inline-block",
-    verticalAlign: "text-bottom",
     marginTop: 5,
-    color: "rgba(0,0,0,0.5) !important",
   },
   userButtonContents: {
     textTransform: 'none',
