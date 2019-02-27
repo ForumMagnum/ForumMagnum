@@ -34,12 +34,15 @@ class ChaptersItem extends Component {
     this.setState({edit: false})
   }
 
-  renderTitleComponent = (chapter, canEdit) => <div>
-    {chapter.subtitle ? <div className={this.props.classes.subtitle}>
-      {chapter.subtitle}
-    </div> : null}
-    {canEdit && <Components.SectionSubtitle><a onClick={this.showEdit}>Add/Remove Posts</a></Components.SectionSubtitle>}
-  </div>
+  renderTitleComponent = (chapter, canEdit) => {
+    const { classes } = this.props;
+    return <div>
+      {chapter.subtitle ? <div className={classes.subtitle}>
+        {chapter.subtitle}
+      </div> : null}
+      {canEdit && <Components.SectionSubtitle><a onClick={this.showEdit}>Add/Remove Posts</a></Components.SectionSubtitle>}
+    </div>
+  }
 
   render() {
     const { chapter, classes } = this.props;
