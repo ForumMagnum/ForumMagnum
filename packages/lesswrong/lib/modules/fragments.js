@@ -318,6 +318,7 @@ registerFragment(`
     afKarma
     deleted
     groups
+    bio
   }
 `);
 
