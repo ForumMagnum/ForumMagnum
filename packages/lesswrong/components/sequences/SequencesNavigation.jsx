@@ -1,6 +1,7 @@
 import { Components, registerComponent, withDocument, Utils } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
+import withErrorBoundary from '../common/withErrorBoundary.jsx';
 
 const SequencesNavigation = ({
   document,
@@ -34,4 +35,4 @@ const options = {
   ssr: true
 }
 
-registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options]);
+registerComponent('SequencesNavigation', SequencesNavigation, [withDocument, options], withErrorBoundary);
