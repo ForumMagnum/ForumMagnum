@@ -49,6 +49,7 @@ export async function validateCollection(collection)
   
   await forEachDocumentBatchInCollection({
     collection, batchSize: 10000,
+    loadFactor: 0.5,
     callback: async (batch) => {
       // Validate documents against their batch with simpl-schema
       for (const document of batch) {

@@ -1,3 +1,4 @@
+import { runThenSleep } from './migrations/migrationUtils';
 
 // Given a collection and a batch size, run a callback for each row in the
 // collection, grouped into batches of up to the given size. Rows created or
@@ -10,18 +11,28 @@
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection({collection, batchSize, callback})
+export async function forEachDocumentBatchInCollection({collection, batchSize, callback, loadFactor=1.0})
 {
-  let rows = collection.find({}, {limit: batchSize}).fetch();
+  let rows = await collection.find({},
+    {
+      sort: {_id: 1},
+      limit: batchSize
+    }
+  ).fetch();
   
   do {
-    await callback(rows);
-    
-    const lastID = _.max(rows, row => row._id);
-    rows = await collection.find(
-      { _id: {$gt: lastID} },
-      { limit: batchSize }
-    ).fetch();
+    await runThenSleep(loadFactor, async () => {
+      await callback(rows);
+      
+      const lastID = _.max(rows, row => row._id);
+      rows = await collection.find(
+        { _id: {$gt: lastID} },
+        {
+          sort: {_id: 1},
+          limit: batchSize
+        }
+      ).fetch();
+    });
   } while(rows.length > 0)
 }
 

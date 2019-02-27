@@ -26,7 +26,7 @@ async function algoliaExport(collection, selector = {}, updateFunction) {
   const totalItems = collection.find(selector).count();
   let exportedSoFar = 0;
   
-  await forEachDocumentBatchInCollection({collection, batchSize: 100, callback: async (documents) => {
+  await forEachDocumentBatchInCollection({collection, batchSize: 100, loadFactor: 0.5, callback: async (documents) => {
     await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
       errors: totalErrors, updateFunction });
     
