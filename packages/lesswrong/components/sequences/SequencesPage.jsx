@@ -157,15 +157,6 @@ class SequencesPage extends Component {
           <Components.ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
           {canCreateChapter ? <Components.ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
         </div>
-        {/*<div className="sequences-page-content-footer">
-          <div className="sequences-page-content-footer-voting">
-            <Components.Vote collection={Posts} document={document} currentUser={currentUser}/>
-          </div>
-          <div className="sequences-page-content-footer-author">
-            <Components.UsersName user={document.user} />
-          </div>
-        </div>
-        <Components.PostsCommentsThreadWrapper terms={{postId: document._id, view: 'postCommentsTop'}} userId={document.userId} /> */}
       </div>)
     }
   }

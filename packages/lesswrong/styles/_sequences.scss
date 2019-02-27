@@ -1,110 +1,8 @@
 
-
-.chapters-item-description {
-  margin-left: 10px;
-  font-size: 20px;
-  line-height: 1.25;
-  margin-bottom: 20px;
-}
-
-.chapters-item-subtitle {
-  font-size: 20px;
-  line-height: 1.1;
-  font-style: italic;
-  margin-top: 20px;
-}
-
-.sequences-page-content-footer {
-  margin-bottom: 30px;
-  margin-left: 150px;
-  .sequences-page-content-footer-voting {
-    text-align: center;
-    margin-bottom: 15px;
-    .vote {
-      position: relative;
-      font-size: 30px;
-      color: rgba(0,0,0,0.5);
-      .material-icons {
-        color: rgba(0,0,0,0.4) !important;
-        border-radius: 100%;
-        font-size: 45px !important;
-      }
-
-      .material-icons:hover {
-        background-color: rgba(0,0,0,0.05);
-      }
-    }
-  }
-  .sequences-page-content-footer-author {
-    text-align: center;
-    color: rgba(0,0,0,0.5);
-    font-size: 20px;
-
-    a:hover, a:active {
-      text-decoration: none;
-      color: rgba(0,0,0,0.3);
-    }
-  }
-}
-
-.sequences-list-edit-item-title {
-  display: inline;
-  margin-right: 10px;
-  font-variant: small-caps;
-  font-size: 20px;
-  line-height: 1.25;
-}
-
-.sequences-list-edit-item-meta {
-  display: inline-block;
-  color: rgba(0,0,0,0.5);
-  div {
-    display: inline-block;
-    margin-right: 5px;
-  }
-}
-
-.sequences-list-edit-item-box {
-  display: block;
-  margin-left: 30px;
-  .sequences-list-edit-item-remove {
-    opacity: 0;
-    position: absolute;
-    right: 0px;
-    cursor: pointer;
-    .remove-icon {
-    color: rgba(0,0,0,0.3) !important;
-    }
-  }
-  &:hover .sequences-list-edit-item-remove {
-    opacity: 1;
-  }
-}
-
 .sequences-list-editor-item {
   list-style:none;
   position: relative;
   padding: 5px;
-}
-
-.sequences-item-title{
-  display: inline;
-  font-size: $large-font;
-  font-variant: small-caps;
-  margin-right: 8px;
-  text-decoration: none;
-  a:hover{
-    color: inherit;
-  }
-}
-
-.sequences-item-meta {
-  display: inline-block;
-  color: rgba(0,0,0,0.5);
-  div {
-    display: inline-block;
-    margin-right: 5px;
-  }
 }
 
 .sequences-navigation-bottom-next-sequence {
@@ -150,9 +48,6 @@
       width: inherit !important;
       text-align: center;
     }
-  }
-  .sequences-page-content-footer {
-    margin-left: 0px;
   }
 }
 
@@ -310,14 +205,6 @@
         left:0;
       }
     }
-}
-.sequences-editor-banner {
-  margin-top:65px;
-  background-color: rgba(0,0,0,0.25);
-  height: 380px;
-  @include mui-breakpoint-down-sm {
-    margin-top:40px;
-  }
 }
 
 .sequences-editor-title {
