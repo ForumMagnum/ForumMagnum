@@ -418,6 +418,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -460,6 +461,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 

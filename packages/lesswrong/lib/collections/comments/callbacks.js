@@ -186,7 +186,8 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
       lastCommentedAt:new Date(lastCommentedAt),
       commentCount:comments.length
     },
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
