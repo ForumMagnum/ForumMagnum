@@ -47,7 +47,6 @@ import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
-import '../components/common/Logo.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 
