@@ -20,7 +20,7 @@ const styles = theme => ({
     }
   },
   library: {
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
     fontWeight: 600,
   },
   listTitle: {
@@ -33,7 +33,7 @@ const styles = theme => ({
       marginTop: 7,
     }
   },
-  
+
   listDescription: {
     fontSize: 20,
     marginTop: 30,

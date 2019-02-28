@@ -26,7 +26,7 @@ const styles = theme => ({
     fontFamily: "Roboto, sans-serif",
   },
   title: {
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
     fontWeight: "bold",
     textTransform: "uppercase",
     borderTopStyle: "solid",
