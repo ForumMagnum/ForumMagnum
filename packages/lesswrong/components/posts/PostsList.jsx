@@ -40,9 +40,9 @@ const PostsList = ({
   //         Alternatively, is there a better way of checking that this is
   //         in fact the best way of checking loading status?
 
-  // TODO-A (2019-2-20): For now, solving this with a flag that determines whether 
+  // TODO-A (2019-2-20): For now, solving this with a flag that determines whether
   //                     to dim the list during loading, so that the pages where that
-  //                     behavior was more important can work fine. Will probably 
+  //                     behavior was more important can work fine. Will probably
   //                     fix this for real when Apollo 2 comes out
   const loadingMore = networkStatus === 2 || networkStatus === 1;
   const renderContent = () => {
@@ -50,10 +50,11 @@ const PostsList = ({
     const { Loading, PostsItem, PostsLoadMore, PostsNoResults } = Components
     if (results && results.length) {
       return <div>
-        { loading && <Loading />}
+        { loading && dimWhenLoading && <Loading />}
         <div className="posts-list-wrapper">
           {results.map(post => <PostsItem key={post._id} post={post} currentUser={currentUser} terms={terms} /> )}
         </div>
+        { loading && !dimWhenLoading && <Loading />}
         {showLoadMore ? <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
       </div>
     } else if (loading) {
