@@ -27,7 +27,7 @@ const styles = theme => ({
     textShadow: "none",
   },
   tooltip:{
-    [theme.breakpoints.down('mg')]: {
+    [theme.breakpoints.down('md')]: {
       display: "none"
     },
   },
