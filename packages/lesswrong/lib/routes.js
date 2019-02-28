@@ -39,23 +39,27 @@ addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'Pos
 
 
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
-
-addRoute({ name: 'EventsPast', path: '/pastEvents', componentName: 'EventsPast', title: "Past Events by Day"})
-addRoute({ name: 'EventsUpcoming', path: '/upcomingEvents', componentName: 'EventsUpcoming', title: "Upcoming Events by Day"})
-
 addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
-addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome', title: "Community"})
-addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome', title: "Community"})
+
+if (getSetting('hasEvents', true)) {
+  addRoute({ name: 'EventsPast', path: '/pastEvents', componentName: 'EventsPast', title: "Past Events by Day"})
+  addRoute({ name: 'EventsUpcoming', path: '/upcomingEvents', componentName: 'EventsUpcoming', title: "Upcoming Events by Day"})
+
+  addRoute({ name: 'CommunityHome', path: '/community', componentName: 'CommunityHome', title: "Community"})
+  addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome', title: "Community"})
+  
+  addRoute({name:'Localgroups.single',   path:'groups/:groupId', componentName: 'LocalGroupSingle'});
+  addRoute({name:'events.single',   path:'events/:_id(/:slug)', componentName: 'PostsSingle'});
+  addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'PostsSingle'});
+
+}
 
 addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'});
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
 
 addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'PostsSingle'});
-addRoute({name:'Localgroups.single',   path:'groups/:groupId', componentName: 'LocalGroupSingle'});
-addRoute({name:'events.single',   path:'events/:_id(/:slug)', componentName: 'PostsSingle'});
-addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'PostsSingle'});
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Admin" });
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog', title: "Moderation Log" });

@@ -63,20 +63,22 @@ const Home = (props, context) => {
       >
         <Components.PostsList terms={recentPostsTerms} showHeader={false} />
       </Components.Section>
-      <Components.Section
+
+      {/*TODO; If we change the home component for the EA forum, don't worry about this part*/}
+      {getSetting('hasEvents', true) && <Components.Section
         title="Community"
         titleLink="/community"
         titleComponent={<div>
           <Components.SectionSubtitle>
-          <Link to="/community">Find Events Nearby</Link>
+            <Link to="/community">Find Events Nearby</Link>
           </Components.SectionSubtitle>
         </div>}
       >
         <Components.PostsList
           terms={eventsListTerms}
           showLoadMore={false}
-          showHeader={false} />
-      </Components.Section>
+          showHeader={false}/>
+      </Components.Section>}
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
         <div>
           {shortformFeedId && <Components.SectionSubtitle>

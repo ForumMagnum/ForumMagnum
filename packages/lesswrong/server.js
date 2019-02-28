@@ -1,3 +1,5 @@
+import { getSetting} from 'meteor/vulcan:core';
+
 export * from './lib/index.js';
 
 import './server/database-import/database_import_new.js';
@@ -59,12 +61,15 @@ import './lib/collections/users/validate_login.js';
 import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
-import './lib/collections/localgroups/callbacks.js';
+if (getSetting('events', true)) {
+  import './lib/collections/localgroups/callbacks.js';
+}
 
 import './lib/collections/revisions/resolvers.js';
 
-import './lib/events/server.js';
-
+if (getSetting('events', true)) {
+  import './lib/events/server.js';
+}
 import './lib/modules/connection_logs.js';
 
 
