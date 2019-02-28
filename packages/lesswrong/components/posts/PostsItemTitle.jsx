@@ -29,14 +29,13 @@ const styles = theme => ({
   tooltip:{
     [theme.breakpoints.down('mg')]: {
       display: "none"
-    }
+    },
   },
-  tooltipWordcount: {
-    fontStyle: "italic",
-  },
-  tooltipCategory: {
-    fontStyle: "italic",
+  highlightTooltipWrapper: {
     marginBottom: theme.spacing.unit
+  },
+  tooltipInfo: {
+    fontStyle: "italic"
   },
   tooltipTitle: {
     marginTop: theme.spacing.unit,
@@ -78,22 +77,22 @@ const getPostCategory = (post) => {
 
 const PostsItemTitle = ({post, classes, sticky, read}) => {
   const postCategory = getPostCategory(post)
-  const { wordCount = 0 } = post.contents || {}
+  const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(post.contents.htmlHighlight, 600)
+  const highlight = truncate(htmlHighlight, 600)
 
-  const tooltip = <div>
+  const tooltip = <div className={classes.highlightTooltipWrapper}>
     <div className={classes.tooltipTitle}>
       {post.title}
     </div>
     <div dangerouslySetInnerHTML={{__html:highlight}}
       className={classes.highlight} />
-    {wordCount && <div className={classes.tooltipWordcount}>
-        {wordCount} words (approx. {parseInt(wordCount/300)} min read)
-      </div>}
-    <div className={classes.tooltipCategory}>
+    <div className={classes.tooltipInfo}>
       {postCategory}
     </div>
+    {wordCount && <div className={classes.tooltipInfo}>
+      {wordCount} words (approx. {parseInt(wordCount/300)} min read)
+    </div>}
   </div>
 
   return (
