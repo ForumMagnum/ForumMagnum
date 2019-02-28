@@ -1,6 +1,7 @@
 import { Components, registerComponent, withDocument, Utils} from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
+import withErrorBoundary from '../common/withErrorBoundary.jsx';
 
 const BottomNavigationWrapper = ({document, loading, post, router, nextTitle, nextLink}) => {
   if (document && !loading){
@@ -19,4 +20,4 @@ const options = {
   ssr: true,
 }
 
-registerComponent('BottomNavigationWrapper', BottomNavigationWrapper, [withDocument, options]);
+registerComponent('BottomNavigationWrapper', BottomNavigationWrapper, [withDocument, options], withErrorBoundary);

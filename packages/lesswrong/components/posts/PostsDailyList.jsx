@@ -3,9 +3,18 @@ import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
-import { withCurrentUser, withList, getSetting, Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
+import { withStyles } from '@material-ui/core/styles'
 
+const styles = theme => ({
+  loading: {
+    opacity: .4,
+  }
+})
+
+
+import classNames from 'classnames';
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
@@ -110,24 +119,28 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
+    const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     const posts = this.props.results;
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
-    
-    if (this.props.loading && (!posts || !posts.length)) {
-      return <Components.PostsLoading />
+    const { Loading, PostsDay } = Components
+  
+    const dim = dimWhenLoading && networkStatus !== 7
+
+    if (loading && (!posts || !posts.length)) {
+      return <Loading />
     } else {
       return (
-        <div className="posts-daily">
-          {/* <Components.PostsListHeader /> */}
+        <div className={classNames("posts-daily", {[classes.loading]: dim})}>
+          { loading && <Loading />}
           {dates.map((date, index) =>
-            <Components.PostsDay key={index} number={index}
+            <PostsDay key={index} number={index}
               date={moment(date)}
               posts={this.getDatePosts(posts, date)}
-              networkStatus={this.props.networkStatus}
-              currentUser={this.props.currentUser}
+              networkStatus={networkStatus}
+              currentUser={currentUser}
             />
           )}
-          {this.props.loadingMore ? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
+          {loadingMore ? <Loading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
         </div>
       )
     }
@@ -153,4 +166,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone);
+registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));

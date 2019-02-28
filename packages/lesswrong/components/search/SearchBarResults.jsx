@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';

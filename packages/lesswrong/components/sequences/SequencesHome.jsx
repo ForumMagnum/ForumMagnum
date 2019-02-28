@@ -1,28 +1,28 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
     marginRight: 90,
-    
     [theme.breakpoints.down('sm')]: {
       marginRight: 0,
     }
   },
-  
   header: {
     paddingLeft: 20,
     marginBottom: 50,
-  
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
     }
   },
-  
+  library: {
+    ...theme.typography.headerStyle,
+    fontWeight: 600,
+  },
   listTitle: {
     fontWeight: "bold",
     textTransform: "uppercase",
@@ -33,7 +33,7 @@ const styles = theme => ({
       marginTop: 7,
     }
   },
-  
+
   listDescription: {
     fontSize: 20,
     marginTop: 30,
@@ -48,7 +48,7 @@ const SequencesHome = ({document, currentUser, loading, classes}) => {
     <Components.Section>
       <div className={classes.header}>
         <div className={classes.listTitle}>
-          <h1>The Library</h1>
+          <Typography variant="display3" className={classes.library}>The Library</Typography>
         </div>
         {/* Description */}
         <div className={classes.listDescription}>

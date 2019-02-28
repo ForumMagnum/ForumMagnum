@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { Image } from 'cloudinary-react';
 

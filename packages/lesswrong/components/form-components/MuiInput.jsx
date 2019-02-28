@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
 import { withStyles } from '@material-ui/core/styles';
 

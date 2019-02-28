@@ -15,7 +15,7 @@ const PostDisplay = ({column, document}) => {
 }
 
 const UserDisplay = ({column, document}) => {
-  const user = document.user || document.user || document
+  const user = document.user || document
   return <div>
     <Components.UsersName user={user} />
   </div>

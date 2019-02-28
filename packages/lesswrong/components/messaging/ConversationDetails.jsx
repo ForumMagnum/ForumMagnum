@@ -5,7 +5,6 @@ Component for displaying details about currently selected conversation
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';

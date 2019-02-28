@@ -1,6 +1,5 @@
 import { Components, registerComponent, registerSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from './PostsDaily';
 import { withRouter } from 'react-router';
@@ -28,9 +27,7 @@ class EventsUpcoming extends Component {
     return <div className={classes.dailyWrapper}>
       <Components.Section title="Upcoming Events">
         <div className={classes.dailyContentWrapper}>
-          <Components.PostsList
-            terms={postsListTerms}
-            showHeader={false} />
+          <Components.PostsList terms={postsListTerms} />
         </div>
       </Components.Section>
     </div>

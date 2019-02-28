@@ -1,7 +1,7 @@
-import { Components, registerComponent} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import truncatise from 'truncatise';
 import { Utils } from 'meteor/vulcan:core';
 
@@ -18,6 +18,14 @@ export const highlightFromHTML = (html) => {
     Suffix: "...",
   }));
 };
+
+export const truncate = (html, truncateLength) => {
+  return Utils.sanitize(truncatise(html, {
+    TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
+    TruncateBy: "characters",
+    Suffix: "...",
+  }));
+}
 
 export const postExcerptFromHTML = (html, truncationCharCount) => {
   if(!html) return ""

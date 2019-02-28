@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from '@material-ui/core/IconButton';

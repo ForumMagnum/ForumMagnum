@@ -80,8 +80,8 @@ export async function fillDefaultValues({ collection, fieldName, batchOptions, l
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
   const schema = collection.simpleSchema()._schema
-  const defaultValue = schema[fieldName].defaultValue;
   if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
+  const defaultValue = schema[fieldName].defaultValue;
   if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
   if (!schema[fieldName].canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
 

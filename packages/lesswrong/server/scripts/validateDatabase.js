@@ -27,6 +27,25 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
   } while(rows.length > 0)
 }
 
+// customValidators: Mapping from collection name to array of
+// {validatorName,validateBatch} tuples.
+let customValidators = {};
+
+// Register a function as a validator which can be run over data in the
+// database, which will be run when validateDatabase is run (but not run
+// automatically on mutations).
+//
+// async validateBatch(documents, recordError)
+//   Takes an array of documents and a function for recording errors, returns
+//   nothing. recordError takes a field name and an error description, and
+//   groups errors together to be printed with counts.
+export function registerCollectionValidator({collection, validatorName, validateBatch})
+{
+  if (!(collection.collectionName in customValidators))
+    customValidators[collection.collectionName] = [];
+  customValidators[collection.collectionName].push({validatorName, validateBatch});
+}
+
 // Validate a collection against its attached schema. Checks that _id is always
 // a string, that required fields are present, that unrecognized keys are not
 // present, that fields are of the specified type, and that foreign-key fields
@@ -83,6 +102,17 @@ export async function validateCollection(collection)
           let errors = validationContext.validationErrors();
           for (let error of errors) {
             recordError(error.name, error.type);
+          }
+        }
+      }
+      
+      // If the collection has a custom validation function defined, run it
+      if (collectionName in customValidators) {
+        for (let validator of customValidators[collectionName]) {
+          try {
+            await validator.validateBatch(batch, recordError);
+          } catch(e) {
+            recordError(validator.validatorName, "Exception during validation");
           }
         }
       }

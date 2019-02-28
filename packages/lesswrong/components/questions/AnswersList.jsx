@@ -33,13 +33,12 @@ const AnswersList = ({results, loading, classes, post}) => {
   if (results && results.length) {
     return <div>
       <Typography variant="display1" className={classNames(classes.answerCount, {[classes.loading]: loading})}>
-        { results ? results.length : "Loading" } Answers
+        { results.length } Answers
       </Typography>
       <div className={classes.answersList}>
-        { results ? results.map((comment, i) => {
+        { results.map((comment, i) => {
           return <Answer comment={comment} post={post} key={comment._id} answerCount={results.length} index={i} />
           })
-          : <Components.Loading />
         }
       </div>
     </div>

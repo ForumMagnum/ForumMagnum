@@ -157,8 +157,8 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           <Public/>
         </Link>
       </Tooltip>
-      <Tooltip title="Posts by Date" placement="right">
-        <Link to="/daily" className={classes.navButton}>
+      <Tooltip title="All Posts" placement="right">
+        <Link to="/allPosts" className={classes.navButton}>
           <ListAlt/>
         </Link>
       </Tooltip>
@@ -186,7 +186,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
       <Divider className={classes.divider}/>
 
       {!af && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
-      <NavigationMenuLink icon={<ListAlt/>} to={"/daily"} label="Posts by Date"/>
+      <NavigationMenuLink icon={<ListAlt/>} to={"/allPosts"} label="All Posts"/>
       <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Meta"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
     </div>

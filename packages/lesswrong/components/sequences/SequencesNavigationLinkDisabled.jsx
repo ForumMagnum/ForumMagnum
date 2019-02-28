@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import IconButton from '@material-ui/core/IconButton'
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'

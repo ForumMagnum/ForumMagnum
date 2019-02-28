@@ -67,7 +67,7 @@ export async function ensureIndex(collection, index, options={})
         expectedIndexes[collection.collectionName] = [];
       expectedIndexes[collection.collectionName].push({
         key: index,
-        partialFilterExpression: options && options.partialFilterExpression,
+        partialFilterExpression: options.partialFilterExpression,
       });
     } catch(e) {
       //eslint-disable-next-line no-console
