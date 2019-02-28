@@ -31,7 +31,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    contents { 
+    contents {
       html
     }
     createdAt
@@ -318,6 +318,7 @@ registerFragment(`
     afKarma
     deleted
     groups
+    htmlBio
   }
 `);
 
@@ -375,7 +376,7 @@ registerFragment(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
-    
+
     # Moderation
     moderatorAssistance
     collapseModerationGuidelines
@@ -406,10 +407,10 @@ registerFragment(`
     groups
     afApplicationText
     afSubmittedApplication
-    
+
     # Karma Settings
     karmaChangeLastOpened
-    karmaChangeNotifierSettings 
+    karmaChangeNotifierSettings
   }
 `)
 
