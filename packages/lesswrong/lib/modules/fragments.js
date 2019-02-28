@@ -88,32 +88,33 @@ extendFragment('UsersCurrent', `
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
   karmaChangeNotifierSettings
-  karmaChanges {
-    totalChange
-    updateFrequency
-    startDate
-    endDate
-    nextBatchDate
-    posts {
-      scoreChange
-      post {
-        title
-        pageUrlRelative
-      }
-    }
-    comments {
-      scoreChange
-      comment {
-        contents {
-          plaintextDescription
-        }
-        pageUrlRelative
-      }
-    }
-  }
   karmaChangeLastOpened
   shortformFeedId
   viewUnreviewedComments
+`);
+
+registerFragment(`
+  fragment UserKarmaChanges on User {
+    karmaChanges {
+      totalChange
+      updateFrequency
+      startDate
+      endDate
+      nextBatchDate
+      posts {
+        _id
+        scoreChange
+        title
+        slug
+      }
+      comments {
+        _id
+        scoreChange
+        description
+        postId
+      }
+    }
+  }
 `);
 
 registerFragment(`
