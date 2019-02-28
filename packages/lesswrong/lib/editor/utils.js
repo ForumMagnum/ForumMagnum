@@ -121,9 +121,9 @@ export const draftToHTML = convertToHTML({
       'paragraph',
       'unstyled'
     ]
-    if (linkable.includes(type)) {
-      return autolink(block.text)
-    }
+    // if (linkable.includes(type)) {
+    //   return autolink(block.text)
+    // }
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
