@@ -12,8 +12,9 @@ const headingTags = {
   h2: 2,
   h3: 3,
   h4: 4,
+  // <b> and <strong> are at the same level
   strong: 7,
-  b: 8,
+  b: 7,
 }
 
 const headingIfWholeParagraph = {
