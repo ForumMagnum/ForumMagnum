@@ -54,7 +54,7 @@ class EditUrl extends Component {
 
   render() {
     const active = this.state.active
-    const { classes, document, path, defaultValue, label, multiLine, rows, hintText, placeholder, fullWidth, rowsMax } = this.props;
+    const { classes, document, path, defaultValue, label, hintText, placeholder } = this.props;
     
     const startAdornmentInactive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
       <Icon>link</Icon>
@@ -72,11 +72,7 @@ class EditUrl extends Component {
                 value={(document && document[path]) || defaultValue || ""}
                 label={label}
                 onChange={this.onChange}
-                multiline={multiLine}
-                rows={rows}
                 placeholder={hintText || placeholder || label}
-                rowsMax={rowsMax}
-                fullWidth={fullWidth}
                 disableUnderline={!active}
                 classes={{input: classes.input}}
                 startAdornment={active ? startAdornmentActive : startAdornmentInactive}
