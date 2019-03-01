@@ -14,7 +14,13 @@ import { Collections, getCollection } from 'meteor/vulcan:lib';
 // have _id of type ObjectID instead of string.
 export async function forEachDocumentBatchInCollection({collection, batchSize, callback})
 {
-  let rows = collection.find({}, {limit: batchSize});
+  let rows = await collection.find(
+    {},
+    {
+      limit: batchSize,
+      sort: {_id:1}
+    }
+  ).fetch();
   
   do {
     await callback(rows);
@@ -22,8 +28,11 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
     const lastID = _.max(rows, row => row._id);
     rows = await collection.find(
       { _id: {$gt: lastID} },
-      { limit: batchSize }
-    );
+      {
+        limit: batchSize,
+        sort: {_id:1}
+      }
+    ).fetch();
   } while(rows.length > 0)
 }
 
