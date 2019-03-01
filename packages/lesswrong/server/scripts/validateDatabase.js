@@ -14,7 +14,13 @@ import { Collections, getCollection } from 'meteor/vulcan:lib';
 // have _id of type ObjectID instead of string.
 export async function forEachDocumentBatchInCollection({collection, batchSize, callback})
 {
-  let rows = collection.find({}, {limit: batchSize});
+  let rows = await collection.find(
+    {},
+    {
+      limit: batchSize,
+      sort: {_id:1}
+    }
+  ).fetch();
   
   do {
     await callback(rows);
@@ -22,8 +28,11 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
     const lastID = _.max(rows, row => row._id);
     rows = await collection.find(
       { _id: {$gt: lastID} },
-      { limit: batchSize }
-    );
+      {
+        limit: batchSize,
+        sort: {_id:1}
+      }
+    ).fetch();
   } while(rows.length > 0)
 }
 
@@ -82,12 +91,14 @@ export async function validateCollection(collection)
   const errorsByField = {};
   
   function recordError(field, errorType) {
-    if (!errorsByField[field])
-      errorsByField[field] = {};
-    if (!errorsByField[field][errorType])
-      errorsByField[field][errorType] = 0;
+    let fieldGroupedByNums = field.replace(/[0-9]+/g, '<n>');
     
-    errorsByField[field][errorType]++;
+    if (!errorsByField[fieldGroupedByNums])
+      errorsByField[fieldGroupedByNums] = {};
+    if (!errorsByField[fieldGroupedByNums][errorType])
+      errorsByField[fieldGroupedByNums][errorType] = 0;
+    
+    errorsByField[fieldGroupedByNums][errorType]++;
   }
   
   
