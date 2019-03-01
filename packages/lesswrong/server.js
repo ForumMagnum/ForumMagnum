@@ -53,6 +53,7 @@ import './server/voteServer.js';
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
 import './lib/collections/posts/callbacks.js';
+import './lib/collections/posts/validate.js';
 import './lib/collections/chapters/callbacks.js';
 import './lib/collections/sequences/callbacks.js';
 import './lib/collections/books/callbacks.js';

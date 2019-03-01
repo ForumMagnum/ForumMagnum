@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -25,6 +26,7 @@ const styles = theme => ({
     fontFamily: "Roboto, sans-serif",
   },
   title: {
+    ...theme.typography.headerStyle,
     fontWeight: "bold",
     textTransform: "uppercase",
     borderTopStyle: "solid",
@@ -73,7 +75,7 @@ class CollectionsPage extends Component {
       return (<div className={classes.root}>
         <Components.Section titleComponent={canEdit ? <a onClick={this.showEdit}>edit</a> : null}>
           <div className={classes.header}>
-            <h1 className={classes.title}>{collection.title}</h1>
+            <Typography variant="display3" className={classes.title}>{collection.title}</Typography>
             <div className={classes.description}>
               {html && <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/>}
             </div>

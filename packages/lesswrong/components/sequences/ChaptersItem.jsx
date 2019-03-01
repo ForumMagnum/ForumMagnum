@@ -1,5 +1,21 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  description: {
+    marginLeft: 10,
+    fontSize: 20,
+    lineHeight: 1.25,
+    marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 20,
+    lineHeight: 1.1,
+    fontStyle: "italic",
+    marginTop: 20,
+  },
+});
 
 class ChaptersItem extends Component {
   constructor(props) {
@@ -17,15 +33,18 @@ class ChaptersItem extends Component {
     this.setState({edit: false})
   }
 
-  renderTitleComponent = (chapter, canEdit) => <div>
-    {chapter.subtitle ?   <div className="chapters-item-subtitle">
-      {chapter.subtitle}
-    </div> : null}
-    {canEdit && <Components.SectionSubtitle><a onClick={this.showEdit}>Add/Remove Posts</a></Components.SectionSubtitle>}
-  </div>
+  renderTitleComponent = (chapter, canEdit) => {
+    const { classes } = this.props;
+    return <div>
+      {chapter.subtitle ? <div className={classes.subtitle}>
+        {chapter.subtitle}
+      </div> : null}
+      {canEdit && <Components.SectionSubtitle><a onClick={this.showEdit}>Add/Remove Posts</a></Components.SectionSubtitle>}
+    </div>
+  }
 
   render() {
-    const chapter = this.props.chapter;
+    const { chapter, classes } = this.props;
     const { html = "" } = chapter.contents
     if (this.state.edit) {
       return <Components.ChaptersEditForm
@@ -37,7 +56,7 @@ class ChaptersItem extends Component {
         <Components.Section title={chapter.title}
           titleComponent={this.renderTitleComponent(chapter, this.props.canEdit)}
         >
-          {html && <div className="chapters-item-description"> 
+          {html && <div className={classes.description}>
             <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/> 
           </div>}
           <div className="chapters-item-posts">
@@ -49,4 +68,4 @@ class ChaptersItem extends Component {
   }
 }
 
-registerComponent('ChaptersItem', ChaptersItem)
+registerComponent('ChaptersItem', ChaptersItem, withStyles(styles, {name: "ChaptersItem"}))

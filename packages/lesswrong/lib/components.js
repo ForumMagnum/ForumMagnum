@@ -47,7 +47,6 @@ import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
-import '../components/common/Logo.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 
@@ -269,7 +268,6 @@ import '../components/collections/BigCollectionsCard.jsx';
 import '../components/sequences/CoreSequences.jsx';
 import '../components/sequences/HPMOR.jsx';
 import '../components/sequences/Codex.jsx';
-import '../components/sequences/ComingSoon.jsx';
 import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';

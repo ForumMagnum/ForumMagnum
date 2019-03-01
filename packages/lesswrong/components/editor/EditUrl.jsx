@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
+import Input from '@material-ui/core/Input';
 
 const styles = theme => ({
   root: {
@@ -15,7 +16,7 @@ const styles = theme => ({
     display: 'inline-block',
     overflow: 'hidden',
     transition: 'width 0.25s',
-    width: 140,
+    width: 150,
   },
   hideInput: {
     width: 28,
@@ -31,45 +32,52 @@ const styles = theme => ({
 })
 
 class EditUrl extends Component {
-  constructor(props, context) {
-    super(props,context);
-
-    this.state = {
-      active: !!this.props.value,
-      url: this.props.value,
-    };
+  state = {
+    active: !!this.props.value
   }
 
-  toggleEditor = () => {this.setState({active: !this.state.active})}
+  toggleEditor = () => {
+    this.setState({active: !this.state.active}, () => {
+      if (!this.state.active) { // Reset the URL when you deactivate the URL editor
+        this.context.updateCurrentValues({
+          [this.props.path]: null
+        })
+      }
+    })
+  }
+
+  onChange = (event) => {
+    this.context.updateCurrentValues({
+      [this.props.path]: event.target.value
+    })
+  }
 
   render() {
     const active = this.state.active
-
-    // Pass properties other than `classes` (which is created by `withStyles`)
-    // through to `Components.MuiTextField`. (If we passed through `classes`,
-    // it would clash with the one that `MuiTextField`'s own `withStyles` would
-    // add, producing a spurious error).
-    // (NOTE: If you add properties here, or add something to this component
-    // which creates a property, give some though to whether it should be passed
-    // through.)
-    const { classes, ...otherProps } = this.props;
+    const { classes, document, path, defaultValue, label, hintText, placeholder } = this.props;
+    
     const startAdornmentInactive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
       <Icon>link</Icon>
     </InputAdornment>
     const startAdornmentActive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
       <Icon>link_off</Icon></InputAdornment>
+    
     return (
       <div className={classes.root}>
         <div>
           <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
-            <Components.MuiInput
-              {...otherProps}
-              type={"url"}
-              layout="elementOnly"
-              startAdornment={active ? startAdornmentActive : startAdornmentInactive}
-              className={classes.innerInput}
-              disableUnderline={!active}
-            />
+            <div className="mui-text-field">
+              <Input
+                className={classes.innerInput}
+                value={(document && document[path]) || defaultValue || ""}
+                label={label}
+                onChange={this.onChange}
+                placeholder={hintText || placeholder || label}
+                disableUnderline={!active}
+                classes={{input: classes.input}}
+                startAdornment={active ? startAdornmentActive : startAdornmentInactive}
+              />
+            </div>
           </span>
         </div>
       </div>

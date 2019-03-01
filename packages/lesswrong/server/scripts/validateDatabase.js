@@ -2,6 +2,25 @@
 import { Collections, getCollection } from 'meteor/vulcan:lib';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
 
+// customValidators: Mapping from collection name to array of
+// {validatorName,validateBatch} tuples.
+let customValidators = {};
+
+// Register a function as a validator which can be run over data in the
+// database, which will be run when validateDatabase is run (but not run
+// automatically on mutations).
+//
+// async validateBatch(documents, recordError)
+//   Takes an array of documents and a function for recording errors, returns
+//   nothing. recordError takes a field name and an error description, and
+//   groups errors together to be printed with counts.
+export function registerCollectionValidator({collection, name, validateBatch})
+{
+  if (!(collection.collectionName in customValidators))
+    customValidators[collection.collectionName] = [];
+  customValidators[collection.collectionName].push({name, validateBatch});
+}
+
 // Validate a collection against its attached schema. Checks that _id is always
 // a string, that required fields are present, that unrecognized keys are not
 // present, that fields are of the specified type, and that foreign-key fields
@@ -38,12 +57,14 @@ export async function validateCollection(collection)
   const errorsByField = {};
   
   function recordError(field, errorType) {
-    if (!errorsByField[field])
-      errorsByField[field] = {};
-    if (!errorsByField[field][errorType])
-      errorsByField[field][errorType] = 0;
+    let fieldGroupedByNums = field.replace(/[0-9]+/g, '<n>');
     
-    errorsByField[field][errorType]++;
+    if (!errorsByField[fieldGroupedByNums])
+      errorsByField[fieldGroupedByNums] = {};
+    if (!errorsByField[fieldGroupedByNums][errorType])
+      errorsByField[fieldGroupedByNums][errorType] = 0;
+    
+    errorsByField[fieldGroupedByNums][errorType]++;
   }
   
   
@@ -59,6 +80,18 @@ export async function validateCollection(collection)
           let errors = validationContext.validationErrors();
           for (let error of errors) {
             recordError(error.name, error.type);
+          }
+        }
+      }
+      
+      // If the collection has a custom validation function defined, run it
+      if (collectionName in customValidators) {
+        for (let validator of customValidators[collectionName]) {
+          try {
+            await validator.validateBatch(batch, recordError);
+          } catch(e) {
+            console.error(e); //eslint-disable-line no-console
+            recordError(validator.name, "Exception during validation");
           }
         }
       }
