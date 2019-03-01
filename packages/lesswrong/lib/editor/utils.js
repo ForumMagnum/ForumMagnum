@@ -115,12 +115,12 @@ export const draftToHTML = convertToHTML({
   blockToHTML: (block) => {
     const type = block.type;
 
-    const linkable = [
-      'ordered-list-item',
-      'unordered-list-item',
-      'paragraph',
-      'unstyled'
-    ]
+    // const linkable = [
+    //   'ordered-list-item',
+    //   'unordered-list-item',
+    //   'paragraph',
+    //   'unstyled'
+    // ]
     // if (linkable.includes(type)) {
     //   return autolink(block.text)
     // }
