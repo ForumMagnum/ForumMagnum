@@ -84,7 +84,12 @@ const styles = (theme) => ({
   },
   startTime: {
     width: 54,
-    justifyContent: "center"
+    justifyContent: "center",
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "flex-start",
+      width: "none",
+      flexGrow: 1,
+    }
   },
   newCommentsSection: {
     width: "100%",
