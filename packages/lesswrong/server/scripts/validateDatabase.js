@@ -123,7 +123,7 @@ export async function validateCollection(collection)
           try {
             await validator.validateBatch(batch, recordError);
           } catch(e) {
-            console.error(e);
+            console.error(e); //eslint-disable-line no-console
             recordError(validator.name, "Exception during validation");
           }
         }
