@@ -197,7 +197,6 @@ class KarmaChangeNotifier extends PureComponent {
   render() {
     const {document, classes, currentUser} = this.props;
     if (!currentUser || !document) return null
-    if (!currentUser.groups || !currentUser.groups.includes('sunshineRegiment')) return null
     const {open, anchorEl, karmaChanges: stateKarmaChanges, karmaChangeLastOpened} = this.state;
     const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
     if (!karmaChanges) return null;
