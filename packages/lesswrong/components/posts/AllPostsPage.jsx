@@ -11,7 +11,10 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 const styles = theme => ({
   allPostsContent: {
-    padding: theme.spacing.unit
+    padding: theme.spacing.unit,
+    [theme.breakpoints.down('xs')]: {
+      padding: 0,
+    }
   },
   settingsIcon: {
     paddingLeft: theme.spacing.unit,
@@ -45,7 +48,7 @@ class AllPostsPage extends Component {
   render() {
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { AllPostsPageSettings, PostsList, SingleColumnSection, SectionTitle, PostsDailyList } = Components
+    const { AllPostsPageSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList } = Components
     const query = _.clone(router.location.query) || {}
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
@@ -85,7 +88,7 @@ class AllPostsPage extends Component {
           {currentView === "daily" ?
             <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
             :
-            <PostsList terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
           }
         </div>
       </SingleColumnSection>

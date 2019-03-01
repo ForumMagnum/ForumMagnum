@@ -21,8 +21,6 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
-import withErrorBoundary from '../common/withErrorBoundary'
-
 
 const styles = theme => ({
   root: {
@@ -514,6 +512,5 @@ registerComponent(
   withMutation(mutationOptions),
   withNewEvents,
   connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles, { name: "PostsItem" }),
-  withErrorBoundary
+  withStyles(styles, { name: "PostsItem" })
 );
