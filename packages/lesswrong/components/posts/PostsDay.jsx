@@ -27,8 +27,9 @@ const styles = theme => ({
 class PostsDay extends PureComponent {
 
   render() {
-    const { date, posts, classes } = this.props;
+    const { date, posts, classes, currentUser } = this.props;
     const noPosts = posts.length === 0;
+    const { PostsItem2 } = Components
 
     return (
       <div className={classNames("posts-day", classes.root)}>
@@ -43,7 +44,7 @@ class PostsDay extends PureComponent {
         { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
           <div className="posts-list">
             <div className="posts-list-content">
-              {posts.map((post, index) => <Components.PostsItem post={post} key={post._id} index={index} currentUser={this.props.currentUser} />)}
+              {posts.map((post, index) => <PostsItem2 key={post._id} post={post} currentUser={currentUser}/>)}
             </div>
           </div>
         }
