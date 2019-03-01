@@ -91,12 +91,14 @@ export async function validateCollection(collection)
   const errorsByField = {};
   
   function recordError(field, errorType) {
-    if (!errorsByField[field])
-      errorsByField[field] = {};
-    if (!errorsByField[field][errorType])
-      errorsByField[field][errorType] = 0;
+    let fieldGroupedByNums = field.replace(/[0-9]+/g, '<n>');
     
-    errorsByField[field][errorType]++;
+    if (!errorsByField[fieldGroupedByNums])
+      errorsByField[fieldGroupedByNums] = {};
+    if (!errorsByField[fieldGroupedByNums][errorType])
+      errorsByField[fieldGroupedByNums][errorType] = 0;
+    
+    errorsByField[fieldGroupedByNums][errorType]++;
   }
   
   
