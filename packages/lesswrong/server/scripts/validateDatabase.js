@@ -48,11 +48,11 @@ let customValidators = {};
 //   Takes an array of documents and a function for recording errors, returns
 //   nothing. recordError takes a field name and an error description, and
 //   groups errors together to be printed with counts.
-export function registerCollectionValidator({collection, validatorName, validateBatch})
+export function registerCollectionValidator({collection, name, validateBatch})
 {
   if (!(collection.collectionName in customValidators))
     customValidators[collection.collectionName] = [];
-  customValidators[collection.collectionName].push({validatorName, validateBatch});
+  customValidators[collection.collectionName].push({name, validateBatch});
 }
 
 // Validate a collection against its attached schema. Checks that _id is always
@@ -123,7 +123,8 @@ export async function validateCollection(collection)
           try {
             await validator.validateBatch(batch, recordError);
           } catch(e) {
-            recordError(validator.validatorName, "Exception during validation");
+            console.error(e);
+            recordError(validator.name, "Exception during validation");
           }
         }
       }
