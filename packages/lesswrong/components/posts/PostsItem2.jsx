@@ -10,18 +10,25 @@ import withUser from "../common/withUser";
 import classNames from 'classnames';
 
 const styles = (theme) => ({
-  root: {
+  postsItem: {
     display: "flex",
     paddingTop: theme.spacing.unit*1.5,
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     alignItems: "center",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+  },
+  background: {
+    transition: "3s",
+    backgroundColor: "none"
+  },
+  commentsBackground: {
+    backgroundColor: theme.palette.grey[200],
+    transition: "0s",
   },
   commentBox: {
     borderLeft: "solid 1px rgba(0,0,0,.2)",
     borderRight: "solid 1px rgba(0,0,0,.2)",
-    backgroundColor: theme.palette.grey[100],
     paddingBottom: 0,
   },
   karma: {
@@ -101,10 +108,17 @@ const styles = (theme) => ({
 })
 
 class PostsItem2 extends PureComponent {
-  state = { showComments: false}
+  constructor(props) {
+    super(props)
+    this.state = { showComments: false}
+    this.postsItemRef = React.createRef();
+  }
 
   toggleComments = () => {
-    this.setState((prevState)=> ({showComments:!prevState.showComments}))
+    this.setState((prevState) => {
+      this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      return ({showComments:!prevState.showComments})
+    })
   }
 
   render() {
@@ -117,14 +131,14 @@ class PostsItem2 extends PureComponent {
     }
 
     return (
-        <div className={classNames(classes.root, {[classes.commentBox]: showComments})}>
-
+      <div className={classNames(classes.background, {[classes.commentsBackground]: showComments})}>
+        <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
+          <div ref={this.postsItemRef}/>
           <PostsItemKarma post={post} />
 
           <Link to={getPostLink} className={classes.title}>
             <PostsItemTitle post={post} postItem2/>
           </Link>
-
 
           { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
             <PostsUserAndCoauthors post={post}/>
@@ -163,6 +177,7 @@ class PostsItem2 extends PureComponent {
             <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
           </div>}
         </div>
+      </div>
     )
   }
 }
