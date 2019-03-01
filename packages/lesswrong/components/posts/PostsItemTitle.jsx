@@ -39,15 +39,14 @@ const styles = theme => ({
     textShadow: "none",
   },
   tooltip:{
-    [theme.breakpoints.down('md')]: {
-      display: "none"
-    },
     position: "relative",
-    left: -30
+    left: -30,
   },
   highlightTooltipWrapper: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    [theme.breakpoints.up('sm')]: {
+      marginTop: theme.spacing.unit,
+      marginBottom: theme.spacing.unit,
+    },
   },
   tooltipInfo: {
     fontStyle: "italic"
@@ -56,12 +55,18 @@ const styles = theme => ({
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*1.5,
     fontSize: "1.4rem",
-    lineHeight: "1.8rem"
+    lineHeight: "1.8rem",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
   },
   highlight: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
     fontSize: "1.1rem",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
     '& img': {
       display:"none"
     },
