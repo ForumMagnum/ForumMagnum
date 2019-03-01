@@ -118,8 +118,8 @@ export function addEditableCallbacks({collection, options = {}}) {
   const { typeName } = collection.options
 
   async function editorSerializationNew (doc, { currentUser }) {
-    if (!currentUser) { throw Error("Can't create document without current user") }
     if (doc[fieldName] && doc[fieldName].originalContents) {
+      if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
@@ -134,8 +134,8 @@ export function addEditableCallbacks({collection, options = {}}) {
   addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
-    if (!currentUser) { throw Error("Can't create document without current user") }
     if (docData[fieldName] && docData[fieldName].originalContents) {
+      if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
