@@ -355,7 +355,9 @@ svg.drag-handle {
 
 .post-category-display-container {
   width:50px;
-  padding:17px 15px 15px 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor:pointer;
 
   &:hover {
