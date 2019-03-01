@@ -4,8 +4,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
 import { Posts } from "../../lib/collections/posts";
 import Tooltip from '@material-ui/core/Tooltip';
-import withTimezone from '../common/withTimezone';
-import moment from 'moment';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
@@ -58,6 +56,8 @@ const styles = (theme) => ({
     whiteSpace: "nowrap",
     marginLeft: "auto",
     flex: 1,
+    overflow: "hidden",
+    textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*2,
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
@@ -100,17 +100,8 @@ const styles = (theme) => ({
   },
 })
 
-const DateWithoutTime = withTimezone(
-  ({date, timezone}) =>
-    <span>{moment(date).tz(timezone).format("MMM Do")}</span>
-);
-
 class PostsItem2 extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.state = { showComments: false}
-  }
-
+  state = { showComments: false}
 
   toggleComments = () => {
     this.setState((prevState)=> ({showComments:!prevState.showComments}))
@@ -133,7 +124,7 @@ class PostsItem2 extends PureComponent {
           <Link to={getPostLink} className={classes.title}>
             <PostsItemTitle post={post} postItem2/>
           </Link>
-          
+
 
           { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
             <PostsUserAndCoauthors post={post}/>
@@ -149,8 +140,8 @@ class PostsItem2 extends PureComponent {
 
           { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
             {post.startTime
-              ? <Tooltip title={<EventTime post={post} />}>
-                  <DateWithoutTime date={post.startTime} />
+              ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
+                  <FormatDate date={post.startTime} format={"MMM Do"}/>
                 </Tooltip>
               : <Tooltip title={<span>To Be Determined</span>}>
                   <span>TBD</span>
