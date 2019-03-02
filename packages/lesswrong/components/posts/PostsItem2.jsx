@@ -43,6 +43,9 @@ const styles = (theme) => ({
       marginRight: theme.spacing.unit*2
     }
   },
+  firstItem: {
+    borderTop: "solid 1px rgba(0,0,0,.2)"
+  },
   title: {
     flexGrow:1,
     height: 22,
@@ -134,7 +137,7 @@ class PostsItem2 extends PureComponent {
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
     return (
-      <div className={classNames(classes.background, {[classes.commentsBackground]: showComments, [classes.firstItem]: index})}>
+      <div className={classNames(classes.background, {[classes.commentsBackground]: showComments, [classes.firstItem]: (index===0) && showComments})}>
         <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
           <div ref={this.postsItemRef}/>
           <PostsItemKarma post={post} />

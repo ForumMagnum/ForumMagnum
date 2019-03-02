@@ -44,7 +44,7 @@ class PostsDay extends PureComponent {
         { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
           <div className="posts-list">
             <div className="posts-list-content">
-              {posts.map((post, index) => <PostsItem2 key={post._id} post={post} currentUser={currentUser}/>)}
+              {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
             </div>
           </div>
         }
