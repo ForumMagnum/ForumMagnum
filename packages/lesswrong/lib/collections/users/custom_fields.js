@@ -525,19 +525,6 @@ Users.addField([
   },
 
   /**
-    algoliaIndexAt: Last time the record was indexed by algolia. Undefined if it hasn't yet been indexed.
-  */
-
-  {
-    fieldName: 'algoliaIndexAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      canRead: ['guests']
-    }
-  },
-
-  /**
     voteBanned: All future votes of this user have weight 0
   */
 

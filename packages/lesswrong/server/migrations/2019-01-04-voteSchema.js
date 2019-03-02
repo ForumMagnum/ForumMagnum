@@ -70,16 +70,12 @@ registerMigration({
     await fillDefaultValues({
       collection: Votes,
       fieldName: "cancelled",
-      batchOptions: {
-        bucketSize: 100000
-      }
+      batchSize: 100000
     });
     await fillDefaultValues({
       collection: Votes,
       fieldName: "isUnvote",
-      batchOptions: {
-        bucketSize: 100000
-      }
+      batchSize: 100000
     });
   },
 });

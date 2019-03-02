@@ -3,6 +3,7 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
 const UsersSearchAutoComplete = ({clickAction, label}) => {
   const algoliaAppId = getSetting('algolia.appId')
@@ -13,7 +14,7 @@ const UsersSearchAutoComplete = ({clickAction, label}) => {
   }
 
   return <InstantSearch
-    indexName="test_users"
+    indexName={algoliaIndexNames.Users}
     appId={algoliaAppId}
     apiKey={algoliaSearchKey}
   >
