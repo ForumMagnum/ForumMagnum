@@ -311,6 +311,7 @@ registerFragment(`
     # vulcan:users
     _id
     slug
+    createdAt
     username
     displayName
     fullName
@@ -320,6 +321,10 @@ registerFragment(`
     deleted
     groups
     htmlBio
+    postCount
+    commentCount
+    afPostCount 
+    afCommentCount
   }
 `);
 

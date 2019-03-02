@@ -155,12 +155,6 @@ const schema = {
     ...schemaDefaultValue(false),
   },
 
-  algoliaIndexAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   canonicalCollectionSlug: {
     type: String,
     foreignKey: {

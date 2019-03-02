@@ -118,9 +118,6 @@ import './collections/votes';
 //
 // Internationalization
 import './i18n-en-us/en_US.js';
-//
-// // General
-import './modules/callbacks.js';
 
 // // Misc.
 import './helpers.js'

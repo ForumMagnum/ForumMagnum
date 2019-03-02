@@ -82,7 +82,7 @@ class LocalGroupPage extends Component {
     const { classes } = this.props;
     const { groupId } = this.props.params;
     const group = this.props.document;
-    const { html = ""} = (group && group.content) || {}
+    const { html = ""} = (group && group.contents) || {}
     const htmlBody = {__html: html}
     if (this.props.document) {
       const { googleLocation: { geometry: { location } }} = group;
