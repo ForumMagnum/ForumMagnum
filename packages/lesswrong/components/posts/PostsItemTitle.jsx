@@ -54,8 +54,8 @@ const styles = theme => ({
   tooltipTitle: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*1.5,
-    fontSize: "1.4rem",
-    lineHeight: "1.8rem",
+    fontWeight: 600,
+    fontSize: "1.2rem",
     [theme.breakpoints.down('sm')]: {
       display: "none"
     },
@@ -71,14 +71,17 @@ const styles = theme => ({
       display:"none"
     },
     '& h1': {
-      fontSize: "1.3rem"
+      fontSize: "1.2rem"
     },
     '& h2': {
       fontSize: "1.2rem"
     },
     '& h3': {
       fontSize: "1.1rem"
-    }
+    },
+    '& hr': {
+      display: "none"
+    },
   },
   postIcon: {
     [theme.breakpoints.down('sm')]: {
@@ -120,32 +123,36 @@ const PostsItemTitle = ({post, classes, sticky, read, postItem2}) => {
     <div dangerouslySetInnerHTML={{__html:highlight}}
       className={classes.highlight} />
     {wordCount && <div className={classes.tooltipInfo}>
-      {wordCount} words (approx. {parseInt(wordCount/300)} min read)
+      {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
     </div>}
   </div>
 
-  return (
-    <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} placement="left-start" enterDelay={100} PopperProps={{ style: { pointerEvents: 'none' } }}>
-      <div className={classNames(classes.root, {[classes.read]:read})}>
-        <Typography variant="body1" className={classes.title}>
-          {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
-          
-          {post.question && <span className={classes.tag}>[Question]</span>}
-          
-          {post.url && <span className={classes.tag}>[Link]</span>}
-          
-          {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
-          
-          {post.isEvent && <span className={classes.tag}>[Event]</span>}
-          
-          <span className={classes.tag}>{post.title}</span>
-        </Typography>
-        
-        {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-        {post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }    
-      </div>
+  const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
+    <Typography variant="body1" className={classes.title}>
+      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+      
+      {post.question && <span className={classes.tag}>[Question]</span>}
+      
+      {post.url && <span className={classes.tag}>[Link]</span>}
+      
+      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+      
+      {post.isEvent && <span className={classes.tag}>[Event]</span>}
+      
+      <span className={classes.tag}>{post.title}</span>
+    </Typography>
+    
+    {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
+    {post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }    
+  </div>
+
+  if (postItem2) {
+    return <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>
+      { postTitle }
     </Tooltip>
-  )
+  } else {
+    return <span>{ postTitle }</span>
+  }
 }
 
 PostsItemTitle.displayName = "PostsItemTitle";

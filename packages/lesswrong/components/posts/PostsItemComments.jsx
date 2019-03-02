@@ -6,7 +6,7 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
 
 const styles = (theme) => ({
-  commentsSpeechBubble: {
+  root: {
     width: 48,
     cursor: "pointer",
     position: "relative",
@@ -33,8 +33,8 @@ const styles = (theme) => ({
     right:"50%",
     top:"50%",
     transform:"translate(50%, -50%)",
-    width:"30px",
-    height:"30px",
+    width:30,
+    height:30,
   },
 })
 
@@ -51,14 +51,11 @@ class PostsItemComments extends Component {
 
     const read = lastVisitedAt;
     const newComments = lastVisitedAt < lastCommentedAt;
-    const commentsButtonClassnames = classNames(
-      classes.commentsSpeechBubble
-    )
 
     let unreadCommentsClass = (read && newComments && !this.state.readStatus) ? classes.unreadComments : classes.noUnreadComments;
 
     return (
-      <div className={commentsButtonClassnames} onClick={onClick}>
+      <div className={classes.root} onClick={onClick}>
         <CommentIcon className={classNames(classes.commentCountIcon, unreadCommentsClass)}/>
         <div className={classes.commentCount}>
           { commentCount }

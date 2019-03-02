@@ -42,7 +42,7 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
     <div className={classNames({[classes.loading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
       {loading && dimWhenLoading && <Loading />}
-      {results && results.map(post => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} /> )}
+      {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
       {loading && !dimWhenLoading && <Loading />}
       {showLoadMore && <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount}/>}
     </div>

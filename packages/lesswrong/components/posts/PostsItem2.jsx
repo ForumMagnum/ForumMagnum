@@ -127,21 +127,19 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser } = this.props
+    const { classes, post, chapter, currentUser, index } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
 
-    const getPostLink = () => {
-      return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
-    }
+    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
     return (
-      <div className={classNames(classes.background, {[classes.commentsBackground]: showComments})}>
+      <div className={classNames(classes.background, {[classes.commentsBackground]: showComments, [classes.firstItem]: index})}>
         <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
           <div ref={this.postsItemRef}/>
           <PostsItemKarma post={post} />
 
-          <Link to={getPostLink} className={classes.title}>
+          <Link to={postLink} className={classes.title}>
             <PostsItemTitle post={post} postItem2/>
           </Link>
 
