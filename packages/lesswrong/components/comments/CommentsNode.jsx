@@ -11,6 +11,7 @@ const KARMA_COLLAPSE_THRESHOLD = -4;
 
 const styles = theme => ({
   node: {
+    cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$new': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`
@@ -166,7 +167,7 @@ class CommentsNode extends Component {
 
     if (!comment || !post)
       return null;
-    
+
     const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
     const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
@@ -201,7 +202,7 @@ class CommentsNode extends Component {
         [classes.answerLeafComment]: !(children && children.length)
       }
     )
-    
+
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
         <div className={nodeClass}
