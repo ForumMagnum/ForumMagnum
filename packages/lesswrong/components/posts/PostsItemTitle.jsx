@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles'
@@ -8,14 +8,26 @@ import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = theme => ({
   root: {
-    whiteSpace:"nowrap",
-    overflow:"hidden",
-    textOverflow:"ellipsis",
     color: "rgba(0,0,0,.95)",
-    fontFamily: theme.typography.postStyle.fontFamily,
+    display: "flex",
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
+    },
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "space-between",
+      flexGrow: 1,
     }
+  },
+  title: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    display: "inline-block",
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: "unset",
+      whiteSpace: "unset",
+    },
+    fontFamily: theme.typography.postStyle.fontFamily,
   },
   sticky: {
     paddingRight: theme.spacing.unit,
@@ -27,38 +39,57 @@ const styles = theme => ({
     textShadow: "none",
   },
   tooltip:{
-    [theme.breakpoints.down('md')]: {
-      display: "none"
-    },
+    position: "relative",
+    left: -30,
   },
   highlightTooltipWrapper: {
-    marginBottom: theme.spacing.unit
+    [theme.breakpoints.up('sm')]: {
+      marginTop: theme.spacing.unit,
+      marginBottom: theme.spacing.unit,
+    },
   },
   tooltipInfo: {
     fontStyle: "italic"
   },
   tooltipTitle: {
     marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
-    fontSize: "1.3rem",
-    lineHeight: "1.8rem"
+    marginBottom: theme.spacing.unit*1.5,
+    fontWeight: 600,
+    fontSize: "1.2rem",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
   },
   highlight: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
     fontSize: "1.1rem",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
     '& img': {
       display:"none"
     },
     '& h1': {
-      fontSize: "1.3rem"
+      fontSize: "1.2rem"
     },
     '& h2': {
       fontSize: "1.2rem"
     },
     '& h3': {
       fontSize: "1.1rem"
+    },
+    '& hr': {
+      display: "none"
+    },
+  },
+  postIcon: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
     }
+  },
+  tag: {
+    marginRight: theme.spacing.unit
   }
 })
 
@@ -68,42 +99,60 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 </svg>
 
 const getPostCategory = (post) => {
+  if (post.af) return "Alignment Forum Post"
   if (post.meta) return "Meta Post"
   if (post.curatedDate) return "Curated Post"
-  if (post.afDate) return "Alignment Forum Post"
   if (post.frontpageDate) return "Frontpage Post"
   return "Personal Blogpost"
 }
 
-const PostsItemTitle = ({post, classes, sticky, read}) => {
+const PostsItemTitle = ({post, classes, sticky, read, postItem2}) => {
+  const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, 600)
 
   const tooltip = <div className={classes.highlightTooltipWrapper}>
+    <div className={classes.tooltipInfo}>
+      {postCategory}
+    </div>
     <div className={classes.tooltipTitle}>
       {post.title}
     </div>
     <div dangerouslySetInnerHTML={{__html:highlight}}
       className={classes.highlight} />
-    <div className={classes.tooltipInfo}>
-      {postCategory}
-    </div>
     {wordCount && <div className={classes.tooltipInfo}>
-      {wordCount} words (approx. {parseInt(wordCount/300)} min read)
+      {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
     </div>}
   </div>
 
-  return (
-    <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} placement="left-start" enterDelay={100} PopperProps={{ style: { pointerEvents: 'none' } }}>
-      <Typography variant="body1" className={classNames(classes.root, {[classes.read]:read})}>
-        {post.question && "[Question] " }
-        {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
-        {post.url && "[Link] "}{post.unlisted && "[Unlisted] "}{post.isEvent && "[Event] "}{post.title}
-      </Typography>
+  const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
+    <Typography variant="body1" className={classes.title}>
+      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+      
+      {post.question && <span className={classes.tag}>[Question]</span>}
+      
+      {post.url && <span className={classes.tag}>[Link]</span>}
+      
+      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+      
+      {post.isEvent && <span className={classes.tag}>[Event]</span>}
+      
+      <span className={classes.tag}>{post.title}</span>
+    </Typography>
+    
+    {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
+    {post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }    
+  </div>
+
+  if (postItem2) {
+    return <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>
+      { postTitle }
     </Tooltip>
-  )
+  } else {
+    return <span>{ postTitle }</span>
+  }
 }
 
 PostsItemTitle.displayName = "PostsItemTitle";
