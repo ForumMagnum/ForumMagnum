@@ -8,7 +8,7 @@ const styles = (theme) => ({
     width: 28,
     justifyContent: "center",
     marginLeft: 4,
-    marginRight: 12,
+    marginRight: 10,
     [theme.breakpoints.down('sm')]:{
       width: "unset",
       justifyContent: "flex-start",
