@@ -79,7 +79,8 @@ Users.addField([
       type: Date,
       onInsert: (user, options) => {
         return user.createdAt || new Date();
-      }
+      },
+      canRead: ["guests"]
     }
   },
 
