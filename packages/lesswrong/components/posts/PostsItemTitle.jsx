@@ -35,7 +35,7 @@ const styles = theme => ({
     top: 2
   },
   read: {
-    color:"rgba(0,0,0,.55)",
+    opacity: .6,
     textShadow: "none",
   },
   tooltip:{
