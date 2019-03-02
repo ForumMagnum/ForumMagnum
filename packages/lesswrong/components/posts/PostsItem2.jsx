@@ -48,7 +48,7 @@ const styles = (theme) => ({
   },
   title: {
     height: 22,
-    maxWidth: 432,
+    maxWidth: 450,
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
