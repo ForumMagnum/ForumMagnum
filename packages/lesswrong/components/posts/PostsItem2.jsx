@@ -47,14 +47,12 @@ const styles = (theme) => ({
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
   title: {
-    flexGrow:1,
     height: 22,
-    maxWidth: 434,
+    maxWidth: 432,
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
       marginBottom: theme.spacing.unit,
-      flexGrow: "unset",
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
@@ -99,9 +97,6 @@ const styles = (theme) => ({
     marginTop: theme.spacing.unit,
     padding: theme.spacing.unit*2,
     cursor: "pointer",
-    '&:hover': {
-      backgroundColor: theme.palette.grey[300]
-    }
   },
   closeComments: {
     color: theme.palette.grey[500],
