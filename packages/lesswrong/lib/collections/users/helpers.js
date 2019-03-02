@@ -276,3 +276,19 @@ Users.getAggregateKarma = async (user) => {
     {$group: { _id: null, totalPower: { $sum: '$power' }}},
   ]).toArray()[0].totalPower;
 }
+
+Users.getPostCount = (user) => {
+  if (getSetting('AlignmentForum')) {
+    return user.afPostCount;
+  } else {
+    return user.postCount;
+  }
+}
+
+Users.getCommentCount = (user) => {
+  if (getSetting('AlignmentForum')) {
+    return user.afCommentCount;
+  } else {
+    return user.commentCount;
+  }
+}

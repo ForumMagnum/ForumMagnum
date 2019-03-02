@@ -145,7 +145,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
       const oneDayPrior = moment(lastDailyReset).subtract(1, 'days')
       
       // Check whether the last time you opened the menu was in the same batch-period
-      const openedBeforeNextBatch = lastOpened && lastOpened > lastDailyReset.toDate()
+      const openedBeforeNextBatch = lastOpened && lastOpened >= lastDailyReset.toDate()
 
       // If you open the notification menu again before the next batch has started, just return
       // the previous batch
@@ -183,7 +183,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
       const oneWeekPrior = moment(lastWeeklyReset).subtract(7, 'days');
 
       // Check whether the last time you opened the menu was in the same batch-period
-      const openedBeforeNextBatch = lastOpened && lastOpened > lastWeeklyReset.toDate()
+      const openedBeforeNextBatch = lastOpened && lastOpened >= lastWeeklyReset.toDate()
 
       // If you open the notification menu again before the next batch has started, just return
       // the previous batch
@@ -209,9 +209,18 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
       };
     }
     case "realtime":
-      return {
-        start: lastOpened || new Date("1970-01-01"),
-        end: now
+      if (!lastOpened) {
+        // If set to realtime and never opened before (eg, you just changed the
+        // setting), default to the last 24 hours.
+        return {
+          start: moment().subtract(1, 'days').toDate(),
+          end: now
+        }
+      } else {
+        return {
+          start: lastOpened,
+          end: now
+        }
       }
   }
 }

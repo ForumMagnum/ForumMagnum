@@ -243,19 +243,6 @@ Comments.addField([
   },
 
   /**
-    algoliaIndexAt: Last time the record was indexed by algolia. Undefined if it hasn't yet been indexed.
-  */
-
-  {
-    fieldName: 'algoliaIndexAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      canRead: ['guests']
-    }
-  },
-
-  /**
     repliesBlockedUntil: Deactivates replying to this post by anyone except admins and sunshineRegiment members until the specified time is reached.
   */
 

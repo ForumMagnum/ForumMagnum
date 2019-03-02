@@ -1,40 +1,6 @@
 /* global Vulcan */
 import { Collections, getCollection } from 'meteor/vulcan:lib';
-
-// Given a collection and a batch size, run a callback for each row in the
-// collection, grouped into batches of up to the given size. Rows created or
-// deleted while this is running might or might not get included (neither is
-// guaranteed).
-//
-// This works by querying a range of IDs, with a limit, and using the largest
-// ID from each batch to find the start of the interval for the next batch.
-// This expects that `max` is a sensible operation on IDs, treated the same
-// way in Javascript as in Mongo; which translates into the assumption that IDs
-// are homogenously string typed. Ie, this function will break if some rows
-// have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection({collection, batchSize, callback})
-{
-  let rows = await collection.find(
-    {},
-    {
-      limit: batchSize,
-      sort: {_id:1}
-    }
-  ).fetch();
-  
-  do {
-    await callback(rows);
-    
-    const lastID = _.max(rows, row => row._id);
-    rows = await collection.find(
-      { _id: {$gt: lastID} },
-      {
-        limit: batchSize,
-        sort: {_id:1}
-      }
-    ).fetch();
-  } while(rows.length > 0)
-}
+import { forEachDocumentBatchInCollection } from '../queryUtil';
 
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.
@@ -104,6 +70,7 @@ export async function validateCollection(collection)
   
   await forEachDocumentBatchInCollection({
     collection, batchSize: 10000,
+    loadFactor: 0.5,
     callback: async (batch) => {
       // Validate documents against their batch with simpl-schema
       for (const document of batch) {
