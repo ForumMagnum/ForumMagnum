@@ -138,7 +138,7 @@ class PostsItem2 extends PureComponent {
           <PostsItemKarma post={post} />
 
           <Link to={postLink} className={classes.title}>
-            <PostsItemTitle post={post} postItem2/>
+            <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} />
           </Link>
 
           { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
