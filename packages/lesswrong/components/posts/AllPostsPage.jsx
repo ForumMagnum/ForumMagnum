@@ -17,8 +17,6 @@ const styles = theme => ({
     }
   },
   settingsIcon: {
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
     color: theme.palette.grey[400],
     width:40,
     cursor: "pointer"

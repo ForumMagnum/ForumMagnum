@@ -35,7 +35,7 @@ const styles = (theme) => ({
     width: 28,
     justifyContent: "center",
     marginLeft: 4,
-    marginRight: theme.spacing.unit,
+    marginRight: 14,
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "unset",
@@ -66,7 +66,7 @@ const styles = (theme) => ({
     flex: 1,
     overflow: "hidden",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
-    marginRight: theme.spacing.unit*2,
+    marginRight: theme.spacing.unit*1.5,
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "unset",

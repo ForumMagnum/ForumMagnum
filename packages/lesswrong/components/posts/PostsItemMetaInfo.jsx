@@ -7,7 +7,7 @@ import classNames from 'classnames'
 const styles = (theme) => ({
   root: {
     color: theme.palette.grey[600],
-    fontSize: "1rem",
+    fontSize: "1.1rem",
     display: "flex",
     alignItems: "center",
   },
