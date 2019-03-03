@@ -16,17 +16,13 @@ import { schemaDefaultValue } from '../../collectionUtils';
  * @type {Object}
  */
 const schema = {
-  /**
-    ID
-  */
+  // ID
   _id: {
     type: String,
     optional: true,
     canRead: ['guests'],
   },
-  /**
-    The `_id` of the parent comment, if there is one
-  */
+  // The `_id` of the parent comment, if there is one
   parentCommentId: {
     type: String,
     foreignKey: "Comments",
@@ -44,9 +40,7 @@ const schema = {
     },
     hidden: true // never show this
   },
-  /**
-    The `_id` of the top-level parent comment, if there is one
-  */
+  // The `_id` of the top-level parent comment, if there is one
   topLevelCommentId: {
     type: String,
     foreignKey: "Comments",
@@ -65,9 +59,7 @@ const schema = {
     },
     hidden: true // never show this
   },
-  /**
-    The timestamp of comment creation
-  */
+  // The timestamp of comment creation
   createdAt: {
     type: Date,
     optional: true,
@@ -76,9 +68,8 @@ const schema = {
       return new Date();
     }
   },
-  /**
-    The timestamp of the comment being posted. For now, comments are always created and posted at the same time
-  */
+  // The timestamp of the comment being posted. For now, comments are always
+  // created and posted at the same time
   postedAt: {
     type: Date,
     optional: true,
@@ -87,9 +78,7 @@ const schema = {
       return new Date();
     }
   },
-  /**
-    The comment author's name
-  */
+  // The comment author's name
   author: {
     type: String,
     optional: true,
@@ -107,9 +96,7 @@ const schema = {
       }
     }
   },
-  /**
-    The post's `_id`
-  */
+  // The post's `_id`
   postId: {
     type: String,
     foreignKey: "Posts",
@@ -128,9 +115,7 @@ const schema = {
     },
     hidden: true // never show this
   },
-  /**
-    The comment author's `_id`
-  */
+  // The comment author's `_id`
   userId: {
     type: String,
     foreignKey: "Users",
@@ -147,12 +132,10 @@ const schema = {
       addOriginalField: true
     },
   },
-  /**
-    Whether the comment is deleted. Delete comments' content doesn't appear on the site.
-    FIXME: Not a real field. We inherited this from vulcan-starter, but
-    implemented our own, unrelated soft delete mechanism with the field named
-    `deleted` rather than `isDeleted`.
-  */
+  // Whether the comment is deleted. Delete comments' content doesn't appear on the site.
+  // FIXME: Not a real field. We inherited this from vulcan-starter, but
+  // implemented our own, unrelated soft delete mechanism with the field named
+  // `deleted` rather than `isDeleted`.
   isDeleted: {
     type: Boolean,
     optional: true,

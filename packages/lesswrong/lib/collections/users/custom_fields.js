@@ -93,11 +93,9 @@ Users.addField([
     }
   },
 
-  /**
-    Emails (not to be confused with email). This field belongs to Meteor's
-    accounts system; we should never write it, but we do need to read it to find
-    out whether a user's email address is verified.
-  */
+  // Emails (not to be confused with email). This field belongs to Meteor's
+  // accounts system; we should never write it, but we do need to read it to find
+  // out whether a user's email address is verified.
   {
     fieldName: 'emails',
     fieldSchema: {
@@ -112,8 +110,6 @@ Users.addField([
     }
   },
 
-  /**
-  */
   {
     fieldName: 'whenConfirmationEmailSent',
     fieldSchema: {
@@ -128,9 +124,7 @@ Users.addField([
     }
   },
 
-  /**
-    Legacy: Boolean used to indicate that post was imported from old LW database
-  */
+  // Legacy: Boolean used to indicate that post was imported from old LW database
   {
     fieldName: 'legacy',
     fieldSchema: {
@@ -173,9 +167,7 @@ Users.addField([
     }
   },
 
-  /**
-    Intercom: Will the user display the intercom while logged in?
-  */
+  // Intercom: Will the user display the intercom while logged in?
   {
     fieldName: 'hideIntercom',
     fieldSchema: {
@@ -192,10 +184,8 @@ Users.addField([
   },
 
   {
-    /*
-      This field-name is no longer accurate, but is here because we used to have that field
-      around and then removed `markDownCommentEditor` and merged it into this field.
-    */
+    // This field-name is no longer accurate, but is here because we used to have that field
+    // around and then removed `markDownCommentEditor` and merged it into this field.
     fieldName: 'markDownPostEditor',
     fieldSchema: {
       order: 70,
@@ -290,9 +280,7 @@ Users.addField([
     }
   },
 
-  /**
-    Bio (Markdown version)
-  */
+  // Bio (Markdown version)
   {
     fieldName: 'bio',
     fieldSchema: {
@@ -313,9 +301,7 @@ Users.addField([
     }
   },
 
-  /**
-    Bio (Markdown version)
-  */
+  // Bio (Markdown version)
   {
     fieldName: 'htmlBio',
     fieldSchema: {
@@ -325,9 +311,7 @@ Users.addField([
     }
   },
 
-  /**
-    Karma field
-  */
+  // Karma field
   {
     fieldName: 'karma',
     fieldSchema: {
@@ -337,9 +321,7 @@ Users.addField([
     }
   },
 
-  /**
-    Website
-  */
+  // Website
   {
     fieldName: 'website',
     fieldSchema: {
@@ -418,10 +400,7 @@ Users.addField([
     }
   },
 
-  /**
-    bannedUserIds: users who are not allowed to comment on this user's posts
-  */
-
+  // bannedUserIds: users who are not allowed to comment on this user's posts
   {
     fieldName: 'bannedUserIds',
     fieldSchema: {
@@ -444,10 +423,7 @@ Users.addField([
     }
   },
 
-  /**
-    bannedUserIds: users who are not allowed to comment on this user's personal blog posts
-  */
-
+  // bannedUserIds: users who are not allowed to comment on this user's personal blog posts
   {
     fieldName: 'bannedPersonalUserIds',
     fieldSchema: {
@@ -470,9 +446,7 @@ Users.addField([
     }
   },
 
-  /**
-    Legacy ID: ID used in the original LessWrong database
-  */
+  // Legacy ID: ID used in the original LessWrong database
   {
     fieldName: 'legacyId',
     fieldSchema: {
@@ -485,10 +459,7 @@ Users.addField([
     }
   },
 
-  /**
-    Deleted: Boolean indicating whether user has been deleted
-                (initially used in the LW database transfer )
-  */
+  // Deleted: Boolean indicating whether user has been deleted (initially used in the LW database transfer )
   {
     fieldName: 'deleted',
     fieldSchema: {
@@ -504,13 +475,10 @@ Users.addField([
     }
   },
 
-  /**
-    legacyData: A complete dump of all the legacy data we have on this post in a
-    single blackbox object. Never queried on the client, but useful for a lot
-    of backend functionality, and simplifies the data import from the legacy
-    LessWrong database
-  */
-
+  // legacyData: A complete dump of all the legacy data we have on this post in a
+  // single blackbox object. Never queried on the client, but useful for a lot
+  // of backend functionality, and simplifies the data import from the legacy
+  // LessWrong database
   {
     fieldName: 'legacyData',
     fieldSchema: {
@@ -524,10 +492,7 @@ Users.addField([
     }
   },
 
-  /**
-    voteBanned: All future votes of this user have weight 0
-  */
-
+  // voteBanned: All future votes of this user have weight 0
   {
     fieldName: 'voteBanned',
     fieldSchema: {
@@ -542,10 +507,7 @@ Users.addField([
     }
   },
 
-  /**
-    nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
-  */
-
+  // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
   {
     fieldName: 'nullifyVotes',
     fieldSchema: {
@@ -560,10 +522,7 @@ Users.addField([
     }
   },
 
-  /**
-    deleteContent: Flag all comments and posts from this user as deleted
-  */
-
+  // deleteContent: Flag all comments and posts from this user as deleted
   {
     fieldName: 'deleteContent',
     fieldSchema: {
@@ -578,10 +537,7 @@ Users.addField([
     }
   },
 
-  /**
-    banned: Whether the user is banned or not. Can be set by moderators and admins.
-  */
-
+  // banned: Whether the user is banned or not. Can be set by moderators and admins.
   {
     fieldName: 'banned',
     fieldSchema: {
@@ -596,10 +552,7 @@ Users.addField([
     }
   },
 
-  /**
-    IPDummy: All Ips that this user has ever logged in with
-  */
-
+  // IPDummy: All Ips that this user has ever logged in with
   {
     fieldName: 'IPs',
     fieldSchema: {
@@ -629,9 +582,7 @@ Users.addField([
     }
   },
 
-  /**
-    New Notifications settings
-  */
+  // New Notifications settings
   {
     fieldName: 'auto_subscribe_to_my_posts',
     fieldSchema: {
@@ -647,9 +598,7 @@ Users.addField([
     }
   },
   
-  /**
-    Karma-change notifier settings
-  */
+  // Karma-change notifier settings
   {
     fieldName: 'karmaChangeNotifierSettings',
     fieldSchema: {
@@ -664,9 +613,7 @@ Users.addField([
     },
   },
   
-  /**
-    Time at which the karma-change notification was last opened (clicked)
-  */
+  // Time at which the karma-change notification was last opened (clicked)
   {
     fieldName: 'karmaChangeLastOpened',
     fieldSchema: {
@@ -679,11 +626,9 @@ Users.addField([
     },
   },
   
-  /**
-    If, the last time you opened the karma-change notifier, you saw more than
-    just the most recent batch (because there was a batch you hadn't viewed),
-    the start of the date range of that batch.
-  */
+  // If, the last time you opened the karma-change notifier, you saw more than
+  // just the most recent batch (because there was a batch you hadn't viewed),
+  // the start of the date range of that batch.
   {
     fieldName: 'karmaChangeBatchStart',
     fieldSchema: {
@@ -696,9 +641,7 @@ Users.addField([
     },
   },
 
-  /**
-    Email settings
-  */
+  // Email settings
   {
     fieldName: 'emailSubscribedToCurated',
     fieldSchema: {
@@ -713,9 +656,7 @@ Users.addField([
     }
   },
 
-  /**
-    Hide the option to change your displayName (for now) TODO: Create proper process for changing name
-  */
+  // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
 
   {
     fieldName: 'displayName',
@@ -725,10 +666,7 @@ Users.addField([
     }
   },
 
-  /**
-    frontpagePostCount: count of how many posts of yours were posted on the frontpage
-  */
-
+  // frontpagePostCount: count of how many posts of yours were posted on the frontpage
   {
     fieldName: 'frontpagePostCount',
     fieldSchema: {
@@ -740,10 +678,7 @@ Users.addField([
     }
   },
 
-  /**
-    sequenceCount: count of how many non-draft, non-deleted sequences you have
-  */
-
+  // sequenceCount: count of how many non-draft, non-deleted sequences you have
   {
     fieldName: 'sequenceCount',
     fieldSchema: {
@@ -755,10 +690,7 @@ Users.addField([
     }
   },
 
-  /**
-    sequenceDraftCount: count of how many draft, non-deleted sequences you have
-  */
-
+  // sequenceDraftCount: count of how many draft, non-deleted sequences you have
   {
     fieldName: 'sequenceDraftCount',
     fieldSchema: {
@@ -962,7 +894,7 @@ Users.addField([
     }
   },
 
-  { 
+  {
     fieldName: "shortformFeedId",
     fieldSchema: {
       type: String,
@@ -982,7 +914,7 @@ Users.addField([
     }
   },
 
-  { 
+  {
     fieldName: "viewUnreviewedComments",
     fieldSchema: {
       type: Boolean,

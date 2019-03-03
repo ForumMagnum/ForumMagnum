@@ -14,9 +14,7 @@ export const moderationOptionsGroup = {
 
 Comments.addField([
 
-  /**
-    The comment author's `_id`
-  */
+  // The comment author's `_id`
   {
     fieldName: 'userId',
     fieldSchema: {
@@ -36,9 +34,7 @@ Comments.addField([
     }
   },
 
-  /**
-    Legacy: Boolean used to indicate that post was imported from old LW database
-  */
+  // Legacy: Boolean used to indicate that post was imported from old LW database
   {
     fieldName: 'legacy',
     fieldSchema: {
@@ -52,9 +48,7 @@ Comments.addField([
     }
   },
 
-  /**
-    Legacy ID: ID used in the original LessWrong database
-  */
+  // Legacy ID: ID used in the original LessWrong database
   {
     fieldName: 'legacyId',
     fieldSchema: {
@@ -67,9 +61,7 @@ Comments.addField([
     }
   },
 
-  /**
-    Legacy Poll: Boolean to indicate that original LW data had a poll here
-  */
+  // Legacy Poll: Boolean to indicate that original LW data had a poll here
   {
     fieldName: 'legacyPoll',
     fieldSchema: {
@@ -83,9 +75,7 @@ Comments.addField([
     }
   },
 
-  /**
-    Legacy Parent Id: Id of parent comment in original LW database
-  */
+  // Legacy Parent Id: Id of parent comment in original LW database
   {
     fieldName: 'legacyParentId',
     fieldSchema: {
@@ -98,13 +88,10 @@ Comments.addField([
     }
   },
 
-  /**
-    legacyData: A complete dump of all the legacy data we have on this post in a
-    single blackbox object. Never queried on the client, but useful for a lot
-    of backend functionality, and simplifies the data import from the legacy
-    LessWrong database
-  */
-
+  // legacyData: A complete dump of all the legacy data we have on this post in a
+  // single blackbox object. Never queried on the client, but useful for a lot
+  // of backend functionality, and simplifies the data import from the legacy
+  // LessWrong database
   {
     fieldName: 'legacyData',
     fieldSchema: {
@@ -118,11 +105,8 @@ Comments.addField([
     }
   },
 
-  /**
-    retracted: Indicates whether a comment has been retracted by its author.
-    Results in the text of the comment being struck-through, but still readable.
-  */
-
+  // retracted: Indicates whether a comment has been retracted by its author.
+  // Results in the text of the comment being struck-through, but still readable.
   {
     fieldName: 'retracted',
     fieldSchema: {
@@ -137,11 +121,8 @@ Comments.addField([
     }
   },
 
-  /**
-    deleted: Indicates whether a comment has been deleted by an admin.
-    Deleted comments and their replies are not rendered by default.
-  */
-
+  // deleted: Indicates whether a comment has been deleted by an admin.
+  // Deleted comments and their replies are not rendered by default.
   {
     fieldName: 'deleted',
     fieldSchema: {
@@ -223,11 +204,8 @@ Comments.addField([
     }
   },
 
-  /**
-    spam: Indicates whether a comment has been marked as spam.
-    This removes the content of the comment, but still renders replies.
-  */
-
+  // spam: Indicates whether a comment has been marked as spam.
+  // This removes the content of the comment, but still renders replies.
   {
     fieldName: 'spam',
     fieldSchema: {
@@ -242,10 +220,8 @@ Comments.addField([
     }
   },
 
-  /**
-    repliesBlockedUntil: Deactivates replying to this post by anyone except admins and sunshineRegiment members until the specified time is reached.
-  */
-
+  // repliesBlockedUntil: Deactivates replying to this post by anyone except
+  // admins and sunshineRegiment members until the specified time is reached.
   {
     fieldName: 'repliesBlockedUntil',
     fieldSchema: {
@@ -290,11 +266,8 @@ Comments.addField([
     }
   },
 
-  /*
-    hideAuthor: Displays the author as '[deleted]'. We use this to copy over old deleted comments
-    from LW 1.0
-  */
-
+  // hideAuthor: Displays the author as '[deleted]'. We use this to copy over
+  // old deleted comments from LW 1.0
   {
     fieldName: 'hideAuthor',
     fieldSchema: {
@@ -328,9 +301,7 @@ makeEditable({
 })
 
 Users.addField([
-  /**
-    Count of the user's comments
-  */
+  // Count of the user's comments
   {
     fieldName: 'commentCount',
     fieldSchema: {
@@ -343,9 +314,7 @@ Users.addField([
 ]);
 
 Posts.addField([
-  /**
-    Count of the post's comments
-  */
+  // Count of the post's comments
   {
     fieldName: 'commentCount',
     fieldSchema: {
@@ -355,9 +324,7 @@ Posts.addField([
       canRead: ['guests'],
     }
   },
-  /**
-    An array containing the `_id`s of commenters
-  */
+  // An array containing the `_id`s of commenters
   {
     fieldName: 'commenterIds',
     fieldSchema: {
