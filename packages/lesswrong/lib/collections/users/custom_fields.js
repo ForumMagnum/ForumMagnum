@@ -423,7 +423,7 @@ Users.addField([
     }
   },
 
-  // bannedUserIds: users who are not allowed to comment on this user's personal blog posts
+  // bannedPersonalUserIds: users who are not allowed to comment on this user's personal blog posts
   {
     fieldName: 'bannedPersonalUserIds',
     fieldSchema: {
@@ -657,7 +657,6 @@ Users.addField([
   },
 
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
-
   {
     fieldName: 'displayName',
     fieldSchema: {

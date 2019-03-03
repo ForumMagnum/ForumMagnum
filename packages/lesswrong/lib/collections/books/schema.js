@@ -27,6 +27,7 @@ const schema = {
       return new Date();
     },
   },
+  
   // Custom Properties
 
   title: {
@@ -61,8 +62,6 @@ const schema = {
     editableBy: ['admins'],
     insertableBy: ['admins'],
   },
-
-  //TODO: Make resolvers more efficient by running `find` query instead of `findOne` query
 
   postIds: {
     type: Array,

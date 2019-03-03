@@ -1138,12 +1138,7 @@ makeEditable({
 })
 
 
-/*
-
-Custom fields on Users collection
-
-*/
-
+// Custom fields on Users collection
 Users.addField([
   // Count of the user's posts
   {

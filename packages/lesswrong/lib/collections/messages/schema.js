@@ -1,10 +1,4 @@
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 
 const schema = {

@@ -1,13 +1,6 @@
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 import { schemaDefaultValue } from '../../collectionUtils';
 
-//define schema
 const schema = {
   _id: {
     optional: true,

@@ -1,9 +1,3 @@
-/*
-
-Posts schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
@@ -13,10 +7,6 @@ import { schemaDefaultValue } from '../../collectionUtils';
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
 
-/**
- * @summary Posts config namespace
- * @type {Object}
- */
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
   adminOptions: {
@@ -27,10 +17,6 @@ const formGroups = {
   },
 };
 
-/**
- * @summary Posts schema
- * @type {Object}
- */
 const schema = {
   // ID
   _id: {

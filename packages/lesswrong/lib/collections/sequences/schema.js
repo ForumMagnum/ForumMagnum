@@ -102,7 +102,6 @@ const schema = {
   },
 
   //Cloudinary image id for the grid Image
-
   gridImageId: {
     type: String,
     optional: true,
@@ -115,7 +114,6 @@ const schema = {
   },
 
   //Cloudinary image id for the banner image (high resolution)
-
   bannerImageId: {
     type: String,
     optional: true,

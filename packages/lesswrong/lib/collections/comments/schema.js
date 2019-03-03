@@ -1,20 +1,8 @@
-/*
-
-Comments schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
 import { Posts } from '../posts/collection'
-//import marked from 'marked';
-//import { Utils } from 'meteor/vulcan:core';
 import { schemaDefaultValue } from '../../collectionUtils';
 
-/**
- * @summary Comments schema
- * @type {Object}
- */
 const schema = {
   // ID
   _id: {
@@ -38,7 +26,7 @@ const schema = {
       ),
       addOriginalField: true
     },
-    hidden: true // never show this
+    hidden: true,
   },
   // The `_id` of the top-level parent comment, if there is one
   topLevelCommentId: {
@@ -57,7 +45,7 @@ const schema = {
       ),
       addOriginalField: true
     },
-    hidden: true // never show this
+    hidden: true,
   },
   // The timestamp of comment creation
   createdAt: {

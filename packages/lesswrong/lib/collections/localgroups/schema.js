@@ -1,10 +1,4 @@
 import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
-
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
 import { localGroupTypeFormOptions } from './groupTypes';
 
 const schema = {

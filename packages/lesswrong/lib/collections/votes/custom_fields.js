@@ -93,30 +93,3 @@ VoteableCollections.forEach(collection => {
     }
   ]);
 });
-
-
-
-/* From vulcan:voting, but not currently used.
-Users.addField([
-  // An array containing votes
-  {
-    fieldName: 'votes',
-    fieldSchema: {
-      type: Array,
-      optional: true,
-      canRead: Users.owns,
-      resolveAs: {
-        type: '[Vote]',
-        arguments: 'collectionName: String',
-        resolver: async (user, args, context) => {8
-      },
-    }
-  },
-  {
-    fieldName: 'votes.$',
-    fieldSchema: {
-      type: Object,
-      optional: true
-    }
-  },
-]);*/

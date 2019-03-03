@@ -1,11 +1,5 @@
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
 const schema = {
   _id: {
     type: String,
