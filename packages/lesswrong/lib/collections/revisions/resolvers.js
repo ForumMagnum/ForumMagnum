@@ -50,33 +50,33 @@ export function dataToDraftJS(data, type) {
 
 addFieldsDict(Revisions, {
   markdown: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
-      }
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
+    }
   },
   draftJS: {
-      type: Object,
-      resolveAs: {
-        type: 'JSON',
-        resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
-      }
+    type: Object,
+    resolveAs: {
+      type: 'JSON',
+      resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
+    }
   },
   htmlHighlight: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: ({html}) => highlightFromHTML(html)
-      }
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({html}) => highlightFromHTML(html)
+    }
   },
   plaintextDescription: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: ({html}) => htmlToText
-                              .fromString(html)
-                              .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      }
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({html}) => htmlToText
+        .fromString(html)
+        .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+    }
   }
 })
