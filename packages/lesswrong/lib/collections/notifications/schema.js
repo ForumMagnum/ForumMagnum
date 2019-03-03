@@ -17,9 +17,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: Users.owns,
-    onInsert: (document, currentUser) => {
-      return new Date();
-    }
+    onInsert: (document, currentUser) => new Date(),
   },
   documentId: {
     type: String,

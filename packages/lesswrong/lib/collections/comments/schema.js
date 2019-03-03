@@ -52,9 +52,7 @@ const schema = {
     type: Date,
     optional: true,
     canRead: ['admins'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    }
+    onInsert: (document, currentUser) => new Date(),
   },
   // The timestamp of the comment being posted. For now, comments are always
   // created and posted at the same time
@@ -62,9 +60,7 @@ const schema = {
     type: Date,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    }
+    onInsert: (document, currentUser) => new Date(),
   },
   // The comment author's name
   author: {

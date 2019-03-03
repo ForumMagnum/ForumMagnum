@@ -26,9 +26,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['members'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
   },
   conversationId: {
     type: String,

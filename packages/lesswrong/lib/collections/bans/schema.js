@@ -11,9 +11,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
     searchable: true,
   },
   expirationDate: {

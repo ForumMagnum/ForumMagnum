@@ -10,9 +10,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['members'],
-    onInsert: (document) => {
-      return new Date();
-    }
+    onInsert: (document) => new Date(),
   },
   title: {
     type: String,

@@ -29,9 +29,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
-    }
+    onInsert: () => new Date(),
   },
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {

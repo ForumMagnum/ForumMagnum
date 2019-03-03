@@ -27,9 +27,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['guests'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
   },
   ownedByUser: {
     type: Boolean,

@@ -9,9 +9,7 @@ const schema = {
   createdAt: {
     type: Date,
     optional: true,
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
     viewableBy: ['members'],
   },
   userId: {

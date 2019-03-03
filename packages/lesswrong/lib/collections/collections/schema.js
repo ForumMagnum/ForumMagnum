@@ -16,9 +16,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   userId: {

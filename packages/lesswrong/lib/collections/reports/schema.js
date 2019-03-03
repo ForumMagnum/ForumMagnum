@@ -94,9 +94,7 @@ const schema = {
     type: Date,
     viewableBy: ['guests'],
     editableBy: ['admins'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
   },
   closedAt: {
     optional: true,
