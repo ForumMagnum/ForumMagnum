@@ -977,21 +977,4 @@ addFieldsDict(Users, {
       }
     }
   },
-  // User's bio (Markdown version)
-  bio: {
-    type: String,
-    optional: true,
-    control: "textarea",
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    viewableBy: ['guests'],
-    order: 30,
-    searchable: true,
-  },
-  // User's bio (Markdown version)
-  htmlBio: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
 });

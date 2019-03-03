@@ -242,9 +242,10 @@ addFieldsDict(Users, {
     },
   },
 
-  // Bio (Markdown version)
+  // Bio (HTML version)
   htmlBio: {
     type: String,
+    denormalized: true,
     optional: true,
     canRead: ['guests'],
   },
