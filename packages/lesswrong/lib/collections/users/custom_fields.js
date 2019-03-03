@@ -223,10 +223,6 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
-  website: {
-    regEx: null,
-    order: 30,
-  },
 
   // Bio (Markdown version)
   bio: {

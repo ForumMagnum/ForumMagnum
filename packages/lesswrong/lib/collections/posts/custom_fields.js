@@ -994,14 +994,4 @@ addFieldsDict(Users, {
     optional: true,
     viewableBy: ['guests'],
   },
-  // A link to the user's homepage
-  website: {
-    type: String,
-    optional: true,
-    control: "text",
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    viewableBy: ['guests'],
-    order: 50,
-  },
 });
