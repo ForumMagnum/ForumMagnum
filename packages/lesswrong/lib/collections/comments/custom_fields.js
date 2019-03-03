@@ -2,7 +2,7 @@ import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
-import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { generateIdResolverSingle, generateIdResolverMulti, addFieldsDict } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
@@ -12,12 +12,9 @@ export const moderationOptionsGroup = {
   startCollapsed: true
 };
 
-Comments.addField([
-
+addFieldsDict(Comments, {
   // The comment author's `_id`
-  {
-    fieldName: 'userId',
-    fieldSchema: {
+  userId: {
       type: String,
       optional: true,
       canRead: ['guests'],
@@ -31,13 +28,10 @@ Comments.addField([
         ),
         addOriginalField: true
       },
-    }
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
-  {
-    fieldName: 'legacy',
-    fieldSchema: {
+  legacy: {
       type: Boolean,
       optional: true,
       hidden: true,
@@ -45,26 +39,20 @@ Comments.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
-    }
   },
 
   // Legacy ID: ID used in the original LessWrong database
-  {
-    fieldName: 'legacyId',
-    fieldSchema: {
+  legacyId: {
       type: String,
       hidden: true,
       optional: true,
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
-    }
   },
 
   // Legacy Poll: Boolean to indicate that original LW data had a poll here
-  {
-    fieldName: 'legacyPoll',
-    fieldSchema: {
+  legacyPoll: {
       type: Boolean,
       optional: true,
       hidden: true,
@@ -72,29 +60,23 @@ Comments.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
-    }
   },
 
   // Legacy Parent Id: Id of parent comment in original LW database
-  {
-    fieldName: 'legacyParentId',
-    fieldSchema: {
+  legacyParentId: {
       type: String,
       hidden: true,
       optional: true,
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
-    }
   },
 
   // legacyData: A complete dump of all the legacy data we have on this post in a
   // single blackbox object. Never queried on the client, but useful for a lot
   // of backend functionality, and simplifies the data import from the legacy
   // LessWrong database
-  {
-    fieldName: 'legacyData',
-    fieldSchema: {
+  legacyData: {
       type: Object,
       optional: true,
       canRead: ['admins'],
@@ -102,14 +84,11 @@ Comments.addField([
       canUpdate: ['admins'],
       hidden: true,
       blackbox: true,
-    }
   },
 
   // retracted: Indicates whether a comment has been retracted by its author.
   // Results in the text of the comment being struck-through, but still readable.
-  {
-    fieldName: 'retracted',
-    fieldSchema: {
+  retracted: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -118,14 +97,11 @@ Comments.addField([
       control: "checkbox",
       hidden: true,
       ...schemaDefaultValue(false),
-    }
   },
 
   // deleted: Indicates whether a comment has been deleted by an admin.
   // Deleted comments and their replies are not rendered by default.
-  {
-    fieldName: 'deleted',
-    fieldSchema: {
+  deleted: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -134,12 +110,9 @@ Comments.addField([
       control: "checkbox",
       hidden: true,
       ...schemaDefaultValue(false),
-    }
   },
 
-  {
-    fieldName: 'deletedPublic',
-    fieldSchema: {
+  deletedPublic: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -147,24 +120,18 @@ Comments.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
       ...schemaDefaultValue(false),
-    }
   },
 
-  {
-    fieldName: 'deletedReason',
-    fieldSchema: {
+  deletedReason: {
       type: String,
       optional: true,
       canRead: ['guests'],
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       hidden: true,
-    }
   },
 
-  {
-    fieldName: 'deletedDate',
-    fieldSchema: {
+  deletedDate: {
       type: Date,
       optional: true,
       canRead: ['guests'],
@@ -176,12 +143,9 @@ Comments.addField([
         }
       },
       hidden: true,
-    }
   },
 
-  {
-    fieldName: 'deletedByUserId',
-    fieldSchema: {
+  deletedByUserId: {
       type: String,
       optional: true,
       canRead: ['guests'],
@@ -201,14 +165,11 @@ Comments.addField([
         ),
         addOriginalField: true
       },
-    }
   },
 
   // spam: Indicates whether a comment has been marked as spam.
   // This removes the content of the comment, but still renders replies.
-  {
-    fieldName: 'spam',
-    fieldSchema: {
+  spam: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -217,38 +178,29 @@ Comments.addField([
       control: "checkbox",
       hidden: true,
       ...schemaDefaultValue(false),
-    }
   },
 
   // repliesBlockedUntil: Deactivates replying to this post by anyone except
   // admins and sunshineRegiment members until the specified time is reached.
-  {
-    fieldName: 'repliesBlockedUntil',
-    fieldSchema: {
+  repliesBlockedUntil: {
       type: Date,
       optional: true,
       group: moderationOptionsGroup,
       canRead: ['guests'],
       canUpdate: ['sunshineRegiment', 'admins'],
       control: 'datetime'
-    }
   },
 
-  {
-    fieldName: 'needsReview',
-    fieldSchema: {
+  needsReview: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
       hidden: true,
-    }
   },
 
-  {
-    fieldName: 'reviewedByUserId',
-    fieldSchema: {
+  reviewedByUserId: {
       type: String,
       optional: true,
       canRead: ['guests'],
@@ -263,23 +215,19 @@ Comments.addField([
         ),
         addOriginalField: true
       },
-    }
   },
 
   // hideAuthor: Displays the author as '[deleted]'. We use this to copy over
   // old deleted comments from LW 1.0
-  {
-    fieldName: 'hideAuthor',
-    fieldSchema: {
+  hideAuthor: {
       type: Boolean,
       group: moderationOptionsGroup,
       optional: true,
       canRead: ['guests'],
       canUpdate: ['admins'],
       ...schemaDefaultValue(false),
-    }
   },
-]);
+});
 
 export const makeEditableOptions = {
     // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -300,34 +248,26 @@ makeEditable({
   options: makeEditableOptions
 })
 
-Users.addField([
+addFieldsDict(Users, {
   // Count of the user's comments
-  {
-    fieldName: 'commentCount',
-    fieldSchema: {
+  commentCount: {
       type: Number,
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
-    }
   }
-]);
+});
 
-Posts.addField([
+addFieldsDict(Posts, {
   // Count of the post's comments
-  {
-    fieldName: 'commentCount',
-    fieldSchema: {
+  commentCount: {
       type: Number,
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
-    }
   },
   // An array containing the `_id`s of commenters
-  {
-    fieldName: 'commenterIds',
-    fieldSchema: {
+  commenterIds: {
       type: Array,
       optional: true,
       resolveAs: {
@@ -338,13 +278,9 @@ Posts.addField([
         ),
       },
       canRead: ['guests'],
-    }
   },
-  {
-    fieldName: 'commenterIds.$',
-    fieldSchema: {
+  'commenterIds.$': {
       type: String,
       optional: true
-    }
   }
-]);
+});

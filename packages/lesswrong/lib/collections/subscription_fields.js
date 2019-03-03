@@ -1,102 +1,73 @@
 import Users from "meteor/vulcan:users";
 import { Posts } from "./posts"
 import { Comments } from "./comments"
+import { addFieldsDict } from '../modules/utils/schemaUtils'
 
-Users.addField([
-  {
-    fieldName: 'subscribedItems',
-    fieldSchema: {
+addFieldsDict(Users, {
+  subscribedItems: {
       type: Object,
       optional: true,
       blackbox: true,
       hidden: true, // never show this
       viewableBy: ['guests'],
       editableBy: ['members'],
-    }
   },
-  {
-    fieldName: 'subscribers',
-    fieldSchema: {
+  subscribers: {
       type: Array,
       optional: true,
       hidden: true, // never show this,
       viewableBy: ['guests'],
       editableBy: ['members'],
-    }
   },
-  {
-    fieldName: 'subscribers.$',
-    fieldSchema: {
+  'subscribers.$': {
       type: String,
       optional: true,
       hidden: true, // never show this,
-    }
   },
-  {
-    fieldName: 'subscriberCount',
-    fieldSchema: {
+  subscriberCount: {
       type: Number,
       optional: true,
       hidden: true, // never show this
       viewableBy: ['guests'],
-    }
   }
-]);
+});
 
-Posts.addField([
-  {
-    fieldName: 'subscribers',
-    fieldSchema: {
+addFieldsDict(Posts, {
+  subscribers: {
       type: Array,
       optional: true,
       hidden: true, // never show this
       viewableBy: ['guests']
-    }
   },
-  {
-    fieldName: 'subscribers.$',
-    fieldSchema: {
+  'subscribers.$': {
       type: String,
       optional: true,
       hidden: true, // never show this
-    }
   },
-  {
-    fieldName: 'subscriberCount',
-    fieldSchema: {
+  subscriberCount: {
       type: Number,
       optional: true,
       hidden: true, // never show this
       viewableBy: ['guests']
-    }
   }
-]);
+});
 
-Comments.addField([
-  {
-    fieldName: 'subscribers',
-    fieldSchema: {
+addFieldsDict(Comments, {
+  subscribers: {
       type: Array,
       optional: true,
       hidden: true, // never show this
       viewableBy: ['guests']
-    }
   },
-  {
-    fieldName: 'subscribers.$',
-    fieldSchema: {
+  'subscribers.$': {
       type: String,
       optional: true,
       hidden: true, // never show this
-    }
   },
-  {
-    fieldName: 'subscriberCount',
-    fieldSchema: {
+  subscriberCount: {
       type: Number,
       optional: true,
       hidden: true, // never show this
       viewableBy: ['guests']
-    }
   }
-]);
+});

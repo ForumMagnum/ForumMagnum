@@ -1,17 +1,15 @@
 import { Votes } from './collection.js';
 import { VoteableCollections } from '../../modules/make_voteable.js';
 import { getWithLoader } from "../../loaders.js";
+import { addFieldsDict } from '../../modules/utils/schemaUtils'
 
-Votes.addField([
-  {
-    fieldName: "afPower",
-    fieldSchema: {
+addFieldsDict(Votes, {
+  afPower: {
       type: Number,
       optional: true,
       viewableBy: ['guests'],
-    }
   }
-]);
+});
 
 VoteableCollections.forEach(collection => {
   // Replace currentUserVotes and allVotes resolvers with our own
@@ -20,10 +18,8 @@ VoteableCollections.forEach(collection => {
   // comments.
   collection.removeField(["currentUserVotes", "currentUserVotes.$"]);
   collection.removeField(["allVotes", "allVotes.$"]);
-  collection.addField([
-    {
-      fieldName: 'currentUserVotes',
-      fieldSchema: {
+  addFieldsDict(collection, {
+    currentUserVotes: {
         type: Array,
         optional: true,
         viewableBy: ['guests'],
@@ -44,18 +40,12 @@ VoteableCollections.forEach(collection => {
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
         }
-      }
     },
-    {
-      fieldName: 'currentUserVotes.$',
-      fieldSchema: {
+    'currentUserVotes.$': {
         type: Object,
         optional: true
-      }
     },
-    {
-      fieldName: 'allVotes',
-      fieldSchema: {
+    allVotes: {
         type: Array,
         optional: true,
         viewableBy: ['guests'],
@@ -74,22 +64,15 @@ VoteableCollections.forEach(collection => {
             return Users.restrictViewableFields(currentUser, Votes, votes);
           },
         }
-      }
     },
-    {
-      fieldName: 'allVotes.$',
-      fieldSchema: {
+    'allVotes.$': {
         type: Object,
         optional: true
-      }
     },
-    {
-      fieldName: 'voteCount',
-      fieldSchema: {
+    voteCount: {
         type: Number,
         optional: true,
         viewableBy: ['guests'],
-      }
     }
-  ]);
+  });
 });

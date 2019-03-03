@@ -16,7 +16,6 @@ export const generateIdResolverSingle = ({collectionName, fieldName}) => {
   }
 }
 
-
 export const generateIdResolverMulti = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
     if (!doc[fieldName]) return []
@@ -31,5 +30,14 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
     const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
 
     return restrictedDocs
+  }
+}
+
+export const addFieldsDict = (collection, fieldsDict) => {
+  for (let key in fieldsDict) {
+    collection.addField({
+      fieldName: key,
+      fieldSchema: fieldsDict[key]
+    });
   }
 }

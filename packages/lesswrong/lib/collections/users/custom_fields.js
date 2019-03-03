@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { generateIdResolverSingle, addFieldsDict } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -71,48 +71,33 @@ const karmaChangeSettingsType = new SimpleSchema({
   }
 })
 
-Users.addField([
-
-  {
-    fieldName: 'createdAt',
-    fieldSchema: {
+addFieldsDict(Users, {
+  createdAt: {
       type: Date,
       onInsert: (user, options) => {
         return user.createdAt || new Date();
       },
       canRead: ["guests"]
-    }
   },
 
   // LESSWRONG: Overwrite Vulcan locale field to be hidden by default
-  {
-    fieldName: 'locale',
-    fieldSchema: {
+  locale: {
         hidden: true,
         canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    }
   },
 
   // Emails (not to be confused with email). This field belongs to Meteor's
   // accounts system; we should never write it, but we do need to read it to find
   // out whether a user's email address is verified.
-  {
-    fieldName: 'emails',
-    fieldSchema: {
+  emails: {
       hidden: true,
       canRead: [Users.owns, 'sunshineRegiment', 'admins'],
-    }
   },
-  {
-    fieldName: 'emails.$',
-    fieldSchema: {
+  'emails.$': {
       type: Object,
-    }
   },
 
-  {
-    fieldName: 'whenConfirmationEmailSent',
-    fieldSchema: {
+  whenConfirmationEmailSent: {
       type: Date,
       optional: true,
       order: 1,
@@ -121,13 +106,10 @@ Users.addField([
       canRead: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
-    }
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
-  {
-    fieldName: 'legacy',
-    fieldSchema: {
+  legacy: {
       type: Boolean,
       optional: true,
       defaultValue: false,
@@ -135,12 +117,9 @@ Users.addField([
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: ['members'],
-    }
   },
 
-  {
-    fieldName: 'commentSorting',
-    fieldSchema: {
+  commentSorting: {
       type: String,
       optional: true,
       canRead: ['guests'],
@@ -164,13 +143,10 @@ Users.addField([
           return commentViews
         }
       },
-    }
   },
 
   // Intercom: Will the user display the intercom while logged in?
-  {
-    fieldName: 'hideIntercom',
-    fieldSchema: {
+  hideIntercom: {
       order: 70,
       type: Boolean,
       optional: true,
@@ -180,14 +156,11 @@ Users.addField([
       canCreate: ['members'],
       control: 'checkbox',
       label: "Hide Intercom"
-    }
   },
 
-  {
-    // This field-name is no longer accurate, but is here because we used to have that field
-    // around and then removed `markDownCommentEditor` and merged it into this field.
-    fieldName: 'markDownPostEditor',
-    fieldSchema: {
+  // This field-name is no longer accurate, but is here because we used to have that field
+  // around and then removed `markDownCommentEditor` and merged it into this field.
+  markDownPostEditor: {
       order: 70,
       type: Boolean,
       optional: true,
@@ -197,93 +170,66 @@ Users.addField([
       canCreate: ['members'],
       control: 'checkbox',
       label: "Activate Markdown Editor"
-    }
   },
 
-  {
-    fieldName: 'email',
-    fieldSchema: {
+  email: {
       order: 20,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    }
   },
-  {
-    fieldName: 'currentFrontpageFilter',
-    fieldSchema: {
+  currentFrontpageFilter: {
       type: String,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: Users.owns,
       hidden: true,
-    }
   },
-  {
-    fieldName: 'allPostsFilter',
-    fieldSchema: {
+  allPostsFilter: {
       type: String,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: Users.owns,
       hidden: true,
-    }
   },
-  {
-    fieldName: 'allPostsView',
-    fieldSchema: {
+  allPostsView: {
       type: String,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: Users.owns,
-    }
   },
-  {
-    fieldName: 'allPostsShowLowKarma',
-    fieldSchema: {
+  allPostsShowLowKarma: {
       type: Boolean,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: Users.owns,
       hidden: true,
-    }
   },
-  {
-    fieldName: 'allPostsOpenSettings',
-    fieldSchema: {
+  allPostsOpenSettings: {
       type: Boolean,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canCreate: Users.owns,
       hidden: true,
-    }
   },
-  {
-    fieldName: 'lastNotificationsCheck',
-    fieldSchema: {
+  lastNotificationsCheck: {
       type: Date,
       optional: true,
       canRead: Users.owns,
       canUpdate: Users.owns,
       canCreate: Users.owns,
       hidden: true,
-    }
   },
-  {
-    fieldName: 'website',
-    fieldSchema: {
+  website: {
       regEx: null,
       order: 30,
-    }
   },
 
   // Bio (Markdown version)
-  {
-    fieldName: 'bio',
-    fieldSchema: {
+  bio: {
       type: String,
       optional: true,
       control: "MuiTextField",
@@ -298,33 +244,24 @@ Users.addField([
         multiLine:true,
         fullWidth:true,
       },
-    }
   },
 
   // Bio (Markdown version)
-  {
-    fieldName: 'htmlBio',
-    fieldSchema: {
+  htmlBio: {
       type: String,
       optional: true,
       canRead: ['guests'],
-    }
   },
 
   // Karma field
-  {
-    fieldName: 'karma',
-    fieldSchema: {
+  karma: {
       type: Number,
       optional: true,
       canRead: ['guests'],
-    }
   },
 
   // Website
-  {
-    fieldName: 'website',
-    fieldSchema: {
+  website: {
       type: String,
       hidden: true,
       optional: true,
@@ -333,12 +270,9 @@ Users.addField([
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canRead: ['guests'],
       order: 50,
-    }
   },
 
-  {
-    fieldName: 'moderationStyle',
-    fieldSchema: {
+  moderationStyle: {
       type: String,
       optional: true,
       control: "select",
@@ -359,12 +293,9 @@ Users.addField([
           ];
         }
       },
-    }
   },
 
-  {
-    fieldName: 'moderatorAssistance',
-    fieldSchema: {
+  moderatorAssistance: {
       type: Boolean,
       optional: true,
       group: formGroups.moderationGroup,
@@ -374,12 +305,9 @@ Users.addField([
       canCreate: ['members', 'sunshineRegiment', 'admins'],
       control: 'checkbox',
       order: 55,
-    }
   },
 
-  {
-    fieldName: 'collapseModerationGuidelines',
-    fieldSchema: {
+  collapseModerationGuidelines: {
       type: Boolean,
       optional: true,
       group: formGroups.moderationGroup,
@@ -389,21 +317,15 @@ Users.addField([
       canCreate: ['members', 'sunshineRegiment', 'admins'],
       control: 'checkbox',
       order: 56,
-    }
   },
 
-  {
-    fieldName: 'twitterUsername',
-    fieldSchema: {
+  twitterUsername: {
       hidden: true,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    }
   },
 
   // bannedUserIds: users who are not allowed to comment on this user's posts
-  {
-    fieldName: 'bannedUserIds',
-    fieldSchema: {
+  bannedUserIds: {
       type: Array,
       group: formGroups.moderationGroup,
       canRead: ['guests'],
@@ -412,21 +334,15 @@ Users.addField([
       optional: true,
       label: "Banned Users",
       control: 'UsersListEditor'
-    }
   },
-  {
-    fieldName: 'bannedUserIds.$',
-    fieldSchema: {
+  'bannedUserIds.$': {
       type: String,
       foreignKey: "Users",
       optional: true
-    }
   },
 
   // bannedPersonalUserIds: users who are not allowed to comment on this user's personal blog posts
-  {
-    fieldName: 'bannedPersonalUserIds',
-    fieldSchema: {
+  bannedPersonalUserIds: {
       type: Array,
       group: formGroups.moderationGroup,
       canRead: ['guests'],
@@ -435,34 +351,25 @@ Users.addField([
       optional: true,
       label: "Banned Users from Personal Blog Posts",
       control: 'UsersListEditor'
-    }
   },
-  {
-    fieldName: 'bannedPersonalUserIds.$',
-    fieldSchema: {
+  "bannedPersonalUserIds.$": {
       type: String,
       foreignKey: "Users",
       optional: true
-    }
   },
 
   // Legacy ID: ID used in the original LessWrong database
-  {
-    fieldName: 'legacyId',
-    fieldSchema: {
+  legacyId: {
       type: String,
       hidden: true,
       optional: true,
       canRead: ['guests'],
       canUpdate: ['admins'],
       canCreate: ['members'],
-    }
   },
 
   // Deleted: Boolean indicating whether user has been deleted (initially used in the LW database transfer )
-  {
-    fieldName: 'deleted',
-    fieldSchema: {
+  deleted: {
       type: Boolean,
       optional: true,
       defaultValue: false,
@@ -472,16 +379,13 @@ Users.addField([
       label: 'Delete this user',
       control: 'checkbox',
       hidden: true,
-    }
   },
 
   // legacyData: A complete dump of all the legacy data we have on this post in a
   // single blackbox object. Never queried on the client, but useful for a lot
   // of backend functionality, and simplifies the data import from the legacy
   // LessWrong database
-  {
-    fieldName: 'legacyData',
-    fieldSchema: {
+  legacyData: {
       type: Object,
       optional: true,
       canRead: ['admins'],
@@ -489,13 +393,10 @@ Users.addField([
       canUpdate: ['admins'],
       hidden: true,
       blackbox: true,
-    }
   },
 
   // voteBanned: All future votes of this user have weight 0
-  {
-    fieldName: 'voteBanned',
-    fieldSchema: {
+  voteBanned: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -504,13 +405,10 @@ Users.addField([
       control: 'checkbox',
       group: formGroups.banUser,
       label: 'Set all future votes of this user to have zero weight'
-    }
   },
 
   // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
-  {
-    fieldName: 'nullifyVotes',
-    fieldSchema: {
+  nullifyVotes: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -519,13 +417,10 @@ Users.addField([
       control: 'checkbox',
       group: formGroups.banUser,
       label: 'Nullify all past votes'
-    }
   },
 
   // deleteContent: Flag all comments and posts from this user as deleted
-  {
-    fieldName: 'deleteContent',
-    fieldSchema: {
+  deleteContent: {
       type: Boolean,
       optional: true,
       canRead: ['guests'],
@@ -534,13 +429,10 @@ Users.addField([
       control: 'checkbox',
       group: formGroups.banUser,
       label: 'Delete all user content'
-    }
   },
 
   // banned: Whether the user is banned or not. Can be set by moderators and admins.
-  {
-    fieldName: 'banned',
-    fieldSchema: {
+  banned: {
       type: Date,
       optional: true,
       canRead: ['guests'],
@@ -549,13 +441,10 @@ Users.addField([
       control: 'datetime',
       label: 'Ban user until',
       group: formGroups.banUser,
-    }
   },
 
   // IPDummy: All Ips that this user has ever logged in with
-  {
-    fieldName: 'IPs',
-    fieldSchema: {
+  IPs: {
       type: Array,
       optional: true,
       group: formGroups.banUser,
@@ -571,37 +460,25 @@ Users.addField([
         },
         addOriginalField: false,
       },
-    }
   },
 
-  {
-    fieldName: 'IPs.$',
-    fieldSchema: {
+  'IPs.$': {
       type: String,
       optional: true,
-    }
   },
 
   // New Notifications settings
-  {
-    fieldName: 'auto_subscribe_to_my_posts',
-    fieldSchema: {
+  auto_subscribe_to_my_posts: {
       group: formGroups.notifications,
       label: "Notifications for Comments on My Posts"
-    }
   },
-  {
-    fieldName: 'auto_subscribe_to_my_comments',
-    fieldSchema: {
+  auto_subscribe_to_my_comments: {
       group: formGroups.notifications,
       label: "Notifications For Replies to My Comments",
-    }
   },
   
   // Karma-change notifier settings
-  {
-    fieldName: 'karmaChangeNotifierSettings',
-    fieldSchema: {
+  karmaChangeNotifierSettings: {
       group: formGroups.notifications,
       type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.jsx
       optional: true,
@@ -610,41 +487,32 @@ Users.addField([
       canUpdate: [Users.owns, 'admins', 'sunshineRegiment'],
       canCreate: [Users.owns, 'admins', 'sunshineRegiment'],
       ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
-    },
   },
   
   // Time at which the karma-change notification was last opened (clicked)
-  {
-    fieldName: 'karmaChangeLastOpened',
-    fieldSchema: {
+  karmaChangeLastOpened: {
       hidden: true,
       type: Date,
       optional: true,
       canCreate: [Users.owns, 'admins'],
       canUpdate: [Users.owns, 'admins'],
       canRead: [Users.owns, 'admins'],
-    },
   },
   
   // If, the last time you opened the karma-change notifier, you saw more than
   // just the most recent batch (because there was a batch you hadn't viewed),
   // the start of the date range of that batch.
-  {
-    fieldName: 'karmaChangeBatchStart',
-    fieldSchema: {
+  karmaChangeBatchStart: {
       hidden: true,
       type: Date,
       optional: true,
       canCreate: [Users.owns, 'admins'],
       canUpdate: [Users.owns, 'admins'],
       canRead: [Users.owns, 'admins'],
-    },
   },
 
   // Email settings
-  {
-    fieldName: 'emailSubscribedToCurated',
-    fieldSchema: {
+  emailSubscribedToCurated: {
       type: Boolean,
       optional: true,
       group: formGroups.emails,
@@ -653,57 +521,42 @@ Users.addField([
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       canRead: ['members'],
-    }
   },
 
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
-  {
-    fieldName: 'displayName',
-    fieldSchema: {
+  displayName: {
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
-    }
   },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
-  {
-    fieldName: 'frontpagePostCount',
-    fieldSchema: {
+  frontpagePostCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
-    }
   },
 
   // sequenceCount: count of how many non-draft, non-deleted sequences you have
-  {
-    fieldName: 'sequenceCount',
-    fieldSchema: {
+  sequenceCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
-    }
   },
 
   // sequenceDraftCount: count of how many draft, non-deleted sequences you have
-  {
-    fieldName: 'sequenceDraftCount',
-    fieldSchema: {
+  sequenceDraftCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
       onInsert: (document, currentUser) => 0,
-    }
   },
 
-  {
-    fieldName: 'mongoLocation',
-    fieldSchema: {
+  mongoLocation: {
       type: Object,
       canRead: ['guests'],
       canCreate: ['members'],
@@ -711,12 +564,9 @@ Users.addField([
       hidden: true,
       blackbox: true,
       optional: true
-    }
   },
 
-  {
-    fieldName: 'googleLocation',
-    fieldSchema: {
+  googleLocation: {
       type: Object,
       canRead: ['guests'],
       canCreate: ['members'],
@@ -725,12 +575,9 @@ Users.addField([
       control: 'LocationFormComponent',
       blackbox: true,
       optional: true
-    }
   },
 
-  {
-    fieldName: 'location',
-    fieldSchema: {
+  location: {
       type: String,
       searchable: true,
       canRead: ['guests'],
@@ -738,12 +585,9 @@ Users.addField([
       canCreate: ['members'],
       hidden: true,
       optional: true
-    }
   },
 
-  {
-    fieldName: 'reviewedByUserId',
-    fieldSchema: {
+  reviewedByUserId: {
       type: String,
       foreignKey: "Users",
       optional: true,
@@ -759,12 +603,9 @@ Users.addField([
         ),
         addOriginalField: true
       },
-    }
   },
 
-  {
-    fieldName: 'allVotes',
-    fieldSchema: {
+  allVotes: {
       type: Array,
       optional: true,
       canRead: ['admins', 'sunshineRegiment'],
@@ -779,93 +620,66 @@ Users.addField([
           return Users.restrictViewableFields(currentUser, Votes, votes);
         },
       }
-    }
   },
 
-  {
-    fieldName: 'allVotes.$',
-    fieldSchema: {
+  'allVotes.$': {
       type: Object,
       optional: true
-    }
   },
 
-  {
-    fieldName: 'afKarma',
-    fieldSchema: {
+  afKarma: {
       type: Number,
       optional: true,
       label: "Alignment Base Score",
       defaultValue: false,
       canRead: ['guests'],
-    }
   },
 
-  {
-    fieldName: 'voteCount',
-    fieldSchema: {
+  voteCount: {
       type: Number,
       denormalized: true,
       optional: true,
       label: "Small Upvote Count",
       canRead: ['guests'],
-    }
   },
 
-  {
-    fieldName: 'smallUpvoteCount',
-    fieldSchema: {
+  smallUpvoteCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
-    }
   },
 
-  {
-    fieldName: 'smallDownvoteCount',
-    fieldSchema: {
+  smallDownvoteCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
-    }
   },
 
-  {
-    fieldName: 'bigUpvoteCount',
-    fieldSchema: {
+  bigUpvoteCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
-    }
   },
 
-  {
-    fieldName: 'bigDownvoteCount',
-    fieldSchema: {
+  bigDownvoteCount: {
       type: Number,
       denormalized: true,
       optional: true,
       canRead: ['guests'],
-    }
   },
 
   // Full Name field to display full name for alignment forum users
-  {
-    fieldName: 'fullName',
-    fieldSchema: {
+  fullName: {
       type: String,
       optional: true,
       canRead: ['guests'],
       canUpdate: [Users.owns, 'sunshineRegiment']
-    }
   },
 
-  {
-    fieldName: 'noCollapseCommentsPosts',
-    fieldSchema: {
+  noCollapseCommentsPosts: {
       order: 70,
       type: Boolean,
       optional: true,
@@ -875,12 +689,9 @@ Users.addField([
       canCreate: ['members'],
       control: 'checkbox',
       label: "Do not collapse comments (in large threads on Post Pages)"
-    }
   },
 
-  {
-    fieldName: 'noCollapseCommentsFrontpage',
-    fieldSchema: {
+  noCollapseCommentsFrontpage: {
       order: 70,
       type: Boolean,
       optional: true,
@@ -890,12 +701,9 @@ Users.addField([
       canCreate: ['members'],
       control: 'checkbox',
       label: "Do not collapse comments (on home page)"
-    }
   },
 
-  {
-    fieldName: "shortformFeedId",
-    fieldSchema: {
+  shortformFeedId: {
       type: String,
       optional: true,
       viewableBy: ['guests'],
@@ -910,12 +718,9 @@ Users.addField([
         ),
         addOriginalField: true
       },
-    }
   },
 
-  {
-    fieldName: "viewUnreviewedComments",
-    fieldSchema: {
+  viewUnreviewedComments: {
       type: Boolean,
       optional: true,
       viewableBy: ['guests'],
@@ -923,9 +728,8 @@ Users.addField([
       editableBy: ['admins', 'sunshineRegiment'],
       group: formGroups.adminOptions,
       order: 0,
-    }
   }
-]);
+});
 
 export const makeEditableOptionsModeration = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)

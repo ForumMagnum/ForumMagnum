@@ -1,4 +1,5 @@
 import Users from 'meteor/vulcan:users';
+import { addFieldsDict } from '../../modules/utils/schemaUtils'
 
 const notificationsGroup = {
   name: "notifications",
@@ -6,10 +7,8 @@ const notificationsGroup = {
 };
 
 // Add notifications options to user profile settings
-Users.addField([
-  {
-    fieldName: 'notifications_users',
-    fieldSchema: {
+addFieldsDict(Users, {
+  notifications_users: {
       label: 'New users',
       type: Boolean,
       optional: true,
@@ -19,11 +18,8 @@ Users.addField([
       canCreate: ['admins'],
       canUpdate: ['admins'],
       group: notificationsGroup,
-    }
   },
-  {
-    fieldName: 'notifications_posts',
-    fieldSchema: {
+  notifications_posts: {
       label: 'New posts',
       type: Boolean,
       optional: true,
@@ -33,14 +29,8 @@ Users.addField([
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       group: notificationsGroup,
-    }
-  }
-]);
-
-Users.addField([
-  {
-    fieldName: 'auto_subscribe_to_my_posts',
-    fieldSchema: {
+  },
+  auto_subscribe_to_my_posts: {
       label: 'Comments on my posts',
       type: Boolean,
       optional: true,
@@ -50,11 +40,8 @@ Users.addField([
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       group: notificationsGroup,
-    }
   },
-  {
-    fieldName: 'auto_subscribe_to_my_comments',
-    fieldSchema: {
+  auto_subscribe_to_my_comments: {
       label: 'Replies to my comments',
       type: Boolean,
       optional: true,
@@ -64,6 +51,5 @@ Users.addField([
       canCreate: ['members'],
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
       group: notificationsGroup,
-    }
   }
-]);
+});

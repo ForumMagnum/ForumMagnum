@@ -3,6 +3,7 @@ import { htmlToDraft } from '../../editor/utils';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtml, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
+import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import htmlToText from 'html-to-text'
 
@@ -47,40 +48,29 @@ export function dataToDraftJS(data, type) {
   }
 }
 
-Revisions.addField([
-  {
-    fieldName: 'markdown',
-    fieldSchema: {
+addFieldsDict(Revisions, {
+  markdown: {
       type: String,
       resolveAs: {
         type: 'String',
         resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
       }
-    }
   },
-  {
-    fieldName: 'draftJS',
-    fieldSchema: {
+  draftJS: {
       type: Object,
       resolveAs: {
         type: 'JSON',
         resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
       }
-    }
   },
-  {
-    fieldName: 'htmlHighlight',
-    fieldSchema: {
+  htmlHighlight: {
       type: String,
       resolveAs: {
         type: 'String',
         resolver: ({html}) => highlightFromHTML(html)
       }
-    }
   },
-  {
-    fieldName: 'plaintextDescription',
-    fieldSchema: {
+  plaintextDescription: {
       type: String,
       resolveAs: {
         type: 'String',
@@ -88,6 +78,5 @@ Revisions.addField([
                               .fromString(html)
                               .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
-    }
   }
-])
+})
