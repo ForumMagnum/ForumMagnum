@@ -228,7 +228,6 @@ class PostsItem2 extends PureComponent {
 PostsItem2.propTypes = {
   currentUser: PropTypes.object,
   post: PropTypes.object.isRequired,
-  terms: PropTypes.object,
   postsViewed: PropTypes.array,
   setViewed: PropTypes.func,
   increasePostViewCount: PropTypes.func,
