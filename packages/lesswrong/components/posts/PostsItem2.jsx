@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMutation, getActions } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
@@ -8,6 +8,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
+import { connect } from 'react-redux';
+import withNewEvents from '../../lib/events/withNewEvents.jsx';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 
 const styles = (theme) => ({
   postsItem: {
@@ -113,20 +117,58 @@ const styles = (theme) => ({
 class PostsItem2 extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = { showComments: false}
+    this.state = { showComments: false, readComments: false}
     this.postsItemRef = React.createRef();
   }
 
   toggleComments = () => {
+    this.handleMarkAsRead()
     this.setState((prevState) => {
       this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
-      return ({showComments:!prevState.showComments})
+      return ({
+        showComments:!prevState.showComments,
+        readComments: true
+      })
     })
+  }
+
+  async handleMarkAsRead () {
+    const {
+      // from the parent component, used in withDocument, GraphQL HOC
+      // from connect, Redux HOC
+      setViewed,
+      postsViewed,
+      post,
+      // from withMutation, GraphQL HOC
+      increasePostViewCount,
+    } = this.props;
+    // a post id has been found & it's has not been seen yet on this client session
+    if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
+
+      // trigger the asynchronous mutation with postId as an argument
+      await increasePostViewCount({postId: post._id});
+
+      // once the mutation is done, update the redux store
+      setViewed(post._id);
+    }
+
+    //LESSWRONG: register page-visit event
+    if (this.props.currentUser) {
+      const eventProperties = {
+        userId: this.props.currentUser._id,
+        important: false,
+        intercom: true,
+      };
+
+      eventProperties.documentId = post._id;
+      eventProperties.postTitle = post.title;
+      this.props.registerEvent('post-view', eventProperties)
+    }
   }
 
   render() {
     const { classes, post, chapter, currentUser, index } = this.props
-    const { showComments } = this.state
+    const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
@@ -166,7 +208,7 @@ class PostsItem2 extends PureComponent {
           {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
           {post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
 
-          <PostsItemComments post={post} onClick={this.toggleComments}/>
+          <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
 
           {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
             <Components.PostsItemNewCommentsWrapper
@@ -183,4 +225,29 @@ class PostsItem2 extends PureComponent {
   }
 }
 
-registerComponent('PostsItem2', PostsItem2, withStyles(styles, { name: 'PostsItem2'}), withErrorBoundary, withUser);
+PostsItem2.propTypes = {
+  currentUser: PropTypes.object,
+  post: PropTypes.object.isRequired,
+  postsViewed: PropTypes.array,
+  setViewed: PropTypes.func,
+  increasePostViewCount: PropTypes.func,
+};
+
+const mutationOptions = {
+  name: 'increasePostViewCount',
+  args: {postId: 'String'},
+};
+
+const mapStateToProps = state => ({ postsViewed: state.postsViewed });
+const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
+
+registerComponent(
+  'PostsItem2',
+  PostsItem2,
+  withMutation(mutationOptions),
+  withNewEvents,
+  connect(mapStateToProps, mapDispatchToProps),
+  withStyles(styles, { name: "PostsItem2" }),
+  withErrorBoundary,
+  withUser
+);
