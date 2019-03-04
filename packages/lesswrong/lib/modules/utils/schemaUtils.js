@@ -34,10 +34,12 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
 }
 
 export const addFieldsDict = (collection, fieldsDict) => {
+  let translatedFields = [];
   for (let key in fieldsDict) {
-    collection.addField({
+    translatedFields.push({
       fieldName: key,
       fieldSchema: fieldsDict[key]
     });
   }
+  collection.addField(translatedFields);
 }
