@@ -1,24 +1,18 @@
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
-// import Revisions from './collection'
 
 export const ContentType = new SimpleSchema({
   type: String,
   data: SimpleSchema.oneOf(
-    String, 
+    String,
     {
-      type: Object, 
+      type: Object,
       blackbox: true
     }
   )
 })
 
 SimpleSchema.extendOptions([ 'inputType' ]);
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
 
 const schema = {
   _id: {

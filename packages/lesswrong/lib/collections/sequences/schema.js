@@ -15,9 +15,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   userId: {
@@ -102,7 +100,6 @@ const schema = {
   },
 
   //Cloudinary image id for the grid Image
-
   gridImageId: {
     type: String,
     optional: true,
@@ -115,7 +112,6 @@ const schema = {
   },
 
   //Cloudinary image id for the banner image (high resolution)
-
   bannerImageId: {
     type: String,
     optional: true,

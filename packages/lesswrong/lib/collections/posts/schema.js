@@ -1,9 +1,3 @@
-/*
-
-Posts schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
@@ -13,10 +7,6 @@ import { schemaDefaultValue } from '../../collectionUtils';
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
 
-/**
- * @summary Posts config namespace
- * @type {Object}
- */
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
   adminOptions: {
@@ -27,33 +17,21 @@ const formGroups = {
   },
 };
 
-/**
- * @summary Posts schema
- * @type {Object}
- */
 const schema = {
-  /**
-    ID
-  */
+  // ID
   _id: {
     type: String,
     optional: true,
     viewableBy: ['guests'],
   },
-  /**
-    Timetstamp of post creation
-  */
+  // Timestamp of post creation
   createdAt: {
     type: Date,
     optional: true,
     viewableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
-    }
+    onInsert: () => new Date(),
   },
-  /**
-    Timestamp of post first appearing on the site (i.e. being approved)
-  */
+  // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
     optional: true,
@@ -75,9 +53,7 @@ const schema = {
       }
     }
   },
-  /**
-    URL
-  */
+  // URL
   url: {
     type: String,
     optional: true,
@@ -95,9 +71,7 @@ const schema = {
       }
     `,
   },
-  /**
-    Title
-  */
+  // Title
   title: {
     type: String,
     optional: false,
@@ -109,9 +83,7 @@ const schema = {
     order: 20,
     searchable: true
   },
-  /**
-    Slug
-  */
+  // Slug
   slug: {
     type: String,
     optional: true,
@@ -125,36 +97,28 @@ const schema = {
       }
     }
   },
-  /**
-   Post Excerpt
-   */
+  // Post Excerpt
   excerpt: {
     type: String,
     optional: true,
     viewableBy: ['guests'],
     searchable: true,
   },
-  /**
-    Count of how many times the post's page was viewed
-  */
+  // Count of how many times the post's page was viewed
   viewCount: {
     type: Number,
     optional: true,
     viewableBy: ['admins'],
     defaultValue: 0
   },
-  /**
-    Timestamp of the last comment
-  */
+  // Timestamp of the last comment
   lastCommentedAt: {
     type: Date,
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
   },
-  /**
-    Count of how many times the post's link was clicked
-  */
+  // Count of how many times the post's link was clicked
   clickCount: {
     type: Number,
     optional: true,
@@ -171,9 +135,7 @@ const schema = {
     hidden: true,
   },
 
-  /**
-    The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
-  */
+  // The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   status: {
     type: Number,
     optional: true,
@@ -195,9 +157,7 @@ const schema = {
     options: () => getCollection('Posts').statuses,
     group: formGroups.adminOptions
   },
-  /**
-    Whether a post is scheduled in the future or not
-  */
+  // Whether a post is scheduled in the future or not
   isFuture: {
     type: Boolean,
     optional: true,
@@ -227,9 +187,7 @@ const schema = {
       }
     }
   },
-  /**
-    Whether the post is sticky (pinned to the top of posts lists)
-  */
+  // Whether the post is sticky (pinned to the top of posts lists)
   sticky: {
     type: Boolean,
     optional: true,
@@ -250,9 +208,7 @@ const schema = {
       }
     }
   },
-  /**
-    Save info for later spam checking on a post. We will use this for the akismet package
-  */
+  // Save info for later spam checking on a post. We will use this for the akismet package
   userIP: {
     type: String,
     optional: true,
@@ -268,9 +224,7 @@ const schema = {
     optional: true,
     viewableBy: ['admins'],
   },
-  /**
-    The post author's name
-  */
+  // The post author's name
   author: {
     type: String,
     denormalized: true,
@@ -283,9 +237,7 @@ const schema = {
       }
     }
   },
-  /**
-    The post author's `_id`.
-  */
+  // The post author's `_id`.
   userId: {
     type: String,
     foreignKey: 'Users',
@@ -304,9 +256,7 @@ const schema = {
     },
   },
 
-  /**
-    Used to keep track of when a post has been included in a newsletter
-  */
+  // Used to keep track of when a post has been included in a newsletter
   scheduledAt: {
     type: Date,
     optional: true,

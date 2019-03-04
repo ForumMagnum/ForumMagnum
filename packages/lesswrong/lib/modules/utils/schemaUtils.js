@@ -16,7 +16,6 @@ export const generateIdResolverSingle = ({collectionName, fieldName}) => {
   }
 }
 
-
 export const generateIdResolverMulti = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
     if (!doc[fieldName]) return []
@@ -32,4 +31,19 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
 
     return restrictedDocs
   }
+}
+
+// Given a collection and a fieldName=>fieldSchema dictionary, add fields to
+// the collection schema. We use this instead of collection.addField([...])
+// because that one forces an awkward syntax in order to be array-based instead
+// of object-based.
+export const addFieldsDict = (collection, fieldsDict) => {
+  let translatedFields = [];
+  for (let key in fieldsDict) {
+    translatedFields.push({
+      fieldName: key,
+      fieldSchema: fieldsDict[key]
+    });
+  }
+  collection.addField(translatedFields);
 }

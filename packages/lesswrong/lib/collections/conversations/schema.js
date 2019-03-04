@@ -1,12 +1,5 @@
 import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
-
 const schema = {
   _id: {
     optional: true,
@@ -17,9 +10,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['members'],
-    onInsert: (document) => {
-      return new Date();
-    }
+    onInsert: (document) => new Date(),
   },
   title: {
     type: String,

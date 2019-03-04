@@ -20,9 +20,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   // Custom Properties
@@ -48,18 +46,6 @@ const schema = {
     order: 20,
     group: formGroups.chapterDetails
   },
-
-  // plaintextDescription: {
-  //   type: String,
-  //   optional: true,
-  //   viewableBy: ['guests'],
-  // },
-
-  // htmlDescription: {
-  //   type: String,
-  //   optional: true,
-  //   viewableBy: ['guests'],
-  // },
 
   number: {
     type: Number,

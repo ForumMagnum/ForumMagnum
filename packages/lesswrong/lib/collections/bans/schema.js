@@ -1,12 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
-/*
 
-A SimpleSchema-compatible JSON schema
-
-*/
-
-//define schema
 const schema = {
   _id: {
     optional: true,
@@ -17,9 +11,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
     searchable: true,
   },
   expirationDate: {

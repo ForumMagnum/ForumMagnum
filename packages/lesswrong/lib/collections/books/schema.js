@@ -14,19 +14,16 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   postedAt: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
+  
   // Custom Properties
 
   title: {
@@ -61,8 +58,6 @@ const schema = {
     editableBy: ['admins'],
     insertableBy: ['admins'],
   },
-
-  //TODO: Make resolvers more efficient by running `find` query instead of `findOne` query
 
   postIds: {
     type: Array,
