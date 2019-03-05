@@ -37,6 +37,7 @@ import './server/migrations';
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
+import './server/mapsUtils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
@@ -66,6 +67,7 @@ import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
+import './lib/collections/posts/resolvers.js';
 
 import './lib/events/server.js';
 
