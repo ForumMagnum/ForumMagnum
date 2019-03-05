@@ -195,6 +195,7 @@ addFieldsDict(Users, {
   allPostsView: {
     type: String,
     optional: true,
+    hidden: true,
     canRead: Users.owns,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: Users.owns,
