@@ -56,14 +56,17 @@ export function extractTableOfContents(postHTML, alwaysDisplayToC)
     }
 
     let title = cheerio(tag).text();
-    let anchor = titleToAnchor(title, usedAnchors);
-    usedAnchors[anchor] = true;
-    cheerio(tag).attr("id", anchor);
-    headings.push({
-      title: title,
-      anchor: anchor,
-      level: tagToHeadingLevel(tag.tagName),
-    });
+    
+    if (title && title.trim()!=="") {
+      let anchor = titleToAnchor(title, usedAnchors);
+      usedAnchors[anchor] = true;
+      cheerio(tag).attr("id", anchor);
+      headings.push({
+        title: title,
+        anchor: anchor,
+        level: tagToHeadingLevel(tag.tagName),
+      });
+    }
   }
 
   if ((headings.length < minHeadingsForToC) && !alwaysDisplayToC) {
