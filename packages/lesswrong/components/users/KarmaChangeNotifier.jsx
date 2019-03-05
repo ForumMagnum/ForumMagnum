@@ -70,7 +70,6 @@ const styles = theme => ({
   zeroPoints: {
   },
   lostPoints: {
-    color: theme.palette.error.main,
   },
   settings: {
     display: 'block',
