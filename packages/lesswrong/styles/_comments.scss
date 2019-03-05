@@ -198,6 +198,9 @@ $small-font: 1.1rem;
   }
   @include max-tiny() {
     margin:0px;
+    .comments-item {
+      padding:0px 7px;
+    }
   }
 }
 
