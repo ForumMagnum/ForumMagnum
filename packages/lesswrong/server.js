@@ -10,6 +10,7 @@ import './server/database-import/cleanup_scripts.js';
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
+import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
@@ -39,7 +40,6 @@ import './server/editor/utils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
-import './server/serverCallbacks.js';
 import './server/logging.js';
 import './server/rss.js';
 import './server/akismet.js';
@@ -47,10 +47,13 @@ import './server/votingCron.js';
 import './server/votingGraphQL.js';
 import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
+import './server/callbacks.js';
+import './server/voteServer.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
 import './lib/collections/posts/callbacks.js';
+import './lib/collections/posts/validate.js';
 import './lib/collections/chapters/callbacks.js';
 import './lib/collections/sequences/callbacks.js';
 import './lib/collections/books/callbacks.js';
@@ -72,6 +75,7 @@ import './lib/modules/connection_logs.js';
 // Algolia Search Integration
 import './server/search/utils.js';
 import './server/search/callbacks.js';
+import './server/search/algoliaCron.js';
 
 //eslint-disable-next-line no-console
 console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));

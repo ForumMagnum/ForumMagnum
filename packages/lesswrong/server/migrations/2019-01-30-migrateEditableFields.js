@@ -117,7 +117,7 @@ registerMigration({
                     document: {
                       ...contentFields,
                       documentId: doc._id,
-                      fieldName: [newFieldName],
+                      fieldName: newFieldName,
                       schemaVersion: TARGET_SCHEMA_VERSION
                     }
                   }

@@ -8,7 +8,7 @@ import Localgroups from '../lib/collections/localgroups/collection.js';
 import { Bans } from '../lib/collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Votes } from '../lib/collections/votes';
-import { cancelVoteServer } from '../lib/modules/vote.js';
+import { cancelVoteServer } from './voteServer.js';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { renderAndSendEmail, reasonUserCantReceiveEmails } from './emails/renderEmail.js';
@@ -379,7 +379,7 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   votes.forEach((vote) => {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    reverseVote(vote, collection);
+    reverseVote(vote);
   });
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
@@ -422,6 +422,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -464,6 +465,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -507,7 +509,7 @@ async function userIPBan(user) {
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.user.data.IPs.forEach(ip => {
+    IPs.data.user.result.IPs.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {

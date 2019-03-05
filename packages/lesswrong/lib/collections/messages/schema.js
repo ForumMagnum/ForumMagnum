@@ -1,10 +1,4 @@
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 
 const schema = {
@@ -32,9 +26,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['members'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
   },
   conversationId: {
     type: String,

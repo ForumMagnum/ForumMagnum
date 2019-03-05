@@ -5,7 +5,6 @@ Wrapper for the Inbox components
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 

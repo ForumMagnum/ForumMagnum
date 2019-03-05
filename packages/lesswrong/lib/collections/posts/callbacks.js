@@ -1,7 +1,7 @@
 import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
-import { performVoteServer } from '../../modules/vote.js';
+import { performVoteServer } from '../../../server/voteServer.js';
 import Localgroups from '../localgroups/collection.js';
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'

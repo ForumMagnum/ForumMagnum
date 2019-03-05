@@ -1,11 +1,5 @@
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
 const schema = {
   _id: {
     type: String,
@@ -33,9 +27,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['guests'],
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
   },
   ownedByUser: {
     type: Boolean,

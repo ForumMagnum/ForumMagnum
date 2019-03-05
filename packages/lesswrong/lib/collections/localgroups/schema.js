@@ -1,10 +1,4 @@
 import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
-
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
 import { localGroupTypeFormOptions } from './groupTypes';
 
 const schema = {
@@ -17,9 +11,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: ['guests'],
-    onInsert: (document) => {
-      return new Date();
-    }
+    onInsert: (document) => new Date(),
   },
 
 

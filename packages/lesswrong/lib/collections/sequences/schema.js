@@ -1,4 +1,3 @@
-import { Components } from 'meteor/vulcan:core';
 import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
@@ -16,9 +15,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   userId: {
@@ -103,7 +100,6 @@ const schema = {
   },
 
   //Cloudinary image id for the grid Image
-
   gridImageId: {
     type: String,
     optional: true,
@@ -116,7 +112,6 @@ const schema = {
   },
 
   //Cloudinary image id for the banner image (high resolution)
-
   bannerImageId: {
     type: String,
     optional: true,
@@ -154,12 +149,6 @@ const schema = {
     hidden: true,
     control: "checkbox",
     ...schemaDefaultValue(false),
-  },
-
-  algoliaIndexAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
   },
 
   canonicalCollectionSlug: {

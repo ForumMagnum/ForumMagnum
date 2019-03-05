@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
 import { withRouter } from 'react-router';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import { withStyles } from '@material-ui/core/styles';

@@ -1,6 +1,5 @@
 import {
   Components,
-  getRawComponent,
   withDocument,
   registerComponent,
   getActions,

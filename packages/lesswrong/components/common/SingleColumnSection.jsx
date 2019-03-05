@@ -6,7 +6,7 @@ const styles = (theme) => ({
   root: {
     marginLeft: "auto",
     marginRight: "auto",
-    maxWidth:685,
+    maxWidth: 730,
   }
 })
 

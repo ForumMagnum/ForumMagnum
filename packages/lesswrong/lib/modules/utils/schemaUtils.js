@@ -16,7 +16,6 @@ export const generateIdResolverSingle = ({collectionName, fieldName}) => {
   }
 }
 
-
 export const generateIdResolverMulti = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
     if (!doc[fieldName]) return []
@@ -26,9 +25,25 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
     const { checkAccess } = collection
 
     const resolvedDocs = await collection.loader.loadMany(doc[fieldName])
-    const filteredDocs = checkAccess ? _.filter(resolvedDocs, d => checkAccess(currentUser, d)) : resolvedDocs
+    const existingDocs = _.filter(resolvedDocs, d=>!!d);
+    const filteredDocs = checkAccess ? _.filter(existingDocs, d => checkAccess(currentUser, d)) : resolvedDocs
     const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
 
     return restrictedDocs
   }
+}
+
+// Given a collection and a fieldName=>fieldSchema dictionary, add fields to
+// the collection schema. We use this instead of collection.addField([...])
+// because that one forces an awkward syntax in order to be array-based instead
+// of object-based.
+export const addFieldsDict = (collection, fieldsDict) => {
+  let translatedFields = [];
+  for (let key in fieldsDict) {
+    translatedFields.push({
+      fieldName: key,
+      fieldSchema: fieldsDict[key]
+    });
+  }
+  collection.addField(translatedFields);
 }

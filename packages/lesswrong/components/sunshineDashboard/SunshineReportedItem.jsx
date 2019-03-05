@@ -72,7 +72,7 @@ class SunshineReportedItem extends Component {
             <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
               <Typography variant="body2">
                 <Link to={Posts.getPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
-                  Post: <strong>{ post.title }</strong>
+                  Post: <strong>{ post && post.title }</strong>
                 </Link>
                 {comment && <div>
                   <MetaInfo>Comment:</MetaInfo>

@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
+import React from 'react';
+import { registerComponent } from 'meteor/vulcan:core';
 import { Pagination } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 

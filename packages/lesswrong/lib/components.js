@@ -47,7 +47,6 @@ import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
-import '../components/common/Logo.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 
@@ -73,6 +72,8 @@ import '../components/users/KarmaChangeNotifier.jsx';
 import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
 
+import '../components/icons/OmegaIcon.jsx';
+
 // posts
 
 import '../components/posts/PostsEdit.jsx';
@@ -92,11 +93,17 @@ import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
-import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemMeta.jsx';
+import '../components/posts/PostsItem.jsx'; 
+import '../components/posts/PostsItem2.jsx'; 
 import '../components/posts/PostsItemTitle.jsx';
+import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
+import '../components/posts/PostsItemKarma.jsx'; 
+import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
+import '../components/posts/PostsItemCuratedIcon.jsx';
+import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/HomePostsViews.jsx';
@@ -105,6 +112,7 @@ import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
+import '../components/posts/PostsList2.jsx'; // Should replace PostsList eventually
 import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsDay.jsx';
 import '../components/posts/EventsPast.jsx';
@@ -182,7 +190,6 @@ import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
-import '../components/icons/OmegaIcon.jsx';
 
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';
@@ -269,7 +276,6 @@ import '../components/collections/BigCollectionsCard.jsx';
 import '../components/sequences/CoreSequences.jsx';
 import '../components/sequences/HPMOR.jsx';
 import '../components/sequences/Codex.jsx';
-import '../components/sequences/ComingSoon.jsx';
 import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';

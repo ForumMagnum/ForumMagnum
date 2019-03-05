@@ -16,9 +16,7 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   userId: {
@@ -54,10 +52,7 @@ const schema = {
     insertableBy: ['admins'],
   },
 
-  /*
-    Dummy field that resolves to the array of books that belong to a sequence
-  */
-
+  // Dummy field that resolves to the array of books that belong to a sequence
   books: {
     type: Array,
     optional: true,
