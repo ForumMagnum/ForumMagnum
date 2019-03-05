@@ -32,7 +32,7 @@ class PostsDay extends PureComponent {
     const { PostsItem2 } = Components
 
     return (
-      <div className={classNames("posts-day", classes.root)}>
+      <div className={classes.root}>
         <Typography variant="body2" className={classes.dayTitle}>
           <Hidden xsDown implementation="css">
             {date.format('dddd, MMMM Do YYYY')}
