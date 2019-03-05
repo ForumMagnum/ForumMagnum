@@ -331,7 +331,7 @@ Posts.addView("drafts", terms => {
       deletedDraft: false,
       hideAuthor: false,
       unlisted: null,
-      groupId: null,
+      groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
     },
     options: {
       sort: {createdAt: -1}
