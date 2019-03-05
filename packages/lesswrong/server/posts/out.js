@@ -1,5 +1,4 @@
 import { runCallbacksAsync } from 'meteor/vulcan:core';
-import escapeStringRegexp from 'escape-string-regexp';
 import { Picker } from 'meteor/meteorhacks:picker';
 import { Posts } from '../../lib/collections/posts';
 
