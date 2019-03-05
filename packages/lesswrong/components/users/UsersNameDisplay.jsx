@@ -36,8 +36,8 @@ const UsersNameDisplay = ({user, classes}) => {
 
   const tooltip = <div>
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
-    { postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
-    { commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
+    { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
+    { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </div>
 
