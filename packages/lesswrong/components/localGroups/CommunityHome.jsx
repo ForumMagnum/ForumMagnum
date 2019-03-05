@@ -2,7 +2,6 @@ import {
   Components,
   registerComponent,
   withMessages,
-  withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
