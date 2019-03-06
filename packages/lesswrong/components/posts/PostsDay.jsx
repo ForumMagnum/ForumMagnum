@@ -4,7 +4,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
