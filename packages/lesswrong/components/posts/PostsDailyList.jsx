@@ -6,10 +6,15 @@ import { Posts } from '../../lib/collections/posts';
 import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
   loading: {
     opacity: .4,
+  },
+  loadMore: {
+    ...theme.typography.postStyle,
+    color: theme.palette.primary.main
   }
 })
 
@@ -140,7 +145,13 @@ class PostsDailyList extends PureComponent {
               currentUser={currentUser}
             />
           )}
-          {loadingMore ? <Loading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
+          {loadingMore ? 
+            <Loading /> 
+            : 
+            <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
+              <a><FormattedMessage id="posts.load_more_days"/></a>
+            </Typography>
+          }
         </div>
       )
     }
