@@ -9,6 +9,18 @@ const styles = theme => ({
   root: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*3
+
+      // .posts-load-more{
+      //   border: none;
+      //   padding: 0;
+      //   .posts-load-more-link{
+      //     &:hover{
+      //       text-decoration: none !important;
+      //       background: inherit;
+      //       color: rgba(100, 169, 105, 0.9);
+      //     }
+      //   }
+      // }
   },
   dayTitle: {
     marginBottom: theme.spacing.unit*2,

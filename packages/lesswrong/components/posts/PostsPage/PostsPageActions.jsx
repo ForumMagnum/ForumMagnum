@@ -5,6 +5,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Popover from '@material-ui/core/Popover';
 import MenuItem from '@material-ui/core/MenuItem';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { Posts } from '../../../lib/collections/posts';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
@@ -39,15 +40,15 @@ class PostsPageActions extends PureComponent {
   }
 
   render() {
-    const { classes, post, currentUser, vertical } = this.props 
+    const { classes, post, currentUser, vertical } = this.props
     const { anchorEl } = this.state 
     const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-  
+
     if (!showPostActions(currentUser, post)) return null
 
     return (
       <span>
-        <Icon className={classes.icon} onClick={this.handleClick}/> 
+        <Icon className={classes.icon} onClick={this.handleClick}/>
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
