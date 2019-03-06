@@ -42,6 +42,10 @@ const styles = (theme) => ({
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     alignItems: "center",
     flexWrap: "wrap",
+    width: SECTION_WIDTH - LIST_PADDING,
+    [theme.breakpoints.down('sm')]: {
+      width: "unset"
+    }
   },
   background: {
     transition: "3s",
@@ -85,15 +89,17 @@ const styles = (theme) => ({
     }
   },
   eventTitle: {
-    maxWidth: EVENT_TITLE_WIDTH
+    maxWidth: EVENT_TITLE_WIDTH,
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: "unset",
+    }
   },
   authorOrEvent: {
     width: AUTHOR_OR_EVENT_WIDTH,
     justifyContent: "flex-end",
-    textAlign: "right",
-    marginLeft: "auto",
     flex: 1,
     overflow: "hidden",
+    whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     [theme.breakpoints.down('sm')]: {
