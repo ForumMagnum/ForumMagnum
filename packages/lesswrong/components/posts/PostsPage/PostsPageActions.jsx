@@ -3,7 +3,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import withState from 'recompose/withState';
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
