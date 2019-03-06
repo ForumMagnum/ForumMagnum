@@ -237,6 +237,7 @@ import '../components/sunshineDashboard/SidebarActionMenu.jsx';
 import '../components/sunshineDashboard/SidebarAction.jsx';
 import '../components/sunshineDashboard/SunshineListCount.jsx';
 import '../components/sunshineDashboard/LastCuratedDate';
+import '../components/sunshineDashboard/EmailHistory.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

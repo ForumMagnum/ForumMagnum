@@ -7,11 +7,12 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting, newMutation } from 'meteor/vulcan:core';
 import { UserContext } from '../../components/common/withUser';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
+import LWEvents from '../../lib/collections/lwevents/collection'
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
@@ -86,9 +87,9 @@ function addEmailBoilerplate({ css, title, body })
     <html lang="en">
     <head>
       <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8"/>
-      {/* So that mobile webkit will display zoomed in */}
+      <!-- So that mobile webkit will display zoomed in -->
       <meta name="viewport" content="initial-scale=1.0"/>
-      {/* disable auto telephone linking in iOS */}
+      <!-- disable auto telephone linking in iOS -->
       <meta name="format-detection" content="telephone=no"/>
    
       <title>${title}</title>
@@ -226,6 +227,24 @@ export async function renderAndSendEmail(emailProps)
 {
   const renderedEmail = await generateEmail(emailProps);
   sendEmail(renderedEmail);
+  
+  // Replace user (object reference) in renderedEmail so we can log it in LWEvents
+  const emailJson = {
+    ...renderedEmail,
+    user: emailProps.user._id,
+  };
+  // Log in LWEvents table
+  newMutation({
+    collection: LWEvents,
+    currentUser: emailProps.user,
+    document: {
+      userId: emailProps.user._id,
+      name: "emailSent",
+      properties: emailJson,
+      intercom: false,
+    },
+    validate: false,
+  })
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or

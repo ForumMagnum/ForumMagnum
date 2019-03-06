@@ -53,6 +53,9 @@ const withDocumentOptions = {
   queryName: "postsSingleQuery",
   fragmentName: "PostsRevision",
   ssr: true,
+  extraVariables: {
+    version: 'String'
+  }
 };
 
 registerComponent("NewPostEmail", NewPostEmail,
