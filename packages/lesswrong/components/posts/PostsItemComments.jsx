@@ -7,10 +7,6 @@ import { Posts } from "../../lib/collections/posts";
 
 const styles = (theme) => ({
   root: {
-    width: 48,
-    cursor: "pointer",
-    position: "relative",
-    flexShrink: 0,
   },
   commentCount: {
     position:"absolute",

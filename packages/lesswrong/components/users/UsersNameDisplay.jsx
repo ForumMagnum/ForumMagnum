@@ -10,6 +10,9 @@ import MessageIcon from '@material-ui/icons/Message';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  userName: {
+    whiteSpace: "nowrap"
+  },
   joined: {
     fontStyle: "italic", 
     marginBottom: theme.spacing.unit
@@ -42,7 +45,7 @@ const UsersNameDisplay = ({user, classes}) => {
   </div>
 
   return <Tooltip title={tooltip}>
-    <Link to={Users.getProfileUrl(user)}>
+    <Link to={Users.getProfileUrl(user)} className={classes.userName}>
       {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
     </Link>
   </Tooltip>

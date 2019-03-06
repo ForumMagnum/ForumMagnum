@@ -9,6 +9,18 @@ const styles = theme => ({
   root: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*3
+
+      // .posts-load-more{
+      //   border: none;
+      //   padding: 0;
+      //   .posts-load-more-link{
+      //     &:hover{
+      //       text-decoration: none !important;
+      //       background: inherit;
+      //       color: rgba(100, 169, 105, 0.9);
+      //     }
+      //   }
+      // }
   },
   dayTitle: {
     marginBottom: theme.spacing.unit*2,
@@ -32,7 +44,7 @@ class PostsDay extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <Typography variant="body2" className={classes.dayTitle}>
+        <Typography variant="headline" className={classes.dayTitle}>
           <Hidden xsDown implementation="css">
             {date.format('dddd, MMMM Do YYYY')}
           </Hidden>
@@ -41,10 +53,8 @@ class PostsDay extends PureComponent {
           </Hidden>
         </Typography>
         { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-          <div className="posts-list">
-            <div className="posts-list-content">
+          <div>
               {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-            </div>
           </div>
         }
       </div>
