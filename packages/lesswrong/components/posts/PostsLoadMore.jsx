@@ -2,6 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   link: {
@@ -10,21 +11,23 @@ const styles = theme => ({
 })
 
 
-const PostsLoadMore = ({loading, loadMore, count, totalCount, classes}) => {
+const PostsLoadMore = ({loading, loadMore, count, totalCount, classes, showLoading=true}) => {
   const handleClickLoadMore = event => {
     event.preventDefault();
     loadMore();
   }
   return (
     <div className={classNames('posts-load-more', {'posts-load-more-loading': loading})}>
-      {!loading && <a className={classNames("posts-load-more-link", classes.link)}
-        href="#"
-        onClick={handleClickLoadMore}>
-        Load More...
-        &nbsp;
-        {totalCount ? <span className="load-more-count">{`(${count}/${totalCount})`}</span> : null}
-      </a>}
-      {loading ? <div className="posts-load-more-loader"><Components.Loading/></div> : null}
+      {!loading && <Typography variant="body2">
+        <a className={classNames("posts-load-more-link", classes.link)}
+          href="#"
+          onClick={handleClickLoadMore}>
+          Load More...
+          &nbsp;
+          {totalCount ? <span className="load-more-count">{`(${count}/${totalCount})`}</span> : null}
+        </a>
+      </Typography>}
+      {(loading && showLoading) ? <div className="posts-load-more-loader"><Components.Loading/></div> : null}
     </div>
   )
 }
