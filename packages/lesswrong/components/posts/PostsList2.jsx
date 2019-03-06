@@ -17,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, currentUser, dimWhenLoading, error, classes, terms, showLoadMore = true, showNoResults = true}) => {
+const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, currentUser, dimWhenLoading, error, classes, terms, showLoadMore = true, showNoResults = true, showLoading = true}) => {
 
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
@@ -41,10 +41,10 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   return (
     <div className={classNames({[classes.loading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
-      {loading && dimWhenLoading && <Loading />}
+      {loading && showLoading && dimWhenLoading && <Loading />}
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
-      {loading && !dimWhenLoading && <Loading />}
-      {showLoadMore && <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount}/>}
+      {loading && showLoading && !dimWhenLoading && <Loading />}
+      {(showLoadMore && (results && results.length)) && <PostsLoadMore showLoading={showLoading} loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount}/>}
     </div>
   )
 }
