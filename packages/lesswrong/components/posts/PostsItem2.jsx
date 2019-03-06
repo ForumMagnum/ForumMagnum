@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMutation, getActions } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMutation, getActions, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router';
@@ -271,7 +271,8 @@ class PostsItem2 extends PureComponent {
             <div className={classes.mobileActions}> <PostsPageActions post={post} /></div>
 
             {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
-            {post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+
+            {(!getSetting('AlignmentForum', false) && post.af) && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
 
 
             <div className={classes.commentsIcon}>

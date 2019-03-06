@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles'
@@ -148,7 +148,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
     </Typography>
     
     {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-    {post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }    
+    {!getSetting('AlignmentForum', false) && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }    
   </div>
 
   if (postItem2) {
