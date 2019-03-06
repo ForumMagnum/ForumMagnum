@@ -8,7 +8,6 @@ const styles = theme => ({
     maxWidth: 300,
     textOverflow: "ellipsis",
     overflowX: "hidden",
-    whiteSpace: "nowrap"
   },
   lengthUnlimited: {
     display: "inline",

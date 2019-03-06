@@ -2,11 +2,13 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
+export const SECTION_WIDTH = 720
+
 const styles = (theme) => ({
   root: {
     marginLeft: "auto",
     marginRight: "auto",
-    maxWidth: 730,
+    maxWidth: SECTION_WIDTH,
   }
 })
 
