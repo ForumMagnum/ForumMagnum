@@ -171,6 +171,7 @@ const createLWTheme = (theme) => {
       postsVote: 1,
       sidebarHoverOver: 2,
       sunshineSidebar: 1000,
+      postItemMenu: 1001,
       layout: 1100,
       header: 1300,
       karmaChangeNotifier: 1400,
