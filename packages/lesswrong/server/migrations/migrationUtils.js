@@ -1,5 +1,5 @@
 /*global Vulcan*/
-import { forEachBucketRangeInCollection } from '../queryUtil';
+import { forEachBucketRangeInCollection, forEachDocumentBatchInCollection } from '../queryUtil';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -135,7 +135,7 @@ export async function migrateDocuments({ description, collection, batchSize, unm
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
-  if (!unmigratedDocumentQuery) throw new Error("Missing required argument: unmigratedDocumentQuery");
+  // if (!unmigratedDocumentQuery) throw new Error("Missing required argument: unmigratedDocumentQuery");
   if (!migrate) throw new Error("Missing required argument: migrate");
   if (!batchSize || !(batchSize>0))
     throw new Error("Invalid batch size");
@@ -145,6 +145,15 @@ export async function migrateDocuments({ description, collection, batchSize, unm
 
   // eslint-disable-next-line no-console
   console.log(`Beginning migration step: ${description}`);
+
+  if (!unmigratedDocumentQuery) {
+    // eslint-disable-next-line no-console
+    console.log(`No unmigrated-document query found, migrating all documents in ${collection.collectionName}`)
+    await forEachDocumentBatchInCollection({collection, batchSize, callback: migrate, loadFactor})
+    // eslint-disable-next-line no-console
+    console.log(`Finished migration step ${description} for all documents`)
+    return
+  }
 
   let previousDocumentIds = {};
   let documentsAffected = 0;

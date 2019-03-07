@@ -59,3 +59,9 @@ export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
     console.log(`============ ${name} exiting ============`)
   }
 }
+
+export function getFieldsWithAttribute(schema, attributeName) {
+  return _.filter(
+    _.map(schema, (fieldSchema, fieldName) => fieldSchema[attributeName] ? fieldName : null 
+  ), f => f != null)
+}

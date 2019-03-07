@@ -1,12 +1,13 @@
 /* global Vulcan */
 import { Collections } from 'meteor/vulcan:core';
+import { getFieldsWithAttribute } from './utils';
 
 Vulcan.fillMissingValues = async () => {
   for(let collection of Collections) {
     if (!collection.simpleSchema) continue;
     const schema = collection.simpleSchema()._schema
     
-    const fieldsWithAutofill = getFieldsWithAutofill(schema);
+    const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
     if (fieldsWithAutofill.length == 0) continue;
     
     // eslint-disable-next-line no-console
@@ -37,7 +38,7 @@ Vulcan.checkForMissingValues = async () => {
     if (!collection.simpleSchema) continue;
     const schema = collection.simpleSchema()._schema;
     
-    const fieldsWithAutofill = getFieldsWithAutofill(schema);
+    const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
     if (fieldsWithAutofill.length == 0) continue;
     
     const count = countRowsNeedingAutofill(collection, fieldsWithAutofill);
@@ -45,12 +46,6 @@ Vulcan.checkForMissingValues = async () => {
     // eslint-disable-next-line no-console
     console.log(`${collection.collectionName}: ${count} rows with missing values`);
   }
-}
-
-function getFieldsWithAutofill(schema) {
-  return _.filter(
-      _.map(schema, (fieldSchema, fieldName) => fieldSchema.canAutofillDefault ? fieldName : null
-    ), f => f!=null);
 }
 
 function countRowsNeedingAutofill(collection, fieldsWithAutofill)
