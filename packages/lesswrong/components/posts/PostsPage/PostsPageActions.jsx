@@ -41,16 +41,13 @@ class PostsPageActions extends PureComponent {
   render() {
     const { classes, post, currentUser, vertical } = this.props 
     const { anchorEl } = this.state 
+    const Icon = vertical ? MoreVertIcon : MoreHorizIcon
+  
+    if (!showPostActions(currentUser, post)) return null
 
-    if (!showPostActions(currentUser, post)) {
-      return null
-    } else {
-      return <span>
-        {vertical ? 
-          <MoreVertIcon className={classes.icon} onClick={this.handleClick}/> 
-          : 
-          <MoreHorizIcon className={classes.icon} onClick={this.handleClick}/>
-        }
+    return (
+      <span>
+        <Icon className={classes.icon} onClick={this.handleClick}/> 
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
@@ -60,7 +57,7 @@ class PostsPageActions extends PureComponent {
           <Components.PostActions Container={MenuItem} post={post}/>
         </Popover>
       </span>
-    }
+    )
   }
 }
 
