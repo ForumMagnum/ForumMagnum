@@ -1,4 +1,4 @@
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { generateIdResolverSingle, resolverOnlyField } from '../../modules/utils/schemaUtils'
 
 const schema = {
 
@@ -52,26 +52,22 @@ const schema = {
     insertableBy: ['admins'],
   },
 
-  // Dummy field that resolves to the array of books that belong to a sequence
-  books: {
+  // Field that resolves to the array of books that belong to a sequence
+  books: resolverOnlyField({
     type: Array,
-    optional: true,
+    graphQLtype: '[Book]',
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'books',
-      type: '[Book]',
-      resolver: (collection, args, context) => {
-        const books = context.Books.find(
-          {collectionId: collection._id},
-          {
-            sort: {number: 1},
-            fields: context.Users.getViewableFields(context.currentUser, context.Books)
-          }
-        ).fetch();
-        return books
-      }
+    resolver: (collection, args, context) => {
+      const books = context.Books.find(
+        {collectionId: collection._id},
+        {
+          sort: {number: 1},
+          fields: context.Users.getViewableFields(context.currentUser, context.Books)
+        }
+      ).fetch();
+      return books
     }
-  },
+  }),
 
   'books.$': {
     type: String,

@@ -1,7 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { generateIdResolverSingle, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
@@ -265,115 +265,65 @@ const schema = {
 
   // GraphQL-only fields
 
-  domain: {
+  domain: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, context) => {
-        return Utils.getDomain(post.url);
-      },
-    }
-  },
+    resolver: (post, args, context) => Utils.getDomain(post.url),
+  }),
 
-  pageUrl: {
+  pageUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getPageUrl(post, true);
-      },
-    }
-  },
+    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, true),
+  }),
   
-  pageUrlRelative: {
+  pageUrlRelative: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getPageUrl(post, false);
-      },
-    }
-  },
+    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, false),
+  }),
 
-  linkUrl: {
+  linkUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
-      },
-    }
-  },
+    resolver: (post, args, { Posts }) => {
+      return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
+    },
+  }),
 
-  postedAtFormatted: {
+  postedAtFormatted: resolverOnlyField({
     type: String,
-    denormalized: true,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, context) => {
-        return moment(post.postedAt).format('dddd, MMMM Do YYYY');
-      }
+    resolver: (post, args, context) => {
+      return moment(post.postedAt).format('dddd, MMMM Do YYYY');
     }
-  },
+  }),
 
-  commentsCount: {
+  commentsCount: resolverOnlyField({
     type: Number,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'Int',
-      resolver: (post, args, { Comments }) => {
-        const commentsCount = Comments.find({ postId: post._id }).count();
-        return commentsCount;
-      },
-    }
-  },
+    resolver: (post, args, { Comments }) => {
+      return Comments.find({ postId: post._id }).count();
+    },
+  }),
 
-  emailShareUrl: {
+  emailShareUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getEmailShareUrl(post);
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => Posts.getEmailShareUrl(post),
+  }),
 
-  twitterShareUrl: {
+  twitterShareUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getTwitterShareUrl(post);
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => Posts.getTwitterShareUrl(post),
+  }),
 
-  facebookShareUrl: {
+  facebookShareUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getFacebookShareUrl(post);
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => Posts.getFacebookShareUrl(post),
+  }),
 
   question: {
     type: Boolean,
@@ -395,33 +345,26 @@ const schema = {
     group: formGroups.adminOptions,
   },
   
-  // DEPRECATED fields for GreaterWrong backwards compatibility
-  wordCount: {
+  // DEPRECATED field for GreaterWrong backwards compatibility
+  wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    optional: true,
-    resolveAs: {
-      type: 'Int',
-      resolver: (post, args, { Posts }) => {
-        const contents = post.contents;
-        if (!contents) return 0;
-        return contents.wordCount;
-      }
+    resolver: (post, args, { Posts }) => {
+      const contents = post.contents;
+      if (!contents) return 0;
+      return contents.wordCount;
     }
-  },
-  htmlBody: {
+  }),
+  // DEPRECATED field for GreaterWrong backwards compatibility
+  htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    optional: true,
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        const contents = post.contents;
-        if (!contents) return "";
-        return contents.html;
-      }
+    resolver: (post, args, { Posts }) => {
+      const contents = post.contents;
+      if (!contents) return "";
+      return contents.html;
     }
-  },
+  }),
   submitToFrontpage: {
     type: Boolean,
     viewableBy: ['guests'],

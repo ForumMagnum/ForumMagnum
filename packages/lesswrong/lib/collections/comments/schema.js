@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { generateIdResolverSingle } from '../../../lib/modules/utils/schemaUtils';
+import { generateIdResolverSingle, resolverOnlyField } from '../../../lib/modules/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
 
@@ -143,29 +143,21 @@ const schema = {
 
   // GraphQL only fields
 
-  pageUrl: {
+  pageUrl: resolverOnlyField({
     type: String,
-    optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (comment, args, context) => {
-        return context.Comments.getPageUrl(comment, true)
-      },
-    }
-  },
+    resolver: (comment, args, context) => {
+      return context.Comments.getPageUrl(comment, true)
+    },
+  }),
 
-  pageUrlRelative: {
+  pageUrlRelative: resolverOnlyField({
     type: String,
-    optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (comment, args, context) => {
-        return context.Comments.getPageUrl(comment, false)
-      },
-    }
-  },
+    resolver: (comment, args, context) => {
+      return context.Comments.getPageUrl(comment, false)
+    },
+  }),
 
   answer: {
     type: Boolean,
@@ -217,33 +209,26 @@ const schema = {
     }
   },
   
-  // DEPRECATED fields for GreaterWrong backwards compatibility
-  wordCount: {
+  // DEPRECATED field for GreaterWrong backwards compatibility
+  wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    optional: true,
-    resolveAs: {
-      type: 'Int',
-      resolver: (comment, args, { Comments }) => {
-        const contents = comment.contents;
-        if (!contents) return 0;
-        return contents.wordCount;
-      }
+    resolver: (comment, args, { Comments }) => {
+      const contents = comment.contents;
+      if (!contents) return 0;
+      return contents.wordCount;
     }
-  },
-  htmlBody: {
+  }),
+  // DEPRECATED field for GreaterWrong backwards compatibility
+  htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    optional: true,
-    resolveAs: {
-      type: 'String',
-      resolver: (comment, args, { Comments }) => {
-        const contents = comment.contents;
-        if (!contents) return "";
-        return contents.html;
-      }
+    resolver: (comment, args, { Comments }) => {
+      const contents = comment.contents;
+      if (!contents) return "";
+      return contents.html;
     }
-  },
+  }),
 };
 
 export default schema;

@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
-import { generateIdResolverSingle, addFieldsDict } from '../../modules/utils/schemaUtils'
+import { generateIdResolverSingle, addFieldsDict, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -441,24 +441,20 @@ addFieldsDict(Users, {
     group: formGroups.banUser,
   },
 
-  // IPDummy: All Ips that this user has ever logged in with
-  IPs: {
+  // IPs: All Ips that this user has ever logged in with
+  IPs: resolverOnlyField({
     type: Array,
-    optional: true,
+    graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolveAs: {
-      type: '[String]',
-      resolver: (user, args, context) => {
-        const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
-        const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
-        const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
-        const uniqueIPs = _.uniq(IPs);
-        return uniqueIPs
-      },
-      addOriginalField: false,
+    resolver: (user, args, context) => {
+      const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
+      const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
+      const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
+      const uniqueIPs = _.uniq(IPs);
+      return uniqueIPs
     },
-  },
+  }),
 
   'IPs.$': {
     type: String,
@@ -603,22 +599,19 @@ addFieldsDict(Users, {
     },
   },
 
-  allVotes: {
+  allVotes: resolverOnlyField({
     type: Array,
-    optional: true,
+    graphQLtype: '[Vote]',
     canRead: ['admins', 'sunshineRegiment'],
-    resolveAs: {
-      type: '[Vote]',
-      resolver: async (document, args, { Users, Votes, currentUser }) => {
-        const votes = await Votes.find({
-          userId: document._id,
-          cancelled: false,
-        }).fetch();
-        if (!votes.length) return [];
-        return Users.restrictViewableFields(currentUser, Votes, votes);
-      },
-    }
-  },
+    resolver: async (document, args, { Users, Votes, currentUser }) => {
+      const votes = await Votes.find({
+        userId: document._id,
+        cancelled: false,
+      }).fetch();
+      if (!votes.length) return [];
+      return Users.restrictViewableFields(currentUser, Votes, votes);
+    },
+  }),
 
   'allVotes.$': {
     type: Object,

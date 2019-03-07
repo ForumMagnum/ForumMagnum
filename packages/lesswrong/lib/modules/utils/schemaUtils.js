@@ -33,6 +33,24 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
   }
 }
 
+const simplSchemaToGraphQLtype = (type) => {
+  if (type === String) return "String";
+  else if (type === Number) return "Int";
+  else if (type === Date) return "Date";
+}
+
+export const resolverOnlyField = ({type, graphQLtype=null, resolver, ...rest}) => {
+  return {
+    type: type,
+    optional: true,
+    resolveAs: {
+      type: graphQLtype || simplSchemaToGraphQLtype(type),
+      resolver: resolver,
+    },
+    ...rest
+  }
+}
+
 // Given a collection and a fieldName=>fieldSchema dictionary, add fields to
 // the collection schema. We use this instead of collection.addField([...])
 // because that one forces an awkward syntax in order to be array-based instead
