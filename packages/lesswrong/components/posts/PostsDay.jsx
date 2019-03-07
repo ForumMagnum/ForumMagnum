@@ -32,7 +32,7 @@ class PostsDay extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <Typography variant="body2" className={classes.dayTitle}>
+        <Typography variant="headline" className={classes.dayTitle}>
           <Hidden xsDown implementation="css">
             {date.format('dddd, MMMM Do YYYY')}
           </Hidden>
@@ -41,10 +41,8 @@ class PostsDay extends PureComponent {
           </Hidden>
         </Typography>
         { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-          <div className="posts-list">
-            <div className="posts-list-content">
-              {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-            </div>
+          <div>
+            {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
           </div>
         }
       </div>
