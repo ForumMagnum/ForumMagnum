@@ -2,7 +2,7 @@ import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
-import { foreignKeyField, generateIdResolverMulti, addFieldsDict } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
@@ -257,21 +257,4 @@ addFieldsDict(Posts, {
     defaultValue: 0,
     canRead: ['guests'],
   },
-  // An array containing the `_id`s of commenters
-  commenterIds: {
-    type: Array,
-    optional: true,
-    resolveAs: {
-      fieldName: 'commenters',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'commenterIds'}
-      ),
-    },
-    canRead: ['guests'],
-  },
-  'commenterIds.$': {
-    type: String,
-    optional: true
-  }
 });
