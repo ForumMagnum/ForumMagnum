@@ -118,7 +118,7 @@ const UsersProfile = (props) => {
               }
             >
               <Components.PostsList2 terms={draftTerms}/>
-              <Components.PostsList2 terms={unlistedTerms} showLoading={false} showNoResults={false}/>
+              <Components.PostsList2 terms={unlistedTerms} showNoResults={false}/>
             </Components.Section>
           }
         </div>
