@@ -19,7 +19,7 @@ export const MENU_WIDTH = 28
 export const AUTHOR_OR_EVENT_WIDTH = 140
 export const KARMA_WIDTH = 28
 export const POSTED_AT_WIDTH = 38
-export const START_TIME_WIDTH = 54
+export const START_TIME_WIDTH = 72
 export const COMMENTS_WIDTH = 48
 export const LIST_PADDING = 16
 

@@ -117,9 +117,11 @@ class PostsDailyList extends PureComponent {
       after: loadMoreAfter,
     });
 
-    this.setState({
-      days: this.state.days + this.props.increment,
-      after: loadMoreAfter,
+    this.setState((prevState) => {
+      return ({
+        days: prevState.days + this.props.increment,
+        after: loadMoreAfter,
+      })
     });
   }
 
