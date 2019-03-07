@@ -30,15 +30,11 @@ class PostsPageActions extends PureComponent {
   state = { anchorEl: null }
 
   handleClick = (e) => {
-    if (this.state.anchorEl) {
-      this.setState((prevState) => ({anchorEl: null}))
-    } else {
-      this.setState({anchorEl: e.target})
-    }
+    const { anchorEl } = this.state
+    this.setState({anchorEl: anchorEl ? null : e.target})
   }
 
   handleClose = (e) => {
-    // TODO – figure out why the prevent / stop thingies aren't working
     this.setState({anchorEl: null})
   }
 
@@ -46,7 +42,9 @@ class PostsPageActions extends PureComponent {
     const { classes, post, currentUser, vertical } = this.props 
     const { anchorEl } = this.state 
 
-    if (showPostActions(currentUser, post)) {
+    if (!showPostActions(currentUser, post)) {
+      return null
+    } else {
       return <span>
         {vertical ? 
           <MoreVertIcon className={classes.icon} onClick={this.handleClick}/> 
@@ -62,8 +60,6 @@ class PostsPageActions extends PureComponent {
           <Components.PostActions Container={MenuItem} post={post}/>
         </Popover>
       </span>
-    } else {
-      return null
     }
   }
 }
