@@ -1,4 +1,4 @@
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
 
 const schema = {
   _id: {
@@ -13,18 +13,14 @@ const schema = {
     viewableBy: ['members'],
   },
   userId: {
-    type: String,
-    foreignKey: "Users",
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true,
-    },
     optional: true,
   },
   name: {

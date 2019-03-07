@@ -2,7 +2,7 @@ import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
-import { generateIdResolverSingle, generateIdResolverMulti, addFieldsDict } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, generateIdResolverMulti, addFieldsDict } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
@@ -15,19 +15,16 @@ export const moderationOptionsGroup = {
 addFieldsDict(Comments, {
   // The comment author's `_id`
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true
-    },
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -146,7 +143,12 @@ addFieldsDict(Comments, {
   },
 
   deletedByUserId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "deletedByUserId",
+      resolverName: "deletedByUser",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
@@ -156,14 +158,6 @@ addFieldsDict(Comments, {
       if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
         return modifier.$set.deletedByUserId || currentUser._id
       }
-    },
-    resolveAs: {
-      fieldName: 'deletedByUser',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'deletedByUserId'}
-      ),
-      addOriginalField: true
     },
   },
 
@@ -201,20 +195,17 @@ addFieldsDict(Comments, {
   },
 
   reviewedByUserId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "reviewedByUserId",
+      resolverName: "reviewedByUser",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    resolveAs: {
-      fieldName: 'reviewedByUser',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'reviewedByUserId'}
-      ),
-      addOriginalField: true
-    },
   },
 
   // hideAuthor: Displays the author as '[deleted]'. We use this to copy over

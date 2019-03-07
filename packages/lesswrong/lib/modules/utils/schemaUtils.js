@@ -33,6 +33,25 @@ export const generateIdResolverMulti = ({collectionName, fieldName}) => {
   }
 }
 
+export const foreignKeyField = ({idFieldName, resolverName, collectionName, type}) => {
+  if (!idFieldName || !resolverName || !collectionName || !type)
+    throw new Error("Missing argument to foreignKeyField");
+  
+  return {
+    type: String,
+    foreignKey: collectionName,
+    resolveAs: {
+      fieldName: resolverName,
+      type: type,
+      resolver: generateIdResolverSingle({
+        collectionName,
+        fieldName: idFieldName
+      }),
+      addOrginalField: true,
+    },
+  }
+}
+
 const simplSchemaToGraphQLtype = (type) => {
   if (type === String) return "String";
   else if (type === Number) return "Int";

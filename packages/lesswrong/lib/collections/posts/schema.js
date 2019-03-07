@@ -1,7 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { generateIdResolverSingle, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
@@ -239,21 +239,17 @@ const schema = {
   },
   // The post author's `_id`.
   userId: {
-    type: String,
-    foreignKey: 'Users',
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User"
+    }),
     optional: true,
     control: 'select',
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true
-    },
   },
 
   // Used to keep track of when a post has been included in a newsletter

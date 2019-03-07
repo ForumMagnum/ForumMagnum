@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { generateIdResolverSingle, resolverOnlyField } from '../../../lib/modules/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField } from '../../../lib/modules/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
 
@@ -12,39 +12,29 @@ const schema = {
   },
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
-    type: String,
-    foreignKey: "Comments",
-    max: 500,
+    ...foreignKeyField({
+      idFieldName: "parentCommentId",
+      resolverName: "parentComment",
+      collectionName: "Comments",
+      type: "Comment",
+    }),
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,
-    resolveAs: {
-      fieldName: 'parentComment',
-      type: 'Comment',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'parentCommentId'}
-      ),
-      addOriginalField: true
-    },
     hidden: true,
   },
   // The `_id` of the top-level parent comment, if there is one
   topLevelCommentId: {
-    type: String,
-    foreignKey: "Comments",
+    ...foreignKeyField({
+      idFieldName: "topLevelCommentId",
+      resolverName: "topLevelComment",
+      collectionName: "Comments",
+      type: "Comment",
+    }),
     denormalized: true,
-    max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,
-    resolveAs: {
-      fieldName: 'topLevelComment',
-      type: 'Comment',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'topLevelCommentId'}
-      ),
-      addOriginalField: true
-    },
     hidden: true,
   },
   // The timestamp of comment creation
@@ -82,39 +72,29 @@ const schema = {
   },
   // The post's `_id`
   postId: {
-    type: String,
-    foreignKey: "Posts",
+    ...foreignKeyField({
+      idFieldName: "postId",
+      resolverName: "post",
+      collectionName: "Posts",
+      type: "Post",
+    }),
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    // regEx: SimpleSchema.RegEx.Id,
-    max: 500,
-    resolveAs: {
-      fieldName: 'post',
-      type: 'Post',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Posts', fieldName: 'postId'}
-      ),
-      addOriginalField: true
-    },
-    hidden: true // never show this
+    hidden: true
   },
   // The comment author's `_id`
   userId: {
-    type: String,
-    foreignKey: "Users",
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true
-    },
   },
   // Whether the comment is deleted. Delete comments' content doesn't appear on the site.
   // FIXME: Not a real field. We inherited this from vulcan-starter, but
@@ -170,21 +150,17 @@ const schema = {
   },
 
   parentAnswerId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "parentAnswerId",
+      resolverName: "parentAnswer",
+      collectionName: "Comments",
+      type: "Comment",
+    }),
     denormalized: true,
-    foreignKey: "Comments",
     canRead: ['guests'],
     canCreate: ['members'],
     optional: true,
     hidden: true,
-    resolveAs: {
-      fieldName: 'parentAnswer',
-      type: 'Comment',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'parentAnswerId'}
-      ),
-      addOriginalField: true
-    },
   },
 
   chosenAnswer: {
@@ -200,7 +176,7 @@ const schema = {
   // The semver-style version of the post that this comment was made against
   // This gets automatically created in a callback on creation
   postVersion: {
-    type: String, 
+    type: String,
     optional: true,
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {

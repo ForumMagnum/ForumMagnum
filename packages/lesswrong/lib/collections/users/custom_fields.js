@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
-import { generateIdResolverSingle, addFieldsDict, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -582,21 +582,17 @@ addFieldsDict(Users, {
   },
 
   reviewedByUserId: {
-    type: String,
-    foreignKey: "Users",
+    ...foreignKeyField({
+      idFieldName: "reviewedByUserId",
+      resolverName: "reviewedByUser",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     canRead: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
-    resolveAs: {
-      fieldName: 'reviewedByUser',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'reviewedByUserId'}
-      ),
-      addOriginalField: true
-    },
   },
 
   allVotes: resolverOnlyField({
@@ -695,20 +691,17 @@ addFieldsDict(Users, {
   },
 
   shortformFeedId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "shortformFeedId",
+      resolverName: "shortformFeed",
+      collectionName: "Posts",
+      type: "Post"
+    }),
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
-    resolveAs: {
-      fieldName: 'shortformFeed',
-      type: 'Post',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Posts', fieldName: 'shortformFeedId'}
-      ),
-      addOriginalField: true
-    },
   },
 
   viewUnreviewedComments: {
