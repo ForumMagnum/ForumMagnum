@@ -67,7 +67,7 @@ import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
-import './lib/collections/posts/resolvers.js';
+import './lib/collections/posts/serverSchema.js';
 
 import './lib/events/server.js';
 
