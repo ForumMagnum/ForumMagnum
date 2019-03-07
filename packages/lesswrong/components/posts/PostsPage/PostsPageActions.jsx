@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Popper from '@material-ui/core/Popper';
+import Popover from '@material-ui/core/Popover';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -39,10 +39,8 @@ class PostsPageActions extends PureComponent {
     }
   }
 
-  handleClickAway = (e) => {
+  handleClose = (e) => {
     // TODO – figure out why the prevent / stop thingies aren't working
-    e.stopPropagation()
-    e.preventDefault()
     this.setState({anchorEl: null})
   }
 
@@ -57,18 +55,14 @@ class PostsPageActions extends PureComponent {
           : 
           <MoreHorizIcon className={classes.icon} onClick={this.handleClick}/>
         }
-        <Popper
-          anchorEl={anchorEl}
+        <Popover
           open={Boolean(anchorEl)}
-          placement="top-start"
-          className={classes.popper}
+          anchorEl={anchorEl}
+          anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+          onClose={this.handleClose}
         >
-          <ClickAwayListener onClickAway={this.handleClickAway} >
-            <Paper className={menuClassName}>
-              <Components.PostActions Container={MenuItem} post={post}/>
-            </Paper>
-          </ClickAwayListener>
-        </Popper>
+          <Components.PostActions Container={MenuItem} post={post}/>
+        </Popover>
       </span>
     } else {
       return null
