@@ -79,6 +79,7 @@ export function denormalizedField({ needsUpdate, getValue }) {
     },
     denormalized: true,
     canAutoDenormalize: true,
+    optional: true,
     needsUpdate,
     getValue
   }
