@@ -4,7 +4,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -32,8 +31,8 @@ class PostsDay extends PureComponent {
     const { PostsItem2 } = Components
 
     return (
-      <div className={classNames("posts-day", classes.root)}>
-        <Typography variant="body2" className={classes.dayTitle}>
+      <div className={classes.root}>
+        <Typography variant="headline" className={classes.dayTitle}>
           <Hidden xsDown implementation="css">
             {date.format('dddd, MMMM Do YYYY')}
           </Hidden>
@@ -42,10 +41,8 @@ class PostsDay extends PureComponent {
           </Hidden>
         </Typography>
         { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-          <div className="posts-list">
-            <div className="posts-list-content">
-              {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-            </div>
+          <div>
+            {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
           </div>
         }
       </div>

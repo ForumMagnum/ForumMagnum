@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles'
@@ -133,22 +133,22 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
   const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
     <Typography variant="body1" className={classes.title}>
       {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
-      
+
       {shared && <span className={classes.tag}>[Shared]</span>}
 
       {post.question && <span className={classes.tag}>[Question]</span>}
-      
+
       {post.url && <span className={classes.tag}>[Link]</span>}
-      
+
       {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
-      
+
       {post.isEvent && <span className={classes.tag}>[Event]</span>}
-      
+
       <span className={classes.tag}>{post.title}</span>
     </Typography>
-    
+
     {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-    {post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }    
+    {!getSetting('AlignmentForum', false) && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
   </div>
 
   if (postItem2) {
