@@ -23,8 +23,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
   do {
     await runThenSleep(loadFactor, async () => {
       await callback(rows);
-      
-      const lastID = _.max(rows, row => row._id);
+      const lastID = rows[rows.length - 1]._id
       rows = await collection.find(
         { _id: {$gt: lastID} },
         {

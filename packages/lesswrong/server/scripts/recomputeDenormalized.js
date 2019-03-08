@@ -55,14 +55,13 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
   await migrateDocuments({
     description: `Recomputing denormalized values for ${collection.collectionName}`,
     collection,
-    batchSize: 100,
+    batchSize: 1000,
     migrate: async (documents) => {
       // eslint-disable-next-line no-console
-      console.log("Recomputing denormalized values for batch")
       const updates = await Promise.all(documents.map(async doc => {
         const newValue = await getValue(doc)
         // If the correct value is already present, don't make a database update
-        if (doc[fieldName] === newValue) return null
+        if ((isNullOrDefined(newValue) && isNullOrDefined(doc[fieldName])) || doc[fieldName] === newValue) return null
         return {
           updateOne: {
             filter: {_id: doc._id},
@@ -76,10 +75,16 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
       }))
 
       const nonEmptyUpdates = _.without(updates, null)
+      // eslint-disable-next-line no-console
+      console.log(`Updating ${nonEmptyUpdates.length} documents`)
       await collection.rawCollection().bulkWrite(
         nonEmptyUpdates,
         { ordered: false }
       );
     },
   });
+}
+
+function isNullOrDefined(value) {
+  return value === null || value === undefined
 }
