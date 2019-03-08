@@ -1,4 +1,5 @@
 import Users from 'meteor/vulcan:users';
+import SimpleSchema from 'simpl-schema'
 
 export const generateIdResolverSingle = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
@@ -46,4 +47,40 @@ export const addFieldsDict = (collection, fieldsDict) => {
     });
   }
   collection.addField(translatedFields);
+}
+
+// For denormalized fields, getValue returns the new denormalized value of
+// the field, given the new document after an update or an insert
+SimpleSchema.extendOptions(['needsUpdate'])
+
+// For denormalized fields, needsUpdate is an optional attribute that 
+// determines whether the denormalization function should be rerun given
+// the new document after an update or an insert
+SimpleSchema.extendOptions(['getValue'])
+
+// For denormalized fields, marks a field so that we can automatically 
+// get the automatically recompute the new denormalized value via
+// `Vulcan.recomputeDenormalizedValues` in the Meteor shell
+SimpleSchema.extendOptions(['canAutoDenormalize'])
+
+
+// Helper function to add all the correct callbacks and metainfo to make fields denormalized
+export function denormalizedField({ needsUpdate, getValue }) {
+  return {
+    onUpdate: async ({data, newDocument}) => {
+      if (!needsUpdate || needsUpdate(data)) {
+        return await getValue(newDocument)
+      }
+    },
+    onCreate: async ({newDocument}) => {
+      if (!needsUpdate || needsUpdate(newDocument)) {
+        return await getValue(newDocument)
+      }
+    },
+    denormalized: true,
+    canAutoDenormalize: true,
+    optional: true,
+    needsUpdate,
+    getValue
+  }
 }

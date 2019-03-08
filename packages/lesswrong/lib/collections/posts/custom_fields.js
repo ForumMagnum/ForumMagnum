@@ -619,6 +619,11 @@ addFieldsDict(Posts, {
     optional: true,
   },
 
+  localStartTime: {
+    type: Date,
+    viewableBy: ['guests'],
+  },
+
   endTime: {
     type: Date,
     hidden: (props) => !props.eventForm,
@@ -629,6 +634,11 @@ addFieldsDict(Posts, {
     label: "End Time",
     group: formGroups.event,
     optional: true,
+  },
+
+  localEndTime: {
+    type: Date,
+    viewableBy: ['guests'],
   },
 
   mongoLocation: {
