@@ -11,7 +11,7 @@ Vulcan.recomputeAllDenormalizedValues = async () => {
 
 Vulcan.recomputeDenormalizedValues = async (collectionName, fieldName) => {
   // eslint-disable-next-line no-console
-  console.log(`Recomputing denormalize values for ${collectionName} ${fieldName && `and ${fieldName}`}`)
+  console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 
   const collection = getCollection(collectionName)
   if (!collection.simpleSchema) {
@@ -48,7 +48,7 @@ Vulcan.recomputeDenormalizedValues = async (collectionName, fieldName) => {
   }
 
   // eslint-disable-next-line no-console
-  console.log(`Finished recomputing denormalized values for ${collectionName} ${fieldName && `and ${fieldName}`}`)
+  console.log(`Finished recomputing denormalized values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 }
 
 async function runDenormalizedFieldMigration({ collection, fieldName, getValue }) {
@@ -57,6 +57,8 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
     collection,
     batchSize: 100,
     migrate: async (documents) => {
+      // eslint-disable-next-line no-console
+      console.log("Recomputing denormalized values for batch")
       const updates = await Promise.all(documents.map(async doc => {
         const newValue = await getValue(doc)
         // If the correct value is already present, don't make a database update
@@ -72,7 +74,7 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
           }
         }
       }))
-      
+
       const nonEmptyUpdates = _.without(updates, null)
       await collection.rawCollection().bulkWrite(
         nonEmptyUpdates,
