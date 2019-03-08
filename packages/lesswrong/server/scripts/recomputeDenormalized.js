@@ -53,7 +53,7 @@ Vulcan.recomputeDenormalizedValues = async (collectionName, fieldName) => {
 
 async function runDenormalizedFieldMigration({ collection, fieldName, getValue }) {
   await migrateDocuments({
-    description: `Recomputing denormalized values for ${collection.collectionName}`,
+    description: `Recomputing denormalized values for ${collection.collectionName} and field ${fieldName}`,
     collection,
     batchSize: 1000,
     migrate: async (documents) => {
