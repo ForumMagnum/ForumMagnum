@@ -219,5 +219,6 @@ export async function dropUnusedField(collection, fieldName) {
     }
   });
   
+  // eslint-disable-next-line no-console
   console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nModified} rows)`);
 }
