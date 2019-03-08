@@ -13,6 +13,7 @@ import { TimezoneContext } from '../../components/common/withTimezone';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
+import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
@@ -45,20 +46,20 @@ const emailGlobalCss = `
 
   /* Constrain email width for small screens */
   @media screen and (max-width: 600px) {
-      table[class="container"] {
-          width: 95% !important;
-      }
-      .main-container{
-        font-size: 14px !important;
-      }
+    table[class="container"] {
+      width: 95% !important;
+    }
+    .main-container{
+      font-size: 14px !important;
+    }
   }
 
   /* Give content more room on mobile */
   @media screen and (max-width: 480px) {
-      td[class="container-padding"] {
-          padding-left: 12px !important;
-          padding-right: 12px !important;
-      }
+    td[class="container-padding"] {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
   }
   
   /* Global styles that apply eg inside of posts */
@@ -166,6 +167,8 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   // accordingly.
   await getDataFromTree(wrappedBodyComponent);
   
+  validateSheets(sheetsRegistry);
+  
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
   
@@ -201,6 +204,19 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
+  }
+}
+
+function validateSheets(sheetsRegistry)
+{
+  let styleValidator = new StyleValidator();
+  
+  for (let sheet of sheetsRegistry.registry) {
+    for (let rule of sheet.rules.index) {
+      if (rule.style) {
+        styleValidator.validate(rule.style, rule.selectorText);
+      }
+    }
   }
 }
 
