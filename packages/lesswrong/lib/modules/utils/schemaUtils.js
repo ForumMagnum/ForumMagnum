@@ -52,6 +52,21 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
   }
 }
 
+export const arrayOfForeignKeysField = ({idFieldName, resolverName, collectionName, type}) => {
+  return {
+    type: Array,
+    resolveAs: {
+      fieldName: resolverName,
+      type: `[${type}]`,
+      resolver: generateIdResolverMulti({
+        collectionName,
+        fieldName: idFieldName
+      }),
+      addOriginalField: true
+    },
+  }
+}
+
 const simplSchemaToGraphQLtype = (type) => {
   if (type === String) return "String";
   else if (type === Number) return "Int";

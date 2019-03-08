@@ -1,4 +1,4 @@
-import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 
 const schema = {
@@ -27,21 +27,18 @@ const schema = {
   },
 
   organizerIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerIds",
+      resolverName: "organizers",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
     order:20,
     control: "UsersListEditor",
     label: "Add Organizers",
-    resolveAs: {
-      fieldName: 'organizers',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'organizerIds'}
-      ),
-      addOriginalField: true
-    }
   },
 
   'organizerIds.$': {

@@ -1,4 +1,4 @@
-import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 
 const schema = {
   _id: {
@@ -21,23 +21,19 @@ const schema = {
     label: "Conversation Title"
   },
   participantIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "participantIds",
+      resolverName: "participants",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: ['members'],
     optional: true,
     control: "UsersListEditor",
     label: "Participants",
-    resolveAs: {
-      fieldName: 'participants',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'participantIds'}
-      ),
-      addOriginalField: true
-    }
   },
-
   'participantIds.$': {
     type: String,
     foreignKey: "Users",

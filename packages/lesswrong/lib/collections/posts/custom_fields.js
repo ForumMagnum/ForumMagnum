@@ -2,7 +2,7 @@ import { Posts } from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { generateIdResolverMulti, addFieldsDict, foreignKeyField } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -279,7 +279,12 @@ addFieldsDict(Posts, {
   },
 
   coauthorUserIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "coauthorUserIds",
+      resolverName: "coauthors",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
@@ -287,14 +292,6 @@ addFieldsDict(Posts, {
     label: "Co-Authors",
     control: "UsersListEditor",
     group: formGroups.advancedOptions,
-    resolveAs: {
-      fieldName: 'coauthors',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'coauthorUserIds'}
-      ),
-      addOriginalField: true
-    },
   },
   'coauthorUserIds.$': {
     type: String,
@@ -509,21 +506,18 @@ addFieldsDict(Posts, {
   /////////////////////////////////////////////////////////////////////////////
 
   organizerIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerIds",
+      resolverName: "organizers",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
     control: "UsersListEditor",
-    resolveAs: {
-      fieldName: 'organizers',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'organizerIds'}
-      ),
-      addOriginalField: true
-    },
     group: formGroups.event,
   },
 

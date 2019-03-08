@@ -1,4 +1,4 @@
-import { foreignKeyField, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 
 export const formGroups = {
   chapterDetails: {
@@ -71,19 +71,16 @@ const schema = {
   },
 
   postIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "postIds",
+      resolverName: "posts",
+      collectionName: "Posts",
+      type: "Post"
+    }),
     optional: false,
     viewableBy: ["guests"],
     editableBy: ["members"],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'posts',
-      type: '[Post]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Posts', fieldName: 'postIds'}
-      ),
-      addOriginalField: true,
-    },
     control: 'PostsListEditor',
   },
 
