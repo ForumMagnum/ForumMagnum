@@ -24,16 +24,6 @@ addFieldsDict(Comments, {
     hidden: (props) => alignmentForum || !props.alignmentForumPost
   },
 
-  afDate: {
-    type: Date,
-    optional: true,
-    hidden: true,
-    defaultValue: false,
-    viewableBy: ['guests'],
-    insertableBy: ['alignmentForum'],
-    editableBy: ['alignmentForum'],
-  },
-
   afBaseScore: {
     type: Number,
     optional: true,
