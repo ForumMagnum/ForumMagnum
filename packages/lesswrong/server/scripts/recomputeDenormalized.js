@@ -57,20 +57,25 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
     collection,
     batchSize: 100,
     migrate: async (documents) => {
-      const updates = Promise.all(documents.map(async doc => {
+      const updates = await Promise.all(documents.map(async doc => {
+        const newValue = await getValue(doc)
+        // If the correct value is already present, don't make a database update
+        if (doc[fieldName] === newValue) return null
         return {
           updateOne: {
             filter: {_id: doc._id},
             update: {
               $set: {
-                [fieldName]: await getValue(doc)
+                [fieldName]: newValue
               }
             },
           }
         }
       }))
+      
+      const nonEmptyUpdates = _.without(updates, null)
       await collection.rawCollection().bulkWrite(
-        updates,
+        nonEmptyUpdates,
         { ordered: false }
       );
     },
