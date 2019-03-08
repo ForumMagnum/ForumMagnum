@@ -164,9 +164,9 @@ class EditorFormComponent extends Component {
     this.context.addToSuccessForm(resetEditor);
   }
 
-  handleEditorOverride = () => {
+  handleEditorOverride = (editorType) => {
     const { currentUser } = this.props
-    const targetEditorType = this.getUserDefaultEditor(currentUser)
+    const targetEditorType = editorType || this.getUserDefaultEditor(currentUser)
     this.setState({
       editorOverride: targetEditorType,
       ...this.getEditorStatesFromType(targetEditorType)
@@ -249,6 +249,20 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  renderEditorTypeSelect = () => {
+    const { currentUser, classes } = this.props
+    if (!currentUser || !currentUser.isAdmin) return null
+    return <Select
+      value={this.getCurrentEditorType()}
+      onChange={(e) => this.handleEditorOverride(e.target.value)}
+      className={classes.updateTypeSelect}
+      >
+      <MenuItem value={'html'}>HTML</MenuItem>
+      <MenuItem value={'markdown'}>Markdown</MenuItem>
+      <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
+    </Select>
+  }
+
   render() {
     const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
     const { document, currentUser, formType, form, classes, fieldName } = this.props
@@ -283,6 +297,7 @@ class EditorFormComponent extends Component {
             className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
           { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
         </div>);
     } else {
       const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
@@ -306,6 +321,7 @@ class EditorFormComponent extends Component {
             /><br />
           </div>
           { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
         </div>
       );
     }
