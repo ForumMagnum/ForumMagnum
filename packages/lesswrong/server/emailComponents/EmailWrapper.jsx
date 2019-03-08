@@ -1,10 +1,12 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
+import { Utils } from 'meteor/vulcan:lib';
 
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({children, accountLink, siteName, footer, classes}) => {
+const EmailWrapper = ({children}) => {
+  const accountLink = `${Utils.getSiteUrl()}account`
   return (
     <body bgcolor="white" leftmargin="0" topmargin="0" marginWidth="0" marginHeight="0">
       <br/>
