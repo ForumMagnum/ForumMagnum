@@ -1,5 +1,5 @@
 import { Comments } from "../../../collections/comments";
-import { generateIdResolverSingle, generateIdResolverMulti, addFieldsDict } from '../../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, addFieldsDict, foreignKeyField } from '../../../modules/utils/schemaUtils'
 import { getSetting } from 'meteor/vulcan:core'
 import { schemaDefaultValue } from '../../../collectionUtils';
 
@@ -42,21 +42,18 @@ addFieldsDict(Comments, {
   },
 
   suggestForAlignmentUserIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "suggestForAlignmentUserIds",
+      resolverName: "suggestForAlignmentUsers",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['members'],
     editableBy: ['alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
     group: alignmentOptionsGroup,
-    resolveAs: {
-      fieldName: 'suggestForAlignmentUsers',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'suggestForAlignmentUserIds'}
-      ),
-      addOriginalField: true
-    },
   },
   'suggestForAlignmentUserIds.$': {
     type: String,
@@ -86,20 +83,17 @@ addFieldsDict(Comments, {
   },
 
   moveToAlignmentUserId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "moveToAlignmentUserId",
+      resolverName: "moveToAlignmentUser",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
-    resolveAs: {
-      fieldName: 'moveToAlignmentUser',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'moveToAlignmentUserId'}
-      ),
-      addOriginalField: true
-    },
   },
 })

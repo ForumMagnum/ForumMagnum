@@ -1,6 +1,6 @@
 import { Posts } from "../../../collections/posts";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
-import { generateIdResolverMulti, addFieldsDict } from '../../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, addFieldsDict } from '../../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../../collectionUtils';
 
 addFieldsDict(Posts, {
@@ -50,9 +50,7 @@ addFieldsDict(Posts, {
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    }
+    onInsert: () => new Date(),
   },
 
   afSticky: {
@@ -79,7 +77,12 @@ addFieldsDict(Posts, {
   },
 
   suggestForAlignmentUserIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "suggestForAlignmentUserIds",
+      resolverName: "suggestForAlignmentUsers",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['members'],
     insertableBy: ['sunshineRegiment', 'admins'],
     editableBy: ['alignmentForum', 'alignmentForumAdmins'],
@@ -87,14 +90,6 @@ addFieldsDict(Posts, {
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
     group: formGroups.adminOptions,
-    resolveAs: {
-      fieldName: 'suggestForAlignmentUsers',
-      type: '[User]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Users', fieldName: 'suggestForAlignmentUserIds'}
-      ),
-      addOriginalField: true
-    },
   },
   'suggestForAlignmentUserIds.$': {
     type: String,
