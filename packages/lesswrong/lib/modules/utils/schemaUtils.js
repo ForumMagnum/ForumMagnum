@@ -1,6 +1,6 @@
 import Users from 'meteor/vulcan:users';
 
-export const generateIdResolverSingle = ({collectionName, fieldName}) => {
+const generateIdResolverSingle = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
     if (!doc[fieldName]) return null
 
@@ -16,7 +16,7 @@ export const generateIdResolverSingle = ({collectionName, fieldName}) => {
   }
 }
 
-export const generateIdResolverMulti = ({collectionName, fieldName}) => {
+const generateIdResolverMulti = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
     if (!doc[fieldName]) return []
 
