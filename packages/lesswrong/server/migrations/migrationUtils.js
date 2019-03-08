@@ -193,3 +193,31 @@ export async function migrateDocuments({ description, collection, batchSize, unm
   // eslint-disable-next-line no-console
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
+
+export async function dropUnusedField(collection, fieldName) {
+  const loadFactor = 0.5;
+  let nModified = 0;
+  
+  await forEachBucketRangeInCollection({
+    collection,
+    filter: {
+      [fieldName]: {$exists: false}
+    },
+    fn: async (bucketSelector) => {
+      await runThenSleep(loadFactor, async () => {
+        const mutation = { $unset: {
+          [fieldName]: 1
+        } };
+        const writeResult = await collection.update(
+          bucketSelector,
+          mutation,
+          {multi: true}
+        );
+        
+        nModified += writeResult.nModified;
+      });
+    }
+  });
+  
+  console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nModified} rows)`);
+}
