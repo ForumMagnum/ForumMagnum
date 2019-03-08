@@ -47,7 +47,7 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
         collectionName,
         fieldName: idFieldName
       }),
-      addOrginalField: true,
+      addOriginalField: true,
     },
   }
 }
