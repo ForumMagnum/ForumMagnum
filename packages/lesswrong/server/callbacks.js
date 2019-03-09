@@ -24,8 +24,6 @@ import {
 } from 'meteor/vulcan:core';
 
 import { performSubscriptionAction } from '../lib/subscriptions/mutations.js';
-import { Components } from 'meteor/vulcan:core';
-import React from 'react';
 
 
 function updateConversationActivity (message) {
