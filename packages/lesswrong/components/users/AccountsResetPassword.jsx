@@ -1,4 +1,4 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
@@ -19,12 +19,11 @@ AccountsResetPassword.contextTypes = {
   intl: intlShape
 }
 
-AccountsResetPassword.propsTypes = {
-  currentUser: PropTypes.object,
+AccountsResetPassword.propTypes = {
   params: PropTypes.object,
 };
 
 AccountsResetPassword.displayName = 'AccountsResetPassword';
 
 // Shadows AccountsResetPassword from vulcan:accounts
-registerComponent('AccountsResetPassword', AccountsResetPassword, withCurrentUser);
+registerComponent('AccountsResetPassword', AccountsResetPassword);

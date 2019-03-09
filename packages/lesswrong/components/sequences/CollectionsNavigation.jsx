@@ -78,8 +78,8 @@ class CollectionsNavigation extends PureComponent
             ? <Components.SequencesNavigationLink
                 documentUrl={nextPostUrl}
                 direction="right"
-                documentId={nextPostUrl && nextPostId}
-                slug={nextPostUrl && nextPostSlug} />
+                documentId={nextPostId}
+                slug={nextPostSlug} />
             : <Components.SequencesNavigationLinkDisabled
                 direction="right" />}
         </React.Fragment>}

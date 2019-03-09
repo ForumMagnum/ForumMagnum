@@ -1,7 +1,5 @@
 import { Posts } from './collection';
-import ReactDOMServer from 'react-dom/server';
-import { Components, getSetting } from 'meteor/vulcan:core';
-import React from 'react';
+import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
@@ -326,20 +324,6 @@ Posts.addField([
       insertableBy: ['members'],
       optional: true,
       hidden: true,
-    }
-  },
-
-  /**
-    algoliaIndexAt: The last time at which the post has been indexed in Algolia's search Index.
-    Undefined if it is has not been indexed.
-  */
-
-  {
-    fieldName: 'algoliaIndexAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      viewableBy: ['guests'],
     }
   },
 

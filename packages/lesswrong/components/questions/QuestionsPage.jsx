@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
+import React from 'react';
 
 const QuestionsPage = () => {
 
@@ -12,7 +12,7 @@ const QuestionsPage = () => {
 
   return (
     <Section title="Questions">
-      <PostsList terms={terms} showHeader={false}/>
+      <PostsList terms={terms}/>
     </Section>
   )
 };

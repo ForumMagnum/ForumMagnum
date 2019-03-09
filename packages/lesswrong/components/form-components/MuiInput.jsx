@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -16,7 +16,7 @@ class MuiInput extends Component {
   constructor(props, context) {
     super(props,context);
     this.state = {
-      content: (props.document && props.document[props.path]) || props.defaultValue || ""
+      contents: (props.document && props.document[props.path]) || props.defaultValue || ""
     }
   }
 

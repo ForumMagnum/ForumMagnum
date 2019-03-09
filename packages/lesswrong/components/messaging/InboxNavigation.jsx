@@ -5,7 +5,6 @@ The Navigation for the Inbox components
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Conversations from '../../lib/collections/conversations/collection.js';

@@ -311,19 +311,6 @@ $small-font: 1.1rem;
   }
 }
 
-.posts-item-new-comments-wrapper .comment-new .comments-node.comments-node-root {
-  margin-top:3px;
-  margin-bottom:10px;
-  &:hover {
-    text-decoration:none;
-    color:rgba(0,0,0,.35);
-  }
-}
-
-.i18n-message.author_has_banned_you {
-  padding:1em 0;
-}
-
 .comments-delete-modal-textfield {
   margin-top: 10px;
 }

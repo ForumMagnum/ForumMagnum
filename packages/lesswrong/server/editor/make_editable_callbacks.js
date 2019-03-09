@@ -11,7 +11,7 @@ turndownService.remove('style') // Make sure we don't add the content of style t
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'
 import markdownItContainer from 'markdown-it-container'
-var mdi = markdownIt()
+const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 import { addCallback } from 'meteor/vulcan:core';
@@ -44,10 +44,10 @@ export async function markdownToHtmlWithLatex(markdown) {
   return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
 }
 
-async function dataToHTML(data, type) {
+async function dataToHTML(data, type, sanitize = false) {
   switch (type) {
     case "html":
-      return data
+      return sanitize ? Utils.sanitize(data) : data
     case "draftJS":
       return await draftJSToHtmlWithLatex(data)
     case "markdown":
@@ -119,8 +119,9 @@ export function addEditableCallbacks({collection, options = {}}) {
 
   async function editorSerializationNew (doc, { currentUser }) {
     if (doc[fieldName] && doc[fieldName].originalContents) {
+      if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
-      const html = await dataToHTML(data, type)
+      const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
       const userId = currentUser._id
@@ -130,14 +131,13 @@ export function addEditableCallbacks({collection, options = {}}) {
     return doc
   }
 
-  // if (!deactivateNewCallback) {
   addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
-  // }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
     if (docData[fieldName] && docData[fieldName].originalContents) {
+      if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
-      const html = await dataToHTML(data, type)
+      const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = (document.draft && !docData.draft) ? 'major' : 'minor'
       const version = await getNextVersion(document._id, docData[fieldName].updateType || defaultUpdateType)

@@ -181,7 +181,7 @@ export const createDummyUser = async (data) => {
 export const createDummyComment = async (user, data) => {
   const defaultUser = await createDefaultUser();
   let defaultData = {
-    userId: user._id,
+    userId: (user || defaultUser)._id,
     contents: {
       originalContents: {
         type: "markdown",

@@ -6,7 +6,8 @@ Posts.suggestForAlignment = ({ currentUser, post, editMutation }) => {
   editMutation({
     documentId: post._id,
     set: {suggestForAlignmentUserIds: newSuggestUserIds},
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 
@@ -16,6 +17,7 @@ Posts.unSuggestForAlignment = ({ currentUser, post, editMutation }) => {
   editMutation({
     documentId: post._id,
     set: {suggestForAlignmentUserIds:newSuggestUserIds},
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'

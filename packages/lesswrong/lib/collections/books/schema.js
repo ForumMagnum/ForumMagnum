@@ -1,5 +1,3 @@
-import React from 'react'
-import { Components } from 'meteor/vulcan:core'
 import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
 const schema = {

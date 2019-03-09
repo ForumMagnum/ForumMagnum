@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import Localgroups from '../../lib/collections/localgroups/collection.js';
 
