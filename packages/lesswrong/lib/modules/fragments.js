@@ -31,7 +31,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    contents { 
+    contents {
       html
     }
     createdAt
@@ -65,6 +65,10 @@ extendFragment('UsersCurrent', `
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
+  allPostsView
+  allPostsFilter
+  allPostsShowLowKarma
+  allPostsOpenSettings
   lastNotificationsCheck
   subscribedItems
   groups
@@ -84,32 +88,33 @@ extendFragment('UsersCurrent', `
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
   karmaChangeNotifierSettings
-  karmaChanges {
-    totalChange
-    updateFrequency
-    startDate
-    endDate
-    nextBatchDate
-    posts {
-      scoreChange
-      post {
-        title
-        pageUrlRelative
-      }
-    }
-    comments {
-      scoreChange
-      comment {
-        contents {
-          plaintextDescription
-        }
-        pageUrlRelative
-      }
-    }
-  }
   karmaChangeLastOpened
   shortformFeedId
   viewUnreviewedComments
+`);
+
+registerFragment(`
+  fragment UserKarmaChanges on User {
+    karmaChanges {
+      totalChange
+      updateFrequency
+      startDate
+      endDate
+      nextBatchDate
+      posts {
+        _id
+        scoreChange
+        title
+        slug
+      }
+      comments {
+        _id
+        scoreChange
+        description
+        postId
+      }
+    }
+  }
 `);
 
 registerFragment(`
@@ -306,6 +311,7 @@ registerFragment(`
     # vulcan:users
     _id
     slug
+    createdAt
     username
     displayName
     fullName
@@ -314,6 +320,11 @@ registerFragment(`
     afKarma
     deleted
     groups
+    htmlBio
+    postCount
+    commentCount
+    afPostCount 
+    afCommentCount
   }
 `);
 
@@ -348,6 +359,10 @@ registerFragment(`
     mongoLocation
     shortformFeedId
     viewUnreviewedComments
+    notifications_users
+    notifications_posts
+    auto_subscribe_to_my_posts
+    auto_subscribe_to_my_comments
   }
 `);
 
@@ -371,7 +386,7 @@ registerFragment(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
-    
+
     # Moderation
     moderatorAssistance
     collapseModerationGuidelines
@@ -402,10 +417,10 @@ registerFragment(`
     groups
     afApplicationText
     afSubmittedApplication
-    
+
     # Karma Settings
     karmaChangeLastOpened
-    karmaChangeNotifierSettings 
+    karmaChangeNotifierSettings
   }
 `)
 

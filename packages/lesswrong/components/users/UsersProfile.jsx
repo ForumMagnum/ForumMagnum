@@ -1,4 +1,4 @@
-import { Components, replaceComponent, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from 'react-router';
@@ -7,7 +7,6 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 
@@ -80,7 +79,7 @@ const UsersProfile = (props) => {
         </Components.MetaInfo>}
         { !!afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
         { !!afKarma && <Components.MetaInfo title="Alignment Karma">
-            {afKarma || 0}
+            {afKarma}
           </Components.MetaInfo>
         }
         <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
@@ -118,8 +117,8 @@ const UsersProfile = (props) => {
                 </div>
               }
             >
-              <Components.PostsList terms={draftTerms} showHeader={false}/>
-              <Components.PostsList terms={unlistedTerms} showHeader={false} showNoResults={false}/>
+              <Components.PostsList2 terms={draftTerms}/>
+              <Components.PostsList2 terms={unlistedTerms} showNoResults={false}/>
             </Components.Section>
           }
         </div>
@@ -134,7 +133,7 @@ const UsersProfile = (props) => {
               <Components.PostsViews defaultView="community" hideDaily={true}/>
             </div>}
         >
-          <Components.PostsList terms={terms} showHeader={false} />
+          <Components.PostsList2 terms={terms} />
         </Components.Section>
       )
     }

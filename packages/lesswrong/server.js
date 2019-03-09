@@ -10,6 +10,7 @@ import './server/database-import/cleanup_scripts.js';
 import './server/scripts/sscImport.js';
 import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
+import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
@@ -30,12 +31,14 @@ import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
 import './server/scripts/logMongoQueries.js';
 import './server/scripts/fillMissing.js';
+import './server/scripts/recomputeDenormalized.js';
 import './server/scripts/validateDatabase.js';
 import './server/migrations';
 
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
+import './server/mapsUtils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
@@ -46,10 +49,13 @@ import './server/votingCron.js';
 import './server/votingGraphQL.js';
 import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
+import './server/callbacks.js';
+import './server/voteServer.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
 import './lib/collections/posts/callbacks.js';
+import './lib/collections/posts/validate.js';
 import './lib/collections/chapters/callbacks.js';
 import './lib/collections/sequences/callbacks.js';
 import './lib/collections/books/callbacks.js';
@@ -62,6 +68,7 @@ import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
+import './lib/collections/posts/serverSchema.js';
 
 import './lib/events/server.js';
 
@@ -71,6 +78,7 @@ import './lib/modules/connection_logs.js';
 // Algolia Search Integration
 import './server/search/utils.js';
 import './server/search/callbacks.js';
+import './server/search/algoliaCron.js';
 
 //eslint-disable-next-line no-console
 console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));

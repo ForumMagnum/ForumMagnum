@@ -1,15 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { replaceComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 
 import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Checkbox from '@material-ui/core/Checkbox';
 
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import { withRouter } from 'react-router'
 
 const styles = theme => ({
   formSubmit: {
@@ -23,7 +20,6 @@ const styles = theme => ({
     fontSize: 16,
     marginLeft: 5,
     fontWeight: 500,
-    flexGrow:1,
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     }
@@ -35,46 +31,6 @@ const styles = theme => ({
 
   submitButton: {
     color: theme.palette.secondary.main,
-    maxWidth:100,
-  },
-  submitToFrontpageWrapper: {
-    flexGrow: 3,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%",
-      order:1
-    }
-  },
-  submitToFrontpage: {
-    display: "flex",
-    alignItems: "center",
-    maxWidth: 300,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%",
-      maxWidth: "none",
-      justifyContent: "flex-end",
-      paddingRight: theme.spacing.unit*3,
-    }
-  },
-  checkboxLabel: {
-    fontWeight:500,
-    fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 16,
-    color: "rgba(0,0,0,0.4)",
-  },
-  tooltip: {
-    '& ul': {
-      paddingTop: 0,
-      paddingBottom: 0,
-      marginTop: theme.spacing.unit/2,
-      paddingLeft: theme.spacing.unit*3,
-    },
-    '& p': {
-      marginTop: theme.spacing.unit/2,
-      marginBottom: theme.spacing.unit/2
-    }
-  },
-  guidelines: {
-    fontStyle: "italic"
   },
   cancelButton: {
     flexGrow:1,
@@ -83,49 +39,17 @@ const styles = theme => ({
     }
   },
   draft: {
-    maxWidth:150,
+    marginLeft: 'auto'
   }
 });
 
 class PostSubmit extends PureComponent {
-  state = { submitToFrontpage: true }
-
   render() {
-    const { submitLabel = "Submit", cancelLabel = "Cancel", cancelCallback, document, collectionName, classes, router } = this.props
-
+    const { submitLabel = "Submit", cancelLabel = "Cancel", cancelCallback, document, collectionName, classes } = this.props
     const { updateCurrentValues } = this.context
-    
-    // FIXME: Have this use something other than a query parameter so that (among possible other things) it doesn't behave weird when you open a question dialog while viewing an editEvent page
-    const eventForm = router.location && router.location.query && router.location.query.eventForm;
-    const submitToFrontpage = this.state.submitToFrontpage && !eventForm
 
     return (
-      <div className={classes.formSubmit}>
-        <div className={classes.submitToFrontpageWrapper}>
-          <Tooltip title={<div className={classes.tooltip}>
-              <p>LW moderators will consider this post for frontpage</p>
-              <p className={classes.guidelines}>Things to aim for:</p>
-              <ul>
-                <li className={classes.guidelines}>
-                  Usefulness, novelty and fun
-                </li>
-                <li className={classes.guidelines}>
-                  Timeless content (minimize reference to current events)
-                </li>
-                <li className={classes.guidelines}>
-                  Explain rather than persuade
-                </li>
-              </ul>
-            </div>
-            }>
-            <div className={classes.submitToFrontpage}>
-              {!eventForm && <div>
-                <Checkbox checked={submitToFrontpage} onClick={() => this.setState({submitToFrontpage: !submitToFrontpage})}/>
-                <span className={classes.checkboxLabel}>Moderators may promote</span></div>}
-            </div>
-          </Tooltip>
-        </div>
-
+      <React.Fragment>
         {!!cancelCallback &&
           <div className={classes.cancelButton}>
             <Button
@@ -149,13 +73,13 @@ class PostSubmit extends PureComponent {
 
         <Button
           type="submit"
-          onClick={() => collectionName === "posts" && updateCurrentValues({draft: false, submitToFrontpage: submitToFrontpage})}
+          onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
           variant={collectionName=="users" ? "outlined" : undefined}
         >
           {submitLabel}
         </Button>
-      </div>
+      </React.Fragment>
     );
   }
 }
@@ -177,7 +101,8 @@ PostSubmit.contextTypes = {
 
 
 // Replaces FormSubmit from vulcan-forms.
-replaceComponent('PostSubmit', PostSubmit,
-  withUser, withTheme(), withRouter,
+registerComponent('PostSubmit', PostSubmit,
+  withUser, 
   withStyles(styles, { name: "PostSubmit" })
 );
+

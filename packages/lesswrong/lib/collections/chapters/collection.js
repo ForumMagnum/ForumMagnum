@@ -25,21 +25,13 @@ const options = {
   },
 }
 
-
 export const Chapters = createCollection({
-
   collectionName: 'Chapters',
-
   typeName: 'Chapter',
-
   schema,
-
   resolvers: getDefaultResolvers('Chapters'),
-
   mutations: getDefaultMutations('Chapters', options),
 })
-
-export default Chapters;
 
 export const makeEditableOptions = {
   order: 30,
@@ -50,3 +42,5 @@ makeEditable({
   options: makeEditableOptions
 })
 addUniversalFields({collection: Chapters})
+
+export default Chapters;

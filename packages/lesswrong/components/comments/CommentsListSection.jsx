@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import {
@@ -181,14 +180,9 @@ class CommentsListSection extends Component {
             />
           </div>
         }
-        {currentUser && !Users.isAllowedToComment(currentUser, post) && (
-          <div className="i18n-message author_has_banned_you">
-            { Users.blockedCommentingReason(currentUser, post)}
-          { !(getSetting('AlignmentForum', false)) && <span>
-              (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
-            </span> }
-          </div>
-        )}
+        {currentUser && !Users.isAllowedToComment(currentUser, post) &&
+          <Components.CantCommentExplanation post={post}/>
+        }
         <Components.CommentsList
           currentUser={currentUser}
           totalComments={totalComments}

@@ -6,17 +6,11 @@ import { addUniversalFields } from '../../collectionUtils'
 
 export const Books = createCollection({
   collectionName: 'Books',
-
   typeName: 'Book',
-
   schema,
-
   resolvers: getDefaultResolvers('Books'),
-
   mutations: getDefaultMutations('Books'),
 });
-
-export default Books;
 
 export const makeEditableOptions = {
   order: 20
@@ -27,3 +21,5 @@ makeEditable({
   options: makeEditableOptions
 })
 addUniversalFields({collection: Books})
+
+export default Books;

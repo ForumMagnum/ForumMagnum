@@ -2,13 +2,23 @@ import {
   Components,
   registerComponent,
   withMessages,
-  withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  listDivider: {
+    marginTop: 12,
+    marginRight: 37,
+    marginLeft: 32,
+    border: 0,
+    borderTop: "1px solid #eee",
+  },
+});
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -53,7 +63,7 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const {router} = this.props;
+    const {classes, router} = this.props;
     const filters = (router.location.query && router.location.query.filters) || [];
     
     const postsListTerms = {
@@ -95,31 +105,25 @@ class CommunityHome extends Component {
             <Link to="/upcomingEvents">See upcoming events</Link>
           </Components.SectionSubtitle>
         </div>}>
-          {this.state.currentUserLocation &&
-            <div>
-              { this.state.currentUserLocation.loading
-                ? <Components.Loading />
-                : <Components.LocalGroupsList
-                    terms={groupsListTerms}
-                    showHeader={false} />}
-              <hr className="community-home-list-divider"/>
-              <Components.PostsList
-                terms={postsListTerms}
+        <div>
+          { this.state.currentUserLocation.loading
+            ? <Components.Loading />
+            : <Components.LocalGroupsList
+                terms={groupsListTerms}
                 showHeader={false} />
-            </div>}
+          }
+          <hr className={classes.listDivider}/>
+          <Components.PostsList terms={postsListTerms} />
+        </div>
         </Components.Section>
         <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />
+          <Components.PostsList terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
         </Components.Section>
       </div>
     )
   }
 }
 
-
-const withEditOptions = {
-  collection: Users,
-  fragmentName: 'UsersProfile',
-};
-
-registerComponent('CommunityHome', CommunityHome, withUser, withMessages, withRouter, [withEdit, withEditOptions]);
+registerComponent('CommunityHome', CommunityHome,
+  withUser, withMessages, withRouter,
+  withStyles(styles, { name: "CommunityHome" }));

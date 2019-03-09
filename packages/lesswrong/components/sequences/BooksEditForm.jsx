@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Books from '../../lib/collections/books/collection.js';
 
 const BooksEditForm = (props) => {
@@ -13,7 +12,7 @@ const BooksEditForm = (props) => {
         cancelCallback={props.cancelCallback}
         prefilledProps={props.prefilledProps}
         showRemove={true}
-        queryFragment={getFragment('BookPageFragment')}
+        queryFragment={getFragment('BookEdit')}
         mutationFragment={getFragment('BookPageFragment')}
       />
     </div>

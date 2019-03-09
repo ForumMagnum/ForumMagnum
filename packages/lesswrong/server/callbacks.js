@@ -1,16 +1,16 @@
-import Notifications from '../collections/notifications/collection.js';
-import Messages from '../collections/messages/collection.js';
-import Conversations from '../collections/conversations/collection.js';
-import Reports from '../collections/reports/collection.js';
+import Notifications from '../lib/collections/notifications/collection.js';
+import Messages from '../lib/collections/messages/collection.js';
+import Conversations from '../lib/collections/conversations/collection.js';
+import Reports from '../lib/collections/reports/collection.js';
 
 import { getCollection } from 'meteor/vulcan:lib';
-import Localgroups from '../collections/localgroups/collection.js';
-import { Bans } from '../collections/bans/collection.js';
+import Localgroups from '../lib/collections/localgroups/collection.js';
+import { Bans } from '../lib/collections/bans/collection.js';
 import Users from 'meteor/vulcan:users';
-import { Votes } from '../collections/votes';
-import { cancelVoteServer } from './vote.js';
-import { Posts } from '../collections/posts';
-import { Comments } from '../collections/comments'
+import { Votes } from '../lib/collections/votes';
+import { cancelVoteServer } from './voteServer.js';
+import { Posts } from '../lib/collections/posts';
+import { Comments } from '../lib/collections/comments'
 import VulcanEmail from 'meteor/vulcan:email'
 import {
   addCallback,
@@ -23,10 +23,7 @@ import {
   runQuery
 } from 'meteor/vulcan:core';
 
-import { performSubscriptionAction } from '../subscriptions/mutations.js';
-import ReactDOMServer from 'react-dom/server';
-import { Components } from 'meteor/vulcan:core';
-import React from 'react';
+import { performSubscriptionAction } from '../lib/subscriptions/mutations.js';
 
 
 function updateConversationActivity (message) {
@@ -375,7 +372,7 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   votes.forEach((vote) => {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    reverseVote(vote, collection);
+    reverseVote(vote);
   });
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
@@ -418,6 +415,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -460,6 +458,7 @@ function userDeleteContent(user) {
       removeMutation({
         collection: Notifications,
         documentId: notification._id,
+        validate: false,
       })
     })
 
@@ -503,7 +502,7 @@ async function userIPBan(user) {
   `;
   const IPs = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.user.data.IPs.forEach(ip => {
+    IPs.data.user.result.IPs.forEach(ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const ban = {

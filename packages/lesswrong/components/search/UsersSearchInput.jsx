@@ -1,5 +1,5 @@
-import { Components, registerComponent} from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import { registerComponent } from 'meteor/vulcan:core';
+import React from 'react';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Icon from '@material-ui/core/Icon'

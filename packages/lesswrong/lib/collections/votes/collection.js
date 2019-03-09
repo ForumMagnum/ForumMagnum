@@ -7,6 +7,7 @@ export const Votes = createCollection({
   typeName: 'Vote',
   schema,
 });
-export default Votes;
 
 addUniversalFields({collection: Votes})
+
+export default Votes;

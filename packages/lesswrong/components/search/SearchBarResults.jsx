@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
 const styles = theme => ({
   root: {
@@ -67,7 +67,7 @@ class SearchBarResults extends Component {
         <CurrentRefinements />
         <Components.ErrorBoundary>
           <Grid item xs={12} sm={6} md={5} className={classes.searchList}>
-            <Index indexName="test_posts">
+            <Index indexName={algoliaIndexNames.Posts}>
               <div className={classes.header}>
                 <Typography variant="display1">Posts</Typography>
                 <Components.SearchPagination />
@@ -80,7 +80,7 @@ class SearchBarResults extends Component {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Grid item xs={12} sm={6} md={4} className={classes.searchList}>
-            <Index indexName="test_comments">
+            <Index indexName={algoliaIndexNames.Comments}>
               <div className={classes.header}>
                 <Typography variant="display1">Comments</Typography>
                 <Components.SearchPagination />
@@ -92,7 +92,7 @@ class SearchBarResults extends Component {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Grid item xs={12} sm={4} md={3} className={classes.searchList}>
-            <Index indexName= "test_users">
+            <Index indexName={algoliaIndexNames.Users}>
               <div className={classes.header}>
                 <Typography variant="display1">Users</Typography>
                 <Components.SearchPagination />
