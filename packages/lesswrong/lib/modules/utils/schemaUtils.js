@@ -53,6 +53,9 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
 }
 
 export const arrayOfForeignKeysField = ({idFieldName, resolverName, collectionName, type}) => {
+  if (!idFieldName || !resolverName || !collectionName || !type)
+    throw new Error("Missing argument to foreignKeyField");
+  
   return {
     type: Array,
     resolveAs: {
@@ -71,6 +74,7 @@ const simplSchemaToGraphQLtype = (type) => {
   if (type === String) return "String";
   else if (type === Number) return "Int";
   else if (type === Date) return "Date";
+  else throw new Error("Invalid type in simplSchemaToGraphQLtype ");
 }
 
 export const resolverOnlyField = ({type, graphQLtype=null, resolver, ...rest}) => {
