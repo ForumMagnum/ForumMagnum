@@ -21,19 +21,17 @@ registerMigration({
           [fieldName]: false,
         },
         migrate: async (documents) => {
-          let updates = [];
-          for (let doc of documents) {
-            updates.push({
-              updateOne: {
-                filter: { _id: doc._id },
-                update: {
-                  $set: {
-                    [fieldName]: null
-                  }
+          let updates = _.map(documents, doc => ({
+            updateOne: {
+              filter: { _id: doc._id },
+              update: {
+                $set: {
+                  [fieldName]: null
                 }
               }
-            });
-          }
+            }
+          }));
+         
           await Posts.rawCollection().bulkWrite(updates, { ordered: false });
         },
       });
