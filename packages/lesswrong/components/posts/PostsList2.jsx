@@ -39,8 +39,11 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
   const limit = terms.limit || 10
-  const maybeMorePosts = !!(results && results.length && (results.length >= limit)) // We don't actually know if there are more posts here
-                                                                                    // but if this condition fails to meet we know that there definitely are no more posts
+
+  // We don't actually know if there are more posts here, 
+  // but if this condition fails to meet we know that there definitely are no more posts
+  const maybeMorePosts = !!(results && results.length && (results.length >= limit))  
+                                                                                     
 
   return (
     <div className={classNames({[classes.loading]: loading && dimWhenLoading})}>
