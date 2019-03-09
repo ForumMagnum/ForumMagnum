@@ -118,15 +118,15 @@ export const draftToHTML = convertToHTML({
   blockToHTML: (block) => {
     const type = block.type;
 
-    // const linkable = [
-    //   'ordered-list-item',
-    //   'unordered-list-item',
-    //   'paragraph',
-    //   'unstyled'
-    // ]
-    // if (linkable.includes(type)) {
-    //   return autolink(block.text)
-    // }
+    const linkable = [
+      'ordered-list-item',
+      'unordered-list-item',
+      'paragraph',
+      'unstyled'
+    ]
+    if (linkable.includes(type)) {
+      return autolink(block.text)
+    }
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
