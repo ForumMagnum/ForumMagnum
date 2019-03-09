@@ -67,25 +67,25 @@ class SunshineReportedItem extends Component {
     const post = report.post
     const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview  } = Components
 
-    if (!post) return;
+    if (!post) return null;
     
     return (
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
             <Link to={Posts.getPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
-              Post: <strong>{ post && post.title }</strong>
+              Post: <strong>{ post.title }</strong>
             </Link>
             {comment && <div>
               <MetaInfo>Comment:</MetaInfo>
               <div><CommentBody comment={comment}/></div>
             </div>}
-            {post && !comment && <PostsHighlight post={post}/>}
+            {!comment && <PostsHighlight post={post}/>}
           </Typography>
         </SidebarHoverOver>
         {comment && <SunshineCommentsItemOverview comment={comment}/>}
         <SidebarInfo>
-          {post && !comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
+          {!comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
           <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <FormatDate date={report.createdAt}/>
         </SidebarInfo>
         {hover && <SidebarActionMenu>
