@@ -20,7 +20,6 @@ class IFrame extends Component {
     const iframe = this.iframeRef && this.iframeRef.current;
     if (iframe) {
       const document = iframe.contentDocument;
-      const head = document.getElementsByTagName('head')[0];
       document.body.innerHTML = this.props.content;
     }
   }
