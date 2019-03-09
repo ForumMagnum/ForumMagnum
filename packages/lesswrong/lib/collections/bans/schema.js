@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
 
 const schema = {
   _id: {
@@ -24,19 +24,15 @@ const schema = {
     searchable: true,
   },
   userId: {
-    type: String,
-    foreignKey: "Users",
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true,
-    },
     optional: true,
     hidden: true,
   },
