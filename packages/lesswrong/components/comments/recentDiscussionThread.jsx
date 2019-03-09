@@ -32,7 +32,6 @@ const styles = theme => ({
     overflowY: "hidden",
   },
   postItem: {
-    paddingLeft:10,
     paddingBottom:10,
     ...theme.typography.postStyle,
   },
@@ -59,6 +58,9 @@ const styles = theme => ({
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
+  },
+  noComments: {
+    borderBottom: "solid 1px rgba(0,0,0,.2)"
   }
 })
 
@@ -130,7 +132,7 @@ class RecentDiscussionThread extends PureComponent {
       return null
     }
 
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null})
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {[classes.noComments]:post.commentCount === null})
 
     return (
       <div className="recent-discussion-thread-wrapper">

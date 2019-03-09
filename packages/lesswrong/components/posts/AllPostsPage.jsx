@@ -24,13 +24,13 @@ const styles = theme => ({
 });
 
 class AllPostsPage extends Component {
-  state = { 
-    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false 
+  state = {
+    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false
   };
 
   toggleSettings = () => {
     const { currentUser, updateUser } = this.props
-    
+
     this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
       if (currentUser) {
         updateUser({
@@ -38,7 +38,7 @@ class AllPostsPage extends Component {
           data: {
             allPostsOpenSettings: this.state.showSettings,
           },
-        })  
+        })
       }
     })
   }
@@ -76,9 +76,9 @@ class AllPostsPage extends Component {
             <SettingsIcon className={classes.settingsIcon} onClick={this.toggleSettings}/>
           </Tooltip>
         </SectionTitle>
-        <AllPostsPageSettings 
-          hidden={!showSettings} 
-          currentView={currentView} 
+        <AllPostsPageSettings
+          hidden={!showSettings}
+          currentView={currentView}
           currentFilter={currentFilter}
           currentShowLowKarma={currentShowLowKarma}
         />

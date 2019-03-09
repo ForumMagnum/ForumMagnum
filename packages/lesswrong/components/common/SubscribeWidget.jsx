@@ -5,28 +5,26 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 const styles = theme => ({
+  icon: {
+    width: "1.2rem"
+  },
   buttons: {
     display: "inline",
-    marginTop: "8px",
   },
   subscribeButton: {
     position: "relative",
     top: "2px",
     display: "inline",
-    paddingLeft: theme.spacing.unit,
-    color: theme.palette.text.secondary,
+    paddingLeft: 5,
+    color: theme.palette.primary.main,
     cursor: "pointer",
     "&:hover": {
-      color: theme.palette.text.primary
+      color: theme.palette.primary.main
     }
   },
-  subscribeLabel: {
-    display: "inline",
-    cursor: "pointer",
-    color: theme.palette.text.secondary
-  },
-  highlightedLabel: {
-    color: theme.palette.text.primary
+  label: {
+    width: 58,
+    textAlign: "center"
   }
 });
 
@@ -62,40 +60,35 @@ class SubscribeWidget extends Component {
 
   render() {
     const { classes, className, view } = this.props;
-    const { dialogOpen, method, subscribeLabel, subscribeLabelHighlighted } = this.state;
+    const { dialogOpen, method, subscribeLabel } = this.state;
 
     return (
-      <div className={classNames(className, classes.buttons)}>
-        <div
-          className={classNames(
-            { [classes.highlightedLabel]: subscribeLabelHighlighted },
-            classes.subscribeLabel)}
-          onClick={ () => this.openDialog("email") }
-        >
+      <span className={classNames(className, classes.buttons)}>
+        <span className={classes.label} onClick={ () => this.openDialog("email") }>
           {subscribeLabel}
-        </div>
-        <div
+        </span>
+        <span
           className={classes.subscribeButton}
           onClick={ () => this.openDialog("rss") }
           onMouseEnter={ () => this.setSubscribeLabel("Via RSS") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
           <Icon fontSize="inherit" className={classes.icon}>rss_feed</Icon>
-        </div>
-        <div
+        </span>
+        <span
           className={classes.subscribeButton}
           onClick={ () => this.openDialog("email") }
           onMouseEnter={ () => this.setSubscribeLabel("Via Email") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
           <Icon fontSize="inherit" className={classes.icon}>email</Icon>
-        </div>
+        </span>
         { dialogOpen && <Components.SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
           view={view}
           method={method} /> }
-      </div>
+      </span>
     );
   }
 }

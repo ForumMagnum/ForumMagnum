@@ -20,21 +20,16 @@ const styles = theme => ({
 
 
 const RecommendedReading = ({currentUser, classes}) => {
+  const { SingleColumnSection, SectionTitle } = Components
+
   const sectionTitle = currentUser ? "Recommended Sequences" : "Recommended Reading";
   
+
   const sectionWrapper = (recommendedContent) => (
-    <Components.Section
-      title={sectionTitle}
-      titleLink="/library"
-      className={classes.section}
-      titleComponent= {
-        <Hidden smDown implementation="css">
-          <Components.SectionSubtitle to="/library">
-            <Link to="/library">Sequence Library</Link>
-          </Components.SectionSubtitle>
-        </Hidden>
-      }
-    >{recommendedContent}</Components.Section>
+    <SingleColumnSection>
+      <SectionTitle title={sectionTitle}/>
+      {recommendedContent}
+    </SingleColumnSection>
   );
   
   if (currentUser) {

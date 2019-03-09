@@ -17,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, currentUser, dimWhenLoading, error, classes, terms, showLoadMore = true, showNoResults = true}) => {
+const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, networkStatus, currentUser, dimWhenLoading, error, classes, terms, showLoadMore = true, showNoResults = true}) => {
 
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
@@ -26,12 +26,12 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   //         Alternatively, is there a better way of checking that this is
   //         in fact the best way of checking loading status?
 
-  // TODO-A (2019-2-20): For now, solving this with a flag that determines whether 
+  // TODO-A (2019-2-20): For now, solving this with a flag that determines whether
   //                     to dim the list during loading, so that the pages where that
-  //                     behavior was more important can work fine. Will probably 
+  //                     behavior was more important can work fine. Will probably
   //                     fix this for real when Apollo 2 comes out
-  
-  const { Loading, PostsItem2, PostsLoadMore, PostsNoResults } = Components
+
+  const { Loading, PostsItem2, PostsLoadMore, PostsNoResults, SectionFooter } = Components
 
   const loadingMore = networkStatus === 2 || networkStatus === 1;
 
@@ -43,8 +43,11 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
       {error && <Error error={Utils.decodeIntlError(error)} />}
       {loading && dimWhenLoading && <Loading />}
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
-      {loading && !dimWhenLoading && <Loading />}
-      {showLoadMore && <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount}/>}
+      <SectionFooter>
+        { !dimWhenLoading && loading && <Loading />}
+        { showLoadMore && !loading && <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount}/>}
+        { children }
+      </SectionFooter>
     </div>
   )
 }

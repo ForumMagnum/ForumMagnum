@@ -3,8 +3,16 @@ import { Components, registerComponent, withList, Loading, withEdit } from 'mete
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles'
+
+const styles = theme => ({
+  root: {
+    marginTop: theme.spacing.unit*3
+  }
+})
 
 const RecentDiscussionThreadsList = ({
+  classes,
   results,
   loading,
   loadMore,
@@ -19,8 +27,7 @@ const RecentDiscussionThreadsList = ({
   }
 
   return (
-    <div>
-      <div className="discussion-thread-list">
+    <div className={classes.root}>
         {loading || !results ? <Loading /> :
         <div className="discussion-threads">
           {results.map((post, i) =>
@@ -35,7 +42,6 @@ const RecentDiscussionThreadsList = ({
           )}
           {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
         </div>}
-      </div>
     </div>)
   }
 
@@ -53,4 +59,4 @@ const withEditOptions = {
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser, withStyles(styles, {name:"RecentDiscussionThreadsList"}));
