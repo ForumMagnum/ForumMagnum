@@ -343,7 +343,7 @@ ensureIndex(Posts,
 );
 ensureIndex(Posts,
   augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
-  { name: "posts.userId_createdAt" }
+  { name: "posts.userId_shareWithUsers" }
 );
 
 /**
