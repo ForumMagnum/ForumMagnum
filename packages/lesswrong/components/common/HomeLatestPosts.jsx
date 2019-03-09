@@ -38,7 +38,7 @@ class HomeLatestPosts extends PureComponent {
 
   render () {
     const { classes, query, currentView, limit } = this.props;
-    const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterItem, FooterDivider } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   
     const recentPostsTerms = {
       view: currentView,

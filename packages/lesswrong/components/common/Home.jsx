@@ -3,25 +3,6 @@ import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles'
-import Checkbox from '@material-ui/core/Checkbox';
-
-function getPostsSectionTitle(view, currentUser) {
-  switch (view) {
-    case "frontpage":
-      return "Frontpage Posts";
-    case "curated":
-      if (currentUser) {
-        return "More Curated";
-      } else {
-        return "Curated Posts";
-      }
-    case "community":
-      return "All Posts";
-    default:
-      return "Recent Posts";
-  }
-}
 
 const Home = (props) => {
   const { currentUser, router } = props;
