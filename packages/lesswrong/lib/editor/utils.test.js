@@ -4,8 +4,6 @@ import { render } from 'enzyme'
 
 import { autolink } from './utils'
 
-chai.should()
-
 describe('Autolink', () => {
   const tests = [
     {

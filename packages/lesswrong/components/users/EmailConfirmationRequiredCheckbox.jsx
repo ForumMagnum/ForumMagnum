@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 

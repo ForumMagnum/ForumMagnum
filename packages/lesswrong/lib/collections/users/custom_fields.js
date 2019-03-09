@@ -79,7 +79,8 @@ Users.addField([
       type: Date,
       onInsert: (user, options) => {
         return user.createdAt || new Date();
-      }
+      },
+      canRead: ["guests"]
     }
   },
 
@@ -220,6 +221,49 @@ Users.addField([
     fieldName: 'currentFrontpageFilter',
     fieldSchema: {
       type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsFilter',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsView',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+    }
+  },
+  {
+    fieldName: 'allPostsShowLowKarma',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      canRead: Users.owns,
+      canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+      canCreate: Users.owns,
+      hidden: true,
+    }
+  },
+  {
+    fieldName: 'allPostsOpenSettings',
+    fieldSchema: {
+      type: Boolean,
       optional: true,
       canRead: Users.owns,
       canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -481,19 +525,6 @@ Users.addField([
   },
 
   /**
-    algoliaIndexAt: Last time the record was indexed by algolia. Undefined if it hasn't yet been indexed.
-  */
-
-  {
-    fieldName: 'algoliaIndexAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      canRead: ['guests']
-    }
-  },
-
-  /**
     voteBanned: All future votes of this user have weight 0
   */
 
@@ -627,8 +658,8 @@ Users.addField([
       optional: true,
       control: "KarmaChangeNotifierSettings",
       canRead: [Users.owns, 'admins'],
-      canUpdate: ['admins', 'sunshineRegiment'],
-      canCreate: ['admins', 'sunshineRegiment'],
+      canUpdate: [Users.owns, 'admins', 'sunshineRegiment'],
+      canCreate: [Users.owns, 'admins', 'sunshineRegiment'],
       ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
     },
   },

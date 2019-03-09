@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';

@@ -1,5 +1,3 @@
-import React from 'react'
-import { Components } from "meteor/vulcan:core";
 import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
@@ -241,19 +239,6 @@ Comments.addField([
       control: "checkbox",
       hidden: true,
       ...schemaDefaultValue(false),
-    }
-  },
-
-  /**
-    algoliaIndexAt: Last time the record was indexed by algolia. Undefined if it hasn't yet been indexed.
-  */
-
-  {
-    fieldName: 'algoliaIndexAt',
-    fieldSchema: {
-      type: Date,
-      optional: true,
-      canRead: ['guests']
     }
   },
 

@@ -5,50 +5,39 @@ import Users from 'meteor/vulcan:users';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import { algoliaDocumentExport } from './utils.js';
 
-function newCommentAlgoliaIndex(comment) {
-  algoliaDocumentExport([comment], Comments, 'test_comments', Comments.toAlgolia, (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}}))
-  // console.log("Indexed new comment into Algolia: ", comment);
-}
-addCallback("comments.new.async", newCommentAlgoliaIndex)
 
-function editCommentAlgoliaIndex(comment) {
-  algoliaDocumentExport([comment], Comments, 'test_comments', Comments.toAlgolia, (comment) => Comments.update(comment._id, {$set: {algoliaIndexAt: new Date()}}))
-  // console.log("Updated Algolia index for edited comment", comment);
+async function commentAlgoliaIndex(comment) {
+  await algoliaDocumentExport({
+    documents: [comment],
+    collection: Comments,
+  })
 }
-addCallback("comments.edit.async", editCommentAlgoliaIndex)
+addCallback("comments.new.async", commentAlgoliaIndex)
+addCallback("comments.edit.async", commentAlgoliaIndex)
 
-function newPostAlgoliaIndex(post) {
-  if (!post.draft) {
-    algoliaDocumentExport([post], Posts, 'test_posts', Posts.toAlgolia, (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}}))
-    // console.log("Indexed new post into Algolia: ", post);
-  }
+async function postAlgoliaIndex(post) {
+  await algoliaDocumentExport({
+    documents: [post],
+    collection: Posts,
+  })
 }
-addCallback("posts.new.async", newPostAlgoliaIndex)
+addCallback("posts.new.async", postAlgoliaIndex)
+addCallback("posts.edit.async", postAlgoliaIndex)
 
-function editPostAlgoliaIndex(post) {
-  if (!post.draft) {
-    algoliaDocumentExport([post], Posts, 'test_posts', Posts.toAlgolia, (post) => Posts.update(post._id, {$set: {algoliaIndexAt: new Date()}}))
-    // console.log("Updated Algolia index for edited post ", post);
-  }
+async function userAlgoliaIndex(user) {
+  await algoliaDocumentExport({
+    documents: [user],
+    collection: Users,
+  })
 }
-addCallback("posts.edit.async", editPostAlgoliaIndex)
+addCallback("users.new.async", userAlgoliaIndex)
+addCallback("users.edit.async", userAlgoliaIndex)
 
-function newUserAlgoliaIndex(user) {
-  algoliaDocumentExport([user], Users, 'test_users', Users.toAlgolia, (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}}))
+async function sequenceAlgoliaIndex(sequence) {
+  await algoliaDocumentExport({
+    documents: [sequence],
+    collection: Sequences,
+  })
 }
-addCallback("users.new.async", newUserAlgoliaIndex)
-
-function editUserAlgoliaIndex(user) {
-  algoliaDocumentExport([user], Users, 'test_users', Users.toAlgolia, (user) => Users.update(user._id, {$set: {algoliaIndexAt: new Date()}}))
-}
-addCallback("users.edit.async", editUserAlgoliaIndex)
-
-function newSequenceAlgoliaIndex(sequence) {
-  algoliaDocumentExport([sequence], Sequences, 'test_sequences', Sequences.toAlgolia, (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}}))
-}
-addCallback("sequences.new.async", newSequenceAlgoliaIndex)
-
-function editSequenceAlgoliaIndex(sequence) {
-  algoliaDocumentExport([sequence], Sequences, 'test_sequences', Sequences.toAlgolia, (sequence) => Sequences.update(sequence._id, {$set: {algoliaIndexAt: new Date()}}))
-}
-addCallback("sequences.edit.async", editSequenceAlgoliaIndex);
+addCallback("sequences.new.async", sequenceAlgoliaIndex)
+addCallback("sequences.edit.async", sequenceAlgoliaIndex);

@@ -6,7 +6,7 @@ registerMigration({
   name: "replaceObjectIdsInEditableFieldsAndVotes",
   idempotent: true,
   action: async () => {
-    for (let collectionName of [...editableCollections, "Votes"]) {
+    for (let collectionName of [...editableCollections, "Revisions", "Votes"]) {
       const collection = getCollection(collectionName)
       await migrateDocuments({
         description: `Replace object ids with strings in ${collectionName}`,
@@ -14,7 +14,7 @@ registerMigration({
         batchSize: 1000,
         unmigratedDocumentQuery: {
           _id: {$type: "objectId"}
-        }, 
+        },
         migrate: async (documents) => {
           const updates = documents.map((doc) => {
             return {
@@ -25,12 +25,12 @@ registerMigration({
                   _id: doc._id.valueOf(),
                   username: doc.username ? `Imported-${doc.username}` : undefined
                 },
-                upsert: true 
+                upsert: true
               }
             }
           })
           await collection.rawCollection().bulkWrite(
-            updates, 
+            updates,
             { ordered: false }
           )
           const _ids = _.pluck(documents, '_id')
@@ -43,7 +43,7 @@ registerMigration({
         batchSize: 1000,
         unmigratedDocumentQuery: {
           userId: {$type: "objectId"}
-        }, 
+        },
         migrate: async (documents) => {
           for (let doc of documents) {
             await collection.update(
@@ -56,7 +56,7 @@ registerMigration({
             )
           }
         }
-      })  
+      })
     }
   },
 });

@@ -1,5 +1,3 @@
-import React from 'react';
-import { Components } from 'meteor/vulcan:core';
 import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
 
 export const formGroups = {

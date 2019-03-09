@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';

@@ -1,6 +1,5 @@
-import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withVote } from './withVote';
 import { hasVotedClient } from '../../lib/modules/vote.js';

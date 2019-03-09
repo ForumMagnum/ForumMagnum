@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from 'meteor/vulcan:users';
-import PropTypes from 'prop-types';
 import withUser from '../../common/withUser';
 
 class BanUserFromAllPostsMenuItem extends PureComponent {

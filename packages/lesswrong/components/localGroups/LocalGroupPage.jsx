@@ -6,6 +6,7 @@ import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   groupSidebar: {
@@ -81,7 +82,7 @@ class LocalGroupPage extends Component {
     const { classes } = this.props;
     const { groupId } = this.props.params;
     const group = this.props.document;
-    const { html = ""} = (group && group.content) || {}
+    const { html = ""} = (group && group.contents) || {}
     const htmlBody = {__html: html}
     if (this.props.document) {
       const { googleLocation: { geometry: { location } }} = group;
@@ -94,14 +95,14 @@ class LocalGroupPage extends Component {
           />
           <Components.Section titleComponent={this.renderTitleComponent()}>
             {group && <div className={classes.groupDescription}>
-              <h2 className={classes.groupName}>{group.name}</h2>
+              <Typography variant="display2" className={classes.groupName}>{group.name}</Typography>
               <div className={classes.groupSubtitle}>
                 <div className={classes.groupLocation}>{group.location}</div>
                 <div className={classes.groupLinks}><Components.GroupLinks document={group} /></div>
               </div>
               <div dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
             </div>}
-            <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} showHeader={false} />
+            <Components.PostsList terms={{view: 'groupPosts', groupId: groupId}} />
           </Components.Section>
         </div>
       )

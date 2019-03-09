@@ -183,7 +183,7 @@ class Header extends Component {
                     <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
                   </NoSSR>
                   {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
-                  <KarmaChangeNotifier/>
+                  {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
                   {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>

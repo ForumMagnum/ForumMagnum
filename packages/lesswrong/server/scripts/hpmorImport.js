@@ -36,7 +36,6 @@ if (hpmorImport) {
         }
       },
     };
-    chapterNumber++;
 
     const lwUser = Users.findOne({_id: eliezerId});
     const oldPost = Posts.findOne({title: post.title});
