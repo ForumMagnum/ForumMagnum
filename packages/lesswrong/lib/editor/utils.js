@@ -1,5 +1,5 @@
 import React from 'react';
-import { convertFromHTML, convertToHTML } from 'draft-convert';
+import { convertFromHTML, convertToHTML } from './draft-convert/src';
 import { Utils } from 'meteor/vulcan:core';
 import linkifyIt from 'linkify-it'
 const linkify = linkifyIt()
@@ -10,16 +10,21 @@ const linkify = linkifyIt()
 // Export for testing
 export function autolink(text) {
   const matches = linkify.match(text)
-  if (!matches) return `<p>${text}</p>`
-  let resultPieces = ['<p>']
+  if (!matches) return <p />
   let lastLinkEndIndex = 0
-  for (const match of matches) {
-    resultPieces.push(text.substring(lastLinkEndIndex, match.index))
-    resultPieces.push(`<a href="${match.url}">${match.text}</a>`)
-    lastLinkEndIndex = match.lastIndex
-  }
-  resultPieces.push(`${text.substring(lastLinkEndIndex, text.length)}</p>`)
-  return resultPieces.join('')
+  const result = <p>
+    {matches.map(match => {
+      const result = <span key={match.index}>
+        {text.substring(lastLinkEndIndex, match.index)}
+        <a href={match.url}>{match.text}</a>
+      </span>
+      lastLinkEndIndex = match.lastIndex
+      return result
+    })}
+    {text.substring(lastLinkEndIndex, text.index)}
+  </p>
+  console.log('autolink result', result)
+  return result
 }
 
 // This currently only supports our limited subset of semVer
@@ -90,6 +95,7 @@ export const draftToHTML = convertToHTML({
         classNames = classNames + entity.data.alignment;
       }
       let style = "width:" + (entity.data.width || 40) + "%"
+      // TODO; maybe figure out this would work nested
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
     if (entity.type === 'LINK') {
@@ -113,6 +119,8 @@ export const draftToHTML = convertToHTML({
   },
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
+    console.log('my blocktohtml')
+    // console.log('block inner', block)
     const type = block.type;
 
     const linkable = [
