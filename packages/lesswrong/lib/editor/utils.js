@@ -1,5 +1,5 @@
 import React from 'react';
-import { convertFromHTML, convertToHTML } from './draft-convert/src';
+import { convertFromHTML, convertToHTML } from 'draft-convert';
 import { Utils } from 'meteor/vulcan:core';
 import linkifyIt from 'linkify-it'
 const linkify = linkifyIt()
@@ -23,7 +23,6 @@ export function autolink(text) {
     })}
     {text.substring(lastLinkEndIndex, text.index)}
   </p>
-  console.log('autolink result', result)
   return result
 }
 
@@ -51,7 +50,6 @@ export const htmlToDraft = convertFromHTML({
       )
     }
     // if (nodeName === 'img') {
-    //   console.log("image detected: ", node, node.src)
     //   return createEntity(
     //     'IMAGE',
     //     'IMMUTABLE',
@@ -95,7 +93,6 @@ export const draftToHTML = convertToHTML({
         classNames = classNames + entity.data.alignment;
       }
       let style = "width:" + (entity.data.width || 40) + "%"
-      // TODO; maybe figure out this would work nested
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
     if (entity.type === 'LINK') {
@@ -119,8 +116,6 @@ export const draftToHTML = convertToHTML({
   },
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
-    console.log('my blocktohtml')
-    // console.log('block inner', block)
     const type = block.type;
 
     const linkable = [

@@ -6,8 +6,7 @@ import { autolink } from './utils'
 
 chai.should()
 
-// TODO; remove only
-describe.only('Autolink', () => {
+describe('Autolink', () => {
   const tests = [
     {
       description: 'autolinks multiple links',
@@ -37,9 +36,7 @@ describe.only('Autolink', () => {
   for (const t of tests) {
     it(t.description, () => {
       const got = autolink(t.textIn)
-      console.log('hello world', Object.keys(got))
       render(got).text().should.equal(render(t.want).text())
-      // true.should.equal(true)
     })
   }
 })
