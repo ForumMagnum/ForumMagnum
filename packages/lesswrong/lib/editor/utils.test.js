@@ -1,5 +1,4 @@
 import React from 'react';
-import { chai } from 'meteor/practicalmeteor:chai'
 import { render } from 'enzyme'
 
 import { autolink } from './utils'
