@@ -42,9 +42,11 @@ export const servePostRSS = (terms, url) => {
 
   parameters.options.limit = 10;
 
-  const postsCursor = Posts.find(parameters.selector, parameters.options);
+  const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
+  const viewablePosts = _.filter(postsCursor, post => Posts.checkAccess(null, post));
+  const restrictedPosts = Users.restrictViewableFields(null, Posts, viewablePosts);
 
-  postsCursor.forEach((post) => {
+  restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -93,9 +95,11 @@ export const serveCommentRSS = (terms, url) => {
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
-  const commentsCursor = Comments.find(parameters.selector, parameters.options);
+  const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
+  const viewableComments = _.filter(commentsCursor, comment => Comments.checkAccess(null, comment));
+  const restrictedComments = Users.restrictViewableFields(null, Comments, viewableComments);
 
-  commentsCursor.forEach(function(comment) {
+  restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
 
     feed.item({
