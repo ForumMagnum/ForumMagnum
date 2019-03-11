@@ -1,4 +1,4 @@
-import { generateIdResolverSingle, generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 
 export const formGroups = {
   chapterDetails: {
@@ -20,9 +20,7 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   // Custom Properties
@@ -49,18 +47,6 @@ const schema = {
     group: formGroups.chapterDetails
   },
 
-  // plaintextDescription: {
-  //   type: String,
-  //   optional: true,
-  //   viewableBy: ['guests'],
-  // },
-
-  // htmlDescription: {
-  //   type: String,
-  //   optional: true,
-  //   viewableBy: ['guests'],
-  // },
-
   number: {
     type: Number,
     optional: true,
@@ -71,37 +57,30 @@ const schema = {
   },
 
   sequenceId: {
-    type: String,
-    foreignKey: "Sequences",
+    ...foreignKeyField({
+      idFieldName: "sequenceId",
+      resolverName: "sequence",
+      collectionName: "Sequences",
+      type: "Sequence",
+    }),
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'sequence',
-      type: 'Sequence',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Sequences', fieldName: 'sequenceId'}
-      ),
-      addOriginalField: true,
-    }
   },
 
   postIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "postIds",
+      resolverName: "posts",
+      collectionName: "Posts",
+      type: "Post"
+    }),
     optional: false,
     viewableBy: ["guests"],
     editableBy: ["members"],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'posts',
-      type: '[Post]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Posts', fieldName: 'postIds'}
-      ),
-      addOriginalField: true,
-    },
     control: 'PostsListEditor',
   },
 

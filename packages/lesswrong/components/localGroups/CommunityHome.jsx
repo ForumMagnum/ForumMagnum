@@ -2,7 +2,6 @@ import {
   Components,
   registerComponent,
   withMessages,
-  withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
@@ -125,13 +124,6 @@ class CommunityHome extends Component {
   }
 }
 
-
-const withEditOptions = {
-  collection: Users,
-  fragmentName: 'UsersProfile',
-};
-
 registerComponent('CommunityHome', CommunityHome,
   withUser, withMessages, withRouter,
-  [withEdit, withEditOptions],
   withStyles(styles, { name: "CommunityHome" }));
