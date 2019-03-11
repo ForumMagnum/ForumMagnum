@@ -39,7 +39,7 @@ const createNotifications = (userIds, notificationType, documentType, documentId
   });
 }
 
-const sendPostByEmail = async (users, postId) => {
+const sendPostByEmail = async (users, postId, reason) => {
   let post = Posts.findOne(postId);
 
   for(let user of users) {
@@ -48,7 +48,7 @@ const sendPostByEmail = async (users, postId) => {
         user,
         subject: post.title,
         bodyComponent: <Components.EmailWrapper>
-          <Components.NewPostEmail documentId={post._id}/>
+          <Components.NewPostEmail documentId={post._id} reason={reason}/>
         </Components.EmailWrapper>
       });
     } else {
@@ -194,7 +194,7 @@ function findUsersToEmail(filter) {
       }
       return false;
     } else {
-      return true
+      return false;
     }
   });
   return usersToEmail
@@ -203,7 +203,7 @@ function findUsersToEmail(filter) {
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
     let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
-    sendPostByEmail(usersToEmail, post._id);
+    sendPostByEmail(usersToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);

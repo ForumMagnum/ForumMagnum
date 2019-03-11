@@ -44,7 +44,7 @@ const NewPostEmail = ({document, classes}) => {
     
     <a href={Posts.getPageUrl(document, true)}>Discuss</a><br/><br/>
     
-    You are receiving this email because you are subscribed to new posts on LessWrong.
+    {reason && `You are receive this email because ${reason}.`}
   </React.Fragment>);
 }
 
