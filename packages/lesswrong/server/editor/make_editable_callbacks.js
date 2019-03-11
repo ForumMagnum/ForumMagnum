@@ -139,8 +139,9 @@ export function addEditableCallbacks({collection, options = {}}) {
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
-      const defaultUpdateType = (document.draft && !docData.draft) ? 'major' : 'minor'
-      const version = await getNextVersion(document._id, docData[fieldName].updateType || defaultUpdateType)
+      // When a document is undrafted, we ensure that this constitutes a major update
+      const updateType = (document.draft && !docData.draft) ? 'major' : (docData[fieldName].updateType || 'minor')
+      const version = await getNextVersion(document._id, updateType)
       const userId = currentUser._id
       const editedAt = new Date()
       return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt, wordCount}}
