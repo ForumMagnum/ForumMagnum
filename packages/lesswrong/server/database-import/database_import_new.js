@@ -177,7 +177,6 @@ const upsertProcessedPosts = async (posts, postMap) => {
   const postUpdates = _.map(posts, (post) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
-      // TODO; We changed htmlbody, probably fine
       let set = {htmlBody: post.htmlBody, draft: post.draft, legacyData: post.legacyData};
       if (post.deleted || post.spam) {
         set.status = 3;
@@ -403,7 +402,6 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   };
 }
 
-// TODO; look at list of allowed tags in markdown, unsafe tags, bbcode?
 // / what tags do we get
 const BANNED_TAGS = [
   'meta',

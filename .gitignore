@@ -61,5 +61,4 @@ yarn.lock
 
 *.swp
 *.un~
-yarn-error.log
 .vscode/launch.json

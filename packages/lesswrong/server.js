@@ -1,8 +1,6 @@
 export * from './lib/index.js';
 
 import './server/database-import/database_import_new.js';
-import './server/database-import/force_batch_update_scores.js';
-import './server/database-import/cleanup_scripts.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 import './server/database-import/force_batch_update_scores.js';
@@ -28,9 +26,6 @@ import './server/scripts/localgroupsEditCallbacks.js';
 import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
-// EA Forum Invites
-import './server/scripts/eafIBetaInvites.js';
-import './lib/modules/accounts/configuration.js';
 
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
@@ -77,6 +72,10 @@ import './lib/modules/connection_logs.js';
 // Algolia Search Integration
 import './server/search/utils.js';
 import './server/search/callbacks.js';
+
+// EA Forum only
+import './server/scripts/eafIBetaInvites.js';
+import './lib/modules/accounts/configuration.js';
 
 //eslint-disable-next-line no-console
 console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
