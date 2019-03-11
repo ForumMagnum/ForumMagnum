@@ -1,6 +1,6 @@
 import { batchUpdateScore } from './updateScores.js';
 import { VoteableCollections } from '../lib/modules/make_voteable.js';
-import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
+import { addCronJob } from './cronUtil';
 
 // Setting voting.scoreUpdateInterval removed and replaced with a hard-coded
 // interval because the time-parsing library we use can't handle numbers of
@@ -10,36 +10,25 @@ import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
 //registerSetting('voting.scoreUpdateInterval', 60, 'How often to update scores, in seconds');
 //const scoreInterval = parseInt(getSetting('voting.scoreUpdateInterval', 60));
 
-SyncedCron.options = {
-  log: true,
-  collectionName: 'cronHistory',
-  utc: false,
-  collectionTTL: 172800
-};
-
-Meteor.startup(function () {
-  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
-    SyncedCron.add({
-      name: 'updateScoreActiveDocuments',
-      schedule(parser) {
-        return parser.text(`every 30 seconds`);
-      },
-      job() {
-        VoteableCollections.forEach(collection => {
-          batchUpdateScore({collection});
-        });
-      }
+addCronJob({
+  name: 'updateScoreActiveDocuments',
+  schedule(parser) {
+    return parser.text(`every 30 seconds`);
+  },
+  job() {
+    VoteableCollections.forEach(collection => {
+      batchUpdateScore({collection});
     });
-    SyncedCron.add({
-      name: 'updateScoreInactiveDocuments',
-      schedule(parser) {
-        return parser.text('every 24 hours');
-      },
-      job() {
-        VoteableCollections.forEach(collection => {
-          batchUpdateScore({collection, inactive: true});
-        });
-      }
+  }
+});
+addCronJob({
+  name: 'updateScoreInactiveDocuments',
+  schedule(parser) {
+    return parser.text('every 24 hours');
+  },
+  job() {
+    VoteableCollections.forEach(collection => {
+      batchUpdateScore({collection, inactive: true});
     });
   }
 });

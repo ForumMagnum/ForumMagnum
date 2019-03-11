@@ -7,7 +7,7 @@ const FeaturedPostsPage = (props, context) => {
   return (
     <div className="home">
       <Components.Section title="Featured">
-        <Components.PostsList terms={featuredPostsTerms} showHeader={false} />
+        <Components.PostsList terms={featuredPostsTerms} />
       </Components.Section>
     </div>
   )

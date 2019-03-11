@@ -198,6 +198,9 @@ $small-font: 1.1rem;
   }
   @include max-tiny() {
     margin:0px;
+    .comments-item {
+      padding:0px 7px;
+    }
   }
 }
 
@@ -309,19 +312,6 @@ $small-font: 1.1rem;
     margin-bottom:.8em;
     position:inherit;
   }
-}
-
-.posts-item-new-comments-wrapper .comment-new .comments-node.comments-node-root {
-  margin-top:3px;
-  margin-bottom:10px;
-  &:hover {
-    text-decoration:none;
-    color:rgba(0,0,0,.35);
-  }
-}
-
-.i18n-message.author_has_banned_you {
-  padding:1em 0;
 }
 
 .comments-delete-modal-textfield {

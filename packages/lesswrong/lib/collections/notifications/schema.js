@@ -1,13 +1,6 @@
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 import { schemaDefaultValue } from '../../collectionUtils';
 
-//define schema
 const schema = {
   _id: {
     optional: true,
@@ -24,9 +17,7 @@ const schema = {
     optional: true,
     type: Date,
     viewableBy: Users.owns,
-    onInsert: (document, currentUser) => {
-      return new Date();
-    }
+    onInsert: (document, currentUser) => new Date(),
   },
   documentId: {
     type: String,

@@ -15,12 +15,11 @@ const styles = theme => ({
     minWidth:20,
     textAlign: "center",
     display: "inline-block",
-    color: "rgba(0,0,0,.3)"
   },
 })
 
 const DateWithoutTime = withTimezone(
-  ({date, timezone}) => 
+  ({date, timezone}) =>
     <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 );
 
@@ -76,9 +75,9 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
 
       { afBaseScore && <MetaInfo>
         <Tooltip title={<div>
-          { afBaseScore || 0 } karma on alignmentforum.org
+          { afBaseScore } karma on alignmentforum.org
         </div>}>
-          <span>Ω { afBaseScore || 0 }</span>
+          <span>Ω { afBaseScore }</span>
         </Tooltip>
       </MetaInfo>}
     </span>

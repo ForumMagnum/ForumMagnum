@@ -3,45 +3,33 @@ import { createCollection, getDefaultResolvers, getDefaultMutations } from 'mete
 import Users from 'meteor/vulcan:users';
 import { addUniversalFields } from '../../collectionUtils'
 
-/**
- * @summary Telescope Messages namespace
- * @namespace Messages
- */
-
 const options = {
+  newCheck: (user, document) => {
+    if (!document || !user) return false;
+    return Users.canDo(user, 'rssfeeds.new.all')
+  },
 
-    newCheck: (user, document) => {
-      if (!document || !user) return false;
-      return Users.canDo(user, 'rssfeeds.new.all')
-    },
+  editCheck: (user, document) => {
+    if (!document || !user) return false;
+    return Users.owns(user, document) ? Users.canDo(user, 'rssfeeds.edit.own')
+      : Users.canDo(user, 'rssfeeds.edit.all')
+  },
 
-    editCheck: (user, document) => {
-      if (!document || !user) return false;
-      return Users.owns(user, document) ? Users.canDo(user, 'rssfeeds.edit.own')
-        : Users.canDo(user, 'rssfeeds.edit.all')
-    },
-
-    removeCheck: (user, document) => {
-      if (!document || !user) return false;
-      return Users.owns(user, document) ? Users.canDo(user, 'rssfeeds.remove.own')
-        : Users.canDo(user, 'rssfeeds.edit.all')
-    }
+  removeCheck: (user, document) => {
+    if (!document || !user) return false;
+    return Users.owns(user, document) ? Users.canDo(user, 'rssfeeds.remove.own')
+      : Users.canDo(user, 'rssfeeds.edit.all')
+  }
 }
 
-const RSSFeeds = createCollection({
-
+export const RSSFeeds = createCollection({
   collectionName: 'RSSFeeds',
-
   typeName: 'RSSFeed',
-
   schema,
-
   resolvers: getDefaultResolvers('RSSFeeds'),
-
   mutations: getDefaultMutations('RSSFeeds', options),
-
 });
 
-export default RSSFeeds;
-
 addUniversalFields({collection: RSSFeeds})
+
+export default RSSFeeds;

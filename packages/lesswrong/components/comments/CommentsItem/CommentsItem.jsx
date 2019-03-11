@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
@@ -45,8 +45,13 @@ const styles = theme => ({
     float: "right"
   },
   outdatedWarning: {
+    float: "right",
     position: 'relative',
-    top: -5
+    [theme.breakpoints.down('xs')]: {
+      float: "none",
+      marginTop: 7,
+      display: 'block'
+    }
   },
   date: {
     color: "rgba(0,0,0,0.5)",
@@ -111,7 +116,6 @@ class CommentsItem extends Component {
     event.preventDefault()
     this.props.router.replace({...router.location, hash: "#" + comment._id})
     this.props.scrollIntoView(event);
-    return false;
   }
 
   getTruncationCharCount = () => {
@@ -195,7 +199,7 @@ class CommentsItem extends Component {
                     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
-                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
+                    {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
@@ -207,11 +211,8 @@ class CommentsItem extends Component {
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
-
+                            
               <span className={classes.metaRight}> 
-                <span className={classes.outdatedWarning}>
-                  <Components.CommentOutdatedWarning comment={comment} post={post} />
-                </span>
                 <span className={classes.menu}>
                   <CommentsMenu
                     comment={comment}
@@ -219,6 +220,9 @@ class CommentsItem extends Component {
                     showEdit={this.showEdit}
                   />
                 </span>
+              </span>
+              <span className={classes.outdatedWarning}>
+                  <Components.CommentOutdatedWarning comment={comment} post={post} />
               </span>
             </div>
             { showEdit ? (

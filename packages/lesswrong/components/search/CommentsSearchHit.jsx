@@ -2,7 +2,7 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import { Snippet } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
-import React, { PureComponent } from 'react';
+import React from 'react';
 
 const styles = theme => ({
   root: {

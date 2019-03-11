@@ -1,9 +1,8 @@
-import React from 'react';
 import { Posts } from "../posts";
 import { Comments } from './collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { performVoteServer } from '../../modules/vote.js';
+import { performVoteServer } from '../../../server/voteServer.js';
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
@@ -186,7 +185,8 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
       lastCommentedAt:new Date(lastCommentedAt),
       commentCount:comments.length
     },
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);

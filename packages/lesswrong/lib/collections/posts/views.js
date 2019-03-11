@@ -1,10 +1,12 @@
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
-import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
+import { viewFieldNullOrMissing, viewFieldAllowAny } from 'meteor/vulcan:lib';
 import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 
+export const DEFAULT_LOW_KARMA_THRESHOLD = -10
+export const MAX_LOW_KARMA_THRESHOLD = -1000
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
@@ -69,9 +71,12 @@ export function augmentForDefaultView(indexFields)
 /**
  * @summary User posts view
  */
+
 Posts.addView("userPosts", terms => ({
-  selector: {
-    userId: terms.userId,
+  selector: { 
+    userId: viewFieldAllowAny,
+    groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
+    $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
   },
   options: {
     limit: 5,
@@ -81,7 +86,13 @@ Posts.addView("userPosts", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, postedAt: -1 }),
+  augmentForDefaultView({ userId: 1, postedAt: -1, }),
+  {
+    name: "posts.userId_postedAt",
+  }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({ coauthorUserIds: 1, postedAt: -1, }),
   {
     name: "posts.userId_postedAt",
   }
@@ -314,11 +325,13 @@ Posts.addView("scheduled", terms => ({
 Posts.addView("drafts", terms => {
   return {
     selector: {
-      userId: terms.userId,
+      userId: viewFieldAllowAny,
+      $or: [{userId: terms.userId}, {shareWithUsers: terms.userId}],
       draft: true,
       deletedDraft: false,
       hideAuthor: false,
       unlisted: null,
+      groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
     },
     options: {
       sort: {createdAt: -1}
@@ -326,6 +339,10 @@ Posts.addView("drafts", terms => {
 }});
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, deletedDraft: 1, createdAt: -1 }),
+  { name: "posts.userId_createdAt" }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 
@@ -345,7 +362,8 @@ Posts.addView("unlisted", terms => {
   return {
     selector: {
       userId: terms.userId,
-      unlisted: true
+      unlisted: true,
+      groupId: null,
     },
     options: {
       sort: {createdAt: -1}

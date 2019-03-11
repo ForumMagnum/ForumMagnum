@@ -45,6 +45,7 @@ http@1.4.1
 id-map@1.1.0
 inter-process-messaging@0.1.0
 lesswrong@0.1.0
+littledata:synced-cron@1.5.1
 lmieulet:meteor-coverage@2.0.2
 localstorage@1.2.0
 logging@1.1.20
@@ -66,7 +67,6 @@ npm-mongo@3.1.1
 oauth@1.2.3
 oauth2@1.2.1
 ordered-dict@1.1.0
-percolatestudio:synced-cron@1.1.0
 practicalmeteor:mocha-core@1.0.1
 promise@0.11.1
 random@1.1.0

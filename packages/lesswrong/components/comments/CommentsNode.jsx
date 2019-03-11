@@ -11,6 +11,7 @@ const KARMA_COLLAPSE_THRESHOLD = -4;
 
 const styles = theme => ({
   node: {
+    cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$new': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`
@@ -164,6 +165,9 @@ class CommentsNode extends Component {
   render() {
     const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, parentAnswerId } = this.props;
 
+    if (!comment || !post)
+      return null;
+
     const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
     const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
@@ -198,58 +202,55 @@ class CommentsNode extends Component {
         [classes.answerLeafComment]: !(children && children.length)
       }
     )
-    if (comment && post) {
-      return (
-        <div className={newComment ? "comment-new" : "comment-old"}>
-          <div className={nodeClass}
-            onMouseEnter={this.toggleHover}
-            onMouseLeave={this.toggleHover}
-            onClick={(event) => this.unTruncate(event)}
-            id={comment._id}>
-            {/*eslint-disable-next-line react/no-string-refs*/}
-            <div ref="comment">
-              <Components.CommentsItem
-                collapsed={collapsed}
-                truncated={truncated}
-                toggleCollapse={this.toggleCollapse}
+
+    return (
+      <div className={newComment ? "comment-new" : "comment-old"}>
+        <div className={nodeClass}
+          onMouseEnter={this.toggleHover}
+          onMouseLeave={this.toggleHover}
+          onClick={(event) => this.unTruncate(event)}
+          id={comment._id}>
+          {/*eslint-disable-next-line react/no-string-refs*/}
+          <div ref="comment">
+            <Components.CommentsItem
+              collapsed={collapsed}
+              truncated={truncated}
+              toggleCollapse={this.toggleCollapse}
+              currentUser={currentUser}
+              comment={comment}
+              key={comment._id}
+              editMutation={editMutation}
+              scrollIntoView={this.scrollIntoView}
+              post={post}
+              postPage={postPage}
+              nestingLevel={nestingLevel}
+              showPostTitle={showPostTitle}
+              parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+            />
+          </div>
+          {!collapsed && <div className="comments-children">
+            <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
+            {children && children.map(child =>
+              <Components.CommentsNode child
                 currentUser={currentUser}
-                comment={comment}
-                key={comment._id}
+                comment={child.item}
+                nestingLevel={nestingLevel+1}
+                truncated={truncated}
+                unreadComments={unreadComments}
+                //eslint-disable-next-line react/no-children-prop
+                children={child.children}
+                key={child.item._id}
+                muiTheme={muiTheme}
+                highlightDate={highlightDate}
                 editMutation={editMutation}
-                scrollIntoView={this.scrollIntoView}
                 post={post}
                 postPage={postPage}
-                nestingLevel={nestingLevel}
-                showPostTitle={showPostTitle}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-              />
-            </div>
-            {!collapsed && <div className="comments-children">
-              <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
-              {children && children.map(child =>
-                <Components.CommentsNode child
-                  currentUser={currentUser}
-                  comment={child.item}
-                  nestingLevel={nestingLevel+1}
-                  truncated={truncated}
-                  unreadComments={unreadComments}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={child.children}
-                  key={child.item._id}
-                  muiTheme={muiTheme}
-                  highlightDate={highlightDate}
-                  editMutation={editMutation}
-                  post={post}
-                  postPage={postPage}
-                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-                />)}
-            </div>}
-          </div>
+              />)}
+          </div>}
         </div>
-        )
-    } else {
-      return null
-    }
+      </div>
+    )
   }
 }
 

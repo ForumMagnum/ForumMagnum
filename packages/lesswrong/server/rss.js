@@ -4,7 +4,6 @@ import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
-import { markdownToHtml } from './editor/make_editable_callbacks'
 import moment from 'moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
@@ -101,7 +100,7 @@ export const serveCommentRSS = (terms, url) => {
 
     feed.item({
      title: 'Comment on ' + post.title,
-     description: `${markdownToHtml(comment.contents && comment.contents.html)}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
      url: Comments.getPageUrl(comment, true),
