@@ -40,6 +40,11 @@ export const addCallback = function (hook, callback) {
   }
 
   Callbacks[hook].push(callback);
+  
+  if (Callbacks[hook].length > 10) {
+    // eslint-disable-next-line no-console
+    console.log(`Warning: Excessively many hooks (${Callback[hooks].length}) on callback ${callback}.`);
+  }
 };
 
 /**
@@ -58,16 +63,23 @@ export const removeCallback = function (hookName, callbackName) {
  * @param {String} hook - First argument: the name of the hook
  * @param {Object} item - Second argument: the post, comment, modifier, etc. on which to run the callbacks
  * @param {Any} args - Other arguments will be passed to each successive iteration
+ * @param {Boolean} ignoreExceptions - Only available as a named argument, default true. If true, exceptions
+ *   thrown from callbacks will be logged but otherwise ignored. If false, exceptions thrown from callbacks
+ *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
 export const runCallbacks = function () {
 
-  let hook, item, args;
+  let hook, item, args, ignoreExceptions;
   if (typeof arguments[0] === 'object' && arguments.length === 1) {
     const singleArgument = arguments[0];
     hook = singleArgument.name;
     item = singleArgument.iterator;
     args = singleArgument.properties;
+    if ("ignoreExceptions" in singleArgument)
+      ignoreExceptions = singleArgument.ignoreExceptions;
+    else
+      ignoreExceptions = true;
   } else {
     // OpenCRUD backwards compatibility
     // the first argument is the name of the hook or an array of functions
@@ -76,6 +88,8 @@ export const runCallbacks = function () {
     item = arguments[1];
     // successive arguments are passed to each iteration
     args = Array.prototype.slice.call(arguments).slice(2);
+    
+    ignoreExceptions = true;
   }
 
   // flag used to detect the callback that initiated the async context
@@ -110,7 +124,7 @@ export const runCallbacks = function () {
         console.log(`\x1b[31m// error at callback [${callback.name}] in hook [${hook}]\x1b[0m`);
         // eslint-disable-next-line no-console
         console.log(error);
-        if (error.break || error.data && error.data.break) {
+        if (error.break || (error.data && error.data.break) || !ignoreExceptions) {
           throw error;
         }
         // pass the unchanged accumulator to the next iteration of the loop
@@ -250,10 +264,20 @@ let pendingCallbacks = {};
 // `markCallbackStarted`.
 let pendingCallbackKey = 0;
 
+// Count of the number of outstanding callbacks. Used to check that this isn't
+// leaking.
+let numCallbacksPending = 0;
+
 // When starting an async callback, assign it an ID, record the fact that it's
 // running, and return the ID.
 function markCallbackStarted(description)
 {
+  if (numCallbacksPending > 1000) {
+    // eslint-disable-next-line no-console
+    console.log(`Warning: Excessively many background callbacks running (numCallbacksPending=${numCallbacksPending})`);
+  }
+  numCallbacksPending++;
+  
   if (pendingCallbackKey >= Number.MAX_SAFE_INTEGER)
     pendingCallbackKey = 0;
   else
@@ -265,6 +289,7 @@ function markCallbackStarted(description)
 // Record the fact that an async callback with the given ID has finished.
 function markCallbackFinished(id)
 {
+  numCallbacksPending--;
   delete pendingCallbacks[id];
 }
 
