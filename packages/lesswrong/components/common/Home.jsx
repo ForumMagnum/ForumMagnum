@@ -67,7 +67,6 @@ const Home = (props, context) => {
         <Components.PostsList terms={recentPostsTerms} />
       </Components.Section>
 
-      {/*TODO; If we change the home component for the EA forum, don't worry about this part*/}
       {getSetting('hasEvents', true) && <Components.Section
         title="Community"
         titleLink="/community"

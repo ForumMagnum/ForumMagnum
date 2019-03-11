@@ -138,7 +138,6 @@ import '../components/votes/PostsVote.jsx';
 // events
 
 if (getSetting('hasEvents', true)) {
-  // TODO; move the posts ones
   import '../components/posts/EventsPast.jsx';
   import '../components/posts/EventsUpcoming.jsx';
   import '../components/localGroups/CommunityHome.jsx';
