@@ -176,6 +176,7 @@ function getHostname(url) {
   if (URLClass)
     return new URLClass(url).hostname;
 
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
   var parser = document.createElement('a');
   parser.href = url;
   return parser.hostname;
