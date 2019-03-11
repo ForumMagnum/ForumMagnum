@@ -92,7 +92,7 @@ function getInitialVersion(document) {
 }
 
 async function getNextVersion(documentId, updateType = 'minor') {
-  const lastRevision = await Revisions.findOne({documentId: documentId}, {sort: {editedAt: -1}}) || {}
+  const lastRevision = await Revisions.findOne({documentId: documentId}, {sort: {version: -1}}) || {}
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)
   switch (updateType) {
     case "patch":
@@ -150,15 +150,16 @@ export function addEditableCallbacks({collection, options = {}}) {
   
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
 
-  async function editorSerializationCreateRevision(doc) {
-    if (doc[fieldName] && doc[fieldName].originalContents) {
+  async function editorSerializationCreateRevision(newDoc, { document }) {
+    if (newDoc[fieldName] && newDoc[fieldName].originalContents && 
+      (newDoc[fieldName].version !== (document && document[fieldName] && document[fieldName].version))) {
       Revisions.insert({
-        ...doc[fieldName],
-        documentId: doc._id,
+        ...newDoc[fieldName],
+        documentId: newDoc._id,
         fieldName
       })
     }
-    return doc
+    return newDoc
   }
   
   addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationCreateRevision)
