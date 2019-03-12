@@ -44,7 +44,6 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   // but if this condition fails to meet we know that there definitely are no more posts
   const maybeMorePosts = !!(results && results.length && (results.length >= limit))
 
-
   return (
     <div className={classNames({[classes.loading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
