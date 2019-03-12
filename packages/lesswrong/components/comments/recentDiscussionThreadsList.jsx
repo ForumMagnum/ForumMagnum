@@ -5,6 +5,7 @@ import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({
+  classes,
   results,
   loading,
   loadMore,
@@ -20,9 +21,8 @@ const RecentDiscussionThreadsList = ({
 
   return (
     <div>
-      <div className="discussion-thread-list">
         {loading || !results ? <Loading /> :
-        <div className="discussion-threads">
+        <div>
           {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}
@@ -33,9 +33,8 @@ const RecentDiscussionThreadsList = ({
               editMutation={editMutation}/>
 
           )}
-          {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+          {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
         </div>}
-      </div>
     </div>)
   }
 
