@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
-export const MENU_WIDTH = 28
+export const MENU_WIDTH = 18
 export const AUTHOR_OR_EVENT_WIDTH = 140
 export const KARMA_WIDTH = 28
 export const POSTED_AT_WIDTH = 38
@@ -31,6 +31,10 @@ const styles = (theme) => ({
   root: {
     display: "flex",
     position: "relative",
+    width: SECTION_WIDTH,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%"
+    },
     '&:hover $actions': {
       opacity: .2,
     }
@@ -44,13 +48,12 @@ const styles = (theme) => ({
     flexWrap: "wrap",
     width: SECTION_WIDTH - LIST_PADDING,
     [theme.breakpoints.down('sm')]: {
-      width: "unset"
+      width: "100%"
     }
   },
   background: {
     transition: "3s",
     backgroundColor: "none",
-    width: SECTION_WIDTH
   },
   commentsBackground: {
     backgroundColor: theme.palette.grey[200],
@@ -154,6 +157,7 @@ const styles = (theme) => ({
     opacity: 0,
     display: "flex",
     position: "absolute",
+    top: 0,
     right: -MENU_WIDTH,
     width: MENU_WIDTH,
     height: "100%",
@@ -242,59 +246,53 @@ class PostsItem2 extends PureComponent {
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
     return (
-      <div className={classes.root}>
-        <div className={classNames(classes.background, {[classes.commentsBackground]: showComments, [classes.firstItem]: (index===0) && showComments})}>
-          <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
-            <div ref={this.postsItemRef}/>
-            <PostsItemKarma post={post} />
+      <div className={classNames(classes.root, classes.background, {[classes.commentsBackground]: showComments, [classes.firstItem]: (index===0) && showComments, "personalBlogpost": !post.frontpageDate})}>
+        <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
+          <div ref={this.postsItemRef}/>
+          <PostsItemKarma post={post} />
 
-            <Link to={postLink} className={classNames(classes.title, {[classes.eventTitle]: post.isEvent})}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} />
-            </Link>
+          <Link to={postLink} className={classes.title}>
+            <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} />
+          </Link>
 
-            { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
-              <PostsUserAndCoauthors post={post}/>
-            </PostsItemMetaInfo>}
+          { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
+            <PostsUserAndCoauthors post={post}/>
+          </PostsItemMetaInfo>}
 
-            { post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
-              <EventVicinity post={post} />
-            </PostsItemMetaInfo>}
+          { post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
+            <EventVicinity post={post} />
+          </PostsItemMetaInfo>}
 
-            {post.postedAt && !post.isEvent && <PostsItemMetaInfo className={classes.postedAt}>
-              <FormatDate date={post.postedAt}/>
-            </PostsItemMetaInfo>}
+          {post.postedAt && !post.isEvent && <PostsItemMetaInfo className={classes.postedAt}>
+            <FormatDate date={post.postedAt}/>
+          </PostsItemMetaInfo>}
 
-            { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
-              {post.startTime
-                ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
-                    <FormatDate date={post.startTime} format={"MMM Do"}/>
-                  </Tooltip>
-                : <Tooltip title={<span>To Be Determined</span>}>
-                    <span>TBD</span>
-                  </Tooltip>}
-            </PostsItemMetaInfo>}
+          { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
+            {post.startTime
+              ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
+                  <FormatDate date={post.startTime} format={"MMM Do"}/>
+                </Tooltip>
+              : <Tooltip title={<span>To Be Determined</span>}>
+                  <span>TBD</span>
+                </Tooltip>}
+          </PostsItemMetaInfo>}
 
-            <div className={classes.mobileActions}> <PostsPageActions post={post} /></div>
+          {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
+          {!getSetting('AlignmentForum', false) && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
 
-            {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
-            {!getSetting('AlignmentForum', false) && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
-
-
-            <div className={classes.commentsIcon}>
-              <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
-            </div>
-
-
-            {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
-              <Components.PostsItemNewCommentsWrapper
-                currentUser={currentUser}
-                highlightDate={post.lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
-                post={post}
-              />
-              <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
-            </div>}
+          <div className={classes.commentsIcon}>
+            <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
           </div>
+
+          {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
+            <Components.PostsItemNewCommentsWrapper
+              currentUser={currentUser}
+              highlightDate={post.lastVisitedAt}
+              terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
+              post={post}
+            />
+            <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
+          </div>}
         </div>
         {<div className={classes.actions}>
           <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
