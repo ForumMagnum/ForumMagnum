@@ -32,12 +32,9 @@ class IFrame extends Component {
 
 
 const styles = theme => ({
-  emailPreview: {
-  },
-  headerName: {
-  },
-  headerContent: {
-  },
+  emailPreview: {},
+  headerName: {},
+  headerContent: {},
   emailBodyFrame: {
     width: 800,
     height: 500,

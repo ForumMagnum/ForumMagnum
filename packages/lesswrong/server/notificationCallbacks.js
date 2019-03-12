@@ -67,7 +67,7 @@ const getLink = (documentType, documentId) => {
     case "comment":
       return Comments.getPageUrl(document);
     case "user":
-      return Users.getProfileUrl(document, false);
+      return Users.getProfileUrl(document);
     case "message":
       return Messages.getLink(document);
     default:
@@ -209,11 +209,11 @@ function PostsCurateNotification (post, oldPost) {
 addCallback("posts.edit.async", PostsCurateNotification);
 
 // add new comment notification callback on comment submit
-function CommentsNewNotifications(comment) {
+async function CommentsNewNotifications(comment) {
   // note: dummy content has disableNotifications set to true
   if(Meteor.isServer && !comment.disableNotifications) {
 
-    const post = Posts.findOne(comment.postId);
+    const post = await Posts.findOne(comment.postId);
 
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
@@ -228,18 +228,18 @@ function CommentsNewNotifications(comment) {
         // and of comment and parentComment author (they could be replying in a thread they're subscribed to)
         let parentCommentSubscribersToNotify = _.difference(parentComment.subscribers, notifiedUsers, [comment.userId, parentComment.userId]);
         createNotifications(parentCommentSubscribersToNotify, 'newReply', 'comment', comment._id);
-        notifiedUsers = notifiedUsers.concat(parentCommentSubscribersToNotify);
+        notifiedUsers = [...notifiedUsers, ...parentCommentSubscribersToNotify];
 
         // Separately notify author of comment with different notification, if they are subscribed, and are NOT the author of the comment
-        if (parentComment.subscribers.includes(parentComment.userId) && parentComment.userId != comment.userId) {
+        if (parentComment.subscribers.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
           createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
-          notifiedUsers = notifiedUsers.concat([parentComment.userId]);
+          notifiedUsers = [...notifiedUsers, parentComment.userId];
         }
       }
     }
 
     // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
-    if (post && !!post.subscribers && !!post.subscribers.length) {
+    if (post && post.subscribers && post.subscribers.length) {
       // remove userIds of users that have already been notified
       // and of comment author (they could be replying in a thread they're subscribed to)
       let postSubscribersToNotify = _.difference(post.subscribers, notifiedUsers, [comment.userId]);
@@ -252,7 +252,7 @@ addCallback("comments.new.async", CommentsNewNotifications);
 function messageNewNotification(message) {
   const conversation = Conversations.findOne(message.conversationId);
   //Make sure to not notify the author of the message
-  const notifees = conversation.participantIds.filter((id) => (id != message.userId));
+  const notifees = conversation.participantIds.filter((id) => (id !== message.userId));
 
   createNotifications(notifees, 'newMessage', 'message', message._id);
 }
