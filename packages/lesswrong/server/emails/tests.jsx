@@ -21,7 +21,7 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
     user: user || await createDummyUser(),
     subject: "Unit test email",
     bodyComponent,
-    boilerplateGemerator: boilerplateGemerator||unitTestBoilerplateGenerator
+    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator
   });
 }
 
