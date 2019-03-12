@@ -1,26 +1,16 @@
 import schema from './schema.js';
-import { createCollection, getDefaultResolvers /*, getDefaultMutations */} from 'meteor/vulcan:core';
+import { createCollection, getDefaultResolvers } from 'meteor/vulcan:core';
 import { extractVersionsFromSemver } from '../../editor/utils'
+import { addUniversalFields } from '../../collectionUtils'
 
-/**
- * @summary Telescope Messages namespace
- * @namespace Reports
- */
-
-const Revisions = createCollection({
-
+export const Revisions = createCollection({
   collectionName: 'Revisions',
-
   typeName: 'Revision',
-
   schema,
-
   resolvers: getDefaultResolvers('Revisions'),
-
   // mutations: getDefaultMutations('Revisions'),
-
 });
-
+addUniversalFields({collection: Revisions})
 
 // Note, since we want to make sure checkAccess is a performant function, we can only check the 
 // userId of the current revision for ownership. If the userId of the document the revision is on,

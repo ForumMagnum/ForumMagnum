@@ -20,15 +20,6 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 
-// On th client URL is defined as a global, on the server it needs to be imported from 'URL'
-// So we rename it to URLClass and resolve depending on where we are
-let URLClass
-if (Meteor.isServer) {
-  URLClass = require('url').URL
-} else {
-  URLClass = URL
-}
-
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
 const styles = theme => ({
@@ -171,6 +162,26 @@ const styles = theme => ({
     },
 })
 
+// On the server, use the 'url' library for parsing hostname out of feed URLs.
+// On the client, we instead create an <a> tag, set its href, and extract
+// properties from that. (There is a URL class which theoretically would work,
+// but it doesn't have the hostname field on IE11 and it's missing entirely on
+// Opera Mini.)
+let URLClass = null;
+if (Meteor.isServer) {
+  URLClass = require('url').URL
+}
+
+function getHostname(url) {
+  if (URLClass)
+    return new URLClass(url).hostname;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.hostname;
+}
+
 class PostsPage extends Component {
 
   render() {
@@ -193,7 +204,7 @@ class PostsPage extends Component {
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
-      const feedLink = post.feed && post.feed.url && new URLClass(post.feed.url).hostname
+      const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
 

@@ -10,16 +10,20 @@ const linkify = linkifyIt()
 // Export for testing
 export function autolink(text) {
   const matches = linkify.match(text)
-  if (!matches) return `<p>${text}</p>`
-  let resultPieces = ['<p>']
+  if (!matches) return <p />
   let lastLinkEndIndex = 0
-  for (const match of matches) {
-    resultPieces.push(text.substring(lastLinkEndIndex, match.index))
-    resultPieces.push(`<a href="${match.url}">${match.text}</a>`)
-    lastLinkEndIndex = match.lastIndex
-  }
-  resultPieces.push(`${text.substring(lastLinkEndIndex, text.length)}</p>`)
-  return resultPieces.join('')
+  const result = <p>
+    {matches.map(match => {
+      const result = <span key={match.index}>
+        {text.substring(lastLinkEndIndex, match.index)}
+        <a href={match.url}>{match.text}</a>
+      </span>
+      lastLinkEndIndex = match.lastIndex
+      return result
+    })}
+    {text.substring(lastLinkEndIndex, text.index)}
+  </p>
+  return result
 }
 
 // This currently only supports our limited subset of semVer
@@ -46,7 +50,6 @@ export const htmlToDraft = convertFromHTML({
       )
     }
     // if (nodeName === 'img') {
-    //   console.log("image detected: ", node, node.src)
     //   return createEntity(
     //     'IMAGE',
     //     'IMMUTABLE',
@@ -115,15 +118,15 @@ export const draftToHTML = convertToHTML({
   blockToHTML: (block) => {
     const type = block.type;
 
-    // const linkable = [
-    //   'ordered-list-item',
-    //   'unordered-list-item',
-    //   'paragraph',
-    //   'unstyled'
-    // ]
-    // if (linkable.includes(type)) {
-    //   return autolink(block.text)
-    // }
+    const linkable = [
+      'ordered-list-item',
+      'unordered-list-item',
+      'paragraph',
+      'unstyled'
+    ]
+    if (linkable.includes(type)) {
+      return autolink(block.text)
+    }
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`

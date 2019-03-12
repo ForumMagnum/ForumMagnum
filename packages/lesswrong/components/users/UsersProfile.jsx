@@ -40,7 +40,7 @@ const UsersProfile = (props) => {
     const query = _.clone(props.router.location.query || {});
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
-    const unlistedTerms= {view: "unlisted", userId: user._id }
+    const unlistedTerms= {view: "unlisted", userId: user._id, limit: 4}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
@@ -118,7 +118,7 @@ const UsersProfile = (props) => {
               }
             >
               <Components.PostsList2 terms={draftTerms}/>
-              <Components.PostsList2 terms={unlistedTerms} showNoResults={false}/>
+              <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false}/>
             </Components.Section>
           }
         </div>

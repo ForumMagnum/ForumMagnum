@@ -50,6 +50,7 @@
   }
   @include max-tiny() {
     padding:0;
+    margin-left: 0px;
   }
 }
 
@@ -172,11 +173,6 @@
   }
 }
 
-.posts-load-more-days {
-  display: block;
-  margin-top: 10px;
-}
-
 //////////////////////////////////////////////////////
 // Post Page                                        //
 //////////////////////////////////////////////////////
@@ -241,23 +237,6 @@
 // Other Elements                                   //
 //////////////////////////////////////////////////////
 
-.posts-day{
-  margin-bottom: $vmargin * 2;
-  max-width:700px;
-  margin:auto;
-  .posts-load-more{
-    border: none;
-    padding: 0;
-    .posts-load-more-link{
-      &:hover{
-        text-decoration: none !important;
-        background: inherit;
-        color: rgba(100, 169, 105, 0.9);
-      }
-    }
-  }
-
-}
 .posts-no-results{
   margin-left:10px;
   margin-top: $vmargin;

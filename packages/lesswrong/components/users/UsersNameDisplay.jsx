@@ -10,6 +10,9 @@ import MessageIcon from '@material-ui/icons/Message';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  userName: {
+    whiteSpace: "nowrap"
+  },
   joined: {
     fontStyle: "italic", 
     marginBottom: theme.spacing.unit
@@ -36,13 +39,13 @@ const UsersNameDisplay = ({user, classes}) => {
 
   const tooltip = <div>
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
-    { postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
-    { commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
+    { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
+    { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </div>
 
   return <Tooltip title={tooltip}>
-    <Link to={Users.getProfileUrl(user)}>
+    <Link to={Users.getProfileUrl(user)} className={classes.userName}>
       {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
     </Link>
   </Tooltip>
