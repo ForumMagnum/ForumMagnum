@@ -11,9 +11,13 @@ turndownService.remove('style') // Make sure we don't add the content of style t
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'
 import markdownItContainer from 'markdown-it-container'
+import markdownItFootnote from 'markdown-it-footnote'
+
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
+mdi.use(markdownItFootnote)
+
 import { addCallback } from 'meteor/vulcan:core';
 import { mjpage }  from 'mathjax-node-page'
 
