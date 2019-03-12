@@ -3,34 +3,6 @@ import { registerComponent, withList, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 
-class IFrame extends Component {
-  constructor(props) {
-    super(props);
-    this.iframeRef = React.createRef();
-  }
-  
-  componentDidMount() {
-    this._updateIframe();
-  }
-  componentDidUpdate() {
-    this._updateIframe();
-  }
-
-  _updateIframe() {
-    const iframe = this.iframeRef && this.iframeRef.current;
-    if (iframe) {
-      const document = iframe.contentDocument;
-      document.body.innerHTML = this.props.content;
-    }
-  }
-
-  render() {
-    const { className } = this.props;
-    return <iframe className={className} ref={this.iframeRef}/>
-  }
-}
-
-
 const styles = theme => ({
   emailPreview: {},
   headerName: {},
@@ -86,7 +58,7 @@ export const EmailPreview = ({email, classes}) => {
       <span className={classes.headerName}>To: </span>
       <span className={classes.headerContent}>{email.to}</span>
     </div>
-    <IFrame className={classes.emailBodyFrame} content={email.html}/>
+    <iframe className={classes.emailBodyFrame} srcDoc={email.html}/>
     <div className={classes.emailTextVersion}>
       {email.text}
     </div>
