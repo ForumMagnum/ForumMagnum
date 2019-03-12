@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { registerComponent, withList, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
