@@ -10,6 +10,11 @@ const generateIdResolverSingle = ({collectionName, fieldName}) => {
     const { checkAccess } = collection
 
     const resolvedDoc = await collection.loader.load(doc[fieldName])
+    if (!resolvedDoc) {
+      // eslint-disable-next-line no-console
+      console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
+      return null;
+    }
     if (checkAccess && !checkAccess(currentUser, resolvedDoc)) return null
     const restrictedDoc = Users.restrictViewableFields(currentUser, collection, resolvedDoc)
 
