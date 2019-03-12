@@ -94,7 +94,7 @@ ensureIndex(Posts,
 ensureIndex(Posts,
   augmentForDefaultView({ coauthorUserIds: 1, postedAt: -1, }),
   {
-    name: "posts.userId_postedAt",
+    name: "posts.coauthorUserIds_postedAt",
   }
 );
 
