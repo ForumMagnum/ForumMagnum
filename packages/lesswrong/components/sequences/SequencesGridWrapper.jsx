@@ -27,7 +27,10 @@ const SequencesGridWrapper = ({
     // render grid of sequences
     return (<div className={classNames(className, classes.gridWrapper)}>
       <Components.SequencesGrid sequences={results} showAuthor={showAuthor} listMode={listMode}/>
-      { showLoadMore && totalCount > count && <Components.PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />}
+      { showLoadMore && totalCount > count && <div className={classes.loadMore}>
+          <Components.LoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />
+        </div>
+      }
     </div>);
   } else if (loading) {
     // TODO: Replace with SequencesLoading

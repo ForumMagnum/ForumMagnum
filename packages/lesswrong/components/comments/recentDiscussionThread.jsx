@@ -23,6 +23,9 @@ import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
+  root: {
+    marginBottom: theme.spacing.unit*4,
+  },
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
@@ -32,7 +35,6 @@ const styles = theme => ({
     overflowY: "hidden",
   },
   postItem: {
-    paddingLeft:10,
     paddingBottom:10,
     ...theme.typography.postStyle,
   },
@@ -59,6 +61,9 @@ const styles = theme => ({
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
+  },
+  noComments: {
+    borderBottom: "solid 1px rgba(0,0,0,.2)"
   }
 })
 
@@ -130,10 +135,10 @@ class RecentDiscussionThread extends PureComponent {
       return null
     }
 
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null})
+    const highlightClasses = classNames("recent-discussion-thread-highlight", {[classes.noComments]:post.commentCount === null})
 
     return (
-      <div className="recent-discussion-thread-wrapper">
+      <div className={classes.root}>
         <div className={classNames(classes.postItem)}>
 
           <Link to={Posts.getPageUrl(post)}>
@@ -157,9 +162,9 @@ class RecentDiscussionThread extends PureComponent {
           </div>
           : <div className={highlightClasses} onClick={this.showHighlight}>
               <LinkPostMessage post={post} />
-              { (!post.lastVisitedAt || post.commentCount === null) && 
-                <ContentItemBody 
-                  className={classes.postHighlight} 
+              { (!post.lastVisitedAt || post.commentCount === null) &&
+                <ContentItemBody
+                  className={classes.postHighlight}
                   dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
             </div>
         }

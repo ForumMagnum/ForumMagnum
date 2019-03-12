@@ -49,6 +49,7 @@ import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
+import '../components/common/LoadMore.jsx';
 
 
 // Outgoing RSS Feed builder
@@ -94,12 +95,12 @@ import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItemMeta.jsx';
-import '../components/posts/PostsItem.jsx'; 
-import '../components/posts/PostsItem2.jsx'; 
+import '../components/posts/PostsItem.jsx';
+import '../components/posts/PostsItem2.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
-import '../components/posts/PostsItemKarma.jsx'; 
+import '../components/posts/PostsItemKarma.jsx';
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
@@ -117,7 +118,6 @@ import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsDay.jsx';
 import '../components/posts/EventsPast.jsx';
 import '../components/posts/EventsUpcoming.jsx';
-import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';

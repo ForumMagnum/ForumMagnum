@@ -14,6 +14,10 @@ const Error = ({error}) => <div>
 const styles = theme => ({
   loading: {
     opacity: .4,
+  },
+  loadMore: {
+    marginLeft: 2,
+    marginTop: theme.spacing.unit*1.5
   }
 })
 
@@ -47,15 +51,16 @@ const PostsList = ({
   const loadingMore = networkStatus === 2 || networkStatus === 1;
   const renderContent = () => {
 
-    const { Loading, PostsItem, PostsLoadMore, PostsNoResults } = Components
+    const { Loading, PostsItem, LoadMore, PostsNoResults } = Components
     if (results && results.length) {
       return <div>
         { loading && dimWhenLoading && <Loading />}
-        <div className="posts-list-wrapper">
-          {results.map(post => <PostsItem key={post._id} post={post} currentUser={currentUser} terms={terms} /> )}
-        </div>
+        {results.map(post => <PostsItem key={post._id} post={post} currentUser={currentUser} terms={terms} /> )}
         { loading && !dimWhenLoading && <Loading />}
-        {showLoadMore ? <PostsLoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} /> : null}
+        {showLoadMore && <div className={classes.loadMore}>
+            <LoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />
+          </div>
+        }
       </div>
     } else if (loading) {
       return <Loading/>
