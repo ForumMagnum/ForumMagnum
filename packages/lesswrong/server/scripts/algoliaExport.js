@@ -104,7 +104,6 @@ async function algoliaCleanIndex(collection)
       hitsPerPage: 1000,
       page: currentPage,
     });
-    currentPage++;
     
     const ids = _.map(pageResults.hits, hit=>hit._id);
     const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids);
@@ -112,9 +111,15 @@ async function algoliaCleanIndex(collection)
     if (mongoIdsToDelete.length > 0) {
       const hitsToDelete = _.filter(pageResults.hits, hit=>hit._id in mongoIdsToDeleteDict);
       const objectIdsToDelete = _.map(hitsToDelete, hit=>hit.objectID);
+      // eslint-disable-next-line no-console
+      console.log(`Deleting ${objectIdsToDelete.length} object IDs for ${mongoIdsToDelete.length} mongo IDs`);
       await algoliaDeleteIds(algoliaIndex, objectIdsToDelete);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Nothing to delete in page ${currentPage} with ${ids.length} hits`);
     }
     
+    currentPage++;
   } while(pageResults.hits.length > 0)
 }
 
