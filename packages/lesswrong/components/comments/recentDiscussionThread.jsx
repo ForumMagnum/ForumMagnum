@@ -135,7 +135,9 @@ class RecentDiscussionThread extends PureComponent {
       return null
     }
 
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {[classes.noComments]:post.commentCount === null})
+    const highlightClasses = classNames({
+      [classes.noComments]: post.commentCount === null
+    })
 
     return (
       <div className={classes.root}>

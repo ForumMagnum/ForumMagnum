@@ -11,7 +11,7 @@ const styles = theme => ({
 })
 
 
-const LoadMore = ({loading, loadMore, count, totalCount, classes}) => {
+const LoadMore = ({ loadMore, count, totalCount, classes}) => {
   const handleClickLoadMore = event => {
     event.preventDefault();
     loadMore();

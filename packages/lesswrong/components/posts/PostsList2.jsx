@@ -17,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
+const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, paginationTerms, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
 
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
@@ -38,7 +38,7 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
-  const limit = terms.limit || 10
+  const limit = paginationTerms.limit || 10
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
