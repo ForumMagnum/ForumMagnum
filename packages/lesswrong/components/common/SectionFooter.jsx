@@ -13,6 +13,9 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit*3.5,
     marginLeft: theme.spacing.unit,
     color: theme.palette.text.secondary,
+    [theme.breakpoints.down('xs')]: {
+      flexWrap: "wrap"
+    },
     '& > *': {
       height: 30,
       '&:after': {
@@ -23,10 +26,17 @@ const styles = (theme) => ({
       '&:last-child': {
         '&:after': {
           content: '""',
-          marginLeft:0,
-          marginRight:0,
+          margin:0,
         }
-      }
+      },
+      [theme.breakpoints.down('xs')]: {
+        width: "100%",
+        textAlign: "right",
+        '&:after': {
+          content: '""',
+          margin: 0
+        },
+      },
     }
   }
 })

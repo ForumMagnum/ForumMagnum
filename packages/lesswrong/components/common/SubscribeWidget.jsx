@@ -11,6 +11,7 @@ const styles = theme => ({
   buttons: {
     display: "inline",
     cursor: "pointer",
+    whiteSpace: "nowrap"
   },
   subscribeButton: {
     position: "relative",
