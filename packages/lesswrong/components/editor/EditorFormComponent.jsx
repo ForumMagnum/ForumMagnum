@@ -218,7 +218,7 @@ class EditorFormComponent extends Component {
   }
   
   maybeSaveBackup = () => {
-    const { document } = this.props;
+    const { document, name } = this.props;
     
     // Only save to localStorage on every 30th content change
     // TODO: Consider debouncing rather than saving every 30th change
@@ -230,7 +230,8 @@ class EditorFormComponent extends Component {
       this.getStorageHandlers().set({
         state: serialized,
         doc: document,
-        name: this.getLocalStorageName()
+        name,
+        prefix: this.getLSKeyPrefix()
       })
     }
   }
