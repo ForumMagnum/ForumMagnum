@@ -268,6 +268,10 @@ class PostsItem2 extends PureComponent {
             <FormatDate date={post.postedAt}/>
           </PostsItemMetaInfo>}
 
+          {<div className={classes.mobileActions}>
+            <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
+          </div>}
+
           { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
             {post.startTime
               ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
