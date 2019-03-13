@@ -46,14 +46,14 @@ const styles = (theme) => ({
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     alignItems: "center",
     flexWrap: "wrap",
-    width: SECTION_WIDTH - LIST_PADDING,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%"
-    }
   },
   background: {
     transition: "3s",
     backgroundColor: "none",
+    width: SECTION_WIDTH - LIST_PADDING,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%"
+    }
   },
   commentsBackground: {
     backgroundColor: theme.palette.grey[200],
