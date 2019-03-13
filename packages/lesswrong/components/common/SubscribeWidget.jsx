@@ -11,7 +11,7 @@ const styles = theme => ({
   buttons: {
     display: "inline",
     cursor: "pointer",
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
   subscribeButton: {
     position: "relative",
@@ -19,12 +19,10 @@ const styles = theme => ({
     display: "inline",
     paddingLeft: 5,
     color: theme.palette.text.secondary,
-    "&:hover": {
-      color: theme.palette.text.primary
-    }
   },
   label: {
-    width: 58,
+    width: 64,
+    display: "inline-block",
     textAlign: "center",
     color: theme.palette.text.secondary
   }
@@ -66,25 +64,25 @@ class SubscribeWidget extends Component {
 
     return (
       <span className={classNames(className, classes.buttons)}>
-        <span className={classes.label} onClick={ () => this.openDialog("email") }>
+        <a className={classes.label} onClick={ () => this.openDialog("email") }>
           {subscribeLabel}
-        </span>
-        <span
+        </a>
+        <a
           className={classes.subscribeButton}
           onClick={ () => this.openDialog("rss") }
           onMouseEnter={ () => this.setSubscribeLabel("Via RSS") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
           <Icon fontSize="inherit" className={classes.icon}>rss_feed</Icon>
-        </span>
-        <span
+        </a>
+        <a
           className={classes.subscribeButton}
           onClick={ () => this.openDialog("email") }
           onMouseEnter={ () => this.setSubscribeLabel("Via Email") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
           <Icon fontSize="inherit" className={classes.icon}>email</Icon>
-        </span>
+        </a>
         { dialogOpen && <Components.SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
