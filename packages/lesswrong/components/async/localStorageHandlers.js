@@ -1,4 +1,14 @@
-import ls from 'local-storage';
+
+function getBrowserLocalStorage() {
+  try {
+    return 'localStorage' in global && global.localStorage ? global.localStorage : null;
+  } catch(e) {
+    // Some browsers don't have an accessible localStorage
+    console.warn("localStorage is unavailable; posts/comments will not be autosaved");
+    return null;
+  }
+}
+
 
 // Given a document and a field name, return:
 // {
@@ -25,21 +35,48 @@ export const getLSHandlers = (getLocalStorageId = null) => {
   return {
     get: ({doc, name, prefix}) => {
       const { id, verify } = idGenerator(doc, name)
-      const savedState = ls.get(prefix+id)
-      if (verify && savedState && Meteor.isClient && window) {
-        const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
-        return result ? savedState : null
-      } else {
-        return savedState
+      const ls = getBrowserLocalStorage();
+      if (!ls) return null;
+      
+      try {
+        const savedState = JSON.parse(ls.getItem(prefix+id))
+        if (verify && savedState && Meteor.isClient && window) {
+          const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
+          return result ? savedState : null
+        } else {
+          return savedState
+        }
+      } catch(e) {
+        console.warn("Failed reading from localStorage:");
+        console.warn(e);
+        return null;
       }
     },
     set: ({state, doc, name, prefix}) => {
+      const ls = getBrowserLocalStorage();
+      if (!ls) return false;
       const id = prefix+idGenerator(doc, name).id;
-      ls.set(id, state)
+      
+      try {
+        ls.setItem(id, JSON.stringify(state))
+      } catch(e) {
+        console.warn("Failed writing to localStorage:");
+        console.warn(e);
+        return false;
+      }
+      return true;
     },
     reset: ({doc, name, prefix}) => {
+      const ls = getBrowserLocalStorage();
+      if (!ls) return;
       const id = prefix+idGenerator(doc, name).id;
-      ls.remove(id)
+      
+      try {
+        ls.removeItem(id)
+      } catch(e) {
+        console.warn("Failed writing to localStorage:");
+        console.warn(e);
+      }
     }
   }
 }
