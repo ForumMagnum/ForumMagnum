@@ -40,7 +40,8 @@ export function htmlToMarkdown(html) {
 }
 
 export function markdownToHtml(markdown) {
-  return mdi.render(markdown)
+  const randomId = Random.id()
+  return mdi.render(markdown, {docId: randomId})
 }
 
 export async function markdownToHtmlWithLatex(markdown) {
