@@ -30,12 +30,11 @@ const Home2 = (props) => {
   return (
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
-      {/* <Components.RecommendedReading /> */}
 
       <SingleColumnSection>
         <SectionTitle title="Recommendations" />
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-          <Link to={"/allPosts?filter=curated&view=new"}>All Curated Posts</Link>
+          <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
           <SubscribeWidget view={"curated"} />
         </PostsList2>
       </SingleColumnSection>
