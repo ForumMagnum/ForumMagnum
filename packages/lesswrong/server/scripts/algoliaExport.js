@@ -5,7 +5,7 @@ import Users from 'meteor/vulcan:users'
 import { getCollection } from 'meteor/vulcan:lib';
 import Sequences from '../../lib/collections/sequences/collection.js'
 import { wrapVulcanAsyncScript } from './utils'
-import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, algoliaDoSearch, subsetOfIdsAlgoliaShouldntIndex } from '../search/utils';
+import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../queryUtil';
 import keyBy from 'lodash/keyBy';
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
@@ -84,43 +84,26 @@ async function algoliaCleanIndex(collection)
   if (!client) return;
   
   // eslint-disable-next-line no-console
-  console.log(`Deleting spurious documents from Algolia index for ${collection.collectionName}`);
+  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collection.collectionName]} for ${collection.collectionName}`);
   let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
   
-  let currentPage = 0;
-  let pageResults;
-  do {
-    // FIXME: If rows actually get deleted, then this shifts the pagination
-    // boundaries, so deleting n documents means skipping the check on the
-    // first n results on the next page.
-    // Unfortunately we can't just naively skip advancing the page whenever
-    // something is deleted, because that has the potential to be
-    // catastrophically slow; if the index consists of (pagesize-1) valid
-    // documents followed by many invalid documents, then we handle the invalid
-    // documents only one at a time.
-    pageResults = await algoliaDoSearch(algoliaIndex, {
-      query: "",
-      attributesToRetrieve: ['objectID', '_id'],
-      hitsPerPage: 1000,
-      page: currentPage,
-    });
-    
-    const ids = _.map(pageResults.hits, hit=>hit._id);
-    const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids);
-    const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
-    if (mongoIdsToDelete.length > 0) {
-      const hitsToDelete = _.filter(pageResults.hits, hit=>hit._id in mongoIdsToDeleteDict);
-      const objectIdsToDelete = _.map(hitsToDelete, hit=>hit.objectID);
-      // eslint-disable-next-line no-console
-      console.log(`Deleting ${objectIdsToDelete.length} object IDs for ${mongoIdsToDelete.length} mongo IDs`);
-      await algoliaDeleteIds(algoliaIndex, objectIdsToDelete);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`Nothing to delete in page ${currentPage} with ${ids.length} hits`);
-    }
-    
-    currentPage++;
-  } while(pageResults.hits.length > 0)
+  // eslint-disable-next-line no-console
+  console.log("Downloading the full index...");
+  let allDocuments = await algoliaGetAllDocuments(algoliaIndex);
+  
+  // eslint-disable-next-line no-console
+  console.log("Checking documents against the mongodb...");
+  const ids = _.map(allDocuments, doc=>doc._id)
+  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids); // TODO: Pagination
+  const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
+  
+  const hitsToDelete = _.filter(allDocuments, doc=>doc._id in mongoIdsToDeleteDict);
+  const algoliaIdsToDelete = _.map(hitsToDelete, hit=>hit.objectID);
+  // eslint-disable-next-line no-console
+  console.log(`Deleting ${mongoIdsToDelete.length} mongo IDs (${algoliaIdsToDelete.length} algolia IDs) from Algolia...`);
+  await algoliaDeleteIds(algoliaIndex, algoliaIdsToDelete);
+  // eslint-disable-next-line no-console
+  console.log("Done.");
 }
 
 export async function algoliaCleanAll() {
