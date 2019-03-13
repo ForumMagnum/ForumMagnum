@@ -1,3 +1,4 @@
+/* global Random */
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
