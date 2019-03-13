@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Checkbox from '@material-ui/core/Checkbox';
 import Users from 'meteor/vulcan:users';
 import { withRouter, Link } from 'react-router';
+
 const styles = theme => ({
   checkbox: {
     padding: "1px 8px 0 0",
