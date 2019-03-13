@@ -4,6 +4,7 @@ function getBrowserLocalStorage() {
     return 'localStorage' in global && global.localStorage ? global.localStorage : null;
   } catch(e) {
     // Some browsers don't have an accessible localStorage
+    // eslint-disable-next-line no-console
     console.warn("localStorage is unavailable; posts/comments will not be autosaved");
     return null;
   }
@@ -47,7 +48,9 @@ export const getLSHandlers = (getLocalStorageId = null) => {
           return savedState
         }
       } catch(e) {
+        // eslint-disable-next-line no-console
         console.warn("Failed reading from localStorage:");
+        // eslint-disable-next-line no-console
         console.warn(e);
         return null;
       }
@@ -60,7 +63,9 @@ export const getLSHandlers = (getLocalStorageId = null) => {
       try {
         ls.setItem(id, JSON.stringify(state))
       } catch(e) {
+        // eslint-disable-next-line no-console
         console.warn("Failed writing to localStorage:");
+        // eslint-disable-next-line no-console
         console.warn(e);
         return false;
       }
@@ -74,7 +79,9 @@ export const getLSHandlers = (getLocalStorageId = null) => {
       try {
         ls.removeItem(id)
       } catch(e) {
+        // eslint-disable-next-line no-console
         console.warn("Failed writing to localStorage:");
+        // eslint-disable-next-line no-console
         console.warn(e);
       }
     }
