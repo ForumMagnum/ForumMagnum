@@ -81,7 +81,7 @@ export const postBodyStyles = (theme, fontSize) => {
       fontSize: '65%',
       position: 'relative'
     },
-    // Currently here for R:A-Z imports, but might also want to use it for markdown footnotes
+    // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
       fontSize: '0.9em',
@@ -89,7 +89,19 @@ export const postBodyStyles = (theme, fontSize) => {
       borderTop: 'solid 1px rgba(0,0,0,0.2)',
       '& sup': {
         marginRight: 10,
-      }
+      },
+      '& ol': {
+        marginBlockStart: '1em',
+        paddingInlineStart: 0,
+        marginInlineStart: '1em'
+      },
+      '& li': {
+        fontSize: '0.9em' // Overwriting default size setting for list items
+      },
+    },
+    // Hiding the footnote-separator that markdown-it adds by default
+    '& .footnotes-sep': {
+      display: 'none'
     },
     '& a, & a:hover, & a:active': {
       ...linkStyle({
