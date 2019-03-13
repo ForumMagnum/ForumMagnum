@@ -14,7 +14,6 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit
   },
   title: {
-    cursor: "pointer",
     margin:0,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontStyle: "italic"

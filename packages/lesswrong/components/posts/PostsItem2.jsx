@@ -142,7 +142,8 @@ const styles = (theme) => ({
   },
   postIcon: {
     display: "none",
-    margin: theme.spacing.unit,
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {
       display: "block"
     }

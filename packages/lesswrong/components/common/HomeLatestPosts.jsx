@@ -31,10 +31,10 @@ class HomeLatestPosts extends PureComponent {
 
   toggleFilter = (filter) => {
     const { updateUser, currentUser, router, currentView } = this.props
-    const newFilter = currentView === "community" ? "frontpage" : "community"
+    const newFilter = currentView === "all" ? "frontpage" : "all"
 
     if (currentUser) {
-      const newFilter = (currentUser.currentFrontpageFilter === "community") ? "frontpage" : "community"
+      const newFilter = (currentUser.currentFrontpageFilter === "all") ? "frontpage" : "all"
       updateUser({
         selector: { _id: currentUser._id},
         data: {
@@ -63,11 +63,11 @@ class HomeLatestPosts extends PureComponent {
       <SingleColumnSection>
         <SectionTitle title="Latest Posts"/>
         <PostsList2 terms={recentPostsTerms}>
+          <Link to={"/allPosts"}>View All Posts</Link>
           <span className={classes.checkBoxGroup} onClick={this.toggleFilter}>
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentView === "community"} />
-            Include Personal Blogposts
+            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentView === "all"} />
+            Include Meta and Personal Blogposts
           </span>
-          <Link to={"/allPosts"}>All Posts</Link>
         </PostsList2>
       </SingleColumnSection>
     )
