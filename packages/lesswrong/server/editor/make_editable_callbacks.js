@@ -139,9 +139,10 @@ export function addEditableCallbacks({collection, options = {}}) {
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
+      const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
-      const { major } = extractVersionsFromSemver(document[fieldName].version)
-      const updateType = (document.draft && !docData.draft && (major < 1)) ? 'major' : (docData[fieldName].updateType || 'minor')
+      const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
+      const updateType = (document.draft && !docData.draft && (major < 1)) ? 'major' : defaultUpdateType
       const version = await getNextVersion(document._id, updateType)
       const userId = currentUser._id
       const editedAt = new Date()
