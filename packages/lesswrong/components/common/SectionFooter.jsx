@@ -17,26 +17,25 @@ const styles = (theme) => ({
       flexWrap: "wrap"
     },
     '& > *': {
-      height: 30,
-      '&:after': {
-        content: '"•"',
-        marginLeft: theme.spacing.unit*2,
-        marginRight: theme.spacing.unit*2,
-      },
-      '&:last-child': {
-        '&:after': {
-          content: '""',
-          margin:0,
-        }
-      },
       [theme.breakpoints.down('xs')]: {
         width: "100%",
         textAlign: "right",
-        '&:after': {
-          content: '""',
-          margin: 0
-        },
       },
+      [theme.breakpoints.up('sm')]: {
+        height: 30,
+        '&:after': {
+          content: '"•"',
+          marginLeft: theme.spacing.unit*2,
+          marginRight: theme.spacing.unit*2,
+        },
+        // Each child of the sectionFooter has a bullet divider, except for the last one.
+        '&:last-child': {
+          '&:after': {
+            content: '""',
+            margin:0,
+          }
+        },
+      }
     }
   }
 })

@@ -71,11 +71,11 @@ class HomeLatestPosts extends PureComponent {
       <p>
         <p>Recent posts, sorted by a mix of 'new' and 'highly upvoted'.</p>
         <p>By default shows only frontpage posts, and can optionally include personal blogposts.</p>
-        <p><em>(Moderators promote posts to frontpage if they seem to be:</em>
+        <p><em>Moderators promote posts to frontpage if they seem to be:</em>
           <ul>
-            <li>aimiming to explain rather than persuade</li>
-            <li>relatively timeless (avoiding reference to current events or local social knowledge)</li>
-            <li>are reasonably relevant to the average LW user</li>
+            <li>Aiming to explain rather than persuade</li>
+            <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
+            <li>Reasonably relevant to the average LW user</li>
           </ul>
         </p>
       </p>

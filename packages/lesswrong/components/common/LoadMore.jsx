@@ -19,7 +19,7 @@ const styles = theme => ({
 })
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes, disabled }) => {
+const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false }) => {
   const handleClickLoadMore = event => {
     event.preventDefault();
     loadMore();
@@ -29,8 +29,8 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled }) => {
     <a className={classNames(classes.root, {[classes.disabled]: disabled})}
       href="#"
       onClick={handleClickLoadMore}>
-      Load More&nbsp;
-      {totalCount ? <span>{`(${count}/${totalCount})`}</span> : null}
+      Load More
+      {totalCount ? <span>{`&nbsp;(${count}/${totalCount})`}</span> : null}
     </a>
   )
 }

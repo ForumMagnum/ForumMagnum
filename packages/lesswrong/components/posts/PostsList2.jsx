@@ -24,6 +24,7 @@ const styles = theme => ({
   },
   loadMore: {
     flexGrow: 1,
+    textAlign: "left",
     '&:after': {
       content: "''",
       marginLeft: 0,

@@ -16,16 +16,17 @@ import PropTypes from 'prop-types';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 export const MENU_WIDTH = 18
-export const AUTHOR_OR_EVENT_WIDTH = 140
+export const AUTHOR_WIDTH = 140
+export const EVENT_WIDTH = 110
 export const KARMA_WIDTH = 28
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 export const COMMENTS_WIDTH = 48
 export const LIST_PADDING = 16
 
-const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_OR_EVENT_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH - LIST_PADDING
+const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH - LIST_PADDING
 
-const EVENT_TITLE_WIDTH =  SECTION_WIDTH - AUTHOR_OR_EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH - LIST_PADDING
+const EVENT_TITLE_WIDTH =  SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH - LIST_PADDING
 
 const styles = (theme) => ({
   root: {
@@ -63,6 +64,9 @@ const styles = (theme) => ({
     borderLeft: "solid 1px rgba(0,0,0,.2)",
     borderRight: "solid 1px rgba(0,0,0,.2)",
     paddingBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing.unit
+    }
   },
   karma: {
     width: KARMA_WIDTH,
@@ -97,8 +101,8 @@ const styles = (theme) => ({
       maxWidth: "unset",
     }
   },
-  authorOrEvent: {
-    width: AUTHOR_OR_EVENT_WIDTH,
+  author: {
+    width: AUTHOR_WIDTH,
     justifyContent: "flex-end",
     flex: 1,
     overflow: "hidden",
@@ -108,6 +112,23 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "unset",
+      maxWidth: AUTHOR_WIDTH,
+      marginLeft: 0,
+      flex: "unset"
+    }
+  },
+  event: {
+    width: EVENT_WIDTH,
+    justifyContent: "flex-end",
+    flex: 1,
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis", // I'm not sure this line worked properly?
+    marginRight: theme.spacing.unit*1.5,
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "flex-start",
+      width: "unset",
+      maxWidth: EVENT_WIDTH,
       marginLeft: 0,
       flex: "unset"
     }
@@ -135,6 +156,9 @@ const styles = (theme) => ({
     marginTop: theme.spacing.unit,
     padding: theme.spacing.unit*2,
     cursor: "pointer",
+    [theme.breakpoints.down('sm')]: {
+      padding: 0,
+    }
   },
   closeComments: {
     color: theme.palette.grey[500],
@@ -267,21 +291,17 @@ class PostsItem2 extends PureComponent {
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
             </Link>
 
-            { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
+            { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post}/>
             </PostsItemMetaInfo>}
 
-            { post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>
+            { post.isEvent && <PostsItemMetaInfo className={classes.event}>
               <EventVicinity post={post} />
             </PostsItemMetaInfo>}
 
             {post.postedAt && !post.isEvent && <PostsItemMetaInfo className={classes.postedAt}>
               <FormatDate date={post.postedAt}/>
             </PostsItemMetaInfo>}
-
-            {<div className={classes.mobileActions}>
-              <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
-            </div>}
 
             { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
               {post.startTime
@@ -292,6 +312,10 @@ class PostsItem2 extends PureComponent {
                     <span>TBD</span>
                   </Tooltip>}
             </PostsItemMetaInfo>}
+
+            {<div className={classes.mobileActions}>
+              <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
+            </div>}
 
             {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
             {!getSetting('AlignmentForum', false) && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
