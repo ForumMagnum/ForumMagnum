@@ -6,7 +6,7 @@ import withUser from '../common/withUser';
 
 const Home2 = (props) => {
   const { currentUser } = props;
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
@@ -26,9 +26,10 @@ const Home2 = (props) => {
   return (
     <div>
       <Components.HeadTags image={getSetting('siteImage')} />
+      <TabNavigationMenu />
 
       <SingleColumnSection>
-        <SectionTitle title="Recommendations" />
+        <SectionTitle title="Curated" />
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
           <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
           <SubscribeWidget view={"curated"} />
