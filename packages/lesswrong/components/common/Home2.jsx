@@ -5,12 +5,8 @@ import { Link } from 'react-router';
 import withUser from '../common/withUser';
 
 const Home2 = (props) => {
-  const { currentUser, router } = props;
+  const { currentUser } = props;
   const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts } = Components
-
-  const query = _.clone(router.location.query) || {}
-  const currentView = query.view || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-  const limit = parseInt(query.limit) || 10
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
@@ -39,7 +35,7 @@ const Home2 = (props) => {
         </PostsList2>
       </SingleColumnSection>
 
-      <HomeLatestPosts query={query} currentView={currentView} limit={limit} />
+      <HomeLatestPosts />
 
       <SingleColumnSection>
         <SectionTitle title="Community Events"/>

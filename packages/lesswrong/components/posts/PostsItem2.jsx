@@ -239,8 +239,18 @@ class PostsItem2 extends PureComponent {
     }
   }
 
+  isSticky = (post, terms) => {
+    if (post && terms && terms.forum) {
+      return (
+        post.sticky ||
+        (terms.af && post.afSticky) ||
+        (terms.meta && post.metaSticky)
+      )
+    }
+  }
+
   render() {
-    const { classes, post, chapter, currentUser, index } = this.props
+    const { classes, post, chapter, currentUser, index, terms } = this.props
     const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
 
@@ -254,7 +264,7 @@ class PostsItem2 extends PureComponent {
             <PostsItemKarma post={post} />
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} />
+              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
             </Link>
 
             { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.authorOrEvent}>

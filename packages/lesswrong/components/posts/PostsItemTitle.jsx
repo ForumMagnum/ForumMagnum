@@ -104,6 +104,7 @@ const getPostCategory = (post) => {
   if (post.meta) return "Meta Post"
   if (post.curatedDate) return "Curated Post"
   if (post.frontpageDate) return "Frontpage Post"
+  if (post.isEvent) return "Event"
   return "Personal Blogpost"
 }
 
@@ -117,6 +118,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
   const tooltip = <div className={classes.highlightTooltipWrapper}>
     <div className={classes.tooltipInfo}>
       {postCategory}
+      {post.groupId}
     </div>
     <div className={classes.tooltipTitle}>
       {post.title}

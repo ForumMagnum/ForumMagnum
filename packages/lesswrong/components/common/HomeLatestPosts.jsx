@@ -2,6 +2,7 @@ import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
+import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import Users from 'meteor/vulcan:users';
 import { withRouter, Link } from 'react-router';
@@ -30,12 +31,14 @@ const styles = theme => ({
 
 class HomeLatestPosts extends PureComponent {
 
-  toggleFilter = (filter) => {
-    const { updateUser, currentUser, router, currentView } = this.props
-    const newFilter = currentView === "all" ? "frontpage" : "all"
+  toggleFilter = () => {
+    const { updateUser, currentUser, router } = this.props
 
+    let query = _.clone(router.location.query) || {view: "magic"}
+    const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
+
+    const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
     if (currentUser) {
-      const newFilter = (currentUser.currentFrontpageFilter === "all") ? "frontpage" : "all"
       updateUser({
         selector: { _id: currentUser._id},
         data: {
@@ -43,31 +46,49 @@ class HomeLatestPosts extends PureComponent {
         },
       })
     }
-
-    const query = { ...router.location.query, view: newFilter };
+    query.filter = newFilter
     const location = { pathname: router.location.pathname, query };
     router.replace(location);
   }
 
   render () {
-    const { classes, query, currentView, limit } = this.props;
+    const { currentUser, classes, router } = this.props;
     const { SingleColumnSection, SectionTitle, PostsList2 } = Components
 
+    const query = _.clone(router.location.query) || {}
+    const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
+    const limit = parseInt(query.limit) || 10
+
     const recentPostsTerms = {
-      view: currentView,
-      forum: true,
       ...query,
+      view: "magic",
+      filter: currentFilter,
+      forum: true,
       limit:limit
     }
 
+    const latestTitle = (
+      <p>
+        <p>Recent posts, sorted by a mix of 'new' and 'highly upvoted'.</p>
+        <p>By default shows only frontpage posts, and can optionally include personal blogposts.</p>
+        <p><em>(Moderators promote posts to frontpage if they seem to be:</em>
+          <ul>
+            <li>aimiming to explain rather than persuade</li>
+            <li>relatively timeless (avoiding reference to current events or local social knowledge)</li>
+            <li>are reasonably relevant to the average LW user</li>
+          </ul>
+        </p>
+      </p>
+    )
+
     return (
       <SingleColumnSection>
-        <SectionTitle title="Latest Posts"/>
+        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
         <PostsList2 terms={recentPostsTerms}>
           <Link to={"/allPosts"}>View All Posts</Link>
           <span className={classes.checkBoxGroup} onClick={this.toggleFilter}>
-            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentView === "all"} />
-            Include Meta and Personal Blogposts
+            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!(currentFilter === "frontpage")} />
+            Include Personal Posts
           </span>
         </PostsList2>
       </SingleColumnSection>
