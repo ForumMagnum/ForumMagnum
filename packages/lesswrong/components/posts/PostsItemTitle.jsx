@@ -118,7 +118,6 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
   const tooltip = <div className={classes.highlightTooltipWrapper}>
     <div className={classes.tooltipInfo}>
       {postCategory}
-      {post.groupId}
     </div>
     <div className={classes.tooltipTitle}>
       {post.title}
