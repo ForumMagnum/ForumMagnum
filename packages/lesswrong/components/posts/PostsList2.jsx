@@ -53,7 +53,7 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
-  const limit = paginationTerms.limit || 10
+  const limit = (paginationTerms && paginationTerms.limit) || 10
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
@@ -65,14 +65,16 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
       <SectionFooter>
-        {(maybeMorePosts && showLoadMore) &&
+        {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore
               loading={loadingMore}
               loadMore={loadMore}
+              disabled={!maybeMorePosts}
               count={count}
-              totalCount={totalCount}/>
-              { !dimWhenLoading && showLoading && loading && <Loading />}
+              totalCount={totalCount}
+            />
+            { !dimWhenLoading && showLoading && loading && <Loading />}
           </div>
         }
         { children }
