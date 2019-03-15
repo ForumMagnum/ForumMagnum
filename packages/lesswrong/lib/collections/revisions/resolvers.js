@@ -19,7 +19,7 @@ function domBuilder(html) {
 }
 
 
-function htmlToDraftServer(...args) {
+export function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
   global.HTMLElement = new JSDOM().window.HTMLElement
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
