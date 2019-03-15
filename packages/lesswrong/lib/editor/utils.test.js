@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from './utils'
 import { htmlToDraftServer } from '../collections/revisions/resolvers'
