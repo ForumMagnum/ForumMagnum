@@ -10,7 +10,7 @@ const linkify = linkifyIt()
 // Export for testing
 export function autolink(text) {
   const matches = linkify.match(text)
-  if (!matches) return text
+  if (!matches) return null
   let lastLinkEndIndex = 0
   const result = <React.Fragment>
     {matches.map(match => {
@@ -127,7 +127,7 @@ export const draftToHTML = convertToHTML({
       // then result in a preview/render mismatch. This is annoying, but I haven't found any
       // way of getting the alternative syntax of {element: ..., nest: ...} to work with
       // react elements that have children. 
-      return <li>{autoLinkedText}</li>
+      return autoLinkedText ? <li>{autoLinkedText}</li> : <li/>
     }
     const linkableParagraphs = ['paragraph','unstyled']
     if (linkableParagraphs.includes(type)) {
