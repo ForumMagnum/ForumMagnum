@@ -10,9 +10,9 @@ const linkify = linkifyIt()
 // Export for testing
 export function autolink(text) {
   const matches = linkify.match(text)
-  if (!matches) return <p />
+  if (!matches) return text
   let lastLinkEndIndex = 0
-  const result = <p>
+  const result = <React.Fragment>
     {matches.map(match => {
       const result = <span key={match.index}>
         {text.substring(lastLinkEndIndex, match.index)}
@@ -22,7 +22,7 @@ export function autolink(text) {
       return result
     })}
     {text.substring(lastLinkEndIndex, text.index)}
-  </p>
+  </React.Fragment>
   return result
 }
 
@@ -118,15 +118,23 @@ export const draftToHTML = convertToHTML({
   blockToHTML: (block) => {
     const type = block.type;
 
-    const linkable = [
-      'ordered-list-item',
-      'unordered-list-item',
-      'paragraph',
-      'unstyled'
-    ]
-    if (linkable.includes(type)) {
-      return autolink(block.text)
+    const linkableLists = ['unordered-list-item', 'ordered-list-item']
+    if (linkableLists.includes(type)) {
+      const autoLinkedText = autolink(block.text)
+      // Note: This currently breaks the rendering of ordered-lists, which is fine
+      // because we don't actually allow you to enter ordered-lists into our editor. 
+      // However, you can get an ordered list into our editor by copy-pasting, which will
+      // then result in a preview/render mismatch. This is annoying, but I haven't found any
+      // way of getting the alternative syntax of {element: ..., nest: ...} to work with
+      // react elements that have children. 
+      return <li>{autoLinkedText}</li>
     }
+    const linkableParagraphs = ['paragraph','unstyled']
+    if (linkableParagraphs.includes(type)) {
+      const autoLinkedText = autolink(block.text)
+      return autoLinkedText ? <p>{autoLinkedText}</p> : <p/>
+    } 
+    
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
