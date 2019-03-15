@@ -17,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
+const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, paginationTerms, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
 
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
@@ -31,19 +31,18 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   //                     behavior was more important can work fine. Will probably
   //                     fix this for real when Apollo 2 comes out
 
-  const { Loading, PostsItem2, PostsLoadMore, PostsNoResults } = Components
+  const { Loading, PostsItem2, LoadMore, PostsNoResults } = Components
 
   const loadingMore = networkStatus === 2 || networkStatus === 1;
 
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
-  const limit = terms.limit || 10
+  const limit = paginationTerms.limit || 10
 
-  // We don't actually know if there are more posts here, 
+  // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results && results.length && (results.length >= limit))  
-                                                                                     
+  const maybeMorePosts = !!(results && results.length && (results.length >= limit))
 
   return (
     <div className={classNames({[classes.loading]: loading && dimWhenLoading})}>
@@ -51,12 +50,12 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
       {loading && showLoading && !dimWhenLoading && <Loading />}
-      
-      {(maybeMorePosts && showLoadMore) && 
-        <PostsLoadMore 
-          loading={loadingMore} 
-          loadMore={loadMore} 
-          count={count} 
+
+      {(maybeMorePosts && showLoadMore) &&
+        <LoadMore
+          loading={loadingMore}
+          loadMore={loadMore}
+          count={count}
           totalCount={totalCount}/>
       }
     </div>

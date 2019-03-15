@@ -9,6 +9,7 @@ import htmlToText from 'html-to-text';
 import { dataToMarkdown } from '../editor/make_editable_callbacks'
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 import keyBy from 'lodash/keyBy';
+import chunk from 'lodash/chunk';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 
@@ -269,6 +270,24 @@ export async function algoliaSetIndexSettingsAndWait(algoliaIndex, settings) {
   await algoliaWaitForTask(algoliaIndex, result.taskID);
 }
 
+export async function algoliaGetAllDocuments(algoliaIndex) {
+  return new Promise((resolve,reject) => {
+    let results = [];
+    let browser = algoliaIndex.browseAll();
+    
+    browser.on('result', (content) => {
+      for (let result of content.hits)
+        results.push(result);
+    });
+    browser.on('end', () => {
+      resolve(results);
+    });
+    browser.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
 
 // Given a list of objects that should be in the Algolia index, check whether
 // they are, and whether all fields on them match. If there are any differences,
@@ -346,7 +365,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   
   let totalErrors = [];
   
-  algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
+  await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
     errors: totalErrors, updateFunction });
   
   if (totalErrors.length > 0) {
@@ -384,9 +403,19 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
 
 
 export async function subsetOfIdsAlgoliaShouldntIndex(collection, ids) {
-  let items = collection.find({ _id: {$in: ids} }).fetch();
-  let itemsToIndex = _.filter(items, item => collection.toAlgolia(item));
-  let itemsToIndexById = keyBy(itemsToIndex, o=>o._id);
+  // Filter out duplicates
+  const sortedIds = _.clone(ids).sort();
+  const uniqueIds = _.uniq(sortedIds, true);
+  const pages = chunk(uniqueIds, 1000);
+  let itemsToIndexById = {};
+  
+  for (let page of pages) {
+    let items = await collection.find({ _id: {$in: page} }).fetch();
+    let itemsToIndex = _.filter(items, item => collection.toAlgolia(item));
+    for (let item of itemsToIndex) {
+      itemsToIndexById[item._id] = true;
+    }
+  }
   
   return _.filter(ids, id => !(id in itemsToIndexById));
 }

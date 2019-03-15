@@ -156,6 +156,7 @@ class CommentsItem extends Component {
           { comment.parentCommentId && this.state.showParent && (
             <div className="recent-comment-parent root">
               <Components.RecentCommentsSingle
+                post={post}
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
                 level={nestingLevel + 1}
