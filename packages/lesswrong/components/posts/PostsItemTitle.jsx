@@ -104,6 +104,7 @@ const getPostCategory = (post) => {
   if (post.meta) return "Meta Post"
   if (post.curatedDate) return "Curated Post"
   if (post.frontpageDate) return "Frontpage Post"
+  if (post.isEvent) return "Event"
   return "Personal Blogpost"
 }
 

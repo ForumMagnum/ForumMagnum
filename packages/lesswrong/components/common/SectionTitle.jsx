@@ -14,19 +14,18 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit
   },
   title: {
-    cursor: "pointer",
     margin:0,
     fontFamily: theme.typography.postStyle.fontFamily,
-    fontStyle: "italic",
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    fontStyle: "italic"
   },
   leftDivider: {
     borderTop: "solid 2px rgba(0,0,0,.5)",
-    width: theme.spacing.unit*4
+    width: theme.spacing.unit*4,
+    marginRight: theme.spacing.unit*1.5,
   },
   rightDivider: {
     flexGrow:1,
+    marginLeft: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)"
   },
   tailDivider: {
@@ -36,16 +35,16 @@ const styles = (theme) => ({
 })
 class SectionTitle extends PureComponent {
   render() {
-    const {children, classes, className, title} = this.props 
+    const {children, classes, className, title, dividers=true} = this.props 
     return (
       <div className={classes.root}>
-        <div className={classes.leftDivider}/>
+        { dividers && <div className={classes.leftDivider}/>}
         <Typography variant='display1' className={classNames(classes.title, className)}>
           {title}
         </Typography>
-        <div className={classes.rightDivider}/>
+        { dividers && <div className={classes.rightDivider}/>}
         { children }
-        { children && <div className={classes.tailDivider}/>}
+        { children && dividers && <div className={classes.tailDivider}/>}
       </div>
     )
   }
