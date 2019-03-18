@@ -3,7 +3,7 @@
 import React from 'react';
 import { RichUtils, Modifier, EditorState, SelectionState } from 'draft-js';
 import linkifyIt from 'linkify-it'
-const linkify = linkifyIt()
+const linkify = linkifyIt({}, {fuzzyLink: false})
 
 const linkableTypes = ['unordered-list-item', 'ordered-list-item', 'paragraph', 'unstyled']
 
