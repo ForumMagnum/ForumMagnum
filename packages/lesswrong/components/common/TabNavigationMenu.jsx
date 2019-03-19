@@ -132,7 +132,7 @@ const TabNavigationMenu = ({
   location
 }) => {
 
-  const pathname = location.pathname
+  const { pathname } = location
   
   return (
     <div className={classes.root}>
