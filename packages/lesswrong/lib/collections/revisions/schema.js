@@ -1,4 +1,4 @@
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const ContentType = new SimpleSchema({
@@ -43,17 +43,14 @@ const schema = {
     viewableBy: ['guests']
   },
   userId: {
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User"
+    }),
     viewableBy: ['guests'],
-    type: String,
     optional: true,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true
-    },
   },
   originalContents: {
     type: ContentType,

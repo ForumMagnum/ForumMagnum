@@ -5,6 +5,7 @@ import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 import './server/database-import/force_batch_update_scores.js';
 import './server/database-import/cleanup_scripts.js';
+import './server/robots.js';
 
 // Scripts
 import './server/scripts/sscImport.js';
@@ -31,12 +32,14 @@ import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
 import './server/scripts/logMongoQueries.js';
 import './server/scripts/fillMissing.js';
+import './server/scripts/recomputeDenormalized.js';
 import './server/scripts/validateDatabase.js';
 import './server/migrations';
 
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';
 import './server/editor/utils.js';
+import './server/mapsUtils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
@@ -67,6 +70,7 @@ import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
+import './lib/collections/posts/serverSchema.js';
 
 import './lib/events/server.js';
 

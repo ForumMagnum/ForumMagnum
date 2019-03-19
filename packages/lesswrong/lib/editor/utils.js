@@ -10,16 +10,20 @@ const linkify = linkifyIt()
 // Export for testing
 export function autolink(text) {
   const matches = linkify.match(text)
-  if (!matches) return `<p>${text}</p>`
-  let resultPieces = ['<p>']
+  if (!matches) return null
   let lastLinkEndIndex = 0
-  for (const match of matches) {
-    resultPieces.push(text.substring(lastLinkEndIndex, match.index))
-    resultPieces.push(`<a href="${match.url}">${match.text}</a>`)
-    lastLinkEndIndex = match.lastIndex
-  }
-  resultPieces.push(`${text.substring(lastLinkEndIndex, text.length)}</p>`)
-  return resultPieces.join('')
+  const result = <React.Fragment>
+    {matches.map(match => {
+      const result = <span key={match.index}>
+        {text.substring(lastLinkEndIndex, match.index)}
+        <a href={match.url}>{match.text}</a>
+      </span>
+      lastLinkEndIndex = match.lastIndex
+      return result
+    })}
+    {text.substring(lastLinkEndIndex, text.index)}
+  </React.Fragment>
+  return result
 }
 
 // This currently only supports our limited subset of semVer
@@ -46,7 +50,6 @@ export const htmlToDraft = convertFromHTML({
       )
     }
     // if (nodeName === 'img') {
-    //   console.log("image detected: ", node, node.src)
     //   return createEntity(
     //     'IMAGE',
     //     'IMMUTABLE',
@@ -115,15 +118,23 @@ export const draftToHTML = convertToHTML({
   blockToHTML: (block) => {
     const type = block.type;
 
-    // const linkable = [
-    //   'ordered-list-item',
-    //   'unordered-list-item',
-    //   'paragraph',
-    //   'unstyled'
-    // ]
-    // if (linkable.includes(type)) {
-    //   return autolink(block.text)
-    // }
+    const linkableLists = ['unordered-list-item', 'ordered-list-item']
+    if (linkableLists.includes(type)) {
+      const autoLinkedText = autolink(block.text)
+      // Note: This currently breaks the rendering of ordered-lists, which is fine
+      // because we don't actually allow you to enter ordered-lists into our editor. 
+      // However, you can get an ordered list into our editor by copy-pasting, which will
+      // then result in a preview/render mismatch. This is annoying, but I haven't found any
+      // way of getting the alternative syntax of {element: ..., nest: ...} to work with
+      // react elements that have children. 
+      return autoLinkedText ? <li>{autoLinkedText}</li> : <li/>
+    }
+    const linkableParagraphs = ['paragraph','unstyled']
+    if (linkableParagraphs.includes(type)) {
+      const autoLinkedText = autolink(block.text)
+      return autoLinkedText ? <p>{autoLinkedText}</p> : <p/>
+    } 
+    
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`

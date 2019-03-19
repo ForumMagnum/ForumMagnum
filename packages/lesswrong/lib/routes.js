@@ -70,6 +70,9 @@ if(getSetting('AlignmentForum', false)) {
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
 }
 
+addRoute({ name: 'home2', path: '/home2', componentName: 'Home2', title: "Home2 Beta" });
+
+
 addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', title: "All Posts" });
 
 addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });

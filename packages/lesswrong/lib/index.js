@@ -1,7 +1,7 @@
 // # Vulcan Modifications
 
 // schema utils
-import { generateIdResolverMulti, generateIdResolverSingle } from './modules/utils/schemaUtils.js'
+import './modules/utils/schemaUtils.js'
 // Permissions
 import './modules/permissions.js';
 
@@ -164,8 +164,6 @@ export {
   Books,
   Bans,
   Localgroups,
-  generateIdResolverMulti,
-  generateIdResolverSingle,
   Comments,
   Revisions
 }

@@ -144,13 +144,13 @@ function PostsUndraftNotification(post) {
 }
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
-/**
- * @summary Add new post notification callback on post submit
- */
+// Add new post notification callback on post submit
 function postsNewNotifications (post) {
   if (!post.draft && post.status === Posts.config.STATUS_APPROVED) {
-    // add users who get notifications for all new posts
-    let usersToNotify = _.pluck(Users.find({'notifications_posts': true}, {fields: {_id:1}}).fetch(), '_id');
+    // Removed because this was useless. Will be reintroduced in a different
+    // form (with advanced filters and emailing.)
+    //let usersToNotify = _.pluck(Users.find({'notifications_posts': true}, {fields: {_id:1}}).fetch(), '_id');
+    let usersToNotify = [];
 
     // add users who are subscribed to this post's author
     const postAuthor = Users.findOne(post.userId);

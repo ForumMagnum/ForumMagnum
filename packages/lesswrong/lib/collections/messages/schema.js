@@ -1,4 +1,4 @@
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
 import Users from 'meteor/vulcan:users';
 
 const schema = {
@@ -8,18 +8,14 @@ const schema = {
     optional: true,
   },
   userId: {
-    type: String,
-    foreignKey: "Users",
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     viewableBy: ['members'],
     insertableBy: Users.owns,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true,
-    },
     optional: true,
   },
   createdAt: {
@@ -29,19 +25,15 @@ const schema = {
     onInsert: (document, currentUser) => new Date(),
   },
   conversationId: {
-    type: String,
-    foreignKey: "Conversations",
+    ...foreignKeyField({
+      idFieldName: "conversationId",
+      resolverName: "conversation",
+      collectionName: "Conversations",
+      type: "Conversation",
+    }),
     viewableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,
-    resolveAs: {
-      fieldName: 'conversation',
-      type: 'Conversation',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Conversations', fieldName: 'conversationId'}
-      ),
-      addOriginalField: true,
-    },
   }
 };
 

@@ -94,7 +94,7 @@ ensureIndex(Posts,
 ensureIndex(Posts,
   augmentForDefaultView({ coauthorUserIds: 1, postedAt: -1, }),
   {
-    name: "posts.userId_postedAt",
+    name: "posts.coauthorUserIds_postedAt",
   }
 );
 
@@ -103,6 +103,8 @@ const setStickies = (sortOptions, terms) => {
     return { afSticky: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {
     return { metaSticky: -1, ...sortOptions}
+  } else if (terms.forum) {
+    return { sticky: -1, ...sortOptions}
   }
   return sortOptions
 }
@@ -343,7 +345,7 @@ ensureIndex(Posts,
 );
 ensureIndex(Posts,
   augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
-  { name: "posts.userId_createdAt" }
+  { name: "posts.userId_shareWithUsers" }
 );
 
 /**

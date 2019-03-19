@@ -24,7 +24,7 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
               />
             </div>
           )}
-          {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+          {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
         </div>}
       </div>
     </div>)
