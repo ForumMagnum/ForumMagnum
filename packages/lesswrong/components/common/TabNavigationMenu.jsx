@@ -127,7 +127,7 @@ const TabNavigationMenu = ({
   return (
     <div className={classes.root}>
       <div className={classes.tabMenu}>
-        <Tooltip placement="right-start" title="Curated content, latest posts and comments.">
+        <Tooltip placement="right" title="Curated content, latest posts and comments.">
           <Link to="/" className={classNames(classes.navButtonWrapper, {selected: pathname === "/"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
@@ -142,7 +142,7 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right-start" title="Sequences of posts. Recommended reading for new users.">
+        <Tooltip placement="right" title="Sequences of posts.\nRecommended reading for new users.">
           <Link to="/library" className={classNames(classes.navButtonWrapper, {selected: pathname === "/library"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
@@ -156,7 +156,7 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right-start" title="Ask and answer questions, ranging from simple newbie questions, to extensive outsourced research.">
+        <Tooltip placement="right" title="Ask and answer questions,\nfrom simple newbie questions to extensive outsourced research.">
           <Link to="/questions" className={classNames(classes.navButtonWrapper, {selected: pathname === "/questions"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
@@ -170,21 +170,7 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right-start" title="See all posts, filtered and sorted however you like.">
-          <Link to="/allPosts" className={classNames(classes.navButtonWrapper, classes.hideOnDesktop, {selected: pathname === "/allPosts"})}>
-            <Button className={classes.navButtonInnerWrapper}>
-              <div className={classes.navButton}>
-                <span className={classNames(classes.icon, {selected: pathname === "/allPosts"})}>
-                  <img src="/scrollIcon.svg" />
-                </span>
-                <span className={classNames(classes.navText, {selected: pathname === "/allPosts"})}>
-                  All Posts
-                </span>
-              </div>
-            </Button>
-          </Link>
-        </Tooltip>
-        <Tooltip placement="right-start" title="Events from around the world. Find a meetup near you.">
+        <Tooltip placement="right" title="Events from around the world. Find a meetup near you.">
           <Link to="/community" className={classNames(classes.navButtonWrapper, {selected: pathname === "/community"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
@@ -193,6 +179,20 @@ const TabNavigationMenu = ({
                 </span>
                 <span className={classNames(classes.navText, {selected: pathname === "/community"})}>
                   Community<span className={classes.hideOnMobile}> Events</span>
+                </span>
+              </div>
+            </Button>
+          </Link>
+        </Tooltip>
+        <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
+          <Link to="/allPosts" className={classNames(classes.navButtonWrapper, classes.hideOnDesktop, {selected: pathname === "/allPosts"})}>
+            <Button className={classes.navButtonInnerWrapper}>
+              <div className={classes.navButton}>
+                <span className={classNames(classes.icon, {selected: pathname === "/allPosts"})}>
+                  <img src="/scrollIcon.svg" />
+                </span>
+                <span className={classNames(classes.navText, {selected: pathname === "/allPosts"})}>
+                  All Posts
                 </span>
               </div>
             </Button>
