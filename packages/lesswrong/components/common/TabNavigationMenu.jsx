@@ -17,7 +17,7 @@ const styles = (theme) => ({
     width:"100%",
     zIndex: theme.zIndexes.tabNavigation,
     [theme.breakpoints.up('lg')]: {
-      top: 110,
+      top: 92,
       left:0,
       width:200,
     },
@@ -58,7 +58,10 @@ const styles = (theme) => ({
     }
   },
   navButtonInnerWrapper: {
-    padding: theme.spacing.unit*2,
+    paddingTop: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
     [theme.breakpoints.down('md')]: {
       padding:0,
       width: "100%",
@@ -79,15 +82,15 @@ const styles = (theme) => ({
   },
   icon: {
     display: "block",
-    opacity: .25,
+    opacity: .45,
     width: 30,
-    height: 32,
+    height: 28,
     [theme.breakpoints.up('lg')]: {
       marginRight: theme.spacing.unit*2,
       display: "inline",
     },
     '&.selected': {
-      opacity:.9,
+      opacity:1,
     }
   },
   navText: {
@@ -114,6 +117,13 @@ const styles = (theme) => ({
     [theme.breakpoints.up('lg')]: {
       display: "none"
     },
+  },
+  homeIcon: {
+    '& svg': {
+      height: 29,
+      position: "relative",
+      top: -1
+    }
   }
 })
 
@@ -127,12 +137,12 @@ const TabNavigationMenu = ({
   return (
     <div className={classes.root}>
       <div className={classes.tabMenu}>
-        <Tooltip placement="right" title="Curated content, latest posts and comments.">
+        <Tooltip placement="right" title="Latest posts, comments and curated content.">
           <Link to="/" className={classNames(classes.navButtonWrapper, {selected: pathname === "/"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
                 <span className={classNames(classes.icon, {selected: pathname === "/"})}>
-                  { compassIcon }
+                  <span className={classes.homeIcon}>{ compassIcon }</span>
                 </span>
                 {/* <Home className={classNames(classes.icon, {selected: pathname === "/"})}/>  */}
                 <span className={classNames(classes.navText, {selected: pathname === "/"})}>
@@ -142,7 +152,9 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right" title="Sequences of posts.\nRecommended reading for new users.">
+        <Tooltip placement="right" title={<div>
+            <div>Curated collections of LessWrong's best writing.</div>
+          </div>}>
           <Link to="/library" className={classNames(classes.navButtonWrapper, {selected: pathname === "/library"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
@@ -156,7 +168,11 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right" title="Ask and answer questions,\nfrom simple newbie questions to extensive outsourced research.">
+        <Tooltip placement="right" title={<div>
+          <div>• Ask simple newbie questions.</div>
+          <div>• Collaborate on open research questions.</div>
+          <div>• Pose and resolve confusions.</div>
+        </div>}>
           <Link to="/questions" className={classNames(classes.navButtonWrapper, {selected: pathname === "/questions"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
@@ -170,7 +186,7 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right" title="Events from around the world. Find a meetup near you.">
+        <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
           <Link to="/community" className={classNames(classes.navButtonWrapper, {selected: pathname === "/community"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
