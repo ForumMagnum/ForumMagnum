@@ -60,6 +60,7 @@ addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'Post
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Admin" });
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog', title: "Moderation Log" });
+addRoute({ name: 'emailHistory', path: '/debug/emailHistory', componentName: 'EmailHistoryPage' });
 
 if(getSetting('AlignmentForum', false)) {
     addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
