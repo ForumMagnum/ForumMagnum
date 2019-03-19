@@ -330,7 +330,7 @@ addFieldsDict(Users, {
     canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     optional: true,
-    label: "Banned Users",
+    label: "Banned Users (All)",
     control: 'UsersListEditor'
   },
   'bannedUserIds.$': {
@@ -347,8 +347,9 @@ addFieldsDict(Users, {
     canUpdate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
     canCreate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
     optional: true,
-    label: "Banned Users from Personal Blog Posts",
-    control: 'UsersListEditor'
+    label: "Banned Users (Personal)",
+    control: 'UsersListEditor',
+    tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {
     type: String,
