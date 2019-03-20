@@ -1,34 +1,83 @@
 
-// import { chai } from 'meteor/practicalmeteor:chai'
-// import { autolink } from './utils'
+import { convertFromRaw } from 'draft-js';
+import { draftToHTML } from './utils'
+import { htmlToDraftServer } from '../collections/revisions/resolvers'
 
-// chai.should()
+describe("draftToHtml", () => {
+  it('correctly translates bold and italic and bold-italic', () => {
+    const rawDraftJS = {
+      "blocks" : [ 
+          {
+              "data" : {},
+              "depth" : 0,
+              "entityRanges" : [],
+              "inlineStyleRanges" : [ 
+                  {
+                      "length" : 6,
+                      "offset" : 0,
+                      "style" : "ITALIC"
+                  }
+              ],
+              "key" : "6g37h",
+              "text" : "Italic",
+              "type" : "unstyled"
+          }, 
+          {
+              "data" : {},
+              "depth" : 0,
+              "entityRanges" : [],
+              "inlineStyleRanges" : [ 
+                  {
+                      "length" : 4,
+                      "offset" : 0,
+                      "style" : "BOLD"
+                  }
+              ],
+              "key" : "fs9sl",
+              "text" : "Bold",
+              "type" : "unstyled"
+          }, 
+          {
+              "data" : {},
+              "depth" : 0,
+              "entityRanges" : [],
+              "inlineStyleRanges" : [ 
+                  {
+                      "length" : 10,
+                      "offset" : 0,
+                      "style" : "BOLD"
+                  }, 
+                  {
+                      "length" : 10,
+                      "offset" : 0,
+                      "style" : "ITALIC"
+                  }
+              ],
+              "key" : "9ljma",
+              "text" : "BoldItalic",
+              "type" : "unstyled"
+          }
+      ],
+      "entityMap" : {}
+    }
+    const result = draftToHTML(convertFromRaw(rawDraftJS))
+    result.should.equal("<p><em>Italic</em></p><p><strong>Bold</strong></p><p><strong><em>BoldItalic</em></strong></p>")
+  })
+})
 
-// describe('Autolink', () => {
-//   it('autolinks multiple links', () => {
-//     const textIn = 'text1 https://www.google.com/ text2 https://www.google.com/foo text3'
-//     const want = [
-//       '<p>text1 ',
-//       '<a href="https://www.google.com/">https://www.google.com/</a> ',
-//       'text2 ',
-//       '<a href="https://www.google.com/foo">https://www.google.com/foo</a> ',
-//       'text3</p>'
-//     ].join('')
-//     const got = autolink(textIn)
-//     got.should.equal(want)
-//   })
-
-//   it('does nothing to linkless text', () => {
-//     const textIn = 'text1'
-//     const want = '<p>text1</p>'
-//     const got = autolink(textIn)
-//     got.should.equal(want)
-//   })
-
-//   it('autolinks only link', () => {
-//     const textIn = 'www.google.com'
-//     const want = '<p><a href="http://www.google.com">www.google.com</a></p>'
-//     const got = autolink(textIn)
-//     got.should.equal(want)
-//   })
-// })
+describe("htmlToDraft -> draftToHtml roundtrip testing", () => {
+  const tests = [
+    {description: "italics", html: "<p><em>Italic</em></p>"},
+    {description: "bold", html: "<p><strong>Bold</strong></p>"},
+    {description: "bold-italic", html: "<p><strong><em>BoldItalic</em></strong></p>"},
+    {description: "bullet-list", html: "<ul><li>first</li><li>second</li></ul>"},
+    {description: "link", html: `<p><a href="google.com"> Link </a></p>`}
+  ]
+  for (const t of tests) {
+    it(t.description, () => {
+      const draft = htmlToDraftServer(t.html)
+      const html = draftToHTML(draft)
+      html.should.equal(t.html)
+    })
+  }
+})

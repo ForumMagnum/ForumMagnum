@@ -104,6 +104,7 @@ const getPostCategory = (post) => {
   if (post.meta) return "Meta Post"
   if (post.curatedDate) return "Curated Post"
   if (post.frontpageDate) return "Frontpage Post"
+  if (post.isEvent) return "Event"
   return "Personal Blogpost"
 }
 
@@ -132,6 +133,8 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
 
   const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
     <Typography variant="body1" className={classes.title}>
+      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+
       {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
       {shared && <span className={classes.tag}>[Shared]</span>}
@@ -139,8 +142,6 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
       {post.question && <span className={classes.tag}>[Question]</span>}
 
       {post.url && <span className={classes.tag}>[Link]</span>}
-
-      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
       {post.isEvent && <span className={classes.tag}>[Event]</span>}
 

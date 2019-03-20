@@ -7,6 +7,7 @@ import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 import './server/database-import/force_batch_update_scores.js';
 import './server/database-import/cleanup_scripts.js';
+import './server/robots.js';
 
 // Scripts
 import './server/scripts/sscImport.js';
@@ -52,6 +53,7 @@ import './server/votingGraphQL.js';
 import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
 import './server/callbacks.js';
+import './server/notificationCallbacks.js';
 import './server/voteServer.js';
 
 import './lib/collections/comments/callbacks.js';

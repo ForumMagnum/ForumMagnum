@@ -64,6 +64,7 @@ addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'Post
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Admin" });
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog', title: "Moderation Log" });
+addRoute({ name: 'emailHistory', path: '/debug/emailHistory', componentName: 'EmailHistoryPage' });
 
 if(getSetting('AlignmentForum', false)) {
     addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
@@ -72,6 +73,9 @@ if(getSetting('AlignmentForum', false)) {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
 }
+
+addRoute({ name: 'home2', path: '/home2', componentName: 'Home2', title: "Home2 Beta" });
+
 
 addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', title: "All Posts" });
 
