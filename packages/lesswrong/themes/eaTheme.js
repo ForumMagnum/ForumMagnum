@@ -151,7 +151,8 @@ const theme = createLWTheme({
     },
     MuiTooltip: {
       tooltip: {
-        fontSize: "1rem"
+        fontSize: "1rem",
+        padding: ".7rem",
       }
     }
   }

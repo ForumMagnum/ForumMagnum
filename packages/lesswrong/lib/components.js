@@ -29,9 +29,12 @@ import '../components/common/CalendarDate.jsx';
 import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
+import '../components/common/TabNavigationMenu.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
+import '../components/common/Home2.jsx';
+import '../components/common/HomeLatestPosts';
 import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
@@ -39,6 +42,7 @@ import '../components/common/Section.jsx';
 import '../components/common/SingleColumnSection';
 import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
+import '../components/common/SectionFooter.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
 import '../components/common/SearchBar.jsx';
@@ -236,6 +240,7 @@ import '../components/sunshineDashboard/SidebarActionMenu.jsx';
 import '../components/sunshineDashboard/SidebarAction.jsx';
 import '../components/sunshineDashboard/SunshineListCount.jsx';
 import '../components/sunshineDashboard/LastCuratedDate';
+import '../components/sunshineDashboard/EmailHistory.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';

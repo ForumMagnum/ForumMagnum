@@ -173,6 +173,7 @@ const createLWTheme = (theme) => {
       sunshineSidebar: 1000,
       postItemMenu: 1001,
       layout: 1100,
+      tabNavigation: 1101,
       header: 1300,
       karmaChangeNotifier: 1400,
       notificationsMenu: 1500,
