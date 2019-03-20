@@ -6,8 +6,6 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
 
 const styles = (theme) => ({
-  root: {
-  },
   commentCount: {
     position:"absolute",
     right:"50%",

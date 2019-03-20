@@ -113,13 +113,11 @@ import { Comments } from './collections/comments'
 
 // Votes
 import './collections/votes';
-//
-//
-//
+
 // Internationalization
 import './i18n-en-us/en_US.js';
 
-// // Misc.
+// Misc.
 import './helpers.js'
 import './routes.js';
 import './scrollRestoration.js';
