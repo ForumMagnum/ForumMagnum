@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
+import { withRouter } from 'react-router';
 
 const styles = theme => ({
   root: {
@@ -29,6 +30,7 @@ const styles = theme => ({
       whiteSpace: "unset",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
+    marginRight: theme.spacing.unit
   },
   sticky: {
     paddingRight: theme.spacing.unit,
@@ -131,6 +133,8 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
 
   const shared = post.draft && (post.userId !== currentUser._id)
 
+  const showQuestionsTag = !(location.pathname === "/questions")
+
   const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
     <Typography variant="body1" className={classes.title}>
       {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
@@ -139,13 +143,13 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
 
       {shared && <span className={classes.tag}>[Shared]</span>}
 
-      {post.question && <span className={classes.tag}>[Question]</span>}
+      {post.question && showQuestionsTag && <span className={classes.tag}>[Question]</span>}
 
       {post.url && <span className={classes.tag}>[Link]</span>}
 
       {post.isEvent && <span className={classes.tag}>[Event]</span>}
 
-      <span className={classes.tag}>{post.title}</span>
+      {post.title}
     </Typography>
 
     {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
@@ -163,6 +167,6 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) =
 
 PostsItemTitle.displayName = "PostsItemTitle";
 
-registerComponent('PostsItemTitle', PostsItemTitle, withUser,
+registerComponent('PostsItemTitle', PostsItemTitle, withUser, withRouter,
   withStyles(styles, { name: "PostsItemTitle" })
 );

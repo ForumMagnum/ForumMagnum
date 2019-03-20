@@ -32,14 +32,23 @@ const styles = theme => ({
   }
 });
 
+export const views = {
+  daily: "Daily",
+  magic: "Magic (New & Upvoted)",
+  recentComments: "Recent Comments",
+  new: "New",
+  old: "Old",
+  top: "Top"
+}
+
 class AllPostsPage extends Component {
-  state = { 
-    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false 
+  state = {
+    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false
   };
 
   toggleSettings = () => {
     const { currentUser, updateUser } = this.props
-    
+
     this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
       if (currentUser) {
         updateUser({
@@ -47,7 +56,7 @@ class AllPostsPage extends Component {
           data: {
             allPostsOpenSettings: this.state.showSettings,
           },
-        })  
+        })
       }
     })
   }
@@ -86,13 +95,13 @@ class AllPostsPage extends Component {
             <div className={classes.title} onClick={this.toggleSettings}>
               <SectionTitle title="All Posts">
                 <SettingsIcon className={classes.settingsIcon}/>
-                <MetaInfo className={classes.sortedBy}>Sorted by { currentView }</MetaInfo>
+                <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
               </SectionTitle>
             </div>
           </Tooltip>
-          <AllPostsPageSettings 
-            hidden={!showSettings} 
-            currentView={currentView} 
+          <AllPostsPageSettings
+            hidden={!showSettings}
+            currentView={currentView}
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
           />

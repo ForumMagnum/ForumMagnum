@@ -137,8 +137,8 @@ const styles = (theme) => ({
     width: POSTED_AT_WIDTH,
     justifyContent: "center",
     fontWeight: 300,
-    fontSize: "1rem !important",
-    color: "rgba(0,0,0,.9) !important",
+    fontSize: "1rem",
+    color: "rgba(0,0,0,.9)",
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "none",
@@ -149,8 +149,8 @@ const styles = (theme) => ({
     width: START_TIME_WIDTH,
     justifyContent: "center",
     fontWeight: 300,
-    fontSize: "1rem !important",
-    color: "rgba(0,0,0,.9) !important",
+    fontSize: "1rem",
+    color: "rgba(0,0,0,.9)",
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "none",
