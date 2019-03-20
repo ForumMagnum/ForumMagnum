@@ -291,18 +291,34 @@ Posts.addView("meta-rss", terms => ({
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
-Posts.addView("questions", terms => ({
+Posts.addView("topQuestions", terms => ({
+  selector: {
+    question: true,
+    baseScore: {$gte: 40}
+  },
+  options: {
+    sort: { lastCommentedAt: -1 }
+  }
+}));
+ensureIndex(Posts,
+  augmentForDefaultView({ lastCommentedAt: -1, question:1 }),
+  {
+    name: "posts.topQuestions",
+  }
+);
+
+Posts.addView("recentQuestionActivity", terms => ({
   selector: {
     question: true,
   },
   options: {
-    sort: {sticky: -1, score: -1}
+    sort: {lastCommentedAt: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, question:1 }),
+  augmentForDefaultView({ lastCommentedAt: -1, question:1 }),
   {
-    name: "posts.questions",
+    name: "posts.recentQuestionActivity",
   }
 );
 

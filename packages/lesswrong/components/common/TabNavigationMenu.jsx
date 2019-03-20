@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
+import withUser from '../common/withUser';
 
 import { compassIcon } from '../icons/compassIcon';
 import { questionsGlobeIcon } from '../icons/questionsGlobeIcon';
@@ -129,11 +130,16 @@ const styles = (theme) => ({
 
 const TabNavigationMenu = ({
   classes,
-  location
+  location,
+  currentUser
 }) => {
 
   const { pathname } = location
   
+  // TODO: BETA Remove the admin requirements on this component once it's ready to be deployed to master.
+
+  if (!(currentUser && currentUser.isAdmin)) { return null }
+
   return (
     <div className={classes.root}>
       <div className={classes.tabMenu}>
@@ -200,7 +206,7 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
-          <Link to="/allPosts" className={classNames(classes.navButtonWrapper, classes.hideOnDesktop, {[classes.selected]: pathname === "/allPosts"})}>
+          <Link to="/allPosts" className={classNames(classes.navButtonWrapper, {[classes.selected]: pathname === "/allPosts"})}>
             <Button className={classes.navButtonInnerWrapper}>
               <div className={classes.navButton}>
                 <span className={classes.icon}>
@@ -218,4 +224,4 @@ const TabNavigationMenu = ({
   )
 };
 
-registerComponent('TabNavigationMenu', TabNavigationMenu, withRouter, withStyles(styles, { name: 'TabNavigationMenu'}));
+registerComponent('TabNavigationMenu', TabNavigationMenu, withRouter, withUser, withStyles(styles, { name: 'TabNavigationMenu'}));
