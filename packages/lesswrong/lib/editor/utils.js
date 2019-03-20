@@ -1,30 +1,6 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 import { Utils } from 'meteor/vulcan:core';
-import linkifyIt from 'linkify-it'
-const linkify = linkifyIt()
-
-// Convert text to html with links converted to hyperlinks, matches
-// linkify-plugin's linkStrategy.
-//
-// Export for testing
-export function autolink(text) {
-  const matches = linkify.match(text)
-  if (!matches) return null
-  let lastLinkEndIndex = 0
-  const result = <React.Fragment>
-    {matches.map(match => {
-      const result = <span key={match.index}>
-        {text.substring(lastLinkEndIndex, match.index)}
-        <a href={match.url}>{match.text}</a>
-      </span>
-      lastLinkEndIndex = match.lastIndex
-      return result
-    })}
-    {text.substring(lastLinkEndIndex, text.index)}
-  </React.Fragment>
-  return result
-}
 
 // This currently only supports our limited subset of semVer
 export function extractVersionsFromSemver(semver) {
@@ -117,24 +93,6 @@ export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
     const type = block.type;
-
-    const linkableLists = ['unordered-list-item', 'ordered-list-item']
-    if (linkableLists.includes(type)) {
-      const autoLinkedText = autolink(block.text)
-      // Note: This currently breaks the rendering of ordered-lists, which is fine
-      // because we don't actually allow you to enter ordered-lists into our editor. 
-      // However, you can get an ordered list into our editor by copy-pasting, which will
-      // then result in a preview/render mismatch. This is annoying, but I haven't found any
-      // way of getting the alternative syntax of {element: ..., nest: ...} to work with
-      // react elements that have children. 
-      return autoLinkedText ? <li>{autoLinkedText}</li> : <li/>
-    }
-    const linkableParagraphs = ['paragraph','unstyled']
-    if (linkableParagraphs.includes(type)) {
-      const autoLinkedText = autolink(block.text)
-      return autoLinkedText ? <p>{autoLinkedText}</p> : <p/>
-    } 
-    
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
