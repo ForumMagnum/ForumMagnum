@@ -28,22 +28,11 @@ const Home2 = (props) => {
       <Components.HeadTags image={getSetting('siteImage')} />
       <TabNavigationMenu />
 
-      <SingleColumnSection>
-        <SectionTitle title="Curated" />
-        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-          <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
-          <SubscribeWidget view={"curated"} />
-        </PostsList2>
-      </SingleColumnSection>
+      {/* TODO: better curated removal*/}
 
       <HomeLatestPosts />
 
-      <SingleColumnSection>
-        <SectionTitle title="Community Events"/>
-        <PostsList2 terms={eventsListTerms} showLoadMore={false}>
-          <Link to="/community">Find Events Nearby</Link>
-        </PostsList2>
-      </SingleColumnSection>
+      {/* TODO: event if statement */}
 
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion" />

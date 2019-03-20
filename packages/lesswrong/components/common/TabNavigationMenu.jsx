@@ -152,22 +152,6 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
         <Tooltip placement="right" title={<div>
-            <div>Curated collections of LessWrong's best writing.</div>
-          </div>}>
-          <Link to="/library" className={classNames(classes.navButtonWrapper, {[classes.selected]: pathname === "/library"})}>
-            <Button className={classes.navButtonInnerWrapper}>
-              <div className={classes.navButton}>
-                <span className={classes.icon}>
-                  <img src="/bookIcon.svg" />
-                </span>
-                <span className={classes.navText}>
-                  Library
-                </span>
-              </div>
-            </Button>
-          </Link>
-        </Tooltip>
-        <Tooltip placement="right" title={<div>
           <div>• Ask simple newbie questions.</div>
           <div>• Collaborate on open research questions.</div>
           <div>• Pose and resolve confusions.</div>
@@ -185,20 +169,7 @@ const TabNavigationMenu = ({
             </Button>
           </Link>
         </Tooltip>
-        <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
-          <Link to="/community" className={classNames(classes.navButtonWrapper, {[classes.selected]: pathname === "/community"})}>
-            <Button className={classes.navButtonInnerWrapper}>
-              <div className={classes.navButton}>
-                <span className={classes.icon}>
-                  { communityGlobeIcon }
-                </span>
-                <span className={classes.navText}>
-                  Community<span className={classes.hideOnMobile}> Events</span>
-                </span>
-              </div>
-            </Button>
-          </Link>
-        </Tooltip>
+        {/* TODO: Events here */}
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButtonWrapper, classes.hideOnDesktop, {[classes.selected]: pathname === "/allPosts"})}>
             <Button className={classes.navButtonInnerWrapper}>

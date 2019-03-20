@@ -61,6 +61,7 @@ if(getSetting('AlignmentForum', false)) {
 } else {
     addRoute({name: 'home', path: '/', componentName: 'Home'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"Y2iqhjAHbXNkwcS8F"});
+  addRoute({name:'community', path:'/meta', componentName: 'Meta'});
 }
 
 addRoute({ name: 'home2', path: '/home2', componentName: 'Home2', title: "Home2 Beta" });

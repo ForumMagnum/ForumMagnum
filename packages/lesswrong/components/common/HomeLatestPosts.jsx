@@ -75,7 +75,8 @@ class HomeLatestPosts extends PureComponent {
           <ul>
             <li>Aiming to explain rather than persuade</li>
             <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
-            <li>Reasonably relevant to the average LW user</li>
+            {/* TODO; fix better I guess */}
+            <li>Reasonably relevant to the average reader</li>
           </ul>
         </p>
       </p>

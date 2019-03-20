@@ -11,7 +11,7 @@ import postViewSections from '../../lib/sections.js'
 import withUser from '../common/withUser';
 
 const defaultViews = ["frontpage"];
-const defaultExpandedViews = ["community"];
+const defaultExpandedViews = [];
 
 const styles = theme => ({
   categoryIcon: {
@@ -60,7 +60,7 @@ class HomePostsViews extends Component {
 
   getCurrentView = () => {
     const props = this.props;
-    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
+    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || "frontpage";
   }
 
   renderMenu = (viewData, view) => {
