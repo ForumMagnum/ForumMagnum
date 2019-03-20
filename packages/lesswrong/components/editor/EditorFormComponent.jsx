@@ -73,11 +73,14 @@ class EditorFormComponent extends Component {
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
 
     // Initialize the editor to whatever the canonicalContent is
-    if (value && value.originalContents && value.originalContents.data && !editorOverride && editorType === value.originalContents.type ) {
+    if (value && value.originalContents && value.originalContents.data
+        && !editorOverride
+        && editorType === value.originalContents.type)
+    {
       return {
         draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
-        markdownValue: editorType === "markdown" ? value.originalContents.data : null,
-        htmlValue: editorType === "html" ? value.originalContents.data : null  
+        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data) : null,
+        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data) : null
       }
     }
 
@@ -85,8 +88,8 @@ class EditorFormComponent extends Component {
     const { draftJS, html, markdown } = document[fieldName] || {}
     return {
       draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
-      markdownValue: editorType === "markdown" ? markdown : null,
-      htmlValue: editorType === "html" ? html : null
+      markdownValue: editorType === "markdown" ? this.initializeText(markdown) : null,
+      htmlValue: editorType === "html" ? this.initializeText(html) : null
     }
   }
 
@@ -95,12 +98,12 @@ class EditorFormComponent extends Component {
     return getLSHandlers(form && form.getLocalStorageId)
   }
 
-  initializeDraftJS = (draftJS) => { 
+  initializeDraftJS = (draftJS) => {
     const { document, name } = this.props
     let state = {}
 
     // Check whether we have a state from a previous session saved (in localstorage)
-    const savedState = this.getStorageHandlers().get({doc: document, name})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
     if (savedState) {
       try {
         // eslint-disable-next-line no-console
@@ -127,18 +130,28 @@ class EditorFormComponent extends Component {
     // And lastly, if the field is empty, create an empty draftJS object
     return EditorState.createEmpty();
   }
+  
+  initializeText = (originalContents) => {
+    const { document, name } = this.props
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    if (savedState) {
+      return savedState;
+    }
+  
+    return originalContents;
+  }
 
   UNSAFE_componentWillMount() {
-    const { document, name, fieldName } = this.props
+    const { document, fieldName } = this.props
     const submitData = (submission) => {
       let data = null
       const { draftJSValue, markdownValue, htmlValue, updateType} = this.state
       const type = this.getCurrentEditorType()
       switch(type) {
-        case "draftJS": 
+        case "draftJS":
           const draftJS = draftJSValue.getCurrentContent()
           data = draftJS.hasText() ? convertToRaw(draftJS) : null
-          break 
+          break
         case "markdown":
           data = markdownValue
           break
@@ -151,12 +164,13 @@ class EditorFormComponent extends Component {
     this.context.addToSubmitForm(submitData);
 
     const resetEditor = (result) => {
+      const { name } = this.props;
       // On Form submit, create a new empty editable
-      this.getStorageHandlers().reset({doc: document, name})
+      this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
       this.setState({
-        draftJSValue: this.initializeDraftJS(), 
+        draftJSValue: this.initializeDraftJS(),
         htmlValue: null,
-        markdownValue: null, 
+        markdownValue: null,
         editorOverride: null,
       });
       return result;
@@ -164,9 +178,9 @@ class EditorFormComponent extends Component {
     this.context.addToSuccessForm(resetEditor);
   }
 
-  handleEditorOverride = () => {
+  handleEditorOverride = (editorType) => {
     const { currentUser } = this.props
-    const targetEditorType = this.getUserDefaultEditor(currentUser)
+    const targetEditorType = editorType || this.getUserDefaultEditor(currentUser)
     this.setState({
       editorOverride: targetEditorType,
       ...this.getEditorStatesFromType(targetEditorType)
@@ -175,24 +189,78 @@ class EditorFormComponent extends Component {
 
   changeCount = 0
   setDraftJS = (value) => { // Takes in an editorstate
-    const { document, name } = this.props
     const { draftJSValue } = this.state
     const currentContent = draftJSValue.getCurrentContent()
     const newContent = value.getCurrentContent()
-    if (currentContent !== newContent) {
-      // Only save to localStorage on every 30th content change
-      // TODO: Consider debouncing rather than saving every 30th change
-      // TODO: Consider saving on blur
-      this.changeCount = this.changeCount + 1;
-      if (this.changeCount % 30 === 0) {
-        const rawContent = convertToRaw(newContent);
-        this.getStorageHandlers().set({state: rawContent, doc: document, name})
-      }
-    }
+    const changed = (currentContent !== newContent);
     this.setState({draftJSValue: value})
+    
+    if (changed) {
+      this.maybeSaveBackup();
+    }
   }
-  setHtml = (e) => {this.setState({htmlValue: e.target.value})}
-  setMarkdown = (e) => {this.setState({markdownValue: e.target.value})}
+  
+  setHtml = (e) => {
+    const newContent = e.target.value
+    const changed = (this.state.htmlValue !== newContent);
+    this.setState({htmlValue: newContent})
+    
+    if (changed)
+      this.maybeSaveBackup();
+  }
+  
+  setMarkdown = (e) => {
+    const newContent = e.target.value
+    const changed = (this.state.htmlValue !== newContent);
+    this.setState({markdownValue: newContent})
+    
+    if (changed)
+      this.maybeSaveBackup();
+  }
+  
+  maybeSaveBackup = () => {
+    const { document, name } = this.props;
+    
+    // Only save to localStorage on every 30th content change
+    // TODO: Consider debouncing rather than saving every 30th change
+    // TODO: Consider saving on blur
+    this.changeCount = this.changeCount + 1;
+    if (this.changeCount % 30 === 0) {
+      const serialized = this.editorContentsToJson();
+      
+      this.getStorageHandlers().set({
+        state: serialized,
+        doc: document,
+        name,
+        prefix: this.getLSKeyPrefix()
+      })
+    }
+  }
+  
+  // Take the editor contents (whichever editor you're using), and return
+  // something JSON (ie, a JSON object or a string) which represents the
+  // content and can be saved to localStorage.
+  editorContentsToJson = () => {
+    switch(this.getCurrentEditorType()) {
+      case "draftJS":
+        const draftJScontent = this.state.draftJSValue.getCurrentContent()
+        return convertToRaw(draftJScontent);
+      case "markdown":
+        return this.state.markdownValue;
+      case "html":
+        return this.state.htmlValue;
+    }
+  }
+  
+  // Get an editor-type-specific prefix to use on localStorage keys, to prevent
+  // drafts written with different editors from having conflicting names.
+  getLSKeyPrefix = () => {
+    switch(this.getCurrentEditorType()) {
+      case "draftJS":  return "";
+      case "markdown": return "md_";
+      case "html":     return "html_";
+    }
+  }
 
   renderEditorWarning = () => {
     const { classes, currentUser, document, fieldName, value } = this.props
@@ -237,7 +305,7 @@ class EditorFormComponent extends Component {
 
   renderUpdateTypeSelect = () => {
     const { currentUser, formType, classes } = this.props
-    if (!currentUser.isAdmin || formType !== "edit") { return null }
+    if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
       value={this.state.updateType}
       onChange={this.handleUpdateTypeSelect}
@@ -249,11 +317,27 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  renderEditorTypeSelect = () => {
+    const { currentUser, classes } = this.props
+    if (!currentUser || !currentUser.isAdmin) return null
+    return <Select
+      value={this.getCurrentEditorType()}
+      onChange={(e) => this.handleEditorOverride(e.target.value)}
+      className={classes.updateTypeSelect}
+      >
+      <MenuItem value={'html'}>HTML</MenuItem>
+      <MenuItem value={'markdown'}>Markdown</MenuItem>
+      <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
+    </Select>
+  }
+
   render() {
     const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
     const { document, currentUser, formType, form, classes, fieldName } = this.props
     const commentStyles = form && form.commentStyles
     const currentEditorType = this.getCurrentEditorType()
+    
+    if (!document) return null;
 
     // The class which determines clickable height (as tall as a comment editor,
     // or as tall as a post editor) needs to be applied deeper in the tree, for
@@ -265,7 +349,7 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
+      && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
@@ -281,6 +365,7 @@ class EditorFormComponent extends Component {
             className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
           { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
         </div>);
     } else {
       const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
@@ -304,6 +389,7 @@ class EditorFormComponent extends Component {
             /><br />
           </div>
           { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
         </div>
       );
     }

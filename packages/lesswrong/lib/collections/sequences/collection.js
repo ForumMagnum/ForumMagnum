@@ -22,44 +22,12 @@ const options = {
 }
 
 export const Sequences = createCollection({
-
   collectionName: 'Sequences',
-
   typeName: 'Sequence',
-
   schema,
-
   resolvers: getDefaultResolvers('Sequences'),
-
   mutations: getDefaultMutations('Sequences', options)
 })
-
-export default Sequences;
-
-
-// description: {
-//   order:20,
-//   type: Object,
-//   optional: true,
-//   viewableBy: ['guests'],
-//   editableBy: ['members'],
-//   insertableBy: ['members'],
-//   control: 'EditorFormComponent',
-//   blackbox: true,
-//   placeholder:"Sequence Description (Supports Markdown and LaTeX)"
-// },
-
-// descriptionPlaintext: {
-//   type: String,
-//   optional: true,
-//   viewableBy: ['guests'],
-// },
-
-// htmlDescription: {
-//   type: String,
-//   optional: true,
-//   viewableBy: ['guests'],
-// },
 
 export const makeEditableOptions = {
   order: 20
@@ -70,3 +38,5 @@ makeEditable({
   options: makeEditableOptions
 })
 addUniversalFields({collection: Sequences})
+
+export default Sequences;

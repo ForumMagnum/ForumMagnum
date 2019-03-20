@@ -1,3 +1,4 @@
+/* global Random */
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
@@ -11,9 +12,13 @@ turndownService.remove('style') // Make sure we don't add the content of style t
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'
 import markdownItContainer from 'markdown-it-container'
-var mdi = markdownIt()
+import markdownItFootnote from 'markdown-it-footnote'
+
+const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
+mdi.use(markdownItFootnote)
+
 import { addCallback } from 'meteor/vulcan:core';
 import { mjpage }  from 'mathjax-node-page'
 
@@ -36,7 +41,8 @@ export function htmlToMarkdown(html) {
 }
 
 export function markdownToHtml(markdown) {
-  return mdi.render(markdown)
+  const randomId = Random.id()
+  return mdi.render(markdown, {docId: randomId})
 }
 
 export async function markdownToHtmlWithLatex(markdown) {
@@ -44,10 +50,10 @@ export async function markdownToHtmlWithLatex(markdown) {
   return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
 }
 
-async function dataToHTML(data, type) {
+async function dataToHTML(data, type, sanitize = false) {
   switch (type) {
     case "html":
-      return data
+      return sanitize ? Utils.sanitize(data) : data
     case "draftJS":
       return await draftJSToHtmlWithLatex(data)
     case "markdown":
@@ -91,8 +97,8 @@ function getInitialVersion(document) {
   }
 }
 
-async function getNextVersion(documentId, updateType = 'minor') {
-  const lastRevision = await Revisions.findOne({documentId: documentId}, {sort: {editedAt: -1}}) || {}
+async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
+  const lastRevision = await Revisions.findOne({documentId: documentId, fieldName}, {sort: {version: -1}}) || {}
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)
   switch (updateType) {
     case "patch":
@@ -101,6 +107,8 @@ async function getNextVersion(documentId, updateType = 'minor') {
       return `${major}.${minor + 1}.0`
     case "major":
       return `${major+1}.0.0`
+    case "initial":
+      return isDraft ? '0.1.0' : '1.0.0'
     default:
       throw new Error("Invalid updateType, must be one of 'patch', 'minor' or 'major'")
   }
@@ -119,28 +127,33 @@ export function addEditableCallbacks({collection, options = {}}) {
 
   async function editorSerializationNew (doc, { currentUser }) {
     if (doc[fieldName] && doc[fieldName].originalContents) {
+      if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
-      const html = await dataToHTML(data, type)
+      const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount}}  
+      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount, updateType: 'initial'}}  
     }
     return doc
   }
 
-  // if (!deactivateNewCallback) {
   addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
-  // }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
     if (docData[fieldName] && docData[fieldName].originalContents) {
+      if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
-      const html = await dataToHTML(data, type)
+      const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
-      const defaultUpdateType = (document.draft && !docData.draft) ? 'major' : 'minor'
-      const version = await getNextVersion(document._id, docData[fieldName].updateType || defaultUpdateType)
+      const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
+      const newDocument = {...document, ...docData}
+      const isBeingUndrafted = document.draft && !newDocument.draft
+      // When a document is undrafted for the first time, we ensure that this constitutes a major update
+      const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
+      const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
+      const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
       const userId = currentUser._id
       const editedAt = new Date()
       return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt, wordCount}}
@@ -150,15 +163,16 @@ export function addEditableCallbacks({collection, options = {}}) {
   
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
 
-  async function editorSerializationCreateRevision(doc) {
-    if (doc[fieldName] && doc[fieldName].originalContents) {
+  async function editorSerializationCreateRevision(newDoc, { document }) {
+    if (newDoc[fieldName] && newDoc[fieldName].originalContents && 
+      (newDoc[fieldName].version !== (document && document[fieldName] && document[fieldName].version))) {
       Revisions.insert({
-        ...doc[fieldName],
-        documentId: doc._id,
+        ...newDoc[fieldName],
+        documentId: newDoc._id,
         fieldName
       })
     }
-    return doc
+    return newDoc
   }
   
   addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationCreateRevision)

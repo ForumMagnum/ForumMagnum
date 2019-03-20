@@ -3,14 +3,6 @@
 // Post List                                        //
 //////////////////////////////////////////////////////
 
-.posts-list-header{
-  @include mui-breakpoint-up-sm{
-    @include flex-center;
-    justify-content: space-between;
-  }
-  margin-bottom: $vmargin;
-}
-
 .recent-posts-title-component {
   font-style: italic;
   margin-top: 20px;
@@ -58,6 +50,7 @@
   }
   @include max-tiny() {
     padding:0;
+    margin-left: 0px;
   }
 }
 
@@ -157,15 +150,6 @@
   color: rgba(0, 0, 0, .3);
 }
 
-
-.posts-list-header{
-  @include mui-breakpoint-up-sm{
-    .search-form, .posts-views button{
-      width: 160px;
-    }
-  }
-}
-
 .posts-load-more, .comments-load-more{
   font-size: 16px;
   color: #0C869B;
@@ -180,18 +164,6 @@
   @include max-tiny() {
     margin-left:0;
   }
-  .posts-load-more-link{
-    &:hover, &:focus, &:active{
-      text-decoration: none !important;
-      background: inherit;
-      opacity:0.6;
-    }
-  }
-}
-
-.posts-load-more-days {
-  display: block;
-  margin-top: 10px;
 }
 
 //////////////////////////////////////////////////////
@@ -258,23 +230,6 @@
 // Other Elements                                   //
 //////////////////////////////////////////////////////
 
-.posts-day{
-  margin-bottom: $vmargin * 2;
-  max-width:700px;
-  margin:auto;
-  .posts-load-more{
-    border: none;
-    padding: 0;
-    .posts-load-more-link{
-      &:hover{
-        text-decoration: none !important;
-        background: inherit;
-        color: #0C869B;
-      }
-    }
-  }
-
-}
 .posts-no-results{
   margin-left:10px;
   margin-top: $vmargin;
@@ -372,7 +327,9 @@ svg.drag-handle {
 
 .post-category-display-container {
   width:50px;
-  padding:17px 15px 15px 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor:pointer;
 
   &:hover {
@@ -511,26 +468,11 @@ svg.drag-handle {
   max-width:100%;
 }
 
-
-.recent-discussion-thread-wrapper {
-  margin-bottom:30px;
-}
-
 .post-highlight {
   margin-top:5px;
   max-width:600px;
   line-height:22px;
   margin-bottom:16px;
-}
-
-.recent-discussion-thread-highlight {
-  margin-left:10px;
-  margin-right:10px;
-  font-size:14px;
-
-  &.no-comments {
-    border-bottom:solid 1px rgba(0,0,0,.2);
-  }
 }
 
 .recent-discussion-thread-meta {

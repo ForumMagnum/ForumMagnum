@@ -11,7 +11,6 @@ export function extractVersionsFromSemver(semver) {
 
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
-    // console.log("htmlToEntity: ", nodeName, node);
     if (nodeName === 'img') {
       return createEntity(
         'IMAGE',
@@ -27,7 +26,6 @@ export const htmlToDraft = convertFromHTML({
       )
     }
     // if (nodeName === 'img') {
-    //   console.log("image detected: ", node, node.src)
     //   return createEntity(
     //     'IMAGE',
     //     'IMMUTABLE',
@@ -95,7 +93,6 @@ export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
     const type = block.type;
-
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`

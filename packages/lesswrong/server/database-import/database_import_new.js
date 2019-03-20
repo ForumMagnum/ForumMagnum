@@ -204,10 +204,10 @@ const upsertProcessedUsers = async (users, userMap) => {
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Updating N users: ", _.size(usersToUpdate));
+  //console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
   const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Inserting N users: ", _.size(usersToInsert));
+  //console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
   if (usersToInsert && _.size(usersToInsert)) {
     for(let key in usersToInsert) {
@@ -319,25 +319,20 @@ const upsertProcessedComments = async (comments, commentMap) => {
       })
     }
   })
-
-  if (postUpdates && _.size(postUpdates)) {
+  if (_.size(postUpdates)) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("postUpdateCursor", loggableCursor(postUpdateCursor));
   }
-  if (userUpdates && _.size(userUpdates)) {
+  if (_.size(userUpdates)) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("userUpdateCursor", loggableCursor(userUpdateCursor));
   }
-  if (commentUpdates && _.size(commentUpdates)) {
-    // updates are too big, let's splice them
-    while (commentUpdates.length > 0) {
-      const updateChunk = commentUpdates.splice(0, 1000)
-      const commentUpdateCursor = await Comments.rawCollection().bulkWrite(updateChunk, {ordered: false});
-      //eslint-disable-next-line no-console
-      console.log("commentUpdateCursor", loggableCursor(commentUpdateCursor));
-    }
+  if (_.size(commentUpdates)) {
+    const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
+    //eslint-disable-next-line no-console
+    console.log("commentUpdateCursor", commentUpdateCursor);
   }
 }
 

@@ -2,145 +2,115 @@
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users'
+import { getCollection } from 'meteor/vulcan:lib';
 import Sequences from '../../lib/collections/sequences/collection.js'
-import algoliasearch from 'algoliasearch'
-import { getSetting } from 'meteor/vulcan:core'
 import { wrapVulcanAsyncScript } from './utils'
+import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
+import { forEachDocumentBatchInCollection } from '../queryUtil';
+import keyBy from 'lodash/keyBy';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
 
-// Slightly gross function to turn these callback-accepting functions
-// into async ones
-// If waitForFinish is false, let algolia index the post on it's own time. This
-// takes forever, so it should usually be false. It tries to give you any errors
-// ahead of time.
-async function batchAdd(algoliaIndex, objects, waitForFinish) {
-  const addObjectsPartialAsync = () => {
-    return new Promise((resolve, reject) => {
-      algoliaIndex.addObjects(objects, (err, content) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve(content)
-      })
-    })
-  }
-  const awaitObjectInsert = (taskID) => {
-    return new Promise((resolve, reject) => {
-      algoliaIndex.waitTask(taskID, (err) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve()
-      })
-    })
-  }
-  try {
-    const content = await addObjectsPartialAsync()
-    if (waitForFinish) {
-      await awaitObjectInsert(content.taskID)
-    } else {
-      algoliaIndex.waitTask(content.taskID, (err) => {
-        // We really hope it's rare for it to error only after finishing
-        // indexing. If we have to wait for this error every time, it'll take
-        // possibly >24hr to export comments.
-        if (err) {
-          // eslint-disable-next-line no-console
-          console.error(
-            'Apparently algolia sometimes errors even after the first ack\n' +
-            'Please make a note of this error and then be frustrated about' +
-            'how to change the code to do a better job of catching it.'
-          )
-          // eslint-disable-next-line no-console
-          console.error(err)
-        }
-      })
-    }
-  } catch (err) {
-    return err
-  }
-}
-
-async function algoliaExport(Collection, indexName, selector = {}, updateFunction) {
-  const algoliaAppId = getSetting('algolia.appId')
-  const algoliaAdminKey = getSetting('algolia.adminKey')
-  let client = algoliasearch(algoliaAppId, algoliaAdminKey)
+async function algoliaExport(collection, selector = {}, updateFunction) {
+  let client = getAlgoliaAdminClient();
+  if (!client) return;
+  
+  const indexName = algoliaIndexNames[collection.collectionName];
   // eslint-disable-next-line no-console
   console.log(`Exporting ${indexName}...`)
   let algoliaIndex = client.initIndex(indexName)
+  
   // eslint-disable-next-line no-console
   console.log("Initiated Index connection")
-
-  let importCount = 0
-  let importBatch = []
-  let batchContainer
-  const totalErrors = []
-  const documents = Collection.find(selector)
-  const numItems = documents.count()
-  // eslint-disable-next-line no-console
-  console.log(`Beginning to import ${numItems} ${Collection._name}`)
-  for (let item of documents) {
-    if (updateFunction) updateFunction(item)
-    batchContainer = Collection.toAlgolia(item)
-    importBatch = [...importBatch, ...batchContainer]
-    importCount++
-    if (importCount % 100 === 0) {
-      // Could be more algolia objects than documents
-      // eslint-disable-next-line no-console
-      console.log(`Exporting ${importBatch.length} algolia objects`)
-      // eslint-disable-next-line no-console
-      console.log('Documents so far:', importCount)
-      // eslint-disable-next-line no-console
-      console.log('Total documents: ', numItems)
-      const err = await batchAdd(algoliaIndex, importBatch, false)
-      if (err) {
-        totalErrors.push(err)
-      }
-      importBatch = []
-    }
-  }
-  // eslint-disable-next-line no-console
-  console.log(`Exporting last ${importBatch.length} algolia objects`)
-  const err = await batchAdd(algoliaIndex, importBatch, false)
-  if (err) {
-    totalErrors.push(err)
-  }
+  
+  let totalErrors = [];
+  const totalItems = collection.find(selector).count();
+  let exportedSoFar = 0;
+  
+  await forEachDocumentBatchInCollection({collection, batchSize: 100, loadFactor: 0.5, callback: async (documents) => {
+    await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
+      errors: totalErrors, updateFunction });
+    
+    exportedSoFar += documents.length;
+    // eslint-disable-next-line no-console
+    console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
+  }});
+  
   if (totalErrors.length) {
     // eslint-disable-next-line no-console
-    console.log(`${Collection._name} indexing encountered the following errors:`, totalErrors)
+    console.log(`${collection._name} indexing encountered the following errors:`, totalErrors)
   } else {
     // eslint-disable-next-line no-console
-    console.log('No errors found when indexing', Collection._name)
+    console.log('No errors found when indexing', collection._name)
   }
 }
 
 async function algoliaExportByCollectionName(collectionName) {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, 'test_posts', {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
+      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
       break
     case 'Comments':
-      await algoliaExport(Comments, 'test_comments', {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
+      await algoliaExport(Comments, {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
       break
     case 'Users':
-      await algoliaExport(Users, 'test_users', {deleted: {$ne: true}})
+      await algoliaExport(Users, {deleted: {$ne: true}})
       break
     case 'Sequences':
-      await algoliaExport(Sequences, 'test_sequences')
+      await algoliaExport(Sequences)
       break
     default:
       throw new Error(`Did not recognize collectionName: ${collectionName}`)
   }
 }
 
-Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', async (collectionName) => {
-  await algoliaExportByCollectionName(collectionName)
-})
+export async function algoliaExportAll() {
+  for (let collectionName in algoliaIndexNames)
+    await algoliaExportByCollectionName(collectionName);
+}
 
-Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', async () => {
-  await algoliaExportByCollectionName('Posts')
-  await algoliaExportByCollectionName('Users')
-  await algoliaExportByCollectionName('Sequences')
-  // Comments last because there's so. many.
-  await algoliaExportByCollectionName('Comments')
-})
+
+Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
+Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
+Vulcan.algoliaExportAll = algoliaExportAll
+
+
+// Go through the Algolia index for a collection, removing any documents which
+// don't exist in mongodb or which exist but shouldn't be indexed. This plus
+// algoliaExport together should result in a fully up to date Algolia index,
+// regardless of the starting state.
+async function algoliaCleanIndex(collection)
+{
+  let client = getAlgoliaAdminClient();
+  if (!client) return;
+  
+  // eslint-disable-next-line no-console
+  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collection.collectionName]} for ${collection.collectionName}`);
+  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
+  
+  // eslint-disable-next-line no-console
+  console.log("Downloading the full index...");
+  let allDocuments = await algoliaGetAllDocuments(algoliaIndex);
+  
+  // eslint-disable-next-line no-console
+  console.log("Checking documents against the mongodb...");
+  const ids = _.map(allDocuments, doc=>doc._id)
+  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids); // TODO: Pagination
+  const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
+  
+  const hitsToDelete = _.filter(allDocuments, doc=>doc._id in mongoIdsToDeleteDict);
+  const algoliaIdsToDelete = _.map(hitsToDelete, hit=>hit.objectID);
+  // eslint-disable-next-line no-console
+  console.log(`Deleting ${mongoIdsToDelete.length} mongo IDs (${algoliaIdsToDelete.length} algolia IDs) from Algolia...`);
+  await algoliaDeleteIds(algoliaIndex, algoliaIdsToDelete);
+  // eslint-disable-next-line no-console
+  console.log("Done.");
+}
+
+export async function algoliaCleanAll() {
+  for (let collectionName in algoliaIndexNames)
+    await algoliaCleanIndex(getCollection(collectionName));
+}
+
+Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
+Vulcan.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
+Vulcan.algoliaCleanAll = algoliaCleanAll

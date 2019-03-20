@@ -26,6 +26,7 @@ class CollectionsNavigation extends PureComponent
   }
   
   handleKey = (ev) => {
+    const { router, prevPostUrl, nextPostUrl } = this.props;
     // Only if Shift and no other modifiers
     if (ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       // Check the targe of the event; we don't want to navigate if you're
@@ -35,9 +36,11 @@ class CollectionsNavigation extends PureComponent
       // a link in a new tab, usually).
       if (ev.target === document.body || (ev.target && ev.target.tagName === 'A')) {
         if (ev.keyCode == 37) { // Left
-          this.props.router.push(this.props.prevPostUrl);
+          if (prevPostUrl)
+            router.push(prevPostUrl);
         } else if (ev.keyCode == 39) { // Right
-          this.props.router.push(this.props.nextPostUrl);
+          if (nextPostUrl)
+            router.push(nextPostUrl);
         }
       }
     }
@@ -78,8 +81,8 @@ class CollectionsNavigation extends PureComponent
             ? <Components.SequencesNavigationLink
                 documentUrl={nextPostUrl}
                 direction="right"
-                documentId={nextPostUrl && nextPostId}
-                slug={nextPostUrl && nextPostSlug} />
+                documentId={nextPostId}
+                slug={nextPostSlug} />
             : <Components.SequencesNavigationLinkDisabled
                 direction="right" />}
         </React.Fragment>}

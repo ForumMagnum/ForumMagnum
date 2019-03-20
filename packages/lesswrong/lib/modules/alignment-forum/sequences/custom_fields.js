@@ -1,16 +1,14 @@
 import Sequences from '../../../collections/sequences/collection.js';
+import { addFieldsDict } from '../../utils/schemaUtils'
 
-Sequences.addField([
-  {
-    fieldName: 'af',
-    fieldSchema: {
-      type: Boolean,
-      optional: true,
-      label: "Alignment Forum",
-      defaultValue: false,
-      viewableBy: ['guests'],
-      editableBy: ['alignmentVoters'],
-      insertableBy: ['alignmentVoters'],
-    }
+addFieldsDict(Sequences, {
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "Alignment Forum",
+    defaultValue: false,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentVoters'],
+    insertableBy: ['alignmentVoters'],
   }
-])
+})

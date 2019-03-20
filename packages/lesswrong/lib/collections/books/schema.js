@@ -1,6 +1,4 @@
-import React from 'react'
-import { Components } from 'meteor/vulcan:core'
-import { generateIdResolverMulti } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 
 const schema = {
 
@@ -16,19 +14,16 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   postedAt: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
+  
   // Custom Properties
 
   title: {
@@ -64,25 +59,19 @@ const schema = {
     insertableBy: ['admins'],
   },
 
-  //TODO: Make resolvers more efficient by running `find` query instead of `findOne` query
-
   postIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "postIds",
+      resolverName: "posts",
+      collectionName: "Posts",
+      type: "Post"
+    }),
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'posts',
-      type: '[Post]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Posts', fieldName: 'postIds'}
-      ),
-      addOriginalField: true,
-    },
     control: 'PostsListEditor',
   },
-
   'postIds.$': {
     type: String,
     foreignKey: "Posts",
@@ -90,22 +79,18 @@ const schema = {
   },
 
   sequenceIds: {
-    type: Array,
+    ...arrayOfForeignKeysField({
+      idFieldName: "sequenceIds",
+      resolverName: "sequences",
+      collectionName: "Sequences",
+      type: "Sequence"
+    }),
     optional: true,
     viewableBy: ["guests"],
     editableBy: ['members'],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'sequences',
-      type: '[Sequence]',
-      resolver: generateIdResolverMulti(
-        {collectionName: 'Sequences', fieldName: 'sequenceIds'}
-      ),
-      addOriginalField: true,
-    },
     control: 'SequencesListEditor',
   },
-
   'sequenceIds.$': {
     type: String,
     foreignKey: "Sequences",

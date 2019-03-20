@@ -1,7 +1,7 @@
 // # Vulcan Modifications
 
 // schema utils
-import { generateIdResolverMulti, generateIdResolverSingle } from './modules/utils/schemaUtils.js'
+import './modules/utils/schemaUtils.js'
 // Permissions
 import './modules/permissions.js';
 
@@ -113,16 +113,11 @@ import { Comments } from './collections/comments'
 
 // Votes
 import './collections/votes';
-//
-//
-//
+
 // Internationalization
 import './i18n-en-us/en_US.js';
-//
-// // General
-import './modules/callbacks.js';
 
-// // Misc.
+// Misc.
 import './helpers.js'
 import './routes.js';
 import './scrollRestoration.js';
@@ -169,8 +164,6 @@ export {
   Books,
   Bans,
   Localgroups,
-  generateIdResolverMulti,
-  generateIdResolverSingle,
   Comments,
   Revisions
 }

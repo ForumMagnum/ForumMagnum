@@ -20,7 +20,8 @@ function recalculateAFCommentMetadata(postId) {
       afLastCommentedAt:new Date(lastCommentedAt),
       afCommentCount:afComments.length
     },
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 

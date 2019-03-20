@@ -130,14 +130,10 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           <Home/>
         </Link>
       </Tooltip>
-      <Tooltip title="Posts by Date" placement="right">
-        <Link to="/daily" className={classes.navButton}>
+      <Divider className={classes.divider}/>
+      <Tooltip title="All Posts" placement="right">
+        <Link to="/allPosts" className={classes.navButton}>
           <ListAlt/>
-        </Link>
-      </Tooltip>
-      <Tooltip title="Community" placement="right">
-        <Link to="/community" className={classes.navButton}>
-          <Details/>
         </Link>
       </Tooltip>
       <Tooltip title="About" placement="right">
@@ -151,8 +147,10 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       <Divider className={classes.divider}/>
 
-      <NavigationMenuLink icon={<ListAlt/>} to={"/daily"} label="Posts by Date"/>
-      <NavigationMenuLink icon={<Details/>} to={"/community"} label="Community"/>
+      <Divider className={classes.divider}/>
+
+      <NavigationMenuLink icon={<ListAlt/>} to={"/allPosts"} label="All Posts"/>
+      <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Community"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
     </div>
     {showToc && <React.Fragment>

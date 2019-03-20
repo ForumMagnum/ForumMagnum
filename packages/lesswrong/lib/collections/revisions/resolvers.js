@@ -3,6 +3,7 @@ import { htmlToDraft } from '../../editor/utils';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtml, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
+import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import htmlToText from 'html-to-text'
 
@@ -18,7 +19,7 @@ function domBuilder(html) {
 }
 
 
-function htmlToDraftServer(...args) {
+export function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
   global.HTMLElement = new JSDOM().window.HTMLElement
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
@@ -47,47 +48,35 @@ export function dataToDraftJS(data, type) {
   }
 }
 
-Revisions.addField([
-  {
-    fieldName: 'markdown',
-    fieldSchema: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
-      }
+addFieldsDict(Revisions, {
+  markdown: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
     }
   },
-  {
-    fieldName: 'draftJS',
-    fieldSchema: {
-      type: Object,
-      resolveAs: {
-        type: 'JSON',
-        resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
-      }
+  draftJS: {
+    type: Object,
+    resolveAs: {
+      type: 'JSON',
+      resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
     }
   },
-  {
-    fieldName: 'htmlHighlight',
-    fieldSchema: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: ({html}) => highlightFromHTML(html)
-      }
+  htmlHighlight: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({html}) => highlightFromHTML(html)
     }
   },
-  {
-    fieldName: 'plaintextDescription',
-    fieldSchema: {
-      type: String,
-      resolveAs: {
-        type: 'String',
-        resolver: ({html}) => htmlToText
-                              .fromString(html)
-                              .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      }
+  plaintextDescription: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({html}) => htmlToText
+        .fromString(html)
+        .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
     }
   }
-])
+})

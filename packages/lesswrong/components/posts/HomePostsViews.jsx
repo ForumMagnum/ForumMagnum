@@ -136,7 +136,7 @@ class HomePostsViews extends Component {
             </div>}
             {!props.hideDaily && <span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
-                <Link to="/daily">Daily</Link> { this.renderMenu(postViewSections["daily"])}
+                <Link to="/allPosts">Daily</Link> { this.renderMenu(postViewSections["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>

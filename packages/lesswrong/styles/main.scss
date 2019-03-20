@@ -1,14 +1,18 @@
+// Top-level SCSS. This imports the rest of the SCSS files in
+// packages/lesswrong/styles, and is included on every page on the site. We are
+// generally moving away from SCSS and towards JSS; rather than adding things
+// here, add them as JSS. If class-names come from an outside library, use
+// JSS descendent selectors on a component which encloses the usages of that
+// library.
+
 @import "clear-style";
 @import "breakpoints";
 @import "variables";
 @import "spinner";
 @import "global";
 @import "layout";
-@import "accounts";
 @import "comments";
 @import "editor";
-@import "header";
-@import "other";
 @import "forms";
 @import "posts";
 @import "users";
@@ -16,28 +20,7 @@
 @import "sequences";
 @import "localgroups";
 @import "admin";
-@import "sunshine-sidebar";
 @import "alignment-forum";
-
-.upvoted .upvote{
-  opacity: 0.3;
-}
-
-
-/*
-
-Old custom.scss file TODO: Refactor this properly into the main code
-
-*/
-
-/*
-
-CSS File with general modifications. Usually stuff gets added here first and
-then moved to more specific files as it becomes necessary.
-
-
-*/
-
 
 // Recent Comments Page CSS Modifications
 
@@ -81,15 +64,7 @@ then moved to more specific files as it becomes necessary.
 
 // General CSS modifications
 
-h1{
-  margin-top: 0px;
-}
-
-h2{
-  margin-top: 0px;
-}
-
-h3{
+h3 {
   margin-top: 0px;
 }
 
