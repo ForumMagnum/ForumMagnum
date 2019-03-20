@@ -37,7 +37,7 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, listMode, classes}) =>
+const SequencesGrid = ({sequences, showAuthor, classes}) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {

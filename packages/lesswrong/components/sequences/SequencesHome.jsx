@@ -4,16 +4,12 @@ import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
+import { postBodyStyles } from '../../themes/stylePiping';
 
 const styles = theme => ({
   root: {
-    marginRight: 90,
-    [theme.breakpoints.down('sm')]: {
-      marginRight: 0,
-    }
   },
   header: {
-    paddingLeft: 20,
     marginBottom: 50,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
@@ -27,76 +23,84 @@ const styles = theme => ({
     fontWeight: "bold",
     textTransform: "uppercase",
     borderTopStyle: "solid",
-    borderTopWidth: 4,
+    borderTopWidth: 3,
 
     "& h1": {
       marginTop: 7,
     }
   },
-
+  coreReadingWrapperWrapper: {
+    // TODO: Remove this silliness
+    marginLeft: -19,
+    marginTop: 22,
+  },
+  sequencesGridWrapperWrapper: {
+    // TODO: Remove this silliness
+    marginLeft: -17,
+    marginTop: 15,
+  },
   listDescription: {
-    fontSize: 20,
-    marginTop: 30,
-    lineHeight: 1.25,
+    marginTop: theme.spacing.unit*2,
+    ...postBodyStyles(theme)
   },
 });
 
-const SequencesHome = ({document, currentUser, loading, classes}) => {
+const SequencesHome = ({classes}) => {
+
+  const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider } = Components
   // TODO: decide on terms for community sequences
-  return <div className={classes.root}>
+  return <div>
+    <TabNavigationMenu />
     {/* Title */}
-    <Components.Section>
+    <SingleColumnSection>
       <div className={classes.header}>
         <div className={classes.listTitle}>
           <Typography variant="display3" className={classes.library}>The Library</Typography>
         </div>
         {/* Description */}
-        <div className={classes.listDescription}>
+        <Typography variant="body1" className={classes.listDescription}>
           Sequences are collections of posts that are curated by the community and
           are structured similarly to books. This is the place where you can find
           the best posts on LessWrong in easy to read formats.
-        </div>
+        </Typography>
       </div>
-    </Components.Section>
-    {/* Curated collections tripartite */}
-    <Components.Section title="Core Reading">
-      <Components.CoreReading />
-    </Components.Section>
-    {/* Other curated sequences grid (make a sequencesGrid component w/ flexbox) */}
-    <Components.Section title="Curated Sequences">
-      <Components.SequencesGridWrapper
-        terms={{'view':'curatedSequences', limit:12}}
-        showAuthor={true}
-        showLoadMore={true}
-      />
-    </Components.Section>
-    {/* In-progress sequences grid (make a sequencesGrid component w/ flexbox)*/}
-    {/* <Components.Section title="In Progress Sequences">
-          <Components.SequencesGridWrapper terms={communitySeqTerms} />
-        </Components.Section> */}
-    {/* Community sequences list (make a sequencesList w/ roll your own list) */}
-    <div>
-      <Components.Section title="Community Sequences" titleComponent={<div className="recent-posts-title-component users-profile-drafts">
-        <Components.SectionSubtitle>
-          <Link to={"/sequencesnew"}> new sequence </Link>
-        </Components.SectionSubtitle>
-      </div>}>
+    </SingleColumnSection>
+
+    <SingleColumnSection>
+      <SectionTitle title="Core Reading" dividers={false}/>
+      <div className={classes.coreReadingWrapperWrapper}>
+        <Components.CoreReading />
+      </div>
+      <Divider />
+    </SingleColumnSection>
+
+    <SingleColumnSection>
+      <SectionTitle title="Curated Sequences" dividers={false}/>
+      <div className={classes.sequencesGridWrapperWrapper}>
+        <Components.SequencesGridWrapper
+          terms={{'view':'curatedSequences', limit:12}}
+          showAuthor={true}
+          showLoadMore={true}
+        />
+      </div>
+      <Divider />
+    </SingleColumnSection>
+    
+    <SingleColumnSection>
+      <SectionTitle  title="Community Sequences" dividers={false}>
+        <Typography variant="body2"><Link to={"/sequencesnew"}> New Sequence </Link></Typography>
+      </SectionTitle>
+      <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
           terms={{'view':'communitySequences', limit:12}}
           listMode={true}
           showAuthor={true}
           showLoadMore={true}
         />
-      </Components.Section>
-    </div>
-
+      </div>
+    </SingleColumnSection>
   </div>;
 };
-
-// const options = {
-//   collection: Sequences,
-//   fragmentName: 'SequenceListFragment'
-// };
 
 registerComponent(
   'SequencesHome',

@@ -12,8 +12,6 @@ import { styles } from './SequencesGrid';
 const SequencesGridWrapper = ({
   className,
   loading,
-  currentUser,
-  terms,
   results,
   count,
   totalCount,
@@ -24,7 +22,7 @@ const SequencesGridWrapper = ({
   showAuthor = false,
   listMode = false}) => {
   if (results && results.length) {
-    // render grid of sequences
+
     return (<div className={classNames(className, classes.gridWrapper)}>
       <Components.SequencesGrid sequences={results} showAuthor={showAuthor} listMode={listMode}/>
       { showLoadMore && totalCount > count && <div className={classes.loadMore}>
@@ -33,7 +31,6 @@ const SequencesGridWrapper = ({
       }
     </div>);
   } else if (loading) {
-    // TODO: Replace with SequencesLoading
     return (<div className={classNames(className, classes.grid)}>
       <Components.Loading/>
     </div>);
