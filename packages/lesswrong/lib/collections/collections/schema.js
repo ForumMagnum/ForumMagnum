@@ -1,4 +1,4 @@
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
 
 const schema = {
 
@@ -16,24 +16,18 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   userId: {
-    type: String,
-    foreignKey: "Users",
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true,
-    }
   },
 
   // Custom Properties
@@ -54,29 +48,22 @@ const schema = {
     insertableBy: ['admins'],
   },
 
-  /*
-    Dummy field that resolves to the array of books that belong to a sequence
-  */
-
-  books: {
+  // Field that resolves to the array of books that belong to a sequence
+  books: resolverOnlyField({
     type: Array,
-    optional: true,
+    graphQLtype: '[Book]',
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'books',
-      type: '[Book]',
-      resolver: (collection, args, context) => {
-        const books = context.Books.find(
-          {collectionId: collection._id},
-          {
-            sort: {number: 1},
-            fields: context.Users.getViewableFields(context.currentUser, context.Books)
-          }
-        ).fetch();
-        return books
-      }
+    resolver: (collection, args, context) => {
+      const books = context.Books.find(
+        {collectionId: collection._id},
+        {
+          sort: {number: 1},
+          fields: context.Users.getViewableFields(context.currentUser, context.Books)
+        }
+      ).fetch();
+      return books
     }
-  },
+  }),
 
   'books.$': {
     type: String,

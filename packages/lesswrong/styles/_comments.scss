@@ -198,6 +198,9 @@ $small-font: 1.1rem;
   }
   @include max-tiny() {
     margin:0px;
+    .comments-item {
+      padding:0px 7px;
+    }
   }
 }
 
@@ -327,14 +330,6 @@ $small-font: 1.1rem;
 
 .comments-children {
   position:relative;
-}
-
-.discussion-thread-list {
-  margin:-2px 10px;
-
-  @include max-tiny() {
-    margin:-2px 0;
-  }
 }
 
 .recent-comment-parent.root {

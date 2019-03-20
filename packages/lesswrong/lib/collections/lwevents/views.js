@@ -20,6 +20,19 @@ LWEvents.addView("postVisits", function (terms) {
     options: {sort: {createdAt: -1}, limit: terms.limit || 1},
   };
 });
+
+LWEvents.addView("emailHistory", function (terms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      name: "emailSent",
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }
+});
+
 // Index also supports the LWEvents.findOne in the `lastVisitedAt` resolver
 // (very speed critical)
 ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})

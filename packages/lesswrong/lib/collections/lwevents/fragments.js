@@ -15,3 +15,12 @@ registerFragment(`
     intercom
   }
 `);
+
+registerFragment(`
+  fragment emailHistoryFragment on LWEvent {
+    _id
+    userId
+    name
+    properties
+  }
+`);

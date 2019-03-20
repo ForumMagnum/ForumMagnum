@@ -50,6 +50,7 @@
   }
   @include max-tiny() {
     padding:0;
+    margin-left: 0px;
   }
 }
 
@@ -163,18 +164,6 @@
   @include max-tiny() {
     margin-left:0;
   }
-  .posts-load-more-link{
-    &:hover, &:focus, &:active{
-      text-decoration: none !important;
-      background: inherit;
-      opacity:0.6;
-    }
-  }
-}
-
-.posts-load-more-days {
-  display: block;
-  margin-top: 10px;
 }
 
 //////////////////////////////////////////////////////
@@ -241,23 +230,6 @@
 // Other Elements                                   //
 //////////////////////////////////////////////////////
 
-.posts-day{
-  margin-bottom: $vmargin * 2;
-  max-width:700px;
-  margin:auto;
-  .posts-load-more{
-    border: none;
-    padding: 0;
-    .posts-load-more-link{
-      &:hover{
-        text-decoration: none !important;
-        background: inherit;
-        color: rgba(100, 169, 105, 0.9);
-      }
-    }
-  }
-
-}
 .posts-no-results{
   margin-left:10px;
   margin-top: $vmargin;
@@ -496,26 +468,11 @@ svg.drag-handle {
   max-width:100%;
 }
 
-
-.recent-discussion-thread-wrapper {
-  margin-bottom:30px;
-}
-
 .post-highlight {
   margin-top:5px;
   max-width:600px;
   line-height:22px;
   margin-bottom:16px;
-}
-
-.recent-discussion-thread-highlight {
-  margin-left:10px;
-  margin-right:10px;
-  font-size:14px;
-
-  &.no-comments {
-    border-bottom:solid 1px rgba(0,0,0,.2);
-  }
 }
 
 .recent-discussion-thread-meta {

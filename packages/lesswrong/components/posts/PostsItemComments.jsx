@@ -6,12 +6,6 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
 
 const styles = (theme) => ({
-  root: {
-    width: 48,
-    cursor: "pointer",
-    position: "relative",
-    flexShrink: 0,
-  },
   commentCount: {
     position:"absolute",
     right:"50%",
@@ -39,10 +33,9 @@ const styles = (theme) => ({
 })
 
 class PostsItemComments extends Component {
-  state = { readStatus: false }
 
   render () {
-    const { classes, post, onClick } = this.props
+    const { classes, post, onClick, readStatus  } = this.props
     const { lastVisitedAt } = post
 
     const lastCommentedAt = Posts.getLastCommentedAt(post)
@@ -52,7 +45,7 @@ class PostsItemComments extends Component {
     const read = lastVisitedAt;
     const newComments = lastVisitedAt < lastCommentedAt;
 
-    let unreadCommentsClass = (read && newComments && !this.state.readStatus) ? classes.unreadComments : classes.noUnreadComments;
+    let unreadCommentsClass = (read && newComments && !readStatus) ? classes.unreadComments : classes.noUnreadComments;
 
     return (
       <div className={classes.root} onClick={onClick}>
