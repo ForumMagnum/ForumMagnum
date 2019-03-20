@@ -136,6 +136,9 @@ const styles = (theme) => ({
   postedAt: {
     width: POSTED_AT_WIDTH,
     justifyContent: "center",
+    fontWeight: 300,
+    fontSize: "1rem !important",
+    color: "rgba(0,0,0,.9) !important",
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "none",
@@ -145,6 +148,9 @@ const styles = (theme) => ({
   startTime: {
     width: START_TIME_WIDTH,
     justifyContent: "center",
+    fontWeight: 300,
+    fontSize: "1rem !important",
+    color: "rgba(0,0,0,.9) !important",
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "none",
@@ -177,6 +183,7 @@ const styles = (theme) => ({
     cursor: "pointer",
     position: "relative",
     flexShrink: 0,
+    top: 2
   },
   actions: {
     opacity: 0,
