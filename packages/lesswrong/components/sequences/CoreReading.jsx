@@ -26,7 +26,7 @@ const coreReadingCollections = [
     title: "Harry Potter and the Methods of Rationality",
     id: "dummyId3",
     user: {userName: "Eliezer_Yudkowsky", displayName: "EliezerYudkowsky", slug: "eliezer_yudkowsky"},
-    summary: "What if Harry was a scientist? What would you do if the universe had magic in it? A hilarious and often poignant story that illustrates many rationality concepts.",
+    summary: "What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.",
     imageId: "uu4fJ5R_zeefim.png",
     color: "#757AA7",
     big: false,
