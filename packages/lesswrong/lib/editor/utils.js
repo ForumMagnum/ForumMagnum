@@ -1,30 +1,6 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 import { Utils } from 'meteor/vulcan:core';
-import linkifyIt from 'linkify-it'
-const linkify = linkifyIt()
-
-// Convert text to html with links converted to hyperlinks, matches
-// linkify-plugin's linkStrategy.
-//
-// Export for testing
-export function autolink(text) {
-  const matches = linkify.match(text)
-  if (!matches) return <p />
-  let lastLinkEndIndex = 0
-  const result = <p>
-    {matches.map(match => {
-      const result = <span key={match.index}>
-        {text.substring(lastLinkEndIndex, match.index)}
-        <a href={match.url}>{match.text}</a>
-      </span>
-      lastLinkEndIndex = match.lastIndex
-      return result
-    })}
-    {text.substring(lastLinkEndIndex, text.index)}
-  </p>
-  return result
-}
 
 // This currently only supports our limited subset of semVer
 export function extractVersionsFromSemver(semver) {
@@ -117,16 +93,6 @@ export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
     const type = block.type;
-
-    const linkable = [
-      'ordered-list-item',
-      'unordered-list-item',
-      'paragraph',
-      'unstyled'
-    ]
-    if (linkable.includes(type)) {
-      return autolink(block.text)
-    }
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
