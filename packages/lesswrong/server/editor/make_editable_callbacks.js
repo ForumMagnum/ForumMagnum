@@ -52,6 +52,7 @@ async function dataToHTML(data, type, sanitize = false) {
       return await draftJSToHtmlWithLatex(data)
     case "markdown":
       return await markdownToHtmlWithLatex(data)
+    default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
 
@@ -75,6 +76,7 @@ export function dataToMarkdown(data, type) {
       }
       return ""
     }
+    default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
 

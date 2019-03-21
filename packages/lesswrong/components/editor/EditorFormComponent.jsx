@@ -145,6 +145,11 @@ class EditorFormComponent extends Component {
         case "html":
           data = htmlValue
           break
+        default:
+          // eslint-disable-next-line no-console
+          console.error(`Unrecognized editor type: ${type}`);
+          data = "";
+          break;
       }
       return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
     }
