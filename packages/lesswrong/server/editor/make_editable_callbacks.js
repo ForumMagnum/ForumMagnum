@@ -40,13 +40,13 @@ export function htmlToMarkdown(html) {
   return turndownService.turndown(html)
 }
 
-export function markdownToHtml(markdown) {
+export function markdownToHtmlNoLaTeX(markdown) {
   const randomId = Random.id()
   return mdi.render(markdown, {docId: randomId})
 }
 
-export async function markdownToHtmlWithLatex(markdown) {
-  const html = markdownToHtml(markdown)
+export async function markdownToHtml(markdown) {
+  const html = markdownToHtmlNoLaTeX(markdown)
   return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
 }
 
@@ -57,7 +57,7 @@ async function dataToHTML(data, type, sanitize = false) {
     case "draftJS":
       return await draftJSToHtmlWithLatex(data)
     case "markdown":
-      return await markdownToHtmlWithLatex(data)
+      return await markdownToHtml(data)
   }
 }
 

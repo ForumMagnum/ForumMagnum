@@ -1,6 +1,6 @@
 
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { draftJSToHtmlWithLatex, markdownToHtmlWithLatex } from '../editor/make_editable_callbacks'
+import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/make_editable_callbacks'
 import { Posts } from '../../lib/collections/posts'
 import { editMutation } from 'meteor/vulcan:core';
 
@@ -22,7 +22,7 @@ registerMigration({
           if (content) {
             newHtml = await draftJSToHtmlWithLatex(content)
           } else if (body) {
-            newHtml = await markdownToHtmlWithLatex(body)
+            newHtml = await markdownToHtml(body)
           } else {
             newHtml = htmlBody
           }
