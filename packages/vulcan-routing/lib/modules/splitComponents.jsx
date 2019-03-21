@@ -161,7 +161,7 @@ class SplitComponentRenderer extends PureComponent {
     getComponent(name, (Component) => {this.setState({Component})})
   }
   render() {
-    const { ...rest } = this.props
+    const { name, ...rest } = this.props
     const { Component } = this.state
     return <Component {...rest} />
   }
