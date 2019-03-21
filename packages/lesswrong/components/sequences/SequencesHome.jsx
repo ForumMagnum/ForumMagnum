@@ -10,6 +10,7 @@ const styles = theme => ({
   root: {
   },
   header: {
+    marginTop: theme.spacing.unit*3,
     marginBottom: 50,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
