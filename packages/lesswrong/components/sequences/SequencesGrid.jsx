@@ -25,6 +25,7 @@ export const styles = theme => ({
     flexDirection: "row",
     flexWrap: "wrap",
     flexFlow: "row wrap",
+    justifyContent: "space-between",
     [legacyBreakpoints.maxSmall]: {
       alignItems: "center",
       justifyContent: "center",

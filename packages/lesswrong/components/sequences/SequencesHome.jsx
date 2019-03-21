@@ -43,6 +43,10 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
     ...postBodyStyles(theme)
   },
+  newSequence: {
+    paddingRight: theme.spacing.unit,
+    color: theme.palette.primary.light
+  }
 });
 
 const SequencesHome = ({classes}) => {
@@ -88,7 +92,7 @@ const SequencesHome = ({classes}) => {
     
     <SingleColumnSection>
       <SectionTitle  title="Community Sequences" dividers={false}>
-        <Typography variant="body2"><Link to={"/sequencesnew"}> New Sequence </Link></Typography>
+        <Typography className={classes.newSequence} variant="body2"><Link to={"/sequencesnew"}> Create New Sequence </Link></Typography>
       </SectionTitle>
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
