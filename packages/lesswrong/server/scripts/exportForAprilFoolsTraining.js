@@ -20,6 +20,7 @@ function getPostMarkdown(post) {
 }
 
 const exportPostReplyPairs = async (filename) => {
+  //eslint-disable-next-line no-console
   console.log(`Exporting post/comment-reply pairs to ${filename}`);
   const outputFile = fs.openSync(filename, 'w');
   fs.writeSync(outputFile, '[\n');
@@ -34,6 +35,7 @@ const exportPostReplyPairs = async (filename) => {
     bucketSize: 1000,
     fn: async (commentBatchFilter) => {
       const commentsInBatch = await Comments.find(commentBatchFilter).fetch();
+      //eslint-disable-next-line no-console
       console.log(`${commentsInBatch.length} comments in batch`);
       
       const parentCommentIds = _.filter(_.map(commentsInBatch, comment=>comment && comment.parentCommentId), id=>id);
@@ -78,6 +80,7 @@ const exportPostReplyPairs = async (filename) => {
             }
           }
         } catch(e) {
+          //eslint-disable-next-line no-console
           console.log("Skipping a comment");
         }
       }
@@ -86,6 +89,7 @@ const exportPostReplyPairs = async (filename) => {
   
   fs.writeSync(outputFile, ']\n');
   fs.closeSync(outputFile);
+  //eslint-disable-next-line no-console
   console.log(`Done exporting`);
 }
 Vulcan.exportPostReplyPairs = exportPostReplyPairs;
