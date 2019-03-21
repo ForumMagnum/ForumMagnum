@@ -10,6 +10,7 @@ import { compassIcon } from '../icons/compassIcon';
 import { questionsGlobeIcon } from '../icons/questionsGlobeIcon';
 import { communityGlobeIcon } from '../icons/communityGlobeIcon';
 
+const iconWidth = 30
 
 const styles = (theme) => ({
   root: {
@@ -30,7 +31,7 @@ const styles = (theme) => ({
     display: "flex",
     justifyContent: "space-around",
     zIndex: theme.zIndexes.tabNavigation,
-    backgroundColor: "white",
+    backgroundColor: "#ffffffd4",
     [theme.breakpoints.up('lg')]: {
       paddingTop: 30,
       paddingBottom: 70,
@@ -84,11 +85,12 @@ const styles = (theme) => ({
     display: "block",
     paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit,
-    paddingLeft: (theme.spacing.unit*2) + 46,
+    // padding reflects how large an icon+padding is
+    paddingLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)),
     paddingRight: theme.spacing.unit*2,
     color: theme.palette.grey[600],
     fontSize: "1rem",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     [theme.breakpoints.down('md')]: {
       display: "none"
     }
@@ -96,7 +98,7 @@ const styles = (theme) => ({
   icon: {
     display: "block",
     opacity: .3,
-    width: 30,
+    width: iconWidth,
     height: 28,
     [theme.breakpoints.up('lg')]: {
       marginRight: theme.spacing.unit*2,

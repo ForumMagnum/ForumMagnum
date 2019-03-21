@@ -79,7 +79,7 @@ class AllPostsPage extends Component {
     };
 
     return (
-      <div>
+      <React.Fragment>
         <TabNavigationMenu />
         <SingleColumnSection>
           <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
@@ -104,7 +104,7 @@ class AllPostsPage extends Component {
             }
           </div>
         </SingleColumnSection>
-      </div>
+      </React.Fragment>
     )
   }
 }

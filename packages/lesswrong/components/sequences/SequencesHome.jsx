@@ -38,7 +38,7 @@ const styles = theme => ({
   sequencesGridWrapperWrapper: {
     // TODO: Remove this silliness
     marginLeft: -17,
-    marginTop: 15,
+    marginTop: 35,
   },
   listDescription: {
     marginTop: theme.spacing.unit*2,
@@ -54,7 +54,7 @@ const SequencesHome = ({classes}) => {
 
   const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider } = Components
   // TODO: decide on terms for community sequences
-  return <div>
+  return <React.Fragment>
     <TabNavigationMenu />
     {/* Title */}
     <SingleColumnSection>
@@ -72,7 +72,7 @@ const SequencesHome = ({classes}) => {
     </SingleColumnSection>
 
     <SingleColumnSection>
-      <SectionTitle title="Core Reading" dividers={false}/>
+      <SectionTitle title="Core Reading" />
       <div className={classes.coreReadingWrapperWrapper}>
         <Components.CoreReading />
       </div>
@@ -80,7 +80,7 @@ const SequencesHome = ({classes}) => {
     </SingleColumnSection>
 
     <SingleColumnSection>
-      <SectionTitle title="Curated Sequences" dividers={false}/>
+      <SectionTitle title="Curated Sequences" />
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
           terms={{'view':'curatedSequences', limit:12}}
@@ -92,7 +92,7 @@ const SequencesHome = ({classes}) => {
     </SingleColumnSection>
     
     <SingleColumnSection>
-      <SectionTitle  title="Community Sequences" dividers={false}>
+      <SectionTitle  title="Community Sequences" >
         <Typography className={classes.newSequence} variant="body2"><Link to={"/sequencesnew"}> Create New Sequence </Link></Typography>
       </SectionTitle>
       <div className={classes.sequencesGridWrapperWrapper}>
@@ -104,7 +104,7 @@ const SequencesHome = ({classes}) => {
         />
       </div>
     </SingleColumnSection>
-  </div>;
+  </React.Fragment>;
 };
 
 registerComponent(
