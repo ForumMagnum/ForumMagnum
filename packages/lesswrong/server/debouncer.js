@@ -1,4 +1,6 @@
+/*global Vulcan*/
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
+import { addCronJob } from './cronUtil.js';
 
 let eventDebouncersByName = {};
 
@@ -71,10 +73,7 @@ export class EventDebouncer
       $max: { delayTime: newDelayTime.getTime() },
       $min: { upperBoundTime: newUpperBoundTime.getTime() },
       $push: {
-        pendingEvents: {
-          time: now,
-          eventData: eventData,
-        },
+        pendingEvents: eventData,
       }
     }, {
       upsert: true
@@ -94,6 +93,15 @@ export class EventDebouncer
   };
 }
 
+const dispatchEvent = async (event) => {
+  const eventDebouncer = eventDebouncersByName[event.name];
+  if (!eventDebouncer) {
+    // eslint-disable-next-line no-console
+    throw new Error(`Unrecognized event type: ${event.name}`);
+  }
+  
+  await eventDebouncer.dispatchEvent(JSON.parse(event.key), event.pendingEvents);
+}
 
 export const dispatchPendingEvents = async () => {
   const now = new Date().getTime();
@@ -116,23 +124,46 @@ export const dispatchPendingEvents = async () => {
       },
       {
         $set: { dispatched: true }
-      },
-      {
-        //writeConcern: { w: "majority" },
       }
     );
     eventToHandle = queryResult.value;
     
     if (eventToHandle) {
-      const eventDebouncer = eventDebouncersByName[eventToHandle.name];
-      if (!eventDebouncer) {
-        // eslint-disable-next-line no-console
-        throw new Error(`Unrecognized event type: ${eventToHandle.name}`);
-      }
-      
-      eventDebouncer.dispatchEvent(JSON.parse(eventToHandle.key), eventToHandle.pendingEvents);
+      await dispatchEvent(eventToHandle);
     }
     
     // Keep checking for more events to handle so long as one was handled.
   } while (eventToHandle);
 };
+
+// Dispatch any pending debounced events, independent of their timers. You
+// would do this interactively if you're testing and don't want to wait.
+export const forcePendingEvents = async () => {
+  let eventToHandle = null;
+  
+  do {
+    const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
+      { dispatched: false, },
+      { $set: { dispatched: true } },
+    );
+    eventToHandle = queryResult.value;
+    
+    if (eventToHandle) {
+      await dispatchEvent(eventToHandle);
+    }
+    
+    // Keep checking for more events to handle so long as one was handled.
+  } while (eventToHandle);
+}
+Vulcan.forcePendingEvents = forcePendingEvents;
+
+addCronJob({
+  name: "Debounced event handler",
+  schedule(parser) {
+    // Once per minute, on the minute
+    return parser.cron('* * * * * *');
+  },
+  job() {
+    dispatchPendingEvents();
+  }
+});
