@@ -195,7 +195,7 @@ const TabNavigationMenu = ({
         <Tooltip placement="right" title={<div>
             <p><em>Harry Potter and the Methods of Rationality</em></p>
             <p>
-              What if Harry was a scientist? What would you do if the universe had magic in it? A hilarious and often poignant story that illustrates many rationality concepts.
+              What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.
             </p>
           </div>}>
           <Link to="/codex" className={classes.subItem}>
