@@ -301,7 +301,7 @@ Posts.addView("topQuestions", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt: -1, question:1 }),
+  augmentForDefaultView({ question:1, lastCommentedAt: -1 }),
   {
     name: "posts.topQuestions",
   }
@@ -315,12 +315,7 @@ Posts.addView("recentQuestionActivity", terms => ({
     sort: {lastCommentedAt: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ lastCommentedAt: -1, question:1 }),
-  {
-    name: "posts.recentQuestionActivity",
-  }
-);
+// covered by same index as 'topQuestions'
 
 /**
  * @summary Scheduled view
