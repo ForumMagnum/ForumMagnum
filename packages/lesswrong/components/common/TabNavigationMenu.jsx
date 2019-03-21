@@ -17,13 +17,13 @@ const styles = (theme) => ({
     width:"100%",
     zIndex: theme.zIndexes.tabNavigation,
     [theme.breakpoints.up('lg')]: {
-      top: 92,
+      top: 64,
       left:0,
-      width:200,
+      width:220,
     },
     [theme.breakpoints.down('md')]: {
       position: "unset",
-      height: 64,
+      height: 80,
     },
   },
   tabMenu: {
@@ -32,16 +32,18 @@ const styles = (theme) => ({
     zIndex: theme.zIndexes.tabNavigation,
     backgroundColor: "white",
     [theme.breakpoints.up('lg')]: {
+      paddingTop: 30,
+      paddingBottom: 70,
       flexDirection: "column",
     },
     [theme.breakpoints.down('md')]: {
       position: "absolute",
-      top: 64,
+      top: 74,
       left: 0,
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: 56,
+      top: 66,
     },
   },
   selected: {
@@ -50,12 +52,7 @@ const styles = (theme) => ({
     },
     '& $navText': {
       color: theme.palette.grey[900],
-    },
-    [theme.breakpoints.up('lg')]: {
-      backgroundColor: theme.palette.grey[200],
-    },
-    [theme.breakpoints.down('md')]: {
-      backgroundColor: theme.palette.grey[300],
+      fontWeight: 600,
     },
   },
   navButton: {
@@ -85,7 +82,7 @@ const styles = (theme) => ({
   subItem: {
     ...theme.typography.body2,
     display: "block",
-    paddingTop: 0,
+    paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit,
     paddingLeft: (theme.spacing.unit*2) + 46,
     paddingRight: theme.spacing.unit*2,
@@ -98,7 +95,7 @@ const styles = (theme) => ({
   },
   icon: {
     display: "block",
-    opacity: .45,
+    opacity: .3,
     width: 30,
     height: 28,
     [theme.breakpoints.up('lg')]: {
@@ -110,9 +107,9 @@ const styles = (theme) => ({
     ...theme.typography.body2,
     color: theme.palette.grey[600],
     [theme.breakpoints.down('md')]: {
-      fontSize: 10,
+      fontSize: '1rem',
       marginBottom: 3,
-      marginTop: 3,
+      marginTop: 8,
     },
     [theme.breakpoints.up('lg')]: {
       textTransform: "none !important",
@@ -237,7 +234,7 @@ const TabNavigationMenu = ({
               <img src="/scrollIcon.svg" />
             </span>
             <span className={classes.navText}>
-              All Posts
+              Archive
             </span>
           </Link>
         </Tooltip>
