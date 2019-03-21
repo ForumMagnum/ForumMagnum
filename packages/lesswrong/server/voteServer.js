@@ -5,12 +5,10 @@ import { recalculateScore, recalculateBaseScore } from '../lib/modules/scoring.j
 import { createError } from 'apollo-errors';
 import { voteTypes, createVote } from '../lib/modules/vote.js';
 import { algoliaDocumentExport } from './search/utils';
+import moment from 'moment';
 
-/*
 
-Test if a user has voted on the server
-
-*/
+// Test if a user has voted on the server
 const hasVotedServer = async ({ document, voteType, user }) => {
   const vote = await Connectors.get(Votes, {
     documentId: document._id,
@@ -20,11 +18,7 @@ const hasVotedServer = async ({ document, voteType, user }) => {
   return vote;
 }
 
-/*
-
-Add a vote of a specific type on the server
-
-*/
+// Add a vote of a specific type on the server
 const addVoteServer = async (voteOptions) => {
 
   const { document, collection, voteType, user, voteId, updateDocument } = voteOptions;
@@ -59,11 +53,7 @@ const addVoteServer = async (voteOptions) => {
   return {newDocument, vote};
 }
 
-/*
-
-Clear all votes for a given document and user (server)
-
-*/
+// Clear all votes for a given document and user (server)
 const clearVotesServer = async ({ document, user, collection, updateDocument }) => {
   const newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
@@ -111,11 +101,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
   return newDocument;
 }
 
-/*
-
-Cancel votes of a specific type on a given document (server)
-
-*/
+// Cancel votes of a specific type on a given document (server)
 export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }) => {
 
   const newDocument = _.clone(document);
@@ -168,19 +154,18 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
   }
   return {newDocument, vote};
 }
-/*
 
-Server-side database operation
-
-### updateDocument
-if set to true, this will perform its own database updates. If false, will only
-return an updated document without performing any database operations on it.
-
-*/
+// Server-side database operation
+//
+// ### updateDocument
+// if set to true, this will perform its own database updates. If false, will only
+// return an updated document without performing any database operations on it.
 export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = Random.id(), user, updateDocument = true }) => {
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
+  
+  await checkRateLimit({ document, collection, voteType, user });
 
   debug('');
   debugGroup('--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------');
@@ -229,5 +214,43 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   // const newDocument = collection.findOne(documentId);
   document.__typename = collection.options.typeName;
   return document;
+}
 
+const getVotingRateLimits = async (user) => {
+  return {
+    perDay: 50,
+    perHour: 20,
+    perUserPerDay: 10,
+  };
+}
+
+// Check whether a given vote would exceed voting rate limits, and if so, throw
+// an error. Otherwise do nothing.
+const checkRateLimit = async ({ document, collection, voteType, user }) => {
+  const rateLimits = await getVotingRateLimits(user);
+  
+  // Retrieve all non-cancelled votes cast by this user in the past 24 hours
+  const oneDayAgo = moment().subtract(1, 'days').toDate();
+  const votesInLastDay = await Votes.find({
+    userId: user._id,
+    authorId: {$ne: user._id}, // Self-votes don't count
+    votedAt: {$gt: oneDayAgo},
+    cancelled:false
+  }).fetch();
+  
+  if (votesInLastDay.length >= rateLimits.perDay) {
+    throw new Error("Voting rate limit exceeded: too many votes in one day");
+  }
+  
+  const oneHourAgo = moment().subtract(1, 'hours').toDate();
+  const votesInLastHour = _.filter(votesInLastDay, vote=>vote.votedAt >= oneHourAgo);
+  
+  if (votesInLastHour.length >= rateLimits.perHour) {
+    throw new Error("Voting rate limit exceeded: too many votes in one hour");
+  }
+  
+  const votesOnThisAuthor = _.filter(votesInLastDay, vote=>vote.authorId===document.userId);
+  if (votesOnThisAuthor.length >= rateLimits.perUserPerDay) {
+    throw new Error("Voting rate limit exceeded: too many votes today on content by this author");
+  }
 }
