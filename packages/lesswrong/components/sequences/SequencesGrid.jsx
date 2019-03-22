@@ -25,6 +25,7 @@ export const styles = theme => ({
     flexDirection: "row",
     flexWrap: "wrap",
     flexFlow: "row wrap",
+    justifyContent: "space-between",
     [legacyBreakpoints.maxSmall]: {
       alignItems: "center",
       justifyContent: "center",
@@ -37,7 +38,7 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, listMode, classes}) =>
+const SequencesGrid = ({sequences, showAuthor, classes}) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {

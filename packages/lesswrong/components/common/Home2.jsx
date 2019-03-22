@@ -24,7 +24,7 @@ const Home2 = (props) => {
   }
 
   return (
-    <div>
+    <React.Fragment>
       <Components.HeadTags image={getSetting('siteImage')} />
       <TabNavigationMenu />
 
@@ -49,7 +49,7 @@ const Home2 = (props) => {
         <SectionTitle title="Recent Discussion" />
         <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
       </SingleColumnSection>
-    </div>
+    </React.Fragment>
   )
 };
 
