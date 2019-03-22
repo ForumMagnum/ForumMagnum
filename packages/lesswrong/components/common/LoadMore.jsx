@@ -29,8 +29,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false }) => {
     <a className={classNames(classes.root, {[classes.disabled]: disabled})}
       href="#"
       onClick={handleClickLoadMore}>
-      Load More
-      {totalCount ? <span>{`&nbsp;(${count}/${totalCount})`}</span> : null}
+      Load More {totalCount && <span> ({count}/{totalCount})</span>}
     </a>
   )
 }

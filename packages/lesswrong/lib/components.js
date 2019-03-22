@@ -47,6 +47,7 @@ import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
+import '../components/common/Divider.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
@@ -105,6 +106,7 @@ import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemKarma.jsx';
+
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
