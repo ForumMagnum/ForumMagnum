@@ -106,6 +106,7 @@ import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemKarma.jsx';
+
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
