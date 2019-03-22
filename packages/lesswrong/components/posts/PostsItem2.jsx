@@ -134,15 +134,17 @@ const styles = (theme) => ({
     }
   },
   postedAt: {
-    width: POSTED_AT_WIDTH,
-    justifyContent: "center",
-    fontWeight: 300,
-    fontSize: "1rem",
-    color: "rgba(0,0,0,.9)",
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
-      width: "none",
-      flexGrow: 1,
+    '&&': {
+      width: POSTED_AT_WIDTH,
+      justifyContent: "center",
+      fontWeight: 300,
+      fontSize: "1rem",
+      color: "rgba(0,0,0,.9)",
+      [theme.breakpoints.down('sm')]: {
+        justifyContent: "flex-start",
+        width: "none",
+        flexGrow: 1,
+      }
     }
   },
   startTime: {
