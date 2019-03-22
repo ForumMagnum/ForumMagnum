@@ -9,6 +9,9 @@ import withUser from '../common/withUser';
 import { compassIcon } from '../icons/compassIcon';
 import { questionsGlobeIcon } from '../icons/questionsGlobeIcon';
 import { communityGlobeIcon } from '../icons/communityGlobeIcon';
+import { bookIcon } from '../icons/bookIcon'
+import { allPostsIcon } from '../icons/allPostsIcon'
+;
 
 const iconWidth = 30
 
@@ -83,7 +86,6 @@ const styles = (theme) => ({
   subItem: {
     ...theme.typography.body2,
     display: "block",
-    paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)),
@@ -167,7 +169,7 @@ const TabNavigationMenu = ({
           </div>}>
           <Link to="/library" className={classNames(classes.navButton, {[classes.selected]: pathname === "/library"})}>
               <span className={classes.icon}>
-                <img src="/bookIcon.svg" />
+                { bookIcon }
               </span>
               <span className={classes.navText}>
                 Library
@@ -233,7 +235,7 @@ const TabNavigationMenu = ({
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>
             <span className={classes.icon}>
-              <img src="/scrollIcon.svg" />
+              { allPostsIcon }
             </span>
             <span className={classes.navText}>
               Archive
