@@ -66,7 +66,7 @@ export async function forEachBucketRangeInCollection({collection, filter, bucket
   const sampleSize = 20 * bucketCount
 
   // Calculate bucket boundaries using Mongo aggregate
-  const maybeFilter = (filter && [{ $match: filter }]);
+  const maybeFilter = (filter ? [{ $match: filter }] : []);
   const bucketBoundaries = await collection.rawCollection().aggregate([
     ...maybeFilter,
     { $sample: { size: sampleSize } },
