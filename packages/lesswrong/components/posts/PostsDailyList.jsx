@@ -139,7 +139,7 @@ class PostsDailyList extends PureComponent {
         <div className={classNames("posts-daily", {[classes.loading]: dim})}>
           { loading && <Loading />}
           {dates.map((date, index) =>
-            <PostsDay key={index} number={index}
+            <PostsDay key={date.toString()} number={index}
               date={moment(date)}
               posts={this.getDatePosts(posts, date)}
               networkStatus={networkStatus}
