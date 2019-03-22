@@ -150,15 +150,15 @@ class AllPostsPageSettings extends Component {
           <MetaInfo className={classes.selectionTitle}>
             Sorted by:
           </MetaInfo>
-          {Object.entries(views).map(view => {
+          {Object.entries(views).map(([name, label]) => {
             return (
               <Link 
-                key={view[0]} 
-                onClick={() => this.setView(view[0])}
-                to={loc=> ({...loc, query: {...loc.query, view: view[0]}})}
+                key={name} 
+                onClick={() => this.setView(name)}
+                to={loc=> ({...loc, query: {...loc.query, view: name}})}
               >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === view[0]})}>
-                  { view[1] }
+                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === name})}>
+                  { label }
                 </MetaInfo>
               </Link>
             )
