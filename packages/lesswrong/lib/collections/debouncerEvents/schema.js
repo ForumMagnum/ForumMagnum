@@ -1,9 +1,7 @@
 
 const schema = {
   _id: {
-    optional: true,
     type: String,
-    viewableBy: ['members'],
   },
   
   name: {
@@ -28,6 +26,7 @@ const schema = {
   },
   "pendingEvents.$": {
     type: Object,
+    blackbox: true,
   },
 }
 

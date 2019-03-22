@@ -7,7 +7,6 @@ export const DebouncerEvents = createCollection({
   collectionName: 'DebouncerEvents',
   typeName: 'DebouncerEvents',
   schema,
-  resolvers: getDefaultResolvers('DebouncerEvents'),
 });
 
 addUniversalFields({collection: DebouncerEvents})
