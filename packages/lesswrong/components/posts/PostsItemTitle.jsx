@@ -110,7 +110,7 @@ const getPostCategory = (post) => {
   return "Personal Blogpost"
 }
 
-const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2}) => {
+const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location}) => {
   const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
