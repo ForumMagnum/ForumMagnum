@@ -11,6 +11,7 @@ import { Link } from 'react-router'
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
+import { views } from './AllPostsPage.jsx'
 
 const styles = theme => ({
   root: {
@@ -120,15 +121,6 @@ class AllPostsPageSettings extends Component {
     const { classes, hidden, currentView, currentFilter, currentShowLowKarma } = this.props
     const { MetaInfo } = Components
 
-    const views = [
-      {name: 'daily', label: "Daily"},
-      {name: 'magic', label: "Magic (New & Upvoted)"},
-      {name: 'recentComments', label: "Recent Comments"},
-      {name: 'new', label: "New"},
-      {name: 'old', label: "Old"},
-      {name: 'top', label: "Top"},
-    ]
-
     const filters = [
       { name: "all",
         label: "All Posts",
@@ -158,15 +150,15 @@ class AllPostsPageSettings extends Component {
           <MetaInfo className={classes.selectionTitle}>
             Sorted by:
           </MetaInfo>
-          {views.map(view => {
+          {Object.entries(views).map(([name, label]) => {
             return (
               <Link 
-                key={view.name} 
-                onClick={() => this.setView(view.name)}
-                to={loc=> ({...loc, query: {...loc.query, view: view.name}})}
+                key={name} 
+                onClick={() => this.setView(name)}
+                to={loc=> ({...loc, query: {...loc.query, view: name}})}
               >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === view.name})}>
-                  { view.label }
+                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === name})}>
+                  { label }
                 </MetaInfo>
               </Link>
             )
