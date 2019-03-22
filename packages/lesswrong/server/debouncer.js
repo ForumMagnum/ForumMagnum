@@ -33,11 +33,11 @@ let eventDebouncersByName = {};
 //  * name: (String) - Used to identify this event type in the database. Must
 //    be unique across EventDebouncers.
 //  * delayMinutes: (Number)
-//  * maxDelayMinutes: (Number)
+//  * maxDelayMinutes: (Optional Number)
 //  * callback: (key:JSON, events: Array[JSONObject])=>None
 export class EventDebouncer
 {
-  constructor({ name, delayMinutes, maxDelayMinutes=0, callback }) {
+  constructor({ name, delayMinutes, maxDelayMinutes=null, callback }) {
     if (!name || !callback || !delayMinutes)
       throw new Error("EventDebouncer constructor: missing required argument");
     if (name in eventDebouncersByName)
@@ -61,8 +61,9 @@ export class EventDebouncer
   //  * eventData: (JSON)
   recordEvent = async (key, eventData) => {
     const now = new Date();
-    const newDelayTime = new Date(now.getTime() + (this.delayMinutes * 60*1000));
-    const newUpperBoundTime = new Date(now.getTime() + (this.maxDelayMinutes * 60*1000));
+    const msPerMin = 60*1000;
+    const newDelayTime = new Date(now.getTime() + (this.delayMinutes * msPerMin));
+    const newUpperBoundTime = new Date(now.getTime() + (this.maxDelayMinutes * msPerMin));
     
     // On rawCollection because minimongo doesn't support $max/$min on Dates
     await DebouncerEvents.rawCollection().update({
@@ -80,7 +81,7 @@ export class EventDebouncer
     });
   }
   
-  dispatchEvent = async (key, events) => {
+  _dispatchEvent = async (key, events) => {
     try {
       //eslint-disable-next-line no-console
       console.log(`Handling ${events.length} grouped ${this.name} events`);
@@ -100,7 +101,7 @@ const dispatchEvent = async (event) => {
     throw new Error(`Unrecognized event type: ${event.name}`);
   }
   
-  await eventDebouncer.dispatchEvent(JSON.parse(event.key), event.pendingEvents);
+  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents);
 }
 
 export const dispatchPendingEvents = async () => {
@@ -113,7 +114,7 @@ export const dispatchPendingEvents = async () => {
     // checking for events at the same time).
     //
     // On rawCollection so that this doesn't get routed through Minimongo, which
-    // doesn't support findAndModify.
+    // doesn't support findOneAndUpdate.
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
