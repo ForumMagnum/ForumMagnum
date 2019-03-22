@@ -36,7 +36,7 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   loadMore: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
     textAlign: 'right'
   },
   loadingMore: {
