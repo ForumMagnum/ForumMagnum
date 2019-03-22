@@ -52,6 +52,7 @@ import './server/votingGraphQL.js';
 import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
 import './server/callbacks.js';
+import './server/notificationCallbacks.js';
 import './server/voteServer.js';
 
 import './lib/collections/comments/callbacks.js';
@@ -71,6 +72,7 @@ import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
+import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
 

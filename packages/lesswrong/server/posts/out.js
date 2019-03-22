@@ -1,6 +1,7 @@
 import { runCallbacksAsync } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
 import { Posts } from '../../lib/collections/posts';
+import { ensureIndex } from '../../lib/collectionUtils.js';
 
 // Click-tracking redirector for outgoing links in linkposts
 Picker.route('/out', ({ query}, req, res, next) => {
@@ -31,3 +32,5 @@ Picker.route('/out', ({ query}, req, res, next) => {
     res.end("Please provide a URL");
   }
 });
+
+ensureIndex(Posts, {url:1, postedAt:-1});

@@ -15,6 +15,9 @@ const RecentDiscussionThreadsList = ({
   threadView = "recentDiscussionThread"
 }) => {
   const loadingMore = networkStatus === 2;
+
+  const { LoadMore } = Components
+
   if (!loading && results && !results.length) {
     return null
   }
@@ -33,7 +36,8 @@ const RecentDiscussionThreadsList = ({
               editMutation={editMutation}/>
 
           )}
-          {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+          { loadingMore && <Loading />}
         </div>}
     </div>)
   }
