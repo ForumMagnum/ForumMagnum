@@ -1,6 +1,13 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
+if(getSetting('AlignmentForum', false)) {
+  // HACK: At the top of the file because DeepScan false-positively warns about
+  // imports not at top level, and it re-detects it every time the line number
+  // changes. Putting it at the top makes its line number stable.
+  import '../components/alignment-forum/AlignmentForumHome.jsx';
+}
+
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
 import '../components/messaging/MessageItem.jsx';
@@ -310,10 +317,6 @@ import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
-if(getSetting('AlignmentForum', false)) {
-    import '../components/alignment-forum/AlignmentForumHome.jsx';
-}
-
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
