@@ -218,9 +218,9 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
 const getVotingRateLimits = async (user) => {
   return {
-    perDay: 50,
-    perHour: 20,
-    perUserPerDay: 10,
+    perDay: 100,
+    perHour: 30,
+    perUserPerDay: 30,
   };
 }
 
