@@ -282,8 +282,8 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
 
 const privateMessagesDebouncer = new EventDebouncer({
   name: "privateMessage",
-  delayMinutes: 1,
-  maxDelayMinutes: 3,
+  delayMinutes: 15,
+  maxDelayMinutes: 30,
   callback: sendPrivateMessagesEmail
 });
 
