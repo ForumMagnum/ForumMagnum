@@ -8,6 +8,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  modalTextField: {
+    marginTop: 10,
+  },
+});
 
 class AFApplicationForm extends PureComponent {
   state = { applicationText: "" }
@@ -28,7 +35,7 @@ class AFApplicationForm extends PureComponent {
   }
 
   render() {
-    const { onClose } = this.props
+    const { onClose, classes } = this.props
     return (
       <Dialog open={true} onClose={onClose}>
         <DialogTitle>
@@ -48,7 +55,7 @@ class AFApplicationForm extends PureComponent {
           <TextField
             id="comment-menu-item-delete-reason"
             label="Write application text here"
-            className="comments-delete-modal-textfield"
+            className={classes.modalTextField}
             value={this.state.applicationText}
             onChange={e => this.setState({applicationText:e.target.value})}
             fullWidth
@@ -75,4 +82,4 @@ const withUpdateOptions = {
   fragmentName: 'SuggestAlignmentUser',
 };
 
-registerComponent('AFApplicationForm', AFApplicationForm, withMessages, [withUpdate, withUpdateOptions], withUser);
+registerComponent('AFApplicationForm', AFApplicationForm, withMessages, [withUpdate, withUpdateOptions], withUser, withStyles(styles, {name: "AFApplicationForm"}));
