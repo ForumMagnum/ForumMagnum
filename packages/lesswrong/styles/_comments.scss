@@ -34,18 +34,14 @@ $small-font: 1.1rem;
     padding-bottom: 5px;
     font-size: 12px;
   }
-
-  .comments-item-bottom, .comments-item-meta {
-    .comments-item-reply-link {
-      margin-right: 5px;
-      display: inline;
-      color:rgba(0,0,0,.5);
-      @media print { display: none; }
-    }
-  }
 }
 
-
+.comments-item-reply-link {
+  margin-right: 5px;
+  display: inline;
+  color:rgba(0,0,0,.5);
+  @media print { display: none; }
+}
 
 .comments-item-body, .recent-comments-item-body {
   font-family: $comments-font;
@@ -265,13 +261,6 @@ $small-font: 1.1rem;
 
     @include max-small() {
       padding:10px;
-    }
-  }
-  .recent-comment-username-spacing {
-    padding-right:1px;
-    color:rgba(0,0,0,.3);
-    @include max-small() {
-      padding:0 10px;
     }
   }
 
