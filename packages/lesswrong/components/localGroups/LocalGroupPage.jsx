@@ -77,7 +77,7 @@ class LocalGroupPage extends Component {
             </Link>
           </Components.SectionSubtitle>}
         {Localgroups.options.mutations.edit.check(this.props.currentUser, group)
-          && <Components.GroupFormLink ≈={groupId} label="Edit group" />}
+          && <Components.GroupFormLink documentId={groupId} label="Edit group" />}
       </div>
     )
   }

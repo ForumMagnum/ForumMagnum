@@ -16,16 +16,14 @@ const styles = theme => ({
   }
 })
 
-const LocalGroupsList = ({children, classes, results, count, loadMore, totalCount, loading, networkStatus, paginationTerms, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}) => {
+const LocalGroupsList = ({children, classes, results, count, loadMore, totalCount, loading, networkStatus, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}) => {
+  
   const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore } = Components
 
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
   const loadingMore = networkStatus === 2 || networkStatus === 1;
-
-  if (!results && loading) return <Loading />
-  if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
   return <div>
       {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}

@@ -57,10 +57,10 @@ const styles = theme => ({
 });
 
 const tooltips = {
-  'LW': "This group is associated with LessWrong",
-  'EA': "This group is associated with Effective Altruism",
-  'SSC': "This group is associated with Slatestar Codex",
-  'MIRIx': "This group is associated with MIRIx research workshops"
+  'LW': "This is a LessWrong group",
+  'EA': "This is an Effective Altruism group",
+  'SSC': "This is a Slate Star Codex group",
+  'MIRIx': "This is a MIRIx group"
 }
 
 class GroupLinks extends PureComponent {
