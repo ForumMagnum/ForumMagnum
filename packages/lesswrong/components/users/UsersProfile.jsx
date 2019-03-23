@@ -11,6 +11,18 @@ import classNames from 'classnames';
 import withUser from '../common/withUser';
 
 const styles = theme => ({
+  profilePage: {
+    marginLeft: "auto",
+    marginRight: 200,
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+    }
+  },
+  profileHeader: {
+    "& h2:before": {
+      display: "none",
+    }
+  },
   meta: {
     display: "flex",
     alignItems: "center",
@@ -25,14 +37,31 @@ const styles = theme => ({
       marginRight: 4
     }
   },
+  actions: {
+    marginLeft: 20,
+  },
+  bio: {
+    margin: 0,
+    paddingBottom: 10,
+    paddingLeft: 20,
+  
+    "& p": {
+      fontSize: 16,
+      lineHeight: 26,
+    }
+  },
   // Dark Magick
   // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
   specificalz: {}
 })
 
 const UsersProfile = (props) => {
+  const { classes } = props;
+  
   if (props.loading) {
-    return <div className="page users-profile"><Components.Loading/></div>
+    return <div className={classNames("page", "users-profile", classes.profilePage)}>
+      <Components.Loading/>
+    </div>
   }
   
   if (!props.document || !props.document._id || props.document.deleted) {
@@ -55,7 +84,7 @@ const UsersProfile = (props) => {
     const { currentUser } = props
     const user = props.document;
 
-    return (<div className="users-profile-actions">
+    return (<div className={classes.actions}>
       { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
       { props.currentUser && props.currentUser.isAdmin &&
           <Components.DialogGroup
@@ -74,7 +103,6 @@ const UsersProfile = (props) => {
   }
 
   const renderMeta = (props) => {
-    const { classes } = props
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
 
     return <div className={classes.meta}>
@@ -103,7 +131,7 @@ const UsersProfile = (props) => {
       <Components.Section title="User Profile" titleComponent={ renderMeta(props) }>
         { user.bio &&
           <div className="content-body">
-            <div className="users-profile-bio">
+            <div className={classes.bio}>
               <p>{ user.bio }</p>
             </div>
           </div>}
@@ -170,8 +198,8 @@ const UsersProfile = (props) => {
     }
   }
   return (
-    <div className="page users-profile">
-      <div className="users-profile-header">{ renderUserProfileHeader(props) }</div>
+    <div className={classNames("page", "users-profile", classes.profilePage)}>
+      <div className={classes.profileHeader}>{ renderUserProfileHeader(props) }</div>
       { renderSequences(props) }
       { renderDrafts(props) }
       { renderBlogPosts(props) }
