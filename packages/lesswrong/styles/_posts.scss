@@ -167,18 +167,6 @@
 }
 
 //////////////////////////////////////////////////////
-// Post Page                                        //
-//////////////////////////////////////////////////////
-
-@include max-small() {
-  .sequences-navigation-title, .posts-page-group-title {
-    max-width: 60%;
-    height: inherit;
-    margin-bottom: 10px;
-  }
-}
-
-//////////////////////////////////////////////////////
 // Other Elements                                   //
 //////////////////////////////////////////////////////
 
@@ -258,16 +246,6 @@ svg.drag-handle {
 }
 .posts-list-editor .ais-InstantSearch__root {
   margin:20px 0;
-}
-
-.sequences-navigation-title, .posts-page-group-title {
-    display: inline-block;
-    font-size: 22px;
-    vertical-align: middle;
-    font-variant: small-caps;
-    line-height: 24px;
-    color: rgba(0,0,0,0.5);
-    margin-top: -10p;
 }
 
 .sequences-navigation-top, .posts-page-group-details {
