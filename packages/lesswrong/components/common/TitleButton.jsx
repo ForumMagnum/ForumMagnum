@@ -8,7 +8,8 @@ const styles = (theme) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.minorButton.main,
-    verticalAlign: "middle",
+    display: "flex",
+    alignItems: "center",
     '& svg': {
       marginRight: theme.spacing.unit
     },

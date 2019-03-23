@@ -29,6 +29,7 @@ class GroupFormLink extends Component {
   }
 
   render() {
+    const { documentId } =  this.props
     const { WrappedSmartForm, TitleButton } = Components
     const dialogClasses = classNames(
       "comments-item-text",
@@ -38,12 +39,17 @@ class GroupFormLink extends Component {
         "local-group-edit-form": !this.props.documentId
       }
     )
-    const labelText = this.props.label || (this.props.documentId ? "Edit group" : "New Group");
-    return (<div>
-      <TitleButton>
-        <AddLocationIcon />
-        <span onClick={this.handleOpenGroupForm}>{labelText}</span>
-      </TitleButton>
+    return (<React.Fragment>
+      { documentId ? 
+        <Components.SectionSubtitle>
+          <span onClick={this.handleOpenGroupForm}>Edit Group</span>
+        </Components.SectionSubtitle> 
+        : 
+        <TitleButton>
+          <AddLocationIcon />
+          <span onClick={this.handleOpenGroupForm}>New Group</span>
+        </TitleButton>
+      }
       <Dialog
         open={this.state.groupFormOpen}
         onClose={this.handleCloseGroupForm}
@@ -66,7 +72,7 @@ class GroupFormLink extends Component {
           />
         </DialogContent>
       </Dialog>
-    </div>)
+    </React.Fragment>)
   }
 }
 
