@@ -28,16 +28,9 @@ $small-font: 1.1rem;
   .comments-item-bottom {
     padding-bottom: 5px;
     font-size: 12px;
-    .vote {
-      font-weight: 300;
-      color: rgba(0,0,0,0.5);
-    }
   }
 
   .comments-item-bottom, .comments-item-meta {
-    .vote {
-      display: inline;
-    }
     .comments-item-reply-link {
       margin-right: 5px;
       display: inline;
@@ -159,12 +152,6 @@ $small-font: 1.1rem;
   display: inline-block;
   position:relative;
   left:-10px;
-  .vote {
-    .material-icons {
-      vertical-align:middle;
-      line-height:16px;
-    }
-  }
 }
 
 .comments-edit-form {
