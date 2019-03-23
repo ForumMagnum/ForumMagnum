@@ -56,6 +56,13 @@ const styles = theme => ({
   }
 });
 
+const tooltips = {
+  'LW': "This is a LessWrong group",
+  'EA': "This is an Effective Altruism group",
+  'SSC': "This is a Slate Star Codex group",
+  'MIRIx': "This is a MIRIx group"
+}
+
 class GroupLinks extends PureComponent {
   render() {
     const { document, classes } = this.props;
@@ -65,7 +72,7 @@ class GroupLinks extends PureComponent {
           {document.types && document.types.map(type => {
             return (
               <Tooltip
-                title="Group Type"
+                title={tooltips[type]}
                 placement="top-end"
                 key={type}
               >
@@ -79,7 +86,7 @@ class GroupLinks extends PureComponent {
         <div className={classes.groupLinks}>
           {document.facebookLink
             && <Tooltip
-              title="Facebook Group"
+              title="Link to Facebook Group"
               placement="top-end"
             >
               <a href={document.facebookLink}><IconButton className={classes.iconButton} color="inherit">
@@ -87,10 +94,7 @@ class GroupLinks extends PureComponent {
               </IconButton></a>
             </Tooltip>}
           {document.website
-            && <Tooltip
-              title="Group Website"
-              placement="top-end"
-            >
+            && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
               <a href={document.website}><IconButton className={classes.iconButton} color="inherit">
                 <LinkIcon className={classes.linkIcon}/>
               </IconButton></a>
