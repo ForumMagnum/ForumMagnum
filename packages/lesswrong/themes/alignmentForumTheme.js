@@ -30,6 +30,9 @@ const sansSerifStack = [
 const palette = {
   primary: indigo,
   secondary: indigo,
+  lwTertiary: {
+    main: "#607e88"
+  },
   error: {
     main: deepOrange[900]
   },

@@ -36,7 +36,7 @@ const palette = {
   secondary: {
     main: '#5f9b65',
   },
-  minorButton: {
+  lwTertiary: {
     main: "#607e88"
   },
   error: {

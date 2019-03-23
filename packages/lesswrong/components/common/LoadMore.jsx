@@ -7,7 +7,7 @@ const styles = theme => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.minorButton.main,
+    color: theme.palette.lwTertiary.main,
   },
   disabled: {
     color: theme.palette.grey[400],

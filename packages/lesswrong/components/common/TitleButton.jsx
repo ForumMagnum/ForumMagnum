@@ -7,7 +7,7 @@ import classNames from 'classnames'
 const styles = (theme) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.minorButton.main,
+    color: theme.palette.lwTertiary.main,
     display: "flex",
     alignItems: "center",
     '& svg': {

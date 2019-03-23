@@ -18,13 +18,13 @@ const styles = theme => ({
     top: "2px",
     display: "inline",
     paddingLeft: 5,
-    color: theme.palette.minorButton.main,
+    color: theme.palette.lwTertiary.main,
   },
   label: {
     width: 64,
     display: "inline-block",
     textAlign: "center",
-    color: theme.palette.minorButton.main
+    color: theme.palette.lwTertiary.main
   }
 });
 
