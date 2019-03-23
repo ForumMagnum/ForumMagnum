@@ -170,59 +170,11 @@
 // Post Page                                        //
 //////////////////////////////////////////////////////
 
-.posts-page-content-body-metadata {
-  position: absolute;
-  right: 100%;
-  width: 200px;
-  padding-right: 30px;
-  text-align: right;
-  color: rgba(0,0,0,0.5);
-  .posts-page-content-body-metadata-date {
-    font-size: 16px;
-    font-weight: bold;
-    color: rgba(0,0,0,0.5);
-    margin-bottom: -5px;
-  }
-  .posts-page-content-body-metadata-comments {
-    font-size: 14px;
-  }
-  .posts-page-content-body-metadata-actions {
-    font-size: 14px;
-    @media print { display: none; }
-  }
-}
-
-@include mui-breakpoint-down-md() {
-  .posts-page-content-body-metadata {
-    position: inherit !important;
-    right: inherit !important;
-    top: inherit !important;
-    width: inherit !important;
-    padding-right: 0px !important;
-    text-align: center !important;
-    margin-bottom: 40px !important;
-    color: rgba(0,0,0,0.5) !important;
-    .posts-page-content-body-metadata-comments {
-      margin-top:3px;
-      line-height: 100%;
-      font-size: 14px;
-    }
-  }
-}
 @include max-small() {
   .sequences-navigation-title, .posts-page-group-title {
     max-width: 60%;
     height: inherit;
     margin-bottom: 10px;
-  }
-}
-.posts-page-content-body-metadata-action {
-  display: inline;
-  padding:0 5px;
-  line-height: 20px;
-  @include mui-breakpoint-up-lg {
-      display:block;
-      padding:0;
   }
 }
 
