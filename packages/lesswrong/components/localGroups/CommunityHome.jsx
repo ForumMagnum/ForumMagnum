@@ -63,7 +63,7 @@ class CommunityHome extends Component {
     const {classes, router} = this.props;
     const filters = (router.location.query && router.location.query.filters) || [];
     const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, TitleButton, GroupFormLink } = Components
-    
+
     const postsListTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
