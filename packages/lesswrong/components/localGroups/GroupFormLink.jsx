@@ -30,7 +30,7 @@ class GroupFormLink extends Component {
 
   render() {
     const { documentId } =  this.props
-    const { WrappedSmartForm, TitleButton } = Components
+    const { WrappedSmartForm, SectionButton } = Components
     const dialogClasses = classNames(
       "comments-item-text",
       "local-group-form",
@@ -45,10 +45,10 @@ class GroupFormLink extends Component {
           <span onClick={this.handleOpenGroupForm}>Edit Group</span>
         </Components.SectionSubtitle> 
         : 
-        <TitleButton>
+        <SectionButton>
           <AddLocationIcon />
           <span onClick={this.handleOpenGroupForm}>New Group</span>
-        </TitleButton>
+        </SectionButton>
       }
       <Dialog
         open={this.state.groupFormOpen}

@@ -62,7 +62,7 @@ class CommunityHome extends Component {
   render() {
     const {classes, router} = this.props;
     const filters = (router.location.query && router.location.query.filters) || [];
-    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, TitleButton, GroupFormLink } = Components
+    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
 
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -105,10 +105,10 @@ class CommunityHome extends Component {
           <SingleColumnSection>
             <SectionTitle title="Events">
               {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
-                <TitleButton>
+                <SectionButton>
                   <EventIcon />
                   New Event
-                </TitleButton>
+                </SectionButton>
               </Link>}
             </SectionTitle>
             <PostsList2 terms={postsListTerms}>
