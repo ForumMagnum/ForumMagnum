@@ -17,11 +17,6 @@
         }
     }
 
-    .commentEditor {
-        margin-bottom:30px;
-        border-bottom:solid 1px $light-grey;
-    }
-
     .document-edit .input-draft,
     .document-new .input-draft,
     .document-edit .input-frontpage,
@@ -85,10 +80,6 @@
 
     .form-submit {
         text-align: right;
-    }
-
-    .commentEditor .content-body {
-        padding:0 18px;
     }
 }
 
@@ -167,10 +158,6 @@
   min-height: 220px;
   border-radius: 2px;
   margin-bottom: 2em;
-}
-
-.commentEditor {
-  min-height: 80px;
 }
 
 // FIXME TODO: This CSS is unused/not being applied, but actually it should
