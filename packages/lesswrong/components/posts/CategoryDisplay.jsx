@@ -29,6 +29,17 @@ const styles = theme => ({
   unread: {
     color: theme.palette.secondary.light,
   },
+  container: {
+    width: 50,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    cursor: "pointer",
+  
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,.05)",
+    }
+  },
 });
 
 class CategoryDisplay extends PureComponent {
@@ -53,7 +64,7 @@ class CategoryDisplay extends PureComponent {
             popper: classes.tooltip
           }}
         >
-          <div className="post-category-display-container" onClick={this.props.onClick}>
+          <div className={classes.container} onClick={this.props.onClick}>
             <span className="posts-item-category-display">
               <Icon className={classNames("material-icons", classes.icon, read ? classes.read : classes.unread)}>
                 {categoryIcon}

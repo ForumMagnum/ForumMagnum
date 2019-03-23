@@ -325,18 +325,6 @@ svg.drag-handle {
     min-height: 48px;
 }
 
-.post-category-display-container {
-  width:50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor:pointer;
-
-  &:hover {
-    background-color: rgba(0,0,0,.05);
-  }
-}
-
 .post-category-tooltip {
   line-height:14px;
   padding:5px 0;
