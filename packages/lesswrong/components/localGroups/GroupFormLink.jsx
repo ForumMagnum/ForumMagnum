@@ -6,6 +6,7 @@ import { withRouter } from 'react-router'
 import withUser from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
+import AddLocationIcon from '@material-ui/icons/AddLocation';
 
 class GroupFormLink extends Component {
   constructor(props, context) {
@@ -28,6 +29,7 @@ class GroupFormLink extends Component {
   }
 
   render() {
+    const { WrappedSmartForm, TitleButton } = Components
     const dialogClasses = classNames(
       "comments-item-text",
       "local-group-form",
@@ -36,17 +38,18 @@ class GroupFormLink extends Component {
         "local-group-edit-form": !this.props.documentId
       }
     )
-    const labelText = this.props.label || (this.props.documentId ? "Edit group" : "Create new local group");
+    const labelText = this.props.label || (this.props.documentId ? "Edit group" : "New Group");
     return (<div>
-      <Components.SectionSubtitle>
+      <TitleButton>
+        <AddLocationIcon />
         <span onClick={this.handleOpenGroupForm}>{labelText}</span>
-      </Components.SectionSubtitle>
+      </TitleButton>
       <Dialog
         open={this.state.groupFormOpen}
         onClose={this.handleCloseGroupForm}
       >
         <DialogContent className={dialogClasses}>
-          <Components.WrappedSmartForm
+          <WrappedSmartForm
             collection={Localgroups}
             documentId={this.props.documentId}
             mutationFragment={getFragment('localGroupsHomeFragment')}
