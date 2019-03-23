@@ -36,8 +36,8 @@ const palette = {
   secondary: {
     main: '#5f9b65',
   },
-  minorButton: {
-    main: "#909090" // grey for now, pending color discussion. Best guess #607e88
+  lwTertiary: {
+    main: "#607e88"
   },
   error: {
     main: deepOrange[900]

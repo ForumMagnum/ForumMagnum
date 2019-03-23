@@ -7,7 +7,7 @@ import classNames from 'classnames'
 const styles = (theme) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.minorButton.main,
+    color: theme.palette.lwTertiary.main,
     display: "flex",
     alignItems: "center",
     '& svg': {
@@ -16,10 +16,10 @@ const styles = (theme) => ({
   }
 })
 
-const TitleButton = ({children, classes, className}) => {
+const SectionButton = ({children, classes, className}) => {
   return <Typography component='span' variant='body2' className={classNames(classes.root, className)}>
     {children}
   </Typography>
 }
 
-registerComponent( 'TitleButton', TitleButton, withStyles(styles, {name: 'TitleButton'}))
+registerComponent( 'SectionButton', SectionButton, withStyles(styles, {name: 'SectionButton'}))
