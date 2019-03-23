@@ -391,52 +391,10 @@ svg.drag-handle {
   }
 }
 
-.moderation-guidelines-link {
-  float: left;
-  margin-top: 8px;
-  margin-left: 12px;
-  margin-bottom: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-  color: rgba(0, 0, 0, 0.5) !important;
-  &:hover {
-    text-decoration: none;
-    color: rgba(0,0,0,0.3) !important;
-  }
-  &.easy-going {
-    color: rgba(100, 169, 105, 0.8) !important;
-    &:hover {
-      color: rgba(100, 169, 105, 0.6) !important;
-    }
-  }
-  &.norm-enforcing {
-    color: rgba(43, 106, 153, 0.6) !important;
-    &:hover {
-      color: rgba(43, 106, 153, 0.4) !important;
-    }
-  }
-  &.reign-of-terror {
-    color: rgba(219, 90, 49, 0.6) !important;
-    &:hover {
-      color: rgba(219, 90, 49, 0.4) !important;
-    }
-  }
-}
-
-.moderation-guidelines-link-expand {
-  font-size: 16px !important;
-  color: inherit !important;
-  vertical-align: middle;
-  transition: none !important;
-  margin-left: 1px;
-}
 
 @include max-small() {
   .primary-form-submit-button {
     float: left;
-  }
-  .moderation-guidelines-link {
-    float: none;
   }
 }
 
