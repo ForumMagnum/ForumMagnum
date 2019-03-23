@@ -51,7 +51,7 @@ class CommentsVote extends PureComponent {
     )
 
     return (
-      <div className={classNames("comments-item-vote"), classes.vote}>
+      <div className={classes.vote}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
             <Tooltip
