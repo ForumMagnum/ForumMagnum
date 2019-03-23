@@ -32,10 +32,14 @@ const styles = theme => ({
 
 const UsersProfile = (props) => {
   if (props.loading) {
-
     return <div className="page users-profile"><Components.Loading/></div>
-
-  } else if (props.document && props.document._id && !props.document.deleted) {
+  }
+  
+  if (!props.document || !props.document._id || props.document.deleted) {
+    //eslint-disable-next-line no-console
+    console.error(`// missing user (_id/slug: ${props.documentId || props.slug})`);
+    return <Components.Error404/>
+  } else {
     const user = props.document;
     const query = _.clone(props.router.location.query || {});
 
@@ -175,10 +179,6 @@ const UsersProfile = (props) => {
         </Components.Section>
       </div>
     )
-  } else {
-    //eslint-disable-next-line no-console
-    console.error(`// missing user (_id/slug: ${props.documentId || props.slug})`);
-    return <Components.Error404/>
   }
 }
 
