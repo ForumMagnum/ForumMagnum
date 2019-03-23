@@ -22,18 +22,7 @@
 @import "admin";
 @import "alignment-forum";
 
-// CSS Modifications for Navbar buttons and styles
-
-.users-menu-contents a {
-  // When the user menu is first opened, it incorrectly detects the first menu
-  // item as hovered, but doesn't activate it like it would with a real hover.
-  // With Bootstrap's default hover effect for <a> links, this would look like
-  // it's grayed out.
-  opacity: 1 !important;
-}
-
 // CSS Modifications for RSS Feed integration
-
 
 .displayFullContentTag{
   margin-left: 10px;
