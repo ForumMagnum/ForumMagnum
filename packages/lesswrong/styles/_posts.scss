@@ -391,23 +391,10 @@ svg.drag-handle {
   }
 }
 
-
 @include max-small() {
   .primary-form-submit-button {
     float: left;
   }
-}
-
-
-.post-highlight img {
-  max-width:100%;
-}
-
-.post-highlight {
-  margin-top:5px;
-  max-width:600px;
-  line-height:22px;
-  margin-bottom:16px;
 }
 
 .recent-discussion-thread-meta {
