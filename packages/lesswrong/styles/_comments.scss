@@ -10,6 +10,11 @@ $lw-green: #588f27;
 $small-font: 1.1rem;
 
 .comments-item{
+  padding:2px 12px 3px 12px;
+  position: relative;
+  line-height: 1.25;
+  color: rgba(0,0,0,0.87);
+  
   .comments-item-body {
     border-style: none;
     padding: 0px;
@@ -46,10 +51,6 @@ $small-font: 1.1rem;
   font-family: $comments-font;
 }
 
-.comments-item {
-  padding:2px 12px 3px 12px;
-  position: relative;
-}
 .comments-item.deleted {
   background-color: #ffefef;
   .comments-item-text.content-body {
