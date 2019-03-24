@@ -104,7 +104,7 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -277,8 +277,8 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "Style",
     canRead: ['guests'],
-    canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {
@@ -299,7 +299,7 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "I'm happy for LW site moderators to help enforce my policy",
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 55,
@@ -311,7 +311,7 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
@@ -513,7 +513,7 @@ addFieldsDict(Users, {
     control: 'EmailConfirmationRequiredCheckbox',
     label: "Email me new posts in Curated",
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canRead: ['members'],
   },
 
@@ -564,7 +564,7 @@ addFieldsDict(Users, {
     type: Object,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -663,7 +663,7 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment']
+    canUpdate: ['sunshineRegiment']
   },
 
   noCollapseCommentsPosts: {
@@ -726,8 +726,8 @@ export const makeEditableOptionsModeration = {
   fieldName: "moderationGuidelines",
   permissions: {
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins']
   },
   deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
 }
