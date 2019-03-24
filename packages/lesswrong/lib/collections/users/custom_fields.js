@@ -628,35 +628,35 @@ addFieldsDict(Users, {
     denormalized: true,
     optional: true,
     label: "Small Upvote Count",
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   smallUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   smallDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   bigUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   bigDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   // Full Name field to display full name for alignment forum users
