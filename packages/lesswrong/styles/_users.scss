@@ -100,15 +100,6 @@
   }
 }
 
-.users-edit-form {
-  width:60%;
-  margin:auto;
-  margin-bottom:100px;
-  @include mui-breakpoint-xs {
-    width:100%;
-  }
-}
-
 
 .users-profile .posts-no-results {
   font-size:18px;
