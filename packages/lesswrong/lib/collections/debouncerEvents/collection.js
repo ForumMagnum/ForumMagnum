@@ -1,5 +1,5 @@
 import schema from './schema.js';
-import { createCollection, getDefaultResolvers } from 'meteor/vulcan:core';
+import { createCollection } from 'meteor/vulcan:core';
 import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionUtils';
 
