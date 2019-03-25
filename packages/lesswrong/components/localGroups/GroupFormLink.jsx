@@ -30,11 +30,7 @@ class GroupFormLink extends Component {
   render() {
     const dialogClasses = classNames(
       "comments-item-text",
-      "local-group-form",
-      {
-        "local-group-new-form": this.props.documentId,
-        "local-group-edit-form": !this.props.documentId
-      }
+      "local-group-form"
     )
     const labelText = this.props.label || (this.props.documentId ? "Edit group" : "Create new local group");
     return (<div>
