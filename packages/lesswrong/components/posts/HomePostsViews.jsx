@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 import postViewSections from '../../lib/sections.js'
 import withUser from '../common/withUser';
+import classNames from 'classnames';
 
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
@@ -29,6 +30,27 @@ const styles = theme => ({
     color: "white",
     top: 2,
     marginRight: 1,
+  },
+  
+  viewChipMenuItem: {
+    fontStyle: "normal",
+    zIndex: 2,
+    color: "rgba(255,255,255,.75)",
+    textDecoration: "none",
+    borderTop: "solid 1px rgba(255,255,255,.2)",
+    padding: "5px 10px",
+    "&:hover": {
+      background: "rgba(255,255,255,.2)",
+    }
+  },
+  viewDescription: {
+    borderTop: "none",
+    "&:hover": {
+      background: "none"
+    }
+  },
+  learnMore: {
+    borderTop: "none",
   },
 });
 
@@ -68,14 +90,14 @@ class HomePostsViews extends Component {
     return (
       <div className="view-chip-menu-wrapper">
         <div className="view-chip-menu">
-          <div className="view-chip-menu-item description">
+          <div className={classNames(classes.viewChipMenuItem, classes.viewDescription)}>
             {viewData.categoryIcon && <Icon className={classnames("material-icons", classes.categoryIcon)}>
               {viewData.categoryIcon}
             </Icon>}
             {viewData.description}
           </div>
-          { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}
-          { viewData.learnMoreLink && <div className="view-chip-menu-item learn-more">
+          { viewData.includes && <div className={classNames(classes.viewChipMenuItem, classes.viewDescription)}>{viewData.includes}</div>}
+          { viewData.learnMoreLink && <div className={classNames(classes.viewChipMenuItem, classes.learnMore)}>
             <Link to={viewData.learnMoreLink}>
               <Icon className={classnames("material-icons", classes.helpIcon)}>help</Icon>
               <span style={{color:"white"}}> Learn More</span>
