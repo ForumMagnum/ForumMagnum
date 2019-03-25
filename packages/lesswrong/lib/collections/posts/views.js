@@ -291,20 +291,31 @@ Posts.addView("meta-rss", terms => ({
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
-Posts.addView("questions", terms => ({
+Posts.addView("topQuestions", terms => ({
+  selector: {
+    question: true,
+    baseScore: {$gte: 40}
+  },
+  options: {
+    sort: { lastCommentedAt: -1 }
+  }
+}));
+ensureIndex(Posts,
+  augmentForDefaultView({ question:1, lastCommentedAt: -1 }),
+  {
+    name: "posts.topQuestions",
+  }
+);
+
+Posts.addView("recentQuestionActivity", terms => ({
   selector: {
     question: true,
   },
   options: {
-    sort: {sticky: -1, score: -1}
+    sort: {lastCommentedAt: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, question:1 }),
-  {
-    name: "posts.questions",
-  }
-);
+// covered by same index as 'topQuestions'
 
 /**
  * @summary Scheduled view
@@ -559,7 +570,7 @@ ensureIndex(Posts,
 Posts.addView("communityResourcePosts", function () {
   return {
     selector: {
-      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'YdcF6WbBmJhaaDqoD']}
+      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'PqMT9zGrNsGJNfiFR', 'YdcF6WbBmJhaaDqoD']}
     },
   }
 })

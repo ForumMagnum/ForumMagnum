@@ -4,6 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   communityMap: {
@@ -42,5 +43,5 @@ const listOptions = {
 }
 
 registerComponent("CommunityMapWrapper", CommunityMapWrapper,
-  [withList, listOptions], withRouter,
+  [withList, listOptions], withRouter, withErrorBoundary,
   withStyles(styles, {name: "CommunityMapWrapper"}))

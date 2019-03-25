@@ -1,6 +1,13 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
+if(getSetting('AlignmentForum', false)) {
+  // HACK: At the top of the file because DeepScan false-positively warns about
+  // imports not at top level, and it re-detects it every time the line number
+  // changes. Putting it at the top makes its line number stable.
+  import '../components/alignment-forum/AlignmentForumHome.jsx';
+}
+
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
 import '../components/messaging/MessageItem.jsx';
@@ -29,6 +36,7 @@ import '../components/common/CalendarDate.jsx';
 import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
+import '../components/common/TabNavigationMenu.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
@@ -42,10 +50,12 @@ import '../components/common/SingleColumnSection';
 import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
 import '../components/common/SectionFooter.jsx';
+import '../components/common/SectionButton.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
+import '../components/common/Divider.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
@@ -104,6 +114,7 @@ import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemKarma.jsx';
+
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
@@ -307,10 +318,6 @@ import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
-if(getSetting('AlignmentForum', false)) {
-    import '../components/alignment-forum/AlignmentForumHome.jsx';
-}
-
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';

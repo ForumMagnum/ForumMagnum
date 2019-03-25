@@ -9,6 +9,9 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
+  root: {
+    marginTop: 500,
+  },
   groupSidebar: {
     // HACK/TODO: Move the group page action links down past the title and
     // metadata lines so they line up with the description.
@@ -87,7 +90,7 @@ class LocalGroupPage extends Component {
     if (this.props.document) {
       const { googleLocation: { geometry: { location } }} = group;
       return (
-        <div className="local-group-page">
+        <div className={classes.root}>
           <Components.CommunityMapWrapper
             terms={{view: "events", groupId: groupId}}
             groupQueryTerms={{view: "single", groupId: groupId}}

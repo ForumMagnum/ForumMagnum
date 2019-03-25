@@ -1,4 +1,3 @@
-import React from 'react';
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import Messages from '../../../collections/messages/collection.js';
