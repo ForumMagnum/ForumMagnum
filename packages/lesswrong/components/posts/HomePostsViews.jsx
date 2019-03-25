@@ -32,6 +32,18 @@ const styles = theme => ({
     marginRight: 1,
   },
   
+  viewChipMenu: {
+    borderRadius: 2,
+    backgroundColor: "rgba(0,0,0,.8)",
+    boxShadow: "1px 1px 4px rgba(0,0,0,.2)",
+    color: "rgba(255,255,255,.75)",
+    width: 260,
+    fontWeight: 300,
+    lineHeight: "18px",
+    fontSize: 12,
+    padding: "10px 0",
+    zIndex: 1,
+  },
   viewChipMenuItem: {
     fontStyle: "normal",
     zIndex: 2,
@@ -89,7 +101,7 @@ class HomePostsViews extends Component {
     const { classes } = this.props;
     return (
       <div className="view-chip-menu-wrapper">
-        <div className="view-chip-menu">
+        <div className={classes.viewChipMenu}>
           <div className={classNames(classes.viewChipMenuItem, classes.viewDescription)}>
             {viewData.categoryIcon && <Icon className={classnames("material-icons", classes.categoryIcon)}>
               {viewData.categoryIcon}
