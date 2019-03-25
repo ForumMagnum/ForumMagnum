@@ -32,6 +32,18 @@ const styles = theme => ({
     marginRight: 1,
   },
   
+  postsViewButton: {
+    [theme.breakpoints.down('sm')]: {
+      "&::after": {
+        content: "|",
+        marginLeft: 5,
+        marginRight: 5,
+        fontStyle: "normal",
+      },
+      float: "left",
+    }
+  },
+  
   viewChipMenu: {
     borderRadius: 2,
     backgroundColor: "rgba(0,0,0,.8)",
@@ -122,6 +134,7 @@ class HomePostsViews extends Component {
 
   render() {
     const props = this.props;
+    const { classes } = this.props;
     const views = props.views || defaultViews;
     let expandedViews = props.expandedViews || defaultExpandedViews;
     const currentView = this.getCurrentView();
@@ -134,7 +147,7 @@ class HomePostsViews extends Component {
     return (
       <div className="posts-views">
         {views.map(view => (
-          <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
+          <div key={view} className={classnames(classes.postsViewButton, {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
             <span className="view-chip" onClick={() => this.handleChange(view)}>
               <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
@@ -150,7 +163,7 @@ class HomePostsViews extends Component {
               <div
                 key={view}
                 className={classnames(
-                    "posts-view-button",
+                    classes.postsViewButton,
                   {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
                 )}
               >
@@ -162,7 +175,7 @@ class HomePostsViews extends Component {
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
+            {!props.hideDaily && <div className={classes.postsViewButton}><span className="view-chip">
               <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
                 <Link to="/meta">Meta</Link> { this.renderMenu(postViewSections["meta"])}
               </Components.SectionSubtitle></span>

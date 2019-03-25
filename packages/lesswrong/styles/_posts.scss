@@ -83,28 +83,16 @@
         top:20px;
       }
     }
+    
+    @include mui-breakpoint-down-sm {
+      padding-left: 0px !important;
+    }
   }
   .view-chip.daily {
     display:block;
   }
   .view-chip:hover .view-chip-menu-wrapper, .view-chip-menu-wrapper:hover {
     display:block;
-  }
-
-
-  @include mui-breakpoint-down-sm {
-    .posts-view-button {
-      &::after {
-        content: "|";
-        margin-left: 5px;
-        margin-right: 5px;
-        font-style: normal;
-      }
-      float: left;
-    }
-    .view-chip {
-      padding-left: 0px !important;
-    }
   }
 }
 
