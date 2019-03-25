@@ -49,8 +49,6 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
 
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
-  const loadingMore = networkStatus === 2 || networkStatus === 1;
-
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
@@ -69,7 +67,6 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
         {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore
-              loading={loadingMore}
               loadMore={loadMore}
               disabled={!maybeMorePosts}
               count={count}
