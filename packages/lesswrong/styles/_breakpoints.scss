@@ -3,7 +3,6 @@
 // material-UI's breakpoints.
 $lw-tiny: 400px;
 $lw-small: 715px;
-$lw-medium: 950px;
 
 @mixin max-tiny(){
   @media screen and (max-width: $lw-tiny) {
@@ -18,17 +17,6 @@ $lw-medium: 950px;
 }
 @mixin min-small(){
   @media screen and (min-width: $lw-small) {
-    @content;
-  }
-}
-
-@mixin max-medium(){
-  @media screen and (max-width: $lw-medium) {
-    @content;
-  }
-}
-@mixin min-medium(){
-  @media screen and (min-width: $lw-medium) {
     @content;
   }
 }
