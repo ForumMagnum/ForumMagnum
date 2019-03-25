@@ -3,14 +3,23 @@ import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  title: {
+    display: "inline",
+    marginRight: 10,
+    fontSize: 20,
+    lineHeight: 1.25,
+  },
+});
 
-const PostsItemWrapper = ({document, loading, ...props}) => {
+const PostsItemWrapper = ({document, loading, classes, ...props}) => {
   if (document && !loading) {
     return <div>
       <DragIcon className="drag-handle"/>
       <div className="posts-list-edit-item-box">
-        <div className="posts-list-edit-item-title">
+        <div className={classes.title}>
           {document.title}
         </div>
         <div className="posts-list-edit-item-meta">
@@ -41,4 +50,6 @@ const options = {
   enableTotal: false,
 };
 
-registerComponent('PostsItemWrapper', PostsItemWrapper, [withDocument, options]);
+registerComponent('PostsItemWrapper', PostsItemWrapper,
+  [withDocument, options],
+  withStyles(styles, {name: "PostsItemWrapper"}));
