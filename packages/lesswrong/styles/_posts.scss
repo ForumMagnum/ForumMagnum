@@ -264,16 +264,3 @@ svg.drag-handle {
     float: left;
   }
 }
-
-.recent-discussion-thread-meta {
-  cursor:pointer;
-
-  .recent-discussion-show-highlight {
-    opacity:0;
-  }
-  &:hover {
-    .recent-discussion-show-highlight {
-      opacity:1;
-    }
-  }
-}
