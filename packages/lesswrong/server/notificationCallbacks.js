@@ -263,6 +263,11 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
   
   for (const recipientUser of participants)
   {
+    // TODO: Gradual rollout--only email admins with this. Remove later when
+    // this is more tested.
+    if (!Users.isAdmin(recipientUser))
+      continue;
+    
     const otherParticipants = _.filter(participants, u=>u._id != recipientUser._id);
     const subject = `Private message conversation with ${otherParticipants.map(u=>u.displayName).join(', ')}`;
     
