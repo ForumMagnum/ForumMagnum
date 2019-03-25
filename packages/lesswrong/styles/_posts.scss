@@ -117,12 +117,10 @@
   color: rgba(0, 0, 0, .3);
 }
 
-.posts-load-more, .comments-load-more{
+.posts-load-more, .comments-load-more {
   font-size: 16px;
   color: rgba(100, 169, 105, 0.6);
-}
 
-.posts-load-more, .comments-load-more {
   margin-left: 10px;
   padding-top: 5px;
   @include max-small() {
