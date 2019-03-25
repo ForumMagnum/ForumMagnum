@@ -10,7 +10,6 @@ const styles = theme => ({
     // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
     
     "& .geosuggest": {
-      fontSize: "18px",
       fontSize: "1rem",
       position: "relative",
       paddingRight: 3,
@@ -58,7 +57,6 @@ const styles = theme => ({
     },
     
     "& .geosuggest__item": {
-      fontSize: "18px",
       fontSize: "1rem",
       padding: ".5em .65em",
       cursor: "pointer",
