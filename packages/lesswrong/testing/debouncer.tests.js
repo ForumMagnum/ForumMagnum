@@ -20,7 +20,7 @@ describe('EventDebouncer', async () => {
       
       let numEventsHandled = 0;
       let numEventBatchesHandled = 0;
-      const eventsHandled = {}; // key=>eventData=>number of times seen
+      const eventsHandled = {}; // key=>event=>number of times seen
       const testEvent = new EventDebouncer({
         name: "testEvent",
         delayMinutes: 15,
@@ -32,9 +32,9 @@ describe('EventDebouncer', async () => {
             
             if (!(key in eventsHandled))
               eventsHandled[key] = {};
-            if (!(ev.eventData in eventsHandled[key]))
-              eventsHandled[key][ev.eventData] = 0
-            eventsHandled[key][ev.eventData]++;
+            if (!(ev in eventsHandled[key]))
+              eventsHandled[key][ev] = 0
+            eventsHandled[key][ev]++;
           });
         }
       });
