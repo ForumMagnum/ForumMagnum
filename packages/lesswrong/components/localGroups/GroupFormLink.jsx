@@ -33,11 +33,7 @@ class GroupFormLink extends Component {
     const { WrappedSmartForm, SectionButton } = Components
     const dialogClasses = classNames(
       "comments-item-text",
-      "local-group-form",
-      {
-        "local-group-new-form": this.props.documentId,
-        "local-group-edit-form": !this.props.documentId
-      }
+      "local-group-form"
     )
     return (<React.Fragment>
       { documentId ? 

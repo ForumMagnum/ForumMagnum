@@ -9,6 +9,11 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
+  daily: {
+    maxWidth: 700,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
   loading: {
     opacity: .4,
   },
@@ -136,7 +141,7 @@ class PostsDailyList extends PureComponent {
       return <Loading />
     } else {
       return (
-        <div className={classNames("posts-daily", {[classes.loading]: dim})}>
+        <div className={classNames(classes.daily, {[classes.loading]: dim})}>
           { loading && <Loading />}
           {dates.map((date, index) =>
             <PostsDay key={date.toString()}
