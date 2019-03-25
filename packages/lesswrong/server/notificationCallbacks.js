@@ -268,6 +268,13 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
     if (!Users.isAdmin(recipientUser))
       continue;
     
+    // If this user is responsible for every message that would be in the
+    // email, don't send it to them (you only want emails that contain at
+    // least one message that's not your own; your own messages are optional
+    // context).
+    if (!_.some(messages, message=>message.userId !== recipientUser._id))
+      continue;
+    
     const otherParticipants = _.filter(participants, u=>u._id != recipientUser._id);
     const subject = `Private message conversation with ${otherParticipants.map(u=>u.displayName).join(', ')}`;
     
