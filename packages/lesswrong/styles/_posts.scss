@@ -54,45 +54,6 @@
   }
 }
 
-.posts-views {
-  .view-chip {
-    display: inline-block;
-    background-color: transparent;
-    font-size: 16px;
-    font-style: normal;
-    color: rgba(0,0,0,0.5);
-    padding-left: 3px;
-    padding-right: 0px;
-    line-height: 25px;
-    cursor: pointer;
-    text-decoration: none !important;
-    position:relative;
-
-    .view-chip-menu-wrapper {
-      position:absolute;
-      border-radius:2px;
-      right:-266px;
-      top:-12px;
-      display:none;
-      text-align: left;
-      z-index:1;
-      padding-left:5px;
-
-      @include max-small() {
-        left:-25px;
-        top:20px;
-      }
-    }
-    
-    @include mui-breakpoint-down-sm {
-      padding-left: 0px !important;
-    }
-  }
-  .view-chip:hover .view-chip-menu-wrapper, .view-chip-menu-wrapper:hover {
-    display:block;
-  }
-}
-
 .posts-views-chip-active {
   color: rgba(0, 0, 0, .8) !important;
   text-decoration:underline !important;
