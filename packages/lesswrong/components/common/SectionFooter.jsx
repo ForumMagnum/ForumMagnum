@@ -12,7 +12,7 @@ const styles = (theme) => ({
     marginBottom: theme.spacing.unit,
     marginRight: theme.spacing.unit*3.5,
     marginLeft: theme.spacing.unit,
-    color: theme.palette.text.secondary,
+    color: theme.palette.lwTertiary.main,
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap"
     },

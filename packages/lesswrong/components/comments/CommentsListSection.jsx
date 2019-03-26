@@ -138,8 +138,8 @@ class CommentsListSection extends Component {
             terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
             clickCallback={this.handleDateChange}/>}
           <Divider />
-          {suggestedHighlightDates.map((date,i) => {
-            return <MenuItem key={i} onClick={() => this.handleDateChange(date)}>
+          {suggestedHighlightDates.map(date => {
+            return <MenuItem key={date.toString()} onClick={() => this.handleDateChange(date)}>
               {date.calendar().toString()}
             </MenuItem>
           })}

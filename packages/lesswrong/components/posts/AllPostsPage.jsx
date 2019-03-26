@@ -18,7 +18,7 @@ const styles = theme => ({
   },
   settingsIcon: {
     color: theme.palette.grey[400],
-    width:40,
+    marginRight: theme.spacing.unit,
   },
   title: {
     cursor: "pointer",
@@ -32,14 +32,23 @@ const styles = theme => ({
   }
 });
 
+export const views = {
+  daily: "Daily",
+  magic: "Magic (New & Upvoted)",
+  recentComments: "Recent Comments",
+  new: "New",
+  old: "Old",
+  top: "Top"
+}
+
 class AllPostsPage extends Component {
-  state = { 
-    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false 
+  state = {
+    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false
   };
 
   toggleSettings = () => {
     const { currentUser, updateUser } = this.props
-    
+
     this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
       if (currentUser) {
         updateUser({
@@ -47,7 +56,7 @@ class AllPostsPage extends Component {
           data: {
             allPostsOpenSettings: this.state.showSettings,
           },
-        })  
+        })
       }
     })
   }
@@ -55,7 +64,7 @@ class AllPostsPage extends Component {
   render() {
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { AllPostsPageSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo } = Components
+    const { AllPostsPageSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
     const query = _.clone(router.location.query) || {}
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
@@ -79,29 +88,32 @@ class AllPostsPage extends Component {
     };
 
     return (
-      <SingleColumnSection>
-        <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
-          <div className={classes.title} onClick={this.toggleSettings}>
-            <SectionTitle title="All Posts">
-              <SettingsIcon className={classes.settingsIcon}/>
-              <MetaInfo className={classes.sortedBy}>Sorted by { currentView }</MetaInfo>
-            </SectionTitle>
+      <React.Fragment>
+        <TabNavigationMenu />
+        <SingleColumnSection>
+          <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
+            <div className={classes.title} onClick={this.toggleSettings}>
+              <SectionTitle title="All Posts">
+                <SettingsIcon className={classes.settingsIcon}/>
+                <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
+              </SectionTitle>
+            </div>
+          </Tooltip>
+          <AllPostsPageSettings
+            hidden={!showSettings}
+            currentView={currentView}
+            currentFilter={currentFilter}
+            currentShowLowKarma={currentShowLowKarma}
+          />
+          <div className={classes.allPostsContent}>
+            {currentView === "daily" ?
+              <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
+              :
+              <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+            }
           </div>
-        </Tooltip>
-        <AllPostsPageSettings 
-          hidden={!showSettings} 
-          currentView={currentView} 
-          currentFilter={currentFilter}
-          currentShowLowKarma={currentShowLowKarma}
-        />
-        <div className={classes.allPostsContent}>
-          {currentView === "daily" ?
-            <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
-            :
-            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
-          }
-        </div>
-      </SingleColumnSection>
+        </SingleColumnSection>
+      </React.Fragment>
     )
   }
 }

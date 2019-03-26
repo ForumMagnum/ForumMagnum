@@ -36,6 +36,9 @@ const palette = {
   secondary: {
     main: '#0c869b',
   },
+  lwTertiary: {
+    main: "#607e88" // EA-folk: you may want to pick your own color here
+  },
   error: {
     main: deepOrange[900]
   },

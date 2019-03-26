@@ -1,4 +1,3 @@
-import React from 'react';
 import { withMessages } from 'meteor/vulcan:core';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';

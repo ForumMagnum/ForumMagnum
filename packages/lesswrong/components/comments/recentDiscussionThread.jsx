@@ -64,7 +64,17 @@ const styles = theme => ({
   },
   noComments: {
     borderBottom: "solid 1px rgba(0,0,0,.2)"
-  }
+  },
+  threadMeta: {
+    cursor: "pointer",
+    
+    "&:hover $showHighlight": {
+      opacity: 1
+    },
+  },
+  showHighlight: {
+    opacity: 0,
+  },
 })
 
 class RecentDiscussionThread extends PureComponent {
@@ -147,13 +157,13 @@ class RecentDiscussionThread extends PureComponent {
             <PostsItemTitle post={post} />
           </Link>
 
-          <div className="recent-discussion-thread-meta" onClick={this.showHighlight}>
+          <div className={classes.threadMeta} onClick={this.showHighlight}>
             {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>
             }
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
-              className={"recent-discussion-show-highlight"}
+              className={classes.showHighlight}
               open={this.state.showHighlight}/>
           </div>
         </div>
