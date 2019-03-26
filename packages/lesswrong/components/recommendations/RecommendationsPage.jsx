@@ -23,7 +23,7 @@ const withRecommendations = component => {
       props(props) {
         return {
           recommendationsLoading: props.data.loading,
-          recommendations: props.data.recommendations,
+          recommendations: props.data.Recommendations,
         }
       }
     }
@@ -47,16 +47,5 @@ const RecommendationsPage = ({ classes, recommendations, currentUser }) => {
 registerComponent('RecommendationsPage', RecommendationsPage,
   withRecommendations,
   withUser,
-  /*[withList, {
-    collection: Posts,
-    queryTemplate: ({typeName, fragmentName, extraQueries}) =>
-      gql`query RecommendationsQuery {
-        Recommendations {
-          results {
-            ...PostsList
-          }
-        }
-      }`
-  }],*/
   withStyles(styles, {name:"RecommendationsPage"})
 );
