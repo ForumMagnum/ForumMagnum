@@ -9,8 +9,8 @@ import withUser from '../common/withUser';
 
 const withRecommendations = component => {
   const recommendationsQuery = gql`
-    query RecommendationsQuery {
-      Recommendations {
+    query RecommendationsQuery($count: Int) {
+      Recommendations(count: $count) {
         ...PostsList
       }
     }
@@ -20,6 +20,11 @@ const withRecommendations = component => {
   return graphql(recommendationsQuery,
     {
       alias: "withRecommendations",
+      options: () => ({
+        variables: {
+          count: 7,
+        }
+      }),
       props(props) {
         return {
           recommendationsLoading: props.data.loading,
