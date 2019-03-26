@@ -41,7 +41,7 @@ const styles = theme => ({
     }
   },
   categoryTooltip: {
-    lineHeight: 14,
+    lineHeight: "14px",
     padding: "5px 0",
   },
 });
