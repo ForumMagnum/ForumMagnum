@@ -75,6 +75,7 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
         const yesterday = moment().subtract(2, 'day').tz(timezone).toDate()
 
         if ((startTime.toDate() > yesterday) && (startTime.toDate() < tomorrow)) {
+          // TODO: figure out calendar formatting to make this read slightly nicer
           displayTime = startTime.calendar().split(" ")[0]
         }
 
@@ -103,7 +104,11 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
             <Link to={Posts.getPageUrl(event)}>
               <TabNavigationSubItem>
-                {displayTime && <span className={classNames(classes.displayTime, {[classes.yesterday]: displayTime === "Yesterday"})}>[{displayTime}]</span> }
+                {displayTime && <span className={classNames(
+                  classes.displayTime, {[classes.yesterday]: displayTime === "Yesterday"})
+                }>
+                  [{displayTime}]
+                </span> }
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
             </Link>
