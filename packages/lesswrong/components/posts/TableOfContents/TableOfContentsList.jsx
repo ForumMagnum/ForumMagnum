@@ -1,4 +1,4 @@
-import React, { PureComponent, Component } from 'react';
+import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
@@ -28,9 +28,9 @@ class TableOfContentsList extends Component {
     if (!sectionData)
       return <div/>
 
-    const sections = sectionData ? sectionData.sections : []
+    const { sections, headingsCount } = sectionData;
 
-    const title = document && document.title || sectionData && sectionData.document && sectionData.document.title
+    const title = (document && document.title) || (sectionData.document && sectionData.document.title);
     
     return <div>
       <div>
@@ -48,7 +48,7 @@ class TableOfContentsList extends Component {
             highlighted={section.anchor === currentSection}
             href={"#"+section.anchor}
             onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
-            answersStyling={sectionData.headingsCount > 1}
+            answersStyling={headingsCount > 1}
           >
             {section.title}
           </TableOfContentsRow>
@@ -71,7 +71,7 @@ class TableOfContentsList extends Component {
     let anchor = document.getElementById(anchorName);
     if (anchor) {
       let anchorBounds = anchor.getBoundingClientRect();
-      return anchorBounds.top + anchorBounds.height/2;
+      return anchorBounds.top + (anchorBounds.height/2);
     } else {
       return null
     }

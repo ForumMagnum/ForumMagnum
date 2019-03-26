@@ -8,29 +8,29 @@ import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 export const styles = theme => ({
   grid: {
   },
-  
-  gridWrapper: {
-    "& .posts-load-more": {
-      marginLeft: 20,
-    }
+
+  loadMore: {
+    marginTop: theme.spacing.unit,
+    marginLeft: 19
   },
-  
+
   gridContent: {
     marginTop: -15,
     paddingLeft: 5,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
     },
-  
+
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
     flexFlow: "row wrap",
+    justifyContent: "space-between",
     [legacyBreakpoints.maxSmall]: {
       alignItems: "center",
       justifyContent: "center",
     },
-  
+
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: "rgba(0,0,0,0.87)",
@@ -38,7 +38,7 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, listMode, classes}) =>
+const SequencesGrid = ({sequences, showAuthor, classes}) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {

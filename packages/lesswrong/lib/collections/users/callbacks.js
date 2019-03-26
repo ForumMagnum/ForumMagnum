@@ -17,7 +17,6 @@ function updateTrustedStatus ({newDocument, vote}) {
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
 }
-
 addCallback("votes.smallUpvote.async", updateTrustedStatus);
 addCallback("votes.bigUpvote.async", updateTrustedStatus);
 
@@ -30,7 +29,6 @@ function updateModerateOwnPersonal({newDocument, vote}) {
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
 }
-
 addCallback("votes.smallUpvote.async", updateModerateOwnPersonal);
 addCallback("votes.bigUpvote.async", updateModerateOwnPersonal);
 
@@ -43,20 +41,43 @@ function maybeSendVerificationEmail (modifier, user)
     Accounts.sendVerificationEmail(user._id);
   }
 }
-
 addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
-
-
-
 
 function approveUnreviewedPosts (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
-    Posts.update({userId:newUser._id}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
   }
 }
-
 addCallback("users.edit.async", approveUnreviewedPosts);
+
+// When the very first user account is being created, add them to Sunshine
+// Regiment. Patterned after a similar callback in
+// vulcan-users/lib/server/callbacks.js which makes the first user an admin.
+function makeFirstUserAdminAndApproved (user) {
+  const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
+  if (realUsersCount === 0) {
+    user.reviewedByUserId = "firstAccount"; //HACK
+    
+    // Add the first user to the Sunshine Regiment
+    if (!user.groups) user.groups = [];
+    user.groups.push("sunshineRegiment");
+  }
+  return user;
+}
+addCallback('users.new.sync', makeFirstUserAdminAndApproved);
+
+function clearKarmaChangeBatchOnSettingsChange (modifier, user)
+{
+  if (modifier.$set && modifier.$set.karmaChangeNotifierSettings) {
+    if (!user.karmaChangeNotifierSettings.updateFrequency
+      || modifier.$set.karmaChangeNotifierSettings.updateFrequency !== user.karmaChangeNotifierSettings.updateFrequency) {
+      modifier.$set.karmaChangeLastOpened = null;
+      modifier.$set.karmaChangeBatchStart = null;
+    }
+  }
+}
+addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);

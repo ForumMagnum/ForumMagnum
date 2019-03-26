@@ -1,95 +1,28 @@
+// Top-level SCSS. This imports the rest of the SCSS files in
+// packages/lesswrong/styles, and is included on every page on the site. We are
+// generally moving away from SCSS and towards JSS; rather than adding things
+// here, add them as JSS. If class-names come from an outside library, use
+// JSS descendent selectors on a component which encloses the usages of that
+// library.
+
 @import "clear-style";
 @import "breakpoints";
 @import "variables";
 @import "spinner";
 @import "global";
-@import "layout";
-@import "accounts";
 @import "comments";
 @import "editor";
-@import "header";
-@import "other";
 @import "forms";
 @import "posts";
 @import "users";
-@import "collections";
 @import "sequences";
 @import "localgroups";
 @import "admin";
-@import "sunshine-sidebar";
 @import "alignment-forum";
-
-.upvoted .upvote{
-  opacity: 0.3;
-}
-
-
-/*
-
-Old custom.scss file TODO: Refactor this properly into the main code
-
-*/
-
-/*
-
-CSS File with general modifications. Usually stuff gets added here first and
-then moved to more specific files as it becomes necessary.
-
-
-*/
-
-
-// Recent Comments Page CSS Modifications
-
-.recent-comments-page{
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-// CSS modifications for adjusting font in various contexts
-
-.comments-item {
-  line-height: 1.25;
-  color: rgba(0,0,0,0.87);
-}
-
-// CSS Modifications for Navbar buttons and styles
-
-.users-menu-contents a {
-  // When the user menu is first opened, it incorrectly detects the first menu
-  // item as hovered, but doesn't activate it like it would with a real hover.
-  // With Bootstrap's default hover effect for <a> links, this would look like
-  // it's grayed out.
-  opacity: 1 !important;
-}
-
-// CSS Modifications for RSS Feed integration
-
-
-.displayFullContentTag{
-  margin-left: 10px;
-  color: $dark-grey;
-  float: right;
-}
-
-.ownedByUserTag{
-  margin-left: 10px;
-  color: $dark-grey;
-  float:right;
-}
 
 // General CSS modifications
 
-h1{
-  margin-top: 0px;
-}
-
-h2{
-  margin-top: 0px;
-}
-
-h3{
+h3 {
   margin-top: 0px;
 }
 

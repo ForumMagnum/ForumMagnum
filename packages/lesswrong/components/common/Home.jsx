@@ -3,9 +3,37 @@ import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import { withStyles } from  '@material-ui/core/styles'
 
-const Home = (props, context) => {
-  const { currentUser, router } = props;
+const styles = theme => ({
+  recentDiscussionListWrapper: {
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+  }
+})
+
+function getPostsSectionTitle(view, currentUser) {
+  switch (view) {
+    case "frontpage":
+      return "Frontpage Posts";
+    case "curated":
+      if (currentUser) {
+        return "More Curated";
+      } else {
+        return "Curated Posts";
+      }
+    case "community":
+      return "All Posts";
+    default:
+      return "Recent Posts";
+  }
+}
+
+const Home = ({ currentUser, router, classes }) => {
+  if (currentUser && currentUser.isAdmin) { 
+    return <Components.Home2 />
+  }
+
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
   const shortformFeedId = currentUser && currentUser.shortformFeedId
@@ -16,21 +44,7 @@ const Home = (props, context) => {
   }
 
   const curatedPostsTerms = {view:"curated", limit:3}
-  let recentPostsTitle = "Recent Posts"
-  switch (recentPostsTerms.view) {
-    case "frontpage":
-      recentPostsTitle = "Frontpage Posts"; break;
-    case "curated":
-      if (currentUser) {
-        recentPostsTitle = "More Curated"; break;
-      } else {
-        recentPostsTitle = "Curated Posts"; break;
-      }
-    case "community":
-      recentPostsTitle = "All Posts"; break;
-    default:
-      return "Recent Posts";
-  }
+  const recentPostsTitle = getPostsSectionTitle(recentPostsTerms.view, currentUser);
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
@@ -53,7 +67,7 @@ const Home = (props, context) => {
       <Components.RecommendedReading />
       {currentUser &&
         <Components.Section title="Curated Content">
-          <Components.PostsList terms={curatedPostsTerms} showHeader={false} showLoadMore={false}/>
+          <Components.PostsList terms={curatedPostsTerms} showLoadMore={false}/>
         </Components.Section>}
       <Components.Section title={recentPostsTitle}
         titleComponent= {<div className="recent-posts-title-component">
@@ -61,7 +75,7 @@ const Home = (props, context) => {
         </div>}
         subscribeLinks={<Components.SubscribeWidget view={recentPostsTerms.view} />}
       >
-        <Components.PostsList terms={recentPostsTerms} showHeader={false} />
+        <Components.PostsList terms={recentPostsTerms} />
       </Components.Section>
       <Components.Section
         title="Community"
@@ -72,10 +86,7 @@ const Home = (props, context) => {
           </Components.SectionSubtitle>
         </div>}
       >
-        <Components.PostsList
-          terms={eventsListTerms}
-          showLoadMore={false}
-          showHeader={false} />
+        <Components.PostsList terms={eventsListTerms} showLoadMore={false} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
         <div>
@@ -85,10 +96,12 @@ const Home = (props, context) => {
           </Components.SectionSubtitle>}
         </div>
       }>
-        <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
+        <div className={classes.recentDiscussionListWrapper}>
+          <Components.RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
+        </div>
       </Components.Section>
     </div>
   )
 };
 
-registerComponent('Home', Home, withUser);
+registerComponent('Home', Home, withUser, withStyles(styles, {name: "Home"}));

@@ -1,20 +1,20 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js'
 
 class DraftJSRenderer extends PureComponent {
   render() {
-    let htmlBody = {__html: "<span>No description</span>"}
+    let html = {__html: "<span>No description</span>"}
     try {
       const contentState = convertFromRaw(this.props.content);
-      htmlBody = {__html: draftToHTML(contentState)};
+      html = {__html: draftToHTML(contentState)};
     } catch(err) {
       //eslint-disable-next-line no-console
       console.error("invalid draftContentState", this.props.content);
     }
-    return <div dangerouslySetInnerHTML={htmlBody}/>
+    return <div dangerouslySetInnerHTML={html}/>
   }
 }
 

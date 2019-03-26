@@ -75,6 +75,34 @@ export const postBodyStyles = (theme, fontSize) => {
     '& img': {
       maxWidth: "100%"
     },
+    '& sup': {
+      verticalAlign: 'baseline',
+      top: '-0.6em',
+      fontSize: '65%',
+      position: 'relative'
+    },
+    // Used for R:A-Z imports as well as markdown-it-footnotes
+    '& .footnotes': {
+      marginTop: 40,
+      fontSize: '0.9em',
+      paddingTop: 40,
+      borderTop: 'solid 1px rgba(0,0,0,0.2)',
+      '& sup': {
+        marginRight: 10,
+      },
+      '& ol': {
+        marginBlockStart: '1em',
+        paddingInlineStart: 0,
+        marginInlineStart: '1em'
+      },
+      '& li': {
+        fontSize: '0.9em' // Overwriting default size setting for list items
+      },
+    },
+    // Hiding the footnote-separator that markdown-it adds by default
+    '& .footnotes-sep': {
+      display: 'none'
+    },
     '& a, & a:hover, & a:active': {
       ...linkStyle({
         theme: theme,

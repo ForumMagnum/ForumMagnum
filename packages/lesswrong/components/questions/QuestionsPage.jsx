@@ -1,19 +1,37 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
+import React from 'react';
+import { Link } from 'react-router';
 
 const QuestionsPage = () => {
 
-  const terms = {
-    view: 'questions',
-    limit: 50,
+  const topQuestionsTerms = {
+    view: 'topQuestions',
+    limit: 5,
   };
 
-  const { Section, PostsList } = Components
+  const recentActivityTerms = {
+    view: 'recentQuestionActivity',
+    limit: 12,
+  };
+
+
+  const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2 } = Components
 
   return (
-    <Section title="Questions">
-      <PostsList terms={terms} showHeader={false}/>
-    </Section>
+    <div>
+      <TabNavigationMenu />
+      <SingleColumnSection>
+        <SectionTitle title="Top Questions"/>
+        <PostsList2 terms={topQuestionsTerms}/>
+      </SingleColumnSection>
+      <SingleColumnSection>
+        <SectionTitle title="Recent Activity"/>
+        <PostsList2 terms={recentActivityTerms}>
+          <Link to={"/allPosts?filter=questions&view=new"}>View All Questions</Link>
+        </PostsList2>
+      </SingleColumnSection>
+    </div>
+
   )
 };
 

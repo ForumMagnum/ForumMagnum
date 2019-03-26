@@ -1,44 +1,27 @@
+import { makeEditableOptions, Chapters } from './collection.js'
+import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js';
+import { Sequences } from '../sequences/collection.js';
+import { Posts } from '../posts/collection.js'
 import { addCallback } from 'meteor/vulcan:core';
-import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../editor/utils.js';
-import htmlToText from 'html-to-text';
-import { Posts } from '../posts/index.js';
-import Sequences from '../sequences/collection.js';
 
-function ChaptersNewHTMLSerializeCallback (chapter) {
-  if (chapter.description) {
-    const contentState = convertFromRaw(chapter.description);
-    const html = draftToHTML(contentState);
-    chapter.htmlDescription = html;
-    chapter.plaintextDescription = contentState.getPlainText();
-  }
-  return chapter
-}
-
-addCallback("chapters.new.sync", ChaptersNewHTMLSerializeCallback);
-
-function ChaptersEditHTMLSerializeCallback (modifier, chapter) {
-  if (modifier.$set && modifier.$set.description) {
-    const contentState = convertFromRaw(modifier.$set.description);
-    modifier.$set.htmlDescription = draftToHTML(contentState);
-    modifier.$set.plaintextDescription = contentState.getPlainText();
-  } else if (modifier.$set && modifier.$set.htmlDescription) {
-    modifier.$set.plaintextDescription = htmlToText.fromString(modifier.$set.htmlDescription);
-  } else if (modifier.$unset && modifier.$unset.description) {
-    modifier.$unset.htmlDescription = true;
-    modifier.$unset.plaintextDescription = true;
-  }
-  return modifier
-}
-
-addCallback("chapters.edit.sync", ChaptersEditHTMLSerializeCallback);
+addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
 
 async function ChaptersEditCanonizeCallback (chapter) {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
-  posts.forEach((currentPost, i) => {
+  const postsWithCanonicalSequenceId = Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
+  const removedPosts = _.difference(_.pluck(postsWithCanonicalSequenceId, '_id'), _.pluck(posts, '_id'))
 
+  removedPosts.forEach((postId) => {
+    Posts.update({_id: postId}, {$unset: {
+      canonicalPrevPostSlug: true,
+      canonicalNextPostSlug: true,
+      canonicalSequenceId: true,
+    }});
+  })
+
+  posts.forEach((currentPost, i) => {
     const validSequenceId = (currentPost, sequence) => {
       // Only update a post if it either doesn't have a canonicalSequence, or if we're editing
       // chapters *from* its canonicalSequence

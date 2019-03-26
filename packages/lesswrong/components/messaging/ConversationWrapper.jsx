@@ -5,7 +5,6 @@ The Navigation for the Inbox components
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent, withList, getFragment } from 'meteor/vulcan:core';
 import Messages from "../../lib/collections/messages/collection.js";
 import Typography from '@material-ui/core/Typography';
@@ -55,7 +54,7 @@ class ConversationWrapper extends Component {
           <Components.ConversationDetails conversation={conversation}/>
           {this.renderMessages(results, currentUser)}
           <div className={classes.editor}>
-            <Components.SmartForm
+            <Components.WrappedSmartForm
               key={conversation._id}
               collection={Messages}
               prefilledProps={ {conversationId: conversation._id} }

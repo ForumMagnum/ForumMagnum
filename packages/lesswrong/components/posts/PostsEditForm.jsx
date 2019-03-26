@@ -4,19 +4,35 @@ import { Components, registerComponent, getFragment, withMessages, withDocument 
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withRouter } from 'react-router'
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  formSubmit: {
+    display: "flex",
+    flexWrap: "wrap",
+  }
+})
 
 class PostsEditForm extends PureComponent {
 
   render() {
-    const { documentId, document, eventForm } = this.props;
+    const { documentId, document, eventForm, classes } = this.props;
     const isDraft = document && document.draft;
+    const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+    const EditPostsSubmit = (props) => {
+      return <div className={classes.formSubmit}>
+        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+        <PostSubmit {...props} />
+      </div>
+    }
 
     return (
       <div className="posts-edit-form">
-        <Components.SmartForm
+        <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
-          mutationFragment={getFragment('LWPostsPage')}
+          queryFragment={getFragment('PostsEdit')}
+          mutationFragment={getFragment('PostsRevision')}
           successCallback={post => {
             this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
             this.props.router.push({pathname: Posts.getPageUrl(post)});
@@ -35,6 +51,10 @@ class PostsEditForm extends PureComponent {
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
+          SubmitComponent={EditPostsSubmit}
+          extraVariables={{
+            version: 'String'
+          }}
           repeatErrors
         />
       </div>
@@ -55,10 +75,12 @@ PostsEditForm.contextTypes = {
 const documentQuery = {
   collection: Posts,
   queryName: 'PostsEditFormQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'PostsPage',
   ssr: true
 };
 
 registerComponent('PostsEditForm', PostsEditForm,
   [withDocument, documentQuery],
-  withMessages, withRouter);
+  withMessages, withRouter,
+  withStyles(styles, { name: "PostsEditForm" })
+  );

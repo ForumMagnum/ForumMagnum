@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const styles = theme => ({
   root: {
@@ -60,7 +61,7 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
   if (Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return (
       <div className={classes.root}>
-        <Components.SmartForm
+        <Components.WrappedSmartForm
           collection={Comments}
           mutationFragment={getFragment('CommentsList')}
           successCallback={successCallback}
@@ -114,4 +115,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withMessages, withStyles(styles));
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withMessages, withStyles(styles), withErrorBoundary);

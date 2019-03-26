@@ -1,4 +1,3 @@
-import React from 'react';
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import Messages from '../../../collections/messages/collection.js';
@@ -54,7 +53,12 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
 
     const firstMessageData = {
       userId: lwAccount._id,
-      htmlBody: firstMessageContent,
+      contents: {
+        originalContents: {
+          type: "html",
+          data: firstMessageContent
+        }
+      },
       conversationId: conversation.data._id
     }
     newMutation({

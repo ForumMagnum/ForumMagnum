@@ -1,4 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core'
+import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
 import { Comments } from './index';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
@@ -74,24 +75,27 @@ Comments.addView("postCommentsTop", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      parentAnswerId: { $in: [false,null] },
+      parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}},
 
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }));
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
+  { name: "comments.top_comments" }
+);
 
 Comments.addView("postCommentsOld", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      parentAnswerId: { $in: [false,null] },
+      parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
     options: {sort: {deleted: 1, postedAt: 1}},
-    parentAnswerId: { $in: [false,null] }
+    parentAnswerId: viewFieldNullOrMissing
   };
 });
 // Uses same index as postCommentsNew
@@ -100,19 +104,22 @@ Comments.addView("postCommentsNew", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      parentAnswerId: { $in: [false,null] },
+      parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }));
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }),
+  { name: "comments.new_comments" }
+);
 
 Comments.addView("postCommentsBest", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      parentAnswerId: { $in: [false,null] },
+      parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
     options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
@@ -126,7 +133,7 @@ Comments.addView("postLWComments", function (terms) {
       postId: terms.postId,
       af: null,
       answer: false,
-      parentAnswerId: { $in: [false,null] }
+      parentAnswerId: viewFieldNullOrMissing
     },
     options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
   };
@@ -214,6 +221,18 @@ ensureIndex(Comments, {legacyId: "hashed"});
 
 // Used in scoring cron job
 ensureIndex(Comments, {inactive:1,postedAt:1});
+
+Comments.addView("sunshineNewUsersComments", function (terms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      // Don't hide deleted
+      $or: null,
+    },
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+  };
+});
+ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
 
 Comments.addView('repliesToAnswer', function (terms) {
   return {

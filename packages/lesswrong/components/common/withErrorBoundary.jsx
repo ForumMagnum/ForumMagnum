@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Components } from 'meteor/vulcan:core';
 
 /// Higher-order component which adds an error boundary around a component.

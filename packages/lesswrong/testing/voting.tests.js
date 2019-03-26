@@ -1,16 +1,13 @@
-import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { recalculateScore } from '../lib/modules/scoring.js';
-import { performVoteServer } from '../lib/modules/vote.js';
+import { performVoteServer } from '../server/voteServer.js';
 import { batchUpdateScore } from '../server/updateScores.js';
-
-import {
-  createDummyUser,
-  createDummyPost,
-} from './utils.js'
-
+import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
+import { getKarmaChanges, getKarmaChangeDateRange } from '../lib/karmaChanges.js';
+import { Utils, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
+import lolex from 'lolex';
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -129,7 +126,110 @@ describe('Voting', async function() {
       updatedPost[0].baseScore.should.be.equal(2);
     });
   })
+  describe('getKarmaChanges', async () => {
+    it('includes posts in the selected date range', async () => {
+      let clock = lolex.install({
+        now: new Date("1980-01-01"),
+        shouldAdvanceTime: true,
+      });
+      
+      let poster = await createDummyUser();
+      let voter = await createDummyUser();
+      
+      clock.setSystemTime(new Date("1980-01-01T13:00:00Z"));
+      let post = await createDummyPost(poster);
+      
+      clock.setSystemTime(new Date("1980-01-01T13:30:00Z"));
+      await performVoteServer({
+        document: post,
+        voteType: "smallUpvote",
+        collection: Posts,
+        user: voter,
+      });
+      
+      let karmaChanges = await getKarmaChanges({
+        user: poster,
+        startDate: new Date("1980-01-01T13:20:00Z"),
+        endDate: new Date("1980-01-01T13:40:00Z"),
+      });
+      
+      karmaChanges.totalChange.should.equal(1);
+      
+      karmaChanges.posts.length.should.equal(1);
+      karmaChanges.posts[0].should.deep.equal({
+        _id: post._id,
+        scoreChange: 1,
+        title: post.title,
+        slug: Utils.slugify(post.title),
+      });
+      
+      // TODO
+      await waitUntilCallbacksFinished();
+      clock.uninstall();
+    });
+    /*it('does not include posts outside the selected date range', async () => {
+      // TODO
+    });
+    it('includes comments in the selected date range', async () => {
+      // TODO
+    });*/
+  });
+  describe('getKarmaChangeDateRange', async () => {
+    it('computes daily update times correctly', async () => {
+      const updateAt5AMSettings = {
+        updateFrequency: "daily",
+        timeOfDayGMT: 5,
+      }
+      
+      getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T08:00:00Z"),
+        lastOpened: new Date("1980-03-03T06:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-03-02T05:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      })
+      
+      getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T03:00:00Z"),
+        lastOpened: new Date("1980-03-03T02:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-03-01T05:00:00Z"),
+        end: new Date("1980-03-02T05:00:00Z"),
+      })
+      
+      getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T08:00:00Z"),
+        lastOpened: new Date("1980-02-02T08:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-02-02T08:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      })
+    });
+    it('computes weekly update times correctly', async () => {
+      const updateSaturdayAt5AMSettings = {
+        updateFrequency: "weekly",
+        timeOfDayGMT: 5,
+        dayOfWeekGMT: "Saturday",
+      }
+      getKarmaChangeDateRange({
+        settings: updateSaturdayAt5AMSettings,
+        now: new Date("1980-05-03T08:00:00Z"), //Saturday
+        lastOpened: new Date("1980-05-03T06:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-04-26T05:00:00Z"),
+        end: new Date("1980-05-03T05:00:00Z"),
+      })
+      getKarmaChangeDateRange({
+        settings: updateSaturdayAt5AMSettings,
+        now: new Date("1980-05-07T08:00:00Z"), //Wednesday
+        lastOpened: new Date("1980-05-07T06:00:00Z"),
+      }).should.deep.equal({
+        start: new Date("1980-04-26T05:00:00Z"),
+        end: new Date("1980-05-03T05:00:00Z"),
+      })
+    });
+  });
 })
-
-//eslint-disable-next-line no-console
-process.on('unhandledRejection', r => console.error(r));

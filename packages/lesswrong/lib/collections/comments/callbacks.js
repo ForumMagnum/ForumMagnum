@@ -1,10 +1,8 @@
-import React from 'react';
 import { Posts } from "../posts";
 import { Comments } from './collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { convertFromRaw } from 'draft-js';
-import { performVoteServer } from '../../modules/vote.js';
+import { performVoteServer } from '../../../server/voteServer.js';
 import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
@@ -69,7 +67,6 @@ addCallback('comments.new.sync', CommentsNewOperations);
 function UpvoteAsyncCallbacksAfterDocumentInsert(item, user, collection) {
   runCallbacksAsync('upvote.async', item, user, collection, 'upvote');
 }
-
 addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
 
 //////////////////////////////////////////////////////
@@ -97,7 +94,6 @@ function CommentsRemovePostCommenters (comment, currentUser) {
 
   return comment;
 }
-
 addCallback('comments.remove.async', CommentsRemovePostCommenters);
 
 function CommentsRemoveChildrenComments (comment, currentUser) {
@@ -116,7 +112,6 @@ function CommentsRemoveChildrenComments (comment, currentUser) {
 
   return comment;
 }
-
 addCallback('comments.remove.async', CommentsRemoveChildrenComments);
 
 //////////////////////////////////////////////////////
@@ -166,7 +161,9 @@ function CommentsNewRateLimit (comment, user) {
 addCallback('comments.new.validate', CommentsNewRateLimit);
 
 
-// LESSWRONG CALLBACKS
+//////////////////////////////////////////////////////
+// LessWrong callbacks                              //
+//////////////////////////////////////////////////////
 
 function CommentsEditSoftDeleteCallback (comment, oldComment) {
   if (comment.deleted && !oldComment.deleted) {
@@ -188,25 +185,24 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
       lastCommentedAt:new Date(lastCommentedAt),
       commentCount:comments.length
     },
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
-function NewCommentsEmptyCheck (comment, user) {
-  if (!comment.htmlBody &&
-      !comment.body &&
-      (!comment.content || !convertFromRaw(comment.content).hasText())) {
-    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'comments.comment_empty_error'});
+function NewCommentsEmptyCheck (comment) {
+  const { data } = (comment.contents && comment.contents.originalContents) || {}
+  if (!data) {
+    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
     throw new EmptyCommentError({data: {break: true, value: comment}});
   }
   return comment;
 }
-
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment) {
-  if (newComment.deleted && newComment.htmlBody) {
+  if (newComment.deleted && newComment.contents && newComment.contents.html) {
     const originalPost = await Posts.findOne(newComment.postId);
     const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
@@ -222,21 +218,26 @@ export async function CommentsDeleteSendPMAsync (newComment) {
       validate: false
     });
 
-    let firstMessageContent =
-        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content.`
+    let firstMessageContents =
+        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
-      firstMessageContent += ` They gave the following reason: "${newComment.deletedReason}".`;
+      firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
 
     const firstMessageData = {
       userId: lwAccount._id,
-      htmlBody: firstMessageContent,
+      contents: {
+        originalContents: {
+          type: "html",
+          data: firstMessageContents
+        }
+      },
       conversationId: conversation.data._id
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
-      htmlBody: newComment.htmlBody,
+      contents: newComment.contents,
       conversationId: conversation.data._id
     }
 
@@ -258,20 +259,17 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     console.log("Sent moderation messages for comment", newComment)
   }
 }
-
 addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
 
 /**
  * @summary Make users upvote their own new comments
  */
-
  // LESSWRONG – bigUpvote
 async function LWCommentsNewUpvoteOwnComment(comment) {
   var commentAuthor = Users.findOne(comment.userId);
   const votedComment = await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
   return {...comment, ...votedComment};
 }
-
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
 
 function NewCommentNeedsReview (comment) {
@@ -323,7 +321,6 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
   }
   return modifier
 }
-
 addCallback("comments.edit.sync", validateDeleteOperations)
 
 async function moveToAnswers (modifier, comment) {
@@ -336,5 +333,27 @@ async function moveToAnswers (modifier, comment) {
   }
   return modifier
 }
-
 addCallback("comments.edit.sync", moveToAnswers)
+
+function HandleReplyToAnswer (comment, properties)
+{
+  if (comment.parentCommentId) {
+    let parentComment = Comments.findOne(comment.parentCommentId)
+    if (parentComment) {
+      let modifiedComment = {...comment};
+      
+      if (parentComment.answer) {
+        modifiedComment.parentAnswerId = parentComment._id;
+      }
+      if (parentComment.parentAnswerId) {
+        modifiedComment.parentAnswerId = parentComment.parentAnswerId;
+      }
+      if (parentComment.topLevelCommentId) {
+        modifiedComment.topLevelCommentId = parentComment.topLevelCommentId;
+      }
+      
+      return modifiedComment;
+    }
+  }
+}
+addCallback('comment.create.before', HandleReplyToAnswer);

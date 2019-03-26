@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import {
@@ -76,16 +75,15 @@ const styles = theme => ({
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
+    const {lastEvent, post} = this.props;
+    
     this.state = {
-      highlightDate: this.props.lastEvent &&
-        this.props.lastEvent.properties &&
-        this.props.lastEvent.properties.createdAt &&
-        new Date(this.props.lastEvent.properties.createdAt)
-        ||
-        this.props.post &&
-        this.props.post.lastVisitedAt &&
-        new Date(this.props.post.lastVisitedAt) ||
-        new Date(),
+      highlightDate:
+        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+          && new Date(lastEvent.properties.createdAt))
+        || (post && post.lastVisitedAt &&
+          new Date(post.lastVisitedAt))
+        || new Date(),
     }
   }
 
@@ -140,8 +138,8 @@ class CommentsListSection extends Component {
             terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
             clickCallback={this.handleDateChange}/>}
           <Divider />
-          {suggestedHighlightDates.map((date,i) => {
-            return <MenuItem key={i} onClick={() => this.handleDateChange(date)}>
+          {suggestedHighlightDates.map(date => {
+            return <MenuItem key={date.toString()} onClick={() => this.handleDateChange(date)}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -182,14 +180,9 @@ class CommentsListSection extends Component {
             />
           </div>
         }
-        {currentUser && !Users.isAllowedToComment(currentUser, post) && (
-          <div className="i18n-message author_has_banned_you">
-            { Users.blockedCommentingReason(currentUser, post)}
-          { !(getSetting('AlignmentForum', false)) && <span>
-              (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
-            </span> }
-          </div>
-        )}
+        {currentUser && !Users.isAllowedToComment(currentUser, post) &&
+          <Components.CantCommentExplanation post={post}/>
+        }
         <Components.CommentsList
           currentUser={currentUser}
           totalComments={totalComments}

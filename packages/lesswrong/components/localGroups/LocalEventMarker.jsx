@@ -15,7 +15,7 @@ class LocalEventMarker extends PureComponent {
   render() {
     const { event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location || {geometry: {location: {lat: -98.44228020000003, lng: 35.1592256}}};
-
+    const { html = "" } = event.contents || {}
     var arrowIcon = {
         path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
         fillColor: '#2b6a99',
@@ -25,7 +25,7 @@ class LocalEventMarker extends PureComponent {
         strokeColor: "#FFFFFF"
     };
 
-    const htmlBody = {__html: event.htmlBody};
+    const htmlBody = {__html: html};
     return(
       <Marker
         onClick={() => handleMarkerClick(event._id)}

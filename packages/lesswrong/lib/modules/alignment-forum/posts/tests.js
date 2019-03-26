@@ -1,4 +1,3 @@
-import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
@@ -32,12 +31,9 @@ describe('AlignmentForum PostsEdit', async () => {
   it("fails when an alignmentForum user edits a post's content field", async () => {
     const user = await createDummyUser({groups:['alignmentForum']})
     const post = await createDummyPost()
-
-    const newContent = "New Test Title"
-
     const query = `
       mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},,data:{content:"${newContent}"}) {
+        updatePost(selector: {_id:"${post._id}"} ,data:{ contents: { originalContents: {type: "markdown", data: "test"} } }) {
           data {
             title
           }

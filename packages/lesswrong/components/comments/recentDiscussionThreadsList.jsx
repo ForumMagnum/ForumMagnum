@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({
+  classes,
   results,
   loading,
   loadMore,
@@ -14,15 +15,17 @@ const RecentDiscussionThreadsList = ({
   threadView = "recentDiscussionThread"
 }) => {
   const loadingMore = networkStatus === 2;
+
+  const { LoadMore } = Components
+
   if (!loading && results && !results.length) {
     return null
   }
 
   return (
     <div>
-      <div className="discussion-thread-list">
         {loading || !results ? <Loading /> :
-        <div className="discussion-threads">
+        <div>
           {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}
@@ -33,9 +36,9 @@ const RecentDiscussionThreadsList = ({
               editMutation={editMutation}/>
 
           )}
-          {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+          { loadingMore && <Loading />}
         </div>}
-      </div>
     </div>)
   }
 

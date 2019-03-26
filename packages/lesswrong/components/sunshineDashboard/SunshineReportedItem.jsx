@@ -65,33 +65,39 @@ class SunshineReportedItem extends Component {
     const { report, hover, anchorEl } = this.props
     const comment = report.comment
     const post = report.post
+    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview  } = Components
 
+    if (!post) return null;
+    
     return (
-          <Components.SunshineListItem hover={hover}>
-            <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-              <Typography variant="body2">
-                <Link to={Posts.getPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
-                  Post: <strong>{ post.title }</strong>
-                </Link>
-                {comment && <Components.CommentBody comment={comment}/>}
-                {post && !comment && <Components.PostsHighlight post={post}/>}
-              </Typography>
-            </Components.SidebarHoverOver>
-            {comment && <Components.SunshineCommentsItemOverview comment={comment}/>}
-            <Components.SidebarInfo>
-              {post && !comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
-              <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <Components.FormatDate date={report.createdAt}/>
-            </Components.SidebarInfo>
-            {hover && <Components.SidebarActionMenu>
-              <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
-                done
-              </Components.SidebarAction>
-              <Components.SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
-                clear
-              </Components.SidebarAction>
-            </Components.SidebarActionMenu>
-            }
-          </Components.SunshineListItem>
+      <SunshineListItem hover={hover}>
+        <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+          <Typography variant="body2">
+            <Link to={Posts.getPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
+              Post: <strong>{ post.title }</strong>
+            </Link>
+            {comment && <div>
+              <MetaInfo>Comment:</MetaInfo>
+              <div><CommentBody comment={comment}/></div>
+            </div>}
+            {!comment && <PostsHighlight post={post}/>}
+          </Typography>
+        </SidebarHoverOver>
+        {comment && <SunshineCommentsItemOverview comment={comment}/>}
+        <SidebarInfo>
+          {!comment && <React.Fragment><strong>{ post.title }</strong> <br/></React.Fragment>}
+          <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <FormatDate date={report.createdAt}/>
+        </SidebarInfo>
+        {hover && <SidebarActionMenu>
+          <SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
+            done
+          </SidebarAction>
+          <SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+            delete
+          </SidebarAction>
+        </SidebarActionMenu>
+        }
+      </SunshineListItem>
     )
   }
 }

@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -15,7 +15,10 @@ import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 
 const styles = theme => ({
-  userButton: {
+  root: {
+    marginTop: 5,
+  },
+  userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
@@ -54,16 +57,17 @@ class UsersMenu extends PureComponent {
   render() {
     let { currentUser, client, classes, color, openDialog } = this.props;
 
+    if (!currentUser) return null;
 
     const showNewButtons = !getSetting('AlignmentForum') || Users.canDo(currentUser, 'posts.alignment.new')
-    const showNewShortformButton = showNewButtons && currentUser && !!currentUser.shortformFeedId
+    const showNewShortformButton = showNewButtons && !!currentUser.shortformFeedId
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
 
     return (
-      <div className="users-menu">
+      <div className={classes.root}>
         <Button onClick={this.handleClick}>
-          <span className={classes.userButton} style={{ color: color }}>
+          <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
             {getSetting('AlignmentForum', false) && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
           </span>

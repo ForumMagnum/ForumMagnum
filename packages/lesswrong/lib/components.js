@@ -1,6 +1,13 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
+if(getSetting('AlignmentForum', false)) {
+  // HACK: At the top of the file because DeepScan false-positively warns about
+  // imports not at top level, and it re-detects it every time the line number
+  // changes. Putting it at the top makes its line number stable.
+  import '../components/alignment-forum/AlignmentForumHome.jsx';
+}
+
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
 import '../components/messaging/MessageItem.jsx';
@@ -29,26 +36,34 @@ import '../components/common/CalendarDate.jsx';
 import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
+import '../components/common/TabNavigationMenu.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
+import '../components/common/Home2.jsx';
+import '../components/common/HomeLatestPosts';
 import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
 import '../components/common/Section.jsx';
+import '../components/common/SingleColumnSection';
+import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
+import '../components/common/SectionFooter.jsx';
+import '../components/common/SectionButton.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
+import '../components/common/Divider.jsx';
 import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
-import '../components/common/Logo.jsx';
-import '../components/common/SearchForm.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
+import '../components/common/LoadMore.jsx';
+
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -59,7 +74,6 @@ import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
 import '../components/users/UsersAccountMenu.jsx';
 import '../components/users/UsersProfile.jsx';
-import '../components/users/UsersPostsList.jsx';
 import '../components/users/UsersName.jsx';
 import '../components/users/UsersNameWrapper.jsx';
 import '../components/users/UsersNameDisplay.jsx';
@@ -68,7 +82,11 @@ import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
 import '../components/users/LoginPopupLink.jsx';
+import '../components/users/KarmaChangeNotifier.jsx';
+import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
+
+import '../components/icons/OmegaIcon.jsx';
 
 // posts
 
@@ -77,23 +95,30 @@ import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
 import '../components/posts/CategoryDisplay.jsx';
-import '../components/posts/PostsHome.jsx';
 import '../components/posts/PostsSingle.jsx';
 import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
 import '../components/posts/PostsDailyList.jsx';
 import '../components/posts/AllPostsPage.jsx';
+import '../components/posts/AllPostsPageSettings.jsx';
 import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
-import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItemMeta.jsx';
+import '../components/posts/PostsItem.jsx';
+import '../components/posts/PostsItem2.jsx';
 import '../components/posts/PostsItemTitle.jsx';
+import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
+import '../components/posts/PostsItemKarma.jsx';
+
+import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
+import '../components/posts/PostsItemCuratedIcon.jsx';
+import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/HomePostsViews.jsx';
@@ -102,25 +127,27 @@ import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
+import '../components/posts/PostsList2.jsx'; // Should replace PostsList eventually
 import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsDay.jsx';
 import '../components/posts/EventsPast.jsx';
 import '../components/posts/EventsUpcoming.jsx';
-import '../components/posts/PostsLoadMore.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
 import '../components/posts/PostsEditPage.jsx';
-import '../components/posts/PostsListHeader.jsx';
 import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsStats.jsx';
 import '../components/posts/TableOfContents';
 import '../components/posts/ShowOrHideHighlightButton.jsx';
 import '../components/posts/PostsUserAndCoauthors.jsx';
+import '../components/posts/PostSubmit.jsx';
+import '../components/posts/SubmitToFrontpageCheckbox';
+import '../components/posts/ReportPostMenuItem.jsx';
+
 
 import '../components/votes/VoteButton.jsx';
-import '../components/votes/VotesInfo.jsx';
 import '../components/votes/CommentsVote.jsx';
 import '../components/votes/PostsVote.jsx';
 
@@ -157,13 +184,14 @@ import '../components/comments/CommentsItem/SubscribeToCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
+import '../components/comments/CommentsItem/CommentOutdatedWarning';
 
 import '../components/comments/recentDiscussionThread.jsx';
 import '../components/comments/recentDiscussionThreadsList.jsx';
+import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
 import '../components/comments/CommentsList.jsx';
-import '../components/comments/CommentsLoadMore.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
@@ -175,7 +203,6 @@ import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 
-import '../components/icons/OmegaIcon.jsx';
 
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';
@@ -190,8 +217,6 @@ import '../components/search/UsersSearchInput.jsx';
 import '../components/search/SearchBarResults.jsx';
 import '../components/search/SearchPagination.jsx';
 
-
-import '../components/admin/AdminDashboard.jsx';
 
 import '../components/sunshineDashboard/AdminHome.jsx';
 import '../components/sunshineDashboard/AdminMetadata.jsx';
@@ -223,6 +248,9 @@ import '../components/sunshineDashboard/SidebarHoverOver.jsx';
 import '../components/sunshineDashboard/SidebarInfo.jsx';
 import '../components/sunshineDashboard/SidebarActionMenu.jsx';
 import '../components/sunshineDashboard/SidebarAction.jsx';
+import '../components/sunshineDashboard/SunshineListCount.jsx';
+import '../components/sunshineDashboard/LastCuratedDate';
+import '../components/sunshineDashboard/EmailHistory.jsx';
 
 // SequenceEditor
 import '../components/sequenceEditor/EditSequenceTitle.jsx';
@@ -262,7 +290,6 @@ import '../components/collections/BigCollectionsCard.jsx';
 import '../components/sequences/CoreSequences.jsx';
 import '../components/sequences/HPMOR.jsx';
 import '../components/sequences/Codex.jsx';
-import '../components/sequences/ComingSoon.jsx';
 import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';
@@ -283,16 +310,14 @@ import '../components/form-components/FormComponentSelect.jsx';
 import '../components/form-components/FormComponentDate.jsx';
 import '../components/form-components/FormComponentDateTime.jsx';
 import '../components/form-components/FormComponentNumber.jsx';
+import '../components/form-components/WrappedSmartForm.jsx';
+
 
 
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
-if(getSetting('AlignmentForum', false)) {
-    import '../components/alignment-forum/AlignmentForumHome.jsx';
-}
-
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
@@ -300,7 +325,6 @@ import '../components/questions/AnswersSection.jsx';
 import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
-import '../components/questions/AnswerMeta.jsx';
 import '../components/questions/QuestionsPage.jsx';
 
 import '../components/recommendations/RecommendationsPage.jsx';

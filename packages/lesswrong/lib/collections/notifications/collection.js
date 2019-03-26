@@ -1,11 +1,7 @@
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-
-/**
- * @summary Telescope Notifications namespace
- * @namespace Notifications
- */
+import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
   newCheck: (user, document) => {
@@ -24,20 +20,14 @@ const options = {
   }
 }
 
-const Notifications = createCollection({
-
-  // collection: Meteor.notifications,
-
+export const Notifications = createCollection({
   collectionName: 'Notifications',
-
   typeName: 'Notification',
-
   schema,
-
   resolvers: getDefaultResolvers('Notifications'),
-
   mutations: getDefaultMutations('Notifications', options),
-
 });
+
+addUniversalFields({collection: Notifications})
 
 export default Notifications;

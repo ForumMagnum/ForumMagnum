@@ -1,23 +1,16 @@
 import { runCallbacksAsync } from 'meteor/vulcan:core';
-import escapeStringRegexp from 'escape-string-regexp';
 import { Picker } from 'meteor/meteorhacks:picker';
 import { Posts } from '../../lib/collections/posts';
+import { ensureIndex } from '../../lib/collectionUtils.js';
 
+// Click-tracking redirector for outgoing links in linkposts
 Picker.route('/out', ({ query}, req, res, next) => {
-  if(query.url){ // for some reason, query.url doesn't need to be decoded
-    /*
-    If the URL passed to ?url= is in plain text, any hash fragment
-    will get stripped out.
-    So we search for any post whose URL contains the current URL to get a match
-    even without the hash
-    */
-
+  if(query.url) {
     try {
-
-      const post = Posts.findOne({url: {$regex: escapeStringRegexp(query.url)}}, {sort: {postedAt: -1, createdAt: -1}});
+      const post = Posts.findOne({url: query.url}, {sort: {postedAt: -1, createdAt: -1}});
 
       if (post) {
-        const ip = req.headers && req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const ip = (req.headers && req.headers['x-forwarded-for']) || req.connection.remoteAddress;
 
         runCallbacksAsync('posts.click.async', post, ip);
 
@@ -39,3 +32,5 @@ Picker.route('/out', ({ query}, req, res, next) => {
     res.end("Please provide a URL");
   }
 });
+
+ensureIndex(Posts, {url:1, postedAt:-1});

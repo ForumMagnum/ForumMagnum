@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components, withUpdate, withMessages } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate, withMessages } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
@@ -34,8 +34,8 @@ class MoveToAnswersMenuItem extends PureComponent {
   }
 
   render() {
-    const { currentUser, comment } = this.props
-    if (!comment.topLevelCommentId &&
+    const { currentUser, comment, post } = this.props
+    if (!comment.topLevelCommentId && post.question &&
         (Users.canDo(currentUser, "comments.edit.all") || Users.owns(currentUser, comment))) {
 
         if (comment.answer) {

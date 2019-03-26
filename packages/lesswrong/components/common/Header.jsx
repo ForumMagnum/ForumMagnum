@@ -21,7 +21,7 @@ import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 
-const getTextColor = theme => {
+export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
     return theme.palette.primary.contrastText
   } else if (theme.palette.headerType === 'secondary') {
@@ -47,7 +47,7 @@ const styles = theme => ({
     flex: 1,
   },
   titleLink: {
-    color: getTextColor(theme),
+    color: getHeaderTextColor(theme),
     verticalAlign: 'middle',
     fontSize: 19,
     position: "relative",
@@ -71,12 +71,37 @@ const styles = theme => ({
     marginRight: -theme.spacing.unit,
     display: "flex",
   },
-  headroomPinnedOpen: {
-    "& .headroom--unpinned": {
-      transform: "none",
+  headroom: {
+    // Styles for header scrolling, provided by react-headroom
+    // https://github.com/KyleAMathews/react-headroom
+    "& .headroom": {
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1300,
     },
     "& .headroom--unfixed": {
+      position: "relative",
+      transform: "translateY(0)",
+    },
+    "& .headroom--scrolled": {
+      transition: "transform 200ms ease-in-out",
+    },
+    "& .headroom--unpinned": {
       position: "fixed",
+      transform: "translateY(-100%)",
+    },
+    "& .headroom--pinned": {
+      position: "fixed",
+      transform: "translateY(0%)",
+    },
+  },
+  headroomPinnedOpen: {
+    "& .headroom--unpinned": {
+      transform: "none !important",
+    },
+    "& .headroom--unfixed": {
+      position: "fixed !important",
     },
   },
 });
@@ -131,16 +156,17 @@ class Header extends Component {
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
     
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
-      NavigationMenu, NotificationsMenu } = Components;
+      NavigationMenu, NotificationsMenu, KarmaChangeNotifier } = Components;
 
     return (
         <div className={classes.root}>
           <Headroom
             disableInlineStyles
             downTolerance={10} upTolerance={10}
-            className={classNames({
-              [classes.headroomPinnedOpen]: headroomPinnedOpen
-            })}
+            className={classNames(
+              classes.headroom,
+              { [classes.headroomPinnedOpen]: headroomPinnedOpen }
+            )}
           >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>
@@ -182,8 +208,9 @@ class Header extends Component {
                   <NoSSR>
                     <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
                   </NoSSR>
-                  {currentUser ? <UsersMenu color={getTextColor(theme)} /> : <UsersAccountMenu color={getTextColor(theme)} />}
-                  {currentUser && <NotificationsMenuButton color={getTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                  {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                  {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
+                  {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
               </Toolbar>
             </AppBar>

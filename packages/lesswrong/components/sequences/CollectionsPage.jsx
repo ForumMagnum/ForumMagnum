@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types'
 import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
@@ -7,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -26,6 +26,7 @@ const styles = theme => ({
     fontFamily: "Roboto, sans-serif",
   },
   title: {
+    ...theme.typography.headerStyle,
     fontWeight: "bold",
     textTransform: "uppercase",
     borderTopStyle: "solid",
@@ -70,12 +71,13 @@ class CollectionsPage extends Component {
       const startedReading = false; //TODO: Check whether user has started reading sequences
       const collection = document;
       const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
+      const { html = "" } = collection.contents || {}
       return (<div className={classes.root}>
         <Components.Section titleComponent={canEdit ? <a onClick={this.showEdit}>edit</a> : null}>
           <div className={classes.header}>
-            <h1 className={classes.title}>{collection.title}</h1>
+            <Typography variant="display3" className={classes.title}>{collection.title}</Typography>
             <div className={classes.description}>
-              {collection.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: collection.htmlDescription}}/>}
+              {html && <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/>}
             </div>
             <Button
               className={classes.startReadingButton}

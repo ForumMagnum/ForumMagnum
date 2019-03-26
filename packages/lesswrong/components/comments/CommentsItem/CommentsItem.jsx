@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
@@ -38,12 +38,47 @@ const styles = theme => ({
     marginRight: 5,
   },
   menu: {
-    float:"right",
     opacity:.35,
     marginRight:-5
   },
+  metaRight: {
+    float: "right"
+  },
+  outdatedWarning: {
+    float: "right",
+    position: 'relative',
+    [theme.breakpoints.down('xs')]: {
+      float: "none",
+      marginTop: 7,
+      display: 'block'
+    }
+  },
   date: {
     color: "rgba(0,0,0,0.5)",
+  },
+  blockedReplies: {
+    padding: "5px 0",
+  },
+  replyLink: {
+    marginRight: 5,
+    display: "inline",
+    color: "rgba(0,0,0,.5)",
+    "@media print": {
+      display: "none",
+    },
+  },
+  collapse: {
+    marginRight: 5,
+    opacity: 0.8,
+    fontSize: "0.8rem",
+    lineHeight: "1rem",
+    paddingBottom: 4,
+    display: "inline-block",
+    verticalAlign: "middle",
+
+    "& span": {
+      fontFamily: "monospace",
+    }
   },
 })
 
@@ -61,6 +96,8 @@ class CommentsItem extends Component {
     if(!shallowEqual(this.state, nextState))
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
+      return true;
+    if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version)) 
       return true;
     return false;
   }
@@ -90,7 +127,7 @@ class CommentsItem extends Component {
     this.setState({showEdit: false});
   }
 
-  removeSuccessCallback = ({documentId}) => {
+  removeSuccessCallback = () => {
     this.props.flash({messageString: "Successfully deleted comment", type: "success"});
   }
 
@@ -103,7 +140,6 @@ class CommentsItem extends Component {
     event.preventDefault()
     this.props.router.replace({...router.location, hash: "#" + comment._id})
     this.props.scrollIntoView(event);
-    return false;
   }
 
   getTruncationCharCount = () => {
@@ -144,6 +180,7 @@ class CommentsItem extends Component {
           { comment.parentCommentId && this.state.showParent && (
             <div className="recent-comment-parent root">
               <Components.RecentCommentsSingle
+                post={post}
                 currentUser={currentUser}
                 documentId={comment.parentCommentId}
                 level={nestingLevel + 1}
@@ -164,7 +201,7 @@ class CommentsItem extends Component {
                     subdirectory_arrow_left
                   </Icon>
                 </Tooltip>}
-              { postPage || this.props.collapsed && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
@@ -187,24 +224,30 @@ class CommentsItem extends Component {
                     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
                     <Icon className="material-icons comments-item-permalink"> link
                     </Icon>
-                    {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
+                    {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
                   </Link>
                 :
                 <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
                   <Components.FormatDate date={comment.postedAt}/>
                   <Icon className="material-icons comments-item-permalink"> link
                   </Icon>
-                  {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
+                  {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
-              <span className={classes.menu}>
-                <CommentsMenu
-                  comment={comment}
-                  post={post}
-                  showEdit={this.showEdit}
-                />
+              
+              <span className={classes.metaRight}>
+                <span className={classes.menu}>
+                  <CommentsMenu
+                    comment={comment}
+                    post={post}
+                    showEdit={this.showEdit}
+                  />
+                </span>
+              </span>
+              <span className={classes.outdatedWarning}>
+                  <Components.CommentOutdatedWarning comment={comment} post={post} />
               </span>
             </div>
             { showEdit ? (
@@ -221,7 +264,6 @@ class CommentsItem extends Component {
                 comment={comment}
               />
             ) }
-
             {!comment.deleted && !collapsed && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
@@ -233,9 +275,11 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, truncated, collapsed } = this.props;
+    const { comment, currentUser, truncated, collapsed, classes } = this.props;
+    const markdown = (comment.contents && comment.contents.markdown) || ""
+    const { MetaInfo } = Components
 
-    if ((!truncated || (comment.body.length <= this.getTruncationCharCount())) && !collapsed) {
+    if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
@@ -248,13 +292,14 @@ class CommentsItem extends Component {
       return (
         <div className="comments-item-bottom">
           { blockedReplies &&
-            <div className="comment-blocked-replies">
+            <div className={classes.blockedReplies}>
               A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
             </div>
           }
           <div>
+            { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
             { showReplyButton &&
-              <a className="comments-item-reply-link" onClick={this.showReply}>
+              <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
                 <FormattedMessage id="comments.reply"/>
               </a>
             }
@@ -273,6 +318,7 @@ class CommentsItem extends Component {
         <Components.CommentsNewForm
           postId={comment.postId}
           parentComment={comment}
+          alignmentForumPost={post.af}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{

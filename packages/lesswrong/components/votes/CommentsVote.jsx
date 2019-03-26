@@ -2,7 +2,6 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
@@ -40,7 +39,8 @@ const styles = theme => ({
 class CommentsVote extends PureComponent {
   render() {
     const { comment, classes, currentUser, hover } = this.props
-    const voteCount = comment ? comment.voteCount : 0;
+    if (!comment) return null;
+    const voteCount = comment.voteCount;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
 
     const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
@@ -50,7 +50,7 @@ class CommentsVote extends PureComponent {
     )
 
     return (
-      <div className={classNames("comments-item-vote"), classes.vote}>
+      <div className={classes.vote}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
             <Tooltip

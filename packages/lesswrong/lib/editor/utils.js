@@ -2,10 +2,15 @@ import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 import { Utils } from 'meteor/vulcan:core';
 
+// This currently only supports our limited subset of semVer
+export function extractVersionsFromSemver(semver) {
+  semver = semver || "1.0.0"
+  const [major, minor, patch] = semver.split(".").map((n) => parseInt(n, 10))
+  return { major, minor, patch }
+}
 
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
-    // console.log("htmlToEntity: ", nodeName, node);
     if (nodeName === 'img') {
       return createEntity(
         'IMAGE',
@@ -21,7 +26,6 @@ export const htmlToDraft = convertFromHTML({
       )
     }
     // if (nodeName === 'img') {
-    //   console.log("image detected: ", node, node.src)
     //   return createEntity(
     //     'IMAGE',
     //     'IMMUTABLE',
@@ -30,7 +34,7 @@ export const htmlToDraft = convertFromHTML({
     // }
   },
   htmlToBlock: (nodeName, node, lastList, inBlock) => {
-    if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG' || (nodeName === 'img' && inBlock !== 'atomic')) {
+    if ((nodeName === 'figure' && node.firstChild.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
         return 'atomic';
     }
     // if (nodeName === 'blockquote') {
@@ -64,10 +68,7 @@ export const draftToHTML = convertToHTML({
       if (entity.data.alignment) {
         classNames = classNames + entity.data.alignment;
       }
-      let style = ""
-      if (entity.data.width) {
-        style = "width:" + entity.data.width + "%";
-      }
+      let style = "width:" + (entity.data.width || 40) + "%"
       return `<figure><img src="${entity.data.src}" class="${classNames}" style="${style}" /></figure>`;
     }
     if (entity.type === 'LINK') {
@@ -92,7 +93,6 @@ export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
     const type = block.type;
-
     if (type === 'atomic') {
       if (block.data && block.data.mathjax && block.data.html) {
         return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`

@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Chapters from '../../lib/collections/chapters/collection.js';
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
@@ -9,7 +8,7 @@ const ChaptersNewForm = (props) => {
   return (
     <div className="chapters-new-form">
       <h3>Add Chapter</h3>
-      <Components.SmartForm
+      <Components.WrappedSmartForm
         collection={Chapters}
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}

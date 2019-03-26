@@ -10,6 +10,7 @@ import withUser from '../common/withUser'
 import { Link } from 'react-router';
 import { Posts } from "../../lib/collections/posts";
 import Icon from '@material-ui/core/Icon';
+import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 
 const styles = theme => ({
   postContent: postBodyStyles(theme),
@@ -104,6 +105,7 @@ class Answer extends Component {
     const { comment, post, classes, index, answerCount } = this.props
     const { showEdit } = this.state
     const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
+    const { html = "" } = comment.contents || {}
 
     return (
       <div className={classes.root}>
@@ -150,11 +152,11 @@ class Answer extends Component {
               :
               <ContentItemBody
                 className={classes.postContent}
-                dangerouslySetInnerHTML={{__html:comment.htmlBody}}
+                dangerouslySetInnerHTML={{__html:html}}
               />
             }
             <AnswerCommentsList
-              terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: 3}}
+              terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: ABRIDGE_COMMENT_COUNT}}
               post={post}
               parentAnswer={comment}
               />

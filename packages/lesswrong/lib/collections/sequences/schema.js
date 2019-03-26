@@ -1,5 +1,4 @@
-import { Components } from 'meteor/vulcan:core';
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
@@ -16,26 +15,21 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => {
-      return new Date();
-    },
+    onInsert: () => new Date(),
   },
 
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['admin'],
     hidden:  true,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true,
-    }
   },
 
   // Custom Properties
@@ -49,30 +43,6 @@ const schema = {
     order: 10,
     placeholder: "Sequence Title",
     control: 'EditSequenceTitle',
-  },
-
-  description: {
-    order:20,
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
-    control: 'EditorFormComponent',
-    blackbox: true,
-    placeholder:"Sequence Description (Supports Markdown and LaTeX)"
-  },
-
-  descriptionPlaintext: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
-  htmlDescription: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
   },
 
   commentCount:{
@@ -121,11 +91,11 @@ const schema = {
 
   'chaptersDummy.$': {
     type: String,
+    foreignKey: "Chapters",
     optional: true,
   },
 
   //Cloudinary image id for the grid Image
-
   gridImageId: {
     type: String,
     optional: true,
@@ -138,7 +108,6 @@ const schema = {
   },
 
   //Cloudinary image id for the banner image (high resolution)
-
   bannerImageId: {
     type: String,
     optional: true,
@@ -178,14 +147,12 @@ const schema = {
     ...schemaDefaultValue(false),
   },
 
-  algoliaIndexAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   canonicalCollectionSlug: {
     type: String,
+    foreignKey: {
+      collection: "Collections",
+      field: "slug",
+    },
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['admins'],

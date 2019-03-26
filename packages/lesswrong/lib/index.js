@@ -1,7 +1,7 @@
 // # Vulcan Modifications
 
 // schema utils
-import { generateIdResolverMulti, generateIdResolverSingle } from './modules/utils/schemaUtils.js'
+import './modules/utils/schemaUtils.js'
 // Permissions
 import './modules/permissions.js';
 
@@ -97,10 +97,14 @@ import './collections/posts/custom_fields.js';
 import './collections/posts/views.js';
 import './collections/posts/permissions.js';
 import './collections/posts/helpers.js';
+
+// Revisions
+import Revisions from './collections/revisions/collection.js'
 //
 // Users
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
+import './collections/users/karmaChangesGraphQL.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
 
@@ -109,23 +113,14 @@ import { Comments } from './collections/comments'
 
 // Votes
 import './collections/votes';
-//
-//
-//
+
 // Internationalization
 import './i18n-en-us/en_US.js';
-//
-// // General
-import './modules/callbacks.js';
 
-// // Misc.
+// Misc.
 import './helpers.js'
 import './routes.js';
 import './scrollRestoration.js';
-
-// Algolia Search Integration
-import './search/utils.js';
-import './search/callbacks.js';
 
 import './components.js';
 
@@ -171,7 +166,6 @@ export {
   Books,
   Bans,
   Localgroups,
-  generateIdResolverMulti,
-  generateIdResolverSingle,
-  Comments
+  Comments,
+  Revisions
 }

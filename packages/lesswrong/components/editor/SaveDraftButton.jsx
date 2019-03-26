@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import { Checkbox } from 'formsy-react-components';
 
 // Ray 20017-09-09: This component is currently mostly unnecessary but is planned to turn into a real "submit" button

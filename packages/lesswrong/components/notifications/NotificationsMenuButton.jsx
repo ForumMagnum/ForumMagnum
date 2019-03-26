@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import Badge from '@material-ui/core/Badge';
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { registerComponent, withList } from 'meteor/vulcan:core';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';

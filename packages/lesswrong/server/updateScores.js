@@ -32,7 +32,7 @@ export const updateScore = async ({collection, item, forceUpdate}) => {
   //      and posts can become inactive
   const n = 30;
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
-  const x = 1/Math.pow(n*24+2,1.3);
+  const x = 1/Math.pow((n*24)+2, 1.3);
 
   // HN algorithm
   const newScore = recalculateScore(item);
@@ -70,7 +70,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   const FRONTPAGE_BONUS = 10;
   const FEATURED_BONUS = 10;
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
-  const x = 1/Math.pow(INACTIVITY_THRESHOLD_DAYS*24+2,TIME_DECAY_FACTOR);
+  const x = 1 / Math.pow((INACTIVITY_THRESHOLD_DAYS*24) + 2, TIME_DECAY_FACTOR);
 
   const itemsPromise = collection.rawCollection().aggregate([
     {
@@ -177,6 +177,8 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
       }
     }
   }))
-  if (itemUpdates && itemUpdates.length) {await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});}
+  if (itemUpdates && itemUpdates.length) {
+    await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});
+  }
   return updatedDocumentsCounter;
 }

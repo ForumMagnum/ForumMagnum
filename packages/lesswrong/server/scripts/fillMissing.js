@@ -1,43 +1,59 @@
 /* global Vulcan */
 import { Collections } from 'meteor/vulcan:core';
+import { getFieldsWithAttribute } from './utils';
+import { migrateDocuments, registerMigration } from '../migrations/migrationUtils'
 
-Vulcan.fillMissingValues = async () => {
-  for(let collection of Collections) {
-    if (!collection.simpleSchema) continue;
-    const schema = collection.simpleSchema()._schema
-    
-    const fieldsWithAutofill = getFieldsWithAutofill(schema);
-    if (fieldsWithAutofill.length == 0) continue;
-    
-    // eslint-disable-next-line no-console
-    console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
-    
-    for (let j=0; j<fieldsWithAutofill.length; j++) {
-      const fieldName = fieldsWithAutofill[j];
-      const defaultValue = schema[fieldName].defaultValue;
+registerMigration({
+  name: "fillMissingValues",
+  idempotent: true,
+  action: async () => {
+    for(let collection of Collections) {
+      if (!collection.simpleSchema) continue;
+      const schema = collection.simpleSchema()._schema
       
-      const writeResult = await collection.update({
-        [fieldName]: null
-      }, {
-        $set: {
-          [fieldName]: defaultValue
-        }
-      }, {
-        multi: true,
-      });
+      const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
+      if (fieldsWithAutofill.length == 0) continue;
       
       // eslint-disable-next-line no-console
-      console.log(`    ${fieldName} => ${defaultValue} (${writeResult.nModified} times)`);
+      console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
+  
+      for (let fieldName in fieldsWithAutofill) {
+        const defaultValue = schema[fieldName].defaultValue
+        await migrateDocuments({
+          description: `Filling in missing values for ${collection.collectionName} in field: ${fieldName} (default value: ${defaultValue})`,
+          collection,
+          unmigratedDocumentQuery: {
+            [fieldName]: null,
+          },
+          batchSize: 1000,
+          migrate: async (documents) => {
+            const updates = documents.map(doc => ({
+              updateOne: {
+                filter: {_id: doc._id},
+                update: {
+                  $set: {
+                    [fieldName]: defaultValue
+                  }
+                },
+              }
+            }))
+            await collection.rawCollection().bulkWrite(
+              updates,
+              { ordered: false }
+            );
+          },
+        });
+      }
     }
   }
-}
+})
 
 Vulcan.checkForMissingValues = async () => {
   for(let collection of Collections) {
     if (!collection.simpleSchema) continue;
     const schema = collection.simpleSchema()._schema;
     
-    const fieldsWithAutofill = getFieldsWithAutofill(schema);
+    const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
     if (fieldsWithAutofill.length == 0) continue;
     
     const count = countRowsNeedingAutofill(collection, fieldsWithAutofill);
@@ -45,12 +61,6 @@ Vulcan.checkForMissingValues = async () => {
     // eslint-disable-next-line no-console
     console.log(`${collection.collectionName}: ${count} rows with missing values`);
   }
-}
-
-function getFieldsWithAutofill(schema) {
-  return _.filter(
-      _.map(schema, (fieldSchema, fieldName) => fieldSchema.canAutofillDefault ? fieldName : null
-    ), f => f!=null);
 }
 
 function countRowsNeedingAutofill(collection, fieldsWithAutofill)

@@ -1,7 +1,6 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router';
 import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
 
@@ -22,7 +21,7 @@ const AlignmentCrosspostMessage = ({post, classes}) => {
   if (post.af && !getSetting('AlignmentForum', false)) {
     return (
       <div className={classes.root}>
-        Crossposted from the <Link to={`https://alignmentforum.org/posts/${post._id}/${post.slug}`}>AI Alignment Forum</Link>. May contain more technical jargon than usual.
+        Crossposted from the <a href={`https://alignmentforum.org/posts/${post._id}/${post.slug}`}>AI Alignment Forum</a>. May contain more technical jargon than usual.
       </div>
     );
   } else {

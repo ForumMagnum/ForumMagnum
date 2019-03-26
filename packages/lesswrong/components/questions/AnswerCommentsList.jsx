@@ -36,7 +36,7 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   loadMore: {
-    color: theme.palette.grey[500],
+    color: theme.palette.primary.main,
     textAlign: 'right'
   },
   loadingMore: {
@@ -47,23 +47,24 @@ const styles = theme => ({
   }
 })
 
+export const ABRIDGE_COMMENT_COUNT = 20;
 
 class AnswerCommentsList extends PureComponent {
 
   constructor(props) {
     super(props);
+    
+    const { lastEvent, post } = this.props;
+    
     this.state = {
       commenting: false,
       loadedMore: false,
-      highlightDate: this.props.lastEvent &&
-        this.props.lastEvent.properties &&
-        this.props.lastEvent.properties.createdAt &&
-        new Date(this.props.lastEvent.properties.createdAt)
-        ||
-        this.props.post &&
-        this.props.post.lastVisitedAt &&
-        new Date(this.props.post.lastVisitedAt) ||
-        new Date(),
+      highlightDate: 
+        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+          && new Date(lastEvent.properties.createdAt))
+        || (post && post.lastVisitedAt
+          && new Date(post.lastVisitedAt))
+        || new Date(),
     }
   }
 
@@ -74,7 +75,7 @@ class AnswerCommentsList extends PureComponent {
   loadMoreComments = (event) => {
     event.stopPropagation()
     const { loadMore, totalCount } = this.props
-    if (totalCount > 3) {
+    if (totalCount > ABRIDGE_COMMENT_COUNT) {
       this.setState({loadedMore: true})
       loadMore({limit: 10000})
     }
@@ -102,10 +103,11 @@ class AnswerCommentsList extends PureComponent {
                   postId={post._id}
                   parentComment={parentAnswer}
                   prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post),
+                    af: Comments.defaultToAlignment(currentUser, post, parentAnswer),
                     parentAnswerId: parentAnswer._id,
                     parentCommentId: parentAnswer._id,
                   }}
+                  alignmentForumPost={post.af}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
@@ -117,7 +119,7 @@ class AnswerCommentsList extends PureComponent {
               classes.answersList, {
                 [classes.noCommentAnswersList]: noComments,
                 [classes.loadingMore]: loadingMore,
-                [classes.canLoadMore]: !loadedMore && totalCount > 3
+                [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
               }
           )}>
             { loadingMore && <Loading /> }
@@ -145,7 +147,7 @@ class AnswerCommentsList extends PureComponent {
 AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  parentAnswerId: PropTypes.string,
+  parentAnswer: PropTypes.object,
   loading: PropTypes.bool,
   results: PropTypes.array,
 };

@@ -3,21 +3,22 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
+import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
 const UsersSearchAutoComplete = ({clickAction, label}) => {
   const algoliaAppId = getSetting('algolia.appId')
   const algoliaSearchKey = getSetting('algolia.searchKey')
 
   if(!algoliaAppId) {
-    return <div className="users-search-auto-complete">User search is disabled (Algolia App ID not configured on server)</div>
+    return <div>User search is disabled (Algolia App ID not configured on server)</div>
   }
 
   return <InstantSearch
-    indexName="test_users"
+    indexName={algoliaIndexNames.Users}
     appId={algoliaAppId}
     apiKey={algoliaSearchKey}
   >
-    <div className="users-search-auto-complete">
+    <div>
       <AutoComplete clickAction={clickAction} label={label}/>
       <Configure hitsPerPage={7} />
     </div>
@@ -32,7 +33,7 @@ const AutoComplete = connectAutoComplete(
       event.stopPropagation();
       clickAction(suggestion.objectID)
     }
-    return <span className="users-search-auto-complete">
+    return <span>
       <Autosuggest
         suggestions={hits}
         onSuggestionsFetchRequested={({ value }) => refine(value)}

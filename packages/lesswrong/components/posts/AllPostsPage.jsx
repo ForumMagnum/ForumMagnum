@@ -1,91 +1,126 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment';
+import { withRouter } from 'react-router';
+import withUser from '../common/withUser';
+import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
+import Users from 'meteor/vulcan:users';
+import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 const styles = theme => ({
-  titleSettings: {
-    width: "100%",
-    fontStyle: "italic",
+  allPostsContent: {
+    padding: theme.spacing.unit,
+    [theme.breakpoints.down('xs')]: {
+      padding: 0,
+    }
+  },
+  settingsIcon: {
+    color: theme.palette.grey[400],
+    marginRight: theme.spacing.unit,
+  },
+  title: {
     cursor: "pointer",
-    opacity: .8,
-    [theme.breakpoints.up('md')]: {
-      float: "right"
-    },
-    '&:hover': {
-      opacity:1,
-    },
-    '& svg': {
-      width: ".8em",
-      marginTop: -4,
-      marginRight: 3
+    '&:hover $settingsIcon, &:hover $sortedBy': {
+      color: theme.palette.grey[800]
     }
   },
-  checkbox: {
-    padding: 0,
-  },
-  checkboxChecked: {
-    // Tone down the material-UI default color to the shade old-material-UI was
-    // using, since the new, darker green doesn't fit the deemphasized position
-    // this element is in.
-    "& svg": {
-      color: "rgba(100, 169, 105, 0.7)",
-    }
-  },
-  checkboxLabel: {
-    ...theme.typography.subheading,
-    marginLeft: 5
-  },
-  divider: {
-    margin:"10px 0 12px 82%",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+  sortedBy: {
+    fontStyle: "italic",
+    display: "inline-block"
   }
 });
 
+export const views = {
+  daily: "Daily",
+  magic: "Magic (New & Upvoted)",
+  recentComments: "Recent Comments",
+  new: "New",
+  old: "Old",
+  top: "Top"
+}
+
 class AllPostsPage extends Component {
+  state = {
+    showSettings: (this.props.currentUser && this.props.currentUser.allPostsOpenSettings) || false
+  };
 
-  state = { lowKarma: false }
+  toggleSettings = () => {
+    const { currentUser, updateUser } = this.props
 
-  renderTitle = () => {
-    const { classes } = this.props;
-    const { lowKarma } = this.state
-    const { PostsViews } = Components
-    return <div>
-      <PostsViews />
-      <div className={classes.divider} />
-      <Tooltip title="Show low karma posts" placement="right">
-        <div className={classes.titleSettings} onClick={(event) => this.setState({lowKarma: !lowKarma})}>
-          <Checkbox
-            classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
-            checked={lowKarma}
-          />
-          <span className={classes.checkboxLabel}>
-            Low Karma
-          </span>
-        </div>
-      </Tooltip>
-    </div>
+    this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
+      if (currentUser) {
+        updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            allPostsOpenSettings: this.state.showSettings,
+          },
+        })
+      }
+    })
   }
 
   render() {
+    const { classes, currentUser, router } = this.props
+    const { showSettings } = this.state
+    const { AllPostsPageSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
+    const query = _.clone(router.location.query) || {}
 
-    const query = _.clone(this.props.router.location.query || {});
+    const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
+    const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     const terms = {
-      view:"new",
+      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
+      view: currentView,
       ...query,
-      karmaThreshold: this.state.lowKarma ? -100 : -10,
-      limit:100
+      limit:50
     }
 
-    const { Section, PostsList } = Components
+    const numberOfDays = getSetting('forum.numberOfDays', 5);
+    const dailyTerms = {
+      view: 'daily',
+      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
+      after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
+      ...query,
+      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
+    };
 
     return (
-      <Section title="All Posts" titleComponent={this.renderTitle()}>
-          <PostsList terms={terms} showHeader={false}/>
-      </Section>
+      <React.Fragment>
+        <TabNavigationMenu />
+        <SingleColumnSection>
+          <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
+            <div className={classes.title} onClick={this.toggleSettings}>
+              <SectionTitle title="All Posts">
+                <SettingsIcon className={classes.settingsIcon}/>
+                <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
+              </SectionTitle>
+            </div>
+          </Tooltip>
+          <AllPostsPageSettings
+            hidden={!showSettings}
+            currentView={currentView}
+            currentFilter={currentFilter}
+            currentShowLowKarma={currentShowLowKarma}
+          />
+          <div className={classes.allPostsContent}>
+            {currentView === "daily" ?
+              <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
+              :
+              <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+            }
+          </div>
+        </SingleColumnSection>
+      </React.Fragment>
     )
   }
 }
-registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}));
+
+const withUpdateOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+}
+
+registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}), withRouter, withUser, [withUpdate, withUpdateOptions]);

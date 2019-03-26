@@ -42,9 +42,11 @@ export const servePostRSS = (terms, url) => {
 
   parameters.options.limit = 10;
 
-  const postsCursor = Posts.find(parameters.selector, parameters.options);
+  const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
+  const viewablePosts = _.filter(postsCursor, post => Posts.checkAccess(null, post));
+  const restrictedPosts = Users.restrictViewableFields(null, Posts, viewablePosts);
 
-  postsCursor.forEach((post) => {
+  restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -64,10 +66,7 @@ export const servePostRSS = (terms, url) => {
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem = {
       title: post.title,
-      // LESSWRONG - this was added to handle karmaThresholds
-      // description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
-
-      description: `Published on ${formattedTime}<br/><br/>${post.htmlBody || ""}<br/><br/>${postLink}`,
+      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
@@ -96,14 +95,16 @@ export const serveCommentRSS = (terms, url) => {
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
-  const commentsCursor = Comments.find(parameters.selector, parameters.options);
+  const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
+  const viewableComments = _.filter(commentsCursor, comment => Comments.checkAccess(null, comment));
+  const restrictedComments = Users.restrictViewableFields(null, Comments, viewableComments);
 
-  commentsCursor.forEach(function(comment) {
+  restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
 
     feed.item({
      title: 'Comment on ' + post.title,
-     description: `${comment.body}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
      url: Comments.getPageUrl(comment, true),

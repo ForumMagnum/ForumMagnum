@@ -2,13 +2,20 @@ import {
   Components,
   registerComponent,
   withMessages,
-  withEdit
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import EventIcon from '@material-ui/icons/Event';
+
+const styles = theme => ({
+  content: {
+    marginTop: 460,
+  }
+});
 
 class CommunityHome extends Component {
   constructor(props, context) {
@@ -53,71 +60,73 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const router = this.props.router;
+    const {classes, router} = this.props;
+    const filters = (router.location.query && router.location.query.filters) || [];
+    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
+
     const postsListTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 5,
-      filters: router.location.query && router.location.query.filters || [],
+      limit: 7,
+      filters: filters,
     }
     const groupsListTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 3,
-      filters: router.location.query && router.location.query.filters || [],
+      limit: 7,
+      filters: filters,
     }
     const mapEventTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      filters: router.location.query && router.location.query.filters || [],
+      filters: filters,
     }
     return (
-      <div className="community-home">
+      <React.Fragment>
+        <TabNavigationMenu />
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />
-        <Components.Section title="Local Groups" titleComponent={<div>
-          {this.props.currentUser && <Components.GroupFormLink />}
-          {this.props.currentUser && <Components.SectionSubtitle>
-            <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
-              Create new event
-            </Link>
-          </Components.SectionSubtitle>}
-          <Components.SectionSubtitle>
-            <Link to="/pastEvents">See past events</Link>
-          </Components.SectionSubtitle>
-          <Components.SectionSubtitle>
-            <Link to="/upcomingEvents">See upcoming events</Link>
-          </Components.SectionSubtitle>
-        </div>}>
-          {this.state.currentUserLocation &&
-            <div>
-              { this.state.currentUserLocation.loading
-                ? <Components.Loading />
-                : <Components.LocalGroupsList
-                    terms={groupsListTerms}
-                    showHeader={false} />}
-              <hr className="community-home-list-divider"/>
-              <Components.PostsList
-                terms={postsListTerms}
-                showHeader={false} />
-            </div>}
-        </Components.Section>
-        <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showHeader={false} showLoadMore={false} />
-        </Components.Section>
-      </div>
+        <div className={classes.content}>
+          <SingleColumnSection>
+            <SectionTitle title="Local Groups">
+              {this.props.currentUser && <GroupFormLink />}
+            </SectionTitle>
+            { this.state.currentUserLocation.loading
+              ? <Components.Loading />
+              : <Components.LocalGroupsList
+                  terms={groupsListTerms}
+                  showHeader={false} />
+            }
+          </SingleColumnSection>
+          <SingleColumnSection>
+            <SectionTitle title="Events">
+              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+                <SectionButton>
+                  <EventIcon />
+                  New Event
+                </SectionButton>
+              </Link>}
+            </SectionTitle>
+            <PostsList2 terms={postsListTerms}>
+              <Link to="/pastEvents">View Past Events</Link>
+              <Link to="/upcomingEvents">View Upcoming Events</Link>
+            </PostsList2>
+          </SingleColumnSection>
+
+          <SingleColumnSection>
+            <SectionTitle title="Resources"/>
+            <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+          </SingleColumnSection>
+        </div>
+      </React.Fragment>
     )
   }
 }
 
-
-const withEditOptions = {
-  collection: Users,
-  fragmentName: 'UsersProfile',
-};
-
-registerComponent('CommunityHome', CommunityHome, withUser, withMessages, withRouter, [withEdit, withEditOptions]);
+registerComponent('CommunityHome', CommunityHome,
+  withUser, withMessages, withRouter,
+  withStyles(styles, { name: "CommunityHome" }));

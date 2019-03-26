@@ -1,6 +1,5 @@
-import { Components , registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 
@@ -12,7 +11,7 @@ class DeleteDraft extends Component {
 
       editMutation({
         documentId: post._id,
-        set: {deletedDraft:true},
+        set: {deletedDraft:true, draft: true},
         unset: {}
       })
     }

@@ -1,21 +1,12 @@
-/*
-
-Posts schema
-
-*/
-
 import Users from 'meteor/vulcan:users';
 import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
-/**
- * @summary Posts config namespace
- * @type {Object}
- */
+
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
   adminOptions: {
@@ -26,33 +17,21 @@ const formGroups = {
   },
 };
 
-/**
- * @summary Posts schema
- * @type {Object}
- */
 const schema = {
-  /**
-    ID
-  */
+  // ID
   _id: {
     type: String,
     optional: true,
     viewableBy: ['guests'],
   },
-  /**
-    Timetstamp of post creation
-  */
+  // Timestamp of post creation
   createdAt: {
     type: Date,
     optional: true,
     viewableBy: ['admins'],
-    onInsert: () => {
-      return new Date();
-    }
+    onInsert: () => new Date(),
   },
-  /**
-    Timestamp of post first appearing on the site (i.e. being approved)
-  */
+  // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
     optional: true,
@@ -74,9 +53,7 @@ const schema = {
       }
     }
   },
-  /**
-    URL
-  */
+  // URL
   url: {
     type: String,
     optional: true,
@@ -94,9 +71,7 @@ const schema = {
       }
     `,
   },
-  /**
-    Title
-  */
+  // Title
   title: {
     type: String,
     optional: false,
@@ -108,9 +83,7 @@ const schema = {
     order: 20,
     searchable: true
   },
-  /**
-    Slug
-  */
+  // Slug
   slug: {
     type: String,
     optional: true,
@@ -124,81 +97,28 @@ const schema = {
       }
     }
   },
-  /**
-    Post body (markdown)
-  */
-  body: {
-    type: String,
-    optional: true,
-    max: 3000,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    control: 'textarea',
-    order: 30
-  },
-  /**
-    HTML version of the post body
-  */
-  htmlBody: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     return Utils.sanitize(marked(post.body));
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     return Utils.sanitize(marked(modifier.$set.body));
-    //   }
-    // }
-  },
-  /**
-   Post Excerpt
-   */
+  // Post Excerpt
   excerpt: {
     type: String,
     optional: true,
     viewableBy: ['guests'],
     searchable: true,
-    // LESSWRONG: DEACTIVATED THESE SINCE WE ARE DOING OUR OWN
-    // onInsert: (post) => {
-    //   if (post.body) {
-    //     // excerpt length is configurable via the settings (30 words by default, ~255 characters)
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(post.body)), excerptLength);
-    //   }
-    // },
-    // onEdit: (modifier, post) => {
-    //   if (modifier.$set.body) {
-    //     const excerptLength = getSetting('forum.postExcerptLength', 30);
-    //     return Utils.trimHTML(Utils.sanitize(marked(modifier.$set.body)), excerptLength);
-    //   }
-    // }
   },
-  /**
-    Count of how many times the post's page was viewed
-  */
+  // Count of how many times the post's page was viewed
   viewCount: {
     type: Number,
     optional: true,
     viewableBy: ['admins'],
     defaultValue: 0
   },
-  /**
-    Timestamp of the last comment
-  */
+  // Timestamp of the last comment
   lastCommentedAt: {
     type: Date,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
   },
-  /**
-    Count of how many times the post's link was clicked
-  */
+  // Count of how many times the post's link was clicked
   clickCount: {
     type: Number,
     optional: true,
@@ -215,9 +135,7 @@ const schema = {
     hidden: true,
   },
 
-  /**
-    The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
-  */
+  // The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   status: {
     type: Number,
     optional: true,
@@ -239,9 +157,7 @@ const schema = {
     options: () => getCollection('Posts').statuses,
     group: formGroups.adminOptions
   },
-  /**
-    Whether a post is scheduled in the future or not
-  */
+  // Whether a post is scheduled in the future or not
   isFuture: {
     type: Boolean,
     optional: true,
@@ -271,9 +187,7 @@ const schema = {
       }
     }
   },
-  /**
-    Whether the post is sticky (pinned to the top of posts lists)
-  */
+  // Whether the post is sticky (pinned to the top of posts lists)
   sticky: {
     type: Boolean,
     optional: true,
@@ -294,9 +208,7 @@ const schema = {
       }
     }
   },
-  /**
-    Save info for later spam checking on a post. We will use this for the akismet package
-  */
+  // Save info for later spam checking on a post. We will use this for the akismet package
   userIP: {
     type: String,
     optional: true,
@@ -312,11 +224,10 @@ const schema = {
     optional: true,
     viewableBy: ['admins'],
   },
-  /**
-    The post author's name
-  */
+  // The post author's name
   author: {
     type: String,
+    denormalized: true,
     optional: true,
     viewableBy: ['guests'],
     onEdit: (modifier, document, currentUser) => {
@@ -326,29 +237,22 @@ const schema = {
       }
     }
   },
-  /**
-    The post author's `_id`.
-  */
+  // The post author's `_id`.
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User"
+    }),
     optional: true,
     control: 'select',
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true
-    },
   },
 
-  /**
-    Used to keep track of when a post has been included in a newsletter
-  */
+  // Used to keep track of when a post has been included in a newsletter
   scheduledAt: {
     type: Date,
     optional: true,
@@ -357,116 +261,65 @@ const schema = {
 
   // GraphQL-only fields
 
-  domain: {
+  domain: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, context) => {
-        return Utils.getDomain(post.url);
-      },
-    }
-  },
+    resolver: (post, args, context) => Utils.getDomain(post.url),
+  }),
 
-  pageUrl: {
+  pageUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getPageUrl(post, true);
-      },
-    }
-  },
-
-  linkUrl: {
+    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, true),
+  }),
+  
+  pageUrlRelative: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
-      },
-    }
-  },
+    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, false),
+  }),
 
-  postedAtFormatted: {
+  linkUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, context) => {
-        return moment(post.postedAt).format('dddd, MMMM Do YYYY');
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => {
+      return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
+    },
+  }),
 
-  commentsCount: {
+  postedAtFormatted: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post, args, context) => {
+      return moment(post.postedAt).format('dddd, MMMM Do YYYY');
+    }
+  }),
+
+  commentsCount: resolverOnlyField({
     type: Number,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'Int',
-      resolver: (post, args, { Comments }) => {
-        const commentsCount = Comments.find({ postId: post._id }).count();
-        return commentsCount;
-      },
-    }
-  },
+    resolver: (post, args, { Comments }) => {
+      return Comments.find({ postId: post._id }).count();
+    },
+  }),
 
-  commentIds: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'comments',
-      arguments: 'limit: Int = 5',
-      type: '[Comment]',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Comments', fieldName: 'commentIds'}
-      ),
-    }
-  },
-
-  emailShareUrl: {
+  emailShareUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getEmailShareUrl(post);
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => Posts.getEmailShareUrl(post),
+  }),
 
-  twitterShareUrl: {
+  twitterShareUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getTwitterShareUrl(post);
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => Posts.getTwitterShareUrl(post),
+  }),
 
-  facebookShareUrl: {
+  facebookShareUrl: resolverOnlyField({
     type: String,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (post, args, { Posts }) => {
-        return Posts.getFacebookShareUrl(post);
-      }
-    }
-  },
+    resolver: (post, args, { Posts }) => Posts.getFacebookShareUrl(post),
+  }),
 
   question: {
     type: Boolean,
@@ -480,13 +333,55 @@ const schema = {
   authorIsUnreviewed: {
     type: Boolean,
     optional: true,
+    denormalized: true,
     ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
-
+  
+  // DEPRECATED field for GreaterWrong backwards compatibility
+  wordCount: resolverOnlyField({
+    type: Number,
+    viewableBy: ['guests'],
+    resolver: (post, args, { Posts }) => {
+      const contents = post.contents;
+      if (!contents) return 0;
+      return contents.wordCount;
+    }
+  }),
+  // DEPRECATED field for GreaterWrong backwards compatibility
+  htmlBody: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post, args, { Posts }) => {
+      const contents = post.contents;
+      if (!contents) return "";
+      return contents.html;
+    }
+  }),
+  submitToFrontpage: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(true),
+    onCreate: ({newDocument}) => {
+      if (newDocument.isEvent) return false
+      if ('submitToFrontpage' in newDocument) return newDocument.submitToFrontpage
+      return true
+    },
+    onUpdate: ({data, document}) => {
+      // Not actually the real new document, but good enough for checking the two fields we care about
+      const newDocument= {...document, ...data} 
+      const updatedDocIsEvent = ('isEvent' in newDocument) ? newDocument.isEvent : false
+      if (updatedDocIsEvent) return false
+      return ('submitToFrontpage' in newDocument) ? newDocument.submitToFrontpage : true
+    }
+  }
 };
 
 export default schema;

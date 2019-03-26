@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
@@ -24,7 +24,7 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
               />
             </div>
           )}
-          {loadMore && <Components.CommentsLoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+          {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
         </div>}
       </div>
     </div>)
