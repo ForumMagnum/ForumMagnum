@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
+import classNames from 'classnames';
 
 const styles = theme => ({
   displayTime: {
@@ -15,6 +16,9 @@ const styles = theme => ({
     top: -1,
     color: "rgba(0,0,0,.92)",
     marginRight: theme.spacing.unit,
+  },
+  yesterday: {
+    color: "unset"
   },
   tooltipTitle: {
     fontWeight: 600,
@@ -99,7 +103,7 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
             <Link to={Posts.getPageUrl(event)}>
               <TabNavigationSubItem>
-                {displayTime && <span className={classes.displayTime}>[{displayTime}]</span> }
+                {displayTime && <span className={classNames(classes.displayTime, {[classes.yesterday]: displayTime === "Yesterday"})}>[{displayTime}]</span> }
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
             </Link>
