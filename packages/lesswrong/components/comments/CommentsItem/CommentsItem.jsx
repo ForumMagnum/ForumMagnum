@@ -320,7 +320,6 @@ class CommentsItem extends Component {
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
-            af:Comments.defaultToAlignment(currentUser, post, comment),
             parentCommentId: comment._id,
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}

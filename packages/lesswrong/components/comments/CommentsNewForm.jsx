@@ -31,7 +31,11 @@ const styles = theme => ({
 });
 
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, currentUser}) => {
-  prefilledProps.postId = post._id;
+  prefilledProps = {
+    ...prefilledProps,
+    postId: post._id,
+    af: Comments.defaultToAlignment(currentUser, post, parentComment),
+  };
 
   if (parentComment) {
     prefilledProps = Object.assign(prefilledProps, {

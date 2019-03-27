@@ -165,7 +165,6 @@ class CommentsListSection extends Component {
             <Components.CommentsNewForm
               post={post}
               prefilledProps={{
-                af: Comments.defaultToAlignment(currentUser, post),
                 parentAnswerId: parentAnswerId}}
               type="comment"
             />

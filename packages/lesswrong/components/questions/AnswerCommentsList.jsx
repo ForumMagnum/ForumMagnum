@@ -103,7 +103,6 @@ class AnswerCommentsList extends PureComponent {
                   post={post}
                   parentComment={parentAnswer}
                   prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post, parentAnswer),
                     parentAnswerId: parentAnswer._id,
                     parentCommentId: parentAnswer._id,
                   }}
