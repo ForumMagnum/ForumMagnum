@@ -76,3 +76,4 @@ addRoute({ name: 'home2', path: '/home2', componentName: 'Home2', title: "Home2 
 addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', title: "All Posts" });
 
 addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });
+addRoute({ name: 'recommendations', path: '/recommendations', componentName: 'RecommendationsPage', title: "Recommendations" });
