@@ -163,7 +163,6 @@ class CommentsListSection extends Component {
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
-              alignmentForumPost={post.af}
               post={post}
               prefilledProps={{
                 af: Comments.defaultToAlignment(currentUser, post),

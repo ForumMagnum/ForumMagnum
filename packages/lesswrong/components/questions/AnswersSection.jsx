@@ -10,7 +10,7 @@ const AnswersSection = ({post, currentUser}) => {
   
   return (
     <div>
-      {(!currentUser || Users.isAllowedToComment(currentUser, post)) && <NewAnswerForm post={post} alignmentForumPost={post.af}/>}
+      {(!currentUser || Users.isAllowedToComment(currentUser, post)) && <NewAnswerForm post={post} />}
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }

@@ -317,7 +317,6 @@ class CommentsItem extends Component {
         <Components.CommentsNewForm
           post={post}
           parentComment={comment}
-          alignmentForumPost={post.af}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{

@@ -30,7 +30,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, currentUser}) => {
   prefilledProps.postId = post._id;
 
   if (parentComment) {
@@ -73,7 +73,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, parentCommen
         layout="elementOnly"
         GroupComponent={FormGroupComponent}
         SubmitComponent={SubmitComponent}
-        alignmentForumPost={alignmentForumPost}
+        alignmentForumPost={post.af}
         addFields={currentUser?[]:["contents"]}
       />
     </div>

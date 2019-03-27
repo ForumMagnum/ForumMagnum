@@ -107,7 +107,6 @@ class AnswerCommentsList extends PureComponent {
                     parentAnswerId: parentAnswer._id,
                     parentCommentId: parentAnswer._id,
                   }}
-                  alignmentForumPost={post.af}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
