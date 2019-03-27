@@ -1,8 +1,7 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { getFragment } from 'meteor/vulcan:core';
-import { Posts } from '../../lib/collections/posts';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import withUser from '../common/withUser';

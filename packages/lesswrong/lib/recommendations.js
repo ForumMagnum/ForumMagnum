@@ -1,7 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery } from 'meteor/vulcan:core';
 import { Posts } from './collections/posts';
-import { LWEvents } from './collections/lwevents';
-import Users from 'meteor/vulcan:users';
 
 const getLoggedOutRecommendations = async ({count}) => {
   let topPosts = await Posts.find(
