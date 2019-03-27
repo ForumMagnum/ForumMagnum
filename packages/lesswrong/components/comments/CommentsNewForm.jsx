@@ -30,7 +30,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, classes, successCallback, type, cancelCallback, currentUser}) => {
   prefilledProps = {
     ...prefilledProps,
     postId: post._id,
@@ -111,7 +111,6 @@ CommentsNewForm.propTypes = {
   post: PropTypes.object.isRequired,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
-  parentCommentId: PropTypes.string, // if reply
   topLevelCommentId: PropTypes.string, // if reply
   successCallback: PropTypes.func, // a callback to execute when the submission has been successful
   cancelCallback: PropTypes.func,

@@ -320,7 +320,6 @@ class CommentsItem extends Component {
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
-            parentCommentId: comment._id,
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"

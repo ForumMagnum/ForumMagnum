@@ -104,7 +104,6 @@ class AnswerCommentsList extends PureComponent {
                   parentComment={parentAnswer}
                   prefilledProps={{
                     parentAnswerId: parentAnswer._id,
-                    parentCommentId: parentAnswer._id,
                   }}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
