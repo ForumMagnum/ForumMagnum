@@ -58,26 +58,26 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
     </div>
   }
 
-  if (!currentUser || Comments.options.mutations.new.check(currentUser, prefilledProps)) {
-    return (
-      <div className={classes.root}>
-        <Components.WrappedSmartForm
-          collection={Comments}
-          mutationFragment={getFragment('CommentsList')}
-          successCallback={successCallback}
-          cancelCallback={cancelCallback}
-          prefilledProps={prefilledProps}
-          layout="elementOnly"
-          GroupComponent={FormGroupComponent}
-          SubmitComponent={SubmitComponent}
-          alignmentForumPost={alignmentForumPost}
-          addFields={currentUser?[]:["contents"]}
-        />
-      </div>
-    );
-  } else {
+  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
+  
+  return (
+    <div className={classes.root}>
+      <Components.WrappedSmartForm
+        collection={Comments}
+        mutationFragment={getFragment('CommentsList')}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
+        prefilledProps={prefilledProps}
+        layout="elementOnly"
+        GroupComponent={FormGroupComponent}
+        SubmitComponent={SubmitComponent}
+        alignmentForumPost={alignmentForumPost}
+        addFields={currentUser?[]:["contents"]}
+      />
+    </div>
+  );
 };
 
 const FormGroupComponent = (props) => {
