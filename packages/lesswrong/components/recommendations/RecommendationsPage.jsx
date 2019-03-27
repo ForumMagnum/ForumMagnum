@@ -22,7 +22,7 @@ const withRecommendations = component => {
       alias: "withRecommendations",
       options: () => ({
         variables: {
-          count: 7,
+          count: 10,
         }
       }),
       props(props) {
