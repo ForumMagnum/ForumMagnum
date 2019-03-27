@@ -315,7 +315,7 @@ class CommentsItem extends Component {
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
         <Components.CommentsNewForm
-          postId={comment.postId}
+          post={post}
           parentComment={comment}
           alignmentForumPost={post.af}
           successCallback={this.replySuccessCallback}

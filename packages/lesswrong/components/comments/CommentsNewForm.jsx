@@ -30,8 +30,8 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost, currentUser}) => {
-  prefilledProps.postId = postId;
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost, currentUser}) => {
+  prefilledProps.postId = post._id;
 
   if (parentComment) {
     prefilledProps = Object.assign(prefilledProps, {
@@ -104,7 +104,7 @@ const FormGroupComponent = (props) => {
 
 
 CommentsNewForm.propTypes = {
-  postId: PropTypes.string.isRequired,
+  post: PropTypes.object.isRequired,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
   parentCommentId: PropTypes.string, // if reply

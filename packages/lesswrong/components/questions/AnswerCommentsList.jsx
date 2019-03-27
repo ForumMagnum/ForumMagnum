@@ -100,7 +100,7 @@ class AnswerCommentsList extends PureComponent {
           { commenting &&
               <div className={classes.editor}>
                 <CommentsNewForm
-                  postId={post._id}
+                  post={post}
                   parentComment={parentAnswer}
                   prefilledProps={{
                     af: Comments.defaultToAlignment(currentUser, post, parentAnswer),

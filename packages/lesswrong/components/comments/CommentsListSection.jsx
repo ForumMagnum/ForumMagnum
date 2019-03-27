@@ -3,8 +3,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router'
 import {
   Components,
-  registerComponent,
-  getSetting
+  registerComponent
 } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
@@ -149,7 +148,7 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -165,7 +164,7 @@ class CommentsListSection extends Component {
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
               alignmentForumPost={post.af}
-              postId={postId}
+              post={post}
               prefilledProps={{
                 af: Comments.defaultToAlignment(currentUser, post),
                 parentAnswerId: parentAnswerId}}
