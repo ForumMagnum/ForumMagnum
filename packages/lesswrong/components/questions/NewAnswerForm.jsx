@@ -69,14 +69,14 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
     </div>
   }
 
-  const prefilledProps = { 
-    postId: post._id, 
+  const prefilledProps = {
+    postId: post._id,
     answer: true,
     af: Comments.defaultToAlignment(currentUser, post),
   }
   const { SmartForm } = Components
   
-  if (!Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
   
@@ -93,6 +93,7 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
         prefilledProps={prefilledProps}
         alignmentForumPost={post.af}
         layout="elementOnly"
+        addFields={currentUser?[]:["contents"]}
       />
     </div>
   )

@@ -58,7 +58,7 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
     </div>
   }
 
-  if (Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+  if (!currentUser || Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return (
       <div className={classes.root}>
         <Components.WrappedSmartForm
@@ -71,6 +71,7 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
           GroupComponent={FormGroupComponent}
           SubmitComponent={SubmitComponent}
           alignmentForumPost={alignmentForumPost}
+          addFields={currentUser?[]:["contents"]}
         />
       </div>
     );

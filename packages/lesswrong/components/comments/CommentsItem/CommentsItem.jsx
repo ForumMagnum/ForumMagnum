@@ -284,9 +284,8 @@ class CommentsItem extends Component {
 
       const showReplyButton = (
         !comment.isDeleted &&
-        !!currentUser &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-        Users.isAllowedToComment(currentUser, this.props.post)
+        (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
       )
 
       return (

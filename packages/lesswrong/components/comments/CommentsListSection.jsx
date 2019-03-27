@@ -159,15 +159,8 @@ class CommentsListSection extends Component {
           <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
         </div>
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        {!currentUser &&
-          <div>
-            <Components.LoginPopupLink>
-              <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-            </Components.LoginPopupLink>
-          </div>
-        }
         <div id="comments"/>
-        {currentUser && Users.isAllowedToComment(currentUser, post) &&
+        { (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
