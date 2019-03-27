@@ -56,13 +56,19 @@ const FormGroupComponent = (props) => {
   </React.Fragment>
 }
 
-const NewAnswerForm = ({post, classes, currentUser}) => {
+const NewAnswerForm = ({post, classes, flash, currentUser}) => {
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
       <Button
         type="submit"
         className={classNames(classes.formButton)}
+        onClick={(ev) => {
+          if (!currentUser) {
+            flash({messageString: "Log in to submit your answer."});
+            ev.preventDefault();
+          }
+        }}
       >
         {submitLabel}
       </Button>
@@ -102,7 +108,8 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
 NewAnswerForm.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  prefilledProps: PropTypes.object
+  prefilledProps: PropTypes.object,
+  flash: PropTypes.func,
 };
 
 registerComponent('NewAnswerForm', NewAnswerForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerForm"}));

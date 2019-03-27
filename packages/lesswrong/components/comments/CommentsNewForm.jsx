@@ -30,7 +30,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, classes, successCallback, type, cancelCallback, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, flash, currentUser}) => {
   prefilledProps = {
     ...prefilledProps,
     postId: post._id,
@@ -56,6 +56,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, classes, suc
       <Button
         type="submit"
         className={classNames(classes.formButton)}
+        onClick={(ev) => {
+          if (!currentUser) {
+            flash({messageString: "Log in to submit your comment."});
+            ev.preventDefault();
+          }
+        }}
       >
         {submitLabel}
       </Button>
