@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from "../../../lib/collections/posts";
-import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
@@ -309,7 +308,7 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const { currentUser, post, comment, parentAnswerId, nestingLevel=1 } = this.props
+    const { post, comment, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
