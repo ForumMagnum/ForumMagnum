@@ -47,7 +47,7 @@ const styles = theme => ({
   
     "& p": {
       fontSize: 16,
-      lineHeight: 26,
+      lineHeight: "26px",
     }
   },
   // Dark Magick
