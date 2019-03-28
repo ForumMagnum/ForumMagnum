@@ -9,11 +9,14 @@ import { Comments } from '../lib/collections/comments'
 import { renderAndSendEmail, reasonUserCantReceiveEmails } from './emails/renderEmail.js';
 import './emailComponents/EmailWrapper.jsx';
 import './emailComponents/NewPostEmail.jsx';
+import './emailComponents/PrivateMessagesEmail.jsx';
+import { EventDebouncer } from './debouncer.js';
 
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 
 import { Components } from 'meteor/vulcan:core';
 import React from 'react';
+import keyBy from 'lodash/keyBy';
 
 const createNotifications = (userIds, notificationType, documentType, documentId) => {
   userIds.forEach(userId => {
@@ -249,11 +252,67 @@ async function CommentsNewNotifications(comment) {
 }
 addCallback("comments.new.async", CommentsNewNotifications);
 
-function messageNewNotification(message) {
-  const conversation = Conversations.findOne(message.conversationId);
-  //Make sure to not notify the author of the message
-  const notifees = conversation.participantIds.filter((id) => (id !== message.userId));
+async function sendPrivateMessagesEmail(conversationId, messageIds) {
+  const conversation = await Conversations.findOne(conversationId);
+  const participants = await Users.find({_id: {$in: conversation.participantIds}}).fetch();
+  const participantsById = keyBy(participants, u=>u._id);
+  const messages = await Messages.find(
+    {_id: {$in: messageIds}},
+    { sort: {createdAt:1} })
+    .fetch();
+  
+  for (const recipientUser of participants)
+  {
+    // TODO: Gradual rollout--only email admins with this. Remove later when
+    // this is more tested.
+    if (!Users.isAdmin(recipientUser))
+      continue;
+    
+    // If this user is responsible for every message that would be in the
+    // email, don't send it to them (you only want emails that contain at
+    // least one message that's not your own; your own messages are optional
+    // context).
+    if (!_.some(messages, message=>message.userId !== recipientUser._id))
+      continue;
+    
+    const otherParticipants = _.filter(participants, u=>u._id != recipientUser._id);
+    const subject = `Private message conversation with ${otherParticipants.map(u=>u.displayName).join(', ')}`;
+    
+    await renderAndSendEmail({
+      user: recipientUser,
+      subject: subject,
+      bodyComponent: <Components.EmailWrapper>
+        <Components.PrivateMessagesEmail
+          conversation={conversation}
+          messages={messages}
+          participantsById={participantsById}
+        />
+      </Components.EmailWrapper>
+    });
+  }
+}
 
-  createNotifications(notifees, 'newMessage', 'message', message._id);
+const privateMessagesDebouncer = new EventDebouncer({
+  name: "privateMessage",
+  delayMinutes: 15,
+  maxDelayMinutes: 30,
+  callback: sendPrivateMessagesEmail
+});
+
+function messageNewNotification(message) {
+  const conversationId = message.conversationId;
+  const conversation = Conversations.findOne(conversationId);
+  
+  // For on-site notifications, notify everyone except the sender of the
+  // message. For email notifications, notify everyone including the sender
+  // (since if there's a back-and-forth in the grouped notifications, you want
+  // to see your own messages.)
+  const recipients = conversation.participantIds.filter((id) => (id !== message.userId));
+
+  // Create on-site notification
+  createNotifications(recipients, 'newMessage', 'message', message._id);
+  
+  // Generate debounced email notifications
+  privateMessagesDebouncer.recordEvent(conversationId, message._id);
 }
 addCallback("messages.new.async", messageNewNotification);

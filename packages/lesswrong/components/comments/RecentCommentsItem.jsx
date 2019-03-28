@@ -6,6 +6,7 @@ import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { withStyles } from '@material-ui/core/styles'
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
   author: {
@@ -15,6 +16,13 @@ const styles = theme => ({
   },
   authorAnswer: {
     fontFamily: theme.typography.postStyle.fontFamily
+  },
+  usernameSpacing: {
+    paddingRight: 1,
+    color: "rgba(0,0,0,.3)",
+    [legacyBreakpoints.maxSmall]: {
+      padding: "0 10px",
+    }
   }
 })
 
@@ -72,7 +80,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                     >
                       subdirectory_arrow_left
                     </Icon>
-                  ) : level != 1 && <div className="recent-comment-username-spacing">○</div>
+                  ) : level != 1 && <div className={classes.usernameSpacing}>○</div>
                 }
                 <span className={classNames(classes.author, {[classes.authorAnswer]:comment.answer})}>
                   {comment.answer && "Answer by "}<Components.UsersName user={comment.user}/>

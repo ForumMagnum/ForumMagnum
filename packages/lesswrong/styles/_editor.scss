@@ -17,11 +17,6 @@
         }
     }
 
-    .commentEditor {
-        margin-bottom:30px;
-        border-bottom:solid 1px $light-grey;
-    }
-
     .document-edit .input-draft,
     .document-new .input-draft,
     .document-edit .input-frontpage,
@@ -86,10 +81,6 @@
     .form-submit {
         text-align: right;
     }
-
-    .commentEditor .content-body {
-        padding:0 18px;
-    }
 }
 
 // TODO: Consider taking ownership of the CSS of these draft-js plugins
@@ -101,45 +92,10 @@
 @import '../../node_modules/draft-js-divider-plugin/lib/plugin.css';
 
 
-//////////////////////////////////////////////////////////////////////////////
-// TODO: Figure out how safe CSS referring to ory-editor and slatejs (editors
-// that we migrated away from) are to delete, given that some classnames may
-// have ended up inside posts that were written with those editors.
-//
-// Preventing material bootstrap from duplicating decorative elements on the
-// input elements
-.ory-toolbar-drawer {
-  input {
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-  }
-}
-
-.ory-dimensions {
-  input {
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-  }
-}
-
-.ory-prevent-blur {
-  input {
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-  }
-}
-
-// Changing the location of the ory-toolbar buttons to work well with the
-// Intercom button
-
-.ory-controls-mode-toggle-control-group {
-  padding: 13px !important;
-  bottom: 75px !important;
-}
-
-.slate-h3-icon {
-  padding:4px 0 1px 0 !important;
-}
+// TODO: These classes are used by 248 posts in the database that were authored
+// while LW2 was using ory-editor, which we have since migrated away from.
+// Getting rid of these styles safely requires updating the formatting of those
+// posts (or at least figuring out what this style actually does).
 .ory-cell-inner.ory-cell-leaf {
   @include max-small {
     > div > div > div > div {
@@ -167,10 +123,6 @@
   min-height: 220px;
   border-radius: 2px;
   margin-bottom: 2em;
-}
-
-.commentEditor {
-  min-height: 80px;
 }
 
 // FIXME TODO: This CSS is unused/not being applied, but actually it should

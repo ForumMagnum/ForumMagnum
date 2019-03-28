@@ -17,7 +17,7 @@ const styles = (theme) => ({
     ...theme.typography.commentStyle
   },
   noUnreadComments: {
-    color: "rgba(0,0,0,.15)",
+    color: "rgba(0,0,0,.22)",
   },
   unreadComments: {
     color: theme.palette.secondary.light,

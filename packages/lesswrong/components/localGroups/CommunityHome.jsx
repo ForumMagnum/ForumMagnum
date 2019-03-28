@@ -9,15 +9,12 @@ import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import EventIcon from '@material-ui/icons/Event';
 
 const styles = theme => ({
-  listDivider: {
-    marginTop: 12,
-    marginRight: 37,
-    marginLeft: 32,
-    border: 0,
-    borderTop: "1px solid #eee",
-  },
+  content: {
+    marginTop: 460,
+  }
 });
 
 class CommunityHome extends Component {
@@ -65,20 +62,20 @@ class CommunityHome extends Component {
   render() {
     const {classes, router} = this.props;
     const filters = (router.location.query && router.location.query.filters) || [];
-    const { TabNavigationMenu } = Components
-    
+    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
+
     const postsListTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 5,
+      limit: 7,
       filters: filters,
     }
     const groupsListTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 3,
+      limit: 7,
       filters: filters,
     }
     const mapEventTerms = {
@@ -88,40 +85,44 @@ class CommunityHome extends Component {
       filters: filters,
     }
     return (
-      <div className="community-home">
+      <React.Fragment>
         <TabNavigationMenu />
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />
-        <Components.Section title="Local Groups" titleComponent={<div>
-          {this.props.currentUser && <Components.GroupFormLink />}
-          {this.props.currentUser && <Components.SectionSubtitle>
-            <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
-              Create new event
-            </Link>
-          </Components.SectionSubtitle>}
-          <Components.SectionSubtitle>
-            <Link to="/pastEvents">See past events</Link>
-          </Components.SectionSubtitle>
-          <Components.SectionSubtitle>
-            <Link to="/upcomingEvents">See upcoming events</Link>
-          </Components.SectionSubtitle>
-        </div>}>
-        <div>
-          { this.state.currentUserLocation.loading
-            ? <Components.Loading />
-            : <Components.LocalGroupsList
-                terms={groupsListTerms}
-                showHeader={false} />
-          }
-          <hr className={classes.listDivider}/>
-          <Components.PostsList terms={postsListTerms} />
+        <div className={classes.content}>
+          <SingleColumnSection>
+            <SectionTitle title="Local Groups">
+              {this.props.currentUser && <GroupFormLink />}
+            </SectionTitle>
+            { this.state.currentUserLocation.loading
+              ? <Components.Loading />
+              : <Components.LocalGroupsList
+                  terms={groupsListTerms}
+                  showHeader={false} />
+            }
+          </SingleColumnSection>
+          <SingleColumnSection>
+            <SectionTitle title="Events">
+              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+                <SectionButton>
+                  <EventIcon />
+                  New Event
+                </SectionButton>
+              </Link>}
+            </SectionTitle>
+            <PostsList2 terms={postsListTerms}>
+              <Link to="/pastEvents">View Past Events</Link>
+              <Link to="/upcomingEvents">View Upcoming Events</Link>
+            </PostsList2>
+          </SingleColumnSection>
+
+          <SingleColumnSection>
+            <SectionTitle title="Resources"/>
+            <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+          </SingleColumnSection>
         </div>
-        </Components.Section>
-        <Components.Section title="Resources">
-          <Components.PostsList terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
-        </Components.Section>
-      </div>
+      </React.Fragment>
     )
   }
 }

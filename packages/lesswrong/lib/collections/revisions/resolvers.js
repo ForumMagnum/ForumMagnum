@@ -45,6 +45,9 @@ export function dataToDraftJS(data, type) {
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
       return convertToRaw(draftJSContentState) 
     }
+    default: {
+      throw new Error(`Unrecognized type: ${type}`);
+    }
   }
 }
 

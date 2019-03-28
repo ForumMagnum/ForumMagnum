@@ -50,6 +50,7 @@ import '../components/common/SingleColumnSection';
 import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
 import '../components/common/SectionFooter.jsx';
+import '../components/common/SectionButton.jsx';
 import '../components/common/MetaInfo.jsx';
 import '../components/common/NoContent.jsx';
 import '../components/common/SearchBar.jsx';
@@ -331,3 +332,5 @@ import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/QuestionsPage.jsx';
+
+import '../components/recommendations/RecommendationsPage.jsx';
