@@ -61,7 +61,7 @@ class EditUrl extends Component {
     </InputAdornment>
     const startAdornmentActive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
       <Icon>link_off</Icon></InputAdornment>
-    
+
     return (
       <div className={classes.root}>
         <div>

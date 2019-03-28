@@ -18,10 +18,9 @@ class PostsEditForm extends PureComponent {
   render() {
     const { documentId, document, eventForm, classes } = this.props;
     const isDraft = document && document.draft;
-    const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+    const { WrappedSmartForm, PostSubmit } = Components
     const EditPostsSubmit = (props) => {
       return <div className={classes.formSubmit}>
-        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
         <PostSubmit {...props} />
       </div>
     }

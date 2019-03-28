@@ -15,7 +15,7 @@ const styles = theme => ({
 })
 
 const PostsNewForm = ({router, currentUser, flash, classes}) => {
-  const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
+  const { PostSubmit, WrappedSmartForm, AccountsLoginForm } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const prefilledProps = {
@@ -35,7 +35,6 @@ const PostsNewForm = ({router, currentUser, flash, classes}) => {
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }
