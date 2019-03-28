@@ -262,7 +262,6 @@ class EditorFormComponent extends Component {
     if (success) {
       this.lastSavedAt = new Date();
       this.hasUnsavedData = false;
-      console.log("Saved backup");
     }
     return success;
   }
