@@ -47,7 +47,8 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 12px 12px 12px',
+    padding: theme.spacing.unit*1.5,
+    paddingTop: 0,
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
     marginBottom: "1.3em",

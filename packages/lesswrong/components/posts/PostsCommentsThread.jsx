@@ -13,7 +13,6 @@ class PostsCommentsThread extends PureComponent {
       const nestedComments = unflattenComments(results);
       return (
           <Components.CommentsListSection
-            newForm={newForm}
             comments={nestedComments}
             postId={post._id}
             lastEvent={post.lastVisitedAt}
@@ -22,6 +21,7 @@ class PostsCommentsThread extends PureComponent {
             commentCount={(results && results.length) || 0}
             loadingMoreComments={loadingMore}
             post={post}
+            newForm={newForm}
             guidelines={guidelines}
           />
       );
