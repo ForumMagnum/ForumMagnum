@@ -5,7 +5,7 @@ import { unflattenComments } from "../../lib/modules/utils/unflatten";
 
 class PostsCommentsThread extends PureComponent {
   render() {
-    const {loading, results, loadMore, networkStatus, totalCount, post} = this.props;
+    const {loading, results, loadMore, networkStatus, totalCount, post, newForm=true, guidelines=true } = this.props;
     const loadingMore = networkStatus === 2;
     if (loading) {
       return <Components.Loading/>
@@ -13,6 +13,7 @@ class PostsCommentsThread extends PureComponent {
       const nestedComments = unflattenComments(results);
       return (
           <Components.CommentsListSection
+            newForm={newForm}
             comments={nestedComments}
             postId={post._id}
             lastEvent={post.lastVisitedAt}
@@ -21,6 +22,7 @@ class PostsCommentsThread extends PureComponent {
             commentCount={(results && results.length) || 0}
             loadingMoreComments={loadingMore}
             post={post}
+            guidelines={guidelines}
           />
       );
     }

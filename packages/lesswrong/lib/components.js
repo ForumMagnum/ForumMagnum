@@ -321,7 +321,8 @@ import '../components/alignment-forum/AFApplicationForm.jsx';
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
-import '../components/questions/AnswersSection.jsx';
+import '../components/questions/PostsPageQuestionContent.jsx';
+import '../components/questions/NewAnswerCommentQuestionForm.jsx';
 import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
