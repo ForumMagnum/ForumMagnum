@@ -3,10 +3,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Hidden from '@material-ui/core/Hidden';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { legacyBreakpoints } from '../../../lib/modules/utils/theme';
-
-   
-
 
 const styles = theme => ({
   stickyContainer: {
