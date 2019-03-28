@@ -4,7 +4,7 @@ import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';
 import moment from 'moment';
-import marked from 'marked';
+import { markdownToHtml } from '../editor/make_editable_callbacks.js';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
@@ -401,7 +401,7 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
         type: "markdown",
         data: comment.body
       },
-      html: comment.body && Utils.sanitize(marked(comment.body))
+      html: comment.body && Utils.sanitize(markdownToHtml(comment.body))
     },
   };
 }

@@ -84,7 +84,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                         <Components.FormatDate date={comment.postedAt}/>
                         <Icon className="material-icons comments-item-permalink"> link </Icon>
                       </div>
-                      { showTitle && comment.post && comment.post.title}
+                      { showTitle && comment.post.title}
                     </div>
                   </Link>
                 )}

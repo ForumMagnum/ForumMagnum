@@ -75,6 +75,7 @@ if (getSetting('events', true)) {
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
+import './lib/collections/users/serverSchema.js';
 
 if (getSetting('events', true)) {
   import './lib/events/server.js';
