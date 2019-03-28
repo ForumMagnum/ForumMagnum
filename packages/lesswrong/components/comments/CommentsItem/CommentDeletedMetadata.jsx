@@ -1,19 +1,31 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import { Comments } from '../../../lib/collections/comments';
+import { withStyles } from '@material-ui/core/styles';
 
-const CommentDeletedMetadata = ({document}) => {
+const styles = theme => ({
+  root: {
+    opacity: 0.5,
+  },
+  meta: {
+    fontSize: 12,
+    marginLeft: 3,
+    fontStyle: "italic",
+  },
+});
+
+const CommentDeletedMetadata = ({document, classes}) => {
   if (document && document.deleted) {
     const deletedByUsername = document.deletedByUser && document.deletedByUser.displayName;
     return (
-      <div className="comments-item-deleted-info">
-        <div className="comments-item-deleted-info-meta">
+      <div className={classes.root}>
+        <div className={classes.meta}>
           {deletedByUsername && <span>Deleted by {deletedByUsername}</span>}, {document.deletedDate && <span>
             <Components.CalendarDate date={document.deletedDate}/>
           </span>} 
         </div>
         {document.deletedReason &&
-          <div className="comments-item-deleted-info-meta">
+          <div className={classes.meta}>
             Reason: {document.deletedReason}
           </div>
         }
@@ -32,4 +44,6 @@ const options = {
   fragmentName: 'DeletedCommentsMetaData',
 };
 
-registerComponent('CommentDeletedMetadata', CommentDeletedMetadata, [withDocument, options]);
+registerComponent('CommentDeletedMetadata', CommentDeletedMetadata,
+  withStyles(styles, {name: "CommentDeletedMetadata"}),
+  [withDocument, options]);

@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
+import withErrorBoundary from '../common/withErrorBoundary'
 
 const styles = theme => ({
   root: {
@@ -114,4 +115,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withMessages, withStyles(styles));
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withMessages, withStyles(styles), withErrorBoundary);

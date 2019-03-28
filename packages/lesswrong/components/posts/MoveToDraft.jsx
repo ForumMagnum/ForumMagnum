@@ -1,6 +1,5 @@
 import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 

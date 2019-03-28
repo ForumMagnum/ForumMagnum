@@ -36,6 +36,9 @@ const palette = {
   secondary: {
     main: '#5f9b65',
   },
+  lwTertiary: {
+    main: "#607e88"
+  },
   error: {
     main: deepOrange[900]
   },
@@ -86,7 +89,8 @@ const theme = createLWTheme({
     },
     MuiTooltip: {
       tooltip: {
-        fontSize: "1rem"
+        fontSize: "1rem",
+        padding: ".7rem",
       }
     },
     MuiDialogContent: {

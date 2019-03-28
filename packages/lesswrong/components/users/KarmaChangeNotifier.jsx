@@ -109,10 +109,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
         <div>
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
-            {karmaChanges.posts && karmaChanges.posts.map((postChange,i) => (
+            {karmaChanges.posts && karmaChanges.posts.map(postChange => (
               <MenuItem
                 className={classes.votedItemRow}
-                component={Link} to={Posts.getPageUrl(postChange)} key={i} >
+                component={Link} to={Posts.getPageUrl(postChange)} key={postChange._id} >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
                 </span>
@@ -121,9 +121,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
                 </div>
                 </MenuItem>
             ))}
-            {karmaChanges.comments && karmaChanges.comments.map((commentChange,i) => (
+            {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
               <MenuItem className={classes.votedItemRow}
-                component={Link} to={Comments.getPageUrlFromIds(commentChange.postId, commentChange.postSlug, commentChange._id)} key={i}
+                component={Link} to={Comments.getPageUrlFromIds(commentChange.postId, commentChange.postSlug, commentChange._id)} key={commentChange._id}
                 >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>

@@ -146,7 +146,7 @@ export async function validateCollection(collection)
           // Compare against values referred to, and report an error for any missing
           for (const document of batch) {
             if (document[fieldName] && !(document[fieldName] in foreignValuesFound)) {
-              recordError(fieldName, "foreignKeyViolation");
+              recordError(fieldName, `foreignKeyViolation: from ${document._id} to ${document[fieldName]}`);
             }
           }
         }

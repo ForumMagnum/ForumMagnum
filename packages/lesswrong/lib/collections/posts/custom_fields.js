@@ -454,28 +454,28 @@ addFieldsDict(Posts, {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: document => document.baseScore >= 2 && new Date()
+    onInsert: document => document.baseScore >= 2 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 30
   scoreExceeded30Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: document => document.baseScore >= 30 && new Date()
+    onInsert: document => document.baseScore >= 30 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 45
   scoreExceeded45Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: document => document.baseScore >= 45 && new Date()
+    onInsert: document => document.baseScore >= 45 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 75
   scoreExceeded75Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: document => document.baseScore >= 75 && new Date()
+    onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
   bannedUserIds: {
     type: Array,

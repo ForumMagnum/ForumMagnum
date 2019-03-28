@@ -1,7 +1,7 @@
 import Revisions from './collection'
 import { htmlToDraft } from '../../editor/utils';
 import { convertToRaw } from 'draft-js';
-import { markdownToHtml, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
+import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
 import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
@@ -19,7 +19,7 @@ function domBuilder(html) {
 }
 
 
-function htmlToDraftServer(...args) {
+export function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
   global.HTMLElement = new JSDOM().window.HTMLElement
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
@@ -41,9 +41,12 @@ export function dataToDraftJS(data, type) {
       return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
     }
     case "markdown": {
-      const html = markdownToHtml(data)
+      const html = markdownToHtmlNoLaTeX(data)
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
       return convertToRaw(draftJSContentState) 
+    }
+    default: {
+      throw new Error(`Unrecognized type: ${type}`);
     }
   }
 }

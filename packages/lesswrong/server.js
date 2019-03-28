@@ -5,6 +5,7 @@ import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
 import './server/database-import/force_batch_update_scores.js';
 import './server/database-import/cleanup_scripts.js';
+import './server/robots.js';
 
 // Scripts
 import './server/scripts/sscImport.js';
@@ -12,6 +13,7 @@ import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
 import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
+import './server/scripts/exportForAprilFoolsTraining.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
 import './server/scripts/fixEmailField.js';
@@ -42,6 +44,7 @@ import './server/mapsUtils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
+import './server/debouncer.js';
 import './server/logging.js';
 import './server/rss.js';
 import './server/akismet.js';
@@ -50,6 +53,7 @@ import './server/votingGraphQL.js';
 import './server/updateScores.js';
 import './server/siteAdminMetadata.js';
 import './server/callbacks.js';
+import './server/notificationCallbacks.js';
 import './server/voteServer.js';
 
 import './lib/collections/comments/callbacks.js';
@@ -69,6 +73,7 @@ import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
+import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
 

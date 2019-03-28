@@ -359,8 +359,6 @@ registerFragment(`
     mongoLocation
     shortformFeedId
     viewUnreviewedComments
-    notifications_users
-    notifications_posts
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
   }

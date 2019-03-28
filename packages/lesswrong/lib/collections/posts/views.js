@@ -94,7 +94,7 @@ ensureIndex(Posts,
 ensureIndex(Posts,
   augmentForDefaultView({ coauthorUserIds: 1, postedAt: -1, }),
   {
-    name: "posts.userId_postedAt",
+    name: "posts.coauthorUserIds_postedAt",
   }
 );
 
@@ -103,6 +103,8 @@ const setStickies = (sortOptions, terms) => {
     return { afSticky: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {
     return { metaSticky: -1, ...sortOptions}
+  } else if (terms.forum) {
+    return { sticky: -1, ...sortOptions}
   }
   return sortOptions
 }
@@ -289,20 +291,31 @@ Posts.addView("meta-rss", terms => ({
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
-Posts.addView("questions", terms => ({
+Posts.addView("topQuestions", terms => ({
+  selector: {
+    question: true,
+    baseScore: {$gte: 40}
+  },
+  options: {
+    sort: { lastCommentedAt: -1 }
+  }
+}));
+ensureIndex(Posts,
+  augmentForDefaultView({ question:1, lastCommentedAt: -1 }),
+  {
+    name: "posts.topQuestions",
+  }
+);
+
+Posts.addView("recentQuestionActivity", terms => ({
   selector: {
     question: true,
   },
   options: {
-    sort: {sticky: -1, score: -1}
+    sort: {lastCommentedAt: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, question:1 }),
-  {
-    name: "posts.questions",
-  }
-);
+// covered by same index as 'topQuestions'
 
 /**
  * @summary Scheduled view
@@ -343,7 +356,7 @@ ensureIndex(Posts,
 );
 ensureIndex(Posts,
   augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
-  { name: "posts.userId_createdAt" }
+  { name: "posts.userId_shareWithUsers" }
 );
 
 /**
@@ -557,7 +570,7 @@ ensureIndex(Posts,
 Posts.addView("communityResourcePosts", function () {
   return {
     selector: {
-      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'YdcF6WbBmJhaaDqoD']}
+      _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'PqMT9zGrNsGJNfiFR', 'YdcF6WbBmJhaaDqoD']}
     },
   }
 })

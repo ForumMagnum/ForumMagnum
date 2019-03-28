@@ -9,7 +9,7 @@ Vulcan.recomputeAllDenormalizedValues = async () => {
   }
 }
 
-Vulcan.recomputeDenormalizedValues = async (collectionName, fieldName) => {
+export const recomputeDenormalizedValues = async (collectionName, fieldName) => {
   // eslint-disable-next-line no-console
   console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 
@@ -50,6 +50,7 @@ Vulcan.recomputeDenormalizedValues = async (collectionName, fieldName) => {
   // eslint-disable-next-line no-console
   console.log(`Finished recomputing denormalized values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 }
+Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
 async function runDenormalizedFieldMigration({ collection, fieldName, getValue }) {
   await migrateDocuments({

@@ -10,7 +10,7 @@ const UsersSearchAutoComplete = ({clickAction, label}) => {
   const algoliaSearchKey = getSetting('algolia.searchKey')
 
   if(!algoliaAppId) {
-    return <div className="users-search-auto-complete">User search is disabled (Algolia App ID not configured on server)</div>
+    return <div>User search is disabled (Algolia App ID not configured on server)</div>
   }
 
   return <InstantSearch
@@ -18,7 +18,7 @@ const UsersSearchAutoComplete = ({clickAction, label}) => {
     appId={algoliaAppId}
     apiKey={algoliaSearchKey}
   >
-    <div className="users-search-auto-complete">
+    <div>
       <AutoComplete clickAction={clickAction} label={label}/>
       <Configure hitsPerPage={7} />
     </div>
@@ -33,7 +33,7 @@ const AutoComplete = connectAutoComplete(
       event.stopPropagation();
       clickAction(suggestion.objectID)
     }
-    return <span className="users-search-auto-complete">
+    return <span>
       <Autosuggest
         suggestions={hits}
         onSuggestionsFetchRequested={({ value }) => refine(value)}

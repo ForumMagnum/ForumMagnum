@@ -6,8 +6,6 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
 
 const styles = (theme) => ({
-  root: {
-  },
   commentCount: {
     position:"absolute",
     right:"50%",
@@ -19,7 +17,7 @@ const styles = (theme) => ({
     ...theme.typography.commentStyle
   },
   noUnreadComments: {
-    color: "rgba(0,0,0,.15)",
+    color: "rgba(0,0,0,.22)",
   },
   unreadComments: {
     color: theme.palette.secondary.light,

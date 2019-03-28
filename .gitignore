@@ -62,3 +62,5 @@ yarn.lock
 *.swp
 *.un~
 .vscode/launch.json
+
+.elasticbeanstalk/*

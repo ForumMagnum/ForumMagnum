@@ -1,5 +1,6 @@
 import './metatest.tests.js';
 import './voting.tests.js';
+import './debouncer.tests.js';
 
 import '../components/comments/CommentsItem/_comments-unit-tests.js';
 
@@ -13,4 +14,6 @@ import '../lib/collections/notifications/tests.js';
 
 import '../lib/modules/alignment-forum/posts/tests.js';
 import '../lib/modules/alignment-forum/users/tests.js';
+
+import '../server/emails/tests.jsx';
 import '../lib/editor/utils.test.js';
