@@ -23,6 +23,7 @@ const styles = theme => ({
   }
 })
 class SunshineNewUsersItem extends Component {
+  state = {hidden: false}
 
   handleReview = () => {
     const { currentUser, user, editMutation } = this.props
@@ -36,6 +37,7 @@ class SunshineNewUsersItem extends Component {
   handlePurge = async () => {
     const { currentUser, user, editMutation } = this.props
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
+      this.setState({hidden: true})
       await editMutation({
         documentId: user._id,
         set: {
@@ -57,6 +59,9 @@ class SunshineNewUsersItem extends Component {
 
 
     const showNewUserContent = currentUser && currentUser.sunshineShowNewUserContent
+
+    if (this.state.hidden) { return null }
+
     return (
         <SunshineListItem hover={hover}>
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
