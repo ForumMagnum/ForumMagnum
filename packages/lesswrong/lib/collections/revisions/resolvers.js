@@ -32,6 +32,8 @@ export function htmlToDraftServer(...args) {
 }
 
 export function dataToDraftJS(data, type) {
+  if (data===undefined || data===null) return null;
+  
   switch (type) {
     case "draftJS": {
       return data
