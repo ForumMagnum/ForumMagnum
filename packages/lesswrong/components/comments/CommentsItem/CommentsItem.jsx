@@ -207,13 +207,13 @@ class CommentsItem extends Component {
                   <Components.FormatDate date={comment.postedAt}/>
                   <Icon className="material-icons comments-item-permalink"> link
                   </Icon>
-                  {showPostTitle && post && post.title && <span className={classes.postTitle}> { post.title }</span>}
+                  {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
                 </a>
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
 
-              <span className={classes.metaRight}> 
+              <span className={classes.metaRight}>
                 <span className={classes.menu}>
                   <CommentsMenu
                     comment={comment}

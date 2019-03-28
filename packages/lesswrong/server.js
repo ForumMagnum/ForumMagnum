@@ -72,6 +72,7 @@ import './lib/collections/localgroups/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
+import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
 
