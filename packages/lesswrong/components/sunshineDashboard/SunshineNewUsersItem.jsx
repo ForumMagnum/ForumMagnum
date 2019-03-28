@@ -51,10 +51,12 @@ class SunshineNewUsersItem extends Component {
   }
 
   render () {
-    const { user, hover, anchorEl, classes } = this.props
+    const { user, hover, anchorEl, classes, currentUser } = this.props
 
     const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
 
+
+    const showNewUserContent = currentUser && currentUser.sunshineShowNewUserContent
     return (
         <SunshineListItem hover={hover}>
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
@@ -73,8 +75,10 @@ class SunshineNewUsersItem extends Component {
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
 
-                <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
-                <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+                {!showNewUserContent && <React.Fragment>
+                  <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+                  <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+                </React.Fragment>}
               </MetaInfo>
             </Typography>
           </SidebarHoverOver>
@@ -94,7 +98,12 @@ class SunshineNewUsersItem extends Component {
               { user.email }
             </MetaInfo>
           </div>
-
+          {showNewUserContent && 
+            <React.Fragment>
+              <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+              <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+            </React.Fragment>
+          }
           { hover && <SidebarActionMenu>
             <SidebarAction title="Review" onClick={this.handleReview}>
               done
