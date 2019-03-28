@@ -57,6 +57,8 @@ const styles = theme => ({
   }
 })
 
+const autosaveInterval = 3000; //milliseconds
+
 class EditorFormComponent extends Component {
   constructor(props) {
     super(props)
@@ -66,6 +68,8 @@ class EditorFormComponent extends Component {
       updateType: 'minor',
       ...this.getEditorStatesFromType(editorType)
     }
+    this.lastSavedAt = new Date();
+    this.hasUnsavedData = false;
   }
 
   getEditorStatesFromType = (editorType) => {
@@ -176,6 +180,21 @@ class EditorFormComponent extends Component {
       return result;
     }
     this.context.addToSuccessForm(resetEditor);
+    
+    if (window) {
+      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
+        if (this.hasUnsavedData) {
+          ev.preventDefault();
+          return ev.returnValue = 'Are you sure you want to close?';
+        }
+      });
+    }
+  }
+  
+  componentWillUnmount() {
+    if (this.unloadEventListener) {
+      window.removeEventListener(this.unloadEventListener);
+    }
   }
 
   handleEditorOverride = (editorType) => {
@@ -196,7 +215,7 @@ class EditorFormComponent extends Component {
     this.setState({draftJSValue: value})
     
     if (changed) {
-      this.maybeSaveBackup();
+      this.afterChange();
     }
   }
   
@@ -206,7 +225,7 @@ class EditorFormComponent extends Component {
     this.setState({htmlValue: newContent})
     
     if (changed)
-      this.maybeSaveBackup();
+      this.afterChange();
   }
   
   setMarkdown = (e) => {
@@ -215,26 +234,37 @@ class EditorFormComponent extends Component {
     this.setState({markdownValue: newContent})
     
     if (changed)
-      this.maybeSaveBackup();
+      this.afterChange();
   }
   
-  maybeSaveBackup = () => {
+  afterChange = () => {
+    this.hasUnsavedData = true;
+    
+    setTimeout(() => {
+      if (!this.lastSavedAt || (new Date() - this.lastSavedAt) > autosaveInterval) {
+        this.saveBackup();
+      }
+    }, autosaveInterval);
+  }
+  
+  saveBackup = () => {
     const { document, name } = this.props;
     
-    // Only save to localStorage on every 30th content change
-    // TODO: Consider debouncing rather than saving every 30th change
-    // TODO: Consider saving on blur
-    this.changeCount = this.changeCount + 1;
-    if (this.changeCount % 30 === 0) {
-      const serialized = this.editorContentsToJson();
-      
-      this.getStorageHandlers().set({
-        state: serialized,
-        doc: document,
-        name,
-        prefix: this.getLSKeyPrefix()
-      })
+    const serialized = this.editorContentsToJson();
+    
+    const success = this.getStorageHandlers().set({
+      state: serialized,
+      doc: document,
+      name,
+      prefix: this.getLSKeyPrefix()
+    });
+    
+    if (success) {
+      this.lastSavedAt = new Date();
+      this.hasUnsavedData = false;
+      console.log("Saved backup");
     }
+    return success;
   }
   
   // Take the editor contents (whichever editor you're using), and return
