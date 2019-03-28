@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -58,7 +58,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            flash({messageString: "Log in to submit your comment."});
+            const isAF = getSetting('AlignmentForum', false);
+            const message = (isAF
+              ? "Log in or go to LessWrong to submit your comment."
+              : "Log in to submit your comment."
+            );
+            flash({messageString: message});
             ev.preventDefault();
           }
         }}
