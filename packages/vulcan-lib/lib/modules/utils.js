@@ -4,7 +4,6 @@ Utilities
 
 */
 
-import marked from 'marked';
 import urlObject from 'url';
 import moment from 'moment';
 import getSlug from 'speakingurl';
@@ -224,11 +223,6 @@ Utils.sanitize = function(s) {
 
 Utils.stripHTML = function(s) {
   return s.replace(/<(?:.|\n)*?>/gm, '');
-};
-
-Utils.stripMarkdown = function(s) {
-  var htmlBody = marked(s);
-  return Utils.stripHTML(htmlBody);
 };
 
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key

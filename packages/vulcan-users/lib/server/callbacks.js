@@ -1,5 +1,4 @@
   import Users from '../modules/collection.js';
-  import marked from 'marked';
   import { addCallback, Utils, runCallbacksAsync } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
   //////////////////////////////////////////////////////
@@ -36,13 +35,13 @@
   }
   addCallback('users.new.sync', usersMakeAdmin);
 
-  function usersEditGenerateHtmlBio (modifier) {
-    if (modifier.$set && modifier.$set.bio) {
-      modifier.$set.htmlBio = Utils.sanitize(marked(modifier.$set.bio));
-    }
-    return modifier;
-  }
-  addCallback('users.edit.sync', usersEditGenerateHtmlBio);
+  //function usersEditGenerateHtmlBio (modifier) {
+  //  if (modifier.$set && modifier.$set.bio) {
+  //    modifier.$set.htmlBio = Utils.sanitize(marked(modifier.$set.bio));
+  //  }
+  //  return modifier;
+  //}
+  //addCallback('users.edit.sync', usersEditGenerateHtmlBio);
 
   function usersEditCheckEmail (modifier, user) {
     // if email is being modified, update user.emails too

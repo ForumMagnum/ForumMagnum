@@ -176,7 +176,6 @@
     "i18n": true,
     "InviteSchema": true,
     "logEvent": true,
-    "marked": true,
     "Messages": true,
     "Pages": true,
     "sendEmail": true,
