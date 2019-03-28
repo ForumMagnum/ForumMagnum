@@ -3,8 +3,8 @@ import { addRoute, getSetting} from 'meteor/vulcan:core';
 // example-forum routes
 addRoute([
   {name:'users.single',     path:'users/:slug',           componentName: 'UsersSingle'},
-  {name:'users.single.user',   path:'user/:slug',            componentName: 'UsersSingle'},
-  {name:'users.single.u',path:'u/:slug',               componentName: 'UsersSingle'},
+  {name:'users.single.user',path:'user/:slug',            componentName: 'UsersSingle'},
+  {name:'users.single.u',   path:'u/:slug',               componentName: 'UsersSingle'},
   {name:'users.account',    path:'account',               componentName: 'UsersAccount'},
   {name:'users.edit',       path:'users/:slug/edit',      componentName: 'UsersAccount'}
 ]);

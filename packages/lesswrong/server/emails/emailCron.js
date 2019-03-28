@@ -6,7 +6,7 @@ export const releaseEmailBatches = ({now}) => {
 addCronJob({
   name: "Hourly notification batch",
   schedule(parser) {
-    return parser.cron('4 ? * * *');
+    return parser.cron('0 ? * * *');
   },
   job() {
     console.log("Hourly notification batch"); //eslint-disable-line no-console
