@@ -3,21 +3,21 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Hidden from '@material-ui/core/Hidden';
 import withErrorBoundary from '../../common/withErrorBoundary'
+import { legacyBreakpoints } from '../../../lib/modules/utils/theme';
+
+   
+
 
 const styles = theme => ({
   stickyContainer: {
     position: "absolute",
-    width: 240,
+    width: 300,
     height: "100%",
+    [theme.breakpoints.up('lg')]: {
+      left:-60
+    },
     [theme.breakpoints.up('xl')]: {
       left:-100
-    },
-    [theme.breakpoints.up('lg')]: {
-      left:-50
-    },
-    opacity: .5,
-    '&:hover': {
-      opacity:1
     },
     marginTop: -1
   },
