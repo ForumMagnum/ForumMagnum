@@ -53,7 +53,6 @@ class PostsDay extends PureComponent {
 PostsDay.propTypes = {
   currentUser: PropTypes.object,
   date: PropTypes.object,
-  number: PropTypes.number
 };
 
 registerComponent('PostsDay', PostsDay, withStyles(styles, { name: "PostsDay" }));
