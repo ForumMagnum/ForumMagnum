@@ -705,6 +705,16 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
   },
 
+  sunshineShowNewUserContent: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    group: formGroups.adminOptions,
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+  },
+
   viewUnreviewedComments: {
     type: Boolean,
     optional: true,

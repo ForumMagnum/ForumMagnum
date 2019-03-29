@@ -91,6 +91,7 @@ extendFragment('UsersCurrent', `
   karmaChangeLastOpened
   shortformFeedId
   viewUnreviewedComments
+  sunshineShowNewUserContent
 `);
 
 registerFragment(`
