@@ -2,27 +2,34 @@
 import { forEachBucketRangeInCollection } from '../queryUtil.js';
 import { Comments } from '../../lib/collections/comments/collection.js'
 import { Posts } from '../../lib/collections/posts/collection.js'
-import { dataToMarkdown } from '../editor/make_editable_callbacks.js';
 import keyBy from 'lodash/keyBy';
+import htmlToText from 'html-to-text'
 import fs from 'fs';
 
 const scoreThreshold = 5;
+const htmlToTextOptions = {
+  ignoreHref: true,
+  wordwrap: false,
+  ignoreImage: true,
+  preserveNewlines: true,
+  uppercaseHeadings: false
+}
 
-function getCommentMarkdown(comment) {
-  const originalContents = comment.contents.originalContents;
-  const result = dataToMarkdown(originalContents.data, originalContents.type);
+function getCommentText(comment) {
+  const html = comment.contents.html
+  const result = htmlToText.fromString(html, htmlToTextOptions)
   return result;
 }
-function getPostMarkdown(post) {
-  const originalContents = post.contents.originalContents;
-  const result = dataToMarkdown(originalContents.data, originalContents.type);
+function getPostText(post) {
+  const html = post.contents.html;
+  const result = htmlToText.fromString(html, htmlToTextOptions)
   return result;
 }
 
 const exportPostReplyPairs = async (filename) => {
   //eslint-disable-next-line no-console
   console.log(`Exporting post/comment-reply pairs to ${filename}`);
-  const outputFile = fs.openSync(filename, 'w');
+  const outputFile = fs.openSync(process.env["PWD"] + "/" + filename, 'w');
   fs.writeSync(outputFile, '[\n');
   
   // Get comments scored >=scoreThreshold which reply to posts/comments scored >=scoreThreshold.
@@ -57,8 +64,8 @@ const exportPostReplyPairs = async (filename) => {
               )
             {
               fs.writeSync(outputFile, JSON.stringify({
-                comment: getCommentMarkdown(comment),
-                parent: getCommentMarkdown(parentComment),
+                comment: getCommentText(comment),
+                parent: getCommentText(parentComment),
               }));
               fs.writeSync(outputFile, ',\n');
             }
@@ -68,13 +75,13 @@ const exportPostReplyPairs = async (filename) => {
               && parentPost.baseScore >= scoreThreshold
               && !parentPost.draft
               && parentPost.status===Posts.config.STATUS_APPROVED
-              && comment.contents && comment.contents.originalContents
-              && parentPost.contents && parentPost.contents.originalContents
+              && comment.contents && comment.contents.html
+              && parentPost.contents && parentPost.contents.html
               )
             {
               fs.writeSync(outputFile, JSON.stringify({
-                comment: getCommentMarkdown(comment),
-                parent: getPostMarkdown(parentPost),
+                comment: getCommentText(comment),
+                parent: getPostText(parentPost),
               }));
               fs.writeSync(outputFile, ',\n');
             }
