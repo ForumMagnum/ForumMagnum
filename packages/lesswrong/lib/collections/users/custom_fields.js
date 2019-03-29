@@ -711,8 +711,8 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     group: formGroups.adminOptions,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    canCreate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
   },
 
   viewUnreviewedComments: {
