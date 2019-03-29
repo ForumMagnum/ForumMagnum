@@ -20,6 +20,14 @@ const styles = theme => ({
     // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
     wordBreak: "break-word",
     display: "inline-block"
+  },
+  sample: {
+    maxHeight: 100,
+    overflow: "hidden",
+    '&:hover': {
+      maxHeight: "unset",
+      overflow: "unset"
+    }
   }
 })
 class SunshineNewUsersItem extends Component {
@@ -64,11 +72,6 @@ class SunshineNewUsersItem extends Component {
         <SunshineListItem hover={hover}>
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
-              <Link to={Users.getProfileUrl(user)}>
-                { user.displayName }
-              </Link>
-              <div><MetaInfo>{ user.email }</MetaInfo></div>
-              <br/>
               <MetaInfo>
                 <div>Posts: { user.postCount || 0 }</div>
                 <div>Comments: { user.commentCount || 0 }</div>
@@ -102,10 +105,10 @@ class SunshineNewUsersItem extends Component {
             </MetaInfo>
           </div>
           {showNewUserContent && 
-            <React.Fragment>
-              <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
-              <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
-            </React.Fragment>
+            <div className={classes.sample}>
+              <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+              <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+            </div>
           }
           { hover && <SidebarActionMenu>
             <SidebarAction title="Review" onClick={this.handleReview}>
