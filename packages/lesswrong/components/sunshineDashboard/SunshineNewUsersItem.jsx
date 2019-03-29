@@ -54,11 +54,9 @@ class SunshineNewUsersItem extends Component {
 
   render () {
     const { user, hover, anchorEl, classes, currentUser } = this.props
+    const showNewUserContent = currentUser && currentUser.sunshineShowNewUserContent
 
     const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
-
-
-    const showNewUserContent = currentUser && currentUser.sunshineShowNewUserContent
 
     if (this.state.hidden) { return null }
 
