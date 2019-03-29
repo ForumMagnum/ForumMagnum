@@ -125,17 +125,13 @@ const styles = (theme) => ({
 })
 
 const TabNavigationMenu = ({
+  currentUser,
   classes,
   location,
-  currentUser
 }) => {
 
   const { pathname } = location
   const { TabNavigationSubItem, TabNavigationEventsList } = Components
-
-  // TODO: BETA Remove the admin requirements on this component once it's ready to be deployed to master.
-
-  if (!(currentUser && currentUser.isAdmin)) { return null }
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]

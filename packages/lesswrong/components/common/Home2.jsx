@@ -3,13 +3,19 @@ import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
 
-const Home2 = () => {
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
+const Home2 = ({ currentUser }) => {
+  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, Divider } = Components
 
   return (
     <React.Fragment>
       <Components.HeadTags image={getSetting('siteImage')} />
       <TabNavigationMenu />
+
+      {!currentUser && <SingleColumnSection>
+        <SectionTitle title="Core Reading" />
+        <Components.CoreReading />
+        <Divider />
+      </SingleColumnSection>}
 
       <SingleColumnSection>
         <SectionTitle title="Curated" />
