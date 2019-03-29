@@ -10,10 +10,10 @@ import { compassIcon } from '../icons/compassIcon';
 import { questionsGlobeIcon } from '../icons/questionsGlobeIcon';
 import { communityGlobeIcon } from '../icons/communityGlobeIcon';
 import { bookIcon } from '../icons/bookIcon'
-import { allPostsIcon } from '../icons/allPostsIcon'
-;
+import { allPostsIcon } from '../icons/allPostsIcon';
 
-export const iconWidth = 30
+const iconWidth = 30
+const smallIconSize = 23
 
 const styles = (theme) => ({
   root: {
@@ -41,13 +41,11 @@ const styles = (theme) => ({
       flexDirection: "column",
     },
     [theme.breakpoints.down('md')]: {
-      position: "absolute",
-      top: 74,
+      position: "fixed",
+      bottom: 0,
       left: 0,
-      width: "100%"
-    },
-    [theme.breakpoints.down('xs')]: {
-      top: 66,
+      width: "100%",
+      backgroundColor: theme.palette.grey[300]
     },
   },
   selected: {
@@ -58,6 +56,9 @@ const styles = (theme) => ({
       color: theme.palette.grey[900],
       fontWeight: 600,
     },
+    [theme.breakpoints.down('md')]: {
+      backgroundColor: theme.palette.grey[400]
+    }
   },
   navButton: {
     [theme.breakpoints.down('md')]: {
@@ -77,8 +78,8 @@ const styles = (theme) => ({
       flexDirection: "row",
     },
     [theme.breakpoints.down('md')]: {
-      paddingTop: theme.spacing.unit*2,
-      paddingBottom: theme.spacing.unit,
+      paddingTop: theme.spacing.unit,
+      paddingBottom: 0,
       width: "100%",
       flexDirection: "column",
     }
@@ -91,15 +92,23 @@ const styles = (theme) => ({
     [theme.breakpoints.up('lg')]: {
       marginRight: theme.spacing.unit*2,
       display: "inline",
+    },
+    [theme.breakpoints.down('md')]: {
+      opacity: .45,
+      width: smallIconSize,
+      height: smallIconSize,
+      '& svg': {
+        width: smallIconSize,
+        height: smallIconSize,
+      }
     }
   },
   navText: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
     [theme.breakpoints.down('md')]: {
-      fontSize: '1rem',
-      marginBottom: 3,
-      marginTop: 8,
+      fontSize: '.85rem',
+      color: theme.palette.grey[700],
     },
     [theme.breakpoints.up('lg')]: {
       textTransform: "none !important",
@@ -119,7 +128,11 @@ const styles = (theme) => ({
     '& svg': {
       height: 29,
       position: "relative",
-      top: -1
+      top: -1,
+      [theme.breakpoints.down('md')]: {
+        height: smallIconSize,
+        width: smallIconSize
+      }
     }
   },
 })
