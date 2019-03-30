@@ -2,7 +2,6 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
@@ -51,7 +50,7 @@ class CommentsVote extends PureComponent {
     )
 
     return (
-      <div className={classNames("comments-item-vote"), classes.vote}>
+      <div className={classes.vote}>
         {(!getSetting('AlignmentForum', false) || !!comment.af) &&
           <span>
             <Tooltip

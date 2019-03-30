@@ -1,16 +1,17 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
   root: {
-    marginLeft: 13,
+    display: "flex",
     fontSize: 14,
-    paddingLeft: 10,
-    paddingBottom: 5,
-  
+    paddingLeft: theme.spacing.unit,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
     [legacyBreakpoints.maxTiny]: {
         marginLeft: 0,
         paddingLeft: 0,
@@ -24,34 +25,39 @@ const styles = theme => ({
   title: {
     fontSize: "1.4rem",
     lineHeight: "1.4rem",
-    marginBottom: 5,
     fontWeight: 400,
-    paddingTop: 10,
     overflow: "hidden",
     textOverflow: "ellipsis",
     textDecoration: "none",
     whiteSpace: "nowrap",
     zIndex: "400 !important",
-    marginRight:10,
+    flexGrow: 1
   },
   location: {
     color: "rgba(0,0,0,.4)",
     marginRight: 8,
   },
+  links: {
+    minWidth: 132,
+  }
 });
 
 const LocalGroupsItem = ({group, classes}) => {
-  if (group) {
-    return <div className={classes.root}>
-        <Link to={"groups/" + group._id} >
-          <span className={classes.title}>[Group] {group.name}</span>
-          {/* {group.organizers.map((organizer) => <span key={organizer._id} className="local-group-organizer">{organizer.displayName} </span>)} */}
-          <span className={classes.location}>{ group.location }</span>
-        </Link>
+  const { PostsItemMetaInfo, GroupLinks } = Components
+  
+  if (!group) { return null }
+
+  return (
+    <div className={classes.root}>
+      <Link to={"groups/" + group._id}  className={classes.title}>{group.name}</Link>
+      <div  className={classes.location}>
+        <PostsItemMetaInfo>{ group.location }</PostsItemMetaInfo>
       </div>
-  } else {
-    return null
-  }
+      <div className={classes.links}>
+        <GroupLinks document={group} />
+      </div>    
+    </div>
+  )
 }
 
 registerComponent('LocalGroupsItem', LocalGroupsItem,

@@ -1,4 +1,5 @@
 import Conversations from "./collection.js";
+import { Utils } from 'meteor/vulcan:core';
 
 Conversations.getTitle = (conversation, currentUser) => {
   if (!!conversation.title) {
@@ -10,4 +11,10 @@ Conversations.getTitle = (conversation, currentUser) => {
   } else {
     throw Error(`Can't create title for conversation ${conversation._id} for user ${currentUser._id} – missing participant info`)
   }
+}
+
+Conversations.getPageUrl = (conversation, isAbsolute=false) => {
+  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  
+  return `${prefix}/inbox?select=${conversation._id}`;
 }

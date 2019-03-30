@@ -32,6 +32,8 @@ export function htmlToDraftServer(...args) {
 }
 
 export function dataToDraftJS(data, type) {
+  if (data===undefined || data===null) return null;
+  
   switch (type) {
     case "draftJS": {
       return data
@@ -44,6 +46,9 @@ export function dataToDraftJS(data, type) {
       const html = markdownToHtmlNoLaTeX(data)
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
       return convertToRaw(draftJSContentState) 
+    }
+    default: {
+      throw new Error(`Unrecognized type: ${type}`);
     }
   }
 }

@@ -134,6 +134,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const shared = post.draft && (post.userId !== currentUser._id)
 
   const showQuestionsTag = !(location.pathname === "/questions")
+  const showEventsTag = !(location.pathname === "/community")
 
   const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
     <Typography variant="body1" className={classes.title}>
@@ -147,7 +148,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
 
       {post.url && <span className={classes.tag}>[Link]</span>}
 
-      {post.isEvent && <span className={classes.tag}>[Event]</span>}
+      {post.isEvent && showEventsTag && <span className={classes.tag}>[Event]</span>}
 
       {post.title}
     </Typography>

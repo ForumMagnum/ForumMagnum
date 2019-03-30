@@ -172,7 +172,7 @@
   }
 }
 
-.sequences-title-wrapper, .sequences-title-wrapper-preSSR, .sequences-editor-title-wrapper {
+.sequences-title-wrapper, .sequences-editor-title-wrapper {
   position: absolute;
   bottom: 5px;
   left: 50%;
@@ -227,6 +227,12 @@
     width:100%;
     text-align:center;
   }
+}
+
+.chapters-edit-form {
+    width: 700px;
+    margin-left: auto;
+    margin-right: 75px;
 }
 
 .chapters-edit-form, .chapters-new-form {
