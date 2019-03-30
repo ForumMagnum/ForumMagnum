@@ -1,4 +1,4 @@
-import { addCallback, newMutation } from 'meteor/vulcan:core';
+import { addCallback, newMutation, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Comments } from '../lib/collections/comments/collection.js'
 import { dataToMarkdown } from './editor/make_editable_callbacks.js';
@@ -34,6 +34,9 @@ const generateReply = async (prompt) => {
 
 const ReplyToCommentWithGpt2 = async (parentComment) => {
   try {
+    if (!getSetting("aprilFools", false))
+      return;
+    
     // Find the GPT2 account
     const gpt2user = await Users.findOne({displayName: "GPT2"});
     
