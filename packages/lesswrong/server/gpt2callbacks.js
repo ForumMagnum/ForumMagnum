@@ -39,6 +39,8 @@ const ReplyToCommentWithGpt2 = async (parentComment) => {
     
     if (!gpt2user) return;
     
+    if (gpt2user.banned) return;
+    
     // GPT-2 doesn't reply to itself
     if (parentComment.userId === gpt2user._id)
       return;
