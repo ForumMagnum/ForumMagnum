@@ -5,19 +5,9 @@ import { Posts } from '../../lib/collections/posts/collection.js'
 import { dataToMarkdown } from '../editor/make_editable_callbacks.js';
 import keyBy from 'lodash/keyBy';
 import fs from 'fs';
+import { getCommentText, getPostText } from '../gpt2callbacks.js';
 
 const scoreThreshold = 5;
-
-function getCommentMarkdown(comment) {
-  const originalContents = comment.contents.originalContents;
-  const result = dataToMarkdown(originalContents.data, originalContents.type);
-  return result;
-}
-function getPostMarkdown(post) {
-  const originalContents = post.contents.originalContents;
-  const result = dataToMarkdown(originalContents.data, originalContents.type);
-  return result;
-}
 
 const exportPostReplyPairs = async (filename) => {
   //eslint-disable-next-line no-console
@@ -57,8 +47,8 @@ const exportPostReplyPairs = async (filename) => {
               )
             {
               fs.writeSync(outputFile, JSON.stringify({
-                comment: getCommentMarkdown(comment),
-                parent: getCommentMarkdown(parentComment),
+                comment: getCommentText(comment),
+                parent: getCommentText(parentComment),
               }));
               fs.writeSync(outputFile, ',\n');
             }
@@ -73,8 +63,8 @@ const exportPostReplyPairs = async (filename) => {
               )
             {
               fs.writeSync(outputFile, JSON.stringify({
-                comment: getCommentMarkdown(comment),
-                parent: getPostMarkdown(parentPost),
+                comment: getCommentText(comment),
+                parent: getPostText(parentPost),
               }));
               fs.writeSync(outputFile, ',\n');
             }
