@@ -68,6 +68,7 @@ const ReplyToCommentWithGpt2 = async (parentComment) => {
       validate: false,
     });
   } catch(e) {
+    // eslint-disable-next-line no-console
     console.error(e);
   }
 }

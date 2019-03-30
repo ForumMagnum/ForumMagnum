@@ -2,7 +2,6 @@
 import { forEachBucketRangeInCollection } from '../queryUtil.js';
 import { Comments } from '../../lib/collections/comments/collection.js'
 import { Posts } from '../../lib/collections/posts/collection.js'
-import { dataToMarkdown } from '../editor/make_editable_callbacks.js';
 import keyBy from 'lodash/keyBy';
 import fs from 'fs';
 import { getCommentText, getPostText } from '../gpt2callbacks.js';
