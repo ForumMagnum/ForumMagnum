@@ -88,8 +88,7 @@ class CommentsItem extends Component {
     this.state = {
       showReply: false,
       showEdit: false,
-      showParent: false,
-      forceExpand: false
+      showParent: false
     };
   }
 
