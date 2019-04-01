@@ -88,7 +88,8 @@ class CommentsItem extends Component {
     this.state = {
       showReply: false,
       showEdit: false,
-      showParent: false
+      showParent: false,
+      forceExpand: false
     };
   }
 
@@ -114,7 +115,7 @@ class CommentsItem extends Component {
 
   replyCancelCallback = () => {
     this.setState({showReply: false});
-  }
+}
 
   replySuccessCallback = () => {
     this.setState({showReply: false});
@@ -265,6 +266,7 @@ class CommentsItem extends Component {
             ) : (
               <Components.CommentBody
                 truncationCharCount={this.getTruncationCharCount()}
+                // LESSWRONG: Remove after April Fools
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}

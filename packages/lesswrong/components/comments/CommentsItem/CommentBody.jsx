@@ -69,7 +69,7 @@ class CommentBody extends Component {
   render () {
     const { comment, classes, collapsed, truncationCharCount, truncated } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
-    const { html = "", markdown = ""} = comment.contents || {}
+    const { html = "", plaintextDescription = ""} = comment.contents || {}
 
     const bodyClasses = classNames(
       { [classes.commentStyling]: !comment.answer,
@@ -78,7 +78,7 @@ class CommentBody extends Component {
     );
 
     const shouldRenderExcerpt = truncated && 
-      (markdown && markdown.length) > truncationCharCount && 
+      (plaintextDescription && plaintextDescription.length) > truncationCharCount && 
       !collapsed
 
     if (comment.deleted) {
