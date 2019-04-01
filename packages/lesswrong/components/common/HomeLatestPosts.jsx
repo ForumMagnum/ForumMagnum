@@ -17,6 +17,11 @@ const styles = theme => ({
       top: -2
     }
   },
+  checked: {
+    '&&': {
+      color: theme.palette.lwTertiary.main,
+    }
+  },
   checkboxGroup: {
     display: "flex",
     color: theme.palette.grey[800],
@@ -87,7 +92,7 @@ class HomeLatestPosts extends PureComponent {
         <PostsList2 terms={recentPostsTerms}>
           <Link to={"/allPosts"}>View All Posts</Link>
           <span className={classes.checkBoxGroup} onClick={this.toggleFilter}>
-            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!(currentFilter === "frontpage")} />
+            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={!(currentFilter === "frontpage")} />
             Include Personal Posts
           </span>
         </PostsList2>

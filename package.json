@@ -139,6 +139,7 @@
     "react-test-renderer": "^16.8.0",
     "recompose": "^0.26.0",
     "redux": "^3.6.0",
+    "request": "^2.88.0",
     "rss": "^1.2.1",
     "sanitize-html": "^1.18.2",
     "sendy-api": "^0.1.0",

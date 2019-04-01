@@ -20,6 +20,7 @@ registerMigration({
         unmigratedDocumentQuery: {
           [fieldName]: false,
         },
+        batchSize: 1000,
         migrate: async (documents) => {
           let updates = _.map(documents, doc => ({
             updateOne: {
