@@ -7,7 +7,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 const styles = theme => ({
   stickyContainer: {
     position: "absolute",
-    width: 300,
+    width: 280,
     height: "100%",
     [theme.breakpoints.up('lg')]: {
       left:-60
