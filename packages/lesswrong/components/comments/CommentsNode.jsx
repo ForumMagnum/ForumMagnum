@@ -83,11 +83,17 @@ class CommentsNode extends Component {
     };
   }
 
+  // TODO: Remove this after April Fools
+  commentIsByGPT2 = (comment) => {
+    return !!(comment && comment.user && comment.user.displayName === "GPT2")
+  }
+
   isCollapsed = () => {
-    const { comment } = this.props
+    const { comment, currentUser } = this.props
     return (
       comment.deleted ||
-      comment.baseScore < KARMA_COLLAPSE_THRESHOLD
+      comment.baseScore < KARMA_COLLAPSE_THRESHOLD ||
+      (currentUser && currentUser.blockedGPT2 && this.commentIsByGPT2(comment))
     )
   }
 
