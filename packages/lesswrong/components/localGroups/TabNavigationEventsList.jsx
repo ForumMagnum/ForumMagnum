@@ -12,6 +12,7 @@ import classNames from 'classnames';
 const YESTERDAY_STRING = "[Yesterday]"
 const TODAY_STRING = "[Today]"
 const TOMORROW_STRING = "[Tomorrow]"
+const HIGHLIGHT_LENGTH = 600
 
 const styles = theme => ({
   displayTime: {
@@ -86,7 +87,7 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
 
         const { htmlHighlight = "" } = event.contents || {}
 
-        const highlight = truncate(htmlHighlight, 600)
+        const highlight = truncate(htmlHighlight, HIGHLIGHT_LENGTH)
 
         const tooltip = <div>
             <div className={classes.tooltipTitle}>{event.title}</div>
