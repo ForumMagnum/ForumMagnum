@@ -13,14 +13,12 @@ const styles = (theme) => ({
   },
 })
 
-const PostsItemMetaInfo = ({children, classes, button, className}) => {
+const PostsItemMetaInfo = ({children, classes, className}) => {
   return <Typography
     component='span'
     className={classNames(classes.root, className)}
     variant='body2'>
-      <span className={className}>
-        {children}  
-      </span>
+      {children}  
   </Typography>
 }
 
