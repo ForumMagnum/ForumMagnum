@@ -92,6 +92,8 @@ extendFragment('UsersCurrent', `
   shortformFeedId
   viewUnreviewedComments
   sunshineShowNewUserContent
+  # TODO: Remove this after april fools
+  blockedGPT2
 `);
 
 registerFragment(`
