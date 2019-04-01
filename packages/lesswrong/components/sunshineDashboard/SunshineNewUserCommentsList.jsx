@@ -9,9 +9,10 @@ const styles = theme => ({
   comment: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
-    ...commentBodyStyles(theme),
-    fontSize: "1em",
     color: "rgba(0,0,0,.7)"
+  },
+  commentStyle: {
+    ...commentBodyStyles(theme),
   }
 })
 
@@ -31,7 +32,7 @@ const SunshineNewUserCommentsList = ({loading, results, classes, truncated}) => 
           </Link>
         </MetaInfo>}
         {!truncated && <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
-        <div dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
+        <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>
   )
