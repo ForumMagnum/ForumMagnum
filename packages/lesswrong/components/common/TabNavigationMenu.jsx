@@ -27,7 +27,6 @@ const styles = (theme) => ({
     },
     [theme.breakpoints.down('md')]: {
       position: "unset",
-      height: 80,
     },
   },
   tabMenu: {

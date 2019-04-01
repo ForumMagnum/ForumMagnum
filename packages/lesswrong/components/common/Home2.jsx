@@ -2,9 +2,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from 'react-router';
+import withUser from '../common/withUser';
 
 const Home2 = ({ currentUser }) => {
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, Divider } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
 
   return (
     <React.Fragment>
@@ -14,7 +15,6 @@ const Home2 = ({ currentUser }) => {
       {!currentUser && <SingleColumnSection>
         <SectionTitle title="Core Reading" />
         <Components.CoreReading />
-        <Divider />
       </SingleColumnSection>}
 
       <SingleColumnSection>
@@ -35,4 +35,4 @@ const Home2 = ({ currentUser }) => {
   )
 };
 
-registerComponent('Home2', Home2);
+registerComponent('Home2', Home2, withUser);
