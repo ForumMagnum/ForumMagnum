@@ -85,7 +85,7 @@ class CommentsNode extends Component {
 
   // TODO: Remove this after April Fools
   commentIsByGPT2 = (comment) => {
-    return !!(comment.user.displayName === "GPT2")
+    return !!(comment && comment.user && comment.user.displayName === "GPT2")
   }
 
   isCollapsed = () => {
