@@ -12,7 +12,7 @@ import { communityGlobeIcon } from '../icons/communityGlobeIcon';
 import { bookIcon } from '../icons/bookIcon'
 import { allPostsIcon } from '../icons/allPostsIcon';
 
-const iconWidth = 30
+export const iconWidth = 30
 const smallIconSize = 23
 
 const styles = (theme) => ({
