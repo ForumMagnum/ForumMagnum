@@ -69,15 +69,20 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
     <div>
       {results.map((event) => {
 
-        let displayTime = ""
         const startTime = moment(event.startTime).tz(timezone)
-        const tomorrow = moment().add(2, 'day').tz(timezone).toDate()
-        const yesterday = moment().subtract(2, 'day').tz(timezone).toDate()
 
-        if ((startTime.toDate() > yesterday) && (startTime.toDate() < tomorrow)) {
-          // TODO: figure out calendar formatting to make this read slightly nicer
-          displayTime = startTime.calendar().split(" ")[0]
-        }
+        const displayTime = startTime.calendar(null, {
+          sameDay: '[[Today]]',
+          nextDay: '[[Tomorrow]]',
+          nextWeek: ' ',
+          lastDay: '[[Yesterday]]',
+          lastWeek: ' ',
+          sameElse: ' ',
+        })
+        // if ((startTime.toDate() > yesterday) && (startTime.toDate() < tomorrow)) {
+        //   // TODO: figure out calendar formatting to make this read slightly nicer
+        //   displayTime = startTime.calendar().split(" ")[0]
+        // }
 
         const { htmlHighlight = "" } = event.contents || {}
 
@@ -104,11 +109,11 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
             <Link to={Posts.getPageUrl(event)}>
               <TabNavigationSubItem>
-                {displayTime && <span className={classNames(
-                  classes.displayTime, {[classes.yesterday]: displayTime === "Yesterday"})
-                }>
-                  [{displayTime}]
-                </span> }
+                {(displayTime !== " ") && <span className={classNames(
+                    classes.displayTime, {[classes.yesterday]: displayTime === "Yesterday"})
+                  }>
+                    {displayTime}
+                </span>}
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
             </Link>
