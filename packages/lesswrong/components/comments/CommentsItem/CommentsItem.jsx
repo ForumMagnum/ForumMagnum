@@ -265,7 +265,6 @@ class CommentsItem extends Component {
             ) : (
               <Components.CommentBody
                 truncationCharCount={this.getTruncationCharCount()}
-                // LESSWRONG: Remove after April Fools
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}
