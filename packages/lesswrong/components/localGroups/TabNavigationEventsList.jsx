@@ -83,10 +83,6 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
           lastWeek: ' ',
           sameElse: ' ',
         })
-        // if ((startTime.toDate() > yesterday) && (startTime.toDate() < tomorrow)) {
-        //   // TODO: figure out calendar formatting to make this read slightly nicer
-        //   displayTime = startTime.calendar().split(" ")[0]
-        // }
 
         const { htmlHighlight = "" } = event.contents || {}
 
