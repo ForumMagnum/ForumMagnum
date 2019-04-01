@@ -114,7 +114,7 @@ class CommentsItem extends Component {
 
   replyCancelCallback = () => {
     this.setState({showReply: false});
-  }
+}
 
   replySuccessCallback = () => {
     this.setState({showReply: false});
