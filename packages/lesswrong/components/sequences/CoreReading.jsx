@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Hidden from '@material-ui/core/Hidden';
-import { withStyles } from '@material-ui/core/styles';
 
 const coreReadingCollections = [
   {
@@ -33,15 +32,9 @@ const coreReadingCollections = [
   }
 ]
 
-const styles = theme => ({
-  fullWidth: {
-    width: "100%",
-  },
-});
-
-const CoreReading = ({minimal=false, classes}) => (
+const CoreReading = ({minimal=false}) => (
   <Components.CollectionsCardContainer>
-    <Hidden xsDown implementation="css" className={classes.fullWidth}>
+    <Hidden xsDown implementation="css">
       <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
     </Hidden>
     <Hidden smUp implementation="css">
@@ -53,5 +46,4 @@ const CoreReading = ({minimal=false, classes}) => (
   </Components.CollectionsCardContainer>
 );
 
-registerComponent("CoreReading", CoreReading,
-  withStyles(styles, {name: "CoreReading"}));
+registerComponent("CoreReading", CoreReading);
