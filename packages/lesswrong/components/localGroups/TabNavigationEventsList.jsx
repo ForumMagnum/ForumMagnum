@@ -9,6 +9,10 @@ import withTimezone from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 
+const YESTERDAY_STRING = "[Yesterday]"
+const TODAY_STRING = "[Today]"
+const TOMORROW_STRING = "[Tomorrow]"
+
 const styles = theme => ({
   displayTime: {
     fontSize: ".85rem",
@@ -72,10 +76,10 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
         const startTime = moment(event.startTime).tz(timezone)
 
         const displayTime = startTime.calendar(null, {
-          sameDay: '[[Today]]',
-          nextDay: '[[Tomorrow]]',
+          sameDay: `[${TODAY_STRING}]`,
+          nextDay: `[${TOMORROW_STRING}]`,
           nextWeek: ' ',
-          lastDay: '[[Yesterday]]',
+          lastDay: `[${YESTERDAY_STRING}]`,
           lastWeek: ' ',
           sameElse: ' ',
         })
@@ -110,7 +114,7 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
             <Link to={Posts.getPageUrl(event)}>
               <TabNavigationSubItem>
                 {(displayTime !== " ") && <span className={classNames(
-                    classes.displayTime, {[classes.yesterday]: displayTime === "Yesterday"})
+                    classes.displayTime, {[classes.yesterday]: displayTime === YESTERDAY_STRING})
                   }>
                     {displayTime}
                 </span>}
