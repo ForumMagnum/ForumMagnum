@@ -160,7 +160,7 @@ class CommentsListSection extends Component {
           <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
         </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        {!currentUser &&
+        {!currentUser && newForm &&
           <div>
             <Components.LoginPopupLink>
               <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
