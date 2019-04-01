@@ -176,7 +176,7 @@ class CommentsNode extends Component {
 
     const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
-    const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
+    const truncated = !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
 
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const nodeClass = classNames(
