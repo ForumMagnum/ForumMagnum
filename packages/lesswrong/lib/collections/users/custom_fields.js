@@ -356,7 +356,7 @@ addFieldsDict(Users, {
     foreignKey: "Users",
     optional: true
   },
-
+  
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
