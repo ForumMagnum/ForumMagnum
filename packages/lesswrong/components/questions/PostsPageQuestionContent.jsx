@@ -10,9 +10,7 @@ const PostsPageQuestionContent = ({post, currentUser}) => {
   return (
 
     <div>
-      {currentUser && Users.isAllowedToComment(currentUser, post) && 
-        <NewAnswerCommentQuestionForm post={post} alignmentForumPost={post.af}/>
-      }
+      <NewAnswerCommentQuestionForm post={post} alignmentForumPost={post.af}/>
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }

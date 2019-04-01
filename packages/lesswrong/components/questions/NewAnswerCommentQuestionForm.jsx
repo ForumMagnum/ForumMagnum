@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
   root: {
@@ -25,10 +26,11 @@ const styles = theme => ({
   responseType: {
     ...theme.typography.commentStyle,
     fontSize: 16,
-    padding: theme.spacing.unit,
-    paddingTop: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*2,
+    width: "calc(33.3% - 12px)",
+    textAlign: "center",
+    padding: theme.spacing.unit*2,
     color: theme.palette.grey[500],
+    marginRight: theme.spacing.unit*1.5,
     cursor: "pointer",
     '&:hover': {
       color: "rgba(0,0,0,.87)",
@@ -55,30 +57,26 @@ const styles = theme => ({
 class NewAnswerCommentQuestionForm extends PureComponent {
   state = { selection: "answer"}
 
-  render () {
-    const {post, classes, currentUser} = this.props
+  getNewForm = () => {
+    const {post, currentUser} = this.props
+    const { selection } = this.state
     const { NewAnswerForm, CommentsNewForm } = Components
-    const { selection } = this.state 
-  
-    const prefilledProps = { 
-      postId: post._id, 
-      answer: true,
-      af: Comments.defaultToAlignment(currentUser, post),
-    }
 
-    // Not sure what this thing is doing and if prefilledProps is the right thing to feed into it (if prefilledProps isn't otherwise being used)
-    if (!Comments.options.mutations.new.check(currentUser, prefilledProps)) {
-      return <FormattedMessage id="users.cannot_comment"/>;
+    if (!currentUser) {
+      return <Components.LoginPopupLink>
+        <Typography variant="body2">
+          <a>
+            <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
+          </a>
+        </Typography>
+      </Components.LoginPopupLink>
     }
-    
-    let newForm
 
     switch(selection) {
       case "answer": 
-        newForm = <NewAnswerForm post={post} alignmentForumPost={post.af} />
-        break
+        return <NewAnswerForm post={post} alignmentForumPost={post.af} />
       case "comment":
-        newForm = <CommentsNewForm
+        return <CommentsNewForm
           alignmentForumPost={post.af}
           postId={post._id}
           prefilledProps={{
@@ -86,8 +84,12 @@ class NewAnswerCommentQuestionForm extends PureComponent {
           }}
           type="comment"
         />
-        break
     }
+  }
+
+  render () {
+    const { classes } = this.props
+    const { selection } = this.state 
 
     return (
       <div className={classes.root}>
@@ -99,7 +101,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
               New Answer
             </div>
           </Tooltip>
-          <Tooltip title="Discuss the question at the meta level (such as asking clarifying questions)">
+          <Tooltip title="Discuss the question or ask clarifying questions">
             <div onClick={()=>this.setState({selection: "comment"})} 
               className={classNames(classes.responseType, {[classes.selected]: selection === "comment"})}>
               New Comment
@@ -112,7 +114,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
           </Tooltip>
         </div>
         <div className={classes.responseForm}>
-          { newForm }
+          { this.getNewForm() }
         </div>
       </div>
     )
