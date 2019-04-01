@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withRouter, Link } from 'react-router';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
@@ -13,7 +13,7 @@ import { bookIcon } from '../icons/bookIcon'
 import { allPostsIcon } from '../icons/allPostsIcon'
 ;
 
-const iconWidth = 30
+export const iconWidth = 30
 
 const styles = (theme) => ({
   root: {
@@ -23,7 +23,7 @@ const styles = (theme) => ({
     [theme.breakpoints.up('lg')]: {
       top: 64,
       left:0,
-      width:220,
+      width:270,
     },
     [theme.breakpoints.down('md')]: {
       position: "unset",
@@ -83,20 +83,6 @@ const styles = (theme) => ({
       flexDirection: "column",
     }
   },
-  subItem: {
-    ...theme.typography.body2,
-    display: "block",
-    paddingBottom: theme.spacing.unit,
-    // padding reflects how large an icon+padding is
-    paddingLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)),
-    paddingRight: theme.spacing.unit*2,
-    color: theme.palette.grey[600],
-    fontSize: "1rem",
-    whiteSpace: "nowrap",
-    [theme.breakpoints.down('md')]: {
-      display: "none"
-    }
-  },
   icon: {
     display: "block",
     opacity: .3,
@@ -145,10 +131,26 @@ const TabNavigationMenu = ({
 }) => {
 
   const { pathname } = location
-  
+  const { TabNavigationSubItem, TabNavigationEventsList } = Components
+
   // TODO: BETA Remove the admin requirements on this component once it's ready to be deployed to master.
 
   if (!(currentUser && currentUser.isAdmin)) { return null }
+
+  const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
+  const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
+  let eventsListTerms = {
+    view: 'events',
+    limit: 3,
+  }
+  if (lat && lng) {
+    eventsListTerms = {
+      view: 'nearbyEvents',
+      lat: lat,
+      lng: lng,
+      limit: 3,
+    }
+  }
 
   return (
     <div className={classes.root}>
@@ -160,6 +162,21 @@ const TabNavigationMenu = ({
             </span>
             <span className={classes.navText}>
               Home
+            </span>
+          </Link>
+        </Tooltip>
+
+        <Tooltip placement="right-start" title={<div>
+          <div>• Ask simple newbie questions.</div>
+          <div>• Collaborate on open research questions.</div>
+          <div>• Pose and resolve confusions.</div>
+        </div>}>
+          <Link to="/questions" className={classNames(classes.navButton, {[classes.selected]: pathname === "/questions"})}>
+            <span className={classes.icon}>
+              { questionsGlobeIcon }
+            </span>
+            <span className={classes.navText}>
+              <span className={classes.hideOnMobile}>Open </span>Questions
             </span>
           </Link>
         </Tooltip>
@@ -177,7 +194,7 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
 
-        <Tooltip placement="right" title={<div>
+        <Tooltip placement="right-start" title={<div>
             <p>
               LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence. 
             </p>
@@ -185,40 +202,31 @@ const TabNavigationMenu = ({
               Those posts have been edited down into this introductory collection, recommended for new users.
             </p>
           </div>}>
-          <Link to="/rationality" className={classes.subItem}>
-            Rationality: A-Z
+          <Link to="/rationality">
+            <TabNavigationSubItem>
+              Rationality: A-Z
+            </TabNavigationSubItem>
           </Link>
         </Tooltip>
-        <Tooltip placement="right" title={<div>
+        <Tooltip placement="right-start" title={<div>
             The Codex is a collection of essays written by Scott Alexander that discuss how good reasoning works, how to learn from the institution of science, and different ways society has been and could be designed.
           </div>}>
-          <Link to="/codex" className={classes.subItem}>
-            The Codex
+          <Link to="/codex">
+            <TabNavigationSubItem>
+              The Codex
+            </TabNavigationSubItem>
           </Link>
         </Tooltip>
-        <Tooltip placement="right" title={<div>
+        <Tooltip placement="right-start" title={<div>
             <p><em>Harry Potter and the Methods of Rationality</em></p>
             <p>
               What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.
             </p>
           </div>}>
-          <Link to="/codex" className={classes.subItem}>
-            HPMOR
-          </Link>
-        </Tooltip>
-
-        <Tooltip placement="right" title={<div>
-          <div>• Ask simple newbie questions.</div>
-          <div>• Collaborate on open research questions.</div>
-          <div>• Pose and resolve confusions.</div>
-        </div>}>
-          <Link to="/questions" className={classNames(classes.navButton, {[classes.selected]: pathname === "/questions"})}>
-            <span className={classes.icon}>
-              { questionsGlobeIcon }
-            </span>
-            <span className={classes.navText}>
-              <span className={classes.hideOnMobile}>Open </span>Questions
-            </span>
+          <Link to="/codex">
+            <TabNavigationSubItem>
+              HPMOR
+            </TabNavigationSubItem>
           </Link>
         </Tooltip>
 
@@ -232,6 +240,8 @@ const TabNavigationMenu = ({
             </span>
           </Link>
         </Tooltip>
+        <TabNavigationEventsList terms={eventsListTerms} />
+
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>
             <span className={classes.icon}>
