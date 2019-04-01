@@ -4,7 +4,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from 'react-router';
+import { Link } from '../../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   icon: {

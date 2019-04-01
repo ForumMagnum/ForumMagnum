@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import { withStyles } from '@material-ui/core/styles';
 

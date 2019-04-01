@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import {
   Components,
   registerComponent,

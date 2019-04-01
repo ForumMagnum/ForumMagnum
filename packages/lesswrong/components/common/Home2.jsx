@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 
 const Home2 = (props) => {

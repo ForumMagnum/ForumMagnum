@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 import PropTypes from 'prop-types';
 
 const PostsEdit = ({post}) => {

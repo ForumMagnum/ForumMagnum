@@ -2,7 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import { registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router'
+import { Link } from '../../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   root: {
