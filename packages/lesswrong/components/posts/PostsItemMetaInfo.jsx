@@ -18,7 +18,7 @@ const PostsItemMetaInfo = ({children, classes, className}) => {
     component='span'
     className={classNames(classes.root, className)}
     variant='body2'>
-      {children}
+      {children}  
   </Typography>
 }
 
