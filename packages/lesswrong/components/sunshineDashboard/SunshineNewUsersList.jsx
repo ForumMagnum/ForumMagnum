@@ -36,6 +36,7 @@ const withListOptions = {
   queryName: 'sunshineNewPostsListQuery',
   fragmentName: 'SunshineUsersList',
   enableTotal: true,
+  ssr: true
 };
 
 registerComponent('SunshineNewUsersList', SunshineNewUsersList, [withList, withListOptions], withUser);

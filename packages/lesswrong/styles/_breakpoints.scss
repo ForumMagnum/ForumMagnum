@@ -30,7 +30,7 @@ $lw-small: 715px;
 //   sm  small        600px or larger
 //   md  medium       960px or larger
 //   lg  large        1280px or larger
-//   xl  extra-large  1920px or larger
+//   xl  extra-large  1400px or larger - this is customized
 //
 // FIXME: We want it to be the case that size-ranges are exclusive and
 // exhaustive, ie, there is no size in between "small" and "medium" which is
@@ -90,7 +90,7 @@ $lw-small: 715px;
   }
 }
 @mixin mui-breakpoint-down-lg(){
-  @media screen and (max-width: 1919) {
+  @media screen and (max-width: 1399px) {
     @content
   }
 }
@@ -100,7 +100,7 @@ $lw-small: 715px;
   }
 }
 @mixin mui-breakpoint-xl(){
-  @media screen and (min-width: 1920px) {
+  @media screen and (min-width: 1400px) {
     @content
   }
 }

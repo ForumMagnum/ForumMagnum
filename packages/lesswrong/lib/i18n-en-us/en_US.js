@@ -125,7 +125,7 @@ addStrings('en', {
 })
 
 addStrings('en', {
-  "alignment.comments.please_log_in": "Please log in to comment. (New users must be approved by admins)",
+  "alignment.comments.please_log_in": "Please log in to comment. (Commenting is limited to Alignment Forum members. Non-members should comment on LessWrong.com)",
   "alignment.remove_comment": "Comment and its children removed from AI Alignment Forum",
   "alignment.move_comment": "Comment and its parents moved to AI Alignment Forum",
   "alignment.suggest_comment": "Comment has been suggested for the AI Alignment Forum",
