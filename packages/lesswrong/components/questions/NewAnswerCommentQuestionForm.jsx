@@ -62,26 +62,13 @@ class NewAnswerCommentQuestionForm extends PureComponent {
     const { selection } = this.state
     const { NewAnswerForm, CommentsNewForm } = Components
 
-    if (!currentUser) {
-      return <Components.LoginPopupLink>
-        <Typography variant="body2">
-          <a>
-            <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-          </a>
-        </Typography>
-      </Components.LoginPopupLink>
-    }
-
     switch(selection) {
       case "answer": 
-        return <NewAnswerForm post={post} alignmentForumPost={post.af} />
+        return <NewAnswerForm post={post} />
       case "comment":
         return <CommentsNewForm
           alignmentForumPost={post.af}
           postId={post._id}
-          prefilledProps={{
-            af: Comments.defaultToAlignment(currentUser, post)
-          }}
           type="comment"
         />
     }
