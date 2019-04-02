@@ -78,7 +78,7 @@ const styles = (theme) => ({
     },
     [theme.breakpoints.down('md')]: {
       paddingTop: theme.spacing.unit,
-      paddingBottom: 0,
+      paddingBottom: 2,
       width: "100%",
       flexDirection: "column",
     }
@@ -106,7 +106,7 @@ const styles = (theme) => ({
     ...theme.typography.body2,
     color: theme.palette.grey[600],
     [theme.breakpoints.down('md')]: {
-      fontSize: '.85rem',
+      fontSize: '.8rem',
       color: theme.palette.grey[700],
     },
     [theme.breakpoints.up('lg')]: {
