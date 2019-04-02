@@ -70,6 +70,8 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
 
   if (!results && loading) return <Loading />
 
+  if (!results && !loading) return null
+
   return (
     <div>
       {results.map((event) => {
