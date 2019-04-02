@@ -70,6 +70,8 @@ class EditorFormComponent extends Component {
     }
     this.lastSavedAt = new Date();
     this.hasUnsavedData = false;
+    
+    this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
   }
 
   getEditorStatesFromType = (editorType) => {
@@ -244,16 +246,12 @@ class EditorFormComponent extends Component {
   
   afterChange = () => {
     this.hasUnsavedData = true;
-    
-    setTimeout(() => {
-      if (!this.lastSavedAt || (new Date() - this.lastSavedAt) > autosaveInterval) {
-        this.saveBackup();
-      }
-    }, autosaveInterval);
+    this.throttledSaveBackup();
   }
   
   saveBackup = () => {
     const { document, name } = this.props;
+    console.log("Saving backup");
     
     const serialized = this.editorContentsToJson();
     
