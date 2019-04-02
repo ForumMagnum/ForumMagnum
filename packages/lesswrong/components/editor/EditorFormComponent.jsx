@@ -250,7 +250,6 @@ class EditorFormComponent extends Component {
   
   saveBackup = () => {
     const { document, name } = this.props;
-    console.log("Saving backup");
     
     const serialized = this.editorContentsToJson();
     
