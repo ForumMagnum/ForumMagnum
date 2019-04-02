@@ -65,7 +65,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
       case "comment":
         return <CommentsNewForm
           alignmentForumPost={post.af}
-          postId={post._id}
+          post={post}
           type="comment"
         />
     }
