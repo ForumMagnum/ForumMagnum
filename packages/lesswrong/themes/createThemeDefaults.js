@@ -58,6 +58,15 @@ const createLWTheme = (theme) => {
   const typography = theme.typography || {}
 
   const defaultLWTheme = {
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 960,
+        lg: 1280,
+        xl: 1400,
+      },
+    },
     spacing: {
       unit: spacingUnit
     },

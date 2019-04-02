@@ -25,13 +25,15 @@ const styles = theme => ({
     borderTop: 'transparent'
   },
   editor: {
-    marginLeft: 34,
-    marginTop: 16,
-    paddingLeft: 12,
+    marginLeft: theme.spacing.unit*4,
+    marginTop: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
     borderTop: `solid 1px ${theme.palette.grey[300]}`
   },
   newComment: {
-    marginBottom: 8,
+    padding: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
     textAlign: 'right',
     color: theme.palette.grey[600]
   },

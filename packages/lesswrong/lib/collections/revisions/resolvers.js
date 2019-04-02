@@ -7,9 +7,7 @@ import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import htmlToText from 'html-to-text'
 
-const PLAINTEXT_DESCRIPTION_LENGTH = 500
-
-
+const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 
 function domBuilder(html) {
   const jsdom = new JSDOM(html)
@@ -32,6 +30,8 @@ export function htmlToDraftServer(...args) {
 }
 
 export function dataToDraftJS(data, type) {
+  if (data===undefined || data===null) return null;
+  
   switch (type) {
     case "draftJS": {
       return data
@@ -44,6 +44,9 @@ export function dataToDraftJS(data, type) {
       const html = markdownToHtmlNoLaTeX(data)
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
       return convertToRaw(draftJSContentState) 
+    }
+    default: {
+      throw new Error(`Unrecognized type: ${type}`);
     }
   }
 }

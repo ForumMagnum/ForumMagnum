@@ -45,7 +45,8 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 12px',
+    padding: theme.spacing.unit*1.5,
+    paddingTop: 0,
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
     marginBottom: "1.3em",
@@ -147,18 +148,19 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadCollapsed, newForm=true, guidelines=true } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className={classes.root}>
-        <div className={classes.moderationGuidelinesWrapper}>
+        {guidelines && <div className={classes.moderationGuidelinesWrapper}>
           <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-        </div>
+        </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
-        { (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
+        
+        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm

@@ -4,7 +4,7 @@ import Users from 'meteor/vulcan:users';
 import { Posts } from '../posts';
 import { addUniversalFields } from '../../collectionUtils'
 
-const options = {
+export const commentMutationOptions = {
   newCheck: (user, document) => {
     if (!user || !document) return false;
     const post = Posts.findOne(document.postId)
@@ -35,7 +35,7 @@ export const Comments = createCollection({
   typeName: 'Comment',
   schema,
   resolvers: getDefaultResolvers('Comments'),
-  mutations: getDefaultMutations('Comments', options),
+  mutations: getDefaultMutations('Comments', commentMutationOptions),
 });
 
 Comments.checkAccess = (currentUser, comment) => {
