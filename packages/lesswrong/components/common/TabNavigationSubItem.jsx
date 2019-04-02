@@ -25,7 +25,7 @@ const styles = (theme) => ({
 
 const TabNavigationSubItem = ({children, classes, className}) => {
   return <div className={classNames(classes.root, className)}>
-    {children}
+    <a>{children}</a>
   </div>
 }
 
