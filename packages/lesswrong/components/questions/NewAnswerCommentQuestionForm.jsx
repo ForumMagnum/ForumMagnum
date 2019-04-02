@@ -1,8 +1,6 @@
-import { Components, registerComponent, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Comments } from '../../lib/collections/comments';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
@@ -58,7 +56,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
   state = { selection: "answer"}
 
   getNewForm = () => {
-    const {post, currentUser} = this.props
+    const { post } = this.props
     const { selection } = this.state
     const { NewAnswerForm, CommentsNewForm } = Components
 
@@ -76,7 +74,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
 
   render () {
     const { classes } = this.props
-    const { selection } = this.state 
+    const { selection } = this.state
 
     return (
       <div className={classes.root}>
