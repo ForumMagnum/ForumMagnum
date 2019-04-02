@@ -20,9 +20,18 @@ const styles = theme => ({
     // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
     wordBreak: "break-word",
     display: "inline-block"
+  },
+  sample: {
+    maxHeight: 100,
+    overflow: "hidden",
+    '&:hover': {
+      maxHeight: "unset",
+      overflow: "unset"
+    }
   }
 })
 class SunshineNewUsersItem extends Component {
+  state = {hidden: false}
 
   handleReview = () => {
     const { currentUser, user, editMutation } = this.props
@@ -36,6 +45,7 @@ class SunshineNewUsersItem extends Component {
   handlePurge = async () => {
     const { currentUser, user, editMutation } = this.props
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
+      this.setState({hidden: true})
       await editMutation({
         documentId: user._id,
         set: {
@@ -51,19 +61,17 @@ class SunshineNewUsersItem extends Component {
   }
 
   render () {
-    const { user, hover, anchorEl, classes } = this.props
+    const { user, hover, anchorEl, classes, currentUser } = this.props
+    const showNewUserContent = currentUser && currentUser.sunshineShowNewUserContent
 
     const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+
+    if (this.state.hidden) { return null }
 
     return (
         <SunshineListItem hover={hover}>
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
-              <Link to={Users.getProfileUrl(user)}>
-                { user.displayName }
-              </Link>
-              <div><MetaInfo>{ user.email }</MetaInfo></div>
-              <br/>
               <MetaInfo>
                 <div>Posts: { user.postCount || 0 }</div>
                 <div>Comments: { user.commentCount || 0 }</div>
@@ -73,8 +81,10 @@ class SunshineNewUsersItem extends Component {
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
 
-                <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
-                <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+                {!showNewUserContent && <React.Fragment>
+                  <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+                  <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+                </React.Fragment>}
               </MetaInfo>
             </Typography>
           </SidebarHoverOver>
@@ -94,7 +104,12 @@ class SunshineNewUsersItem extends Component {
               { user.email }
             </MetaInfo>
           </div>
-
+          {showNewUserContent && 
+            <div className={classes.sample}>
+              <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+              <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+            </div>
+          }
           { hover && <SidebarActionMenu>
             <SidebarAction title="Review" onClick={this.handleReview}>
               done

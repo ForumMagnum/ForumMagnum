@@ -3,7 +3,6 @@
 // material-UI's breakpoints.
 $lw-tiny: 400px;
 $lw-small: 715px;
-$lw-medium: 950px;
 
 @mixin max-tiny(){
   @media screen and (max-width: $lw-tiny) {
@@ -22,17 +21,6 @@ $lw-medium: 950px;
   }
 }
 
-@mixin max-medium(){
-  @media screen and (max-width: $lw-medium) {
-    @content;
-  }
-}
-@mixin min-medium(){
-  @media screen and (min-width: $lw-medium) {
-    @content;
-  }
-}
-
 // Material-UI breakpoints
 // These are defined to be the same as Material-UI's breakpoints, ie, those
 // documented in https://material-ui.com/layout/breakpoints/ . When we turn
@@ -42,7 +30,7 @@ $lw-medium: 950px;
 //   sm  small        600px or larger
 //   md  medium       960px or larger
 //   lg  large        1280px or larger
-//   xl  extra-large  1920px or larger
+//   xl  extra-large  1400px or larger - this is customized
 //
 // FIXME: We want it to be the case that size-ranges are exclusive and
 // exhaustive, ie, there is no size in between "small" and "medium" which is
@@ -102,7 +90,7 @@ $lw-medium: 950px;
   }
 }
 @mixin mui-breakpoint-down-lg(){
-  @media screen and (max-width: 1919) {
+  @media screen and (max-width: 1399px) {
     @content
   }
 }
@@ -112,33 +100,7 @@ $lw-medium: 950px;
   }
 }
 @mixin mui-breakpoint-xl(){
-  @media screen and (min-width: 1920px) {
+  @media screen and (min-width: 1400px) {
     @content
-  }
-}
-
-// Vulcan breakpoints (Do not use)
-$small-break:  600px;
-$medium-break: 800px;
-$large: 1200px;
-
-@mixin small(){ // smaller than small-break
-  @media screen and (max-width: $small-break) {
-    @content;
-  }
-}
-@mixin medium(){ // between small and medium-break
-  @media screen and (min-width: $small-break) and (max-width: $medium-break) {
-    @content;
-  }
-}
-@mixin medium-large(){ // larger than small-break
-  @media screen and (min-width: $small-break) {
-    @content;
-  }
-}
-@mixin large(){ // larger than medium-break
-  @media screen and (min-width: $large) {
-    @content;
   }
 }

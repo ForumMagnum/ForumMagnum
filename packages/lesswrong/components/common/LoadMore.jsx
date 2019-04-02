@@ -1,28 +1,35 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.secondary.main,
+    color: theme.palette.lwTertiary.main,
+  },
+  disabled: {
+    color: theme.palette.grey[400],
+    cursor: 'default',
+    '&:hover': {
+      opacity: 1
+    }
   }
 })
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes }) => {
+const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false }) => {
   const handleClickLoadMore = event => {
     event.preventDefault();
     loadMore();
   }
 
   return (
-    <a className={classes.root}
+    <a className={classNames(classes.root, {[classes.disabled]: disabled})}
       href="#"
       onClick={handleClickLoadMore}>
-      Load More&nbsp;
-      {totalCount ? <span>{`(${count}/${totalCount})`}</span> : null}
+      Load More {totalCount && <span> ({count}/{totalCount})</span>}
     </a>
   )
 }

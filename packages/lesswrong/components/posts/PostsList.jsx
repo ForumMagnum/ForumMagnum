@@ -6,12 +6,30 @@ import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
 const styles = theme => ({
+  listContent: {
+    "& > div > div:first-of-type": {
+      borderTop: "none",
+    },
+    marginLeft: 3,
+    marginTop: -7,
+    padding: "0 10px",
+    "a": {
+      backgroundImage: "none",
+      textShadow: "none",
+    },
+    [legacyBreakpoints.maxTiny]: {
+      padding: 0,
+      marginLeft: 0,
+    }
+  },
+  
   loading: {
     opacity: .4,
   },
@@ -71,7 +89,7 @@ const PostsList = ({
   return (
     <div className={classNames(className, 'posts-list', {[classes.loading]: loading && dimWhenLoading})}>
       {error ? <Error error={Utils.decodeIntlError(error)} /> : null }
-      <div className="posts-list-content">
+      <div className={classes.listContent}>
         { renderContent() }
       </div>
     </div>

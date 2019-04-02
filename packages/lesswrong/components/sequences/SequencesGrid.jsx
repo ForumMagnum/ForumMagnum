@@ -11,12 +11,11 @@ export const styles = theme => ({
 
   loadMore: {
     marginTop: theme.spacing.unit,
-    marginLeft: 19
   },
 
   gridContent: {
-    marginTop: -15,
-    paddingLeft: 5,
+    marginLeft: -15,
+    paddingRight: 6,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
     },
@@ -25,6 +24,7 @@ export const styles = theme => ({
     flexDirection: "row",
     flexWrap: "wrap",
     flexFlow: "row wrap",
+    justifyContent: "space-between",
     [legacyBreakpoints.maxSmall]: {
       alignItems: "center",
       justifyContent: "center",
@@ -37,7 +37,7 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, listMode, classes}) =>
+const SequencesGrid = ({sequences, showAuthor, classes}) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {

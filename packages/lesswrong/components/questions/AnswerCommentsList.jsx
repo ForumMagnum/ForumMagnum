@@ -25,18 +25,20 @@ const styles = theme => ({
     borderTop: 'transparent'
   },
   editor: {
-    marginLeft: 34,
-    marginTop: 16,
-    paddingLeft: 12,
+    marginLeft: theme.spacing.unit*4,
+    marginTop: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
     borderTop: `solid 1px ${theme.palette.grey[300]}`
   },
   newComment: {
-    marginBottom: 8,
+    padding: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
     textAlign: 'right',
     color: theme.palette.grey[600]
   },
   loadMore: {
-    color: theme.palette.grey[500],
+    color: theme.palette.primary.main,
     textAlign: 'right'
   },
   loadingMore: {
@@ -47,6 +49,7 @@ const styles = theme => ({
   }
 })
 
+export const ABRIDGE_COMMENT_COUNT = 20;
 
 class AnswerCommentsList extends PureComponent {
 
@@ -74,7 +77,7 @@ class AnswerCommentsList extends PureComponent {
   loadMoreComments = (event) => {
     event.stopPropagation()
     const { loadMore, totalCount } = this.props
-    if (totalCount > 3) {
+    if (totalCount > ABRIDGE_COMMENT_COUNT) {
       this.setState({loadedMore: true})
       loadMore({limit: 10000})
     }
@@ -118,7 +121,7 @@ class AnswerCommentsList extends PureComponent {
               classes.answersList, {
                 [classes.noCommentAnswersList]: noComments,
                 [classes.loadingMore]: loadingMore,
-                [classes.canLoadMore]: !loadedMore && totalCount > 3
+                [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
               }
           )}>
             { loadingMore && <Loading /> }

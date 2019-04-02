@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Hidden from '@material-ui/core/Hidden';
-import { withStyles } from '@material-ui/core/styles';
 
 const coreReadingCollections = [
   {
@@ -26,22 +25,16 @@ const coreReadingCollections = [
     title: "Harry Potter and the Methods of Rationality",
     id: "dummyId3",
     user: {userName: "Eliezer_Yudkowsky", displayName: "EliezerYudkowsky", slug: "eliezer_yudkowsky"},
-    summary: "In an Alternate Universe, Petunia married a scientist. Now Rationalist!Harry enters the wizarding world armed with Enlightenment ideals and the experimental spirit.",
+    summary: "What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.",
     imageId: "uu4fJ5R_zeefim.png",
     color: "#757AA7",
     big: false,
   }
 ]
 
-const styles = theme => ({
-  fullWidth: {
-    width: "100%",
-  },
-});
-
-const CoreReading = ({minimal=false, classes}) => (
+const CoreReading = ({minimal=false}) => (
   <Components.CollectionsCardContainer>
-    <Hidden xsDown implementation="css" className={classes.fullWidth}>
+    <Hidden xsDown implementation="css">
       <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
     </Hidden>
     <Hidden smUp implementation="css">
@@ -53,5 +46,4 @@ const CoreReading = ({minimal=false, classes}) => (
   </Components.CollectionsCardContainer>
 );
 
-registerComponent("CoreReading", CoreReading,
-  withStyles(styles, {name: "CoreReading"}));
+registerComponent("CoreReading", CoreReading);

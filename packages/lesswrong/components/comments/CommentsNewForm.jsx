@@ -11,7 +11,6 @@ import withErrorBoundary from '../common/withErrorBoundary'
 
 const styles = theme => ({
   root: {
-    paddingBottom: 12
   },
   submit: {
     textAlign: 'right'

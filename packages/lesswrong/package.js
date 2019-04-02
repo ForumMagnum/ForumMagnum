@@ -18,7 +18,6 @@ Package.onUse( function(api) {
 
     // vulcan packages
     'vulcan:accounts',
-    'vulcan:email',
     'vulcan:forms',
     'vulcan:events',
     'vulcan:embed',
@@ -33,11 +32,6 @@ Package.onUse( function(api) {
   api.addFiles([
     'styles/main.scss',
   ], ['client']);
-
-  api.addAssets([
-    'server/emails/templates/newPost.handlebars',
-    'server/emails/templates/wrapper.handlebars',
-  ], ['server']);
 });
 
 Package.onTest(function(api) {

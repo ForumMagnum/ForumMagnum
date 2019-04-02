@@ -53,6 +53,9 @@ import './collections/reports/permissions.js'
 // LWEvents
 import { LWEvents } from './collections/lwevents/index.js';
 
+// DebouncerEvents
+import './collections/debouncerEvents/collection.js';
+
 // Bans
 import { Bans } from './collections/bans/index.js'
 // Chapters
@@ -113,18 +116,18 @@ import { Comments } from './collections/comments'
 
 // Votes
 import './collections/votes';
-//
-//
-//
+
 // Internationalization
 import './i18n-en-us/en_US.js';
 
-// // Misc.
+// Misc.
 import './helpers.js'
 import './routes.js';
 import './scrollRestoration.js';
 
 import './components.js';
+
+import './recommendations.js';
 
 // Alignment Forum
 import './modules/alignment-forum/callbacks.js';

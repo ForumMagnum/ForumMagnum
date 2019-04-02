@@ -30,6 +30,7 @@ function getPostsSectionTitle(view, currentUser) {
 }
 
 const Home = ({ currentUser, router, classes }) => {
+
   const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
   let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
   const shortformFeedId = currentUser && currentUser.shortformFeedId

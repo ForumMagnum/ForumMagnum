@@ -12,12 +12,28 @@ const Error = ({error}) => <div>
 </div>;
 
 const styles = theme => ({
-  loading: {
+  itemIsLoading: {
     opacity: .4,
+  },
+  loading: {
+    '&:after': {
+      content: "''",
+      marginLeft: 0,
+      marginRight: 0,
+    }
+  },
+  loadMore: {
+    flexGrow: 1,
+    textAlign: "left",
+    '&:after': {
+      content: "''",
+      marginLeft: 0,
+      marginRight: 0,
+    }
   }
 })
 
-const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStatus, paginationTerms, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
+const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, networkStatus, paginationTerms, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
 
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
@@ -31,33 +47,36 @@ const PostsList2 = ({ results, loading, count, totalCount, loadMore, networkStat
   //                     behavior was more important can work fine. Will probably
   //                     fix this for real when Apollo 2 comes out
 
-  const { Loading, PostsItem2, LoadMore, PostsNoResults } = Components
-
-  const loadingMore = networkStatus === 2 || networkStatus === 1;
+  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
-  const limit = paginationTerms.limit || 10
+  const limit = (paginationTerms && paginationTerms.limit) || 10
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
   const maybeMorePosts = !!(results && results.length && (results.length >= limit))
 
   return (
-    <div className={classNames({[classes.loading]: loading && dimWhenLoading})}>
+    <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
-      {loading && showLoading && !dimWhenLoading && <Loading />}
-
-      {(maybeMorePosts && showLoadMore) &&
-        <LoadMore
-          loading={loadingMore}
-          loadMore={loadMore}
-          count={count}
-          totalCount={totalCount}/>
-      }
+      <SectionFooter>
+        {(showLoadMore) &&
+          <div className={classes.loadMore}>
+            <LoadMore
+              loadMore={loadMore}
+              disabled={!maybeMorePosts}
+              count={count}
+              totalCount={totalCount}
+            />
+            { !dimWhenLoading && showLoading && loading && <Loading />}
+          </div>
+        }
+        { children }
+      </SectionFooter>
     </div>
   )
 }

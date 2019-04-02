@@ -7,10 +7,18 @@ import Users from 'meteor/vulcan:users';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withUser from '../common/withUser';
-
-// import '../modules/columns.js';
-
+import { withStyles } from '@material-ui/core/styles';
 import { addAdminColumn } from 'meteor/vulcan:core';
+import classNames from 'classnames';
+
+const styles = theme => ({
+  recentLogins: {
+    backgroundColor: "rgba(50,100,50,.1)",
+  },
+  allUsers: {
+    backgroundColor: "rgba(100,50,50,.1)",
+  },
+});
 
 const UserIPsDisplay = ({column, document}) => {
   return <div>
@@ -143,7 +151,7 @@ class AdminHome extends PureComponent {
   }
 
   render() {
-    const { currentUser } = this.props;
+    const { currentUser, classes } = this.props;
     
     if (!Users.isAdmin(currentUser)) {
       return (
@@ -162,7 +170,7 @@ class AdminHome extends PureComponent {
               <h3>Server Information</h3>
               <Components.AdminMetadata/>
             </div>
-            <div className="admin-recent-logins">
+            <div className={classNames("admin-recent-logins", classes.recentLogins)}>
               <h3>Recent Logins</h3>
               <Components.Datatable
                 collection={LWEvents}
@@ -174,7 +182,7 @@ class AdminHome extends PureComponent {
                 }}
               />
             </div>
-            <div className="admin-all-users">
+            <div className={classNames("admin-all-users", classes.allUsers)}>
               <h3>All Users</h3>
               <Select
                 value={this.state.allUsersValue}
@@ -229,4 +237,5 @@ class AdminHome extends PureComponent {
   }
 }
 
-registerComponent('AdminHome', AdminHome, withUser);
+registerComponent('AdminHome', AdminHome, withUser,
+  withStyles(styles, { name: "AdminHome" }));
