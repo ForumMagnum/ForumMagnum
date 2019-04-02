@@ -65,10 +65,10 @@ const styles = theme => ({
 })
 
 
-const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
-  const { Loading, TabNavigationSubItem, EventTime } = Components
+const TabNavigationEventsList = ({ results, classes, timezone}) => {
+  const { TabNavigationSubItem, EventTime } = Components
 
-  if (!results && loading) return <Loading />
+  if (!results) return null
 
   return (
     <div>
