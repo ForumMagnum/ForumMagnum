@@ -248,7 +248,10 @@ const TabNavigationMenu = ({
             </span>
           </Link>
         </Tooltip>
-        <TabNavigationEventsList terms={eventsListTerms} />
+
+        <span className={classes.hideOnMobile}>
+          <TabNavigationEventsList terms={eventsListTerms} />
+        </span>
 
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>
