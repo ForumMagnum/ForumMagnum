@@ -447,7 +447,7 @@ Posts.addView("nearbyEvents", function (terms) {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      startTime: {$exists: true, $gt: yesterday},
       mongoLocation: {
         $near: {
           $geometry: {

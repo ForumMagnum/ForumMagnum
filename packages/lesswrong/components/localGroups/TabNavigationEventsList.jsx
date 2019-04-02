@@ -74,16 +74,16 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
     <div>
       {results.map((event) => {
 
-        const startTime = moment(event.startTime).tz(timezone)
+        const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
-        const displayTime = startTime.calendar(null, {
+        const displayTime = startTime ? startTime.calendar(null, {
           sameDay: `[${TODAY_STRING}]`,
           nextDay: `[${TOMORROW_STRING}]`,
           nextWeek: ' ',
           lastDay: `[${YESTERDAY_STRING}]`,
           lastWeek: ' ',
           sameElse: ' ',
-        })
+        }) : ' '
 
         const { htmlHighlight = "" } = event.contents || {}
 
@@ -110,7 +110,7 @@ const TabNavigationEventsList = ({ results, classes, loading, timezone}) => {
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
             <Link to={Posts.getPageUrl(event)}>
               <TabNavigationSubItem>
-                {(displayTime !== " ") && <span className={classNames(
+                {(displayTime && displayTime !== " ") && <span className={classNames(
                     classes.displayTime, {[classes.yesterday]: displayTime === YESTERDAY_STRING})
                   }>
                     {displayTime}
