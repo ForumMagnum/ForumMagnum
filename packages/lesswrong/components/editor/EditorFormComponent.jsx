@@ -68,7 +68,6 @@ class EditorFormComponent extends Component {
       updateType: 'minor',
       ...this.getEditorStatesFromType(editorType)
     }
-    this.lastSavedAt = new Date();
     this.hasUnsavedData = false;
     
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
@@ -263,7 +262,6 @@ class EditorFormComponent extends Component {
     });
     
     if (success) {
-      this.lastSavedAt = new Date();
       this.hasUnsavedData = false;
     }
     return success;
