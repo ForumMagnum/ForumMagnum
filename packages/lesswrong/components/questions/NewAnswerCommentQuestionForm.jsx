@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
   root: {
