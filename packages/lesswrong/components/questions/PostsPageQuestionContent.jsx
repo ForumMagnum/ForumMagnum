@@ -5,12 +5,12 @@ import withUser from '../common/withUser'
 import Users from 'meteor/vulcan:users';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const AnswersSection = ({post, currentUser}) => {
-  const { AnswersList, NewAnswerForm, CantCommentExplanation } = Components
+const PostsPageQuestionContent = ({post, currentUser}) => {
+  const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation } = Components
   return (
 
     <div>
-      {currentUser && Users.isAllowedToComment(currentUser, post) && <NewAnswerForm post={post} alignmentForumPost={post.af}/>}
+      <NewAnswerCommentQuestionForm post={post} alignmentForumPost={post.af}/>
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }
@@ -20,8 +20,8 @@ const AnswersSection = ({post, currentUser}) => {
 
 };
 
-AnswersSection.propTypes = {
+PostsPageQuestionContent.propTypes = {
   post: PropTypes.object.isRequired,
 };
 
-registerComponent('AnswersSection', AnswersSection, withUser, withErrorBoundary);
+registerComponent('PostsPageQuestionContent', PostsPageQuestionContent, withUser, withErrorBoundary);

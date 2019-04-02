@@ -119,7 +119,7 @@ class NotificationsMenu extends Component {
         return (
           <div className={classes.root}>
             <Components.ErrorBoundary>
-              <SwipeableDrawer
+              {open && <SwipeableDrawer
                 open={open}
                 anchor="right"
                 onClose={() => setIsOpen(false)}
@@ -160,7 +160,7 @@ class NotificationsMenu extends Component {
                   <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />
                   <Components.NotificationsList terms={{...this.state.notificationTerms, userId: currentUser._id}} />
                 </div>}
-              </SwipeableDrawer>
+              </SwipeableDrawer>}
             </Components.ErrorBoundary>
           </div>
         )

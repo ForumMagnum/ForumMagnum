@@ -11,12 +11,11 @@ export const styles = theme => ({
 
   loadMore: {
     marginTop: theme.spacing.unit,
-    marginLeft: 19
   },
 
   gridContent: {
-    marginTop: -15,
-    paddingLeft: 5,
+    marginLeft: -15,
+    paddingRight: 6,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
     },

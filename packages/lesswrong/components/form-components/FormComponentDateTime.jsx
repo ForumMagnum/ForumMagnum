@@ -37,6 +37,7 @@ class FormComponentDateTime extends Component {
           value={date}
           inputProps={{
             name:name,
+            autocomplete:"off",
             className:classes.input
           }}
           // newDate argument is a Moment object given by react-datetime
