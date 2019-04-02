@@ -27,10 +27,10 @@ const styles = theme => ({
     },
   },
   content: {
-    marginLeft: theme.spacing.unit*5,
+    marginLeft: 62,
     marginBottom:theme.spacing.unit*2,
     width: "100%",
-    maxWidth: 307,
+    maxWidth: 328,
     borderTop: "solid 4px black",
     paddingTop: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {

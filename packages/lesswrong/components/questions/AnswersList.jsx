@@ -9,7 +9,10 @@ import classNames from 'classnames';
 const styles = theme => ({
   answersList: {
     marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*5,
+    paddingBottom: theme.spacing.unit*2,
+    maxWidth: 650,
+    borderBottom: "solid 3px rgba(0,0,0,.87)",
   },
   answerCount: {
     ...theme.typography.postStyle,

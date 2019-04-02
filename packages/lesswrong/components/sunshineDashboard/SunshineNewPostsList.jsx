@@ -46,6 +46,7 @@ const withListOptions = {
   fragmentName: 'PostsList',
   enableCache: true,
   enableTotal: true,
+  ssr: true
 };
 
 registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withUser, withStyles(styles, {name:"SunshineNewPostsList"}));

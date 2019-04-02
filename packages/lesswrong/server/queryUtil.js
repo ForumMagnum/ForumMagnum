@@ -56,6 +56,9 @@ export async function forEachBucketRangeInCollection({collection, filter, bucket
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();
 
+  // If no documents match the filter, return with zero batches
+  if (count === 0) return;
+  
   // Calculate target number of buckets
   const bucketCount = Math.max(1, Math.floor(count / bucketSize));
 
@@ -63,28 +66,33 @@ export async function forEachBucketRangeInCollection({collection, filter, bucket
   const sampleSize = 20 * bucketCount
 
   // Calculate bucket boundaries using Mongo aggregate
+  const maybeFilter = (filter ? [{ $match: filter }] : []);
   const bucketBoundaries = await collection.rawCollection().aggregate([
-    ...(filter && { $match: filter }),
+    ...maybeFilter,
     { $sample: { size: sampleSize } },
     { $sort: {_id: 1} },
     { $bucketAuto: { groupBy: '$_id', buckets: bucketCount}},
     { $project: {value: '$_id.max', _id: 0}}
-  ]).toArray()
+  ]).toArray();
 
   // Starting at the lowest bucket boundary, iterate over buckets
-  const firstBucket = {_id: {$lt: bucketBoundaries[0].value}};
-  await fn(firstBucket);
+  await fn({
+    _id: {$lt: bucketBoundaries[0].value},
+    ...filter
+  });
   
   for (let i=0; i<bucketBoundaries.length-1; i++) {
-    fn({
+    await fn({
       _id: {
-        $ge: bucketBoundaries[i].value,
+        $gte: bucketBoundaries[i].value,
         $lt: bucketBoundaries[i+1].value,
       },
       ...filter
     })
   }
   
-  const lastBucket = {_id: {$ge: bucketBoundaries[bucketBoundaries.length-1].value}};
-  await fn(lastBucket);
+  await fn({
+    _id: {$gte: bucketBoundaries[bucketBoundaries.length-1].value},
+    ...filter
+  });
 }

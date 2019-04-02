@@ -3,8 +3,8 @@ import { addRoute, getSetting} from 'meteor/vulcan:core';
 // example-forum routes
 addRoute([
   {name:'users.single',     path:'users/:slug',           componentName: 'UsersSingle'},
-  {name:'users.single.user',   path:'user/:slug',            componentName: 'UsersSingle'},
-  {name:'users.single.u',path:'u/:slug',               componentName: 'UsersSingle'},
+  {name:'users.single.user',path:'user/:slug',            componentName: 'UsersSingle'},
+  {name:'users.single.u',   path:'u/:slug',               componentName: 'UsersSingle'},
   {name:'users.account',    path:'account',               componentName: 'UsersAccount'},
   {name:'users.edit',       path:'users/:slug/edit',      componentName: 'UsersAccount'}
 ]);
@@ -66,7 +66,7 @@ if(getSetting('AlignmentForum', false)) {
     addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"FoiiRDC3EhjHx7ayY"});
 } else {
-    addRoute({name: 'home', path: '/', componentName: 'Home'});
+    addRoute({name: 'home', path: '/', componentName: 'Home2'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
 }
 

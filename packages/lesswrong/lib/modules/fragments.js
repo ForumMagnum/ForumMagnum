@@ -91,6 +91,9 @@ extendFragment('UsersCurrent', `
   karmaChangeLastOpened
   shortformFeedId
   viewUnreviewedComments
+  sunshineShowNewUserContent
+  # TODO: Remove this after april fools
+  blockedGPT2
 `);
 
 registerFragment(`
@@ -419,6 +422,9 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
+
+    # TODO: Remove this after april fools
+    blockedGPT2
   }
 `)
 
