@@ -188,8 +188,7 @@ class PostsPage extends Component {
     const { loading, document: post, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, AnswersSection,
-      Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -291,11 +290,11 @@ class PostsPage extends Component {
             {/* Answers Section */}
             {post.question && <div>
               <div id="answers"/>
-              <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
+              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post}/>
             </div>}
             {/* Comments Section */}
             <div className={classes.commentsSection}>
-              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} guidelines={!post.question}/>
             </div>
           </Section>
         </div>

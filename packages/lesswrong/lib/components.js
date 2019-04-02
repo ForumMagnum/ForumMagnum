@@ -37,6 +37,7 @@ import '../components/common/FormatDate.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/TabNavigationMenu.jsx';
+import '../components/common/TabNavigationSubItem.jsx';
 import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
@@ -114,7 +115,6 @@ import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemKarma.jsx';
-
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
@@ -167,6 +167,7 @@ import '../components/localGroups/SmallMapPreviewWrapper.jsx';
 import '../components/localGroups/GroupLinks.jsx';
 import '../components/localGroups/LocalGroupsList.jsx';
 import '../components/localGroups/LocalGroupsItem.jsx';
+import '../components/localGroups/TabNavigationEventsList.jsx';
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
@@ -321,7 +322,8 @@ import '../components/alignment-forum/AFApplicationForm.jsx';
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';
-import '../components/questions/AnswersSection.jsx';
+import '../components/questions/PostsPageQuestionContent.jsx';
+import '../components/questions/NewAnswerCommentQuestionForm.jsx';
 import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';

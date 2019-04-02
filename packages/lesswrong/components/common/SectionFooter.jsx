@@ -20,6 +20,8 @@ const styles = (theme) => ({
       [theme.breakpoints.down('xs')]: {
         width: "100%",
         textAlign: "right",
+        paddingTop: theme.spacing.unit,
+        paddingBottom: theme.spacing.unit
       },
       [theme.breakpoints.up('sm')]: {
         height: 30,

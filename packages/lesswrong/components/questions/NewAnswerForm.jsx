@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import withUser from '../common/withUser'
@@ -12,16 +11,11 @@ import withUser from '../common/withUser'
 const styles = theme => ({
   answersForm: {
     maxWidth:650,
-    marginBottom:100,
+    paddingBottom: theme.spacing.unit*4,
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
     }
-  },
-  title: {
-    ...theme.typography.postStyle,
-    borderTop: "solid 3px rgba(0,0,0,.87)",
-    paddingTop: 10,
   },
   formButton: {
     paddingBottom: "2px",
@@ -82,9 +76,6 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
   
   return (
     <div className={classes.answersForm}>
-      <Typography variant="display1" className={classes.title}>
-        New Answer
-      </Typography>
       <SmartForm
         collection={Comments}
         GroupComponent={FormGroupComponent}

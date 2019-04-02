@@ -14,20 +14,20 @@ const styles = theme => ({
   }
 })
 
-const SunshineNewUserPostsList = ({loading, results, classes}) => {
+const SunshineNewUserPostsList = ({loading, results, classes, truncated}) => {
   const { PostsItemTitle, Loading } = Components
  
-  if (!results && loading) return <Loading />
+  if (!results && loading && !truncated) return <Loading />
   if (!results) return null
 
   return (
     <div>
-      {loading && <Loading />}
+      {loading && !truncated && <Loading />}
       {results.map(post=><div className={classes.post} key={post._id}>
-        <Link to={`/posts/${post._id}`}>
+        {!truncated && <Link to={`/posts/${post._id}`}>
           <PostsItemTitle post={post} />
-        </Link>
-        {!(post.status ==2) && `Flagged as Spam ${post.status}`}
+        </Link>}
+        {!truncated && !(post.status ==2) && `Flagged as Spam ${post.status}`}
         <div dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
       </div>)}
     </div>
@@ -37,7 +37,8 @@ const SunshineNewUserPostsList = ({loading, results, classes}) => {
 const withMultiOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
-  enableCache: true
+  enableCache: true,
+  fetchPolicy: 'cache-and-network',
 }
 
 registerComponent( 'SunshineNewUserPostsList', SunshineNewUserPostsList, [withMulti, withMultiOptions], withStyles(styles, {name:"SunshineNewUserPostsList"}))

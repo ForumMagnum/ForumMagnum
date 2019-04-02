@@ -22,6 +22,9 @@ const styles = (theme) => ({
     borderTop: "solid 2px rgba(0,0,0,.5)",
     width: theme.spacing.unit*4,
     marginRight: theme.spacing.unit*1.5,
+    [theme.breakpoints.down('sm')]: {
+      width: theme.spacing.unit*2,
+    },
   },
   rightDivider: {
     flexGrow:1,
@@ -31,9 +34,10 @@ const styles = (theme) => ({
   },
   tailDivider: {
     marginLeft: theme.spacing.unit*1.5,
+    marginRight: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)",
     width: theme.spacing.unit*4
-  }
+  },
 })
 class SectionTitle extends PureComponent {
   render() {
