@@ -18,7 +18,7 @@ const styles = theme => ({
   },
   settingsIcon: {
     color: theme.palette.grey[400],
-    width:40,
+    marginRight: theme.spacing.unit,
   },
   title: {
     cursor: "pointer",

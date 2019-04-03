@@ -22,16 +22,26 @@ const styles = (theme) => ({
     borderTop: "solid 2px rgba(0,0,0,.5)",
     width: theme.spacing.unit*4,
     marginRight: theme.spacing.unit*1.5,
+    [theme.breakpoints.down('sm')]: {
+      width: theme.spacing.unit*2,
+    },
   },
   rightDivider: {
     flexGrow:1,
     marginLeft: theme.spacing.unit*1.5,
+    marginRight: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)"
   },
   tailDivider: {
+    marginLeft: theme.spacing.unit*1.5,
+    marginRight: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)",
-    width: theme.spacing.unit*4
-  }
+    width: theme.spacing.unit*4,
+    [theme.breakpoints.down('sm')]: {
+      width: theme.spacing.unit*2,
+      marginRight: 0
+    },
+  },
 })
 class SectionTitle extends PureComponent {
   render() {

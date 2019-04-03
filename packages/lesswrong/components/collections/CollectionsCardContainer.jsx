@@ -4,11 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    marginTop: -30,
     display:"flex",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    padding: '10px 3px',
+    marginTop: -5,
+    marginLeft: -19,
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",

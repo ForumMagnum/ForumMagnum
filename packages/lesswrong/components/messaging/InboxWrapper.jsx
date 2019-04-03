@@ -1,22 +1,16 @@
-/*
-
-Wrapper for the Inbox components
-
-*/
-
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 
-class InboxWrapper extends Component {
-  render () {
-    const terms = {view: 'userConversations', userId: (!!this.props.currentUser ? this.props.currentUser._id : "0")};
-    return(
-      <div className="wrapper">
-          {!!this.props.currentUser ? <Components.InboxNavigation terms={terms}/> : <div></div>}
-      </div>
-    )
+const InboxWrapper = ({currentUser}) => {
+  if (!currentUser) {
+    return <div>Log in to access private messages.</div>
   }
+  
+  const terms = {view: 'userConversations', userId: currentUser._id};
+  return <div>
+    <Components.InboxNavigation terms={terms}/>
+  </div>
 }
 
 registerComponent('InboxWrapper', InboxWrapper, withUser);

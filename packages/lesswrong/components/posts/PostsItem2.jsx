@@ -148,15 +148,17 @@ const styles = (theme) => ({
     }
   },
   startTime: {
-    width: START_TIME_WIDTH,
-    justifyContent: "center",
-    fontWeight: 300,
-    fontSize: "1rem",
-    color: "rgba(0,0,0,.9)",
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
-      width: "none",
-      flexGrow: 1,
+    '&&': {
+      width: START_TIME_WIDTH,
+      justifyContent: "center",
+      fontWeight: 300,
+      fontSize: "1rem",
+      color: "rgba(0,0,0,.9)",
+      [theme.breakpoints.down('sm')]: {
+        justifyContent: "flex-start",
+        width: "none",
+        flexGrow: 1,
+      }
     }
   },
   newCommentsSection: {
@@ -213,6 +215,7 @@ const styles = (theme) => ({
     cursor: "pointer",
     width: MENU_WIDTH,
     opacity: .5,
+    marginRight: theme.spacing.unit,
     display: "none",
     [theme.breakpoints.down('sm')]: {
       display: "block"

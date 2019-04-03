@@ -56,6 +56,30 @@ const styles = theme => ({
   date: {
     color: "rgba(0,0,0,0.5)",
   },
+  blockedReplies: {
+    padding: "5px 0",
+  },
+  replyLink: {
+    marginRight: 5,
+    display: "inline",
+    color: "rgba(0,0,0,.5)",
+    "@media print": {
+      display: "none",
+    },
+  },
+  collapse: {
+    marginRight: 5,
+    opacity: 0.8,
+    fontSize: "0.8rem",
+    lineHeight: "1rem",
+    paddingBottom: 4,
+    display: "inline-block",
+    verticalAlign: "middle",
+
+    "& span": {
+      fontFamily: "monospace",
+    }
+  },
 })
 
 class CommentsItem extends Component {
@@ -78,6 +102,11 @@ class CommentsItem extends Component {
     return false;
   }
 
+  // TODO: Remove this after April Fools
+  commentIsByGPT2 = (comment) => {
+    return !!(comment && comment.user && comment.user.displayName === "GPT2")
+  }
+
   showReply = (event) => {
     event.preventDefault();
     this.setState({showReply: true});
@@ -85,7 +114,7 @@ class CommentsItem extends Component {
 
   replyCancelCallback = () => {
     this.setState({showReply: false});
-  }
+}
 
   replySuccessCallback = () => {
     this.setState({showReply: false});
@@ -128,6 +157,7 @@ class CommentsItem extends Component {
     if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
       return 10000000
     }
+    if (this.commentIsByGPT2(comment)) return 400
     const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
     return (commentIsRecent || comment.baseScore >= 10) ? 1600 : 800
   }
@@ -177,7 +207,7 @@ class CommentsItem extends Component {
                     subdirectory_arrow_left
                   </Icon>
                 </Tooltip>}
-              { (postPage || this.props.collapsed) && <a className="comments-collapse" onClick={this.props.toggleCollapse}>
+              { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
@@ -251,7 +281,7 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, truncated, collapsed } = this.props;
+    const { comment, currentUser, truncated, collapsed, classes } = this.props;
     const markdown = (comment.contents && comment.contents.markdown) || ""
     const { MetaInfo } = Components
 
@@ -268,14 +298,14 @@ class CommentsItem extends Component {
       return (
         <div className="comments-item-bottom">
           { blockedReplies &&
-            <div className="comment-blocked-replies">
+            <div className={classes.blockedReplies}>
               A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
             </div>
           }
           <div>
             { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
             { showReplyButton &&
-              <a className="comments-item-reply-link" onClick={this.showReply}>
+              <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
                 <FormattedMessage id="comments.reply"/>
               </a>
             }

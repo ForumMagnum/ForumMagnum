@@ -9,29 +9,30 @@ const styles = theme => ({
   comment: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
-    ...commentBodyStyles(theme),
-    fontSize: "1em",
     color: "rgba(0,0,0,.7)"
+  },
+  commentStyle: {
+    ...commentBodyStyles(theme),
   }
 })
 
-const SunshineNewUserCommentsList = ({loading, results, classes}) => {
+const SunshineNewUserCommentsList = ({loading, results, classes, truncated}) => {
   const { FormatDate, MetaInfo, Loading } = Components
 
-  if (!results && loading) return <Loading />
+  if (!results && loading && !truncated) return <Loading />
   if (!results) return null 
 
   return (
     <div>
-      {loading && <Loading />}
+      {loading && !truncated && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
-        <MetaInfo>
+        {!truncated && <MetaInfo>
           <Link to={`/posts/${comment.postId}`}>
-            Posted on <FormatDate date={comment.postedAt}/> {comment.status}
+            Comment made <FormatDate date={comment.postedAt}/> {comment.status}
           </Link>
-        </MetaInfo>
-        <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>
-        <div dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
+        </MetaInfo>}
+        {!truncated && <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
+        <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>
   )
@@ -40,6 +41,8 @@ const SunshineNewUserCommentsList = ({loading, results, classes}) => {
 const withMultiOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
+  enableCache: true,
+  fetchPolicy: 'cache-and-network',
 }
 
 registerComponent( 'SunshineNewUserCommentsList', SunshineNewUserCommentsList, [withMulti, withMultiOptions], withStyles(styles, {name:"SunshineNewUserCommentsList"}))

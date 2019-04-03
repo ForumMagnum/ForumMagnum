@@ -6,7 +6,8 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   icon: {
-    width: "1.2rem"
+    width: "1.2rem",
+    fontSize: "inherit !important",
   },
   buttons: {
     display: "inline",
@@ -18,13 +19,13 @@ const styles = theme => ({
     top: "2px",
     display: "inline",
     paddingLeft: 5,
-    color: theme.palette.text.secondary,
+    color: theme.palette.lwTertiary.main,
   },
   label: {
     width: 64,
     display: "inline-block",
     textAlign: "center",
-    color: theme.palette.text.secondary
+    color: theme.palette.lwTertiary.main
   }
 });
 
@@ -73,7 +74,7 @@ class SubscribeWidget extends Component {
           onMouseEnter={ () => this.setSubscribeLabel("Via RSS") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
-          <Icon fontSize="inherit" className={classes.icon}>rss_feed</Icon>
+          <Icon className={classes.icon}>rss_feed</Icon>
         </a>
         <a
           className={classes.subscribeButton}
@@ -81,7 +82,7 @@ class SubscribeWidget extends Component {
           onMouseEnter={ () => this.setSubscribeLabel("Via Email") }
           onMouseLeave={ () => this.resetSubscribeLabel() }
         >
-          <Icon fontSize="inherit" className={classes.icon}>email</Icon>
+          <Icon className={classes.icon}>email</Icon>
         </a>
         { dialogOpen && <Components.SubscribeDialog
           open={true}
