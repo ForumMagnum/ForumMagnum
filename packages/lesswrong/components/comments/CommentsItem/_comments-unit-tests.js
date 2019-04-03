@@ -17,8 +17,8 @@ describe('CommentsItem', () => {
     const commentsItem = shallow(<CommentsItem currentUser={{}} {...commentMockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
   });
-  it('does NOT render reply-button when NOT logged in', () => {
+  it('renders reply-button when NOT logged in', () => {
     const commentsItem = shallow(<CommentsItem {...commentMockProps} />)
-    expect(commentsItem.find(".comments-item-reply-link")).to.have.length(0);
+    expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
   });
 });

@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Home from '@material-ui/icons/Home';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import Details from '@material-ui/icons/Details';

@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -29,8 +29,12 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentCommentId, classes, successCallback, type, cancelCallback, alignmentForumPost, currentUser}) => {
-  prefilledProps.postId = postId;
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, flash, currentUser}) => {
+  prefilledProps = {
+    ...prefilledProps,
+    postId: post._id,
+    af: Comments.defaultToAlignment(currentUser, post, parentComment),
+  };
 
   if (parentComment) {
     prefilledProps = Object.assign(prefilledProps, {
@@ -51,31 +55,43 @@ const CommentsNewForm = ({prefilledProps = {}, postId, parentComment, parentComm
       <Button
         type="submit"
         className={classNames(classes.formButton)}
+        onClick={(ev) => {
+          if (!currentUser) {
+            const isAF = getSetting('AlignmentForum', false);
+            const message = (isAF
+              ? "Log in or go to LessWrong to submit your comment."
+              : "Log in to submit your comment."
+            );
+            flash({messageString: message});
+            ev.preventDefault();
+          }
+        }}
       >
         {submitLabel}
       </Button>
     </div>
   }
 
-  if (Comments.options.mutations.new.check(currentUser, prefilledProps)) {
-    return (
-      <div className={classes.root}>
-        <Components.WrappedSmartForm
-          collection={Comments}
-          mutationFragment={getFragment('CommentsList')}
-          successCallback={successCallback}
-          cancelCallback={cancelCallback}
-          prefilledProps={prefilledProps}
-          layout="elementOnly"
-          GroupComponent={FormGroupComponent}
-          SubmitComponent={SubmitComponent}
-          alignmentForumPost={alignmentForumPost}
-        />
-      </div>
-    );
-  } else {
+  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
+  
+  return (
+    <div className={classes.root}>
+      <Components.WrappedSmartForm
+        collection={Comments}
+        mutationFragment={getFragment('CommentsList')}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
+        prefilledProps={prefilledProps}
+        layout="elementOnly"
+        GroupComponent={FormGroupComponent}
+        SubmitComponent={SubmitComponent}
+        alignmentForumPost={post.af}
+        addFields={currentUser?[]:["contents"]}
+      />
+    </div>
+  );
 };
 
 const FormGroupComponent = (props) => {
@@ -102,10 +118,9 @@ const FormGroupComponent = (props) => {
 
 
 CommentsNewForm.propTypes = {
-  postId: PropTypes.string.isRequired,
+  post: PropTypes.object.isRequired,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
-  parentCommentId: PropTypes.string, // if reply
   topLevelCommentId: PropTypes.string, // if reply
   successCallback: PropTypes.func, // a callback to execute when the submission has been successful
   cancelCallback: PropTypes.func,

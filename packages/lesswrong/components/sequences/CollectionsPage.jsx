@@ -3,7 +3,7 @@ import { Components, withDocument, registerComponent } from 'meteor/vulcan:core'
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
 import Button from '@material-ui/core/Button';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';

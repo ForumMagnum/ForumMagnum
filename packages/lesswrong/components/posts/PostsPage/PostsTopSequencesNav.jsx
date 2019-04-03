@@ -1,6 +1,6 @@
 import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../../lib/reactRouterWrapper.js';
 
 const PostsTopSequencesNav = ({post, sequenceId, routes}) => {
   const { SequencesNavigation, CollectionsNavigation } = Components

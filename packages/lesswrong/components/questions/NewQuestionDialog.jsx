@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection.js'
 import withUser from '../common/withUser';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { withStyles } from '@material-ui/core/styles';
 

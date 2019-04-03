@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
 import Portal from '@material-ui/core/Portal';
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
