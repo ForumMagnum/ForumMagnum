@@ -71,7 +71,7 @@ class CommentsList extends Component {
           <div className="comments-list">
             {comments.map(comment =>
               <Components.CommentsNode
-                startThreadCollapsed={startThreadCollapsed || totalComments >= 25}
+                startThreadCollapsed={startThreadCollapsed || totalComments >= 100}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}

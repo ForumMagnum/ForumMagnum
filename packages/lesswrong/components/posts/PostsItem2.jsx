@@ -215,6 +215,7 @@ const styles = (theme) => ({
     cursor: "pointer",
     width: MENU_WIDTH,
     opacity: .5,
+    marginRight: theme.spacing.unit,
     display: "none",
     [theme.breakpoints.down('sm')]: {
       display: "block"

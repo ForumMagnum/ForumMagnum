@@ -4,29 +4,18 @@ import React from 'react';
 import { Link } from 'react-router';
 import withUser from '../common/withUser';
 
-const Home2 = (props) => {
-  const { currentUser } = props;
+const Home2 = ({ currentUser }) => {
   const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
-
-  const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms = {
-    view: 'events',
-    limit: 3,
-  }
-  if (lat && lng) {
-    eventsListTerms = {
-      view: 'nearbyEvents',
-      lat: lat,
-      lng: lng,
-      limit: 3,
-    }
-  }
 
   return (
     <React.Fragment>
       <Components.HeadTags image={getSetting('siteImage')} />
       <TabNavigationMenu />
+
+      {!currentUser && <SingleColumnSection>
+        <SectionTitle title="Core Reading" />
+        <Components.CoreReading />
+      </SingleColumnSection>}
 
       <SingleColumnSection>
         <SectionTitle title="Curated" />
@@ -37,13 +26,6 @@ const Home2 = (props) => {
       </SingleColumnSection>
 
       <HomeLatestPosts />
-
-      <SingleColumnSection>
-        <SectionTitle title="Community Events"/>
-        <PostsList2 terms={eventsListTerms} showLoadMore={false}>
-          <Link to="/community">Find Events Nearby</Link>
-        </PostsList2>
-      </SingleColumnSection>
 
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion" />

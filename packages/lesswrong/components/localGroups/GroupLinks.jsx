@@ -21,7 +21,6 @@ const styles = theme => ({
   groupType: {
     ...theme.typography.headerStyle,
     display: 'inline-block',
-    padding: '4px',
     width: 'initial',
     height: '20px',
     fontSize: '14px',

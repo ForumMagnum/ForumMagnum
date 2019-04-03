@@ -102,6 +102,11 @@ class CommentsItem extends Component {
     return false;
   }
 
+  // TODO: Remove this after April Fools
+  commentIsByGPT2 = (comment) => {
+    return !!(comment && comment.user && comment.user.displayName === "GPT2")
+  }
+
   showReply = (event) => {
     event.preventDefault();
     this.setState({showReply: true});
@@ -109,7 +114,7 @@ class CommentsItem extends Component {
 
   replyCancelCallback = () => {
     this.setState({showReply: false});
-  }
+}
 
   replySuccessCallback = () => {
     this.setState({showReply: false});
@@ -152,6 +157,7 @@ class CommentsItem extends Component {
     if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
       return 10000000
     }
+    if (this.commentIsByGPT2(comment)) return 400
     const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
     return (commentIsRecent || comment.baseScore >= 10) ? 1600 : 800
   }
