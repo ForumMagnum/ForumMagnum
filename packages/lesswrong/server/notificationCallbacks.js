@@ -203,10 +203,18 @@ function findUsersToEmail(filter) {
   return usersToEmail
 }
 
+const curationEmailDelay = new EventDebouncer({
+  name: "curationEmail",
+  delayMinutes: 20,
+  callback: (postId) => {
+    let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
+    sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+  }
+});
+
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
-    let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
-    sendPostByEmail(usersToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+    curationEmailDelay.recordEvent(post._id, null);
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);
