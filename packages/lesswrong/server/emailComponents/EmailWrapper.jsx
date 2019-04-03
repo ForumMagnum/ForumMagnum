@@ -1,12 +1,15 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { Utils } from 'meteor/vulcan:lib';
+import { UnsubscribeAllToken } from '../emails/emailTokens.js';
 
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({children}) => {
+const EmailWrapper = ({user, children}) => {
+  const unsubscribeAllLink = UnsubscribeAllToken.generateLink(user._id);
   const accountLink = `${Utils.getSiteUrl()}account`
+  
   return (
     <body bgcolor="white" leftmargin="0" topmargin="0" marginWidth="0" marginHeight="0">
       <br/>
@@ -25,7 +28,8 @@ const EmailWrapper = ({children}) => {
                 </td>
               </tr>
               <tr><td>
-                <a href={accountLink}>Change your notifications settings</a><br/><br/>
+                <a href={unsubscribeAllLink}>Unsubscribe</a> (from all emails from LessWrong)
+                or <a href={accountLink}>Change your notifications settings</a><br/><br/>
               </td></tr>
             </table>
           </td>

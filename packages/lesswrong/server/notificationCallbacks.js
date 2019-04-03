@@ -50,7 +50,7 @@ const sendPostByEmail = async (users, postId, reason) => {
       await renderAndSendEmail({
         user,
         subject: post.title,
-        bodyComponent: <Components.EmailWrapper>
+        bodyComponent: <Components.EmailWrapper user={user}>
           <Components.NewPostEmail documentId={post._id} reason={reason}/>
         </Components.EmailWrapper>
       });
@@ -281,7 +281,7 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
     await renderAndSendEmail({
       user: recipientUser,
       subject: subject,
-      bodyComponent: <Components.EmailWrapper>
+      bodyComponent: <Components.EmailWrapper user={recipientUser}>
         <Components.PrivateMessagesEmail
           conversation={conversation}
           messages={messages}

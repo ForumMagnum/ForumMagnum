@@ -77,3 +77,5 @@ addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', t
 
 addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });
 addRoute({ name: 'recommendations', path: '/recommendations', componentName: 'RecommendationsPage', title: "Recommendations" });
+
+addRoute({ name: 'emailToken', path: '/emailToken/:token', componentName: 'EmailTokenPage' });

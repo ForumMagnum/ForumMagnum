@@ -86,6 +86,7 @@ import '../components/users/LoginPopupLink.jsx';
 import '../components/users/KarmaChangeNotifier.jsx';
 import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
+import '../components/users/EmailTokenPage.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 
