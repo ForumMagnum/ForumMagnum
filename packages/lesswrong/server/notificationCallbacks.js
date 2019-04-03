@@ -203,10 +203,27 @@ function findUsersToEmail(filter) {
   return usersToEmail
 }
 
+const curationEmailDelay = new EventDebouncer({
+  name: "curationEmail",
+  delayMinutes: 20,
+  callback: async (postId) => {
+    const post = await Posts.findOne(postId);
+    
+    // Still curated? If it was un-curated during the 20 minute delay, don't
+    // send emails.
+    if (post.curatedDate) {
+      let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
+      sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+    } else {
+      //eslint-disable-next-line no-console
+      console.log(`Not sending curation notice for ${post.title} because it was un-curated during the delay period.`);
+    }
+  }
+});
+
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
-    let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
-    sendPostByEmail(usersToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+    curationEmailDelay.recordEvent(post._id, null);
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);
