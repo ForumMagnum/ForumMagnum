@@ -191,7 +191,8 @@ class EditorFormComponent extends Component {
       this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
-          return ev.returnValue = 'Are you sure you want to close?';
+          ev.returnValue = 'Are you sure you want to close?';
+          return ev.returnValue
         }
       });
     }
