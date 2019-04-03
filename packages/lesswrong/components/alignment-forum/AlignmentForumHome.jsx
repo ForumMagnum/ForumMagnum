@@ -20,16 +20,6 @@ const AlignmentForumHome = ({currentUser, classes}) => {
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
 
-  const renderRecentPostsTitle = () => <div className="recent-posts-title-component">
-    { currentUser && Users.canDo(currentUser, "posts.alignment.new") &&
-      <div className="new-post-link">
-        <Link to={{pathname:"/newPost", query: {af: true}}}>
-          new post
-        </Link>
-      </div>
-    }
-  </div>
-
   return (
     <div className="alignment-forum-home">
       <SingleColumnSection>
