@@ -3,12 +3,10 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
 import {
   Components,
-  registerComponent,
-  getSetting
+  registerComponent
 } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
-import { Comments } from "../../lib/collections/comments";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
@@ -150,7 +148,7 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments, parentAnswerId, startThreadCollapsed, newForm=true, guidelines=true } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadCollapsed, newForm=true, guidelines=true } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -160,23 +158,14 @@ class CommentsListSection extends Component {
           <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
         </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        {!currentUser && newForm &&
-          <div>
-            <Components.LoginPopupLink>
-              <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-            </Components.LoginPopupLink>
-          </div>
-        }
         <div id="comments"/>
-
-        {newForm && currentUser && Users.isAllowedToComment(currentUser, post) &&
+        
+        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
-              alignmentForumPost={post.af}
-              postId={postId}
+              post={post}
               prefilledProps={{
-                af: Comments.defaultToAlignment(currentUser, post),
                 parentAnswerId: parentAnswerId}}
               type="comment"
             />

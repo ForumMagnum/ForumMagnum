@@ -102,14 +102,11 @@ class AnswerCommentsList extends PureComponent {
           { commenting &&
               <div className={classes.editor}>
                 <CommentsNewForm
-                  postId={post._id}
+                  post={post}
                   parentComment={parentAnswer}
                   prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post, parentAnswer),
                     parentAnswerId: parentAnswer._id,
-                    parentCommentId: parentAnswer._id,
                   }}
-                  alignmentForumPost={post.af}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"

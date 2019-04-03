@@ -1,13 +1,10 @@
-import { Components, registerComponent, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Comments } from '../../lib/collections/comments';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
   root: {
@@ -58,30 +55,17 @@ class NewAnswerCommentQuestionForm extends PureComponent {
   state = { selection: "answer"}
 
   getNewForm = () => {
-    const {post, currentUser} = this.props
+    const { post } = this.props
     const { selection } = this.state
     const { NewAnswerForm, CommentsNewForm } = Components
 
-    if (!currentUser) {
-      return <Components.LoginPopupLink>
-        <Typography variant="body2">
-          <a>
-            <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-          </a>
-        </Typography>
-      </Components.LoginPopupLink>
-    }
-
     switch(selection) {
       case "answer": 
-        return <NewAnswerForm post={post} alignmentForumPost={post.af} />
+        return <NewAnswerForm post={post} />
       case "comment":
         return <CommentsNewForm
           alignmentForumPost={post.af}
-          postId={post._id}
-          prefilledProps={{
-            af: Comments.defaultToAlignment(currentUser, post)
-          }}
+          post={post}
           type="comment"
         />
     }
@@ -89,7 +73,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
 
   render () {
     const { classes } = this.props
-    const { selection } = this.state 
+    const { selection } = this.state
 
     return (
       <div className={classes.root}>
