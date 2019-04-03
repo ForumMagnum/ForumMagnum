@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { withRouter, Link } from 'react-router';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
@@ -238,20 +238,22 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
 
-        <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
-          <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
-            <span className={classes.icon}>
-              { communityGlobeIcon }
-            </span>
-            <span className={classes.navText}>
-              Community<span className={classes.hideOnMobile}> Events</span>
-            </span>
-          </Link>
-        </Tooltip>
+        {getSetting('hasEvents', true) && <span>
+          <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
+            <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
+              <span className={classes.icon}>
+                { communityGlobeIcon }
+              </span>
+              <span className={classes.navText}>
+                Community<span className={classes.hideOnMobile}> Events</span>
+              </span>
+            </Link>
+          </Tooltip>
 
-        <span className={classes.hideOnMobile}>
-          <TabNavigationEventsList terms={eventsListTerms} />
-        </span>
+          <span className={classes.hideOnMobile}>
+            <TabNavigationEventsList terms={eventsListTerms} />
+          </span>
+        </span>}
 
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>
