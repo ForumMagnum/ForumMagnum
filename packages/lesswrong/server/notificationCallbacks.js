@@ -206,9 +206,18 @@ function findUsersToEmail(filter) {
 const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
   delayMinutes: 20,
-  callback: (postId) => {
-    let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
-    sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+  callback: async (postId) => {
+    const post = await Posts.findOne(postId);
+    
+    // Still curated? If it was un-curated during the 20 minute delay, don't
+    // send emails.
+    if (post.curatedDate) {
+      let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
+      sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+    } else {
+      //eslint-disable-next-line no-console
+      console.log(`Not sending curation notice for ${post.title} because it was un-curated during the delay period.`);
+    }
   }
 });
 
