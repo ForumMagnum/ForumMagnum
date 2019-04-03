@@ -1,4 +1,5 @@
 /*global Vulcan*/
+import { getSetting } from 'meteor/vulcan:core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
 import { addCronJob } from './cronUtil.js';
 
@@ -158,13 +159,15 @@ export const forcePendingEvents = async () => {
 }
 Vulcan.forcePendingEvents = forcePendingEvents;
 
-addCronJob({
-  name: "Debounced event handler",
-  schedule(parser) {
-    // Once per minute, on the minute
-    return parser.cron('* * * * * *');
-  },
-  job() {
-    dispatchPendingEvents();
-  }
-});
+if (!getSetting("testServer", false)) {
+  addCronJob({
+    name: "Debounced event handler",
+    schedule(parser) {
+      // Once per minute, on the minute
+      return parser.cron('* * * * * *');
+    },
+    job() {
+      dispatchPendingEvents();
+    }
+  });
+}

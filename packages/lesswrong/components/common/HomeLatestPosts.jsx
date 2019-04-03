@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import Users from 'meteor/vulcan:users';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   checkbox: {
@@ -15,6 +15,11 @@ const styles = theme => ({
       width: "1.3rem",
       position: "relative",
       top: -2
+    }
+  },
+  checked: {
+    '&&': {
+      color: theme.palette.lwTertiary.main,
     }
   },
   checkboxGroup: {
@@ -87,7 +92,7 @@ class HomeLatestPosts extends PureComponent {
         <PostsList2 terms={recentPostsTerms}>
           <Link to={"/allPosts"}>View All Posts</Link>
           <span className={classes.checkBoxGroup} onClick={this.toggleFilter}>
-            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!(currentFilter === "frontpage")} />
+            <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={!(currentFilter === "frontpage")} />
             Include Personal Posts
           </span>
         </PostsList2>

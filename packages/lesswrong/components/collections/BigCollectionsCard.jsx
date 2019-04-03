@@ -1,6 +1,6 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -27,10 +27,10 @@ const styles = theme => ({
     },
   },
   content: {
-    marginLeft: theme.spacing.unit*5,
+    marginLeft: 62,
     marginBottom:theme.spacing.unit*2,
     width: "100%",
-    maxWidth: 307,
+    maxWidth: 328,
     borderTop: "solid 4px black",
     paddingTop: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {

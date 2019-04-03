@@ -10,19 +10,6 @@
   line-height: 1.6rem;
   color: rgba(0,0,0,0.6);
 
-  .new-post-link {
-    margin-top: 20px;
-    @include max-tiny() {
-      margin-top:10px;
-      margin-left:10px;
-    }
-    a {
-      color: rgba(0,0,0,0.6);
-    }
-    a:hover {
-      text-decoration: none;
-    }
-  }
   a:hover {
     color: rgba(0,0,0,0.4) !important;
   }

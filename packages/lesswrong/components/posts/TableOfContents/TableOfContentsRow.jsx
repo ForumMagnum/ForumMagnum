@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
+    position: "relative",
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     direction:"ltr",
@@ -14,9 +15,9 @@ const styles = theme => ({
   // For the highlighted section only, disable the half-opacity-on-hover effect
   // that's otherwise globally applied to <a> tags.
   highlighted: {
-    fontWeight: "bold",
     '& $link': {
-      color: "rgba(0,0,0,.87)",
+      color: "black",
+      textShadow: "0 0 0 rgba(0,0,0,.87)",
     },
     "& a:focus, & a:hover": {
       opacity: "initial",
@@ -25,15 +26,14 @@ const styles = theme => ({
 
   link: {
     display: "block",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    paddingTop: 4,
-    paddingBottom: 4,
-    color: theme.palette.grey[700],
+    paddingTop: 6,
+    paddingBottom: 6,
+    color: theme.palette.grey[600],
+    lineHeight: "1.2em",
     '&:hover':{
       opacity:1,
-      fontWeight:"bold",
+      color: "black",
+      textShadow: "0 0 0 rgba(0,0,0,1].87)",
     }
   },
 

@@ -1,7 +1,7 @@
 import { Components, registerComponent, withMutation, getActions, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import Tooltip from '@material-ui/core/Tooltip';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -215,6 +215,7 @@ const styles = (theme) => ({
     cursor: "pointer",
     width: MENU_WIDTH,
     opacity: .5,
+    marginRight: theme.spacing.unit,
     display: "none",
     [theme.breakpoints.down('sm')]: {
       display: "block"

@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -83,11 +83,17 @@ class CommentsNode extends Component {
     };
   }
 
+  // TODO: Remove this after April Fools
+  commentIsByGPT2 = (comment) => {
+    return !!(comment && comment.user && comment.user.displayName === "GPT2")
+  }
+
   isCollapsed = () => {
-    const { comment } = this.props
+    const { comment, currentUser } = this.props
     return (
       comment.deleted ||
-      comment.baseScore < KARMA_COLLAPSE_THRESHOLD
+      comment.baseScore < KARMA_COLLAPSE_THRESHOLD ||
+      (currentUser && currentUser.blockedGPT2 && this.commentIsByGPT2(comment))
     )
   }
 
@@ -170,7 +176,7 @@ class CommentsNode extends Component {
 
     const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
 
-    const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
+    const truncated = !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
 
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const nodeClass = classNames(

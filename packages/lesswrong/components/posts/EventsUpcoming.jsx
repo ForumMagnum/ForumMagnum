@@ -2,7 +2,7 @@ import { Components, registerComponent, registerSetting } from 'meteor/vulcan:co
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from './PostsDaily';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 
 registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');

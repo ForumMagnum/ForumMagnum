@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
 import withUser from '../common/withUser';
 

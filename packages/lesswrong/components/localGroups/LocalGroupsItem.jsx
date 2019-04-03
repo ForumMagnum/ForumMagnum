@@ -1,16 +1,17 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
   root: {
     display: "flex",
+    flexWrap: "wrap",
     fontSize: 14,
     paddingLeft: theme.spacing.unit,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
     borderBottom: "solid 1px rgba(0,0,0,.1)",
     [legacyBreakpoints.maxTiny]: {
         marginLeft: 0,
@@ -31,7 +32,11 @@ const styles = theme => ({
     textDecoration: "none",
     whiteSpace: "nowrap",
     zIndex: "400 !important",
-    flexGrow: 1
+    flexGrow: 1,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      marginBottom: theme.spacing.unit*1.5
+    }
   },
   location: {
     color: "rgba(0,0,0,.4)",
