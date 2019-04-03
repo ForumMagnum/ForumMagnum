@@ -1,7 +1,7 @@
 import { Components, registerComponent , withDocument} from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const SequencesPost = ({params, router}) => {
   const version = router.location && router.location.query && router.location.query.revision

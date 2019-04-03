@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vu
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';

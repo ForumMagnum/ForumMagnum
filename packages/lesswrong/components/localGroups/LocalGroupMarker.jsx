@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import CloseIcon from '@material-ui/icons/Close';
 import { withStyles } from '@material-ui/core/styles';
 

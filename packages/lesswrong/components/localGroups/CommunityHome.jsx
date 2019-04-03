@@ -4,9 +4,8 @@ import {
   withMessages,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';

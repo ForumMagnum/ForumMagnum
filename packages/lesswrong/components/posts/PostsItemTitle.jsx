@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   root: {
