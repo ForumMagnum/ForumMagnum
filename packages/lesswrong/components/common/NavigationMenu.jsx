@@ -180,7 +180,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       {!af && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
       {!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
-      {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex of Evil"/>}
+      {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
       {!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
 
       <Divider className={classes.divider}/>
