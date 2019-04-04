@@ -16,15 +16,15 @@ const styles = theme => ({
   root: {
     ...theme.typography.postStyle,
     cursor: 'pointer',
-    
-    width: 233,
+
+    width: "33%",
     padding: 15,
-    
+
     "&:hover": {
       boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
       color: "rgba(0,0,0,0.87)",
     },
-    
+
     [legacyBreakpoints.maxSmall]: {
       width: "335px !important",
     },
@@ -33,21 +33,21 @@ const styles = theme => ({
       padding: "14px 10px 12px 10px !important",
     },
   },
-  
+
   top: {
     height: 44,
     lineHeight: 1.1,
     borderTopStyle: "solid",
     paddingTop: 7,
   },
-  
+
   topWithAuthor: {
     height: 68,
   },
-  
+
   link: {
   },
-  
+
   title: {
     fontSize: 16,
     lineHeight: 1.0,
@@ -64,12 +64,12 @@ const styles = theme => ({
       textDecoration: "none",
     }
   },
-  
+
   draft: {
     textTransform: "uppercase",
     color: "rgba(100, 169, 105, 0.9)",
   },
-  
+
   author: {
     marginTop: 3,
     color: "rgba(0,0,0,0.5)",
@@ -81,12 +81,12 @@ const styles = theme => ({
       }
     }
   },
-  
+
   bottom: {
   },
-  
+
   image: {
-    width: 203,
+    width: "100%",
     height: 80,
     backgroundColor: "rgba(0,0,0,0.05)",
     [legacyBreakpoints.maxTiny]: {
@@ -100,7 +100,7 @@ const styles = theme => ({
         width: "305px !important",
         height: "auto !important",
       },
-      width: 203,
+      width: "100%",
       height: 80,
       [legacyBreakpoints.maxTiny]: {
         width: "100% !important",

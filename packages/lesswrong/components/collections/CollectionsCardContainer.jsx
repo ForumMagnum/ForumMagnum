@@ -6,9 +6,9 @@ const styles = theme => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
-    justifyContent: "space-between",
     marginTop: -5,
-    marginLeft: -19,
+    marginRight: 20,
+    justifyContent: "space-between",
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",
