@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import withHover from '../common/withHover';
 import withUser from '../common/withUser';
+import { withVote } from './withVote';
 
 const styles = theme => ({
   vote: {
@@ -38,7 +39,7 @@ const styles = theme => ({
 
 class CommentsVote extends PureComponent {
   render() {
-    const { comment, classes, currentUser, hover } = this.props
+    const { comment, classes, currentUser, hover, vote } = this.props
     if (!comment) return null;
     const voteCount = comment.voteCount;
     const baseScore = getSetting('AlignmentForum', false) ? comment.afBaseScore : comment.baseScore
@@ -65,6 +66,7 @@ class CommentsVote extends PureComponent {
                   document={comment}
                   currentUser={currentUser}
                   collection={Comments}
+                  vote={vote}
                 />
               </span>
             </Tooltip>
@@ -84,6 +86,7 @@ class CommentsVote extends PureComponent {
                   document={comment}
                   currentUser={currentUser}
                   collection={Comments}
+                  vote={vote}
                 />
               </span>
             </Tooltip>
@@ -121,5 +124,6 @@ CommentsVote.propTypes = {
 };
 
 registerComponent('CommentsVote', CommentsVote,
-  withStyles(styles, { name: "CommentsVote" }), withHover, withUser
+  withStyles(styles, { name: "CommentsVote" }),
+  withHover, withUser, withVote
 );

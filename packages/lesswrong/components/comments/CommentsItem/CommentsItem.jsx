@@ -1,10 +1,9 @@
 import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from '../../../lib/reactRouterWrapper.js';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from "../../../lib/collections/posts";
-import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
@@ -290,9 +289,8 @@ class CommentsItem extends Component {
 
       const showReplyButton = (
         !comment.isDeleted &&
-        !!currentUser &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-        Users.isAllowedToComment(currentUser, this.props.post)
+        (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
       )
 
       return (
@@ -316,20 +314,17 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const { currentUser, post, comment, parentAnswerId, nestingLevel=1 } = this.props
+    const { post, comment, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
       <div className={classNames("comments-item-reply", levelClass)}>
         <Components.CommentsNewForm
-          postId={comment.postId}
+          post={post}
           parentComment={comment}
-          alignmentForumPost={post.af}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}
           prefilledProps={{
-            af:Comments.defaultToAlignment(currentUser, post, comment),
-            parentCommentId: comment._id,
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"

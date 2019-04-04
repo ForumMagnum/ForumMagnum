@@ -32,6 +32,9 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)"
   },
+  noTitle: {
+    marginLeft: 0,
+  },
   tailDivider: {
     marginLeft: theme.spacing.unit*1.5,
     marginRight: theme.spacing.unit*1.5,
@@ -48,11 +51,11 @@ class SectionTitle extends PureComponent {
     const {children, classes, className, title, dividers=true} = this.props 
     return (
       <div className={classes.root}>
-        { dividers && <div className={classes.leftDivider}/>}
+        { dividers && title && <div className={classes.leftDivider}/>}
         <Typography variant='display1' className={classNames(classes.title, className)}>
           {title}
         </Typography>
-        { dividers && <div className={classes.rightDivider}/>}
+        { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title})}/>}
         { children }
         { children && dividers && <div className={classes.tailDivider}/>}
       </div>

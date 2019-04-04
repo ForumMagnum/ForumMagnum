@@ -1,7 +1,7 @@
 import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link, withRouter } from 'react-router';
+import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
 import Users from "meteor/vulcan:users";
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -191,8 +191,7 @@ const UsersProfile = (props) => {
         >
           <Components.SequencesGridWrapper
             terms={canEdit ? sequenceAllTerms : sequenceTerms}
-            showLoadMore={true}
-          className="books-sequences-grid-list" />
+            showLoadMore={true}/>
         </Components.Section>
       )
     }

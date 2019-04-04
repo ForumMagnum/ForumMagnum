@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import ListItem from '@material-ui/core/ListItem';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';

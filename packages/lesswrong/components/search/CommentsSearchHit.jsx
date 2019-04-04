@@ -1,5 +1,5 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Snippet } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';

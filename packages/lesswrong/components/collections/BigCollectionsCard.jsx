@@ -1,6 +1,6 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -17,7 +17,6 @@ const styles = theme => ({
     display:"flex",
     height:310,
     flexWrap: "wrap",
-    flexDirection: "column",
     justifyContent: "space-between",
     "&:hover": {
       boxShadow: "0 0 5px rgba(0,0,0,.2)"

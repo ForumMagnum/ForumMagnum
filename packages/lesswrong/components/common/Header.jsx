@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
-import { Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
