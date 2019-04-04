@@ -22,14 +22,11 @@ class EmailTokenPage extends Component
   
   render = () => {
     const { loading, useTokenResult } = this.state;
-    if (this.state.loading)
+    if (loading)
       return <Components.Loading/>
     
-    const { params } = this.props;
-    const { token } = params;
-    
-    const ResultComopnent = getComponent(useTokenResult.component);
-    return <ResultComponent {...userTokenResult.props}/>
+    const ResultComponent = getComponent(useTokenResult.component);
+    return <ResultComponent {...useTokenResult.props}/>
   }
 }
 

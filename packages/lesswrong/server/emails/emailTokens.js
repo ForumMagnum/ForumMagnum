@@ -1,6 +1,7 @@
 import { addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
 import { EmailTokens } from '../../lib/collections/emailTokens/collection.js';
 import { Random } from 'meteor/random';
+import Users from 'meteor/vulcan:users';
 
 let emailTokenTypesByName = {};
 
@@ -55,7 +56,7 @@ addGraphQLResolvers({
         throw new Error("Invalid email token");
       const tokenObj = results[0];
       
-      if (!(tokenObj.tokenType in emailTokenTypesbyName))
+      if (!(tokenObj.tokenType in emailTokenTypesByName))
         throw new Error("Email token has invalid type");
       
       return await emailTokenTypesByName[tokenObj.tokenType].handleToken(tokenObj);
