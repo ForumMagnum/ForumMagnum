@@ -92,13 +92,9 @@ const sampleUnreadPosts = async ({count, currentUser}) => {
     { $project: {_id:1, baseScore:1} },
   ]).toArray();
   
-  console.log(`Sampling ${count} posts from ${unreadPostsMetadata.length} posts`);
-  
   const sampledPosts = new WeightedList(
     _.map(unreadPostsMetadata, post => [post._id, Math.pow(post.baseScore, 2)])
   ).pop(count);
-  console.log(`Got ${sampledPosts.length} posts`);
-  console.log(sampledPosts);
   
   return await Posts.find(
     { _id: {$in: sampledPosts} },

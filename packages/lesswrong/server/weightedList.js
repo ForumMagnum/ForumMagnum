@@ -172,7 +172,7 @@ export class WeightedList
     //console.log('items',items);
     return new _WeightedHeap(items);
   }
-};
+}
 
 /**
  * This is a javascript implementation of the algorithm described by 

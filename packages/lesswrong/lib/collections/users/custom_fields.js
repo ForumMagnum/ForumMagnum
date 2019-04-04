@@ -35,6 +35,11 @@ export const formGroups = {
     label: "Admin Options",
     startCollapsed: true,
   },
+  betaOptions: {
+    order: 70,
+    name: "betaOptions",
+    label: "Beta Features",
+  },
 }
 
 export const karmaChangeNotifierDefaultSettings = {
@@ -731,7 +736,27 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
-  }
+  },
+  
+  // Admin-only options for configuring Recommendations placement, for experimentation
+  recommendationsInPostFooter: {
+    type: String,
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.betaOptions,
+    label: "Number of recommendations in post footer",
+  },
+  recommendationsOnFrontPage: {
+    type: Number,
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.betaOptions,
+    label: "Number of recommendations on front page",
+  },
 });
 
 export const makeEditableOptionsModeration = {

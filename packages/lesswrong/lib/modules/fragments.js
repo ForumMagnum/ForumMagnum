@@ -94,6 +94,8 @@ extendFragment('UsersCurrent', `
   sunshineShowNewUserContent
   # TODO: Remove this after april fools
   blockedGPT2
+  recommendationsInPostFooter
+  recommendationsOnFrontPage
 `);
 
 registerFragment(`
@@ -425,6 +427,9 @@ registerFragment(`
 
     # TODO: Remove this after april fools
     blockedGPT2
+    
+    recommendationsInPostFooter
+    recommendationsOnFrontPage
   }
 `)
 

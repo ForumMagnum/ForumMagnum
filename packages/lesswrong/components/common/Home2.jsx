@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 
 const Home2 = ({ currentUser }) => {
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, RecommendationsList } = Components
 
   return (
     <React.Fragment>
@@ -24,6 +24,13 @@ const Home2 = ({ currentUser }) => {
           <SubscribeWidget view={"curated"} />
         </PostsList2>
       </SingleColumnSection>
+
+      {currentUser && currentUser.recommendationsOnFrontPage &&
+        <SingleColumnSection>
+          <SectionTitle title="Recommended" />
+          <RecommendationsList count={currentUser.recommendationsOnFrontPage} />
+        </SingleColumnSection>
+      }
 
       <HomeLatestPosts />
 
