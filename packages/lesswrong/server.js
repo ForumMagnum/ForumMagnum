@@ -71,7 +71,7 @@ import './lib/collections/users/validate_login.js';
 import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
-if (getSetting('events', true)) {
+if (getSetting('hasEvents', true)) {
   import './lib/collections/localgroups/callbacks.js';
 }
 
@@ -79,9 +79,7 @@ import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
 import './lib/collections/users/serverSchema.js';
 
-if (getSetting('events', true)) {
-  import './lib/events/server.js';
-}
+import './lib/events/server.js';
 import './lib/modules/connection_logs.js';
 
 
