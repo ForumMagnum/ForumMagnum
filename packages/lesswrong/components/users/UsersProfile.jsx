@@ -191,7 +191,7 @@ const UsersProfile = (props) => {
         >
           <Components.SequencesGridWrapper
             terms={canEdit ? sequenceAllTerms : sequenceTerms}
-            showLoadMore={true} />
+            showLoadMore={true}/>
         </Components.Section>
       )
     }
