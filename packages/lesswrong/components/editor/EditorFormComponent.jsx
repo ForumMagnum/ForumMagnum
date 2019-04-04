@@ -187,7 +187,7 @@ class EditorFormComponent extends Component {
     }
     this.context.addToSuccessForm(resetEditor);
     
-    if (window) {
+    if (Meteor.isClient && window) {
       this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
