@@ -7,7 +7,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { withRouter } from '../../lib/reactRouterWrapper.js';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const styles = theme => ({
   root: {
