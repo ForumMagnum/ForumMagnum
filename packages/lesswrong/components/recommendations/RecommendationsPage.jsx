@@ -38,14 +38,15 @@ const styles = theme => ({
 });
 
 const RecommendationsPage = ({ classes, recommendations, currentUser }) => {
-  const { Section } = Components;
-  
   if (!recommendations)
     return <Components.PostsLoading/>
   
-  return <Section title="Recommended Posts">
-    {recommendations.map(post => <Components.PostsItem post={post} key={post._id} currentUser={currentUser}/>)}
-  </Section>
+  const { SingleColumnSection, SectionTitle, PostsItem2 } = Components;
+  
+  return <SingleColumnSection>
+    <SectionTitle title="Recommended" />
+    {recommendations.map(post => <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}
+  </SingleColumnSection>
 };
 
 registerComponent('RecommendationsPage', RecommendationsPage,
