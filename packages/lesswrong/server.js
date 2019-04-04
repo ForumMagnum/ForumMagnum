@@ -55,6 +55,7 @@ import './server/siteAdminMetadata.js';
 import './server/callbacks.js';
 import './server/notificationCallbacks.js';
 import './server/voteServer.js';
+import './server/recommendations.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
