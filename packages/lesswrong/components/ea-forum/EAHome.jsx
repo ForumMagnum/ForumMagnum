@@ -1,11 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
-import { Link } from 'react-router';
 import withUser from '../common/withUser';
 
-const EAHome = ({ currentUser }) => {
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
+const EAHome = () => {
+  const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, HomeLatestPosts } = Components
 
   return (
     <React.Fragment>
