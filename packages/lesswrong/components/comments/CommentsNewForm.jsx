@@ -57,7 +57,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            const isAF = getSetting('AlignmentForum', false);
+            const isAF = getSetting('forumType') === 'AlignmentForum';
             const message = (isAF
               ? "Log in or go to LessWrong to submit your comment."
               : "Log in to submit your comment."

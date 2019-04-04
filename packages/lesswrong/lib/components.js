@@ -1,7 +1,9 @@
 import { getSetting, registerSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
-if(getSetting('AlignmentForum', false)) {
+registerSetting('EAForum', false, 'Is this the EA Forum')
+
+if(getSetting('forumType') === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
   // imports not at top level, and it re-detects it every time the line number
   // changes. Putting it at the top makes its line number stable.
@@ -313,14 +315,12 @@ import '../components/form-components/FormComponentDateTime.jsx';
 import '../components/form-components/FormComponentNumber.jsx';
 import '../components/form-components/WrappedSmartForm.jsx';
 
+
+
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
-
-// TODO; will I submit this upstream?
-//   do i register the setting?
-registerSetting('EAForum', false, 'Is this the EA Forum')
 
 if (getSetting('EAForum', false)) {
   import '../components/ea-forum/EAHome'

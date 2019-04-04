@@ -792,7 +792,7 @@ addFieldsDict(Posts, {
             postId: document._id,
             deleted:false,
           }
-          if (getSetting('AlignmentForum', false)) {
+          if (getSetting('forumType') === 'AlignmentForum') {
             answersTerms.af = true
           }
 
@@ -829,7 +829,7 @@ addFieldsDict(Posts, {
             parentAnswerId: null,
             postId: document._id
           }
-          if (document.af && getSetting('AlignmentForum', false)) {
+          if (document.af && getSetting('forumType') === 'AlignmentForum') {
             selector.af = true
           }
           const commentCount = await Comments.find(selector).count()

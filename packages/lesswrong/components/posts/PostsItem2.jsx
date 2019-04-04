@@ -330,7 +330,7 @@ class PostsItem2 extends PureComponent {
             </div>}
 
             {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
-            {!getSetting('AlignmentForum', false) && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+            {getSetting('forumType') !== 'AlignmentForum' && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
 
             <div className={classes.commentsIcon}>
               <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>

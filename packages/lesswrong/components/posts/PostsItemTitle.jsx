@@ -154,7 +154,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
     </Typography>
 
     {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-    {!getSetting('AlignmentForum', false) && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+    {getSetting('forumType') !== 'AlignmentForum' && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
   </div>
 
   if (postItem2) {

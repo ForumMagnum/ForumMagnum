@@ -16,7 +16,7 @@ Posts.addDefaultView(terms => {
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,

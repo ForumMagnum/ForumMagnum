@@ -2,9 +2,14 @@ import { getSetting } from 'meteor/vulcan:core'
 
 import lwTheme from '../themes/lesswrongTheme'
 import afTheme from '../themes/alignmentForumTheme'
-// import eaTheme from '../themes/eaTheme'
+import eaTheme from '../themes/eaTheme'
 
+const themes = {
+  'VanillaLW': lwTheme,
+  'AlignmentForum': afTheme,
+  'EAForum': eaTheme
+}
 
-const forumTheme = getSetting('AlignmentForum', false) ? afTheme : lwTheme
+const forumTheme = themes[getSetting('forumType')]
 
 export default forumTheme
