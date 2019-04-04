@@ -3,7 +3,6 @@ import Conversations from './collections/conversations/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Utils } from 'meteor/vulcan:core';
 
-// TODO; isAlignmentForum?
 
 /**
 * @summary Get relative link to conversation (used only in session)

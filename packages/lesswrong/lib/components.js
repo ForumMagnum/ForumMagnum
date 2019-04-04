@@ -1,13 +1,15 @@
 import { getSetting, registerSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
-registerSetting('EAForum', false, 'Is this the EA Forum')
-
 if(getSetting('forumType') === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
   // imports not at top level, and it re-detects it every time the line number
   // changes. Putting it at the top makes its line number stable.
   import '../components/alignment-forum/AlignmentForumHome.jsx';
+}
+
+if (getSetting('forumType') === 'EAForum') {
+  import '../components/ea-forum/EAHome'
 }
 
 import '../components/messaging/ConversationTitleEditForm.jsx';
@@ -321,10 +323,6 @@ import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
-
-if (getSetting('EAForum', false)) {
-  import '../components/ea-forum/EAHome'
-}
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';

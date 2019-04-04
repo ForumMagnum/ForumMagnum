@@ -199,7 +199,7 @@ ensureIndex(Posts,
 );
 
 let frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
-if (getSetting('EAForum')) frontpageSelector.meta = {$ne: true}
+if (getSetting('forumType') === 'EAForum') frontpageSelector.meta = {$ne: true}
 
 Posts.addView("frontpage", terms => ({
   selector: frontpageSelector,

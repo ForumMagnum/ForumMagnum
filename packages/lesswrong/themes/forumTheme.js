@@ -5,7 +5,7 @@ import afTheme from '../themes/alignmentForumTheme'
 import eaTheme from '../themes/eaTheme'
 
 const themes = {
-  'VanillaLW': lwTheme,
+  'LessWrong': lwTheme,
   'AlignmentForum': afTheme,
   'EAForum': eaTheme
 }

@@ -1,9 +1,8 @@
 import {getSetting, registerSetting} from 'meteor/vulcan:core'
 
-// TODO; s/VanillaLW/LessWrong/
-registerSetting('forumType', 'VanillaLW', 'What type of Forum is being run, {VanillaLW, AlignmentForum, EAForum}')
+registerSetting('forumType', 'LessWrong', 'What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}')
 
-// TODO; what's this comment for
+// TODO-Q what's this comment for / is it still relevant?
 // # Vulcan Modifications
 
 // schema utils
@@ -136,7 +135,6 @@ import './components.js';
 import './recommendations.js';
 
 // Alignment Forum
-// TODO; conditional import?
 import './modules/alignment-forum/callbacks.js';
 import './modules/alignment-forum/permissions.js';
 import './modules/alignment-forum/graphql.js';
