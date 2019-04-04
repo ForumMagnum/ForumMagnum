@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting, registerSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 if(getSetting('AlignmentForum', false)) {
@@ -313,12 +313,18 @@ import '../components/form-components/FormComponentDateTime.jsx';
 import '../components/form-components/FormComponentNumber.jsx';
 import '../components/form-components/WrappedSmartForm.jsx';
 
-
-
 import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
+
+// TODO; will I submit this upstream?
+//   do i register the setting?
+registerSetting('EAForum', false, 'Is this the EA Forum')
+
+if (getSetting('EAForum', false)) {
+  import '../components/ea-forum/EAHome'
+}
 
 import '../components/questions/NewQuestionDialog.jsx';
 import '../components/questions/NewAnswerForm.jsx';

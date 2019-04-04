@@ -1,4 +1,4 @@
-import { addRoute, getSetting} from 'meteor/vulcan:core';
+import { addRoute, getSetting, registerSetting } from 'meteor/vulcan:core';
 
 // example-forum routes
 addRoute([
@@ -32,11 +32,28 @@ addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences'
 addRoute({ name: 'Rationality', path: '/rationality', componentName: 'CoreSequences', title: "Rationality: A-Z" })
 addRoute({ name: 'Rationality.posts.single', path: '/rationality/:slug', componentName: 'PostsSingleSlugWrapper'})
 
-addRoute({ name: 'HPMOR', path: '/hpmor', componentName: 'HPMOR', title: "Harry Potter and the Methods of Rationality" })
-addRoute({ name: 'HPMOR.posts.single', path: '/hpmor/:slug', componentName: 'PostsSingleSlugWrapper'})
+registerSetting('vanillaLW', true, 'Is the standard LW site')
 
-addRoute({ name: 'Codex', path: '/codex', componentName: 'Codex', title: "The Codex"})
-addRoute({ name: 'Codex.posts.single', path: '/codex/:slug', componentName: 'PostsSingleSlugWrapper'})
+if (getSetting('vanillaLW', true)) {
+  addRoute({
+    name: 'HPMOR',
+    path: '/hpmor',
+    componentName: 'HPMOR',
+    title: "Harry Potter and the Methods of Rationality"
+  })
+  addRoute({
+    name: 'HPMOR.posts.single',
+    path: '/hpmor/:slug',
+    componentName: 'PostsSingleSlugWrapper'
+  })
+
+  addRoute({name: 'Codex', path: '/codex', componentName: 'Codex', title: "The Codex"})
+  addRoute({
+    name: 'Codex.posts.single',
+    path: '/codex/:slug',
+    componentName: 'PostsSingleSlugWrapper'
+  })
+}
 
 
 addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
@@ -62,12 +79,20 @@ addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Ad
 addRoute({ name: 'moderation', path: '/moderation', componentName: 'ModerationLog', title: "Moderation Log" });
 addRoute({ name: 'emailHistory', path: '/debug/emailHistory', componentName: 'EmailHistoryPage' });
 
-if(getSetting('AlignmentForum', false)) {
-    addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
-    addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"FoiiRDC3EhjHx7ayY"});
+if (getSetting('AlignmentForum', false)) {
+  addRoute({name:'alignment.home',   path:'/', componentName: 'AlignmentForumHome'});
+  addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"FoiiRDC3EhjHx7ayY"});
+} else if (getSetting('EAForum', false)) {
+  addRoute({name: 'home', path: '/', componentName: 'Home'});
+  addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"Y2iqhjAHbXNkwcS8F"});
 } else {
-    addRoute({name: 'home', path: '/', componentName: 'Home2'});
-    addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
+  // Default is vanilla LW
+  addRoute({name: 'home', path: '/', componentName: 'Home2'});
+  addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
+}
+
+if (!getSetting('AlignmentForum', false)) {
+  addRoute({name:'community', path:'/meta', componentName: 'Meta'});
 }
 
 addRoute({ name: 'home2', path: '/home2', componentName: 'Home2', title: "Home2 Beta" });
