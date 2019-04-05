@@ -1,4 +1,4 @@
-import { getSetting, registerSetting } from 'meteor/vulcan:core';
+import { getSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 if(getSetting('forumType') === 'AlignmentForum') {
