@@ -78,7 +78,7 @@ const styles = theme => ({
   },
   commentsList: {
     marginLeft: theme.spacing.unit*2,
-    marginRight: 140,
+    marginRight: 35,
     [theme.breakpoints.down('md')]: {
       marginLeft: 0,
       marginRight: 0

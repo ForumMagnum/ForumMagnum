@@ -87,7 +87,7 @@ const styles = theme => ({
 
   image: {
     width: "100%",
-    height: 80,
+    height: 95,
     backgroundColor: "rgba(0,0,0,0.05)",
     [legacyBreakpoints.maxTiny]: {
       width: "100%",
@@ -101,7 +101,7 @@ const styles = theme => ({
         height: "auto !important",
       },
       width: "100%",
-      height: 80,
+      height: 95,
       [legacyBreakpoints.maxTiny]: {
         width: "100% !important",
       },

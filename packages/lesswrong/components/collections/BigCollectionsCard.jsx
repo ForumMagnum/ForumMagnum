@@ -26,7 +26,7 @@ const styles = theme => ({
     },
   },
   content: {
-    marginLeft: 86,
+    marginLeft: 40,
     marginBottom:theme.spacing.unit*2,
     width: "100%",
     maxWidth: 307,

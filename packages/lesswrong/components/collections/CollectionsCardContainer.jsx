@@ -7,8 +7,9 @@ const styles = theme => ({
     display:"flex",
     flexWrap: "wrap",
     marginTop: -5,
-    marginRight: 20,
-    justifyContent: "space-between",
+    marginRight: "auto",
+    marginLeft: "auto",
+    width: 720,
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",

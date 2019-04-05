@@ -99,7 +99,7 @@ const styles = theme => ({
     },
   },
   postIcon: {
-    marginLeft: theme.spacing.unit*1.5,
+    marginLeft: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
