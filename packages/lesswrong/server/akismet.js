@@ -41,11 +41,18 @@ async function constructAkismetReport({document, type = "post"}) {
 }
 
 async function checkForAkismetSpam({document, type = "post"}) {
+  try {
     const akismetReport = await constructAkismetReport({document, type})
     const spam = await client.checkSpam(akismetReport)
     // eslint-disable-next-line no-console
     console.log("Checked document for spam: ", akismetReport, "result: ", spam)
     return spam
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Akismet spam checker crashed. Classifying as not spam.", e)
+    return false
+  }
+    
 }
 
 client.verifyKey()
