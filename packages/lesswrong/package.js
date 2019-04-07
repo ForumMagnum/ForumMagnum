@@ -51,6 +51,12 @@ Package.onTest(function(api) {
     'coffeescript',
     'meteortesting:mocha',
   ]);
+
+  Npm.depends({
+    "@babel/core": "7.4.3",
+    "@babel/plugin-proposal-optional-chaining": "7.2.0",
+    "@babel/plugin-syntax-optional-chaining": "7.2.0"
+  })
   // Entry points for tests
   api.mainModule('./testing/client.tests.js', 'client');
   api.mainModule('./testing/server.tests.js', 'server');
