@@ -38,6 +38,7 @@ export const postBodyStyles = (theme, fontSize) => {
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
+    wordBreak: "break-word",
     ...spoilerStyles(theme),
     '& pre': {
       ...theme.typography.codeblock
@@ -124,6 +125,7 @@ export const commentBodyStyles = theme => {
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
+    wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     ...spoilerStyles(theme),

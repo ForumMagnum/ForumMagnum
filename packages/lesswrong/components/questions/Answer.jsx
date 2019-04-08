@@ -16,10 +16,24 @@ const styles = theme => ({
   postContent: postBodyStyles(theme),
   root: {
     maxWidth: 650,
+    marginBottom: theme.spacing.unit*4,
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
     }
+  },
+  answer: {
+    paddingTop: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*2.5,
+    paddingRight: theme.spacing.unit*2.5,
+    marginLeft: - theme.spacing.unit*2.5,
+    marginRight: - theme.spacing.unit*2.5,
+    border: "solid 1px rgba(0,0,0,.2)",
+    marginBottom: theme.spacing.unit*1.5
+  },
+  answerHeader: {
+    display: "flex",
   },
   author: {
     display: 'inline-block',
@@ -28,13 +42,15 @@ const styles = theme => ({
   },
   date: {
     display: 'inline-block',
-    marginLeft: 10
+    marginLeft: 10,
   },
   vote: {
     display: 'inline-block',
     marginLeft: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    flexGrow: 1,
+
   },
   footer: {
     marginTop: 5,
@@ -84,12 +100,6 @@ const styles = theme => ({
   metaData: {
     textAlign: 'right'
   },
-  bottomDivider: {
-    marginTop: 50,
-    marginBottom: 50,
-    border: "solid 1px rgba(0,0,0,.1)",
-    borderBottom: 'transparent'
-  },
 })
 
 class Answer extends Component {
@@ -125,36 +135,40 @@ class Answer extends Component {
           </div>
           :
           <div>
-            {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
-              { <UsersName user={comment.user} />}
-            </Typography >}
-            <Typography variant="subheading" className={classes.date}>
-              <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
-                <Icon className="material-icons comments-item-permalink"> link </Icon>
-              </Link>
-            </Typography>
-            <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
-            <span className={classes.menu}>
-              <CommentsMenu
-                showEdit={this.showEdit}
-                comment={comment}
-                post={post}
-                icon={<MoreHorizIcon className={classes.menuIcon}/>}
-              />
-            </span>
-            { showEdit ?
-              <Components.CommentsEditForm
-                comment={comment}
-                successCallback={this.hideEdit}
-                cancelCallback={this.hideEdit}
-              />
-              :
-              <ContentItemBody
-                className={classes.postContent}
-                dangerouslySetInnerHTML={{__html:html}}
-              />
-            }
+            <div className={classes.answer}>
+              <div className={classes.answerHeader}>
+                {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
+                  { <UsersName user={comment.user} />}
+                </Typography >}
+                <Typography variant="subheading" className={classes.date}>
+                  <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
+                    <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
+                    <Icon className="material-icons comments-item-permalink"> link </Icon>
+                  </Link>
+                </Typography>
+                <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
+                <span className={classes.menu}>
+                  <CommentsMenu
+                    showEdit={this.showEdit}
+                    comment={comment}
+                    post={post}
+                    icon={<MoreHorizIcon className={classes.menuIcon}/>}
+                  />
+                </span>
+              </div>
+              { showEdit ?
+                <Components.CommentsEditForm
+                  comment={comment}
+                  successCallback={this.hideEdit}
+                  cancelCallback={this.hideEdit}
+                />
+                :
+                <ContentItemBody
+                  className={classes.postContent}
+                  dangerouslySetInnerHTML={{__html:html}}
+                />
+              }
+            </div>
             <AnswerCommentsList
               terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: ABRIDGE_COMMENT_COUNT}}
               post={post}
@@ -162,7 +176,6 @@ class Answer extends Component {
               />
           </div>
         }
-      {(index !== (answerCount-1)) && <hr className={classes.bottomDivider}/>}
       </div>
     )
   }

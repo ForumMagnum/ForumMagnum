@@ -28,6 +28,9 @@ const styles = theme => ({
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
     maxWidth:640,
+    '& li .public-DraftStyleDefault-block': {
+      margin: 0
+    }
   },
 
   commentBodyStyles: {
