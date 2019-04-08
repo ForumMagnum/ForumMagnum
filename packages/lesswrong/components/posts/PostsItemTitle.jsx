@@ -12,6 +12,8 @@ const styles = theme => ({
   root: {
     color: "rgba(0,0,0,.95)",
     display: "flex",
+    position: "relative",
+    zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
@@ -25,12 +27,19 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     display: "inline-block",
+    alignItems: "center",
+    fontSize: "1.3rem",
     [theme.breakpoints.down('sm')]: {
       maxWidth: "unset",
       whiteSpace: "unset",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing.unit,
+    '&:hover': {
+      overflow: "unset",
+      backgroundColor: "white",
+      paddingRight: 16,
+    }
   },
   sticky: {
     paddingRight: theme.spacing.unit,
@@ -40,6 +49,9 @@ const styles = theme => ({
   read: {
     opacity: .6,
     textShadow: "none",
+    '&:hover': {
+      opacity: 1
+    }
   },
   tooltip:{
     position: "relative",
@@ -87,6 +99,7 @@ const styles = theme => ({
     },
   },
   postIcon: {
+    marginLeft: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -121,9 +134,6 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
     <div className={classes.tooltipInfo}>
       {postCategory}
     </div>
-    <div className={classes.tooltipTitle}>
-      {post.title}
-    </div>
     <div dangerouslySetInnerHTML={{__html:highlight}}
       className={classes.highlight} />
     {wordCount && <div className={classes.tooltipInfo}>
@@ -150,11 +160,11 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
 
       {post.isEvent && showEventsTag && <span className={classes.tag}>[Event]</span>}
 
-      {post.title}
-    </Typography>
+      <span>{post.title}</span>
 
-    {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-    {!getSetting('AlignmentForum', false) && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+      {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
+      {!getSetting('AlignmentForum', false) && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+    </Typography>
   </div>
 
   if (postItem2) {
