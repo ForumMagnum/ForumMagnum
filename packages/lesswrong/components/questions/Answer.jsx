@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles'
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postHighlightStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
@@ -13,7 +13,10 @@ import Icon from '@material-ui/core/Icon';
 import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 
 const styles = theme => ({
-  postContent: postBodyStyles(theme),
+  postContent: {
+    ...postHighlightStyles(theme),
+    maxWidth: 620
+  },
   root: {
     maxWidth: 650,
     marginBottom: theme.spacing.unit*4,
@@ -23,22 +26,23 @@ const styles = theme => ({
     }
   },
   answer: {
-    paddingTop: theme.spacing.unit*1.5,
+    paddingTop: theme.spacing.unit*2.5,
     paddingBottom: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2.5,
     paddingRight: theme.spacing.unit*2.5,
-    marginLeft: - theme.spacing.unit*2.5,
-    marginRight: - theme.spacing.unit*2.5,
+    marginLeft: -theme.spacing.unit*2,
+    marginRight: -theme.spacing.unit*2,
     border: "solid 1px rgba(0,0,0,.2)",
-    marginBottom: theme.spacing.unit*1.5
   },
   answerHeader: {
     display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing.unit*2
   },
   author: {
     display: 'inline-block',
-    marginBottom: 10,
     fontWeight: 600,
+    ...theme.typography.postStyle
   },
   date: {
     display: 'inline-block',
@@ -50,7 +54,8 @@ const styles = theme => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.grey[500],
     flexGrow: 1,
-
+    position: "relative",
+    top: -4
   },
   footer: {
     marginTop: 5,
@@ -70,9 +75,6 @@ const styles = theme => ({
     '&:hover': {
       opacity:1
     },
-    position: "relative",
-    top:7,
-    marginLeft: 10
   },
   deletedSection: {
     display: "flex",
@@ -137,7 +139,7 @@ class Answer extends Component {
           <div>
             <div className={classes.answer}>
               <div className={classes.answerHeader}>
-                {comment.user && <Typography variant="headline" id={comment._id} className={classes.author}>
+                {comment.user && <Typography variant="body1" id={comment._id} className={classes.author}>
                   { <UsersName user={comment.user} />}
                 </Typography >}
                 <Typography variant="subheading" className={classes.date}>

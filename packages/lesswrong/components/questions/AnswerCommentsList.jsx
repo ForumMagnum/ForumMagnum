@@ -32,8 +32,7 @@ const styles = theme => ({
     borderTop: `solid 1px ${theme.palette.grey[300]}`
   },
   newComment: {
-    padding: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    padding: theme.spacing.unit*2.5,
     textAlign: 'right',
     color: theme.palette.grey[600]
   },
@@ -55,13 +54,13 @@ class AnswerCommentsList extends PureComponent {
 
   constructor(props) {
     super(props);
-    
+
     const { lastEvent, post } = this.props;
-    
+
     this.state = {
       commenting: false,
       loadedMore: false,
-      highlightDate: 
+      highlightDate:
         (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
           && new Date(lastEvent.properties.createdAt))
         || (post && post.lastVisitedAt

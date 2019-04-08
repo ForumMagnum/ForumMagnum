@@ -174,6 +174,8 @@ export const postHighlightStyles = theme => {
   const postHighlightStyles = {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontSize: "1.25rem",
+    lineHeight: "1.6em",
     '& blockquote': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
