@@ -38,7 +38,7 @@ const AnswersList = ({results, loading, classes, post}) => {
       </Typography>
       <div className={classes.answersList}>
         { results.map((comment, i) => {
-          return <Answer comment={comment} post={post} key={comment._id} answerCount={results.length} index={i} />
+          return <Answer comment={comment} post={post} key={comment._id} />
           })
         }
       </div>

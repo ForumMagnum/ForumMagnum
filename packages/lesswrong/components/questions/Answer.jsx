@@ -112,7 +112,7 @@ class Answer extends Component {
   hideEdit = () => this.setState({showEdit: false})
 
   render () {
-    const { comment, post, classes, index, answerCount } = this.props
+    const { comment, post, classes } = this.props
     const { showEdit } = this.state
     const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
     const { html = "" } = comment.contents || {}
