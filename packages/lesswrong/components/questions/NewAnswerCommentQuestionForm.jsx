@@ -40,7 +40,7 @@ const styles = theme => ({
     color: "rgba(0,0,0,.87)",
     borderBottom: "solid 1px rgba(0,0,0,.4)"
   },
-  formZIndex: {
+  form: {
     position: "relative",
     zIndex: theme.zIndexes.textbox,
   },
@@ -103,7 +103,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
     return (
         <div className={classes.root}>
           <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
-          <div className={classes.formZIndex}>
+          <div className={classes.form}>
             <div className={classes.chooseResponseType}>
               <Tooltip title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
                 <div onClick={()=>this.setState({selection: "answer"})}
