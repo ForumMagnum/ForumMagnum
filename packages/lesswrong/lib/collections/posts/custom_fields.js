@@ -806,7 +806,8 @@ addFieldsDict(Posts, {
             }
 
             const answerSections = answers.map((answer) => ({
-              title: answer.author + "'s answer",
+              title: `${answer.baseScore} ${answer.author}`,
+              answer: answer,
               anchor: answer._id,
               level: 2
             }))
