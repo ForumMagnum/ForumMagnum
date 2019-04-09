@@ -87,7 +87,7 @@ const styles = theme => ({
   bottomDivider: {
     marginTop: 50,
     marginBottom: 50,
-    border: "solid 1px rgba(0,0,0,.1)",
+    border: "solid 2px rgba(0,0,0,.4)",
     borderBottom: 'transparent'
   },
 })
