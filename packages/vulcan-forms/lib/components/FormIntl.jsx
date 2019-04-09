@@ -13,14 +13,19 @@ class FormIntl extends PureComponent {
   so we just use the order of the Locales array.
 
   */
-  getLocalePath = (defaultIndex) => {
+  getLocalePath = defaultIndex => {
     return `${this.props.path}_intl.${defaultIndex}`;
-  }
-  
-  render() {
+  };
 
+  render() {
     // do not pass FormIntl's own value, inputProperties, and intlInput props down
-    const properties = omit(this.props, 'value', 'inputProperties', 'intlInput', 'nestedInput');
+    const properties = omit(
+      this.props,
+      'value',
+      'inputProperties',
+      'intlInput',
+      'nestedInput'
+    );
 
     return (
       <div className="form-intl">
@@ -34,6 +39,10 @@ class FormIntl extends PureComponent {
   }
 }
 
-registerComponent('FormIntl', FormIntl, getContext({
-  getLabel: PropTypes.func,
-}));
+registerComponent(
+  'FormIntl',
+  FormIntl,
+  getContext({
+    getLabel: PropTypes.func,
+  })
+);

@@ -37,9 +37,9 @@ export class AccountsLoginFormInner extends TrackerComponent {
       return () => {
         props.client.resetStore().then(() => {
           hook();
-        })
-      }
-    }
+        });
+      };
+    };
 
     const postLogInAndThen = hook => {
       return () => {
@@ -49,9 +49,9 @@ export class AccountsLoginFormInner extends TrackerComponent {
           } else { // or else execute the hook
             hook();
           }
-        })
-      }
-    }
+        });
+      };
+    };
 
     const doNothing = () => {};
 
@@ -1012,16 +1012,16 @@ export class AccountsLoginFormInner extends TrackerComponent {
 AccountsLoginFormInner.propTypes = {
   showSignInLink: PropTypes.bool,
   showSignUpLink: PropTypes.bool,
-}
+};
 
 AccountsLoginFormInner.defaultProps = {
   showSignInLink: true,
   showSignUpLink: true,
   redirect: true,
-}
+};
 
 AccountsLoginFormInner.contextTypes = {
   intl: intlShape
-}
+};
 
 registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, withCurrentUser, withApollo);

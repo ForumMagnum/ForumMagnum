@@ -4,7 +4,15 @@ Default list, single, and total resolvers
 
 */
 
-import { Utils, debug, debugGroup, debugGroupEnd, Connectors, getTypeName, getCollectionName } from 'meteor/vulcan:lib';
+import {
+  Utils,
+  debug,
+  debugGroup,
+  debugGroupEnd,
+  Connectors,
+  getTypeName,
+  getCollectionName,
+} from 'meteor/vulcan:lib';
 import { createError } from 'apollo-errors';
 
 const defaultOptions = {
@@ -37,7 +45,9 @@ export function getDefaultResolvers(options) {
         const { terms = {}, enableCache = false, enableTotal = false } = input;
 
         debug('');
-        debugGroup(`--------------- start \x1b[35m${typeName} Multi Resolver\x1b[0m ---------------`);
+        debugGroup(
+          `--------------- start \x1b[35m${typeName} Multi Resolver\x1b[0m ---------------`
+        );
         debug(`Options: ${JSON.stringify(resolverOptions)}`);
         debug(`Terms: ${JSON.stringify(terms)}`);
 
@@ -53,6 +63,7 @@ export function getDefaultResolvers(options) {
         const collection = context[collectionName];
 
         // get selector and options from terms and perform Mongo query
+
         let { selector, options } = await collection.getParameters(terms, {}, context);
         options.skip = terms.offset;
 
@@ -97,7 +108,9 @@ export function getDefaultResolvers(options) {
         const { selector = {}, enableCache = false, allowNull = false } = input;
 
         debug('');
-        debugGroup(`--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
+        debugGroup(
+          `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
+        );
         debug(`Options: ${JSON.stringify(resolverOptions)}`);
         debug(`Selector: ${JSON.stringify(selector)}`);
 
@@ -127,7 +140,13 @@ export function getDefaultResolvers(options) {
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)
         if (collection.checkAccess) {
-          Utils.performCheck(collection.checkAccess, currentUser, doc, collection, documentId);
+          Utils.performCheck(
+            collection.checkAccess,
+            currentUser,
+            doc,
+            collection,
+            documentId
+          );
         }
 
         const restrictedDoc = Users.restrictViewableFields(currentUser, collection, doc);

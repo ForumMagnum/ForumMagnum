@@ -23,8 +23,9 @@ VulcanEmail.addTemplates = templates => {
   _.extend(VulcanEmail.templates, templates);
 };
 
-VulcanEmail.getTemplate = templateName =>
-  Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
+VulcanEmail.getTemplate = templateName => {
+  return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
+};
 
 VulcanEmail.buildTemplate = (htmlContent, data = {}, locale) => {
   const emailProperties = {
@@ -78,13 +79,13 @@ VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo) => {
 
   const email = {
     from: from,
-    to: to,
-    cc: cc,
-    bcc: bcc,
-    replyTo: replyTo,
-    subject: subject,
-    text: text,
-    html: html,
+    to,
+    cc,
+    bcc,
+    replyTo,
+    subject,
+    text,
+    html,
   };
 
   if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {

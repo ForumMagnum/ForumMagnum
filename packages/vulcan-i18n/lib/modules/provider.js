@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Strings } from 'meteor/vulcan:lib';
 import { intlShape } from './shape.js';
 
-export default class IntlProvider extends Component{
+export default class IntlProvider extends Component {
 
   formatMessage = ({ id, defaultMessage }, values) => {
     const messages = Strings[this.props.locale] || {};
@@ -16,9 +16,9 @@ export default class IntlProvider extends Component{
     return message;
   }
 
-  formatStuff = (something) => {
+  formatStuff = something => {
     return something;
-  }
+  };
 
   getChildContext() {
     return {
@@ -27,20 +27,19 @@ export default class IntlProvider extends Component{
         formatTime: this.formatStuff,
         formatRelative: this.formatStuff,
         formatNumber: this.formatStuff,
-        formatPlural: this.formatStuff, 
+        formatPlural: this.formatStuff,
         formatMessage: this.formatMessage,
         formatHTMLMessage: this.formatStuff,
         now: this.formatStuff,
-      }
+      },
     };
   }
-  
-  render(){
+
+  render() {
     return this.props.children;
   }
-
 }
 
 IntlProvider.childContextTypes = {
-  intl: intlShape
-}
+  intl: intlShape,
+};

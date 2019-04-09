@@ -11,6 +11,6 @@ const findByIds = async function(collection, ids, context) {
   let docsByID = {};
   documents.forEach(doc => {docsByID[doc._id] = doc});
   return ids.map(id => docsByID[id]);
-}
+};
 
 export default findByIds;

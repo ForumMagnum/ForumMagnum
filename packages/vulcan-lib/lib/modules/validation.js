@@ -125,7 +125,7 @@ export const validateModifier = (modifier, document, collection, context) => {
 
 export const validateData = (data, document, collection, context) => {
   return validateModifier(dataToModifier(data), document, collection, context);
-}
+};
 
 /*
 

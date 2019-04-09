@@ -26,7 +26,7 @@ export const headTemplate = ({
         attrValue: htmlAttributes[key],
       })
     ).join('') + '>',
-
+    
     '<head>',
 
     dynamicHead,

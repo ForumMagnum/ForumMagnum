@@ -7,9 +7,9 @@ const getFirstWord = input => {
   const parts = /"([^"]*)"/.exec(input);
   if (parts === null) {
     return null;
-   }
-   return parts[1];
-}
+  }
+  return parts[1];
+};
 
 /* 
 
@@ -33,23 +33,24 @@ const parseErrorMessage = message => {
     // field name is whatever is between the first to double quotes
     const fieldName = getFirstWord(error);
     if (error.includes('found null')) {
-      // missing field errors 
+      // missing field errors
       return {
         id: 'errors.required',
         path: fieldName,
         properties: {
           name: fieldName,
         },
-      }
+      };
     } else {
       // other generic GraphQL errors
-      return { 
-        message: error
-      }
+      return {
+        message: error,
+      };
     }
   });
   return fieldErrors;
-}
+};
+
 /*
 
 Errors can have the following properties stored on their `data` property:

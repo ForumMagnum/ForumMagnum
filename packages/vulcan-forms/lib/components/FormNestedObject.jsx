@@ -6,10 +6,18 @@ class FormNestedObject extends PureComponent {
   render() {
     //const value = this.getCurrentValue()
     // do not pass FormNested's own value, input and inputProperties props down
-    const properties = _.omit(this.props, 'value', 'input', 'inputProperties', 'nestedInput');
+    const properties = _.omit(
+      this.props,
+      'value',
+      'input',
+      'inputProperties',
+      'nestedInput'
+    );
     const { errors } = this.props;
     // only keep errors specific to the nested array (and not its subfields)
-    const nestedObjectErrors = errors.filter(error => error.path && error.path === this.props.path);
+    const nestedObjectErrors = errors.filter(
+      error => error.path && error.path === this.props.path
+    );
     const hasErrors = nestedObjectErrors && nestedObjectErrors.length;
     return (
       <div className={`form-group row form-nested ${hasErrors ? 'input-error' : ''}`}>

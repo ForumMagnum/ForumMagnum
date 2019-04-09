@@ -44,7 +44,7 @@ FormNestedItem.propTypes = {
 };
 
 FormNestedItem.contextTypes = {
-  errors: PropTypes.array,
+  errors: PropTypes.array
 };
 
 registerComponent('FormNestedItem', FormNestedItem);

@@ -25,7 +25,7 @@ export const InjectData = {
 
   // push data to res._injectPayload and generate res._injectHtml
   pushData(res, key, value) {
-
+    
     this._data[key] = value;
 
     if (!res._injectPayload) {

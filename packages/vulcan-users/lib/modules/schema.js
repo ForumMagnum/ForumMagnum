@@ -23,12 +23,12 @@ const createDisplayName = user => {
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
   if (twitterName) return twitterName;
-  if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
+  if (linkedinFirstName)
+    return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return undefined;
-}
-
+};
 
 const adminGroup = {
   name: 'admin',
@@ -60,7 +60,7 @@ const schema = {
         return user.services.twitter.screenName;
       }
     },
-    searchable: true
+    searchable: true,
   },
   emails: {
     type: Array,
@@ -85,7 +85,7 @@ const schema = {
     canRead: ['admins'],
     onInsert: () => {
       return new Date();
-    }
+    },
   },
   isAdmin: {
     type: Boolean,
@@ -139,7 +139,7 @@ const schema = {
     onInsert: (user, options) => {
       return createDisplayName(user);
     },
-    searchable: true
+    searchable: true,
   },
   /**
     The user's email. Modifiable.
@@ -169,7 +169,7 @@ const schema = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
-    searchable: true
+    searchable: true,
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
   /**
@@ -183,15 +183,17 @@ const schema = {
       if (user.email) {
         return getCollection('Users').avatar.hash(user.email);
       }
-    }
+    },
   },
   avatarUrl: {
     type: String,
     optional: true,
     canRead: ['admins'],
     onInsert: user => {
-
-      const twitterAvatar = Utils.getNestedProperty(user, 'services.twitter.profile_image_url_https');
+      const twitterAvatar = Utils.getNestedProperty(
+        user,
+        'services.twitter.profile_image_url_https'
+      );
       const facebookId = Utils.getNestedProperty(user, 'services.facebook.id');
 
       if (twitterAvatar) return twitterAvatar;
@@ -214,9 +216,8 @@ const schema = {
           const fullUser = await Users.loader.load(user._id);
           return Users.avatar.getUrl(fullUser);
         }
-
-      }
-    }
+      },
+    },
   },
   /**
     The user's profile URL slug // TODO: change this when displayName changes
@@ -231,7 +232,7 @@ const schema = {
       const displayName = createDisplayName(user);
       const basicSlug = Utils.slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug);
-    }
+    },
   },
   /**
   The user's Twitter username
@@ -254,7 +255,7 @@ const schema = {
       if (user.services && user.services.twitter && user.services.twitter.screenName) {
         return user.services.twitter.screenName;
       }
-    }
+    },
   },
   /**
     Groups
@@ -268,15 +269,22 @@ const schema = {
     canRead: ['guests'],
     group: adminGroup,
     form: {
-      options: function () {
-        const groups = _.without(_.keys(getCollection('Users').groups), 'guests', 'members', 'admins');
-        return groups.map(group => { return { value: group, label: group }; });
-      }
+      options: function() {
+        const groups = _.without(
+          _.keys(getCollection('Users').groups),
+          'guests',
+          'members',
+          'admins'
+        );
+        return groups.map(group => {
+          return { value: group, label: group };
+        });
+      },
     },
   },
   'groups.$': {
     type: String,
-    optional: true
+    optional: true,
   },
 
   // GraphQL only fields
@@ -290,7 +298,7 @@ const schema = {
       resolver: (user, args, { Users }) => {
         return Users.getProfileUrl(user, true);
       },
-    }
+    },
   },
 
   editUrl: {
@@ -302,8 +310,8 @@ const schema = {
       resolver: (user, args, { Users }) => {
         return Users.getEditUrl(user, true);
       },
-    }
-  }
+    },
+  },
 
 };
 

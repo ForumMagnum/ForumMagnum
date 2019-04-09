@@ -1,7 +1,7 @@
 import React from 'react';
 import { match, RouterContext, createMemoryHistory } from 'react-router';
-import { renderToString } from 'react-dom/server'
-import { ServerStyleSheet } from 'styled-components'
+import { renderToString } from 'react-dom/server';
+import { ServerStyleSheet } from 'styled-components';
 import moment from 'moment';
 import { RoutePolicy } from 'meteor/routepolicy';
 import { SplitComponentCollector, SplitComponentWrapper } from '../modules/splitComponents';
@@ -39,15 +39,14 @@ function generateSSRData(options, req, res, renderProps) {
 
   try {
     req.css = '';
+
     renderProps = {
       userAgent: req.headers['user-agent'],
       ...renderProps,
       ...options.props,
     };
 
-    const appGenerator = addProps => {
-      return <RouterContext {...renderProps} {...addProps} />
-    };
+    const appGenerator = addProps => <RouterContext {...renderProps} {...addProps} />;
 
     let app;
     if (typeof options.wrapperHook === 'function') {
@@ -106,7 +105,7 @@ function generateSSRData(options, req, res, renderProps) {
 
 function sendSSRHtml(options, req, res, next, renderProps) {
   const { css, html, styledComponentCss } = generateSSRData(options, req, res, renderProps);
-  
+
   req.dynamicHead = req.dynamicHead || '';
   req.dynamicBody = req.dynamicBody || '';
 

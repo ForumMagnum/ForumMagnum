@@ -1,5 +1,12 @@
 import Users from '../modules/index.js';
-import { runCallbacks, runCallbacksAsync, Utils, debug, debugGroup, debugGroupEnd } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import {
+  runCallbacks,
+  runCallbacksAsync,
+  Utils,
+  debug,
+  debugGroup,
+  debugGroupEnd,
+} from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import clone from 'lodash/clone';
 
 // TODO: the following should use async/await, but async/await doesn't seem to work with Accounts.onCreateUser
@@ -14,7 +21,7 @@ function onCreateUserCallback(options, user) {
   delete options.password; // we don't need to store the password digest
   delete options.username; // username is already in user object
 
-  options = runCallbacks({name: 'user.create.validate.before', iterator: options});
+  options = runCallbacks({ name: 'user.create.validate.before', iterator: options });
   // OpenCRUD backwards compatibility
   options = runCallbacks('users.new.validate.before', options);
 
@@ -25,7 +32,9 @@ function onCreateUserCallback(options, user) {
   _.keys(options).forEach(fieldName => {
     var field = schema[fieldName];
     if (!field || !Users.canCreateField(user, field)) {
-      throw new Error(Utils.encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName }));
+      throw new Error(
+        Utils.encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName })
+      );
     }
   });
 
@@ -33,12 +42,12 @@ function onCreateUserCallback(options, user) {
   user = Object.assign(user, options);
 
   // run validation callbacks
-  user = runCallbacks({name:'user.create.validate', iterator: user});
+  user = runCallbacks({ name: 'user.create.validate', iterator: user });
   // OpenCRUD backwards compatibility
   user = runCallbacks('users.new.validate', user);
 
   // run onCreate step
-  for(let fieldName of Object.keys(schema)) {
+  for (let fieldName of Object.keys(schema)) {
     let autoValue;
     if (schema[fieldName].onCreate) {
       // eslint-disable-next-line no-await-in-loop
@@ -55,7 +64,7 @@ function onCreateUserCallback(options, user) {
   user = runCallbacks({ name: 'user.create.before', iterator: user });
   user = runCallbacks('users.new.sync', user);
 
-  runCallbacksAsync({name: 'user.create.async', properties: {data: user}});
+  runCallbacksAsync({ name: 'user.create.async', properties: { data: user } });
   // OpenCRUD backwards compatibility
   runCallbacksAsync('users.new.async', user);
 

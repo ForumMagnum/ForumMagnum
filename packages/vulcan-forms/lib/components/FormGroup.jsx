@@ -47,13 +47,13 @@ class FormGroup extends PureComponent {
     this.toggle = this.toggle.bind(this);
     this.renderHeading = this.renderHeading.bind(this);
     this.state = {
-      collapsed: props.startCollapsed || false,
+      collapsed: props.startCollapsed || false
     };
   }
 
   toggle() {
     this.setState({
-      collapsed: !this.state.collapsed,
+      collapsed: !this.state.collapsed
     });
   }
 
@@ -76,9 +76,11 @@ class FormGroup extends PureComponent {
   }
 
   // if at least one of the fields in the group has an error, the group as a whole has an error
-  hasErrors = () => _.some(this.props.fields, field => {
-    return !!this.props.errors.filter(error => error.path === field.path).length
-  });
+  hasErrors = () =>
+    _.some(this.props.fields, field => {
+      return !!this.props.errors.filter(error => error.path === field.path)
+        .length
+    });
 
   render() {
     const { classes, name, defaultStyle, flexStyle} = this.props
@@ -125,10 +127,10 @@ FormGroup.propTypes = {
   addToDeletedValues: PropTypes.func.isRequired,
   clearFieldErrors: PropTypes.func.isRequired,
   formType: PropTypes.string.isRequired,
-  currentUser: PropTypes.object,
+  currentUser: PropTypes.object
 };
 
-module.exports = FormGroup
+module.exports = FormGroup;
 registerComponent('FormGroup', FormGroup, withStyles(styles, {name: "FormGroup"}));
 
 const IconRight = ({ width = 24, height = 24 }) => (

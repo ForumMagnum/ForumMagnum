@@ -18,12 +18,16 @@ class DateTime extends PureComponent {
   // }
 
   updateDate(date) {
-    this.context.updateCurrentValues({[this.props.path]: date});
+    this.context.updateCurrentValues({ [this.props.path]: date });
   }
 
   render() {
 
-    const date = this.props.value ? (typeof this.props.value === 'string' ? new Date(this.props.value) : this.props.value) : null;
+    const date = this.props.value
+      ? (typeof this.props.value === 'string'
+        ? new Date(this.props.value)
+        : this.props.value)
+      : null;
     
     return (
       <div className="form-group row">

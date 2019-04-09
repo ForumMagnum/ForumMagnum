@@ -16,7 +16,7 @@ Package.onUse(function (api) {
   api.mainModule('lib/server/main.js', ['server']);
 });
 
-Package.onTest(function (api) {
+Package.onTest(function(api) {
   api.use(['ecmascript', 'meteortesting:mocha', 'vulcan:forms']);
   api.mainModule('./test/index.js');
 });

@@ -4,7 +4,16 @@ Default mutations
 
 */
 
-import { registerCallback, createMutator, updateMutator, deleteMutator, Utils, Connectors, getTypeName, getCollectionName } from 'meteor/vulcan:lib';
+import {
+  registerCallback,
+  createMutator,
+  updateMutator,
+  deleteMutator,
+  Utils,
+  Connectors,
+  getTypeName,
+  getCollectionName
+} from 'meteor/vulcan:lib';
 import Users from 'meteor/vulcan:users';
 import isEmpty from 'lodash/isEmpty';
 
@@ -13,6 +22,7 @@ const defaultOptions = { create: true, update: true, upsert: true, delete: true 
 export function getDefaultMutations (options) {
   
   let typeName, collectionName, mutationOptions;
+
   if (typeof arguments[0] === 'object') {
     // new single-argument API
     typeName = arguments[0].typeName;
@@ -24,7 +34,7 @@ export function getDefaultMutations (options) {
     typeName = getTypeName(collectionName);
     mutationOptions = { ...defaultOptions, ...arguments[1] };
   }
-  
+
   // register callbacks for documentation purposes
   registerCollectionCallbacks(typeName, mutationOptions);
 
@@ -45,14 +55,21 @@ export function getDefaultMutations (options) {
         }
         // check if they can perform "foo.new" operation (e.g. "movie.new")
         // OpenCRUD backwards compatibility
-        return Users.canDo(user, [`${typeName.toLowerCase()}.create`, `${collectionName.toLowerCase()}.new`]);
+        return Users.canDo(user, [
+          `${typeName.toLowerCase()}.create`,
+          `${collectionName.toLowerCase()}.new`
+        ]);
       },
 
       async mutation(root, { data }, context) {
         const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
-        Utils.performCheck(this.check, context.currentUser, data);
+        Utils.performCheck(
+          this.check,
+          context.currentUser,
+          data
+        );
 
         // pass document to boilerplate newMutator function
         return await createMutator({
@@ -89,12 +106,17 @@ export function getDefaultMutations (options) {
         // if they don't, check if they can perform "foo.edit.all" action
         // OpenCRUD backwards compatibility
         return Users.owns(user, document)
-          ? Users.canDo(user, [`${typeName.toLowerCase()}.update.own`, `${collectionName.toLowerCase()}.edit.own`])
-          : Users.canDo(user, [`${typeName.toLowerCase()}.update.all`, `${collectionName.toLowerCase()}.edit.all`]);
+          ? Users.canDo(user, [
+            `${typeName.toLowerCase()}.update.own`,
+            `${collectionName.toLowerCase()}.edit.own`,
+          ])
+          : Users.canDo(user, [
+            `${typeName.toLowerCase()}.update.all`,
+            `${collectionName.toLowerCase()}.edit.all`,
+          ]);
       },
 
       async mutation(root, { selector, data }, context) {
-
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {
@@ -103,13 +125,19 @@ export function getDefaultMutations (options) {
 
         // get entire unmodified document from database
         const document = await Connectors.get(collection, selector);
-  
+
         if (!document) {
-          throw new Error(`Could not find document to update for selector: ${JSON.stringify(selector)}`);
+          throw new Error(
+            `Could not find document to update for selector: ${JSON.stringify(selector)}`
+          );
         }
 
         // check if user can perform operation; if not throw error
-        Utils.performCheck(this.check, context.currentUser, document);
+        Utils.performCheck(
+          this.check,
+          context.currentUser,
+          document
+        );
 
         // call editMutator boilerplate function
         return await updateMutator({
@@ -123,9 +151,11 @@ export function getDefaultMutations (options) {
         });
       },
     };
+
     mutations.update = updateMutation;
     // OpenCRUD backwards compatibility
     mutations.edit = updateMutation;
+
   }
   if (mutationOptions.upsert) {
     // mutation for upserting a specific document
@@ -136,10 +166,16 @@ export function getDefaultMutations (options) {
         const collection = context[collectionName];
 
         // check if document exists already
-        const existingDocument = await Connectors.get(collection, selector, { fields: { _id: 1 } });
+        const existingDocument = await Connectors.get(collection, selector, {
+          fields: { _id: 1 },
+        });
 
         if (existingDocument) {
-          return await collection.options.mutations.update.mutation(root, { selector, data }, context);
+          return await collection.options.mutations.update.mutation(
+            root,
+            { selector, data },
+            context
+          );
         } else {
           return await collection.options.mutations.create.mutation(root, { data }, context);
         }
@@ -162,8 +198,14 @@ export function getDefaultMutations (options) {
         if (!user || !document) return false;
         // OpenCRUD backwards compatibility
         return Users.owns(user, document)
-          ? Users.canDo(user, [`${typeName.toLowerCase()}.delete.own`, `${collectionName.toLowerCase()}.remove.own`])
-          : Users.canDo(user, [`${typeName.toLowerCase()}.delete.all`,  `${collectionName.toLowerCase()}.remove.all`]);
+          ? Users.canDo(user, [
+            `${typeName.toLowerCase()}.delete.own`,
+            `${collectionName.toLowerCase()}.remove.own`,
+          ])
+          : Users.canDo(user, [
+            `${typeName.toLowerCase()}.delete.all`,
+            `${collectionName.toLowerCase()}.remove.all`,
+          ]);
       },
 
       async mutation(root, { selector }, context) {
@@ -175,12 +217,19 @@ export function getDefaultMutations (options) {
         }
 
         const document = await Connectors.get(collection, selector);
-          
+
         if (!document) {
-          throw new Error(`Could not find document to delete for selector: ${JSON.stringify(selector)}`);
+          throw new Error(
+            `Could not find document to delete for selector: ${JSON.stringify(selector)}`
+          );
         }
 
-        Utils.performCheck(this.check, context.currentUser, document, context);
+        Utils.performCheck(
+          this.check,
+          context.currentUser,
+          document,
+          context
+        );
 
         return await deleteMutator({
           collection,
@@ -215,7 +264,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'sync',
       returns: 'document',
-      description: 'Validate a document before insertion (can be skipped when inserting directly on server).',
+      description:
+        'Validate a document before insertion (can be skipped when inserting directly on server).',
     });
     registerCallback({
       name: `${typeName}.create.before`,
@@ -223,7 +273,7 @@ const registerCollectionCallbacks = (typeName, options) => {
       properties: [{ currentUser: 'The current user' }],
       runs: 'sync',
       returns: 'document',
-      description: 'Perform operations on a new document before it\'s inserted in the database.',
+      description: "Perform operations on a new document before it's inserted in the database.",
     });
     registerCallback({
       name: `${typeName}.create.after`,
@@ -231,7 +281,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       properties: [{ currentUser: 'The current user' }],
       runs: 'sync',
       returns: 'document',
-      description: 'Perform operations on a new document after it\'s inserted in the database but *before* the mutation returns it.',
+      description:
+        "Perform operations on a new document after it's inserted in the database but *before* the mutation returns it.",
     });
     registerCallback({
       name: `${typeName}.create.async`,
@@ -242,7 +293,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'async',
       returns: null,
-      description: 'Perform operations on a new document after it\'s inserted in the database asynchronously.',
+      description:
+        "Perform operations on a new document after it's inserted in the database asynchronously.",
     });
   }
   if (options.update) {
@@ -256,18 +308,17 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'sync',
       returns: 'modifier',
-      description: 'Validate a document before update (can be skipped when updating directly on server).',
+      description:
+        'Validate a document before update (can be skipped when updating directly on server).',
     });
     registerCallback({
       name: `${typeName}.update.before`,
       iterator: { data: 'The client data' },
-      properties: [
-        { document: 'The document being edited' },
-        { currentUser: 'The current user' },
-      ],
+      properties: [{ document: 'The document being edited' }, { currentUser: 'The current user' }],
       runs: 'sync',
       returns: 'modifier',
-      description: 'Perform operations on a document before it\'s updated in the database.',
+      description:
+        "Perform operations on a document before it's updated in the database.",
     });
     registerCallback({
       name: `${typeName}.update.after`,
@@ -278,7 +329,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'sync',
       returns: 'document',
-      description: 'Perform operations on a document after it\'s updated in the database but *before* the mutation returns it.',
+      description:
+        "Perform operations on a document after it's updated in the database but *before* the mutation returns it.",
     });
     registerCallback({
       name: `${typeName}.update.async`,
@@ -290,7 +342,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'async',
       returns: null,
-      description: 'Perform operations on a document after it\'s updated in the database asynchronously.',
+      description:
+        "Perform operations on a document after it's updated in the database asynchronously.",
     });
   }
   if (options.delete) {
@@ -303,7 +356,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'sync',
       returns: 'document',
-      description: 'Validate a document before removal (can be skipped when removing directly on server).',
+      description:
+        'Validate a document before removal (can be skipped when removing directly on server).',
     });
     registerCallback({
       name: `${typeName}.delete.before`,
@@ -311,7 +365,7 @@ const registerCollectionCallbacks = (typeName, options) => {
       properties: [{ currentUser: 'The current user' }],
       runs: 'sync',
       returns: null,
-      description: 'Perform operations on a document before it\'s removed from the database.',
+      description: "Perform operations on a document before it's removed from the database.",
     });
     registerCallback({
       name: `${typeName}.delete.async`,
@@ -322,7 +376,8 @@ const registerCollectionCallbacks = (typeName, options) => {
       ],
       runs: 'async',
       returns: null,
-      description: 'Perform operations on a document after it\'s removed from the database asynchronously.',
+      description:
+        "Perform operations on a document after it's removed from the database asynchronously.",
     });
   }
 };

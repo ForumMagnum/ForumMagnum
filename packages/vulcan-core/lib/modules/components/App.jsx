@@ -1,4 +1,12 @@
-import { Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale, hasIntlFields } from 'meteor/vulcan:lib';
+import {
+  Components,
+  registerComponent,
+  getSetting,
+  Strings,
+  runCallbacks,
+  detectLocale,
+  hasIntlFields,
+} from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
@@ -15,7 +23,9 @@ class App extends PureComponent {
       runCallbacks('events.identify', props.currentUser);
     }
     const locale = this.initLocale();
-    this.state = { locale };
+    this.state = { 
+      locale, 
+    };
     moment.locale(locale);
   }
 
@@ -36,14 +46,16 @@ class App extends PureComponent {
     }
     // if user locale is available, use it; else compare first two chars
     // of user locale with first two chars of available locales
-    const availableLocale = Strings[userLocale] ? userLocale : availableLocales.find(locale => locale.slice(0,2) === userLocale.slice(0,2));
+    const availableLocale = Strings[userLocale]
+      ? userLocale
+      : availableLocales.find(locale => locale.slice(0,2) === userLocale.slice(0,2));
 
     // 4. if user-defined locale is available, use it; else default to setting or `en-US`
     return availableLocale ? availableLocale : getSetting('locale', 'en-US');
   };
 
-  getLocale = (truncate) => {
-    return truncate ? this.state.locale.slice(0,2) : this.state.locale;
+  getLocale = truncate => {
+    return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
   };
 
   setLocale = async locale => {
@@ -83,11 +95,7 @@ class App extends PureComponent {
       : Components.Layout;
 
     return (
-      <IntlProvider
-        locale={this.getLocale()}
-        key={this.getLocale()}
-        messages={Strings[this.getLocale()]}
-      >
+      <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <div className={`locale-${this.getLocale()}`}>
           <Components.HeadTags />
           <Components.RouterHook currentRoute={currentRoute} />
@@ -119,7 +127,7 @@ App.displayName = 'App';
 const updateOptions = {
   collectionName: 'Users',
   fragmentName: 'UsersCurrent',
-}
+};
 
 registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies);
 

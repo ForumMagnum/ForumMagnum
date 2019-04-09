@@ -1,8 +1,8 @@
 /*
 
-Generic mutation wrapper to upsert a document in a collection.
+Generic mutation wrapper to upsert a document in a collection. 
 
-Sample mutation:
+Sample mutation: 
 
   mutation upsertMovie($input: UpsertMovieInput) {
     upsertMovie(input: $input) {
@@ -15,7 +15,7 @@ Sample mutation:
     }
   }
 
-Arguments:
+Arguments: 
 
   - input
     - input.selector: a selector to indicate the document to update
@@ -24,7 +24,7 @@ Arguments:
 Child Props:
 
   - upsertMovie({ selector, data })
-
+  
 */
 
 import React, { Component } from 'react';

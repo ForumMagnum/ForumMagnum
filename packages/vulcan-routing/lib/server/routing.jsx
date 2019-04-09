@@ -44,7 +44,7 @@ Meteor.startup(() => {
   initializeFragments();
   populateComponentsApp();
   populateRoutesApp();
-
+  
   const indexRoute = _.filter(Routes, route => route.path === '/')[0];
   const childRoutes = _.reject(Routes, route => route.path === '/');
 
@@ -70,7 +70,7 @@ Meteor.startup(() => {
     wrapperHook(req, res, appGenerator) {
       const { apolloClient, store } = getRenderContext();
       store.reload();
-      store.dispatch({ type: '@@nova/INIT' }) // the first dispatch will generate a newDispatch function from middleware
+      store.dispatch({ type: '@@nova/INIT' }); // the first dispatch will generate a newDispatch function from middleware
       const app = runCallbacks('router.server.wrapper', appGenerator(), { req, res, store, apolloClient });
       return (
         <UserAgentProvider userAgent={req.headers['user-agent']}>

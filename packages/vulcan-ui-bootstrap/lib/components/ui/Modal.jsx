@@ -35,12 +35,12 @@ BootstrapModal.propTypes = {
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   header: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   footer: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
-}
+};
 
 BootstrapModal.defaultProps = {
   size: 'large',
   show: false,
   showCloseButton: true,
-}
+};
 
 registerComponent('Modal', BootstrapModal);

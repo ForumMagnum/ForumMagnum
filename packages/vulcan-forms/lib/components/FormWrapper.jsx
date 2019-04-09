@@ -27,7 +27,7 @@ component is also added to wait for withSingle's loading prop to be false)
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router';
 import { withApollo, compose } from 'react-apollo';
 import {
   Components,
@@ -59,7 +59,9 @@ class FormWrapper extends PureComponent {
 
   // return the current schema based on either the schema or collection prop
   getSchema() {
-    return this.props.schema ? this.props.schema : this.getCollection().simpleSchema()._schema;
+    return this.props.schema
+      ? this.props.schema
+      : this.getCollection().simpleSchema()._schema;
   }
 
   // if a document is being passed, this is an edit form
@@ -94,7 +96,9 @@ class FormWrapper extends PureComponent {
   // as well as what data to ask for as return value for the mutation
   getFragments() {
 
-    const prefix = `${this.getCollection()._name}${Utils.capitalize(this.getFormType())}`
+    const prefix = `${this.getCollection()._name}${Utils.capitalize(
+      this.getFormType()
+    )}`
     const fragmentName = `${prefix}FormFragment`;
 
     const fields = this.props.fields;
@@ -103,9 +107,13 @@ class FormWrapper extends PureComponent {
     const updatetableFields = this.getUpdatetableFields();
 
     // get all editable/insertable fields (depending on current form type)
-    let queryFields = this.getFormType() === 'new' ? createableFields : updatetableFields;
+    let queryFields =
+      this.getFormType() === 'new' ? createableFields : updatetableFields;
     // for the mutations's return value, also get non-editable but viewable fields (such as createdAt, userId, etc.)
-    let mutationFields = this.getFormType() === 'new' ? _.unique(createableFields.concat(readableFields)) : _.unique(createableFields.concat(updatetableFields));
+    let mutationFields =
+      this.getFormType() === 'new'
+        ? _.unique(createableFields.concat(readableFields))
+        : _.unique(createableFields.concat(updatetableFields));
 
     // if "fields" prop is specified, restrict list of fields to it
     if (typeof fields !== 'undefined' && fields.length > 0) {
@@ -123,7 +131,7 @@ class FormWrapper extends PureComponent {
         _id
         ${queryFields.map(convertFields).join('\n')}
       }
-    `
+    `;
 
     // generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
     const generatedMutationFragment = gql`
@@ -131,7 +139,7 @@ class FormWrapper extends PureComponent {
         _id
         ${mutationFields.map(convertFields).join('\n')}
       }
-    `
+    `;
 
     // default to generated fragments
     let queryFragment = generatedQueryFragment;
@@ -139,10 +147,20 @@ class FormWrapper extends PureComponent {
 
     // if queryFragment or mutationFragment props are specified, accept either fragment object or fragment string
     if (this.props.queryFragment) {
-      queryFragment = typeof this.props.queryFragment === 'string' ? gql`${this.props.queryFragment}` : this.props.queryFragment;
+      queryFragment =
+        typeof this.props.queryFragment === 'string'
+          ? gql`
+              ${this.props.queryFragment}
+            `
+          : this.props.queryFragment;
     }
     if (this.props.mutationFragment) {
-      mutationFragment = typeof this.props.mutationFragment === 'string' ? gql`${this.props.mutationFragment}` : this.props.mutationFragment;
+      mutationFragment =
+        typeof this.props.mutationFragment === 'string'
+          ? gql`
+              ${this.props.mutationFragment}
+            `
+          : this.props.mutationFragment;
     }
 
     // same with queryFragmentName and mutationFragmentName
@@ -154,26 +172,33 @@ class FormWrapper extends PureComponent {
     }
 
     // if any field specifies extra queries, add them
-    const extraQueries = _.compact(queryFields.map(fieldName => {
-      const field = this.getSchema()[fieldName];
-      return field.query
-    }));
+    const extraQueries = _.compact(
+      queryFields.map(fieldName => {
+        const field = this.getSchema()[fieldName];
+        return field.query;
+      })
+    );
 
     // get query & mutation fragments from props or else default to same as generatedFragment
     return {
       queryFragment,
       mutationFragment,
-      extraQueries,
+      extraQueries
     };
   }
 
   getComponent() {
-
     let WrappedComponent;
 
-    const prefix = `${this.getCollection()._name}${Utils.capitalize(this.getFormType())}`
+    const prefix = `${this.getCollection()._name}${Utils.capitalize(
+      this.getFormType()
+    )}`;
 
-    const { queryFragment, mutationFragment, extraQueries } = this.getFragments();
+    const {
+      queryFragment,
+      mutationFragment,
+      extraQueries
+    } = this.getFragments();
 
     // LESSWRONG: ADDED extraVariables option
     const { extraVariables = {} } = this.props
@@ -181,7 +206,7 @@ class FormWrapper extends PureComponent {
     // props to pass on to child component (i.e. <Form />)
     const childProps = {
       formType: this.getFormType(),
-      schema: this.getSchema(),
+      schema: this.getSchema()
     };
 
     // options for withSingle HoC
@@ -192,7 +217,7 @@ class FormWrapper extends PureComponent {
       extraQueries,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
       enableCache: false,
-      pollInterval: 0, // no polling, only load data once
+      pollInterval: 0 // no polling, only load data once
     };
 
     // options for withNew, withUpdate, and withDelete HoCs
@@ -206,32 +231,37 @@ class FormWrapper extends PureComponent {
     // displays the loading state if needed, and passes on loading and document/data
     const Loader = props => {
       const { document, loading } = props;
-      return loading ?
-        <Components.Loading /> :
+      return loading ? (
+        <Components.Loading />
+      ) : (
         <Components.Form
           document={document}
           loading={loading}
           {...childProps}
           {...props}
-        />;
+        />
+      );
     };
     Loader.displayName = 'withLoader(Form)';
 
     // if this is an edit from, load the necessary data using the withSingle HoC
     if (this.getFormType() === 'edit') {
-
       WrappedComponent = compose(
         withSingle(queryOptions),
         withUpdate(mutationOptions),
         withDelete(mutationOptions)
       )(Loader);
 
-      return <WrappedComponent selector={{ documentId: this.props.documentId, slug: this.props.slug }}/>
-
+      return (
+        <WrappedComponent
+          selector={{
+            documentId: this.props.documentId,
+            slug: this.props.slug
+          }}
+        />
+      );
     } else {
-
       if (extraQueries && extraQueries.length) {
-
         const extraQueriesHoC = graphql(gql`
           query formNewExtraQuery {
             ${extraQueries}
@@ -314,12 +344,12 @@ FormWrapper.propTypes = {
   revertCallback: PropTypes.func,
 
   currentUser: PropTypes.object,
-  client: PropTypes.object,
-}
+  client: PropTypes.object
+};
 
 FormWrapper.defaultProps = {
-  layout: 'horizontal',
-}
+  layout: 'horizontal'
+};
 
 FormWrapper.contextTypes = {
   closeCallback: PropTypes.func,

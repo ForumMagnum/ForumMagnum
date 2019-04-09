@@ -19,7 +19,6 @@ function googleAnaticsTrackPage() {
   }
   return {};
 }
-
 // add client-side callback: log a ga request on page view
 addPageFunction(googleAnaticsTrackPage);
 

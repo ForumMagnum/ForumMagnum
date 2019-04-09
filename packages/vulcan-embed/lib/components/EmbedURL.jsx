@@ -62,7 +62,11 @@ class EmbedURL extends Component {
         // console.log('Embedly Data', result);
 
         // extract the relevant data, for easier consumption
-        const { data: { getEmbedData: { title, description, thumbnailUrl } } } = result;
+        const {
+          data: {
+            getEmbedData: { title, description, thumbnailUrl },
+          },
+        } = result;
         const body = description;
 
         // update the form
@@ -93,7 +97,10 @@ class EmbedURL extends Component {
       this.setState({ loading: false });
 
       // something bad happened
-      this.context.throwError({ id: 'embedurl.error_fetching_data', data: { name: this.props.path, message: errorMessage } });
+      this.context.throwError({
+        id: 'embedurl.error_fetching_data',
+        data: { name: this.props.path, message: errorMessage },
+      });
     }
   };
 
@@ -111,7 +118,10 @@ class EmbedURL extends Component {
   renderThumbnail() {
     return (
       <div className="embedly-thumbnail">
-        <img className="embedly-thumbnail-image" src={this.context.getDocument().thumbnailUrl} />
+        <img
+          className="embedly-thumbnail-image"
+          src={this.context.getDocument().thumbnailUrl}
+        />
         <div className="embedly-thumbnail-actions">
           <a className="thumbnail-edit" onClick={this.editThumbnail}>
             <Components.Icon name="edit" /> <FormattedMessage id="posts.enter_thumbnail_url" />
@@ -130,8 +140,7 @@ class EmbedURL extends Component {
         <div
           style={{ width: `${Math.round(60 * this.getDimensions().ratio)}px`, height: '60px' }}
           onClick={this.editThumbnail}
-          className="embedly-thumbnail-placeholder"
-        >
+          className="embedly-thumbnail-placeholder">
           <Components.Icon name="image" />
           <FormattedMessage id="posts.enter_thumbnail_url" />
         </div>

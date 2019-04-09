@@ -7,13 +7,13 @@ import { withApollo } from 'react-apollo';
 
 class AccountsVerifyEmail extends PureComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       pending: true,
       error: null
-    }
+    };
   }
-
+  
   componentDidMount() {
     const token = this.props.params.token;
     Accounts.verifyEmail(token, (verifyEmailResult) => {
@@ -40,10 +40,10 @@ class AccountsVerifyEmail extends PureComponent {
       }
     });
   }
-
+  
   render() {
     if(this.state.pending) {
-      return <Components.Loading />
+      return <Components.Loading />;
     } else if(this.state.error) {
       return (
         <div className='password-reset-form'>
@@ -62,7 +62,7 @@ class AccountsVerifyEmail extends PureComponent {
 
 AccountsVerifyEmail.contextTypes = {
   intl: intlShape
-}
+};
 
 AccountsVerifyEmail.propsTypes = {
   currentUser: PropTypes.object,

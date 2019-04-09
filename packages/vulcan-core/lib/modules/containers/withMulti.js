@@ -4,7 +4,7 @@
 
 Paginated items container
 
-Options:
+Options: 
 
   - collection: the collection to fetch the documents from
   - fragment: the fragment that defines which properties to fetch
@@ -13,7 +13,7 @@ Options:
   - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
   - terms: an object that defines which documents to fetch
 
-Props Received:
+Props Received: 
 
   - terms: an object that defines which documents to fetch
 
@@ -38,7 +38,11 @@ import React, { Component } from 'react';
 import { withApollo, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import update from 'immutability-helper';
-import { getSetting, Utils, multiClientTemplate } from 'meteor/vulcan:lib';
+import {
+  getSetting,
+  Utils,
+  multiClientTemplate,
+} from 'meteor/vulcan:lib';
 import Mingo from 'mingo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
@@ -80,7 +84,7 @@ export default function withMulti(options) {
       const paginationLimit = (props.terms && props.terms.limit) || limit;
       const paginationTerms = {
         limit: paginationLimit,
-        itemsPerPage: paginationLimit
+        itemsPerPage: paginationLimit,
       };
 
       return paginationTerms;
@@ -103,7 +107,7 @@ export default function withMulti(options) {
               input: {
                 terms: mergedTerms,
                 enableCache,
-                enableTotal
+                enableTotal,
               },
               ...extraVariables
             },
@@ -175,8 +179,8 @@ export default function withMulti(options) {
                 typeof providedTerms === 'undefined'
                   ? {
                       /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms,
-                    limit: results.length + props.ownProps.paginationTerms.itemsPerPage
-                  }
+                      limit: results.length + props.ownProps.paginationTerms.itemsPerPage,
+                    }
                   : providedTerms;
 
               props.ownProps.setPaginationTerms(newTerms);
@@ -188,7 +192,11 @@ export default function withMulti(options) {
               // get terms passed as argument or else just default to incrementing the offset
               const newTerms =
                 typeof providedTerms === 'undefined'
-                  ? { ...props.ownProps.terms, ...props.ownProps.paginationTerms, offset: results.length }
+                  ? {
+                      ...props.ownProps.terms,
+                      ...props.ownProps.paginationTerms,
+                      offset: results.length,
+                    }
                   : providedTerms;
 
               return props.data.fetchMore({
@@ -199,19 +207,22 @@ export default function withMulti(options) {
                     return previousResults;
                   }
                   const newResults = {};
-                  newResults[resolverName] = [...previousResults[resolverName], ...fetchMoreResult.data[resolverName]];
+                  newResults[resolverName] = [
+                    ...previousResults[resolverName],
+                    ...fetchMoreResult.data[resolverName],
+                  ];
                   // return the previous results "augmented" with more
                   return { ...previousResults, ...newResults };
-                }
+                },
               });
             },
 
             fragmentName,
             fragment,
             ...props.ownProps, // pass on the props down to the wrapped component
-            data: props.data
+            data: props.data,
           };
-        }
+        },
       }
     )
   );

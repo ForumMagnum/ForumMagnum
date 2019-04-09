@@ -151,7 +151,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
         }
       }
     },
-  ])
+  ]);
 
   const items = await itemsPromise;
   const itemsArray = await items.toArray();
@@ -165,7 +165,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
           update: {$set: {score: i.newScore, inactive: false}},
           upsert: false,
         }
-      }
+      };
     } else if (i.oldEnough) {
       // only set a post as inactive if it's older than n days
       return {
@@ -176,7 +176,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
         }
       }
     }
-  }))
+  }));
   if (itemUpdates && itemUpdates.length) {await collection.rawCollection().bulkWrite(itemUpdates, {ordered: false});}
   return updatedDocumentsCounter;
-}
+};

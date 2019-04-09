@@ -4,7 +4,7 @@ import { Components } from 'meteor/vulcan:core';
 import { registerComponent } from 'meteor/vulcan:core';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import SimpleSchema from 'simpl-schema'
+import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../modules/utils.js';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -32,15 +32,23 @@ class FormComponent extends Component {
     const { path } = this.props;
 
     // when checking for deleted values, both current path ('foo') and child path ('foo.0.bar') should trigger updates
-    const includesPathOrChildren = deletedValues => deletedValues.some(deletedPath => deletedPath.includes(path));
+    const includesPathOrChildren = deletedValues =>
+      deletedValues.some(deletedPath => deletedPath.includes(path));
 
     const valueChanged = get(currentValues, path) !== get(this.props.currentValues, path);
     const errorChanged = !isEqual(this.getErrors(errors), this.getErrors());
-    const deleteChanged = includesPathOrChildren(deletedValues) !== includesPathOrChildren(this.props.deletedValues);
+    const deleteChanged =
+      includesPathOrChildren(deletedValues) !==
+      includesPathOrChildren(this.props.deletedValues);
     const charsChanged = nextState.charsRemaining !== this.state.charsRemaining;
     const disabledChanged = nextProps.disabled !== this.props.disabled;
 
-    const shouldUpdate = valueChanged || errorChanged || deleteChanged || charsChanged || disabledChanged;
+    const shouldUpdate =
+      valueChanged ||
+      errorChanged ||
+      deleteChanged ||
+      charsChanged ||
+      disabledChanged;
 
     return shouldUpdate;
   }
@@ -95,7 +103,9 @@ class FormComponent extends Component {
       value = Number(value);
     }
 
-    const updateValue = this.props.locale ? { locale: this.props.locale, value } : value;
+    const updateValue = this.props.locale
+      ? { locale: this.props.locale, value }
+      : value;
     this.props.updateCurrentValues({ [this.getPath()]: updateValue });
 
     // for text fields, update character count on change
@@ -113,7 +123,7 @@ class FormComponent extends Component {
     const characterCount = value ? value.length : 0;
     this.setState({
       charsRemaining: this.props.max - characterCount,
-      charsCount: characterCount,
+      charsCount: characterCount
     });
   };
 
@@ -149,7 +159,9 @@ class FormComponent extends Component {
   */
   showCharsRemaining = props => {
     const p = props || this.props;
-    return p.max && ['url', 'email', 'textarea', 'text'].includes(this.getType(p));
+    return (
+      p.max && ['url', 'email', 'textarea', 'text'].includes(this.getType(p))
+    );
   };
 
   /*
@@ -161,7 +173,9 @@ class FormComponent extends Component {
   */
   getErrors = errors => {
     errors = errors || this.props.errors;
-    const fieldErrors = errors.filter(error => error.path && error.path.includes(this.props.path));
+    const fieldErrors = errors.filter(
+      error => error.path && error.path.includes(this.props.path)
+    );
     return fieldErrors;
   };
 
@@ -174,7 +188,13 @@ class FormComponent extends Component {
     const p = props || this.props;
     const fieldType = p.datatype && p.datatype[0].type;
     const autoType =
-      fieldType === Number ? 'number' : fieldType === Boolean ? 'checkbox' : fieldType === Date ? 'date' : 'text';
+      fieldType === Number
+        ? 'number'
+        : fieldType === Boolean
+          ? 'checkbox'
+          : fieldType === Date
+            ? 'date'
+            : 'text';
     return p.input || autoType;
   };
 
@@ -268,14 +288,14 @@ class FormComponent extends Component {
   };
 
   getFieldType = () => {
-    return this.props.datatype[0].type
-  }
+    return this.props.datatype[0].type;
+  };
   isArrayField = () => {
-    return this.getFieldType() === Array
-  }
+    return this.getFieldType() === Array;
+  };
   isObjectField = () => {
-    return this.getFieldType() instanceof SimpleSchema
-  }
+    return this.getFieldType() instanceof SimpleSchema;
+  };
   render() {
     if (this.props.intlInput) {
       return <Components.FormIntl {...this.props} />;
@@ -336,9 +356,9 @@ FormComponent.propTypes = {
 };
 
 FormComponent.contextTypes = {
-  getDocument: PropTypes.func.isRequired,
+  getDocument: PropTypes.func.isRequired
 };
 
-module.exports = FormComponent
+module.exports = FormComponent;
 
 registerComponent('FormComponent', FormComponent);
