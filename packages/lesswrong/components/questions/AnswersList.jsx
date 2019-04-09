@@ -11,7 +11,6 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*5,
     paddingBottom: theme.spacing.unit*2,
-    borderBottom: "solid 3px rgba(0,0,0,.87)",
   },
   answerCount: {
     ...theme.typography.postStyle,
