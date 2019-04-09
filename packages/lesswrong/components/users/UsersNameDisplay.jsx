@@ -30,6 +30,7 @@ const styles = theme => ({
 })
 
 const UsersNameDisplay = ({user, classes}) => {
+  if (!user) return <Components.UserDeleted/>
   const { FormatDate } = Components
   const { htmlBio } = user
 
