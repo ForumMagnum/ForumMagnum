@@ -178,6 +178,7 @@ const createLWTheme = (theme) => {
     zIndexes: {
       commentsMenu: 1,
       postsVote: 1,
+      postItemTitle: 2,
       sidebarHoverOver: 2,
       questionPageWhitescreen: 3,
       textbox: 4,

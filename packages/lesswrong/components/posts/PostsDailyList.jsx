@@ -9,11 +9,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
-  daily: {
-    maxWidth: 700,
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
   loading: {
     opacity: .4,
   },
@@ -67,7 +62,7 @@ class PostsDailyList extends PureComponent {
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
-    
+
     if(this.getDatePosts(posts, range[0]).length == 0) {
       return _.rest(range);
     } else {
@@ -82,10 +77,10 @@ class PostsDailyList extends PureComponent {
         .tz(this.props.timezone)
         .format('YYYY-MM-DD') === date);
   }
-  
+
   groupByDate(posts) {
     const { timeField } = this.props.terms
-    
+
     return _.groupBy(posts, post =>
       moment(new Date(timeField ? post[timeField] : post.postedAt))
         .tz(this.props.timezone)
@@ -134,14 +129,14 @@ class PostsDailyList extends PureComponent {
     const posts = this.props.results;
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
     const { Loading, PostsDay } = Components
-  
+
     const dim = dimWhenLoading && networkStatus !== 7
 
     if (loading && (!posts || !posts.length)) {
       return <Loading />
     } else {
       return (
-        <div className={classNames(classes.daily, {[classes.loading]: dim})}>
+        <div className={classNames({[classes.loading]: dim})}>
           { loading && <Loading />}
           {dates.map((date, index) =>
             <PostsDay key={date.toString()}
@@ -151,9 +146,9 @@ class PostsDailyList extends PureComponent {
               currentUser={currentUser}
             />
           )}
-          {loadingMore ? 
-            <Loading /> 
-            : 
+          {loadingMore ?
+            <Loading />
+            :
             <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
               <a><FormattedMessage id="posts.load_more_days"/></a>
             </Typography>

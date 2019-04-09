@@ -15,6 +15,7 @@ export const styles = theme => ({
 
   gridContent: {
     marginLeft: -15,
+    marginRight: -15,
     paddingRight: 6,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
@@ -24,7 +25,6 @@ export const styles = theme => ({
     flexDirection: "row",
     flexWrap: "wrap",
     flexFlow: "row wrap",
-    justifyContent: "space-between",
     [legacyBreakpoints.maxSmall]: {
       alignItems: "center",
       justifyContent: "center",
