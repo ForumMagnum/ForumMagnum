@@ -46,20 +46,20 @@ const styles = theme => ({
   },
   isAnswer: {
     borderLeft: 'transparent',
-    borderRight: 'solid 1px rgba(0,0,0,.125)',
+    borderRight: 'transparent',
     borderTop: 'transparent',
     borderBottom: 'transparent',
   },
   answerChildComment: {
-    borderLeft: 'transparent',
-    borderRight: 'transparent',
-    borderTop: 'transparent',
+    // borderLeft: 'transparent',
+    // borderRight: 'transparent',
+    // borderTop: 'transparent',
     paddingBottom: 1,
     marginBottom: 0
   },
   childAnswerComment: {
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
+    // borderTop: 'transparent',
+    // borderBottom: 'transparent',
     marginBottom: 8
   },
   oddAnswerComment: {
