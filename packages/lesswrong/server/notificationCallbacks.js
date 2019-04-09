@@ -223,7 +223,11 @@ const curationEmailDelay = new EventDebouncer({
 
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
-    curationEmailDelay.recordEvent(post._id, null);
+    curationEmailDelay.recordEvent({
+      key: post._id,
+      data: null,
+      af: false
+    });
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);
@@ -330,6 +334,10 @@ function messageNewNotification(message) {
   createNotifications(recipients, 'newMessage', 'message', message._id);
   
   // Generate debounced email notifications
-  privateMessagesDebouncer.recordEvent(conversationId, message._id);
+  privateMessagesDebouncer.recordEvent({
+    key: conversationId,
+    data: message._id,
+    af: conversation.af,
+  });
 }
 addCallback("messages.new.async", messageNewNotification);
