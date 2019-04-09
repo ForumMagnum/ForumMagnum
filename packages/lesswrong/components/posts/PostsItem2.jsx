@@ -46,7 +46,9 @@ const styles = (theme) => ({
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     alignItems: "center",
-    flexWrap: "wrap",
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: "wrap",
+    }
   },
   background: {
     transition: "3s",
@@ -93,6 +95,9 @@ const styles = (theme) => ({
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
+    },
+    '&:hover': {
+      opacity: 1,
     }
   },
   eventTitle: {
@@ -351,7 +356,7 @@ class PostsItem2 extends PureComponent {
           </div>}
         </div>
       </div>
-      
+
     )
   }
 }

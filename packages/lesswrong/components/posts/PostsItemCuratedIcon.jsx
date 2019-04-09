@@ -8,14 +8,14 @@ const styles = (theme) => ({
   icon: {
     fontSize: "1.3rem",
     color: theme.palette.grey[500],
-    height: 22,
-    marginRight: theme.spacing.unit/2
+    position: "relative",
+    top: 3,
   }
 })
 
 const PostsItemCuratedIcon = ({classes, className}) => {
   return <Tooltip title="Curated Post">
-      <StarIcon className={classes.icon}/> 
+      <StarIcon className={classes.icon}/>
     </Tooltip>
 }
 
