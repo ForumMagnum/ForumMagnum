@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import withHover from '../common/withHover';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
@@ -150,4 +149,4 @@ NewAnswerCommentQuestionForm.propTypes = {
   post: PropTypes.object.isRequired
 };
 
-registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerCommentQuestionForm"}), withHover);
+registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerCommentQuestionForm"}));
