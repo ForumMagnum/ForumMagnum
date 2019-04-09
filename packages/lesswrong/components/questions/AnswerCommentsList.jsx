@@ -10,11 +10,6 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   answersList: {
-    marginLeft: 34,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: 0
-    }
   },
   noComments: {
     position: "relative",
@@ -128,6 +123,7 @@ class AnswerCommentsList extends PureComponent {
               highlightDate={highlightDate}
               post={post}
               parentAnswerId={parentAnswer._id}
+              defaultNestingLevel={2}
               postPage
               startThreadCollapsed
             />

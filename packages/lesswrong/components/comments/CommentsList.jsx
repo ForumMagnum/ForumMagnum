@@ -57,7 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, startThreadCollapsed, parentAnswerId } = this.props;
+    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, startThreadCollapsed, parentAnswerId, defaultNestingLevel = 1 } = this.props;
 
 
     const { expandAllThreads } = this.state
@@ -76,7 +76,7 @@ class CommentsList extends Component {
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
-                nestingLevel={1}
+                nestingLevel={defaultNestingLevel}
                 //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
