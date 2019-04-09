@@ -165,8 +165,6 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
   
-  await checkRateLimit({ document, collection, voteType, user });
-
   debug('');
   debugGroup('--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------');
   debug('collectionName: ', collectionName);
@@ -193,6 +191,8 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
     runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
 
   } else {
+
+    await checkRateLimit({ document, collection, voteType, user });
 
     // console.log('action: vote')
 
