@@ -21,16 +21,32 @@ const styles = (theme) => ({
   },
   tooltip: {
     wordBreak: "break-word"
+  },
+  tooltipKarma: {
+    fontStyle: "italic",
+    marginBottom: theme.spacing.unit*2,
+    display:"flex",
+    justifyContent: "space-between"
   }
 })
 
 const AnswerTocRow = ({classes, answer}) => {
+  const { FormatDate } = Components
   const { html = "" } = answer.contents || {}
 
   const highlight = truncate(html, 900)
 
-  const tooltip = <div dangerouslySetInnerHTML={{__html:highlight}}
-  className={classes.tooltip} />
+  const tooltip = <div>
+      <div className={classes.tooltipKarma}>
+        <div>
+          { answer.baseScore } karma ({answer.voteCount} votes)
+        </div>
+        <div>
+          Posted <FormatDate date={answer.postedAt} tooltip={false} /> ago
+        </div>
+      </div>
+      <div dangerouslySetInnerHTML={{__html:highlight}} className={classes.tooltip} />
+    </div>
 
   return <div>
     <Tooltip title={tooltip} placement="right-start">
