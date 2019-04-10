@@ -45,6 +45,7 @@ const styles = theme => ({
     }
   },
   isAnswer: {
+    border: `solid 2px ${theme.palette.grey[300]}`,
   },
   answerChildComment: {
     marginBottom: theme.spacing.unit,

@@ -25,7 +25,7 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*2.5,
     marginLeft: -theme.spacing.unit*2,
     marginRight: -theme.spacing.unit*2,
-    border: "solid 2px rgba(0,0,0,.12)",
+    border: `solid 2px ${theme.palette.grey[300]}`,
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
