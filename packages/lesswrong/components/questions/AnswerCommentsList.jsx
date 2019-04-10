@@ -9,7 +9,9 @@ import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  answersList: {
+  commentsList: {
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5,
   },
   noComments: {
     position: "relative",
@@ -109,7 +111,7 @@ class AnswerCommentsList extends PureComponent {
             }
           <div onClick={this.loadMoreComments}
             className={classNames(
-              classes.answersList, {
+              classes.commentsList, {
                 [classes.noCommentAnswersList]: noComments,
                 [classes.loadingMore]: loadingMore,
                 [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
