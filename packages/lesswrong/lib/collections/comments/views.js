@@ -241,3 +241,9 @@ Comments.addView('repliesToAnswer', function (terms) {
   };
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
+
+// Used in moveToAnswers
+ensureIndex(Comments, {topLevelCommentId:1});
+
+// Used in findCommentByLegacyAFId
+ensureIndex(Comments, {agentFoundationsId:1});
