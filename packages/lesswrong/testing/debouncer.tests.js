@@ -40,9 +40,9 @@ describe('EventDebouncer', async () => {
       });
       
       clock.setSystemTime(new Date("1980-01-01 00:01:00"));
-      await testEvent.recordEvent("firstKey", "1");
-      await testEvent.recordEvent("firstKey", "2");
-      await testEvent.recordEvent("secondKey", "3");
+      await testEvent.recordEvent({key: "firstKey", data: "1"});
+      await testEvent.recordEvent({key: "firstKey", data: "2"});
+      await testEvent.recordEvent({key: "secondKey", data: "3"});
       
       // Advance clock, but not enough for events to fire
       clock.setSystemTime(new Date("1980-01-01 00:14:00"));
@@ -67,16 +67,16 @@ describe('EventDebouncer', async () => {
       // Record another event, make sure it doesn't group together with already
       // fired events.
       clock.setSystemTime(new Date("1980-01-01 00:20:00"));
-      await testEvent.recordEvent("firstKey", "4");
+      await testEvent.recordEvent({key: "firstKey", data: "4"});
       await dispatchPendingEvents();
       numEventsHandled.should.equal(3);
       
       // Add events to delay event release until maxDelayMinutes reached
       clock.setSystemTime(new Date("1980-01-01 00:30:00"));
-      await testEvent.recordEvent("firstKey", "5");
+      await testEvent.recordEvent({key: "firstKey", data: "5"});
       await dispatchPendingEvents();
       clock.setSystemTime(new Date("1980-01-01 00:40:00"));
-      await testEvent.recordEvent("firstKey", "6");
+      await testEvent.recordEvent({key: "firstKey", data: "6"});
       await dispatchPendingEvents();
       numEventsHandled.should.equal(3);
       
