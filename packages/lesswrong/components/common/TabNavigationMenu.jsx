@@ -231,7 +231,7 @@ const TabNavigationMenu = ({
               What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.
             </p>
           </div>}>
-          <Link to="/codex">
+          <Link to="/hpmor">
             <TabNavigationSubItem>
               HPMOR
             </TabNavigationSubItem>

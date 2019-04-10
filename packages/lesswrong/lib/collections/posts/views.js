@@ -345,6 +345,7 @@ Posts.addView("drafts", terms => {
       hideAuthor: false,
       unlisted: null,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
+      authorIsUnreviewed: viewFieldAllowAny,
     },
     options: {
       sort: {createdAt: -1}

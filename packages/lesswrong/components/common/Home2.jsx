@@ -3,12 +3,19 @@ import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
+import { SplitComponent } from 'meteor/vulcan:routing';
+import Users from 'meteor/vulcan:users';
 
 const Home2 = ({ currentUser }) => {
   const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu } = Components
 
+  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
+      Users.canDo(currentUser, 'alignment.sidebar')
+
   return (
     <React.Fragment>
+      {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
+
       <Components.HeadTags image={getSetting('siteImage')} />
       <TabNavigationMenu />
 
