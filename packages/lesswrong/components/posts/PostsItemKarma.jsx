@@ -19,8 +19,8 @@ const styles = (theme) => ({
 
 const PostsItemKarma = ({classes, post}) => {
   const { PostsItemMetaInfo} = Components
-  const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
-  const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
 
   return (
     <PostsItemMetaInfo className={classes.root}>

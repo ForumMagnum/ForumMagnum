@@ -5,7 +5,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 // will be common to all other view unless specific properties are overwritten
 Notifications.addDefaultView(function (terms) {
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum

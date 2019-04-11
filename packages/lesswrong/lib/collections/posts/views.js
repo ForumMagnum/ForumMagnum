@@ -16,7 +16,7 @@ Posts.addDefaultView(terms => {
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
@@ -199,7 +199,7 @@ ensureIndex(Posts,
 );
 
 let frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
-if (getSetting('EAForum')) frontpageSelector.meta = {$ne: true}
+if (getSetting('forumType') === 'EAForum') frontpageSelector.meta = {$ne: true}
 
 Posts.addView("frontpage", terms => ({
   selector: frontpageSelector,

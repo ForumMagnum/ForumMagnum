@@ -1,3 +1,8 @@
+import {registerSetting} from 'meteor/vulcan:core'
+
+registerSetting('forumType', 'LessWrong', 'What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}')
+
+// TODO-Q what's this comment for / is it still relevant?
 // # Vulcan Modifications
 
 // schema utils
@@ -152,7 +157,6 @@ import './modules/alignment-forum/users/callbacks.js';
 import './modules/alignment-forum/users/custom_fields.js';
 import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
-
 
 
 //

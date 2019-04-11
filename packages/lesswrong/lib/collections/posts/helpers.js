@@ -173,7 +173,7 @@ Posts.getPageUrl = function(post, isAbsolute = false){
 };
 
 Posts.getCommentCount = (post) => {
-  if (getSetting('AlignmentForum', false)) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -196,7 +196,7 @@ Posts.getCommentCountStr = (post, commentCount) => {
 
 
 Posts.getLastCommentedAt = (post) => {
-  if (getSetting('AlignmentForum')) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {
     return post.lastCommentedAt;
