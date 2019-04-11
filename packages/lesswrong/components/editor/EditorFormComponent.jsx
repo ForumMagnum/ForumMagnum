@@ -309,7 +309,7 @@ class EditorFormComponent extends Component {
     const { type } = (value && value.originalContents) || (document[fieldName] && document[fieldName].originalContents) || {}
     return <Typography variant="body2" color="primary">
       This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
-      <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
+      <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride(null)}> Click here </a>
       to switch to {this.getUserDefaultEditor(currentUser)} editor (your default editor).
     </Typography>
   }
