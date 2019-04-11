@@ -8,18 +8,19 @@ import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
 const styles = theme => ({
   root: {
-    backgroundColor: theme.palette.background.default,
     color: "rgba(0,0,0, 0.87)",
     transition: "opacity .1s ease-in-out",
     height: 2000,
     zIndex: theme.zIndexes.searchResults,
-    width:"100%",
-    overflow: "hidden",
-    position: "absolute",
-    left: 0,
+    width:520,
+    position: "fixed",
+    right: 0,
     top: 64,
+    display: "flex",
+    flexWrap: "wrap",
     [theme.breakpoints.down('small')]: {
       top:48,
+      width: "100%"
     },
     "& .ais-CurrentRefinements": {
       display: 'inline-block',
@@ -37,19 +38,31 @@ const styles = theme => ({
     },
   },
   searchResults: {
-    maxWidth: 1200,
-    margin: "auto",
-    paddingTop: 20
+    overflow:"scroll",
+    width: "100%",
+    height: "calc(100vh - 48px)",
+    [theme.breakpoints.up('md')]: {
+      marginLeft: 20,
+      boxShadow: "0 0 20px rgba(0,0,0,.2)",
+      backgroundColor: theme.palette.background.default,
+      height: "calc(100vh - 64px)",
+    },
   },
   searchList: {
-    padding:theme.spacing.unit*2
+    borderBottom: "solid 1px rgba(0,0,0,.3)",
+    paddingTop:theme.spacing.unit,
+    paddingBottom:theme.spacing.unit,
+    paddingLeft:theme.spacing.unit*2,
+    paddingRight:theme.spacing.unit*2
+  },
+  loadMore: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.lwTertiary.main
   },
   header: {
     display:"flex",
     justifyContent:"space-between",
     alignItems: "center",
-    paddingTop: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
     '& h1': {
@@ -59,51 +72,86 @@ const styles = theme => ({
 })
 
 class SearchBarResults extends Component {
+  state = { type: "all", userCount: 3, postCount: 3, commentCount: 3}
+
+  loadMoreUsers = () => {
+    this.setState((prevState) => ({
+      type: prevState.type === 'all' ? 'users' : 'all',
+      userCount: 15
+    }))
+  }
+
+  loadMorePosts = () => {
+    this.setState((prevState) => ({
+      type: prevState.type === 'all' ? 'posts' : 'all',
+      postCount: 15
+    }))
+  }
+
+  loadMoreComments = () => {
+    this.setState((prevState) => ({
+      type: prevState.type === 'all' ? 'comments' : 'all',
+      commentCount: 15
+    }))
+  }
 
   render() {
     const { classes, closeSearch } = this.props
+    const { type, userCount, postCount, commentCount } = this.state
+
+    const showUsers = type === "all" || type === "users"
+    const showPosts = type === "all" || type === "posts"
+    const showComments = type === "all" || type === "comments"
 
     return <div className={classes.root}>
-      <Grid container className={classes.searchResults}>
+      <div className={classes.searchResults}>
         <CurrentRefinements />
         <Components.ErrorBoundary>
-          <Grid item xs={12} sm={6} md={5} className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Posts}>
-              <div className={classes.header}>
-                <Typography variant="display1">Posts</Typography>
-                <Components.SearchPagination />
-              </div>
-
-              <Configure hitsPerPage={7} />
-              <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </Grid>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <Grid item xs={12} sm={6} md={4} className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Comments}>
-              <div className={classes.header}>
-                <Typography variant="display1">Comments</Typography>
-                <Components.SearchPagination />
-              </div>
-              <Configure hitsPerPage={8} />
-              <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </Grid>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <Grid item xs={12} sm={4} md={3} className={classes.searchList}>
+          <div item xs={12} sm={4} md={3} className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Users}>
               <div className={classes.header}>
-                <Typography variant="display1">Users</Typography>
-                <Components.SearchPagination />
+                <Typography variant="body1">Users</Typography>
+                {/* <Components.SearchPagination /> */}
+                <div className={classes.loadMore} onClick={this.loadMoreUsers}>
+                  {type === "users" ? "Fewer" : "More"} Users
+                </div>
               </div>
-              <Configure hitsPerPage={10} />
-              <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />
+              <Configure hitsPerPage={type === "users" ? userCount : 3} />
+              {showUsers && <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />}
             </Index>
-          </Grid>
+          </div>
         </Components.ErrorBoundary>
-    </Grid>
+        <Components.ErrorBoundary>
+          <div className={classes.searchList}>
+            <Index indexName={algoliaIndexNames.Posts}>
+              <div className={classes.header}>
+                <Typography variant="body1">Posts</Typography>
+                {/* <Components.SearchPagination /> */}
+                <div className={classes.loadMore} onClick={this.loadMorePosts}>
+                  {type === "posts" ? "Fewer" : "More"} Posts
+                </div>
+              </div>
+
+              <Configure hitsPerPage={type === "posts" ? postCount : 3} />
+              {showPosts && <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={closeSearch} {...props} />} />}
+            </Index>
+          </div>
+        </Components.ErrorBoundary>
+        <Components.ErrorBoundary>
+          <div className={classes.searchList}>
+            <Index indexName={algoliaIndexNames.Comments}>
+              <div className={classes.header}>
+                <Typography variant="body1">Comments</Typography>
+                <div className={classes.loadMore} onClick={this.loadMoreComments}>
+                  {type === "comments" ? "Fewer" : "More"} Comments
+                </div>
+              </div>
+              <Configure hitsPerPage={type === "comments" ? commentCount : 3} />
+              {showComments && <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={closeSearch} {...props} />} />}
+            </Index>
+          </div>
+        </Components.ErrorBoundary>
+    </div>
   </div>
   }
 }
