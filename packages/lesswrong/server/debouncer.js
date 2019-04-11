@@ -109,7 +109,7 @@ const dispatchEvent = async (event) => {
 
 export const dispatchPendingEvents = async () => {
   const now = new Date().getTime();
-  const af = getSetting('forumType') !== 'AlignmentForum'
+  const af = getSetting('forumType') === 'AlignmentForum'
   let eventToHandle = null;
   
   do {
