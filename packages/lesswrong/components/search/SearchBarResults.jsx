@@ -10,7 +10,6 @@ const styles = theme => ({
   root: {
     color: "rgba(0,0,0, 0.87)",
     transition: "opacity .1s ease-in-out",
-    height: 2000,
     zIndex: theme.zIndexes.searchResults,
     width:520,
     position: "fixed",
@@ -18,9 +17,11 @@ const styles = theme => ({
     top: 64,
     display: "flex",
     flexWrap: "wrap",
-    [theme.breakpoints.down('small')]: {
-      top:48,
+    [theme.breakpoints.down('sm')]: {
       width: "100%"
+    },
+    [theme.breakpoints.down('xs')]: {
+      top: 48,
     },
     "& .ais-CurrentRefinements": {
       display: 'inline-block',
@@ -41,10 +42,10 @@ const styles = theme => ({
     overflow:"scroll",
     width: "100%",
     height: "calc(100vh - 48px)",
+    backgroundColor: theme.palette.background.default,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,
       boxShadow: "0 0 20px rgba(0,0,0,.2)",
-      backgroundColor: theme.palette.background.default,
       height: "calc(100vh - 64px)",
     },
   },
@@ -60,6 +61,7 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main
   },
   header: {
+    cursor: "pointer",
     display:"flex",
     justifyContent:"space-between",
     alignItems: "center",
@@ -67,6 +69,9 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     '& h1': {
       margin:0
+    },
+    '&:hover': {
+      opacity: .5,
     }
   },
 })
@@ -109,10 +114,10 @@ class SearchBarResults extends Component {
         <Components.ErrorBoundary>
           <div item xs={12} sm={4} md={3} className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Users}>
-              <div className={classes.header}>
+              <div className={classes.header} onClick={this.loadMoreUsers}>
                 <Typography variant="body1">Users</Typography>
                 {/* <Components.SearchPagination /> */}
-                <div className={classes.loadMore} onClick={this.loadMoreUsers}>
+                <div className={classes.loadMore}>
                   {type === "users" ? "Fewer" : "More"} Users
                 </div>
               </div>
@@ -124,10 +129,10 @@ class SearchBarResults extends Component {
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Posts}>
-              <div className={classes.header}>
+              <div className={classes.header} onClick={this.loadMorePosts}>
                 <Typography variant="body1">Posts</Typography>
                 {/* <Components.SearchPagination /> */}
-                <div className={classes.loadMore} onClick={this.loadMorePosts}>
+                <div className={classes.loadMore}>
                   {type === "posts" ? "Fewer" : "More"} Posts
                 </div>
               </div>
@@ -140,9 +145,9 @@ class SearchBarResults extends Component {
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Comments}>
-              <div className={classes.header}>
+              <div className={classes.header} onClick={this.loadMoreComments}>
                 <Typography variant="body1">Comments</Typography>
-                <div className={classes.loadMore} onClick={this.loadMoreComments}>
+                <div className={classes.loadMore}>
                   {type === "comments" ? "Fewer" : "More"} Comments
                 </div>
               </div>
