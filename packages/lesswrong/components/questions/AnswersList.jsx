@@ -14,7 +14,6 @@ const styles = theme => ({
   },
   answerCount: {
     ...theme.typography.postStyle,
-    paddingTop: theme.spacing.unit*3,
     maxWidth: 650,
     marginBottom: theme.spacing.unit*2,
     [theme.breakpoints.down('md')]: {
