@@ -54,6 +54,17 @@ const PostsItemDate = ({post, classes}) => {
           </Tooltip>}
     </PostsItemMetaInfo>);
   }
+  else if (post.curatedDate)
+  {
+    return (<PostsItemMetaInfo className={classes.postedAt}>
+      <Tooltip title={<React.Fragment>
+        <div>Curated at <ExpandedDate date={post.curatedDate}/></div>
+        <div>Posted at <ExpandedDate date={post.postedAt}/></div>
+      </React.Fragment>}>
+        {moment(new Date(post.curatedAt)).fromNow()}
+      </Tooltip>
+    </PostsItemMetaInfo>);
+  }
   else
   {
     return (<PostsItemMetaInfo className={classes.postedAt}>
