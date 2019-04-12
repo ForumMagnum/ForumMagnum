@@ -11,8 +11,8 @@ const ExpandedDate = withTimezone(
 
 /// A relative time/date, like "4d". Hover over for the actual (non-relative)
 /// date/time.
-const FormatDate = ({date, timezone, format}) => {
-  return <Tooltip title={<ExpandedDate date={date} timezone={timezone}/>}>
+const FormatDate = ({date, format}) => {
+  return <Tooltip title={<ExpandedDate date={date}/>}>
     {format ?
       <span>{moment(new Date(date)).format(format)}</span>
       :
