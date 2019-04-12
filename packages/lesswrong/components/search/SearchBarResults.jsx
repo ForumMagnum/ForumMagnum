@@ -12,6 +12,7 @@ const styles = theme => ({
     color: "rgba(0,0,0, 0.87)",
     transition: "opacity .1s ease-in-out",
     height: 2000,
+    zIndex: theme.zIndexes.searchResults,
     width:"100%",
     overflow: "hidden",
     position: "absolute",

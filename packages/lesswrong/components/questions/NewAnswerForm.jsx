@@ -59,7 +59,7 @@ const NewAnswerForm = ({post, classes, flash, currentUser}) => {
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            const isAF = getSetting('AlignmentForum', false);
+            const isAF = getSetting('forumType') === 'AlignmentForum';
             const message = (isAF
               ? "Log in or go to LessWrong to submit your answer."
               : "Log in to submit your answer."

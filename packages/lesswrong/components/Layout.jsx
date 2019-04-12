@@ -16,9 +16,6 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 
-import Users from 'meteor/vulcan:users';
-import { SplitComponent } from 'meteor/vulcan:routing';
-
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
 const styles = theme => ({
@@ -83,12 +80,6 @@ class Layout extends PureComponent {
     }
   }
 
-  shouldRenderSidebar = () => {
-    const { currentUser } = this.props
-    return Users.canDo(currentUser, 'posts.moderate.all') ||
-      Users.canDo(currentUser, 'alignment.sidebar')
-  }
-
   render () {
     const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
 
@@ -124,7 +115,7 @@ class Layout extends PureComponent {
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
+        <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />
@@ -154,7 +145,6 @@ class Layout extends PureComponent {
                 <Components.FlashMessages />
               </Components.ErrorBoundary>
               {children}
-              {this.shouldRenderSidebar() && <SplitComponent name="SunshineSidebar" />}
             </div>
             <Components.Footer />
           </div>

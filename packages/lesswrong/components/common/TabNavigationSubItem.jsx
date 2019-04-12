@@ -19,13 +19,16 @@ const styles = (theme) => ({
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
-    overflow: "hidden"
+    overflow: "hidden",
+    '&:hover': {
+      opacity: .5
+    }
   }
 })
 
 const TabNavigationSubItem = ({children, classes, className}) => {
   return <div className={classNames(classes.root, className)}>
-    <a>{children}</a>
+    {children}
   </div>
 }
 
