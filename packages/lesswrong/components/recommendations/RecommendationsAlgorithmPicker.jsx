@@ -22,16 +22,19 @@ const recommendationAlgorithms = [
 ];
 
 const RecommendationsAlgorithmPicker = ({ onPickAlgorithm, selectedAlgorithm }) => {
-  return (<select
-    onChange={(ev) => onPickAlgorithm(ev.target.value)}
-    value={selectedAlgorithm}
-  >
-    {recommendationAlgorithms.map(algorithm =>
-      <option value={algorithm.name} key={algorithm.name}>
-        {algorithm.description}
-      </option>
-    )}
-  </select>);
+  return <div>
+    {"Algorithm "}
+    <select
+      onChange={(ev) => onPickAlgorithm(ev.target.value)}
+      value={selectedAlgorithm}
+    >
+      {recommendationAlgorithms.map(algorithm =>
+        <option value={algorithm.name} key={algorithm.name}>
+          {algorithm.description}
+        </option>
+      )}
+    </select>
+  </div>;
 }
 
 registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker);

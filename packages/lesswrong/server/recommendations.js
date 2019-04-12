@@ -94,7 +94,6 @@ const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
 }
 
 const getRecommendations = async ({count, method, currentUser}) => {
-  console.log(`Getting ${count} recommendations with method ${method}`);
   // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
   switch(method) {
     case "top": {
