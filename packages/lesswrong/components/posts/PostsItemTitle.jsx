@@ -29,7 +29,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     display: "inline-block",
     alignItems: "center",
-    fontSize: "1.3rem",
+    fontSize: "1.4rem",
     [theme.breakpoints.down('sm')]: {
       maxWidth: "unset",
       whiteSpace: "unset",
@@ -146,30 +146,28 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const showQuestionsTag = !(location.pathname === "/questions")
   const showEventsTag = !(location.pathname === "/community")
 
-  const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
-    <Typography variant="body1" className={classes.title}>
-      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+  const postTitle = <div className={classNames(classes.root, {[classes.read]:read}, classes.title)}>
+    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
-      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+    {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
-      {shared && <span className={classes.tag}>[Shared]</span>}
+    {shared && <span className={classes.tag}>[Shared]</span>}
 
-      {post.question && showQuestionsTag && <span className={classes.tag}>[Question]</span>}
+    {post.question && showQuestionsTag && <span className={classes.tag}>[Question]</span>}
 
-      {post.url && <span className={classes.tag}>[Link]</span>}
+    {post.url && <span className={classes.tag}>[Link]</span>}
 
-      {post.isEvent && showEventsTag && <span className={classes.tag}>[Event]</span>}
+    {post.isEvent && showEventsTag && <span className={classes.tag}>[Event]</span>}
 
-      <span>{post.title}</span>
+    <span>{post.title}</span>
 
-      {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-      
-      {getSetting('forumType') !== 'AlignmentForum' && post.af && postItem2 && 
-        <span className={classes.postIcon}>
-          <PostsItemAlignmentIcon />
-        </span> 
-      }
-    </Typography>
+    {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
+    
+    {getSetting('forumType') !== 'AlignmentForum' && post.af && postItem2 && 
+      <span className={classes.postIcon}>
+        <PostsItemAlignmentIcon />
+      </span>
+    }
   </div>
 
   if (postItem2) {
