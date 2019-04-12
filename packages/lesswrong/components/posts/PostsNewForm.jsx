@@ -18,12 +18,13 @@ const PostsNewForm = ({router, currentUser, flash, classes}) => {
   const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
+  const af = getSetting('forumType') === 'AlignmentForum'
   const prefilledProps = {
     isEvent: router.location.query && router.location.query.eventForm,
     types: router.location.query && router.location.query.ssc ? ['SSC'] : [],
     meta: router.location.query && !!router.location.query.meta,
-    frontpageDate: getSetting("AlignmentForum", false) ? new Date() : null,
-    af: getSetting("AlignmentForum", false) || (router.location.query && !!router.location.query.af),
+    frontpageDate: af ? new Date() : null,
+    af: af || (router.location.query && !!router.location.query.af),
     groupId: router.location.query && router.location.query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined

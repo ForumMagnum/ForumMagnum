@@ -64,7 +64,8 @@ class CommentsViews extends Component {
       views = views.concat(adminViews);
     }
 
-    if (getSetting("AlignmentForum", false)) {
+    const af = getSetting('forumType') === 'AlignmentForum'
+    if (af) {
       views = views.concat(afViews);
     }
 
