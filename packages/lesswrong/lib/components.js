@@ -329,5 +329,7 @@ import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/QuestionsPage.jsx';
 
+import '../components/recommendations/ConfigurableRecommendationsList.jsx';
+import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
 import '../components/recommendations/RecommendationsList.jsx';
 import '../components/recommendations/RecommendationsPage.jsx';

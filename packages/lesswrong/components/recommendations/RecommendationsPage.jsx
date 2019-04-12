@@ -6,12 +6,9 @@ const styles = theme => ({
 });
 
 const RecommendationsPage = ({ classes }) => {
-  const { SingleColumnSection, SectionTitle, RecommendationsList } = Components;
+  const { ConfigurableRecommendationsList } = Components;
   
-  return <SingleColumnSection>
-    <SectionTitle title="Recommended" />
-    <RecommendationsList count={15}/>
-  </SingleColumnSection>
+  return <ConfigurableRecommendationsList/>
 };
 
 registerComponent('RecommendationsPage', RecommendationsPage,

@@ -7,8 +7,8 @@ import withUser from '../common/withUser';
 
 const withRecommendations = component => {
   const recommendationsQuery = gql`
-    query RecommendationsQuery($count: Int) {
-      Recommendations(count: $count) {
+    query RecommendationsQuery($count: Int, $method: String) {
+      Recommendations(count: $count, method: $method) {
         ...PostsList
       }
     }
@@ -21,6 +21,7 @@ const withRecommendations = component => {
       options: (props) => ({
         variables: {
           count: props.count || 10,
+          method: props.method || "top",
         }
       }),
       props(props) {
@@ -33,9 +34,9 @@ const withRecommendations = component => {
   )(component);
 }
 
-const RecommendationsList = ({ recommendations, currentUser }) => {
+const RecommendationsList = ({ recommendations, recommendationsLoading, currentUser }) => {
   const { PostsItem2 } = Components;
-  if (!recommendations)
+  if (recommendationsLoading || !recommendations)
     return <Components.PostsLoading/>
   
   return <div>{recommendations.map(post => <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}</div>

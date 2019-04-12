@@ -2,18 +2,10 @@ import { addGraphQLResolvers, addGraphQLQuery } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 
-const getLoggedOutRecommendations = async ({count}) => {
-  let topPosts = await Posts.find(
-    {},
-    {
-      limit:count,
-      sort: {baseScore: -1}
-    }
-  ).fetch();
-  return topPosts;
-}
-
 const pipelineFilterUnread = ({currentUser}) => {
+  if (!currentUser)
+    return [];
+  
   return [
     { $lookup: {
       from: "lwevents",
@@ -81,7 +73,7 @@ const topUnreadPosts = async ({count, currentUser}) => {
   ).fetch();
 }
 
-const sampleUnreadPosts = async ({count, currentUser}) => {
+const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
   const unreadPostsMetadata = await Posts.aggregate([
     { $match: {
       ...recommendablePostFilter,
@@ -101,21 +93,43 @@ const sampleUnreadPosts = async ({count, currentUser}) => {
   ).fetch();
 }
 
-const getRecommendations = async ({count, currentUser}) => {
-  if (!currentUser) {
-    return await getLoggedOutRecommendations({count});
+const getRecommendations = async ({count, method, currentUser}) => {
+  console.log(`Getting ${count} recommendations with method ${method}`);
+  // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
+  switch(method) {
+    case "top": {
+      return await topUnreadPosts({count, currentUser});
+    }
+    case "sampleScore2": {
+      return await sampleUnreadPosts({
+        count, currentUser,
+        sampleWeightFn: post => Math.pow(post.baseScore, 2)
+      });
+    }
+    case "sampleScore3": {
+      return await sampleUnreadPosts({
+        count, currentUser,
+        sampleWeightFn: post => Math.pow(post.baseScore, 2)
+      });
+    }
+    case "sampleScore4": {
+      return await sampleUnreadPosts({
+        count, currentUser,
+        sampleWeightFn: post => Math.pow(post.baseScore, 2)
+      });
+    }
+    default: {
+      throw new Error(`Unrecognized recommendation algorithm: ${method}`);
+    }
   }
-  
-  //return await topUnreadPosts({count, currentUser});
-  return await sampleUnreadPosts({count, currentUser});
 };
 
 addGraphQLResolvers({
   Query: {
-    async Recommendations(root, {count}, {currentUser}) {
-      return getRecommendations({count, currentUser})
+    async Recommendations(root, {count,method}, {currentUser}) {
+      return getRecommendations({count, method, currentUser})
     }
   }
 });
 
-addGraphQLQuery("Recommendations(count: Int): [Post!]");
+addGraphQLQuery("Recommendations(count: Int, method: String): [Post!]");
