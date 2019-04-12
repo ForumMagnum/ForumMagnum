@@ -1,6 +1,5 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -21,13 +20,10 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       justifyContent: "space-between",
       flexGrow: 1,
-    }
-  },
-  title: {
+    },
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    display: "inline-block",
     alignItems: "center",
     fontSize: "1.4rem",
     [theme.breakpoints.down('sm')]: {
@@ -146,7 +142,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const showQuestionsTag = !(location.pathname === "/questions")
   const showEventsTag = !(location.pathname === "/community")
 
-  const postTitle = <div className={classNames(classes.root, {[classes.read]:read}, classes.title)}>
+  const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
