@@ -19,7 +19,10 @@ class ConfigurableRecommendationsList extends PureComponent {
       method: "top",
       count: 10,
       scoreOffset: 0,
-      scoreExponent: 3
+      scoreExponent: 3,
+      personalBlogpostModifier: 0,
+      frontpageModifier: 10,
+      curatedModifier: 50,
     }
   }
   

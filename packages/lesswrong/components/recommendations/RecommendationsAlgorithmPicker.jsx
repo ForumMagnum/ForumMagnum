@@ -46,6 +46,27 @@ const RecommendationsAlgorithmPicker = ({ settings, onChange }) => {
         onChange={(ev) => onChange({ ...settings, scoreExponent: ev.target.value })}
       />
     </div>
+    <div>
+      {"Personal blogpost modifier "}
+      <Input type="number"
+        value={settings.personalBlogpostModifier}
+        onChange={(ev) => onChange({ ...settings, personalBlogpostModifier: ev.target.value })}
+      />
+    </div>
+    <div>
+      {"Frontpage modifier "}
+      <Input type="number"
+        value={settings.frontpageModifier}
+        onChange={(ev) => onChange({ ...settings, frontpageModifier: ev.target.value })}
+      />
+    </div>
+    <div>
+      {"Curated modifier "}
+      <Input type="number"
+        value={settings.curatedModifier}
+        onChange={(ev) => onChange({ ...settings, curatedModifier: ev.target.value })}
+      />
+    </div>
   </div>;
 }
 

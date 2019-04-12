@@ -2,6 +2,8 @@ import { addGraphQLResolvers, addGraphQLQuery } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 
+const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1};
+
 const pipelineFilterUnread = ({currentUser}) => {
   if (!currentUser)
     return [];
@@ -52,21 +54,22 @@ const recommendablePostFilter = {
   meta: false,
 }
 
-const topUnreadPosts = async ({count, currentUser}) => {
-  const unreadTopPostsMetadata = await Posts.aggregate([
+const topUnreadPosts = async ({count, currentUser, scoreFn}) => {
+  const unreadPostsMetadata = await Posts.aggregate([
     { $match: {
       ...recommendablePostFilter,
     } },
-    { $project: {_id:1, baseScore:1} },
-    { $sort: {baseScore:-1} },
     
     ...pipelineFilterUnread({currentUser}),
     
-    { $project: {_id:1} },
-    { $limit: count }
+    { $project: {_id:1, ...scoreRelevantFields} },
   ]).toArray();
   
-  const unreadTopPostIds = _.map(unreadTopPostsMetadata, p=>p._id);
+  const unreadTopPosts = _.first(
+    _.sortBy(unreadPostsMetadata, post => -scoreFn(post)),
+    count);
+  const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id);
+  
   return await Posts.find(
     { _id: {$in: unreadTopPostIds} },
     { sort: {baseScore: -1} }
@@ -81,12 +84,15 @@ const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
     
     ...pipelineFilterUnread({currentUser}),
     
-    { $project: {_id:1, baseScore:1} },
+    { $project: {_id:1, ...scoreRelevantFields} },
   ]).toArray();
   
   const sampledPosts = new WeightedList(
     _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
   ).pop(count);
+  
+  console.log("sampledPosts:");
+  console.log(sampledPosts);
   
   return await Posts.find(
     { _id: {$in: sampledPosts} },
@@ -94,15 +100,25 @@ const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
 }
 
 const getRecommendations = async ({count, algorithm, currentUser}) => {
+  const scoreFn = post => {
+    const sectionModifier = post.curatedDate
+      ? algorithm.curatedModifier
+      : (post.frontpageDate
+        ? algorithm.frontpageModifier
+        : algorithm.personalBlogpostModifier);
+    const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
+    return Math.max(0, weight);
+  }
+  
   // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
   switch(algorithm.method) {
     case "top": {
-      return await topUnreadPosts({count, currentUser});
+      return await topUnreadPosts({count, currentUser, scoreFn});
     }
     case "sample": {
       return await sampleUnreadPosts({
         count, currentUser,
-        sampleWeightFn: post => Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
+        sampleWeightFn: scoreFn,
       });
     }
     default: {
