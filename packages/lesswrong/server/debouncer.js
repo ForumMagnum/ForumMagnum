@@ -146,7 +146,7 @@ export const dispatchPendingEvents = async () => {
 // would do this interactively if you're testing and don't want to wait.
 export const forcePendingEvents = async () => {
   let eventToHandle = null;
-  const af = getSetting('AlignmentForum', false);
+  const af = getSetting('forumType') === 'AlignmentForum'
   
   do {
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
