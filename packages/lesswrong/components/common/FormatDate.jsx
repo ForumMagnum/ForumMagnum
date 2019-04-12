@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import Tooltip from '@material-ui/core/Tooltip';
 import withTimezone from '../common/withTimezone';
 
-const ExpandedDate = withTimezone(
+export const ExpandedDate = withTimezone(
   ({date, timezone}) =>
     moment(new Date(date)).tz(timezone).format("LLL z")
 );

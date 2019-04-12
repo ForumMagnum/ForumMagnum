@@ -149,6 +149,7 @@ import '../components/posts/PostsUserAndCoauthors.jsx';
 import '../components/posts/PostSubmit.jsx';
 import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
+import '../components/posts/PostsItemDate.jsx';
 
 
 import '../components/votes/VoteButton.jsx';
