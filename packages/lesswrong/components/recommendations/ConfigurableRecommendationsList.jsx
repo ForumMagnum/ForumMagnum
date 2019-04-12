@@ -15,7 +15,10 @@ const styles = theme => ({
 class ConfigurableRecommendationsList extends PureComponent {
   state = {
     settingsVisible: false,
-    algorithm: "top"
+    settings: {
+      algorithm: "top",
+      count: 10
+    }
   }
   
   toggleSettings = () => {
@@ -35,13 +38,13 @@ class ConfigurableRecommendationsList extends PureComponent {
       </SectionTitle>
       { this.state.settingsVisible &&
         <RecommendationsAlgorithmPicker
-          selectedAlgorithm={this.state.algorithm}
-          onPickAlgorithm={(alg) => this.setState({algorithm: alg})}
+          settings={this.state.settings}
+          onChange={(settings) => this.setState({settings: settings})}
         /> }
       <NoSSR>
         <RecommendationsList
-          count={10}
-          method={this.state.algorithm}
+          count={this.state.settings.count}
+          method={this.state.settings.algorithm}
         />
       </NoSSR>
     </SingleColumnSection>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
+import Input from '@material-ui/core/Input';
 
 // Elements here should match switch cases in recommendations.js
 const recommendationAlgorithms = [
@@ -21,19 +22,27 @@ const recommendationAlgorithms = [
   }
 ];
 
-const RecommendationsAlgorithmPicker = ({ onPickAlgorithm, selectedAlgorithm }) => {
+const RecommendationsAlgorithmPicker = ({ settings, onChange }) => {
   return <div>
-    {"Algorithm "}
-    <select
-      onChange={(ev) => onPickAlgorithm(ev.target.value)}
-      value={selectedAlgorithm}
-    >
-      {recommendationAlgorithms.map(algorithm =>
-        <option value={algorithm.name} key={algorithm.name}>
-          {algorithm.description}
-        </option>
-      )}
-    </select>
+    <div>{"Algorithm "}
+      <select
+        onChange={(ev) => onChange({ ...settings, algorithm: ev.target.value })}
+        value={settings.algorithm}
+      >
+        {recommendationAlgorithms.map(algorithm =>
+          <option value={algorithm.name} key={algorithm.name}>
+            {algorithm.description}
+          </option>
+        )}
+      </select>
+    </div>
+    <div>{"Count "}
+      <Input
+        value={settings.count}
+        type="number"
+        onChange={(ev) => onChange({ ...settings, count: ev.target.value })}
+      />
+    </div>
   </div>;
 }
 
