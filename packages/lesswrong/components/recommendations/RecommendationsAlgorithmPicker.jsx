@@ -9,38 +9,41 @@ const recommendationAlgorithms = [
     description: "Top scored"
   },
   {
-    name: "sampleScore2",
-    description: "Sample weighted by score^2"
+    name: "sample",
+    description: "Weighted sample"
   },
-  {
-    name: "sampleScore3",
-    description: "Sample weighted by score^3"
-  },
-  {
-    name: "sampleScore4",
-    description: "Sample weighted by score^4"
-  }
 ];
 
 const RecommendationsAlgorithmPicker = ({ settings, onChange }) => {
   return <div>
     <div>{"Algorithm "}
       <select
-        onChange={(ev) => onChange({ ...settings, algorithm: ev.target.value })}
-        value={settings.algorithm}
+        onChange={(ev) => onChange({ ...settings, method: ev.target.value })}
+        value={settings.method}
       >
-        {recommendationAlgorithms.map(algorithm =>
-          <option value={algorithm.name} key={algorithm.name}>
-            {algorithm.description}
+        {recommendationAlgorithms.map(method =>
+          <option value={method.name} key={method.name}>
+            {method.description}
           </option>
         )}
       </select>
     </div>
     <div>{"Count "}
-      <Input
+      <Input type="number"
         value={settings.count}
-        type="number"
         onChange={(ev) => onChange({ ...settings, count: ev.target.value })}
+      />
+    </div>
+    <div>
+      {"Weight: (score - "}
+      <Input type="number"
+        value={settings.scoreOffset}
+        onChange={(ev) => onChange({ ...settings, scoreOffset: ev.target.value })}
+      />
+      {") ^ "}
+      <Input type="number"
+        value={settings.scoreExponent}
+        onChange={(ev) => onChange({ ...settings, scoreExponent: ev.target.value })}
       />
     </div>
   </div>;

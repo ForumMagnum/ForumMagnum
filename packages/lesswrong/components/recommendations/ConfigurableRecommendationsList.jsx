@@ -16,8 +16,10 @@ class ConfigurableRecommendationsList extends PureComponent {
   state = {
     settingsVisible: false,
     settings: {
-      algorithm: "top",
-      count: 10
+      method: "top",
+      count: 10,
+      scoreOffset: 0,
+      scoreExponent: 3
     }
   }
   
@@ -44,7 +46,7 @@ class ConfigurableRecommendationsList extends PureComponent {
       <NoSSR>
         <RecommendationsList
           count={this.state.settings.count}
-          method={this.state.settings.algorithm}
+          algorithm={this.state.settings}
         />
       </NoSSR>
     </SingleColumnSection>

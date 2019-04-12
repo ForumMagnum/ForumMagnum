@@ -7,8 +7,8 @@ import withUser from '../common/withUser';
 
 const withRecommendations = component => {
   const recommendationsQuery = gql`
-    query RecommendationsQuery($count: Int, $method: String) {
-      Recommendations(count: $count, method: $method) {
+    query RecommendationsQuery($count: Int, $algorithm: JSON) {
+      Recommendations(count: $count, algorithm: $algorithm) {
         ...PostsList
       }
     }
@@ -21,7 +21,7 @@ const withRecommendations = component => {
       options: (props) => ({
         variables: {
           count: props.count || 10,
-          method: props.method || "top",
+          algorithm: props.algorithm || "top",
         }
       }),
       props(props) {

@@ -85,7 +85,7 @@ const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
   ]).toArray();
   
   const sampledPosts = new WeightedList(
-    _.map(unreadPostsMetadata, post => [post._id, Math.pow(post.baseScore, 2)])
+    _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
   ).pop(count);
   
   return await Posts.find(
@@ -93,42 +93,30 @@ const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
   ).fetch();
 }
 
-const getRecommendations = async ({count, method, currentUser}) => {
+const getRecommendations = async ({count, algorithm, currentUser}) => {
   // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
-  switch(method) {
+  switch(algorithm.method) {
     case "top": {
       return await topUnreadPosts({count, currentUser});
     }
-    case "sampleScore2": {
+    case "sample": {
       return await sampleUnreadPosts({
         count, currentUser,
-        sampleWeightFn: post => Math.pow(post.baseScore, 2)
-      });
-    }
-    case "sampleScore3": {
-      return await sampleUnreadPosts({
-        count, currentUser,
-        sampleWeightFn: post => Math.pow(post.baseScore, 2)
-      });
-    }
-    case "sampleScore4": {
-      return await sampleUnreadPosts({
-        count, currentUser,
-        sampleWeightFn: post => Math.pow(post.baseScore, 2)
+        sampleWeightFn: post => Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
       });
     }
     default: {
-      throw new Error(`Unrecognized recommendation algorithm: ${method}`);
+      throw new Error(`Unrecognized recommendation algorithm: ${algorithm.method}`);
     }
   }
 };
 
 addGraphQLResolvers({
   Query: {
-    async Recommendations(root, {count,method}, {currentUser}) {
-      return getRecommendations({count, method, currentUser})
+    async Recommendations(root, {count,algorithm}, {currentUser}) {
+      return getRecommendations({count, algorithm, currentUser})
     }
   }
 });
 
-addGraphQLQuery("Recommendations(count: Int, method: String): [Post!]");
+addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
