@@ -61,7 +61,7 @@ export class EventDebouncer
   //  * key: (JSON)
   //  * data: (JSON)
   //  * af: (bool)
-  recordEvent = async ({key, data, af}) => {
+  recordEvent = async ({key, data, af=false}) => {
     const now = new Date();
     const msPerMin = 60*1000;
     const newDelayTime = new Date(now.getTime() + (this.delayMinutes * msPerMin));
