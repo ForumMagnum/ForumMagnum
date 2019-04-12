@@ -1,4 +1,4 @@
-import React from 'rect';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { ExpandedDate } from '../common/FormatDate.jsx';
@@ -57,10 +57,10 @@ const PostsItemDate = ({post, classes}) => {
   else if (post.curatedDate)
   {
     return (<PostsItemMetaInfo className={classes.postedAt}>
-      <Tooltip title={<React.Fragment>
+      <Tooltip title={<div>
         <div>Curated at <ExpandedDate date={post.curatedDate}/></div>
         <div>Posted at <ExpandedDate date={post.postedAt}/></div>
-      </React.Fragment>}>
+      </div>}>
         {moment(new Date(post.curatedAt)).fromNow()}
       </Tooltip>
     </PostsItemMetaInfo>);
