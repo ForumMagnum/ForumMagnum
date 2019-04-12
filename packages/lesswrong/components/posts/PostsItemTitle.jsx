@@ -123,7 +123,7 @@ const getPostCategory = (post) => {
   return "Personal Blogpost"
 }
 
-const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location, backgroundColor}) => {
+const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location}) => {
   const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
@@ -147,7 +147,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const showEventsTag = !(location.pathname === "/community")
 
   const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
-    <Typography variant="body1" className={classes.title} style={{backgroundColor: backgroundColor}}>
+    <Typography variant="body1" className={classes.title}>
       {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
       {sticky && <span className={classes.sticky}>{stickyIcon}</span>}

@@ -305,7 +305,7 @@ class PostsItem2 extends PureComponent {
             <PostsItemKarma post={post} />
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} backgroundColor={showComments ? COMMENTS_BACKGROUND_COLOR : "white"} sticky={this.isSticky(post, terms)} />
+              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
             </Link>
 
             { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.author}>
