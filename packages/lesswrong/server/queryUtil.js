@@ -20,7 +20,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
     }
   ).fetch();
   
-  do {
+  while(rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
       await callback(rows);
       const lastID = rows[rows.length - 1]._id
@@ -32,7 +32,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
         }
       ).fetch();
     });
-  } while(rows.length > 0)
+  }
 }
 
 // Given a collection, an optional filter, and a target batch size, partition
