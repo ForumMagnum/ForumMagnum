@@ -121,6 +121,7 @@ import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemKarma.jsx';
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
+import '../components/posts/PostsItemIcons.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
 import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';

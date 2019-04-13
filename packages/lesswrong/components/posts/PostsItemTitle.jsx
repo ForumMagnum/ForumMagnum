@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
@@ -6,6 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { withRouter } from '../../lib/reactRouterWrapper.js';
+import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
   root: {
@@ -94,12 +95,6 @@ const styles = theme => ({
       display: "none"
     },
   },
-  postIcon: {
-    marginLeft: theme.spacing.unit,
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
   tag: {
     marginRight: theme.spacing.unit
   }
@@ -120,7 +115,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location}) => {
-  const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
+  const { PostsItemIcons } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
@@ -157,13 +152,9 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
 
     <span>{post.title}</span>
 
-    {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-    
-    {getSetting('forumType') !== 'AlignmentForum' && post.af && postItem2 && 
-      <span className={classes.postIcon}>
-        <PostsItemAlignmentIcon />
-      </span>
-    }
+    {postItem2 && <Hidden smDown implementation="css">
+      <PostsItemIcons post={post}/>
+    </Hidden>}
   </div>
 
   if (postItem2) {

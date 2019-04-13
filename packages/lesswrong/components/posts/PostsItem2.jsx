@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMutation, getActions, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMutation, getActions } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -14,6 +14,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import Hidden from '@material-ui/core/Hidden';
 
 export const MENU_WIDTH = 18
 export const AUTHOR_WIDTH = 140
@@ -179,14 +180,6 @@ const styles = (theme) => ({
     color: theme.palette.grey[500],
     textAlign: "right",
   },
-  postIcon: {
-    display: "none",
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
-  },
   commentsIcon: {
     width: COMMENTS_WIDTH,
     cursor: "pointer",
@@ -293,13 +286,20 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, chapter, currentUser, index, terms } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
+    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsPageActions, PostsItemIcons } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
     return (
       <div className={classes.root} ref={this.postsItemRef}>
-        <div className={classNames(classes.background, {[classes.commentsBackground]: showComments,[classes.firstItem]: (index===0) && showComments, "personalBlogpost": !post.frontpageDate})}>
+        <div className={classNames(
+          classes.background,
+          {
+            [classes.commentsBackground]: showComments,
+            [classes.firstItem]: (index===0) && showComments,
+            "personalBlogpost": !post.frontpageDate
+          }
+        )}>
           <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
             <PostsItemKarma post={post} />
 
@@ -333,8 +333,9 @@ class PostsItem2 extends PureComponent {
               <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
             </div>}
 
-            {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
-            {getSetting('forumType') !== 'AlignmentForum' && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+            <Hidden mdUp implementation="css">
+              <PostsItemIcons post={post}/>
+            </Hidden>
 
             <div className={classes.commentsIcon}>
               <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
@@ -355,7 +356,6 @@ class PostsItem2 extends PureComponent {
           </div>}
         </div>
       </div>
-
     )
   }
 }
