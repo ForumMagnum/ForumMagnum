@@ -17,25 +17,19 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import Hidden from '@material-ui/core/Hidden';
 
 export const MENU_WIDTH = 18
-export const AUTHOR_WIDTH = 140
 export const EVENT_WIDTH = 110
-export const KARMA_WIDTH = 28
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 export const COMMENTS_WIDTH = 48
 export const LIST_PADDING = 16
 
-const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH - LIST_PADDING
-
-const EVENT_TITLE_WIDTH = SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH - LIST_PADDING
-
 const COMMENTS_BACKGROUND_COLOR = grey[200]
 
 const styles = (theme) => ({
   root: {
-    display: "flex",
     position: "relative",
     width: SECTION_WIDTH,
+    paddingRight: LIST_PADDING,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
@@ -47,14 +41,15 @@ const styles = (theme) => ({
     display: "flex",
     paddingTop: theme.spacing.unit*1.5,
     paddingBottom: theme.spacing.unit*1.5,
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
     alignItems: "center",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: "wrap",
+    },
   },
   background: {
     transition: "3s",
-    backgroundColor: "none",
-    width: SECTION_WIDTH - LIST_PADDING,
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     }
@@ -87,7 +82,11 @@ const styles = (theme) => ({
   },
   title: {
     height: 22,
-    maxWidth: TITLE_WIDTH,
+    flexGrow: 1,
+    flexShrink: 1,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    marginRight: 12,
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
@@ -101,9 +100,7 @@ const styles = (theme) => ({
     }
   },
   author: {
-    width: AUTHOR_WIDTH,
     justifyContent: "flex-end",
-    flex: 1,
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
@@ -111,7 +108,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "unset",
-      maxWidth: AUTHOR_WIDTH,
       marginLeft: 0,
       flex: "unset"
     }
@@ -135,14 +131,11 @@ const styles = (theme) => ({
   postedAt: {
     '&&': {
       width: POSTED_AT_WIDTH,
-      justifyContent: "center",
       fontWeight: 300,
       fontSize: "1rem",
       color: "rgba(0,0,0,.9)",
       [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
+        width: "auto",
       }
     }
   },
@@ -155,7 +148,7 @@ const styles = (theme) => ({
       color: "rgba(0,0,0,.9)",
       [theme.breakpoints.down('sm')]: {
         justifyContent: "flex-start",
-        width: "none",
+        width: "auto",
         flexGrow: 1,
       }
     }
@@ -175,6 +168,7 @@ const styles = (theme) => ({
   },
   commentsIcon: {
     width: COMMENTS_WIDTH,
+    height: 24,
     cursor: "pointer",
     position: "relative",
     flexShrink: 0,
@@ -202,6 +196,12 @@ const styles = (theme) => ({
     position: "absolute",
     top: 0,
   },
+  mobileSecondRowSpacer: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
+    flexGrow: 1,
+  },
   mobileActions: {
     cursor: "pointer",
     width: MENU_WIDTH,
@@ -211,6 +211,13 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: "block"
     }
+  },
+  metaInfo: {
+    color: theme.palette.grey[600],
+    fontSize: "1.1rem",
+    textAlign: "center",
+    flexShrink: 0,
+    flexGrow: 0,
   },
 })
 
@@ -279,9 +286,18 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, chapter, currentUser, index, terms } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsPageActions, PostsItemIcons } = Components
+    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsPageActions, PostsItemIcons } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+    
+    const MetaInfo = ({children, className}) => {
+      return <Typography
+        component='span'
+        className={classNames(classes.metaInfo, className)}
+        variant='body2'>
+          {children}
+      </Typography>
+    }
 
     return (
       <div className={classes.root} ref={this.postsItemRef}>
@@ -290,31 +306,32 @@ class PostsItem2 extends PureComponent {
           {
             [classes.commentsBackground]: showComments,
             [classes.firstItem]: (index===0) && showComments,
-            "personalBlogpost": !post.frontpageDate
+            "personalBlogpost": !post.frontpageDate,
+            [classes.commentBox]: showComments
           }
         )}>
-          <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
-            <PostsItemMetaInfo className={classes.karma}>
+          <div className={classes.postsItem}>
+            <MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
-            </PostsItemMetaInfo>
+            </MetaInfo>
 
             <Link to={postLink} className={classes.title}>
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
             </Link>
 
-            { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.author}>
+            { post.user && !post.isEvent && <MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post}/>
-            </PostsItemMetaInfo>}
+            </MetaInfo>}
 
-            { post.isEvent && <PostsItemMetaInfo className={classes.event}>
+            { post.isEvent && <MetaInfo className={classes.event}>
               <EventVicinity post={post} />
-            </PostsItemMetaInfo>}
+            </MetaInfo>}
 
-            {post.postedAt && !post.isEvent && <PostsItemMetaInfo className={classes.postedAt}>
+            {post.postedAt && !post.isEvent && <MetaInfo className={classes.postedAt}>
               <FormatDate date={post.postedAt}/>
-            </PostsItemMetaInfo>}
+            </MetaInfo>}
 
-            { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
+            { post.isEvent && <MetaInfo className={classes.startTime}>
               {post.startTime
                 ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
                     <FormatDate date={post.startTime} format={"MMM Do"}/>
@@ -322,8 +339,10 @@ class PostsItem2 extends PureComponent {
                 : <Tooltip title={<span>To Be Determined</span>}>
                     <span>TBD</span>
                   </Tooltip>}
-            </PostsItemMetaInfo>}
+            </MetaInfo>}
 
+            <div className={classes.mobileSecondRowSpacer}/>
+            
             {<div className={classes.mobileActions}>
               <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
             </div>}
@@ -336,18 +355,19 @@ class PostsItem2 extends PureComponent {
               <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
             </div>
 
-            {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
-              <Components.PostsItemNewCommentsWrapper
-                currentUser={currentUser}
-                highlightDate={post.lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
-                post={post}
-              />
-              <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
-            </div>}
           </div>
           {<div className={classes.actions}>
             <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
+          </div>}
+          
+          {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
+            <Components.PostsItemNewCommentsWrapper
+              currentUser={currentUser}
+              highlightDate={post.lastVisitedAt}
+              terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
+              post={post}
+            />
+            <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
           </div>}
         </div>
       </div>

@@ -6,21 +6,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { withRouter } from '../../lib/reactRouterWrapper.js';
-import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
   root: {
     color: "rgba(0,0,0,.87)",
-    display: "flex",
     position: "relative",
     lineHeight: "2rem",
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
-    },
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "space-between",
-      flexGrow: 1,
     },
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -28,7 +22,6 @@ const styles = theme => ({
     alignItems: "center",
     fontSize: "1.4rem",
     [theme.breakpoints.down('sm')]: {
-      maxWidth: "unset",
       whiteSpace: "unset",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -48,6 +41,11 @@ const styles = theme => ({
     textShadow: "none",
     '&:hover': {
       opacity: 1
+    }
+  },
+  hideSmDown: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
     }
   },
   tooltip:{
@@ -137,7 +135,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const showQuestionsTag = !(location.pathname === "/questions")
   const showEventsTag = !(location.pathname === "/community")
 
-  const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
+  const postTitle = <span className={classNames(classes.root, {[classes.read]:read})}>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
@@ -152,10 +150,10 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
 
     <span>{post.title}</span>
 
-    {postItem2 && <Hidden smDown implementation="css">
+    {postItem2 && <span className={classes.hideSmDown}>
       <PostsItemIcons post={post}/>
-    </Hidden>}
-  </div>
+    </span>}
+  </span>
 
   if (postItem2) {
     return <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>
