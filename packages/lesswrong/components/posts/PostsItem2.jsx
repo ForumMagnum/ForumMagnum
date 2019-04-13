@@ -298,10 +298,9 @@ class PostsItem2 extends PureComponent {
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
     return (
-      <div className={classes.root}>
+      <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(classes.background, {[classes.commentsBackground]: showComments,[classes.firstItem]: (index===0) && showComments, "personalBlogpost": !post.frontpageDate})}>
           <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
-            <div ref={this.postsItemRef}/>
             <PostsItemKarma post={post} />
 
             <Link to={postLink} className={classes.title}>
