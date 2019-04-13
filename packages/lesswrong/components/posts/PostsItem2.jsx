@@ -74,6 +74,17 @@ const styles = (theme) => ({
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
+  karma: {
+    width: 28,
+    justifyContent: "center",
+    marginLeft: 4,
+    marginRight: 10,
+    [theme.breakpoints.down('sm')]:{
+      width: "unset",
+      justifyContent: "flex-start",
+      marginLeft: 2
+    }
+  },
   title: {
     height: 22,
     maxWidth: TITLE_WIDTH,
@@ -283,7 +294,9 @@ class PostsItem2 extends PureComponent {
           }
         )}>
           <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
-            <PostsItemKarma post={post} />
+            <PostsItemMetaInfo className={classes.karma}>
+              <PostsItemKarma post={post} />
+            </PostsItemMetaInfo>
 
             <Link to={postLink} className={classes.title}>
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
