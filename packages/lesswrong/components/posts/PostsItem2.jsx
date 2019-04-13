@@ -71,18 +71,6 @@ const styles = (theme) => ({
       padding: theme.spacing.unit
     }
   },
-  karma: {
-    width: KARMA_WIDTH,
-    justifyContent: "center",
-    marginLeft: 4,
-    marginRight: 14,
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
-      width: "unset",
-      marginLeft: 0,
-      marginRight: theme.spacing.unit*2
-    }
-  },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
@@ -99,12 +87,6 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
-    }
-  },
-  eventTitle: {
-    maxWidth: EVENT_TITLE_WIDTH,
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: "unset",
     }
   },
   author: {
