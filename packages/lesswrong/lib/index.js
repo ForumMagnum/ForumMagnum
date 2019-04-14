@@ -1,6 +1,6 @@
 
 // Settings
-import './settings.js'
+import './registerSettings.js'
 // schema utils
 import './modules/utils/schemaUtils.js'
 // Permissions
