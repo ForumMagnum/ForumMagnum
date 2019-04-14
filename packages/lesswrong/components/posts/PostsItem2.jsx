@@ -46,7 +46,7 @@ const styles = (theme) => ({
     display: "flex",
     paddingTop: theme.spacing.unit*1.5,
     paddingBottom: theme.spacing.unit*1.5,
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    borderBottom: "solid 0.5px rgba(0,0,0,.2)",
     alignItems: "center",
     flexWrap: "wrap",
   },
