@@ -1,6 +1,6 @@
 import { Posts } from "../posts";
 import { Comments } from './collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { performVoteServer } from '../../../server/voteServer.js';
 import { createError } from 'apollo-errors';
@@ -144,7 +144,7 @@ function UsersRemoveDeleteComments (user, options) {
 }
 addCallback('users.remove.async', UsersRemoveDeleteComments);
 
-registerSetting('forum.commentInterval', 15, 'How long users should wait in between comments (in seconds)');
+
 
 function CommentsNewRateLimit (comment, user) {
   if (!Users.isAdmin(user)) {

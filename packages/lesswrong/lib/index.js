@@ -1,10 +1,6 @@
-import {registerSetting} from 'meteor/vulcan:core'
 
-registerSetting('forumType', 'LessWrong', 'What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}')
-
-// TODO-Q what's this comment for / is it still relevant?
-// # Vulcan Modifications
-
+// Settings
+import './settings.js'
 // schema utils
 import './modules/utils/schemaUtils.js'
 // Permissions

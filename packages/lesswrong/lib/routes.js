@@ -32,6 +32,7 @@ addRoute({ name: 'Sequences', path: '/sequences', componentName: 'CoreSequences'
 addRoute({ name: 'Rationality', path: '/rationality', componentName: 'CoreSequences', title: "Rationality: A-Z" })
 addRoute({ name: 'Rationality.posts.single', path: '/rationality/:slug', componentName: 'PostsSingleSlugWrapper'})
 
+console.log("getSetting without defaultValue: ", getSetting('forumType'))
 if (getSetting('forumType') === 'LessWrong') {
   addRoute({
     name: 'HPMOR',
