@@ -19,6 +19,9 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
+    [theme.breakpoints.down('xs')]: {
+      top: 48,
+    },
     "& .ais-CurrentRefinements": {
       display: 'inline-block',
       position: 'absolute',
