@@ -214,7 +214,7 @@ import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx'
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
-
+import '../components/comments/SingleLineComment.jsx';
 
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';

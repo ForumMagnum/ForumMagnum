@@ -57,8 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1 } = this.props;
-
+    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1 } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -85,6 +84,7 @@ class CommentsList extends Component {
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
+                condensed={condensed}
               />)
             }
           </div>

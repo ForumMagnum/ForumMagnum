@@ -59,7 +59,10 @@ const styles = theme => ({
   },
   answerLeafComment: {
     paddingBottom: 0
-  }
+  },
+  condensed: {
+    marginBottom: -1
+  },
 })
 
 class CommentsNode extends Component {
@@ -90,8 +93,8 @@ class CommentsNode extends Component {
   }
 
   beginTruncated = () => {
-    const { nestingLevel, startThreadTruncated } = this.props
-    return startThreadTruncated && nestingLevel === 1
+    const { startThreadCollapsed } = this.props
+    return startThreadCollapsed
   }
 
   componentDidMount() {
@@ -122,16 +125,15 @@ class CommentsNode extends Component {
 
   unTruncate = (event) => {
     const { parentAnswerId } = this.props
-    if (!parentAnswerId) {
+    if (!parentAnswerId && !this.isSingleLine()) {
       event.stopPropagation()
     }
     this.setState({truncated: false, truncatedStateSet: true});
   }
 
   toggleHover = () => {
-    this.setState({hover: !this.state.hover});
+    this.setState(prevState => ({hover: !prevState.hover}));
   }
-
 
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
@@ -160,17 +162,30 @@ class CommentsNode extends Component {
     return false;
   }
 
+  isTruncated = () => {
+    const { comment, expandAllThreads } = this.props;
+    const { truncatedStateSet } = this.state
+
+    return !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
+  }
+
+  isSingleLine = () => {
+    const { comment, condensed } = this.props 
+    return this.isTruncated() && (comment.baseScore < 10 || condensed) 
+  }
+
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, parentAnswerId } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
+
+    const { SingleLineComment, CommentsItem } = Components
 
     if (!comment || !post)
       return null;
 
-    const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
-
-    const truncated = !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
+    const { hover, collapsed, finishedScroll } = this.state
 
     const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+
     const nodeClass = classNames(
       "comments-node",
       classes.node,
@@ -197,7 +212,8 @@ class CommentsNode extends Component {
         [classes.answerChildComment]: parentAnswerId,
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
-        [classes.answerLeafComment]: !(children && children.length)
+        [classes.answerLeafComment]: !(children && children.length),
+        [classes.condensed]: condensed && this.isSingleLine(),
       }
     )
 
@@ -210,9 +226,10 @@ class CommentsNode extends Component {
           id={comment._id}>
           {/*eslint-disable-next-line react/no-string-refs*/}
           <div ref="comment">
-            <Components.CommentsItem
+            {this.isSingleLine() ? <SingleLineComment comment={comment} />
+              : <CommentsItem
               collapsed={collapsed}
-              truncated={truncated}
+              truncated={this.isTruncated()}
               toggleCollapse={this.toggleCollapse}
               currentUser={currentUser}
               comment={comment}
@@ -224,7 +241,7 @@ class CommentsNode extends Component {
               nestingLevel={nestingLevel}
               showPostTitle={showPostTitle}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-            />
+            />}
           </div>
           {!collapsed && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
@@ -233,7 +250,7 @@ class CommentsNode extends Component {
                 currentUser={currentUser}
                 comment={child.item}
                 nestingLevel={nestingLevel+1}
-                truncated={truncated}
+                truncated={this.isTruncated()}
                 unreadComments={unreadComments}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
