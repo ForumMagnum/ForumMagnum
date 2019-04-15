@@ -8,7 +8,7 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],

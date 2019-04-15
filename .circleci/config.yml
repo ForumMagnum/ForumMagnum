@@ -488,10 +488,7 @@ workflows:
       - hold:
           type: approval
           requires:
-            - test
+            - build
       - deploy_baserates:
-          filters:
-            branches:
-              only: devel
           requires:
             - hold

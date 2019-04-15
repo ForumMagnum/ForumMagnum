@@ -61,7 +61,7 @@ export class EventDebouncer
   //  * key: (JSON)
   //  * data: (JSON)
   //  * af: (bool)
-  recordEvent = async ({key, data, af}) => {
+  recordEvent = async ({key, data, af=false}) => {
     const now = new Date();
     const msPerMin = 60*1000;
     const newDelayTime = new Date(now.getTime() + (this.delayMinutes * msPerMin));
@@ -109,7 +109,7 @@ const dispatchEvent = async (event) => {
 
 export const dispatchPendingEvents = async () => {
   const now = new Date().getTime();
-  const af = getSetting('AlignmentForum', false);
+  const af = getSetting('forumType') === 'AlignmentForum'
   let eventToHandle = null;
   
   do {
@@ -146,7 +146,7 @@ export const dispatchPendingEvents = async () => {
 // would do this interactively if you're testing and don't want to wait.
 export const forcePendingEvents = async () => {
   let eventToHandle = null;
-  const af = getSetting('AlignmentForum', false);
+  const af = getSetting('forumType') === 'AlignmentForum'
   
   do {
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(

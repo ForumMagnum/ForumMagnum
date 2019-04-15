@@ -59,7 +59,7 @@ class UsersMenu extends PureComponent {
 
     if (!currentUser) return null;
 
-    const showNewButtons = !getSetting('AlignmentForum') || Users.canDo(currentUser, 'posts.alignment.new')
+    const showNewButtons = getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')
     const showNewShortformButton = showNewButtons && !!currentUser.shortformFeedId
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
@@ -69,7 +69,7 @@ class UsersMenu extends PureComponent {
         <Button onClick={this.handleClick}>
           <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
-            {getSetting('AlignmentForum', false) && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+            {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
           </span>
         </Button>
         <Menu
@@ -93,7 +93,7 @@ class UsersMenu extends PureComponent {
                 <MenuItem>Shortform Feed</MenuItem>
               </Link>
             }
-            { getSetting('AlignmentForum', false) && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
+            { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
             <Link to={`/users/${currentUser.slug}`}>
