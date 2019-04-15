@@ -58,8 +58,8 @@ const PostsItemDate = ({post, classes}) => {
   {
     return (<PostsItemMetaInfo className={classes.postedAt}>
       <Tooltip title={<div>
-        <div>Curated at <ExpandedDate date={post.curatedDate}/></div>
-        <div>Posted at <ExpandedDate date={post.postedAt}/></div>
+        <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
+        <div>Posted on <ExpandedDate date={post.postedAt}/></div>
       </div>}>
         <span>{moment(new Date(post.curatedDate)).fromNow()}</span>
       </Tooltip>
