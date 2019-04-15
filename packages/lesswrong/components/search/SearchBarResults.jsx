@@ -19,9 +19,6 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
-    [theme.breakpoints.down('xs')]: {
-      top: 48,
-    },
     "& .ais-CurrentRefinements": {
       display: 'inline-block',
       position: 'absolute',
@@ -42,6 +39,7 @@ const styles = theme => ({
     width: "100%",
     height: "calc(100vh - 48px)",
     backgroundColor: theme.palette.background.default,
+    paddingBottom: 100,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,
       boxShadow: "0 0 20px rgba(0,0,0,.2)",
