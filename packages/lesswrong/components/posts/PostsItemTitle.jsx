@@ -20,7 +20,7 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     alignItems: "center",
-    fontSize: "1.4rem",
+    fontSize: "1.3rem",
     [theme.breakpoints.down('sm')]: {
       whiteSpace: "unset",
     },
