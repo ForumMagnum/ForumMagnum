@@ -5,10 +5,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme) => ({
   root: {
-    width: 28,
+    width: 42,
     justifyContent: "center",
-    marginLeft: 4,
-    marginRight: 10,
     [theme.breakpoints.down('sm')]:{
       width: "unset",
       justifyContent: "flex-start",

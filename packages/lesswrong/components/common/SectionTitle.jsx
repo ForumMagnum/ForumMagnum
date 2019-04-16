@@ -11,7 +11,6 @@ const styles = (theme) => ({
     alignItems: "center",
     marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit
   },
   title: {
     margin:0,
@@ -29,7 +28,6 @@ const styles = (theme) => ({
   rightDivider: {
     flexGrow:1,
     marginLeft: theme.spacing.unit*1.5,
-    marginRight: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)"
   },
   noTitle: {
@@ -37,13 +35,8 @@ const styles = (theme) => ({
   },
   tailDivider: {
     marginLeft: theme.spacing.unit*1.5,
-    marginRight: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)",
     width: theme.spacing.unit*4,
-    [theme.breakpoints.down('sm')]: {
-      width: theme.spacing.unit*2,
-      marginRight: 0
-    },
   },
 })
 class SectionTitle extends PureComponent {
