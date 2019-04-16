@@ -18,15 +18,14 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 export const MENU_WIDTH = 18
 export const AUTHOR_WIDTH = 140
 export const EVENT_WIDTH = 110
-export const KARMA_WIDTH = 28
+export const KARMA_WIDTH = 42
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 export const COMMENTS_WIDTH = 48
-export const LIST_PADDING = 16
 
-const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH - LIST_PADDING
+const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH
 
-const EVENT_TITLE_WIDTH = SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH - LIST_PADDING
+const EVENT_TITLE_WIDTH = SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH
 
 const COMMENTS_BACKGROUND_COLOR = grey[200]
 
@@ -53,10 +52,7 @@ const styles = (theme) => ({
   background: {
     transition: "3s",
     backgroundColor: "none",
-    width: SECTION_WIDTH - LIST_PADDING,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%"
-    }
+    width: "100%",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -235,10 +231,12 @@ class PostsItem2 extends PureComponent {
     this.postsItemRef = React.createRef();
   }
 
-  toggleComments = () => {
+  toggleComments = (scroll) => {
     this.handleMarkAsRead()
     this.setState((prevState) => {
-      this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      if (scroll) {
+        this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      }
       return ({
         showComments:!prevState.showComments,
         readComments: true
@@ -338,10 +336,10 @@ class PostsItem2 extends PureComponent {
             {getSetting('forumType') !== 'AlignmentForum' && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
 
             <div className={classes.commentsIcon}>
-              <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
+              <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
             </div>
 
-            {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
+            {this.state.showComments && <div className={classes.newCommentsSection} onClick={()=> this.toggleComments(true)}>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={post.lastVisitedAt}

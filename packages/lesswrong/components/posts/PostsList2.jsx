@@ -50,7 +50,6 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
   if (!results && loading) return <Loading />
-  if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
   const limit = (paginationTerms && paginationTerms.limit) || 10
 
@@ -62,6 +61,8 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
       {loading && showLoading && dimWhenLoading && <Loading />}
+      {results && !results.length && showNoResults && <PostsNoResults />}
+      
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
       <SectionFooter>
         {(showLoadMore) &&
