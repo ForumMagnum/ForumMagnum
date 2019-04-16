@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
-import Tooltip from '@material-ui/core/Tooltip';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
@@ -15,12 +14,12 @@ import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
+import { POSTED_AT_WIDTH, START_TIME_WIDTH } from './PostsItemDate.jsx';
+
 export const MENU_WIDTH = 18
 export const AUTHOR_WIDTH = 140
 export const EVENT_WIDTH = 110
 export const KARMA_WIDTH = 42
-export const POSTED_AT_WIDTH = 38
-export const START_TIME_WIDTH = 72
 export const COMMENTS_WIDTH = 48
 
 const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH
@@ -132,34 +131,6 @@ const styles = (theme) => ({
       maxWidth: EVENT_WIDTH,
       marginLeft: 0,
       flex: "unset"
-    }
-  },
-  postedAt: {
-    '&&': {
-      width: POSTED_AT_WIDTH,
-      justifyContent: "center",
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
-      }
-    }
-  },
-  startTime: {
-    '&&': {
-      width: START_TIME_WIDTH,
-      justifyContent: "center",
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
-      }
     }
   },
   newCommentsSection: {
@@ -291,7 +262,7 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, chapter, currentUser, index, terms } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
+    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
@@ -314,19 +285,7 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItemMetaInfo>}
 
-            {post.postedAt && !post.isEvent && <PostsItemMetaInfo className={classes.postedAt}>
-              <FormatDate date={post.postedAt}/>
-            </PostsItemMetaInfo>}
-
-            { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
-              {post.startTime
-                ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
-                    <FormatDate date={post.startTime} format={"MMM Do"}/>
-                  </Tooltip>
-                : <Tooltip title={<span>To Be Determined</span>}>
-                    <span>TBD</span>
-                  </Tooltip>}
-            </PostsItemMetaInfo>}
+            <Components.PostsItemDate post={post}/>
 
             {<div className={classes.mobileActions}>
               <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
