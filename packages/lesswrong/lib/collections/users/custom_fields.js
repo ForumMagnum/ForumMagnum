@@ -140,7 +140,7 @@ addFieldsDict(Users, {
           {value:'postCommentsNew', label: 'most recent'},
           {value:'postCommentsOld', label: 'oldest'},
         ];
-        if (getSetting('AlignmentForum', false)) {
+        if (getSetting('forumType') === 'AlignmentForum') {
           return commentViews.concat([
             {value:'postLWComments', label: 'magical algorithm (include LW)'}
           ])

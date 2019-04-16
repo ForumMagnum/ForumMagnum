@@ -106,8 +106,8 @@ const UsersProfile = (props) => {
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
 
     return <div className={classes.meta}>
-      { !getSetting('AlignmentForum', false) && <StarIcon className={classNames(classes.icon, classes.specificalz)}/>}
-      { !getSetting('AlignmentForum', false) && <Components.MetaInfo title="Karma">
+      { getSetting('forumType') !== 'AlignmentForum' && <StarIcon className={classNames(classes.icon, classes.specificalz)}/>}
+      { getSetting('forumType') !== 'AlignmentForum' && <Components.MetaInfo title="Karma">
         {karma || 0}
       </Components.MetaInfo>}
       { !!afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
@@ -117,11 +117,11 @@ const UsersProfile = (props) => {
       }
       <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
       <Components.MetaInfo title="Posts">
-        { !getSetting('AlignmentForum', false) ? postCount || 0 : afPostCount || 0}
+        { getSetting('forumType') !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0}
       </Components.MetaInfo>
       <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
       <Components.MetaInfo title="Comments">
-        { !getSetting('AlignmentForum', false) ? commentCount || 0 : afCommentCount || 0}
+        { getSetting('forumType') !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0}
       </Components.MetaInfo>
     </div>
   }
@@ -172,7 +172,7 @@ const UsersProfile = (props) => {
   }
 
   const displaySequenceSection = (canEdit, user)  => {
-    if (getSetting('AlignmentForum', false)) {
+    if (getSetting('forumType') === 'AlignmentForum') {
         return ((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || (!canEdit && user.afSequenceCount)
     } else {
         return ((canEdit && user.sequenceDraftCount) || user.sequenceCount) || (!canEdit && user.sequenceCount)
@@ -191,8 +191,7 @@ const UsersProfile = (props) => {
         >
           <Components.SequencesGridWrapper
             terms={canEdit ? sequenceAllTerms : sequenceTerms}
-            showLoadMore={true}
-          className="books-sequences-grid-list" />
+            showLoadMore={true}/>
         </Components.Section>
       )
     }

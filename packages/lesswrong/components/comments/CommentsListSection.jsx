@@ -75,7 +75,7 @@ class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     const {lastEvent, post} = this.props;
-    
+
     this.state = {
       highlightDate:
         (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
@@ -159,7 +159,7 @@ class CommentsListSection extends Component {
         </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
-        
+
         {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>

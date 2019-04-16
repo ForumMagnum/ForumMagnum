@@ -6,11 +6,9 @@ Post validation and rate limiting callbacks
 
 import { Posts } from '../../../lib/collections/posts'
 import Users from 'meteor/vulcan:users';
-import { addCallback, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { createError } from 'apollo-errors';
 
-registerSetting('forum.postInterval', 30, 'How long users should wait between each posts, in seconds');
-registerSetting('forum.maxPostsPerDay', 5, 'Maximum number of posts a user can create in a day');
 
 /**
  * @summary Rate limiting

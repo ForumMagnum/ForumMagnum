@@ -3,7 +3,7 @@ import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex } from '../../collectionUtils';
 
 Sequences.addDefaultView(terms => {
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,

@@ -1,5 +1,6 @@
-// # Vulcan Modifications
 
+// Settings
+import './registerSettings.js'
 // schema utils
 import './modules/utils/schemaUtils.js'
 // Permissions
@@ -150,7 +151,6 @@ import './modules/alignment-forum/users/callbacks.js';
 import './modules/alignment-forum/users/custom_fields.js';
 import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
-
 
 
 //

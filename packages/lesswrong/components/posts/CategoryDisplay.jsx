@@ -57,7 +57,7 @@ class CategoryDisplay extends PureComponent {
   render() {
     const { post, read, classes } = this.props;
 
-    const categoryIcon = (getSetting('AlignmentForum', false) && "brightness_1") || (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
+    const categoryIcon = (getSetting('forumType') === 'AlignmentForum' && "brightness_1") || (post.curatedDate && "star") || (post.meta && "details") || (!post.frontpageDate && "perm_identity") || (post.frontpageDate && "supervisor_account");
 
     if (categoryIcon) {
       return (
