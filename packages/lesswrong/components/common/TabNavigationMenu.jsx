@@ -1,5 +1,5 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
@@ -23,7 +23,7 @@ const styles = (theme) => ({
     [theme.breakpoints.up('lg')]: {
       top: 64,
       left:0,
-      width:270,
+      width:260,
     },
     [theme.breakpoints.down('md')]: {
       position: "unset",
@@ -204,7 +204,7 @@ const TabNavigationMenu = ({
 
         <Tooltip placement="right-start" title={<div>
             <p>
-              LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence. 
+              LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence.
             </p>
             <p>
               Those posts have been edited down into this introductory collection, recommended for new users.
@@ -231,7 +231,7 @@ const TabNavigationMenu = ({
               What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.
             </p>
           </div>}>
-          <Link to="/codex">
+          <Link to="/hpmor">
             <TabNavigationSubItem>
               HPMOR
             </TabNavigationSubItem>

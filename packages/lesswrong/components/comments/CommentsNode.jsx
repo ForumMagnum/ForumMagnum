@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -45,22 +45,14 @@ const styles = theme => ({
     }
   },
   isAnswer: {
-    borderLeft: 'transparent',
-    borderRight: 'solid 1px rgba(0,0,0,.125)',
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
+    border: `solid 2px ${theme.palette.grey[300]}`,
   },
   answerChildComment: {
-    borderLeft: 'transparent',
-    borderRight: 'transparent',
-    borderTop: 'transparent',
-    paddingBottom: 1,
-    marginBottom: 0
+    marginBottom: theme.spacing.unit,
+    border: `solid 1px ${theme.palette.grey[300]}`,
   },
   childAnswerComment: {
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
-    marginBottom: 8
+    borderRight: "none"
   },
   oddAnswerComment: {
     backgroundColor: 'white'

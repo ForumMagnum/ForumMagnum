@@ -7,10 +7,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const PostsPageQuestionContent = ({post, currentUser}) => {
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation } = Components
+  
   return (
-
     <div>
-      <NewAnswerCommentQuestionForm post={post} alignmentForumPost={post.af}/>
+      {(!currentUser || Users.isAllowedToComment(currentUser, post)) && <NewAnswerCommentQuestionForm post={post} />}
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }

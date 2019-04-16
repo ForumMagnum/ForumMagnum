@@ -2,7 +2,7 @@ import { Components, registerComponent, withList} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { Error404 } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const PostsSingleSlug = ({results, loading, router}) => {
   const version = router.location && router.location.query && router.location.query.revision

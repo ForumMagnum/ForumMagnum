@@ -21,7 +21,7 @@ const styles = theme => ({
 const CantCommentExplanation = ({currentUser, post, classes}) =>
   <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
     { Users.blockedCommentingReason(currentUser, post)}
-    { !(getSetting('AlignmentForum', false)) && <span>
+    { getSetting('forumType') !== 'AlignmentForum' && <span>
       (Questions? Send an email to <a className={classes.emailLink} href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
     </span> }
   </div>

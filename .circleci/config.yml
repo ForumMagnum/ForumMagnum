@@ -361,8 +361,7 @@ jobs:
       - run:
           name: convert environment variables into files
           command: |
-            echo "$settings_baserates_dev" > settings.json
-            echo "$meteor_token" > token.json
+            echo "$settings_baserates" > settings.json
             echo "$mup_settings_baserates_dev" > mup.secret
       - run:
           name: Install sentry-cli
@@ -380,9 +379,6 @@ jobs:
             meteor sentry-cli releases new -p lesswrong $SENTRY_VERSION
             meteor sentry-cli releases set-commits --auto $SENTRY_VERSION
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
-      - run:
-          name: Validate mup settings and print
-          command: meteor mup validate --scrub
       - deploy:
           environment:
             METEOR_PACKAGE_DIRS: ../Vulcan/packages
@@ -492,10 +488,7 @@ workflows:
       - hold:
           type: approval
           requires:
-            - test
+            - build
       - deploy_baserates:
-          filters:
-            branches:
-              only: devel
           requires:
             - hold

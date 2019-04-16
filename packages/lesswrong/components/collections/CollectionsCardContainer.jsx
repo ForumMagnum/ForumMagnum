@@ -6,14 +6,16 @@ const styles = theme => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
-    justifyContent: "space-between",
     marginTop: -5,
-    marginLeft: -19,
+    marginRight: "auto",
+    marginLeft: "auto",
+    width: 695,
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",
       padding: 0,
       marginTop: 0,
+      width: "unset"
     }
   }
 })

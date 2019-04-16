@@ -5,10 +5,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme) => ({
   root: {
-    width: 28,
+    width: 42,
     justifyContent: "center",
-    marginLeft: 4,
-    marginRight: 10,
     [theme.breakpoints.down('sm')]:{
       width: "unset",
       justifyContent: "flex-start",
@@ -19,8 +17,8 @@ const styles = (theme) => ({
 
 const PostsItemKarma = ({classes, post}) => {
   const { PostsItemMetaInfo} = Components
-  const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
-  const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
 
   return (
     <PostsItemMetaInfo className={classes.root}>

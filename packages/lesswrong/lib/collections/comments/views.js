@@ -8,7 +8,7 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId');
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
@@ -241,3 +241,9 @@ Comments.addView('repliesToAnswer', function (terms) {
   };
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
+
+// Used in moveToAnswers
+ensureIndex(Comments, {topLevelCommentId:1});
+
+// Used in findCommentByLegacyAFId
+ensureIndex(Comments, {agentFoundationsId:1});

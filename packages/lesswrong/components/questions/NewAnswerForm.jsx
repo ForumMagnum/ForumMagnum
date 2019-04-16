@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -50,27 +50,38 @@ const FormGroupComponent = (props) => {
   </React.Fragment>
 }
 
-const NewAnswerForm = ({post, classes, currentUser}) => {
+const NewAnswerForm = ({post, classes, flash, currentUser}) => {
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
       <Button
         type="submit"
         className={classNames(classes.formButton)}
+        onClick={(ev) => {
+          if (!currentUser) {
+            const isAF = getSetting('forumType') === 'AlignmentForum';
+            const message = (isAF
+              ? "Log in or go to LessWrong to submit your answer."
+              : "Log in to submit your answer."
+            );
+            flash({messageString: message});
+            ev.preventDefault();
+          }
+        }}
       >
         {submitLabel}
       </Button>
     </div>
   }
 
-  const prefilledProps = { 
-    postId: post._id, 
+  const prefilledProps = {
+    postId: post._id,
     answer: true,
     af: Comments.defaultToAlignment(currentUser, post),
   }
   const { SmartForm } = Components
   
-  if (!Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
   
@@ -84,6 +95,7 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
         prefilledProps={prefilledProps}
         alignmentForumPost={post.af}
         layout="elementOnly"
+        addFields={currentUser?[]:["contents"]}
       />
     </div>
   )
@@ -92,7 +104,8 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
 NewAnswerForm.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  prefilledProps: PropTypes.object
+  prefilledProps: PropTypes.object,
+  flash: PropTypes.func,
 };
 
 registerComponent('NewAnswerForm', NewAnswerForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerForm"}));

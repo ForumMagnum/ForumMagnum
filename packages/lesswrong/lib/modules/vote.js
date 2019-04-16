@@ -2,18 +2,10 @@ import { runCallbacks } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { recalculateScore } from './scoring.js';
 
-/*
-
-Define voting operations
-
-*/
+// Define voting operations
 export const voteTypes = {}
 
-/*
-
-Add new vote types
-
-*/
+// Add new vote types
 export const addVoteType = (voteType, voteTypeOptions) => {
   voteTypes[voteType] = voteTypeOptions;
 }
@@ -21,11 +13,7 @@ export const addVoteType = (voteType, voteTypeOptions) => {
 addVoteType('upvote', {power: 1, exclusive: true});
 addVoteType('downvote', {power: -1, exclusive: true});
 
-/*
-
-Test if a user has voted on the client
-
-*/
+// Test if a user has voted on the client
 export const hasVotedClient = ({ document, voteType }) => {
   const userVotes = document.currentUserVotes;
   if (voteType) {
@@ -35,19 +23,11 @@ export const hasVotedClient = ({ document, voteType }) => {
   }
 }
 
-/*
-
-Calculate total power of all a user's votes on a document
-
-*/
+// Calculate total power of all a user's votes on a document
 const calculateTotalPower = votes => _.pluck(votes, 'power').reduce((a, b) => a + b, 0);
 
 
-/*
-
-Add a vote of a specific type on the client
-
-*/
+// Add a vote of a specific type on the client
 const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 
   const newDocument = {
@@ -70,11 +50,7 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 }
 
 
-/*
-
-Cancel votes of a specific type on a given document (client)
-
-*/
+// Cancel votes of a specific type on a given document (client)
 const cancelVoteClient = ({ document, voteType }) => {
   const vote = _.findWhere(document.currentUserVotes, { voteType });
   const newDocument = _.clone(document);
@@ -94,11 +70,7 @@ const cancelVoteClient = ({ document, voteType }) => {
   return newDocument;
 }
 
-/*
-
-Clear *all* votes for a given document and user (client)
-
-*/
+// Clear *all* votes for a given document and user (client)
 const clearVotesClient = ({ document }) => {
   const newDocument = _.clone(document);
   newDocument.baseScore -= calculateTotalPower(document.currentUserVotes);
@@ -109,22 +81,14 @@ const clearVotesClient = ({ document }) => {
 }
 
 
-/*
-
-Determine a user's voting power for a given operation.
-If power is a function, call it on user
-
-*/
+// Determine a user's voting power for a given operation.
+// If power is a function, call it on user
 const getVotePower = ({ user, voteType, document }) => {
   const power = (voteTypes[voteType] && voteTypes[voteType].power) || 1;
   return typeof power === 'function' ? power(user, document) : power;
 };
 
-/*
-
-Create new vote object
-
-*/
+// Create new vote object
 export const createVote = ({ document, collectionName, voteType, user, voteId }) => {
 
   if (!document.userId)
@@ -149,11 +113,7 @@ export const createVote = ({ document, collectionName, voteType, user, voteId })
 
 };
 
-/*
-
-Optimistic response for votes
-
-*/
+// Optimistic response for votes
 export const performVoteClient = ({ document, collection, voteType = 'upvote', user, voteId }) => {
 
   const collectionName = collection.options.collectionName;
