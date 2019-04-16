@@ -10,10 +10,8 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 const styles = theme => ({
   root: {
-    borderTop: "solid 3px rgba(0,0,0,.87)",
-    borderBottom: "solid 3px rgba(0,0,0,.87)",
-    maxWidth:650,
-    paddingBottom: theme.spacing.unit*2,
+    borderTop: "solid 2px rgba(0,0,0,.5)",
+    maxWidth:650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
