@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
+import Checkbox from '@material-ui/core/Checkbox';
 
 // Elements here should match switch cases in recommendations.js
 const recommendationAlgorithms = [
@@ -66,6 +67,12 @@ const RecommendationsAlgorithmPicker = ({ settings, onChange }) => {
         value={settings.curatedModifier}
         onChange={(ev) => onChange({ ...settings, curatedModifier: ev.target.value })}
       />
+    </div>
+    <div>
+      <Checkbox
+        checked={settings.onlyUnread}
+        onChange={(ev, checked) => onChange({ ...settings, onlyUnread: checked })}
+      /> Only unread
     </div>
   </div>;
 }

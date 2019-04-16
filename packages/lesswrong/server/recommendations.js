@@ -54,13 +54,13 @@ const recommendablePostFilter = {
   meta: false,
 }
 
-const topUnreadPosts = async ({count, currentUser, scoreFn}) => {
+const topUnreadPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
   const unreadPostsMetadata = await Posts.aggregate([
     { $match: {
       ...recommendablePostFilter,
     } },
     
-    ...pipelineFilterUnread({currentUser}),
+    ...(onlyUnread ? pipelineFilterUnread({currentUser}) : []),
     
     { $project: {_id:1, ...scoreRelevantFields} },
   ]).toArray();
@@ -76,13 +76,13 @@ const topUnreadPosts = async ({count, currentUser, scoreFn}) => {
   ).fetch();
 }
 
-const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
+const sampleUnreadPosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => {
   const unreadPostsMetadata = await Posts.aggregate([
     { $match: {
       ...recommendablePostFilter,
     } },
     
-    ...pipelineFilterUnread({currentUser}),
+    ...(onlyUnread ? pipelineFilterUnread({currentUser}) : []),
     
     { $project: {_id:1, ...scoreRelevantFields} },
   ]).toArray();
@@ -90,9 +90,6 @@ const sampleUnreadPosts = async ({count, currentUser, sampleWeightFn}) => {
   const sampledPosts = new WeightedList(
     _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
   ).pop(count);
-  
-  console.log("sampledPosts:");
-  console.log(sampledPosts);
   
   return await Posts.find(
     { _id: {$in: sampledPosts} },
@@ -113,11 +110,16 @@ const getRecommendations = async ({count, algorithm, currentUser}) => {
   // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
   switch(algorithm.method) {
     case "top": {
-      return await topUnreadPosts({count, currentUser, scoreFn});
+      return await topUnreadPosts({
+        count, currentUser,
+        onlyUnread: algorithm.onlyUnread,
+        scoreFn
+      });
     }
     case "sample": {
       return await sampleUnreadPosts({
         count, currentUser,
+        onlyUnread: algorithm.onlyUnread,
         sampleWeightFn: scoreFn,
       });
     }

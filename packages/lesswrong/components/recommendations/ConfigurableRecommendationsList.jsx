@@ -23,6 +23,7 @@ class ConfigurableRecommendationsList extends PureComponent {
       personalBlogpostModifier: 0,
       frontpageModifier: 10,
       curatedModifier: 50,
+      onlyUnread: true,
     }
   }
   
