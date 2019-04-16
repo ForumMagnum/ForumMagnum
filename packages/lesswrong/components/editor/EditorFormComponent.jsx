@@ -50,7 +50,7 @@ const styles = theme => ({
     pointerEvents: 'auto'
   },
   questionWidth: {
-    width: 540,
+    width: 640,
     [theme.breakpoints.down('sm')]: {
       width: 'inherit'
     }
@@ -375,8 +375,8 @@ class EditorFormComponent extends Component {
 
   getBodyStyles = () => {
     const { classes, commentStyles, document } = this.props
-    if (commentStyles && document.answer) return classes.answerStyles 
-    if (commentStyles) return classes.commentBodyStyles 
+    if (commentStyles && document.answer) return classes.answerStyles
+    if (commentStyles) return classes.commentBodyStyles
     return classes.postBodyStyles
   }
 
@@ -393,7 +393,7 @@ class EditorFormComponent extends Component {
     // the draftJS editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
     const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
-    
+
     const bodyStyles = this.getBodyStyles()
 
     const editorWarning =
