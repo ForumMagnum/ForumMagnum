@@ -1,14 +1,9 @@
 import { Posts } from './collection.js';
 import Users from 'meteor/vulcan:users';
-import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 
 
 // EXAMPLE-FORUM Helpers
-
-registerSetting('forum.outsideLinksPointTo', 'link', 'Whether to point RSS links to the linked URL (“link”) or back to the post page (“page”)');
-registerSetting('forum.requirePostsApproval', false, 'Require posts to be approved manually');
-registerSetting('twitterAccount', null, 'Twitter account associated with the app');
-registerSetting('siteUrl', null, 'Main site URL');
 
 //////////////////
 // Link Helpers //

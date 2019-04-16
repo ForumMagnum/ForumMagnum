@@ -1,10 +1,8 @@
 import Users from 'meteor/vulcan:users';
-import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
+import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
-
-registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
 
 
 const formGroups = {

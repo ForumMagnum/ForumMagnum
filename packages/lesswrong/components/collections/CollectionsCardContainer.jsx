@@ -9,7 +9,7 @@ const styles = theme => ({
     marginTop: -5,
     marginRight: "auto",
     marginLeft: "auto",
-    width: 720,
+    width: 695,
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",

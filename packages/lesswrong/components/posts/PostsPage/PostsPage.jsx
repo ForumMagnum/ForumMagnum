@@ -27,7 +27,7 @@ const styles = theme => ({
       position: "relative"
     },
     post: {
-      maxWidth: 650,
+      maxWidth: 650 + theme.spacing.unit*4,
       [theme.breakpoints.down('md')]: {
         marginLeft: "auto",
         marginRight: "auto"

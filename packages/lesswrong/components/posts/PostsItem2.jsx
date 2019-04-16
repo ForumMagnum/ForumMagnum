@@ -21,7 +21,6 @@ export const EVENT_WIDTH = 110
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 export const COMMENTS_WIDTH = 48
-export const LIST_PADDING = 16
 
 const COMMENTS_BACKGROUND_COLOR = grey[200]
 
@@ -29,7 +28,7 @@ const styles = (theme) => ({
   root: {
     position: "relative",
     width: SECTION_WIDTH,
-    paddingRight: LIST_PADDING,
+    paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
@@ -50,9 +49,7 @@ const styles = (theme) => ({
   background: {
     transition: "3s",
     borderBottom: "solid 1px rgba(0,0,0,.2)",
-    [theme.breakpoints.down('sm')]: {
-      width: "100%"
-    }
+    width: "100%",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -70,10 +67,8 @@ const styles = (theme) => ({
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
   karma: {
-    width: 28,
+    width: 42,
     justifyContent: "center",
-    marginLeft: 4,
-    marginRight: 10,
     [theme.breakpoints.down('sm')]:{
       width: "unset",
       justifyContent: "flex-start",
@@ -228,10 +223,12 @@ class PostsItem2 extends PureComponent {
     this.postsItemRef = React.createRef();
   }
 
-  toggleComments = () => {
+  toggleComments = (scroll) => {
     this.handleMarkAsRead()
     this.setState((prevState) => {
-      this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      if (scroll) {
+        this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      }
       return ({
         showComments:!prevState.showComments,
         readComments: true
@@ -352,7 +349,7 @@ class PostsItem2 extends PureComponent {
             </Hidden>
 
             <div className={classes.commentsIcon}>
-              <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
+              <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
             </div>
 
           </div>
@@ -360,7 +357,7 @@ class PostsItem2 extends PureComponent {
             <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
           </div>}
           
-          {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
+          {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments(true)}>
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
               highlightDate={post.lastVisitedAt}

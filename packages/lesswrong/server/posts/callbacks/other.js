@@ -12,10 +12,9 @@ Callbacks to:
 
 import { Posts } from '../../../lib/collections/posts'
 import Users from 'meteor/vulcan:users';
-import { Connectors, addCallback, getSetting, registerSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import Events from 'meteor/vulcan:events';
 
-registerSetting('forum.trackClickEvents', true, 'Track clicks to posts pages');
 
 /**
  * @summary Increment the user's post count

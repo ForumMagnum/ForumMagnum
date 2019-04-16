@@ -140,7 +140,7 @@ class RecentDiscussionThread extends PureComponent {
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
 
-    const { ContentItemBody, LinkPostMessage, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+    const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
     const nestedComments = unflattenComments(results);
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
@@ -178,11 +178,9 @@ class RecentDiscussionThread extends PureComponent {
         </div>
         { this.state.showHighlight ?
           <div className={highlightClasses}>
-            <LinkPostMessage post={post} />
             <PostsHighlight post={post} />
           </div>
           : <div className={highlightClasses} onClick={this.showHighlight}>
-              <LinkPostMessage post={post} />
               { (!post.lastVisitedAt || post.commentCount === null) &&
                 <ContentItemBody
                   className={classes.postHighlight}
