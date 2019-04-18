@@ -2,7 +2,6 @@ import { foreignKeyField } from '../../modules/utils/schemaUtils'
 
 const schema = {
   _id: {
-    optional: true,
     type: String,
     viewableBy: ['guests'],
   },
@@ -12,27 +11,33 @@ const schema = {
     onInsert: (document, currentUser) => new Date(),
     viewableBy: ['members'],
   },
-  parentPostId: {
-    ...foreignKeyField({
-      idFieldName: "parentPostId",
-      resolverName: "parentPost",
-      collectionName: "Posts",
-      type: "Post",
-    }),
+  type: {
+    // "subQuestion"
+    type: String,
+    optional: true,
     viewableBy: ['members'],
     insertableBy: ['members'],
-    optional: true,
+    editableBy: ['members'],
   },
-  childPostId: {
+  sourcePostId: {
     ...foreignKeyField({
-      idFieldName: "childPostId",
-      resolverName: "childPost",
+      idFieldName: "sourcePostId",
+      resolverName: "sourcePost",
       collectionName: "Posts",
       type: "Post",
     }),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    optional: true,
+  },
+  targetPostId: {
+    ...foreignKeyField({
+      idFieldName: "targetPostId",
+      resolverName: "targetPost",
+      collectionName: "Posts",
+      type: "Post",
+    }),
+    viewableBy: ['members'],
+    insertableBy: ['members'],
   },
   order: {
     type: Number,

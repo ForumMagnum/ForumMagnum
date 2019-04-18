@@ -21,14 +21,14 @@ const options = {
 }
 
 
-export const RelatedPostRels = createCollection({
-  collectionName: 'RelatedPostRels',
+export const PostRelations = createCollection({
+  collectionName: 'PostRelations',
   typeName: 'PostRelation',
   schema,
-  resolvers: getDefaultResolvers('RelatedPostRels'),
-  mutations: getDefaultMutations('RelatedPostRels', options),
+  resolvers: getDefaultResolvers('PostRelations'),
+  mutations: getDefaultMutations('PostRelations', options),
 });
 
-addUniversalFields({collection: RelatedPostRels})
+addUniversalFields({collection: PostRelations})
 
-export default RelatedPostRels;
+export default PostRelations;

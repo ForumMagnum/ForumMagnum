@@ -4,8 +4,8 @@ registerFragment(`
   fragment NewRelatedPostRel on PostRelation {
     # Core fields
     _id
-    parentPostId
-    childPostId
+    sourcePostId
+    targetPostId
   }
 `);
 
@@ -13,10 +13,10 @@ registerFragment(`
   fragment ChildRelatedPostRelList on PostRelation {
     # Core fields
     _id
-    parentPost {
+    sourcePost {
       ...PostsBase
     }
-    childPost {
+    targetPost {
       ...PostsBase
     }
   }

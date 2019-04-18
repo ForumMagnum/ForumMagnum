@@ -3,6 +3,7 @@ import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
+import { PostRelations } from "../postRelations/collection.js"
 
 
 const formGroups = {
@@ -391,6 +392,25 @@ const schema = {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
+
+  originalPostRelationSourceId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    hidden: true,
+  },
+
+  // targetPostRelations: resolverOnlyField({
+  //   type: Object,
+  //   viewableBy: ['guests'],
+  //   resolver: (post, args, { Posts }) => {
+  //     const postRelations = PostRelations.find({sourcePostId: post._id})
+  //     const contents = post.contents;
+  //     if (!contents) return 0;
+  //     return contents.wordCount;
+  //   }
+  // }),
 };
 
 export default schema;

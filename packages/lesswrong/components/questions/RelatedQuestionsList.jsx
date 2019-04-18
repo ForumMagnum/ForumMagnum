@@ -1,7 +1,7 @@
 import { Components, registerComponent, withMulti, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { RelatedPostRels } from '../../lib/collections/postRelations';
+import { PostRelations } from '../../lib/collections/postRelations';
 
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
@@ -48,7 +48,7 @@ const RelatedQuestionsList = ({ children, results, loading, count, totalCount, l
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
   const maybeMorePosts = !!(results && results.length && (results.length >= limit))
-
+  console.log(results)
   return (
     <div className={classNames(classes.root, {[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
@@ -58,8 +58,8 @@ const RelatedQuestionsList = ({ children, results, loading, count, totalCount, l
       {results && <SectionTitle title={`${results.length} Related Questions`} />}
 
       {results && results.map((rel, i) => {
-        const post = rel.parentPost._id === terms.postId ? rel.childPost : rel.parentPost
-        return <RelatedQuestionsItem key={rel.childPost._id} post={post} currentUser={currentUser} terms={terms} index={i}/> 
+        const post = rel.parentPost._id === terms.postId ? rel.targetPost : rel.sourcePost
+        return <RelatedQuestionsItem key={rel.targetPost._id} post={post} currentUser={currentUser} terms={terms} index={i}/> 
       })}
       <SectionFooter>
         {(showLoadMore) &&
@@ -93,7 +93,7 @@ RelatedQuestionsList.propTypes = {
 };
 
 const options = {
-  collection: RelatedPostRels,
+  collection: PostRelations,
   queryName: 'childPostRels',
   fragmentName: 'ChildRelatedPostRelList',
   enableTotal: false,

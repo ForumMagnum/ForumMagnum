@@ -15,7 +15,7 @@ const PostsPageQuestionContent = ({post, currentUser}) => {
         <CantCommentExplanation post={post}/>
       }
       <AnswersList terms={{view: "questionAnswers", postId: post._id}} post={post}/>
-      <RelatedQuestionsList terms={{view: "allPostRels", postId: post._id}} />
+      <RelatedQuestionsList terms={{view: "allPostRelations", postId: post._id}} />
     </div>
   )
 

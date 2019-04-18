@@ -37,7 +37,10 @@ Posts.addDefaultView(terms => {
   if (terms.userId) {
     params.selector.hideAuthor = false
   }
-
+  console.log(terms)
+  if (terms.includeRelatedQuestions === "true") {
+    params.selector.hiddenRelatedQuestion = null
+  }
   if (terms.filter === "curated") {
     params.selector.curatedDate ={$gt: new Date(0)}
   }

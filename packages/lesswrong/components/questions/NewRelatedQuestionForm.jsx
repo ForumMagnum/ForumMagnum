@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection.js'
-import { RelatedPostRels } from '../../lib/collections/postRelations/collection.js'
+import { PostRelations } from '../../lib/collections/postRelations/collection.js'
 
 const styles = theme => ({
   answersForm: {
@@ -32,7 +32,7 @@ const styles = theme => ({
 })
 
 const NewRelatedQuestionForm = (props) => {
-  const { post, classes, flash, currentUser, createRelatedPostRel } = props
+  const { post, classes, flash, currentUser } = props
   const { SubmitToFrontpageCheckbox, PostSubmit } = Components
 
   const QuestionSubmit = (props) => {
@@ -52,15 +52,10 @@ const NewRelatedQuestionForm = (props) => {
         prefilledProps={{
           userId: currentUser._id,
           question: true,
-          hiddenRelatedQuestion: true
+          hiddenRelatedQuestion: true,
+          originalPostRelationSourceId: post._id
         }}
-        successCallback={question => {
-          createRelatedPostRel({
-            data: {
-              parentPostId: post._id,
-              childPostId: question._id
-            }
-          })
+        successCallback={() => {
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
         SubmitComponent={QuestionSubmit}
@@ -76,7 +71,7 @@ NewRelatedQuestionForm.propTypes = {
 };
 
 const withCreateOptions = {
-  collection: RelatedPostRels,
+  collection: PostRelations,
   fragmentName: 'NewRelatedPostRel',
 }
 
