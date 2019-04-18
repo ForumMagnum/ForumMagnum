@@ -2,7 +2,7 @@
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils.js';
-import { performSubscriptionAction } from '../../lib/subscriptions/mutations.js';
+import { performSubscriptionAction } from '../../lib/collections/subscriptions/mutations.js';
 import moment from 'moment';
 
 Vulcan.populateNotifications = async ({username,

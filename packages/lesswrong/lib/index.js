@@ -92,8 +92,9 @@ import './collections/books/permissions.js';
 
 
 // Subscriptions
-import './subscriptions/mutations.js';
-import './subscriptions/permissions.js';
+import './collections/subscriptions/collection.js';
+import './collections/subscriptions/mutations.js';
+import './collections/subscriptions/permissions.js';
 
 
 // Posts

@@ -1,7 +1,7 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost, createDummyComment, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
-import { performSubscriptionAction } from '../../subscriptions/mutations.js';
+import { performSubscriptionAction } from '../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
 import { Comments } from '../comments'
