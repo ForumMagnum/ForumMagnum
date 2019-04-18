@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
+    cursor: "pointer",
     color: theme.palette.lwTertiary.main,
     [theme.breakpoints.down('xs')]: {
       marginBottom: theme.spacing.unit*2,
@@ -30,18 +31,11 @@ const styles = theme => ({
   },
 })
 
-class SectionFooterCheckbox extends Component {
-  constructor(props, context) {
-    super(props,context);
-  }
-
-  render() {
-    const { classes, label, disabled=false, onClick, value } = this.props
-    return <span className={classes.root} onClick={onClick}>
-      <Checkbox disabled={disabled} disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
-      { label }
-    </span>
-  }
+const SectionFooterCheckbox = ({ classes, label, onClick, value }) => {
+  return <span className={classes.root} onClick={onClick}>
+    <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
+    { label }
+  </span>
 }
 
 SectionFooterCheckbox.contextTypes = {
