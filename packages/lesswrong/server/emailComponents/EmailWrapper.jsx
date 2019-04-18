@@ -1,13 +1,11 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { Utils } from 'meteor/vulcan:lib';
-import { UnsubscribeAllToken } from '../emails/emailTokens.js';
 
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({user, children}) => {
-  const unsubscribeAllLink = UnsubscribeAllToken.generateLink(user._id);
+const EmailWrapper = ({user, unsubscribeAllLink, children}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
   
   return (

@@ -1,6 +1,7 @@
-import { addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { addGraphQLMutation, addGraphQLResolvers, editMutation } from 'meteor/vulcan:core';
 import { EmailTokens } from '../../lib/collections/emailTokens/collection.js';
 import { Random } from 'meteor/random';
+import { Utils } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 
 let emailTokenTypesByName = {};
@@ -20,9 +21,12 @@ export class EmailTokenType
   }
   
   generateToken = async (userId, params) => {
+    if (!userId) throw new Error("Missing required argument: userId");
+    
     const token = Random.secret();
-    EmailTokens.insert({
+    await EmailTokens.insert({
       token: token,
+      tokenType: this.name,
       userId: userId,
       used: false,
       params: params,
@@ -31,13 +35,15 @@ export class EmailTokenType
   }
   
   generateLink = async (userId, params) => {
-    const token = this.generateToken();
+    if (!userId) throw new Error("Missing required argument: userId");
+    
+    const token = await this.generateToken(userId, params);
     const prefix = Utils.getSiteUrl().slice(0,-1);
     return `${prefix}/emailToken/${token}`;
   }
   
   handleToken = async (token) => {
-    const user = await Users.findOne({_id: token.userId}).fetch();
+    const user = await Users.findOne({_id: token.userId});
     const actionResult = await this.onUseAction(user, token.params);
     return {
       component: this.resultComponent,
@@ -59,7 +65,19 @@ addGraphQLResolvers({
       if (!(tokenObj.tokenType in emailTokenTypesByName))
         throw new Error("Email token has invalid type");
       
-      return await emailTokenTypesByName[tokenObj.tokenType].handleToken(tokenObj);
+      const tokenType = emailTokenTypesByName[tokenObj.tokenType];
+      const resultProps = await tokenType.handleToken(tokenObj);
+      await editMutation({
+        collection: EmailTokens,
+        documentId: tokenObj._id,
+        set: {
+          used: true
+        },
+        unset: {},
+        validate: false
+      });
+      
+      return resultProps;
     }
   }
 });
@@ -67,10 +85,17 @@ addGraphQLResolvers({
 
 export const UnsubscribeAllToken = new EmailTokenType({
   name: "unsubscribeAll",
-  onUseAction: (userId) => {
-    // TODO
-    //return {message: "You have been unsubscribed from all emails on LessWrong." };
-    return {message: "This feature hasn't been implemented yet."};
+  onUseAction: async (user) => {
+    await editMutation({ // FIXME: Doesn't actually do the thing
+      collection: Users,
+      documentId: user._id,
+      set: {
+        unsubscribeFromAll: true,
+      },
+      unset: {},
+      validate: false,
+    });
+    return {message: "You have been unsubscribed from all emails on LessWrong." };
   },
   resultComponent: "EmailTokenResult",
 });
