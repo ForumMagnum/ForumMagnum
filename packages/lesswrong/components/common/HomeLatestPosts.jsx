@@ -2,7 +2,6 @@ import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import Checkbox from '@material-ui/core/Checkbox';
 import Users from 'meteor/vulcan:users';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 
@@ -29,7 +28,7 @@ class HomeLatestPosts extends PureComponent {
   }
 
   render () {
-    const { currentUser, classes, router } = this.props;
+    const { currentUser, router } = this.props;
     const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
 
     const query = _.clone(router.location.query) || {}
