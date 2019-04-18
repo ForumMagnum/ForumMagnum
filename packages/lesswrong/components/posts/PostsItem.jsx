@@ -10,9 +10,9 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import classNames from 'classnames';
 
-import { bindActionCreators } from 'redux';
+//import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { connect } from 'react-redux';
+//import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from '@material-ui/core/Paper';
 import Icon from '@material-ui/core/Icon';
@@ -505,15 +505,15 @@ const mutationOptions = {
   args: {postId: 'String'},
 };
 
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
+//const mapStateToProps = state => ({ postsViewed: state.postsViewed });
+//const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'PostsItem',
   PostsItem,
   withMutation(mutationOptions),
   withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
+  //connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem" }),
   withErrorBoundary
 );

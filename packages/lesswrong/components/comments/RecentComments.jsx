@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 
@@ -11,7 +11,7 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
   return (
     <div>
       <div className="comments-list recent-comments-list">
-        {loading || !results ? <Loading /> :
+        {loading || !results ? <Components.Loading /> :
         <div className={"comments-items"}>
           {results.map(comment =>
             <div key={comment._id}>

@@ -7,9 +7,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+//import { connect } from 'react-redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { bindActionCreators } from 'redux';
+//import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
@@ -331,15 +331,15 @@ const mutationOptions = {
   args: {postId: 'String'},
 };
 
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
+//const mapStateToProps = state => ({ postsViewed: state.postsViewed });
+//const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'PostsItem2',
   PostsItem2,
   withMutation(mutationOptions),
   withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
+  //connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem2" }),
   withErrorBoundary,
   withUser

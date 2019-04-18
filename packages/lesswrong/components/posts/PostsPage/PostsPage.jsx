@@ -7,8 +7,8 @@ import {
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+//import { connect } from 'react-redux';
+//import { bindActionCreators } from 'redux';
 import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
@@ -376,8 +376,8 @@ const mutationOptions = {
   args: {postId: 'String'},
 };
 
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
+//const mapStateToProps = state => ({ postsViewed: state.postsViewed });
+//const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   // component name used by Vulcan
@@ -395,7 +395,7 @@ registerComponent(
   // HOC to provide a single mutation, based on mutationOptions
   withMutation(mutationOptions),
   // HOC to give access to the redux store & related actions
-  connect(mapStateToProps, mapDispatchToProps),
+  //connect(mapStateToProps, mapDispatchToProps),
   // HOC to add JSS styles to component
   withStyles(styles, { name: "PostsPage" }),
   // Add error boundary to post

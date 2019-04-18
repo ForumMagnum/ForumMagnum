@@ -3,7 +3,6 @@ import {
   Components,
   registerComponent,
   withList,
-  Loading,
   getActions,
   withMutation
 } from 'meteor/vulcan:core';
@@ -11,9 +10,9 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
-import { bindActionCreators } from 'redux';
+//import { bindActionCreators } from 'redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { connect } from 'react-redux';
+//import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -140,7 +139,7 @@ class RecentDiscussionThread extends PureComponent {
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
 
-    const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+    const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, Loading } = Components
     const nestedComments = unflattenComments(results);
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
@@ -228,8 +227,8 @@ const mutationOptions = {
   args: {postId: 'String'},
 };
 
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
+//const mapStateToProps = state => ({ postsViewed: state.postsViewed });
+//const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'RecentDiscussionThread',
@@ -238,7 +237,7 @@ registerComponent(
   withMutation(mutationOptions),
   withUser,
   withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
+  //connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withErrorBoundary
 );

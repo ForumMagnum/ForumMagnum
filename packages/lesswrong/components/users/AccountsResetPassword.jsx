@@ -6,7 +6,7 @@ import { STATES } from 'meteor/vulcan:accounts'
 
 class AccountsResetPassword extends PureComponent {
   componentDidMount() {
-    const token = this.props.params.token;
+    const token = this.props.match.params.token;
     Accounts._loginButtonsSession.set('resetPasswordToken', token);
   }
 
@@ -20,7 +20,7 @@ AccountsResetPassword.contextTypes = {
 }
 
 AccountsResetPassword.propTypes = {
-  params: PropTypes.object,
+  match: PropTypes.object,
 };
 
 AccountsResetPassword.displayName = 'AccountsResetPassword';

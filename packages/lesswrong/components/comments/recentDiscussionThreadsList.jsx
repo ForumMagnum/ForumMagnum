@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
@@ -16,7 +16,7 @@ const RecentDiscussionThreadsList = ({
 }) => {
   const loadingMore = networkStatus === 2;
 
-  const { LoadMore } = Components
+  const { LoadMore, Loading } = Components
 
   if (!loading && results && !results.length) {
     return null
