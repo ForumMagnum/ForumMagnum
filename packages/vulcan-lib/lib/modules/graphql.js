@@ -92,6 +92,12 @@ const getGraphQLType = (schema, fieldName, isInput = false) => {
 
 export const GraphQLSchema = {
 
+  // used for schema stitching
+  stitchedSchemas: [],
+  addStitchedSchema(schema) {
+    this.stitchedSchemas.push(schema);
+  },
+
   // collections used to auto-generate schemas
   collections: [],
   addCollection(collection) {
@@ -207,7 +213,14 @@ export const GraphQLSchema = {
           // then build actual resolver object and pass it to addGraphQLResolvers
           const resolver = {
             [typeName]: {
-              [resolverName]: field.resolveAs.resolver
+              [resolverName]: (document, args, context, info) => {
+                const { Users, currentUser } = context;
+                // check that current user has permission to access the original non-resolved field
+                const canReadField = Users.canReadField(currentUser, field, document);
+                return canReadField
+                  ? field.resolveAs.resolver(document, args, context, info)
+                  : null;
+              },
             },
           };
           addGraphQLResolvers(resolver);
@@ -252,11 +265,22 @@ export const GraphQLSchema = {
         }
 
         // if field is i18nized, add foo_intl field containing all languages
-        if (isIntlField(field)) {
-          fields.mainType.push({ name: `${fieldName}_intl`, type: '[IntlValue]' });
-          fields.create.push({ name: `${fieldName}_intl`, type: '[IntlValueInput]' });
-          fields.update.push({ name: `${fieldName}_intl`, type: '[IntlValueInput]' });
-        }
+        // NOTE: not necessary anymore because intl fields are added by addIntlFields() in collections.js
+        // TODO: delete if not needed
+        // if (isIntlField(field)) {
+        //   // fields.mainType.push({
+        //   //   name: `${fieldName}_intl`,
+        //   //   type: '[IntlValue]',
+        //   // });
+        //   fields.create.push({
+        //     name: `${fieldName}_intl`,
+        //     type: '[IntlValueInput]',
+        //   });
+        //   fields.update.push({
+        //     name: `${fieldName}_intl`,
+        //     type: '[IntlValueInput]',
+        //   });
+        // }
 
         if (field.selectable) {
           fields.selector.push({
@@ -358,21 +382,47 @@ export const GraphQLSchema = {
         // create
         if (mutations.create) {
           // e.g. "createMovie(input: CreateMovieInput) : Movie"
-          addGraphQLMutation(createMutationTemplate({ typeName }), mutations.create.description);
-          mutationResolvers[`create${typeName}`] = mutations.create.mutation.bind(mutations.create);
+          if (create.length === 0) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `// Warning: you defined a "create" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "create" mutation or define a "canCreate" property on a field to disable this warning`
+            );
+          } else {
+            addGraphQLMutation(createMutationTemplate({ typeName }), mutations.create.description);
+            mutationResolvers[`create${typeName}`] = mutations.create.mutation.bind(
+              mutations.create
+            );
+          }
         }
         // update
         if (mutations.update) {
           // e.g. "updateMovie(input: UpdateMovieInput) : Movie"
-          addGraphQLMutation(updateMutationTemplate({ typeName }), mutations.update.description);
-          mutationResolvers[`update${typeName}`] = mutations.update.mutation.bind(mutations.update);
-    
+          if (update.length === 0) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `// Warning: you defined an "update" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "update" mutation or define a "canUpdate" property on a field to disable this warning`
+            );
+          } else {
+            addGraphQLMutation(updateMutationTemplate({ typeName }), mutations.update.description);
+            mutationResolvers[`update${typeName}`] = mutations.update.mutation.bind(
+              mutations.update
+            );
+          }
         }
         // upsert
         if (mutations.upsert) {
           // e.g. "upsertMovie(input: UpsertMovieInput) : Movie"
-          addGraphQLMutation(upsertMutationTemplate({ typeName }), mutations.upsert.description);
-          mutationResolvers[`upsert${typeName}`] = mutations.upsert.mutation.bind(mutations.upsert);
+          if (update.length === 0) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `// Warning: you defined an "upsert" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "upsert" mutation or define a "canUpdate" property on a field to disable this warning`
+            );
+          } else {
+            addGraphQLMutation(upsertMutationTemplate({ typeName }), mutations.upsert.description);
+            mutationResolvers[`upsert${typeName}`] = mutations.upsert.mutation.bind(
+              mutations.upsert
+            );
+          }
         }
         // delete
         if (mutations.delete) {
@@ -392,9 +442,30 @@ export const GraphQLSchema = {
 
     return graphQLSchema;
   },
+
+  // getters
+  getSchema() {
+    if (!(this.finalSchema && this.finalSchema.length)) {
+      throw new Error('Warning: trying to access schema before it has been created by the server.');
+    }
+    return this.finalSchema[0];
+  },
+  getExecutableSchema() {
+    if (!this.executableSchema) {
+      throw new Error(
+        'Warning: trying to access executable schema before it has been created by the server.'
+      );
+    }
+    return this.executableSchema;
+  },
 };
 
 Vulcan.getGraphQLSchema = () => {
+  if (!GraphQLSchema.finalSchema) {
+    throw new Error(
+      'Warning: trying to access graphQL schema before it has been created by the server.'
+    );
+  }
   const schema = GraphQLSchema.finalSchema[0];
   // eslint-disable-next-line no-console
   console.log(schema);

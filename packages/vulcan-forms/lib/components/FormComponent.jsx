@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components } from 'meteor/vulcan:core';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
@@ -24,18 +24,19 @@ class FormComponent extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     // allow custom controls to determine if they should update
-    if (this.isCustomInput(this.getType(nextProps))) {
+    if (this.isCustomInput(this.getInputType(nextProps))) {
       return true;
     }
 
     const { currentValues, deletedValues, errors } = nextProps;
-    const { path } = this.props;
+    const path = this.getPath(this.props);
 
     // when checking for deleted values, both current path ('foo') and child path ('foo.0.bar') should trigger updates
     const includesPathOrChildren = deletedValues =>
       deletedValues.some(deletedPath => deletedPath.includes(path));
 
-    const valueChanged = get(currentValues, path) !== get(this.props.currentValues, path);
+    const valueChanged =
+      !isEqual(get(currentValues, path), get(this.props.currentValues, path)); 
     const errorChanged = !isEqual(this.getErrors(errors), this.getErrors());
     const deleteChanged =
       includesPathOrChildren(deletedValues) !==
@@ -83,7 +84,7 @@ class FormComponent extends Component {
       'datetime',
       'date',
       'time',
-      'text',
+      'text'
     ].includes(inputType);
     return !isStandardInput;
   };
@@ -93,13 +94,14 @@ class FormComponent extends Component {
   Function passed to form controls (always controlled) to update their value
   
   */
-  handleChange = (name, value) => {
+  handleChange = value => {
+
     // if value is an empty string, delete the field
     if (value === '') {
       value = null;
     }
     // if this is a number field, convert value before sending it up to Form
-    if (this.getType() === 'number' && value != null) {
+    if (this.getFieldType() === Number && value != null) {
       value = Number(value);
     }
 
@@ -160,7 +162,7 @@ class FormComponent extends Component {
   showCharsRemaining = props => {
     const p = props || this.props;
     return (
-      p.max && ['url', 'email', 'textarea', 'text'].includes(this.getType(p))
+      p.max && ['url', 'email', 'textarea', 'text'].includes(this.getInputType(p))
     );
   };
 
@@ -181,12 +183,22 @@ class FormComponent extends Component {
 
   /*
 
+  Get field field value type
+
+  */
+  getFieldType = props => {
+    const p = props || this.props;
+    return p.datatype && p.datatype[0].type;
+  }
+
+  /*
+
   Get form input type, either based on input props, or by guessing based on form field type
 
   */
-  getType = props => {
+  getInputType = props => {
     const p = props || this.props;
-    const fieldType = p.datatype && p.datatype[0].type;
+    const fieldType = this.getFieldType();
     const autoType =
       fieldType === Number
         ? 'number'
@@ -218,7 +230,8 @@ class FormComponent extends Component {
   
   */
   getFormInput = () => {
-    const inputType = this.getType();
+    const inputType = this.getInputType();
+    const FormComponents = mergeWithComponents(this.props.formComponents);
 
     // if input is a React component, use it
     if (typeof this.props.input === 'function') {
@@ -229,59 +242,59 @@ class FormComponent extends Component {
 
       switch (inputType) {
         case 'text':
-          return Components.FormComponentDefault;
+          return FormComponents.FormComponentDefault;
 
         case 'number':
-          return Components.FormComponentNumber;
+          return FormComponents.FormComponentNumber;
 
         case 'url':
-          return Components.FormComponentUrl;
+          return FormComponents.FormComponentUrl;
 
         case 'email':
-          return Components.FormComponentEmail;
+          return FormComponents.FormComponentEmail;
 
         case 'textarea':
-          return Components.FormComponentTextarea;
+          return FormComponents.FormComponentTextarea;
 
         case 'checkbox':
-          return Components.FormComponentCheckbox;
+          return FormComponents.FormComponentCheckbox;
 
         case 'checkboxgroup':
-          return Components.FormComponentCheckboxGroup;
+          return FormComponents.FormComponentCheckboxGroup;
 
         case 'radiogroup':
-          return Components.FormComponentRadioGroup;
+          return FormComponents.FormComponentRadioGroup;
 
         case 'select':
-          return Components.FormComponentSelect;
+          return FormComponents.FormComponentSelect;
 
         case 'selectmultiple':
-          return Components.FormComponentSelectMultiple;
+          return FormComponents.FormComponentSelectMultiple;
 
         case 'datetime':
-          return Components.FormComponentDateTime;
+          return FormComponents.FormComponentDateTime;
 
         case 'date':
-          return Components.FormComponentDate;
+          return FormComponents.FormComponentDate;
 
         case 'date2':
-          return Components.FormComponentDate2;
+          return FormComponents.FormComponentDate2;
 
         case 'time':
-          return Components.FormComponentTime;
+          return FormComponents.FormComponentTime;
 
         case 'statictext':
-          return Components.FormComponentStaticText;
+          return FormComponents.FormComponentStaticText;
 
         default:
-          if (this.props.input && Components[this.props.input]) {
-            return Components[this.props.input];
+          if (this.props.input && FormComponents[this.props.input]) {
+            return FormComponents[this.props.input];
           } else if (this.isArrayField()) {
             return Components.FormNestedArray;
           } else if (this.isObjectField()) {
-            return Components.FormNestedObject;
+            return FormComponents.FormNestedObject;
           } else {
-            return Components.FormComponentDefault;
+            return FormComponents.FormComponentDefault;
           }
       }
     }
@@ -297,29 +310,47 @@ class FormComponent extends Component {
     return this.getFieldType() instanceof SimpleSchema;
   };
   render() {
+    const FormComponents = mergeWithComponents(this.props.formComponents);
+
     if (this.props.intlInput) {
-      return <Components.FormIntl {...this.props} />;
-    } else if (this.props.nestedInput) {
-      const inputComponent = this.getFormInput();
-      return React.createElement(inputComponent, {
-        ...this.props,
-        errors: this.getErrors(),
-        value: this.getValue()
-      });
+      return <FormComponents.FormIntl {...this.props} />;
+    } else if (!this.props.input && this.props.nestedInput) {
+      if (this.isArrayField()) {
+        return (
+          <FormComponents.FormNestedArray
+            {...this.props}
+            formComponents={FormComponents}
+            errors={this.getErrors()}
+            value={this.getValue()}
+          />
+        );
+      } else if (this.isObjectField()) {
+        return (
+          <FormComponents.FormNestedObject
+            {...this.props}
+            formComponents={FormComponents}
+            errors={this.getErrors()}
+            value={this.getValue()}
+          />
+        );
+      }
     }
 
-    const formComponent = <Components.FormComponentInner
-      {...this.props}
-      {...this.state}
-      inputType={this.getType()}
-      value={this.getValue()}
-      errors={this.getErrors()}
-      document={this.context.getDocument()}
-      showCharsRemaining={!!this.showCharsRemaining()}
-      onChange={this.handleChange}
-      clearField={this.clearField}
-      formInput={this.getFormInput()}
-    />
+    const formComponent = (
+      <FormComponents.FormComponentInner
+        {...this.props}
+        {...this.state}
+        inputType={this.getInputType()}
+        value={this.getValue()}
+        errors={this.getErrors()}
+        document={this.context.getDocument()}
+        showCharsRemaining={!!this.showCharsRemaining()}
+        onChange={this.handleChange}
+        clearField={this.clearField}
+        formInput={this.getFormInput()}
+        formComponents={FormComponents}
+      />
+    );
 
     if (this.props.tooltip) {
       return <Tooltip title={this.props.tooltip} placement="left-start">

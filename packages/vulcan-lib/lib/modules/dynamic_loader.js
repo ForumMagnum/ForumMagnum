@@ -13,7 +13,7 @@ import { delayedComponent } from './components';
  * `Components.DynamicLoading` in the meantime.
  *
  * @example Register a component with a dynamic import
- *  registerComponent('MyComponent', dynamicComponent(() => import('./path/to/MyComponent')));
+ *  registerComponent('MyComponent', dynamicLoader(() => import('./path/to/MyComponent')));
  *
  * @example Pass a dynamic component to a route
  *  import { addRoute, dynamicLoader, getDynamicComponent } from 'meteor/vulcan:core';
@@ -45,12 +45,12 @@ export const dynamicLoader = importComponent =>
 export const renderDynamicComponent = (importComponent, props = {}) =>
   React.createElement(dynamicLoader(importComponent), props);
 
-export const getDynamicComponent = (componentImport, props) => {
+export const getDynamicComponent = componentImport => {
   // eslint-disable-next-line no-console
   console.warn(
     'getDynamicComponent is deprecated, use renderDynamicComponent instead.',
     'If you want to retrieve the component instead that of just rendering it,',
     'use dynamicLoader. See this issue to know how to do it: https://github.com/VulcanJS/Vulcan/issues/1997'
   );
-  return renderDynamicComponent(componentImport, props);
+  return renderDynamicComponent(componentImport);
 };

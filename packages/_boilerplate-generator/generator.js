@@ -124,8 +124,6 @@ export class Boilerplate {
         itemObj.scriptContent = readUtf8FileSync(
           pathMapper(item.path));
         itemObj.inline = true;
-      } else if (item.sri) {
-        itemObj.sri = item.sri;
       }
 
       if (item.type === 'css' && item.where === 'client') {

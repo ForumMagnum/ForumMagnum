@@ -42,7 +42,7 @@ function onCreateUserCallback(options, user) {
   user = Object.assign(user, options);
 
   // run validation callbacks
-  user = runCallbacks({ name: 'user.create.validate', iterator: user });
+  user = runCallbacks({ name: 'user.create.validate', iterator: user, properties: {} });
   // OpenCRUD backwards compatibility
   user = runCallbacks('users.new.validate', user);
 
@@ -50,8 +50,9 @@ function onCreateUserCallback(options, user) {
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     if (schema[fieldName].onCreate) {
+      const document = clone(user);
       // eslint-disable-next-line no-await-in-loop
-      autoValue = schema[fieldName].onCreate({ newDocument: clone(user) });
+      autoValue = schema[fieldName].onCreate({ document });
     } else if (schema[fieldName].onInsert) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
@@ -61,7 +62,7 @@ function onCreateUserCallback(options, user) {
       user[fieldName] = autoValue;
     }
   }
-  user = runCallbacks({ name: 'user.create.before', iterator: user });
+  user = runCallbacks({ name: 'user.create.before', iterator: user, properties: {} });
   user = runCallbacks('users.new.sync', user);
 
   runCallbacksAsync({ name: 'user.create.async', properties: { data: user } });

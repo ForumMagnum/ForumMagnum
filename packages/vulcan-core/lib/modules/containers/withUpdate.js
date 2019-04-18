@@ -31,10 +31,8 @@ import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
-import { updateClientTemplate } from 'meteor/vulcan:lib';
+import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
 import clone from 'lodash/clone';
-
-import { extractCollectionInfo, extractFragmentInfo } from './handleOptions';
 
 const withUpdate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);

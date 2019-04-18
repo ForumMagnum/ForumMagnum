@@ -53,7 +53,7 @@ const updateMutation = {
     if (!document) {
       throw new Error(`Could not find document to update for selector: ${JSON.stringify(selector)}`);
     }
-
+    
     performCheck(this, currentUser, document);
 
     return updateMutator({
@@ -161,7 +161,7 @@ registerCallback({
   name: 'user.update.validate',
   iterator: {data: 'The client data'},
   properties: [
-    {document: 'The document being updated'},
+    {document: 'The document being updated'}, 
     {currentUser: 'The current user.'},
     {validationErrors: 'an object that can be used to accumulate validation errors.'},
   ],

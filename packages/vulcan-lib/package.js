@@ -1,7 +1,7 @@
 Package.describe({
   name: 'vulcan:lib',
   summary: 'Vulcan libraries.',
-  version: '1.12.8',
+  version: '1.13.0',
   git: 'https://github.com/VulcanJS/Vulcan.git',
 });
 
@@ -38,6 +38,7 @@ Package.onUse(function(api) {
     'http',
     'email',
     'random',
+    'apollo@3.0.1',
 
     // Third-party packages
 
@@ -55,4 +56,10 @@ Package.onUse(function(api) {
 
   api.mainModule('lib/server/main.js', 'server');
   api.mainModule('lib/client/main.js', 'client');
+});
+
+Package.onTest(function(api) {
+  api.use(['ecmascript', 'meteortesting:mocha']);
+  api.mainModule('./test/index.js');
+  api.mainModule('./test/server/index.js', 'server');
 });

@@ -1,8 +1,37 @@
 import { compose } from 'react-apollo'; // note: at the moment, compose@react-apollo === compose@redux ; see https://github.com/apollostack/react-apollo/blob/master/src/index.ts#L4-L7
 import React from 'react';
+import difference from 'lodash/difference';
 
 export const Components = {}; // will be populated on startup (see vulcan:routing)
 export const ComponentsTable = {}; // storage for infos about components
+
+export const coreComponents = [
+  'Alert',
+  'Button',
+  'Modal',
+  'ModalTrigger',
+  'Table',
+  'FormComponentCheckbox',
+  'FormComponentCheckboxGroup',
+  'FormComponentDate',
+  'FormComponentDate2',
+  'FormComponentDateTime',
+  'FormComponentDefault',
+  'FormComponentText',
+  'FormComponentEmail',
+  'FormComponentNumber',
+  'FormComponentRadioGroup',
+  'FormComponentSelect',
+  'FormComponentSelectMultiple',
+  'FormComponentStaticText',
+  'FormComponentTextarea',
+  'FormComponentTime',
+  'FormComponentUrl',
+  'FormComponentInner',
+  'FormControl',
+  'FormElement',
+  'FormItem',
+];
 
 /**
  * Register a Vulcan component with a name, a raw component than can be extended
@@ -54,12 +83,18 @@ export const getComponent = name => {
   if (!component) {
     throw new Error(`Component ${name} not registered.`);
   }
-  if (component.hocs) {
+  if (component.hocs && component.hocs.length) {
     const hocs = component.hocs.map(hoc => {
       if (!Array.isArray(hoc)) {
+        if (typeof hoc !== 'function') {
+          throw new Error(`In registered component ${name}, an hoc is of type ${typeof hoc}`);
+        }
         return hoc;
       }
       const [actualHoc, ...args] = hoc;
+      if (typeof actualHoc !== 'function') {
+        throw new Error(`In registered component ${name}, an hoc is of type ${typeof actualHoc}`);
+      }
       return actualHoc(...args);
     });
     return compose(...hocs)(component.rawComponent);
@@ -73,14 +108,27 @@ export const getComponent = name => {
  * ℹ️ Called once on app startup
  **/
 export const populateComponentsApp = () => {
+  const registeredComponents = Object.keys(ComponentsTable);
+
   // loop over each component in the list
-  Object.keys(ComponentsTable).map(name => {
+  registeredComponents.map(name => {
     // populate an entry in the lookup table
     Components[name] = getComponent(name);
 
     // uncomment for debug
     // console.log('init component:', name);
   });
+
+  const missingComponents = difference(coreComponents, registeredComponents);
+
+  if (missingComponents.length) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `Found the following missing core components: ${missingComponents.join(
+        ', '
+      )}. Include a UI package such as vulcan:ui-bootstrap to add them.`
+    );
+  }
 };
 
 /**
@@ -150,7 +198,11 @@ export const instantiateComponent = (component, props) => {
   } else if (typeof component === 'string') {
     const Component = getComponent(component);
     return <Component {...props} />;
-  } else if (typeof component === 'function' && component.prototype && component.prototype.isReactComponent) {
+  } else if (
+    typeof component === 'function' &&
+    component.prototype &&
+    component.prototype.isReactComponent
+  ) {
     const Component = component;
     return <Component {...props} />;
   } else if (typeof component === 'function') {
@@ -189,3 +241,16 @@ export const delayedComponent = name => {
     return Component && <Component {...props} />;
   };
 };
+
+// Example with Proxy (might be unstable/hard to reason about)
+//const mergeWithComponents = (myComponents = {}) => {
+//  const handler = {
+//    get: function(target, name) {
+//      return name in target ? target[name] : Components[name];
+//    }
+//  };
+//  const proxy = new Proxy(myComponents, handler);
+//  return proxy;
+//};
+export const mergeWithComponents = myComponents =>
+  myComponents ? { ...Components, ...myComponents } : Components;

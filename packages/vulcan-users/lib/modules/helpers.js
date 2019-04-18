@@ -57,6 +57,7 @@ Users.getDisplayName = function(user) {
 Users.getDisplayNameById = function(userId) {
   return Users.getDisplayName(Users.findOne(userId));
 };
+export const getDisplayName = Users.getDisplayName;
 
 /**
  * @summary Get a user's profile URL
@@ -64,7 +65,7 @@ Users.getDisplayNameById = function(userId) {
  * @param {Boolean} isAbsolute
  */
 Users.getProfileUrl = function(user, isAbsolute) {
-  if (!user) {
+  if (typeof user === 'undefined') {
     return '';
   }
   isAbsolute = typeof isAbsolute === 'undefined' ? false : isAbsolute; // default to false
@@ -75,6 +76,7 @@ Users.getProfileUrl = function(user, isAbsolute) {
     return '';
   }
 };
+export const getProfileUrl = Users.getProfileUrl;
 
 /**
  * @summary Get a user's account edit URL
@@ -91,7 +93,7 @@ Users.getEditUrl = function(user, isAbsolute) {
  */
 Users.getTwitterName = function(user) {
   // return twitter name provided by user, or else the one used for twitter login
-  if (user) {
+  if (typeof user !== 'undefined') {
     if (user.twitterUsername) {
       return user.twitterUsername;
     } else if (Utils.checkNested(user, 'services', 'twitter', 'screenName')) {
@@ -172,13 +174,11 @@ Users.getSetting = function(user = null, settingName, defaultValue = null) {
  * @param {Object} user
  */
 Users.hasCompletedProfile = function(user) {
-
   if (!user) return false;
 
   return _.every(Users.getRequiredFields(), function(fieldName) {
     return !!Utils.getNestedProperty(user, fieldName);
   });
-
 };
 
 ///////////////////
@@ -231,7 +231,6 @@ Users.getProperty = function(object, property) {
 
 //   Users.update(user._id, modifier);
 // }
-
 
 ////////////////////
 // More Helpers   //

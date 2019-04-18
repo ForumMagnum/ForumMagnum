@@ -12,8 +12,8 @@ import {
   Connectors,
   getTypeName,
   getCollectionName,
+  throwError,
 } from 'meteor/vulcan:lib';
-import { createError } from 'apollo-errors';
 
 const defaultOptions = {
   cacheMaxAge: 300,
@@ -21,7 +21,6 @@ const defaultOptions = {
 
 // note: for some reason changing resolverOptions to "options" throws error
 export function getDefaultResolvers(options) {
-
   let typeName, collectionName, resolverOptions;
   if (typeof arguments[0] === 'object') {
     // new single-argument API
@@ -42,7 +41,7 @@ export function getDefaultResolvers(options) {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
       async resolver(root, { input = {} }, context, { cacheControl }) {
-        const { terms = {}, enableCache = false, enableTotal = false } = input;
+        const { terms = {}, enableCache = false, enableTotal = false } = input; //LESSWRONG: enableTotal defaults false
 
         debug('');
         debugGroup(
@@ -132,8 +131,10 @@ export function getDefaultResolvers(options) {
           if (allowNull) {
             return { result: null };
           } else {
-            const MissingDocumentError = createError('app.missing_document', { message: 'app.missing_document' });
-            throw new MissingDocumentError({ data: { documentId, selector } });
+            throwError({
+              id: 'app.missing_document',
+              data: { documentId, selector },
+            });
           }
         }
 
@@ -145,7 +146,9 @@ export function getDefaultResolvers(options) {
             currentUser,
             doc,
             collection,
-            documentId
+            documentId,
+            `${typeName}.read.single`,
+            collectionName
           );
         }
 

@@ -1,21 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import DateTimePicker from 'react-datetime';
-import { registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 
 class Time extends PureComponent {
-  
   constructor(props) {
     super(props);
     this.updateDate = this.updateDate.bind(this);
   }
-
-  // when the datetime picker has mounted, SmartForm will catch the date value (no formsy mixin in this component)
-  // componentDidMount() {
-  //   if (this.props.value) {
-  //     this.context.updateCurrentValues({[this.props.path]: this.props.value});
-  //   }
-  // }
 
   updateDate(mDate) {
     // if this is a properly formatted moment date, update time
@@ -25,6 +17,8 @@ class Time extends PureComponent {
   }
 
   render() {
+
+    const { inputProperties } = this.props;
 
     const date = new Date();
 
@@ -37,26 +31,23 @@ class Time extends PureComponent {
     }
 
     return (
-      <div className="form-group row">
-        <label className="control-label col-sm-3">{this.props.label}</label>
-        <div className="col-sm-9">
-          <DateTimePicker
-            value={date}
-            viewMode="time"
-            dateFormat={false}
-            timeFormat="HH:mm"
-            // newDate argument is a Moment object given by react-datetime
-            onChange={newDate => this.updateDate(newDate)}
-            inputProps={{name: this.props.name}}
-          />
-        </div>
-      </div>
+      <Components.FormItem path={inputProperties.path} label={inputProperties.label} {...this.props.itemProperties}>
+        <DateTimePicker
+          value={date}
+          viewMode="time"
+          dateFormat={false}
+          timeFormat="HH:mm"
+          // newDate argument is a Moment object given by react-datetime
+          onChange={newDate => this.updateDate(newDate)}
+          inputProps={{ name: this.props.name }}
+        />
+      </Components.FormItem>
     );
   }
 }
 
 Time.propTypes = {
-  control: PropTypes.any,
+  input: PropTypes.any,
   datatype: PropTypes.any,
   group: PropTypes.any,
   label: PropTypes.string,

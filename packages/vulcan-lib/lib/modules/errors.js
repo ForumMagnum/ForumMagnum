@@ -1,3 +1,6 @@
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 /*
 
 Get whatever word is contained between the first two double quotes
@@ -15,6 +18,8 @@ const getFirstWord = input => {
 
 Parse a GraphQL error message
 
+TODO: check if still useful?
+
 Sample message: 
 
 "GraphQL error: Variable "$data" got invalid value {"meetingDate":"2018-08-07T06:05:51.704Z"}.
@@ -25,6 +30,10 @@ In field "addresses": Expected "[JSON]!", found null."
 */
 
 const parseErrorMessage = message => {
+
+  if (!message) {
+    return null;
+  }
 
   // note: optionally add .slice(1) at the end to get rid of the first error, which is not that helpful
   let fieldErrors = message.split('\n');

@@ -271,9 +271,20 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   fields() {
-    const loginFields = [];
+    let loginFields = [];
     const { formState } = this.state;
 
+    // if extra fields have been specified, add onChange handler to them
+    if (this.props.extraFields) {
+      loginFields = this.props.extraFields.map(field => {
+        const { id } = field;
+        return {
+          ...field,
+          onChange: this.handleChange.bind(this, id),
+        }
+      });
+    }
+      
     if (!hasPasswordService() && getLoginServices().length == 0) {
       loginFields.push({
         label: 'No login service added, i.e. accounts-password',
@@ -633,8 +644,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
     if (usernameOrEmail !== null) {
       if (!this.validateField('username', usernameOrEmail)) {
-        if (formState == STATES.SIGN_UP) {
-          onSubmitHook('error.accounts.usernameRequired', formState);
+        if (this.state.formState == STATES.SIGN_UP) {
+          this.state.onSubmitHook('error.accounts.usernameRequired', this.state.formState);
         }
         error = true;
       }
@@ -643,8 +654,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
       }
     } else if (username !== null) {
       if (!this.validateField('username', username)) {
-        if (formState == STATES.SIGN_UP) {
-          onSubmitHook('error.accounts.usernameRequired', formState);
+        if (this.state.formState == STATES.SIGN_UP) {
+          this.state.onSubmitHook('error.accounts.usernameRequired', this.state.formState);
         }
         error = true;
       }
@@ -666,6 +677,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
     if (!error) {
       Meteor.loginWithPassword(loginSelector, password, (error, result) => {
+        onSubmitHook(error,formState);
         if (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -779,6 +791,13 @@ export class AccountsLoginFormInner extends TrackerComponent {
       onSubmitHook
     } = this.state;
 
+    // add extra fields to options
+    if (this.props.extraFields) {
+      this.props.extraFields.forEach(({ id })=> {
+        options[id] = this.state[id];
+      });
+    }
+    
     const self = this;
 
     let error = false;
@@ -816,6 +835,9 @@ export class AccountsLoginFormInner extends TrackerComponent {
     } else {
       options.password = password;
     }
+
+    // set the signup locale
+    options.locale = this.context.intl.locale;
 
     const SignUp = function(_options) {
       Accounts.createUser(_options, (error) => {

@@ -60,7 +60,7 @@ Utils.dashToCamel = function (str) {
  * @param {String} str
  */
 Utils.camelCaseify = function(str) {
-  str = Utils.dashToCamel(str.replace(' ', '-'));
+  str = this.dashToCamel(str.replace(' ', '-'));
   str = str.slice(0,1).toLowerCase() + str.slice(1);
   return str;
 };
@@ -257,7 +257,7 @@ _.mixin({
     var clone = _.clone(object);
     _.each(clone, function(value, key) {
       /*
-
+        
         Remove a value if:
         1. it's not a boolean
         2. it's not a number
@@ -466,18 +466,6 @@ Utils.defineName = (o, name) => {
   Object.defineProperty(o, 'name', { value: name });
   return o;
 };
-
-Utils.performCheck = (operation, user, checkedObject, context, documentId) => {
-
-  if (!checkedObject) {
-    throw new Error(Utils.encodeIntlError({id: 'app.document_not_found', value: documentId}))
-  }
-
-  if (!operation(user, checkedObject, context)) {
-    throw new Error(Utils.encodeIntlError({id: 'app.operation_not_allowed', value: operation.name}));
-  }
-
-}
 
 Utils.getRoutePath = routeName => {
   return Routes[routeName] && Routes[routeName].path;

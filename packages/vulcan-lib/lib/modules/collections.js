@@ -2,11 +2,11 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql.js';
 import { Utils } from './utils.js';
-import { runCallbacks, runCallbacksAsync } from './callbacks.js';
+import { runCallbacks, runCallbacksAsync, registerCallback, addCallback } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import escapeStringRegexp from 'escape-string-regexp';
-import { validateIntlField, getIntlString, isIntlField } from './intl';
+import { validateIntlField, getIntlString, isIntlField, schemaHasIntlFields } from './intl';
 
 const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug.js';
@@ -80,7 +80,6 @@ Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
  * @param {String} fieldName
  */
 Mongo.Collection.prototype.removeField = function(fieldName) {
-
   var collection = this;
   var schema = _.omit(collection.simpleSchema()._schema, fieldName);
 
@@ -220,8 +219,8 @@ export const createCollection = options => {
     addGraphQLCollection(collection);
   }
 
-  runCallbacksAsync({ name: '*.collection', properties: { options } });
-  runCallbacksAsync({ name: `${collectionName}.collection`, properties: { options } });
+  runCallbacksAsync({ name: '*.collection.async', properties: { options } });
+  runCallbacksAsync({ name: `${collectionName}.collection.async`, properties: { options } });
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
@@ -242,7 +241,7 @@ export const createCollection = options => {
       parameters = Utils.deepExtend(
         true,
         parameters,
-        collection.defaultView(terms, apolloClient)
+        collection.defaultView(terms, apolloClient, context)
       );
     }
 
@@ -368,6 +367,13 @@ export const createCollection = options => {
             })),
           },
         });
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Warning: terms.query is set but schema ${
+            collection.options.typeName
+          } has no searchable field. Set "searchable: true" for at least one field to enable search.`
+        );
       }
     }
 

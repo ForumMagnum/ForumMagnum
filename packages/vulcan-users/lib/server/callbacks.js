@@ -26,11 +26,13 @@
   // }
   // addCallback("users.new.sync", usersNewAdminUserCreationNotification);
 
-  function usersMakeAdmin (user) {
+  export function usersMakeAdmin (user) {
     // if this is not a dummy account, and is the first user ever, make them an admin
     // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
-    const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
-    user.isAdmin = !user.isDummy && realUsersCount === 0;
+    if (typeof user.isAdmin === 'undefined') {
+      const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
+      user.isAdmin = !user.isDummy && realUsersCount === 0;
+    }
     return user;
   }
   addCallback('users.new.sync', usersMakeAdmin);
@@ -50,7 +52,7 @@
       const newEmail = modifier.$set.email;
 
       // check for existing emails and throw error if necessary
-      const userWithSameEmail = Users.findOne({email: newEmail});
+      const userWithSameEmail = Users.findByEmail(newEmail);
       if (userWithSameEmail && userWithSameEmail._id !== user._id) {
         throw new Error(Utils.encodeIntlError({id:'users.email_already_taken', value: newEmail}));
       }

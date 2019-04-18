@@ -2,14 +2,36 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
+// Replaceable layout
+const FormNestedArrayLayout = ({ hasErrors, label, content }) => (
+  <div
+    className={`form-group row form-nested ${hasErrors ? 'input-error' : ''}`}
+  >
+    <label className="control-label col-sm-3">{label}</label>
+    <div className="col-sm-9">{content}</div>
+  </div>
+);
+FormNestedArrayLayout.propTypes = {
+  hasErrors: PropTypes.bool,
+  label: PropTypes.node,
+  content: PropTypes.node
+};
+registerComponent({
+  name: 'FormNestedArrayLayout',
+  component: FormNestedArrayLayout
+});
+
 class FormNestedArray extends PureComponent {
   getCurrentValue() {
-    return this.props.value || []
+    return this.props.value || [];
   }
 
   addItem = () => {
-    const value = this.getCurrentValue()
-    this.props.updateCurrentValues({ [`${this.props.path}.${value.length}`]: {} }, { mode: 'merge'});
+    const value = this.getCurrentValue();
+    this.props.updateCurrentValues(
+      { [`${this.props.path}.${value.length}`]: {} },
+      { mode: 'merge' }
+    );
   };
 
   removeItem = index => {
@@ -36,7 +58,14 @@ class FormNestedArray extends PureComponent {
       'inputProperties',
       'nestedInput'
     );
-    const { errors, path } = this.props;
+    const { errors, path, label, formComponents, minCount, maxCount } = this.props;
+    const FormComponents = formComponents;
+
+    //filter out null values to calculate array length
+    let arrayLength = value.filter(singleValue => {
+      return !!singleValue;
+    }).length;
+
     // only keep errors specific to the nested array (and not its subfields)
     const nestedArrayErrors = errors.filter(
       error => error.path && error.path === path
@@ -44,29 +73,45 @@ class FormNestedArray extends PureComponent {
     const hasErrors = nestedArrayErrors && nestedArrayErrors.length;
     
     return (
-      <div className={`form-group row form-nested ${hasErrors ? 'input-error': ''}`}>
-        <label className="control-label col-sm-3">{this.props.label}</label>
-        <div className="col-sm-9">
-          {value.map(
+      <FormComponents.FormNestedArrayLayout
+        label={label}
+        content={[
+          value.map(
             (subDocument, i) =>
               !this.isDeleted(i) && (
-                <Components.FormNestedItem
-                  {...properties}
-                  key={i}
-                  itemIndex={i}
-                  path={`${this.props.path}.${i}`}
-                  removeItem={() => {
-                    this.removeItem(i);
-                  }}
-                />
+                <React.Fragment key={i}>
+                  <FormComponents.FormNestedItem
+                    {...properties}
+                    itemIndex={i}
+                    path={`${this.props.path}.${i}`}
+                    removeItem={() => {
+                      this.removeItem(i);
+                    }}
+                    hideRemove={!!minCount && arrayLength <= minCount}
+                  />
+                  <FormComponents.FormNestedDivider
+                    label={this.props.label}
+                    addItem={this.addItem}
+                  />
+                </React.Fragment>
               )
-          )}
-          <Components.Button size="small" variant="success" onClick={this.addItem} className="form-nested-button">
-            <Components.IconAdd height={12} width={12} />
-          </Components.Button>
-          {hasErrors ? <Components.FieldErrors errors={nestedArrayErrors} /> : null}
-        </div>
-      </div>
+          ),
+          (!maxCount || arrayLength < maxCount) && (
+            <Components.FormNestedFoot
+              key="add-button"
+              addItem={this.addItem}
+              label={this.props.label}
+              className="form-nested-foot"
+            />
+          ),
+          hasErrors ? (
+            <FormComponents.FieldErrors
+              key="form-nested-errors"
+              errors={nestedArrayErrors}
+            />
+          ) : null
+        ]}
+      />
     );
   }
 }
@@ -75,6 +120,17 @@ FormNestedArray.propTypes = {
   currentValues: PropTypes.object,
   path: PropTypes.string,
   label: PropTypes.string,
+  minCount: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.func
+  ]),
+  maxCount: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.func
+  ]),
+  errors: PropTypes.array.isRequired,
+  deletedValues: PropTypes.array.isRequired,
+  formComponents: PropTypes.object.isRequired
 };
 
 module.exports = FormNestedArray;

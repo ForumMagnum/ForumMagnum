@@ -54,12 +54,11 @@ const resolvers = {
 
       return data;
     },
-
   },
 
   single: {
     async resolver(root, { input = {} }, { currentUser, Users }, { cacheControl }) {
-      const { selector, enableCache = false } = input;
+      const { selector = {}, enableCache = false } = input;
       const { documentId, slug } = selector;
 
       if (cacheControl && enableCache) {
@@ -75,9 +74,7 @@ const resolvers = {
         : await Connectors.get(Users);
       return { result: Users.restrictViewableFields(currentUser, Users, user) };
     },
-
   },
-
 };
 
 export default resolvers;

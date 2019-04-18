@@ -56,7 +56,12 @@ const schema = {
     canUpdate: ['admins'],
     canCreate: ['members'],
     onInsert: user => {
-      if ((!user.username) && user.services && user.services.twitter && user.services.twitter.screenName) {
+      if (
+        !user.username &&
+        user.services &&
+        user.services.twitter &&
+        user.services.twitter.screenName
+      ) {
         return user.services.twitter.screenName;
       }
     },
@@ -83,14 +88,14 @@ const schema = {
     type: Date,
     optional: true,
     canRead: ['admins'],
-    onInsert: () => {
+    onCreate: () => {
       return new Date();
     },
   },
   isAdmin: {
     type: Boolean,
     label: 'Admin',
-    control: 'checkbox',
+    input: 'checkbox',
     optional: true,
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -101,7 +106,7 @@ const schema = {
     type: String,
     label: 'Preferred Language',
     optional: true,
-    control: 'select',
+    input: 'select',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ['guests'],
@@ -111,6 +116,7 @@ const schema = {
     type: Object,
     optional: true,
     blackbox: true,
+    hidden: true,
     canCreate: ['members'],
   },
   // // telescope-specific data, kept for backward compatibility and migration purposes
@@ -131,12 +137,12 @@ const schema = {
   displayName: {
     type: String,
     optional: true,
-    control: 'text',
+    input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ['guests'],
     order: 10,
-    onInsert: (user, options) => {
+    onCreate: ({ document: user }) => {
       return createDisplayName(user);
     },
     searchable: true,
@@ -149,12 +155,12 @@ const schema = {
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
     mustComplete: true,
-    control: 'text',
+    input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ownsOrIsAdmin,
     order: 20,
-    onInsert: (user) => {
+    onCreate: ({ document: user }) => {
       // look in a few places for the user email
       const meteorEmails = Utils.getNestedProperty(user, 'services.meteor-developer.emails');
       const facebookEmail = Utils.getNestedProperty(user, 'services.facebook.email');
@@ -179,7 +185,7 @@ const schema = {
     type: String,
     optional: true,
     canRead: ['admins'],
-    onInsert: user => {
+    onCreate: ({ document: user }) => {
       if (user.email) {
         return getCollection('Users').avatar.hash(user.email);
       }
@@ -189,7 +195,7 @@ const schema = {
     type: String,
     optional: true,
     canRead: ['admins'],
-    onInsert: user => {
+    onCreate: ({ document: user }) => {
       const twitterAvatar = Utils.getNestedProperty(
         user,
         'services.twitter.profile_image_url_https'
@@ -199,13 +205,11 @@ const schema = {
       if (twitterAvatar) return twitterAvatar;
       if (facebookId) return `https://graph.facebook.com/${facebookId}/picture?type=large`;
       return undefined;
-
     },
     resolveAs: {
       fieldName: 'avatarUrl',
       type: 'String',
       resolver: async (user, args, { Users }) => {
-
         if (_.isEmpty(user)) return null;
 
         if (user.avatarUrl) {
@@ -227,7 +231,7 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     order: 40,
-    onInsert: user => {
+    onCreate: ({ document: user }) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = Utils.slugify(displayName);
@@ -301,6 +305,18 @@ const schema = {
     },
   },
 
+  pagePath: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (user, args, { Users }) => {
+        return Users.getProfileUrl(user, false);
+      },
+    },
+  },
+
   editUrl: {
     type: String,
     optional: true,
@@ -312,7 +328,6 @@ const schema = {
       },
     },
   },
-
 };
 
 export default schema;

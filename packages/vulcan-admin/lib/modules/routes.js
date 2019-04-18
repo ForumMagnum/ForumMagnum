@@ -5,6 +5,7 @@ addRoute({
   name: 'admin',
   path: '/admin',
   component: () => getDynamicComponent(import('../components/AdminHome.jsx')),
+  layoutName: 'AdminLayout',
 });
 addRoute({
   name: 'admin2',

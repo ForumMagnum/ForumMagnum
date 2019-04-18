@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components } from 'meteor/vulcan:core';
-import { registerComponent } from 'meteor/vulcan:core';
+import { Components, Utils } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 
 const styles = theme => ({
     formSection: {
@@ -41,6 +41,45 @@ const styles = theme => ({
     }
 })
 
+const FormGroupHeader = ({ toggle, collapsed, label }) => (
+  <div className="form-section-heading" onClick={toggle}>
+    <h3 className="form-section-heading-title">{label}</h3>
+    <span className="form-section-heading-toggle">
+      {collapsed ? (
+        <Components.IconRight height={16} width={16} />
+      ) : (
+        <Components.IconDown height={16} width={16} />
+      )}
+    </span>
+  </div>
+);
+FormGroupHeader.propTypes = {
+  toggle: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+  collapsed: PropTypes.bool
+};
+registerComponent({ name: 'FormGroupHeader', component: FormGroupHeader });
+
+const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors }) => (
+  <div className={`form-section form-section-${Utils.slugify(label)}`}>
+    {heading}
+    <div
+      className={classNames({
+        'form-section-collapsed': collapsed && !hasErrors
+      })}
+    >
+      {children}
+    </div>
+  </div>
+);
+FormGroupLayout.propTypes = {
+  hasErrors: PropTypes.bool,
+  collapsed: PropTypes.bool,
+  heading: PropTypes.node,
+  children: PropTypes.node
+};
+registerComponent({ name: 'FormGroupLayout', component: FormGroupLayout });
+
 class FormGroup extends PureComponent {
   constructor(props) {
     super(props);
@@ -57,21 +96,13 @@ class FormGroup extends PureComponent {
     });
   }
 
-  renderHeading() {
-    const { classes, label, helpText } = this.props
+  renderHeading(FormComponents) {
     return (
-      <div className={classes.formSectionHeading} onClick={this.toggle}>
-        {helpText ?
-          <Tooltip title={helpText}>
-            <h3 className="form-section-heading-title">{ label }</h3>
-          </Tooltip>
-          :
-          <h3 className="form-section-heading-title">{ label }</h3>
-        }
-        <span>
-          {this.state.collapsed ? <Components.IconRight height={16} width={16}/> : <Components.IconDown height={16} width={16} />}
-        </span>
-      </div>
+      <FormComponents.FormGroupHeader
+        toggle={this.toggle}
+        label={this.props.label}
+        collapsed={this.state.collapsed}
+      />
     );
   }
 
@@ -79,37 +110,40 @@ class FormGroup extends PureComponent {
   hasErrors = () =>
     _.some(this.props.fields, field => {
       return !!this.props.errors.filter(error => error.path === field.path)
-        .length
+        .length;
     });
 
   render() {
-    const { classes, name, defaultStyle, flexStyle} = this.props
-    const groupStyling = !(name == 'default' || defaultStyle)
+    const { name, fields, formComponents, label } = this.props;
+    const { collapsed } = this.state;
+    const FormComponents = mergeWithComponents(formComponents);
+
     return (
-      <div className={classNames({[classes.formSection]: groupStyling})}>
-        { groupStyling && this.renderHeading()}
-        { (!this.state.collapsed || this.hasErrors()) &&
-          <div className={classNames(classes.formSectionFields, {[classes.formSectionBody]: groupStyling, [classes.flex]: flexStyle})}
-            >
-            {this.props.fields.map(field => (
-              <Components.FormComponent
-                key={field.name}
-                disabled={this.props.disabled}
-                {...field}
-                errors={this.props.errors}
-                throwError={this.props.throwError}
-                currentValues={this.props.currentValues}
-                updateCurrentValues={this.props.updateCurrentValues}
-                deletedValues={this.props.deletedValues}
-                addToDeletedValues={this.props.addToDeletedValues}
-                clearFieldErrors={this.props.clearFieldErrors}
-                formType={this.props.formType}
-                currentUser={this.props.currentUser}
-              />
-            ))}
-          </div>
-        }
-      </div>
+      <FormComponents.FormGroupLayout
+        label={label}
+        toggle={this.toggle}
+        collapsed={collapsed}
+        heading={name === 'default' ? null : this.renderHeading(FormComponents)}
+        hasErrors={this.hasErrors()}
+      >
+        {fields.map(field => (
+          <FormComponents.FormComponent
+            key={field.name}
+            disabled={this.props.disabled}
+            {...field}
+            errors={this.props.errors}
+            throwError={this.props.throwError}
+            currentValues={this.props.currentValues}
+            updateCurrentValues={this.props.updateCurrentValues}
+            deletedValues={this.props.deletedValues}
+            addToDeletedValues={this.props.addToDeletedValues}
+            clearFieldErrors={this.props.clearFieldErrors}
+            formType={this.props.formType}
+            currentUser={this.props.currentUser}
+            formComponents={FormComponents}
+          />
+        ))}
+      </FormComponents.FormGroupLayout>
     );
   }
 }
@@ -131,6 +165,7 @@ FormGroup.propTypes = {
 };
 
 module.exports = FormGroup;
+
 registerComponent('FormGroup', FormGroup, withStyles(styles, {name: "FormGroup"}));
 
 const IconRight = ({ width = 24, height = 24 }) => (

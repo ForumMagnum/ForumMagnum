@@ -1,15 +1,30 @@
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import _isEmpty from 'lodash/isEmpty';
+// TODO: now we should add some callback call to add the store to
+// Apollo SSR + client side too
 
 // create store, and implement reload function
-export const configureStore = (reducers, initialState = {}, middlewares) => {
+export const configureStore = (
+  reducers = getReducers,
+  initialState = {},
+  middlewares = getMiddlewares
+) => {
   let getReducers;
   if (typeof reducers === 'function') {
     getReducers = reducers;
     reducers = getReducers();
   }
-  reducers = typeof reducers === 'object' ? combineReducers(reducers) : reducers;
+  if (typeof reducers === 'object') {
+    // allow to tolerate empty reducers
+    //@see https://github.com/reduxjs/redux/issues/968
+    reducers = !_isEmpty(reducers) ? combineReducers(reducers) : () => {};
+  }
+  let getMiddlewares;
+  if (typeof middlewares === 'function') {
+    getMiddlewares = middlewares;
+    middlewares = getMiddlewares();
+  }
   middlewares = Array.isArray(middlewares) ? middlewares : [middlewares];
-
   const store = createStore(
     // reducers
     reducers,
@@ -18,10 +33,11 @@ export const configureStore = (reducers, initialState = {}, middlewares) => {
     // middlewares
     compose(
       applyMiddleware(...middlewares),
-      typeof window !== 'undefined' && window.devToolsExtension ? window.devToolsExtension() : f => f,
-    ),
+      typeof window !== 'undefined' && window.devToolsExtension
+        ? window.devToolsExtension()
+        : f => f
+    )
   );
-
   store.reload = function reload(options = {}) {
     if (typeof options.reducers === 'function') {
       getReducers = options.reducers;
@@ -31,12 +47,12 @@ export const configureStore = (reducers, initialState = {}, middlewares) => {
       options.reducers = getReducers();
     }
     if (options.reducers) {
-      reducers = typeof options.reducers === 'object' ? combineReducers(options.reducers) : options.reducers;
+      reducers =
+        typeof options.reducers === 'object' ? combineReducers(options.reducers) : options.reducers;
     }
     this.replaceReducer(reducers);
     return store;
   };
-
   return store;
 };
 
@@ -44,31 +60,30 @@ export const configureStore = (reducers, initialState = {}, middlewares) => {
 // **Notes: client side, addAction to browser**
 // **Notes: server side, addAction to server share with every req**
 let actions = {};
-
-export const addAction = (addedAction) => {
+export const addAction = addedAction => {
   actions = { ...actions, ...addedAction };
   return actions;
 };
 export const getActions = () => actions;
-
 // reducers
 // **Notes: client side, addReducer to browser**
 // **Notes: server side, addReducer to server share with every req**
 let reducers = {};
 
-export const addReducer = (addedReducer) => {
+export const addReducer = addedReducer => {
   reducers = { ...reducers, ...addedReducer };
   return reducers;
 };
 export const getReducers = () => reducers;
-
 // middlewares
 // **Notes: client side, addMiddleware to browser**
 // **Notes: server side, addMiddleware to server share with every req**
 let middlewares = [];
 
 export const addMiddleware = (middlewareOrMiddlewareArray, options = {}) => {
-  const addedMiddleware = Array.isArray(middlewareOrMiddlewareArray) ? middlewareOrMiddlewareArray : [middlewareOrMiddlewareArray];
+  const addedMiddleware = Array.isArray(middlewareOrMiddlewareArray)
+    ? middlewareOrMiddlewareArray
+    : [middlewareOrMiddlewareArray];
   if (options.unshift) {
     middlewares = [...addedMiddleware, ...middlewares];
   } else {
@@ -77,3 +92,12 @@ export const addMiddleware = (middlewareOrMiddlewareArray, options = {}) => {
   return middlewares;
 };
 export const getMiddlewares = () => middlewares;
+
+let store;
+export const initStore = () => {
+  if (!store) {
+    store = configureStore();
+  }
+  return store;
+};
+export const getStore = () => store;

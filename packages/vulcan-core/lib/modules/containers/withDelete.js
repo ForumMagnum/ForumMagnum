@@ -30,7 +30,7 @@ import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { deleteClientTemplate } from 'meteor/vulcan:core';
-import { extractCollectionInfo, extractFragmentInfo } from './handleOptions';
+import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
 import { compose, withHandlers } from 'recompose';
 
 const withDelete = options => {
