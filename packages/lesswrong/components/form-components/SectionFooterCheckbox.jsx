@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
-
+  
 const styles = theme => ({
   root: {
     cursor: "pointer",
@@ -15,7 +15,7 @@ const styles = theme => ({
   },
   checkbox: {
     color: theme.palette.lwTertiary.main,
-    padding: "1 px 8px 0 0",
+    padding: "1px 8px 0 0",
     '& svg': {
       height: "1.3rem",
       width: "1.3rem",
