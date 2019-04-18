@@ -1,4 +1,3 @@
-
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
