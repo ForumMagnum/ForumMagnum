@@ -1,7 +1,7 @@
 import { Components, registerComponent, withMulti, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { RelatedPostRels } from '../../lib/collections/relatedPostRels';
+import { RelatedPostRels } from '../../lib/collections/postRelations';
 
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';

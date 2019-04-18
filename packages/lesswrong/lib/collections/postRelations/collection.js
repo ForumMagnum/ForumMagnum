@@ -6,24 +6,24 @@ import { addUniversalFields } from '../../collectionUtils'
 const options = {
   newCheck: (user, document) => {
     if (!user || !document) return false;
-    return Users.owns(user, document) ? Users.canDo(user, 'relatedPostRels.new.own') : Users.canDo(user, `relatedPostRels.new.all`)
+    return Users.owns(user, document) ? Users.canDo(user, 'postRelations.new.own') : Users.canDo(user, `postRelations.new.all`)
   },
 
   editCheck: (user, document) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `relatedPostRels.edit.all`)
+    return Users.canDo(user, `postRelations.edit.all`)
   },
 
   removeCheck: (user, document) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `relatedPostRels.remove.all`)
+    return Users.canDo(user, `postRelations.remove.all`)
   },
 }
 
 
 export const RelatedPostRels = createCollection({
   collectionName: 'RelatedPostRels',
-  typeName: 'RelatedPostRel',
+  typeName: 'PostRelation',
   schema,
   resolvers: getDefaultResolvers('RelatedPostRels'),
   mutations: getDefaultMutations('RelatedPostRels', options),

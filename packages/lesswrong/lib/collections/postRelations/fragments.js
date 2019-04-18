@@ -1,7 +1,7 @@
 import { registerFragment } from 'meteor/vulcan:core';
 
 registerFragment(`
-  fragment NewRelatedPostRel on RelatedPostRel {
+  fragment NewRelatedPostRel on PostRelation {
     # Core fields
     _id
     parentPostId
@@ -10,7 +10,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment ChildRelatedPostRelList on RelatedPostRel {
+  fragment ChildRelatedPostRelList on PostRelation {
     # Core fields
     _id
     parentPost {

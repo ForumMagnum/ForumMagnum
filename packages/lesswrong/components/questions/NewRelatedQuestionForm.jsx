@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection.js'
-import { RelatedPostRels } from '../../lib/collections/relatedPostRels/collection.js'
+import { RelatedPostRels } from '../../lib/collections/postRelations/collection.js'
 
 const styles = theme => ({
   answersForm: {
