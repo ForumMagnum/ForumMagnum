@@ -24,7 +24,8 @@ Posts.addDefaultView(terms => {
       isFuture: false,
       unlisted: false,
       authorIsUnreviewed: false,
-      groupId: {$exists: false},
+      hiddenRelatedQuestion: false,
+      groupId: viewFieldNullOrMissing,
       ...validFields,
       ...alignmentForum
     }
@@ -48,6 +49,7 @@ Posts.addDefaultView(terms => {
   }
   if (terms.filter === "questions") {
     params.selector.question = true
+    params.selector.hiddenRelatedQuestion = null
   }
   if (terms.filter === "events") {
     params.selector.isEvent = true
@@ -62,7 +64,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, unlisted:1, authorIsUnreviewed:1, groupId:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
     suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
@@ -75,6 +77,7 @@ export function augmentForDefaultView(indexFields)
 Posts.addView("userPosts", terms => ({
   selector: { 
     userId: viewFieldAllowAny,
+    hiddenRelatedQuestion: null,
     groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
     $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
   },
@@ -654,7 +657,6 @@ ensureIndex(Posts,
   { name: "posts.afRecentDiscussionThreadsList", }
 );
 
-
 // Used in Posts.find() in various places
 ensureIndex(Posts, {userId:1, createdAt:-1});
 
@@ -667,3 +669,5 @@ ensureIndex(Posts, {isFuture:1, postedAt:1});
 
 // Used in scoring aggregate query
 ensureIndex(Posts, {inactive:1,postedAt:1});
+
+

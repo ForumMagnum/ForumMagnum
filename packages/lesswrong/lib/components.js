@@ -329,6 +329,7 @@ import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
 
 import '../components/questions/NewQuestionDialog.jsx';
+import '../components/questions/NewRelatedQuestionForm.jsx';
 import '../components/questions/NewAnswerForm.jsx';
 import '../components/questions/PostsPageQuestionContent.jsx';
 import '../components/questions/NewAnswerCommentQuestionForm.jsx';
@@ -337,5 +338,7 @@ import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/QuestionsPage.jsx';
 import '../components/questions/AnswerTocRow.jsx';
+import '../components/questions/RelatedQuestionsList.jsx';
+import '../components/questions/RelatedQuestionsItem.jsx';
 
 import '../components/recommendations/RecommendationsPage.jsx';

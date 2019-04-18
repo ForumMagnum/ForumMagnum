@@ -130,6 +130,9 @@ import './components.js';
 
 import './recommendations.js';
 
+// RelatedPostRel
+import './collections/relatedPostRels';
+
 // Alignment Forum
 import './modules/alignment-forum/callbacks.js';
 import './modules/alignment-forum/permissions.js';

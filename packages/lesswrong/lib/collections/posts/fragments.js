@@ -20,7 +20,7 @@ registerFragment(`
     deletedDraft
     viewCount
     clickCount
-    question
+    
     commentCount
     voteCount
     baseScore
@@ -33,6 +33,10 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+
+    # questions
+    question
+    hiddenRelatedQuestion
 
     # vulcan:users
     userId

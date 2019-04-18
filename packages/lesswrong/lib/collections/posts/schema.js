@@ -359,6 +359,7 @@ const schema = {
       return contents.html;
     }
   }),
+
   submitToFrontpage: {
     type: Boolean,
     viewableBy: ['guests'],
@@ -379,7 +380,17 @@ const schema = {
       if (updatedDocIsEvent) return false
       return ('submitToFrontpage' in newDocument) ? newDocument.submitToFrontpage : true
     }
-  }
+  },
+
+  hiddenRelatedQuestion: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    optional: true,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

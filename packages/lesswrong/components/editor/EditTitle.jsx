@@ -2,6 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Textarea } from 'formsy-react-components';
 import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -10,21 +11,30 @@ const styles = theme => ({
     ...theme.typography.headerStyle,
     width: "100%",
     resize: "none",
-    textAlign: "center",
+    textAlign: "left",
     height: 100,
     marginTop: 0,
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     '&:focused': {
       borderBottom: "solid 1px rgba(0,0,0,.2)"
     }
+  },
+  question: {
+    fontSize: theme.typography.display1.fontSize,
+    height: 65,
+    paddingTop: theme.spacing.unit*1.5,
+    lineHeight: '1.2em',
+    borderBottom: "none"
   }
 })
 
-const EditTitle = (props) => {
+const EditTitle = ({document, placeholder, inputProperties, classes}) => {
+  const isQuestion = document.question
+
   return <Textarea
-    className={props.classes.root}
-    {...props.inputProperties}
-    placeholder={ props.document.question ? "Question" : props.placeholder }
+    className={classNames(classes.root, {[classes.question]: isQuestion})}
+    {...inputProperties}
+    placeholder={ isQuestion ? "Question Title" : placeholder }
     layout="elementOnly"
          />
 }
