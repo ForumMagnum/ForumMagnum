@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
@@ -16,7 +15,7 @@ const styles = theme => ({
   },
   checkbox: {
     color: theme.palette.lwTertiary.main,
-    padding: "1px 8px 0 0",
+    padding: "1 px 8px 0 0",
     '& svg': {
       height: "1.3rem",
       width: "1.3rem",
@@ -38,9 +37,4 @@ const SectionFooterCheckbox = ({ classes, label, onClick, value }) => {
   </span>
 }
 
-SectionFooterCheckbox.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
-
-// Replaces FormComponentCheckbox from vulcan-ui-bootstrap
 registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, withStyles(styles, { name: "SectionFooterCheckbox" }));
