@@ -35,11 +35,6 @@ export const formGroups = {
     label: "Admin Options",
     startCollapsed: true,
   },
-  betaOptions: {
-    order: 70,
-    name: "betaOptions",
-    label: "Beta Features",
-  },
 }
 
 export const karmaChangeNotifierDefaultSettings = {
@@ -739,23 +734,19 @@ addFieldsDict(Users, {
   },
   
   // Admin-only options for configuring Recommendations placement, for experimentation
-  recommendationsInPostFooter: {
-    type: String,
-    optional: true,
-    viewableBy: ['admins'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    group: formGroups.betaOptions,
-    label: "Number of recommendations in post footer",
+  recommendationSettings_frontpage: {
+    type: Object,
+    blackbox: true,
+    hidden: true,
+    canRead: [Users.owns],
+    canUpdate: [Users.owns],
   },
-  recommendationsOnFrontPage: {
-    type: Number,
-    optional: true,
-    viewableBy: ['admins'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    group: formGroups.betaOptions,
-    label: "Number of recommendations on front page",
+  recommendationSettings_recommendationspage: {
+    type: Object,
+    blackbox: true,
+    hidden: true,
+    canRead: [Users.owns],
+    canUpdate: [Users.owns],
   },
 });
 

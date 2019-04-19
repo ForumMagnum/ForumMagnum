@@ -20,7 +20,7 @@ const withRecommendations = component => {
       alias: "withRecommendations",
       options: (props) => ({
         variables: {
-          count: props.count || 10,
+          count: props.algorithm.count || 10,
           algorithm: props.algorithm || "top",
         }
       }),

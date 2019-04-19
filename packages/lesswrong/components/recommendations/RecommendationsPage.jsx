@@ -8,7 +8,7 @@ const styles = theme => ({
 const RecommendationsPage = ({ classes }) => {
   const { ConfigurableRecommendationsList } = Components;
   
-  return <ConfigurableRecommendationsList/>
+  return <ConfigurableRecommendationsList configName="recommendationspage" />
 };
 
 registerComponent('RecommendationsPage', RecommendationsPage,

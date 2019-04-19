@@ -7,7 +7,7 @@ import { SplitComponent } from 'meteor/vulcan:routing';
 import Users from 'meteor/vulcan:users';
 
 const Home2 = ({ currentUser }) => {
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, RecommendationsList } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, ConfigurableRecommendationsList } = Components
 
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
       Users.canDo(currentUser, 'alignment.sidebar')
@@ -32,11 +32,8 @@ const Home2 = ({ currentUser }) => {
         </PostsList2>
       </SingleColumnSection>
 
-      {currentUser && currentUser.recommendationsOnFrontPage &&
-        <SingleColumnSection>
-          <SectionTitle title="Recommended" />
-          <RecommendationsList count={currentUser.recommendationsOnFrontPage} />
-        </SingleColumnSection>
+      {currentUser && Users.isAdmin(currentUser) &&
+        <ConfigurableRecommendationsList configName="frontpage" />
       }
 
       <HomeLatestPosts />
