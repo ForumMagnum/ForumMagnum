@@ -1,6 +1,5 @@
 import Messages from './collections/messages/collection.js';
 import Conversations from './collections/conversations/collection.js';
-import Users from 'meteor/vulcan:users';
 import { Utils } from 'meteor/vulcan:core';
 
 
