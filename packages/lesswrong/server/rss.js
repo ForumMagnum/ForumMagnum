@@ -2,14 +2,12 @@ import RSS from 'rss';
 import { Posts } from '../lib/collections/posts';
 import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
-import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
 import moment from 'moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
 import Users from 'meteor/vulcan:users';
-
-registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
