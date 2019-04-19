@@ -1,7 +1,14 @@
 import Users from 'meteor/vulcan:users'
-import { foreignKeyField, schemaDefaultValue } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils'
 
-export const subscriptionTypes = ['newComments', 'newPosts', 'newRelatedQuestions', 'newEvent']
+export const subscriptionTypes = {
+  newComments: 'newComments',
+  newPosts: 'newPosts',
+  newRelatedQuestions: 'newRelatedQuestions',
+  newEvents: 'newEvents',
+  newReplies: 'newReplies'
+}
 
 const schema = {
   _id: {
@@ -22,9 +29,9 @@ const schema = {
       collectionName: "Users",
       type: "User",
     }),
+    onCreate: ({currentUser}) => currentUser._id,
     canRead: [Users.owns],
     optional: true,
-    hidden: true,
   },
   state: {
     type: String,
@@ -46,10 +53,11 @@ const schema = {
     type: Boolean,
     canRead: [Users.owns],
     ...schemaDefaultValue(false),
+    optional: true
   },
   type: {
     type: String,
-    allowedValues: subscriptionTypes,
+    allowedValues: Object.values(subscriptionTypes),
     canCreate: ['members'],
     canRead: [Users.owns]
   }

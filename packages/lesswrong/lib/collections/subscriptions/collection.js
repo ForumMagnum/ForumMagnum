@@ -4,14 +4,14 @@ import { getDefaultResolvers, getDefaultMutations, createCollection } from 'mete
 import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user, document) => {
+  create: true,
+  createCheck: (user, document) => {
     if (!user || !document) return false;
     return Users.canDo(user, 'subscriptions.new');
   },
-
-  // People should not be allowed to edit or remove subscriptions
-  editCheck: (user, document) => false,
-  removeCheck: (user, document) => false
+  update: false,
+  upsert: false, 
+  delete: false
 }
 
 export const Subscriptions = createCollection({

@@ -22,27 +22,6 @@ Messages.getLink = (message) => {
 
 
 /**
-* @summary Check whether User is subscribed to a document
-* @param {Object} user
-* @param {Object} document
-**/
-Users.isSubscribedTo = (user, document) => {
-  if (!user || !document) {
-    // should return an error
-    return false;
-  }
-
-  const { __typename, _id: itemId } = document;
-  const documentType = Utils.capitalize(Utils.getCollectionNameFromTypename(__typename));
-
-  if (user.subscribedItems && user.subscribedItems[documentType]) {
-    return !!user.subscribedItems[documentType].find(subscribedItems => subscribedItems.itemId === itemId);
-  } else {
-    return false;
-  }
-};
-
-/**
 * @summary Navigates user to url, if they did not click on any child link. We need
 * this because sometimes we have nested navigation areas, such as SequencesGridItems,
 * in which the whole item navigates you to the sequences page when clicked, but it also

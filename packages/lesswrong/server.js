@@ -70,6 +70,7 @@ import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/localgroups/callbacks.js';
+import './lib/collections/subscriptions/callbacks.js';
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
