@@ -37,3 +37,6 @@ registerSetting('disallowCrawlers', false, 'Whether to serve a robots.txt that a
 
 // rss.js
 registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
+
+// Google Analytics
+registerSetting('googleAnalytics.apiKey', null, 'Google Analytics ID');
