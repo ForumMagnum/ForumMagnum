@@ -1,7 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { addInitFunction, addIdentifyFunction } from 'meteor/vulcan:events';
-import { setTimeout } from 'timers';
-
 
 function googleTagManagerInit() {
   const googleTagManagerId = getSetting('googleTagManager.apiKey')
