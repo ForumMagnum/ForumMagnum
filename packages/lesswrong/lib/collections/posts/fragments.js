@@ -140,6 +140,25 @@ registerFragment(`
     feed {
       ...RSSFeedMinimumInfo
     }
+  }
+`);
+
+// Same as PostsPage just optional arguments to the content field
+registerFragment(`
+  fragment PostsRevision on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents(version: $version) {
+      ...RevisionDisplay
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsPage on Post {
+    ...PostsRevision
     sourcePostRelations {
       _id
       sourcePostId
@@ -158,19 +177,7 @@ registerFragment(`
       }
       order
     }
-  }
-`);
 
-registerFragment(`
-  fragment PostsPage on Post {
-    ...PostsDetails
-    targetPostRelations
-
-    # Content & Revisions
-    version
-    contents {
-      ...RevisionDisplay
-    }
   }
 `)
 
@@ -203,21 +210,6 @@ registerFragment(`
     revisions {
       version
       editedAt
-    }
-  }
-`)
-
-
-
-// Same as PostsPage just optional arguments to the content field
-registerFragment(`
-  fragment PostsRevision on Post {
-    ...PostsDetails
-
-    # Content & Revisions
-    version
-    contents(version: $version) {
-      ...RevisionDisplay
     }
   }
 `)
