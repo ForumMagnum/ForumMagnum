@@ -64,7 +64,8 @@ const styles = (theme) => ({
       justifyContent: "flex-start",
       width: "unset",
       marginLeft: 0,
-      marginRight: theme.spacing.unit*2
+      marginRight: theme.spacing.unit*2,
+      flexGrow: 1
     }
   },
   firstItem: {
@@ -138,6 +139,8 @@ const styles = (theme) => ({
     width: MENU_WIDTH,
     opacity: .5,
     marginRight: theme.spacing.unit,
+    textAlign: "right",
+    flexGrow: 1,
     display: "none",
     [theme.breakpoints.down('sm')]: {
       display: "block"

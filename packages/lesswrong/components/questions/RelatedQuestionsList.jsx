@@ -40,13 +40,14 @@ const RelatedQuestionsList = ({ post, currentUser, dimWhenLoading, classes }) =>
 
   const { RelatedQuestionsItem, SectionTitle } = Components
 
-  const showParentQuestions = post.sourcePostRelations.length > 0
-  const showSubQuestions = post.targetPostRelations.length > 0
+  const parentQuestionCount = post.sourcePostRelations && post.sourcePostRelations.length 
+  const relatedQuestionCount = post.targetPostRelations && post.targetPostRelations.length 
+  const totalRelatedQuestionCount = parentQuestionCount + relatedQuestionCount
   
   return (
     <div className={classNames(classes.root, {[classes.itemIsLoading]: dimWhenLoading})}>
 
-      {(showParentQuestions || showSubQuestions) && <SectionTitle title={`${post.targetPostRelations.length} Related Questions`} />}
+      {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
       {post.sourcePostRelations.map((rel, i) => 
         <RelatedQuestionsItem

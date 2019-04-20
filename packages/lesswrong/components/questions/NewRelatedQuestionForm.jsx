@@ -31,7 +31,7 @@ const styles = theme => ({
 })
 
 const NewRelatedQuestionForm = (props) => {
-  const { post, classes, flash, currentUser } = props
+  const { post, classes, flash, currentUser, refetch } = props
   const { SubmitToFrontpageCheckbox, PostSubmit } = Components
 
   const QuestionSubmit = (props) => {
@@ -55,6 +55,7 @@ const NewRelatedQuestionForm = (props) => {
           originalPostRelationSourceId: post._id
         }}
         successCallback={() => {
+          refetch()
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
         SubmitComponent={QuestionSubmit}

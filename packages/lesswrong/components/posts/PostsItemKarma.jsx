@@ -10,7 +10,8 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]:{
       width: "unset",
       justifyContent: "flex-start",
-      marginLeft: 2
+      marginLeft: 2,
+      marginRight: theme.spacing.unit,
     }
   },
 })

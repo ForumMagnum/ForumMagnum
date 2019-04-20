@@ -80,7 +80,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
   }
 
   getNewForm = () => {
-    const { post } = this.props
+    const { post, refetch } = this.props
     const { selection } = this.state
     const { NewAnswerForm, CommentsNewForm, NewRelatedQuestionForm } = Components
 
@@ -94,7 +94,7 @@ class NewAnswerCommentQuestionForm extends PureComponent {
           type="comment"
         />
       case "question":
-       return <NewRelatedQuestionForm post={post} />
+       return <NewRelatedQuestionForm post={post} refetch={refetch}/>
     }
   }
 

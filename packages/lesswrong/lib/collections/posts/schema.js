@@ -406,7 +406,8 @@ const schema = {
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
     resolver: async (post, args, { Posts }) => {
-      const postRelations = await PostRelations.find({targetPostId: post._id})
+      const postRelations = await PostRelations.find({targetPostId: post._id}).fetch()
+      
       return postRelations
     }
   }),
