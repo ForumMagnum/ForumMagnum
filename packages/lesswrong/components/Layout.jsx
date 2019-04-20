@@ -1,4 +1,4 @@
-/* global FS */
+
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
