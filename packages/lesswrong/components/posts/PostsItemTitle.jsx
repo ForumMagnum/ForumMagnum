@@ -52,51 +52,6 @@ const styles = theme => ({
       opacity: 1
     }
   },
-  tooltip:{
-    position: "relative",
-    left: -30,
-  },
-  highlightTooltipWrapper: {
-    [theme.breakpoints.up('sm')]: {
-      marginTop: theme.spacing.unit,
-      marginBottom: theme.spacing.unit,
-    },
-  },
-  tooltipInfo: {
-    fontStyle: "italic"
-  },
-  tooltipTitle: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*1.5,
-    fontWeight: 600,
-    fontSize: "1.2rem",
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    },
-  },
-  highlight: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2,
-    fontSize: "1.1rem",
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    },
-    '& img': {
-      display:"none"
-    },
-    '& h1': {
-      fontSize: "1.2rem"
-    },
-    '& h2': {
-      fontSize: "1.2rem"
-    },
-    '& h3': {
-      fontSize: "1.1rem"
-    },
-    '& hr': {
-      display: "none"
-    },
-  },
   postIcon: {
     marginLeft: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {
@@ -123,22 +78,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location, backgroundColor}) => {
-  const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
-  const postCategory = getPostCategory(post)
-  const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
-
-  const highlight = truncate(htmlHighlight, 600)
-
-  const tooltip = <div className={classes.highlightTooltipWrapper}>
-    <div className={classes.tooltipInfo}>
-      {postCategory}
-    </div>
-    <div dangerouslySetInnerHTML={{__html:highlight}}
-      className={classes.highlight} />
-    {wordCount && <div className={classes.tooltipInfo}>
-      {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
-    </div>}
-  </div>
+  const { PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsItemTooltip } = Components
 
   const shared = post.draft && (post.userId !== currentUser._id)
 
@@ -172,7 +112,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   </div>
 
   if (postItem2) {
-    return <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>
+    return <Tooltip title={<PostsItemTooltip post={post} />} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>
       { postTitle }
     </Tooltip>
   } else {

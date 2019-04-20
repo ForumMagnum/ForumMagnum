@@ -205,7 +205,7 @@ class RelatedQuestionsItem extends PureComponent {
   render() {
     const { classes, post, currentUser, index, parentQuestion } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsPageActions } = Components
+    const { PostsItemComments, PostsItemKarma, PostsPageActions, PostsItemTooltip } = Components
 
     return (
       <div className={classes.root}>
@@ -216,7 +216,9 @@ class RelatedQuestionsItem extends PureComponent {
             <PostsItemKarma post={post} />
 
             <Link to={Posts.getPageUrl(post)} className={classes.title}>
-              {parentQuestion && <span>[Parent]</span>} {post.title}
+              <Tooltip title={<PostsItemTooltip post={post} author />} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>
+                <span>{parentQuestion && <span>[Parent]</span>} {post.title}</span>
+              </Tooltip>
             </Link>
 
             {<div className={classes.mobileActions}>
@@ -226,7 +228,6 @@ class RelatedQuestionsItem extends PureComponent {
             <div className={classes.commentsIcon}>
               <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
             </div>
-
 
             {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
               <Components.PostsItemNewCommentsWrapper

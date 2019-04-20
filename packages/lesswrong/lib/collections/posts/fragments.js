@@ -145,6 +145,7 @@ registerFragment(`
       sourcePostId
       sourcePost {
         ...PostsBase
+        ...PostsAuthors
       }
       order
     }
@@ -153,6 +154,7 @@ registerFragment(`
       targetPostId
       targetPost {
         ...PostsBase
+        ...PostsAuthors
       }
       order
     }
