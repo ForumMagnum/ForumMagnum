@@ -106,7 +106,7 @@ class TableOfContentsList extends Component {
       if (ev) ev.preventDefault();
     } catch(e) {
       // eslint-disable-next-line no-console
-      console.warn("scrollTo not supported, using link fallback")
+      console.warn("scrollTo not supported, using link fallback", e)
     }
     
   }
