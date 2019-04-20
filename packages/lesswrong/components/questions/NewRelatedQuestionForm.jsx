@@ -1,10 +1,9 @@
-import { Components, registerComponent, getFragment, withMessages, withCreate } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection.js'
-import { PostRelations } from '../../lib/collections/postRelations/collection.js'
 
 const styles = theme => ({
   answersForm: {
@@ -47,7 +46,7 @@ const NewRelatedQuestionForm = (props) => {
     <div className={classes.root}>
       <Components.WrappedSmartForm
         collection={Posts}
-        fields={['title', 'contents', 'body', 'question', 'draft', 'submitToFrontpage', 'hiddenRelatedQuestion']}
+        fields={['title', 'contents', 'body', 'question', 'draft', 'submitToFrontpage', 'hiddenRelatedQuestion', 'originalPostRelationSourceId']}
         mutationFragment={getFragment('PostsList')}
         prefilledProps={{
           userId: currentUser._id,
@@ -70,9 +69,4 @@ NewRelatedQuestionForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-const withCreateOptions = {
-  collection: PostRelations,
-  fragmentName: 'NewRelatedPostRel',
-}
-
-registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm,  [withCreate, withCreateOptions], withMessages, withUser, withStyles(styles, {name:"NewRelatedQuestionForm"}));
+registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewRelatedQuestionForm"}));

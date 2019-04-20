@@ -401,16 +401,59 @@ const schema = {
     hidden: true,
   },
 
-  // targetPostRelations: resolverOnlyField({
-  //   type: Object,
-  //   viewableBy: ['guests'],
-  //   resolver: (post, args, { Posts }) => {
-  //     const postRelations = PostRelations.find({sourcePostId: post._id})
-  //     const contents = post.contents;
-  //     if (!contents) return 0;
-  //     return contents.wordCount;
-  //   }
-  // }),
+  sourcePostRelations: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[PostRelation!]',
+    viewableBy: ['guests'],
+    resolver: async (post, args, { Posts }) => {
+      const postRelations = await PostRelations.find({targetPostId: post._id})
+      return postRelations
+    }
+  }),
+
+  'sourcePostRelations.$': {
+    type: String,
+    optional: true,
+  },
+
+  targetPostRelations: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[PostRelation!]',
+    viewableBy: ['guests'],
+    resolver: async (post, args, { Posts }) => {
+      const postRelations = await Posts.rawCollection().aggregate([
+        { $match: { _id: post._id }},
+        { $graphLookup: { 
+            from: "postrelations", 
+            as: "relatedQuestions", 
+            startWith: post._id, 
+            connectFromField: "targetPostId", 
+            connectToField: "sourcePostId", 
+            maxDepth: 3 
+          } 
+        },
+        { 
+          $project: {
+            relatedQuestions: 1
+          }
+        }, 
+        {
+          $unwind: "$relatedQuestions"
+        }, 
+        {
+          $replaceRoot: {
+            newRoot: "$relatedQuestions"
+          }
+        }
+     ]).toArray()
+     if (!postRelations || postRelations.length < 1) return []
+     return postRelations
+    }
+  }),
+  'targetPostRelations.$': {
+    type: String,
+    optional: true,
+  }
 };
 
 export default schema;

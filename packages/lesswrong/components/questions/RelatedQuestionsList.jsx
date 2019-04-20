@@ -1,20 +1,19 @@
-import { Components, registerComponent, withMulti, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { PostRelations } from '../../lib/collections/postRelations';
-
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
 
-const Error = ({error}) => <div>
-  <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
-</div>;
-
 const styles = theme => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
+    [theme.breakpoints.down('md')]: {
+      width: "unset",
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   itemIsLoading: {
     opacity: .4,
@@ -34,47 +33,37 @@ const styles = theme => ({
       marginLeft: 0,
       marginRight: 0,
     }
-  }
+  },
 })
 
-const RelatedQuestionsList = ({ children, results, loading, count, totalCount, loadMore, networkStatus, paginationTerms, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
+const RelatedQuestionsList = ({ post, currentUser, dimWhenLoading, classes }) => {
 
-  const { Loading, RelatedQuestionsItem, LoadMore, PostsNoResults, SectionFooter, SectionTitle } = Components
+  const { RelatedQuestionsItem, SectionTitle } = Components
 
-  if (!results && loading) return <Loading />
-
-  const limit = (paginationTerms && paginationTerms.limit) || 10
-
-  // We don't actually know if there are more posts here,
-  // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results && results.length && (results.length >= limit))
-  console.log(results)
+  const showParentQuestions = post.sourcePostRelations.length > 0
+  const showSubQuestions = post.targetPostRelations.length > 0
+  
   return (
-    <div className={classNames(classes.root, {[classes.itemIsLoading]: loading && dimWhenLoading})}>
-      {error && <Error error={Utils.decodeIntlError(error)} />}
-      {loading && showLoading && dimWhenLoading && <Loading />}
-      {results && !results.length && showNoResults && <PostsNoResults />}
-      
-      {results && <SectionTitle title={`${results.length} Related Questions`} />}
+    <div className={classNames(classes.root, {[classes.itemIsLoading]: dimWhenLoading})}>
 
-      {results && results.map((rel, i) => {
-        const post = rel.parentPost._id === terms.postId ? rel.targetPost : rel.sourcePost
-        return <RelatedQuestionsItem key={rel.targetPost._id} post={post} currentUser={currentUser} terms={terms} index={i}/> 
-      })}
-      <SectionFooter>
-        {(showLoadMore) &&
-          <div className={classes.loadMore}>
-            <LoadMore
-              loadMore={loadMore}
-              disabled={!maybeMorePosts}
-              count={count}
-              totalCount={totalCount}
-            />
-            { !dimWhenLoading && showLoading && loading && <Loading />}
-          </div>
-        }
-        { children }
-      </SectionFooter>
+      {(showParentQuestions || showSubQuestions) && <SectionTitle title={`${post.targetPostRelations.length} Related Questions`} />}
+      
+      {post.sourcePostRelations.map((rel, i) => 
+        <RelatedQuestionsItem
+          key={rel._id}
+          post={rel.sourcePost} 
+          currentUser={currentUser} 
+          index={i}
+          parentQuestion
+      /> )} 
+
+      {post.targetPostRelations.map((rel, i) => 
+        <RelatedQuestionsItem 
+          key={rel._id} 
+          post={rel.targetPost} 
+          currentUser={currentUser} 
+          index={i}
+      /> )}
     </div>
   )
 }
@@ -92,14 +81,4 @@ RelatedQuestionsList.propTypes = {
   showNoResults:  PropTypes.bool,
 };
 
-const options = {
-  collection: PostRelations,
-  queryName: 'childPostRels',
-  fragmentName: 'ChildRelatedPostRelList',
-  enableTotal: false,
-  enableCache: true,
-  fetchPolicy: 'cache-and-network',
-  ssr: true
-};
-
-registerComponent('RelatedQuestionsList', RelatedQuestionsList, withUser, [withMulti, options], withStyles(styles, {name:"RelatedQuestionsList"}));
+registerComponent('RelatedQuestionsList', RelatedQuestionsList, withUser, withErrorBoundary, withStyles(styles, {name:"RelatedQuestionsList"}));

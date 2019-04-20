@@ -186,12 +186,13 @@ function PostsNewPostRelation (post) {
       collection: PostRelations,
       document: {
         type: "subQuestion",
-        sourcePostId: post._id,
-        targetPostId: post.originalPostRelationSourceId
+        sourcePostId: post.originalPostRelationSourceId,
+        targetPostId: post._id,
       },
       validate: false,
     })
   }
+  return post
 }
 
-addCallback("posts.create.after", PostsNewPostRelation);
+addCallback("posts.new.after", PostsNewPostRelation);

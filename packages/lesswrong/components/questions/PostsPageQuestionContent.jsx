@@ -6,7 +6,6 @@ import Users from 'meteor/vulcan:users';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const PostsPageQuestionContent = ({post, currentUser}) => {
-
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   return (
     <div>
@@ -15,7 +14,7 @@ const PostsPageQuestionContent = ({post, currentUser}) => {
         <CantCommentExplanation post={post}/>
       }
       <AnswersList terms={{view: "questionAnswers", postId: post._id}} post={post}/>
-      <RelatedQuestionsList terms={{view: "allPostRelations", postId: post._id}} />
+      <RelatedQuestionsList post={post} />
     </div>
   )
 

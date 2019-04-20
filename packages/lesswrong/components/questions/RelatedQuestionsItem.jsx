@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMutation, getActions, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withMutation, getActions } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -50,6 +50,7 @@ const styles = (theme) => ({
     borderLeft: "solid 1px rgba(0,0,0,.2)",
     borderRight: "solid 1px rgba(0,0,0,.2)",
     paddingBottom: 0,
+    paddingLeft: theme.spacing.unit*2,
     [theme.breakpoints.down('sm')]: {
       padding: theme.spacing.unit
     }
@@ -72,10 +73,11 @@ const styles = (theme) => ({
   title: {
     ...theme.typography.postStyle,
     fontSize: "1.3rem",
-    width: `calc(100% - ${COMMENTS_WIDTH + KARMA_WIDTH}px)`,
+    flexGrow: 1,  
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
+      width: "100%",
       marginBottom: theme.spacing.unit,
       paddingRight: theme.spacing.unit
     },
@@ -84,6 +86,7 @@ const styles = (theme) => ({
     width: "100%",
     marginTop: theme.spacing.unit,
     padding: theme.spacing.unit*2,
+    paddingLeft: 0,
     cursor: "pointer",
     [theme.breakpoints.down('sm')]: {
       padding: 0,
@@ -196,22 +199,10 @@ class RelatedQuestionsItem extends PureComponent {
     }
   }
 
-  isSticky = (post, terms) => {
-    if (post && terms && terms.forum) {
-      return (
-        post.sticky ||
-        (terms.af && post.afSticky) ||
-        (terms.meta && post.metaSticky)
-      )
-    }
-  }
-
   render() {
-    const { classes, post, chapter, currentUser, index, terms } = this.props
+    const { classes, post, currentUser, index, parentQuestion } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, FormatDate, PostsPageActions } = Components
-
-    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+    const { PostsItemComments, PostsItemKarma, PostsPageActions } = Components
 
     return (
       <div className={classes.root}>
@@ -221,8 +212,8 @@ class RelatedQuestionsItem extends PureComponent {
 
             <PostsItemKarma post={post} />
 
-            <Link to={postLink} className={classes.title}>
-              {post.title}
+            <Link to={Posts.getPageUrl(post)} className={classes.title}>
+              {parentQuestion && <span>[Parent]</span>} {post.title}
             </Link>
 
             {<div className={classes.mobileActions}>

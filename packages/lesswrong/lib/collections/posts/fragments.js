@@ -140,12 +140,29 @@ registerFragment(`
     feed {
       ...RSSFeedMinimumInfo
     }
+    sourcePostRelations {
+      _id
+      sourcePostId
+      sourcePost {
+        ...PostsBase
+      }
+      order
+    }
+    targetPostRelations {
+      _id
+      targetPostId
+      targetPost {
+        ...PostsBase
+      }
+      order
+    }
   }
 `);
 
 registerFragment(`
   fragment PostsPage on Post {
     ...PostsDetails
+    targetPostRelations
 
     # Content & Revisions
     version
@@ -208,7 +225,7 @@ registerFragment(`
   fragment PostsList on Post {
     ...PostsBase
     ...PostsAuthors
-
+    originalPostRelationSourceId
     contents {
       htmlHighlight
       wordCount

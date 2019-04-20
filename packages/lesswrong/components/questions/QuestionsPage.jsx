@@ -35,6 +35,6 @@ class QuestionsPage extends PureComponent {
   
     )
   }
-};
+}
 
 registerComponent('QuestionsPage', QuestionsPage, withRouter);
