@@ -97,14 +97,18 @@ class TableOfContentsList extends Component {
     if (this.props.onClickSection) {
       this.props.onClickSection();
     }
-
-    window.scrollTo({
-      top: y - this.getCurrentSectionMark() + 1,
-      behavior: "smooth"
-    });
-
-    if (ev)
-      ev.preventDefault();
+    try {
+      window.scrollTo({
+        top: y - this.getCurrentSectionMark() + 1,
+        behavior: "smooth"
+      });
+  
+      if (ev) ev.preventDefault();
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.warn("scrollTo not supported, using link fallback")
+    }
+    
   }
 
   updateHighlightedSection = () => {
