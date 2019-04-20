@@ -38,7 +38,7 @@ Posts.addDefaultView(terms => {
     params.selector.hideAuthor = false
   }
   if (terms.includeRelatedQuestions === "true") {
-    params.selector.hiddenRelatedQuestion = null
+    params.selector.hiddenRelatedQuestion = viewFieldAllowAny
   }
   if (terms.filter === "curated") {
     params.selector.curatedDate ={$gt: new Date(0)}
@@ -51,7 +51,7 @@ Posts.addDefaultView(terms => {
   }
   if (terms.filter === "questions") {
     params.selector.question = true
-    params.selector.hiddenRelatedQuestion = null
+    params.selector.hiddenRelatedQuestion = viewFieldAllowAny
   }
   if (terms.filter === "events") {
     params.selector.isEvent = true
@@ -79,7 +79,7 @@ export function augmentForDefaultView(indexFields)
 Posts.addView("userPosts", terms => ({
   selector: { 
     userId: viewFieldAllowAny,
-    hiddenRelatedQuestion: null,
+    hiddenRelatedQuestion: viewFieldAllowAny,
     groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
     $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
   },

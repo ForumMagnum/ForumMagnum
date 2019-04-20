@@ -55,19 +55,6 @@ const styles = (theme) => ({
       padding: theme.spacing.unit
     }
   },
-  karma: {
-    width: KARMA_WIDTH,
-    justifyContent: "center",
-    marginLeft: 4,
-    marginRight: 14,
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
-      width: "unset",
-      marginLeft: 0,
-      marginRight: theme.spacing.unit*2,
-      flexGrow: 1
-    }
-  },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
@@ -96,14 +83,6 @@ const styles = (theme) => ({
   closeComments: {
     color: theme.palette.grey[500],
     textAlign: "right",
-  },
-  postIcon: {
-    display: "none",
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
   },
   commentsIcon: {
     width: COMMENTS_WIDTH,

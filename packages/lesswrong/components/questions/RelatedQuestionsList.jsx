@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
 
@@ -36,7 +35,7 @@ const styles = theme => ({
   },
 })
 
-const RelatedQuestionsList = ({ post, currentUser, dimWhenLoading, classes }) => {
+const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
   const { RelatedQuestionsItem, SectionTitle } = Components
 
@@ -45,11 +44,11 @@ const RelatedQuestionsList = ({ post, currentUser, dimWhenLoading, classes }) =>
   const totalRelatedQuestionCount = parentQuestionCount + relatedQuestionCount
   
   return (
-    <div className={classNames(classes.root, {[classes.itemIsLoading]: dimWhenLoading})}>
+    <div className={classes.root}>
 
       {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
-      {post.sourcePostRelations.map((rel, i) => 
+      {post.sourcePostRelations && post.sourcePostRelations.map((rel, i) => 
         <RelatedQuestionsItem
           key={rel._id}
           post={rel.sourcePost} 
@@ -58,7 +57,7 @@ const RelatedQuestionsList = ({ post, currentUser, dimWhenLoading, classes }) =>
           parentQuestion
       /> )} 
 
-      {post.targetPostRelations.map((rel, i) => 
+      {post.targetPostRelations && post.targetPostRelations.map((rel, i) => 
         <RelatedQuestionsItem 
           key={rel._id} 
           post={rel.targetPost} 
@@ -70,16 +69,7 @@ const RelatedQuestionsList = ({ post, currentUser, dimWhenLoading, classes }) =>
 }
 
 RelatedQuestionsList.propTypes = {
-  results: PropTypes.array,
-  terms: PropTypes.object,
-  loading: PropTypes.bool,
-  count: PropTypes.number,
-  totalCount: PropTypes.number,
-  loadMore: PropTypes.func,
-  dimWhenLoading: PropTypes.bool,
-  showLoading: PropTypes.bool,
-  showLoadMore: PropTypes.bool,
-  showNoResults:  PropTypes.bool,
+  post: PropTypes.object,
 };
 
 registerComponent('RelatedQuestionsList', RelatedQuestionsList, withUser, withErrorBoundary, withStyles(styles, {name:"RelatedQuestionsList"}));

@@ -386,11 +386,14 @@ const schema = {
   hiddenRelatedQuestion: {
     type: Boolean,
     viewableBy: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
     optional: true,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
+    onCreate: ({newDocument}) => {
+      return newDocument.originalPostRelationSourceId ? true : newDocument.hiddenRelatedQuestion
+    },
   },
 
   originalPostRelationSourceId: {
@@ -406,12 +409,9 @@ const schema = {
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
     resolver: async (post, args, { Posts }) => {
-      const postRelations = await PostRelations.find({targetPostId: post._id}).fetch()
-      
-      return postRelations
+      return await PostRelations.find({targetPostId: post._id}).fetch()
     }
   }),
-
   'sourcePostRelations.$': {
     type: String,
     optional: true,
