@@ -330,7 +330,7 @@ class PostsItem2 extends PureComponent {
             <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
           </div>}
           
-          {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments(true)}>
+          {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
               highlightDate={post.lastVisitedAt}
