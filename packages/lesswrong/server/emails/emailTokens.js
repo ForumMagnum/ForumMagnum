@@ -58,7 +58,7 @@ addGraphQLResolvers({
   Mutation: {
     async useEmailToken(root, {token}, context) {
       const results = await EmailTokens.find({ token }).fetch();
-      if (results.length != 1)
+      if (results.length !== 1)
         throw new Error("Invalid email token");
       const tokenObj = results[0];
       
