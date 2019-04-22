@@ -90,6 +90,7 @@ import '../components/users/LoginPopupLink.jsx';
 import '../components/users/KarmaChangeNotifier.jsx';
 import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
+import '../components/users/UserNameDeleted.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 
@@ -115,6 +116,7 @@ import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItem2.jsx';
+import '../components/posts/PostsItem2MetaInfo.jsx';
 import '../components/posts/PostsItemTitle.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
@@ -150,6 +152,7 @@ import '../components/posts/PostsUserAndCoauthors.jsx';
 import '../components/posts/PostSubmit.jsx';
 import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
+import '../components/posts/PostsItemDate.jsx';
 
 
 import '../components/votes/VoteButton.jsx';
@@ -296,6 +299,7 @@ import '../components/collections/BigCollectionsCard.jsx';
 import '../components/sequences/CoreSequences.jsx';
 import '../components/sequences/HPMOR.jsx';
 import '../components/sequences/Codex.jsx';
+
 import '../components/form-components/PostsListEditor.jsx';
 import '../components/form-components/ImageUpload.jsx';
 import '../components/form-components/SequencesListEditor.jsx';
@@ -311,6 +315,7 @@ import '../components/form-components/MuiInput.jsx';
 import '../components/form-components/MuiTextField.jsx';
 import '../components/form-components/MultiSelectButtons.jsx';
 import '../components/form-components/FormComponentCheckbox.jsx';
+import '../components/form-components/SectionFooterCheckbox.jsx';
 import '../components/form-components/FormComponentDefault.jsx';
 import '../components/form-components/FormComponentSelect.jsx';
 import '../components/form-components/FormComponentDate.jsx';

@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
-import Tooltip from '@material-ui/core/Tooltip';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
@@ -16,10 +15,11 @@ import grey from '@material-ui/core/colors/grey';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import Hidden from '@material-ui/core/Hidden';
 
+import { POSTED_AT_WIDTH, START_TIME_WIDTH } from './PostsItemDate.jsx';
+
 export const MENU_WIDTH = 18
 export const EVENT_WIDTH = 110
-export const POSTED_AT_WIDTH = 38
-export const START_TIME_WIDTH = 72
+export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = grey[200]
@@ -207,13 +207,6 @@ const styles = (theme) => ({
       display: "block"
     }
   },
-  metaInfo: {
-    color: theme.palette.grey[600],
-    fontSize: "1.1rem",
-    textAlign: "center",
-    flexShrink: 0,
-    flexGrow: 0,
-  },
 })
 
 class PostsItem2 extends PureComponent {
@@ -283,19 +276,10 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, chapter, currentUser, index, terms } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsPageActions, PostsItemIcons } = Components
+    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
     
-    const MetaInfo = ({children, className}) => {
-      return <Typography
-        component='span'
-        className={classNames(classes.metaInfo, className)}
-        variant='body2'>
-          {children}
-      </Typography>
-    }
-
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
@@ -308,35 +292,23 @@ class PostsItem2 extends PureComponent {
           }
         )}>
           <div className={classes.postsItem}>
-            <MetaInfo className={classes.karma}>
+            <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
-            </MetaInfo>
+            </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
             </Link>
 
-            { post.user && !post.isEvent && <MetaInfo className={classes.author}>
+            { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post}/>
-            </MetaInfo>}
+            </PostsItem2MetaInfo>}
 
-            { post.isEvent && <MetaInfo className={classes.event}>
+            { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
               <EventVicinity post={post} />
-            </MetaInfo>}
+            </PostsItem2MetaInfo>}
 
-            {post.postedAt && !post.isEvent && <MetaInfo className={classes.postedAt}>
-              <FormatDate date={post.postedAt}/>
-            </MetaInfo>}
-
-            { post.isEvent && <MetaInfo className={classes.startTime}>
-              {post.startTime
-                ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
-                    <FormatDate date={post.startTime} format={"MMM Do"}/>
-                  </Tooltip>
-                : <Tooltip title={<span>To Be Determined</span>}>
-                    <span>TBD</span>
-                  </Tooltip>}
-            </MetaInfo>}
+            <Components.PostsItemDate post={post}/>
 
             <div className={classes.mobileSecondRowSpacer}/>
             
