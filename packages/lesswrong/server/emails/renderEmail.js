@@ -241,7 +241,7 @@ export async function sendEmail(renderedEmail)
 
 export async function renderAndSendEmail(emailProps)
 {
-  const user = emailProps.user;
+  const { user } = emailProps;
   if (user.unsubscribeFromAll) {
     return;
   }
@@ -257,7 +257,7 @@ export async function renderAndSendEmail(emailProps)
   // Log in LWEvents table
   newMutation({
     collection: LWEvents,
-    currentUser: emailProps.user,
+    currentUser: user,
     document: {
       userId: user._id,
       name: "emailSent",
