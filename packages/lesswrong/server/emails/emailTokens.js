@@ -8,15 +8,15 @@ let emailTokenTypesByName = {};
 
 export class EmailTokenType
 {
-  constructor({ name, onUseAction, resultComponent }) {
-    if(!name || !onUseAction || !resultComponent)
+  constructor({ name, onUseAction, resultComponentName }) {
+    if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
     if (name in emailTokenTypesByName)
       throw new Error("EmailTokenType: name must be unique");
     
     this.name = name;
     this.onUseAction = onUseAction;
-    this.resultComponent = resultComponent;
+    this.resultComponentName = resultComponentName;
     emailTokenTypesByName[name] = this;
   }
   
@@ -46,7 +46,7 @@ export class EmailTokenType
     const user = await Users.findOne({_id: token.userId});
     const actionResult = await this.onUseAction(user, token.params);
     return {
-      component: this.resultComponent,
+      componentName: this.resultComponentName,
       props: {...actionResult}
     };
   }
@@ -97,5 +97,5 @@ export const UnsubscribeAllToken = new EmailTokenType({
     });
     return {message: "You have been unsubscribed from all emails on LessWrong." };
   },
-  resultComponent: "EmailTokenResult",
+  resultComponentName: "EmailTokenResult",
 });

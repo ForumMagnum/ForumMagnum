@@ -10,9 +10,8 @@ class EmailTokenPage extends Component
   };
   
   componentDidMount() {
-    const { params } = this.props;
-    const { token } = params;
-    this.props.useEmailToken({token: token}).then((mutationResult) => {
+    const { params: { token } } = this.props;
+    this.props.useEmailToken({token}).then((mutationResult) => {
       this.setState({
         loading: false,
         useTokenResult: mutationResult.data.useEmailToken,
@@ -25,7 +24,7 @@ class EmailTokenPage extends Component
     if (loading)
       return <Components.Loading/>
     
-    const ResultComponent = getComponent(useTokenResult.component);
+    const ResultComponent = getComponent(useTokenResult.componentName);
     return <ResultComponent {...useTokenResult.props}/>
   }
 }
