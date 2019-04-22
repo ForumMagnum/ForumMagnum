@@ -26,9 +26,17 @@ const styles = theme => ({
     },
     fontFamily: theme.typography.postStyle.fontFamily,
     marginRight: theme.spacing.unit,
-    '&:hover': {
-      overflow: "unset",
-      paddingRight: 16,
+    [theme.breakpoints.up('md')]: {
+      '&:hover': {
+        overflow: "visible",
+        textOverflow: "unset",
+        position: "absolute",
+        background: "white",
+        borderImage: "linear-gradient(to right, white, rgba(0,0,0,0)) 1 100%",
+        borderRightWidth: 20,
+        borderRightStyle: "solid",
+        backgroundClip: "padding-box",
+      }
     }
   },
   sticky: {
