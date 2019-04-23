@@ -1,6 +1,7 @@
 import { addGraphQLResolvers, addGraphQLQuery } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
+import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
@@ -161,7 +162,13 @@ const getRecommendations = async ({count, algorithm, currentUser}) => {
 addGraphQLResolvers({
   Query: {
     async Recommendations(root, {count,algorithm}, {currentUser}) {
-      return getRecommendations({count, algorithm, currentUser})
+      const recommended = getRecommendations({count, algorithm, currentUser})
+      const accessFiltered = accessFilterMultiple(currentUser, Posts, recommended);
+      if (recommended.length !== accessFiltered.length) {
+        // eslint-disable-next-line no-console
+        console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
+      }
+      return accessFiltered;
     }
   }
 });
