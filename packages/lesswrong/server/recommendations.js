@@ -33,17 +33,8 @@ const pipelineFilterUnread = ({currentUser}) => {
   ];
 }
 
-const defaultViewPostFilter = {
-  status: Posts.config.STATUS_APPROVED,
-  isFuture: false,
-  draft: false,
-  unlisted: false,
-  authorIsUnreviewed: false,
-  groupId: {$exists: false},
-};
-
 const recommendablePostFilter = {
-  ...defaultViewPostFilter,
+  ...Posts.getParameters({}).selector,
   
   // Only consider recommending posts if they have score>30. This has a big
   // effect on the size of the recommendable-post set, which needs to not be
