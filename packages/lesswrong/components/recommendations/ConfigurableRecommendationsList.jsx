@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import deepmerge from 'deepmerge';
 import Users from 'meteor/vulcan:users';
+import { defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults } from '../../lib/collections/users/recommendationSettings.js';
 
 const styles = theme => ({
   gearIcon: {
@@ -14,23 +15,6 @@ const styles = theme => ({
     marginRight: theme.spacing.unit,
   },
 });
-
-const defaultAlgorithmSettings = {
-  method: "top",
-  count: 10,
-  scoreOffset: 0,
-  scoreExponent: 3,
-  personalBlogpostModifier: 0,
-  frontpageModifier: 10,
-  curatedModifier: 50,
-  onlyUnread: true,
-};
-
-const slotSpecificSettingDefaults = {
-  frontpage: {
-    count: 4
-  }
-};
 
 class ConfigurableRecommendationsList extends PureComponent {
   state = {
@@ -46,8 +30,8 @@ class ConfigurableRecommendationsList extends PureComponent {
   
   getDefaultSettings = () => {
     const { configName } = this.props;
-    if (configName in slotSpecificSettingDefaults) {
-      return deepmerge(defaultAlgorithmSettings, slotSpecificSettingDefaults[configName]);
+    if (configName in slotSpecificRecommendationSettingDefaults) {
+      return deepmerge(defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults[configName]);
     } else {
       return defaultAlgorithmSettings;
     }
@@ -72,11 +56,16 @@ class ConfigurableRecommendationsList extends PureComponent {
       settings: newSettings
     });
     
+    const mergedSettings = {
+      ...currentUser.recommendationSettings,
+      [configName]: newSettings
+    };
+    
     if (currentUser) {
       updateUser({
         selector: { _id: currentUser._id },
         data: {
-          [`recommendationSettings.${configName}`]: newSettings
+          recommendationSettings: mergedSettings
         },
       });
     }

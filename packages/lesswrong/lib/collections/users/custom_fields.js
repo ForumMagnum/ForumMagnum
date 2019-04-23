@@ -732,16 +732,6 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
   },
-  
-  // Admin-only options for configuring Recommendations placement, for experimentation
-  recommendationSettings: {
-    type: Object,
-    blackbox: true,
-    hidden: true,
-    canRead: [Users.owns],
-    canUpdate: [Users.owns],
-    optional: true,
-  },
 });
 
 export const makeEditableOptionsModeration = {
