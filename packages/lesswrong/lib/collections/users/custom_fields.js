@@ -740,6 +740,7 @@ addFieldsDict(Users, {
     hidden: true,
     canRead: [Users.owns],
     canUpdate: [Users.owns],
+    optional: true,
   },
 });
 
