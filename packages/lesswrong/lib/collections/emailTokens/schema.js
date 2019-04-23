@@ -19,7 +19,8 @@ const schema = {
     })
   },
   used: {
-    type: Boolean,
+    type: Date,
+    optional: true,
   },
   params: {
     type: Object,

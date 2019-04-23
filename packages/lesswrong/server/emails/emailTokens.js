@@ -8,7 +8,7 @@ let emailTokenTypesByName = {};
 
 export class EmailTokenType
 {
-  constructor({ name, onUseAction, resultComponentName }) {
+  constructor({ name, onUseAction, resultComponentName, reusable=false }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
     if (name in emailTokenTypesByName)
@@ -17,6 +17,7 @@ export class EmailTokenType
     this.name = name;
     this.onUseAction = onUseAction;
     this.resultComponentName = resultComponentName;
+    this.reusable = reusable;
     emailTokenTypesByName[name] = this;
   }
   
@@ -28,7 +29,7 @@ export class EmailTokenType
       token: token,
       tokenType: this.name,
       userId: userId,
-      used: false,
+      usedAt: null,
       params: params,
     });
     return token;
@@ -66,12 +67,16 @@ addGraphQLResolvers({
         throw new Error("Email token has invalid type");
       
       const tokenType = emailTokenTypesByName[tokenObj.tokenType];
+      
+      if (tokenObj.usedAt && !tokenType.reusable)
+        throw new Error("Email token has already been used");
+      
       const resultProps = await tokenType.handleToken(tokenObj);
       await editMutation({
         collection: EmailTokens,
         documentId: tokenObj._id,
         set: {
-          used: true
+          usedAt: new Date()
         },
         unset: {},
         validate: false
