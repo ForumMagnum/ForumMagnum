@@ -15,10 +15,8 @@ const generateIdResolverSingle = ({collectionName, fieldName}) => {
       console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
       return null;
     }
-    if (checkAccess && !checkAccess(currentUser, resolvedDoc)) return null
-    const restrictedDoc = Users.restrictViewableFields(currentUser, collection, resolvedDoc)
 
-    return restrictedDoc
+    return accessFilterSingle(currentUser, collection, resolvedDoc);
   }
 }
 
@@ -28,15 +26,41 @@ const generateIdResolverMulti = ({collectionName, fieldName}) => {
 
     const { currentUser } = context
     const collection = context[collectionName]
-    const { checkAccess } = collection
 
     const resolvedDocs = await collection.loader.loadMany(doc[fieldName])
-    const existingDocs = _.filter(resolvedDocs, d=>!!d);
-    const filteredDocs = checkAccess ? _.filter(existingDocs, d => checkAccess(currentUser, d)) : resolvedDocs
-    const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
 
-    return restrictedDocs
+    return accessFilterMultiple(currentUser, collection, resolvedDocs);
   }
+}
+
+// Apply both document-level and field-level permission checks to a single document.
+// If the user can't access the document, returns null. If the user can access the
+// document, return a copy of the document in which any fields the user can't access
+// have been removed. If document is null, returns null.
+export const accessFilterSingle = (currentUser, collection, document) => {
+  const { checkAccess } = collection
+  if (!document) return null;
+  if (checkAccess && !checkAccess(currentUser, document)) return null
+  const restrictedDoc = Users.restrictViewableFields(currentUser, collection, document)
+  return restrictedDoc;
+}
+
+// Apply both document-level and field-level permission checks to a list of documents.
+// Returns a list where documents which the user can't access are removed from the
+// list, and fields which the user can't access are removed from the documents inside
+// the list. If currentUser is null, applies permission checks for the logged-out
+// view.
+export const accessFilterMultiple = (currentUser, collection, unfilteredDocs) => {
+  const { checkAccess } = collection
+  
+  // Filter out nulls (docs that were referenced but didn't exist)
+  const existingDocs = _.filter(unfilteredDocs, d=>!!d);
+  // Apply the collection's checkAccess function, if it has one, to filter out documents
+  const filteredDocs = checkAccess ? _.filter(existingDocs, d => checkAccess(currentUser, d)) : existingDocs
+  // Apply field-level permissions
+  const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
+  
+  return restrictedDocs;
 }
 
 export const foreignKeyField = ({idFieldName, resolverName, collectionName, type}) => {
