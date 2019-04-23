@@ -63,7 +63,7 @@ class ConfigurableRecommendationsList extends PureComponent {
     
     const { currentUser } = this.props;
     const userSettingName = this.getUserSettingName();
-    if (userSettingName in currentUser) {
+    if (currentUser && userSettingName in currentUser) {
       return deepmerge(this.getDefaultSettings(), currentUser[userSettingName]||{});
     } else {
       return this.getDefaultSettings();
@@ -77,12 +77,14 @@ class ConfigurableRecommendationsList extends PureComponent {
       settings: newSettings
     });
     
-    updateUser({
-      selector: { _id: currentUser._id },
-      data: {
-        [this.getUserSettingName()]: newSettings
-      },
-    });
+    if (currentUser) {
+      updateUser({
+        selector: { _id: currentUser._id },
+        data: {
+          [this.getUserSettingName()]: newSettings
+        },
+      });
+    }
   }
   
   render() {
