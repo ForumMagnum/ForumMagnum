@@ -57,9 +57,9 @@ class ConfigurableRecommendationsList extends PureComponent {
     if (this.state.settings)
       return this.state.settings;
     
-    const { currentUser } = this.props;
-    if (currentUser && currentUser.recommendationSettings && userSettingName in currentUser.recommendationSettings) {
-      return deepmerge(this.getDefaultSettings(), currentUser[userSettingName]||{});
+    const { currentUser, configName } = this.props;
+    if (currentUser && currentUser.recommendationSettings && configName in currentUser.recommendationSettings) {
+      return deepmerge(this.getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
     } else {
       return this.getDefaultSettings();
     }

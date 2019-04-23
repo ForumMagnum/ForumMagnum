@@ -4,6 +4,7 @@ import { getFragment } from 'meteor/vulcan:core';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import withUser from '../common/withUser';
+import { defaultAlgorithmSettings } from './ConfigurableRecommendationsList.jsx';
 
 const withRecommendations = component => {
   const recommendationsQuery = gql`
@@ -20,8 +21,8 @@ const withRecommendations = component => {
       alias: "withRecommendations",
       options: (props) => ({
         variables: {
-          count: props.algorithm.count || 10,
-          algorithm: props.algorithm || "top",
+          count: props.algorithm?.count || 10,
+          algorithm: props.algorithm || defaultAlgorithmSettings,
         }
       }),
       props(props) {
