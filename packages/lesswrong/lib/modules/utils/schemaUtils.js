@@ -7,7 +7,6 @@ const generateIdResolverSingle = ({collectionName, fieldName}) => {
 
     const { currentUser } = context
     const collection = context[collectionName]
-    const { checkAccess } = collection
 
     const resolvedDoc = await collection.loader.load(doc[fieldName])
     if (!resolvedDoc) {
