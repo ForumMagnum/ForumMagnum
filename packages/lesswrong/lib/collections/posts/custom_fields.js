@@ -401,8 +401,24 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-
-
+  
+  // disableRecommendation: If true, this post will never appear as a
+  // recommended post (but will still appear in all other places, ie on its
+  // author's profile, in archives, etc).
+  // Use for things that lose their relevance with age, like announcements, or
+  // for things that aged poorly, like results that didn't replicate.
+  disableRecommendation: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Exclude from Recommendations",
+    control: "checkbox",
+    order: 12,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
 
   // Drafts
   draft: {

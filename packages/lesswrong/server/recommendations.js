@@ -56,6 +56,9 @@ const recommendablePostFilter = {
   
   // Don't recommend meta posts
   meta: false,
+  
+  // Enforce the disableRecommendation flag
+  disableRecommendation: {$ne: true},
 }
 
 // Return the set of all posts that are eligible for being recommended, with
