@@ -11,7 +11,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary'
-
+import { getTruncationCharCount } from '../../../lib/editor/ellipsize';
 const styles = theme => ({
   root: {
     "&:hover $menu": {
@@ -101,11 +101,6 @@ class CommentsItem extends Component {
     return false;
   }
 
-  // TODO: Remove this after April Fools
-  commentIsByGPT2 = (comment) => {
-    return !!(comment && comment.user && comment.user.displayName === "GPT2")
-  }
-
   showReply = (event) => {
     event.preventDefault();
     this.setState({showReply: true});
@@ -144,21 +139,6 @@ class CommentsItem extends Component {
     event.preventDefault()
     this.props.router.replace({...router.location, hash: "#" + comment._id})
     this.props.scrollIntoView(event);
-  }
-
-  getTruncationCharCount = () => {
-    const { comment, currentUser, postPage } = this.props
-
-    // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
-    if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
-      return 10000000
-    }
-    if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
-      return 10000000
-    }
-    if (this.commentIsByGPT2(comment)) return 400
-    const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
-    return (commentIsRecent || comment.baseScore >= 10) ? 1600 : 800
   }
 
   render() {
@@ -263,7 +243,6 @@ class CommentsItem extends Component {
                 />
             ) : (
               <Components.CommentBody
-                truncationCharCount={this.getTruncationCharCount()}
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}
@@ -284,7 +263,7 @@ class CommentsItem extends Component {
     const markdown = (comment.contents && comment.contents.markdown) || ""
     const { MetaInfo } = Components
 
-    if ((!truncated || (markdown.length <= this.getTruncationCharCount())) && !collapsed) {
+    if ((!truncated || (markdown.length <= getTruncationCharCount())) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (

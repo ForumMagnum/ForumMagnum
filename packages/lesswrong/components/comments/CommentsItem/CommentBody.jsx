@@ -67,9 +67,9 @@ const styles = theme => ({
 
 class CommentBody extends Component {
   render () {
-    const { comment, classes, collapsed, truncationCharCount, truncated } = this.props
+    const { comment, classes, collapsed, truncated } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
-    const { html = "", plaintextDescription = ""} = comment.contents || {}
+    const { html = "" } = comment.contents || {}
 
     const bodyClasses = classNames(
       { [classes.commentStyling]: !comment.answer,
@@ -77,25 +77,18 @@ class CommentBody extends Component {
         [classes.retracted]: comment.retracted }
     );
 
-    const shouldRenderExcerpt = truncated && 
-      (plaintextDescription && plaintextDescription.length) > truncationCharCount && 
-      !collapsed
-
-    if (comment.deleted) {
-      return <CommentDeletedMetadata documentId={comment._id}/>
-    } else if (shouldRenderExcerpt) {
-      return (
-        <div className={classes.root}>
-          <ContentItemBody className={bodyClasses}
-            dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(html, truncationCharCount)}}/>
-        </div>
-      )
-    } else if (!collapsed) {
-      return <ContentItemBody className={bodyClasses}
-        dangerouslySetInnerHTML={{__html: html}}/>
-    } else {
-      return null
-    }
+    if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
+    if (collapsed) { return null }
+  
+    return (
+      <div className={classes.root}>
+        {truncated ? 
+          <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(html, c)}}/>
+          :
+          <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: html}}/>
+        }
+      </div>
+    )
   }
 }
 
