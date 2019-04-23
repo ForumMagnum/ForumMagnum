@@ -10,8 +10,10 @@ import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
-import withErrorBoundary from '../../common/withErrorBoundary'
+import withErrorBoundary from '../../common/withErrorBoundary';
+import withUser from '../../common/withUser';
 import { getTruncationCharCount } from '../../../lib/editor/ellipsize';
+
 const styles = theme => ({
   root: {
     "&:hover $menu": {
@@ -246,6 +248,7 @@ class CommentsItem extends Component {
                 truncated={truncated}
                 collapsed={collapsed}
                 comment={comment}
+                postPage={postPage}
               />
             ) }
             {!comment.deleted && !collapsed && this.renderCommentBottom()}
@@ -259,11 +262,11 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, truncated, collapsed, classes } = this.props;
+    const { comment, currentUser, truncated, collapsed, classes, postPage } = this.props;
     const markdown = (comment.contents && comment.contents.markdown) || ""
     const { MetaInfo } = Components
 
-    if ((!truncated || (markdown.length <= getTruncationCharCount())) && !collapsed) {
+    if ((!truncated || (markdown.length <= getTruncationCharCount(comment, currentUser, postPage))) && !collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
@@ -320,7 +323,7 @@ CommentsItem.propTypes = {
 }
 
 registerComponent('CommentsItem', CommentsItem,
-  withRouter, withMessages,
+  withRouter, withMessages, withUser,
   withStyles(styles, { name: "CommentsItem" }),
   withErrorBoundary
 );

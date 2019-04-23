@@ -5,6 +5,7 @@ import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePip
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
+import withUser from '../../common/withUser'
 
 const styles = theme => ({
   commentStyling: {
@@ -67,7 +68,7 @@ const styles = theme => ({
 
 class CommentBody extends Component {
   render () {
-    const { comment, classes, collapsed, truncated } = this.props
+    const { comment, currentUser, classes, collapsed, truncated, postPage } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
     const { html = "" } = comment.contents || {}
 
@@ -83,7 +84,7 @@ class CommentBody extends Component {
     return (
       <div className={classes.root}>
         {truncated ? 
-          <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(html, c)}}/>
+          <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment, currentUser, postPage)}}/>
           :
           <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: html}}/>
         }
@@ -95,8 +96,7 @@ class CommentBody extends Component {
 CommentBody.propTypes = {
   comment: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  truncationCharCount: PropTypes.number
 };
 
 
-registerComponent('CommentBody', CommentBody, withStyles(styles, {name: "CommentBody"}));
+registerComponent('CommentBody', CommentBody, withUser, withStyles(styles, {name: "CommentBody"}));
