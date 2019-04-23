@@ -47,7 +47,7 @@ const NewPostEmail = ({document, classes, reason}) => {
     
     <a href={Posts.getPageUrl(document, true)}>Discuss</a><br/><br/>
     
-    {reason && `You are receive this email because ${reason}.`}
+    {reason && `You are receiving this email because ${reason}.`}
   </React.Fragment>);
 }
 
