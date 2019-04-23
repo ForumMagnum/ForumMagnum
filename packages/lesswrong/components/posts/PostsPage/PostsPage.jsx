@@ -289,8 +289,9 @@ class PostsPage extends Component {
             </div>}
             
             {/* Recommendations */}
-            {currentUser && currentUser.recommendationsInPostFooter &&
-              <RecommendationsList count={4}/>}
+            {currentUser && Users.isAdmin(currentUser) &&
+              <ConfigurableRecommendationsList configName="afterpost"/>
+            }
             
             {/* Answers Section */}
             {post.question && <div>

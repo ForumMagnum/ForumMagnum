@@ -53,17 +53,12 @@ class ConfigurableRecommendationsList extends PureComponent {
     }
   }
   
-  getUserSettingName = () => {
-    return `recommendationSettings_${this.props.configName}`;
-  }
-  
   getCurrentSettings = () => {
     if (this.state.settings)
       return this.state.settings;
     
     const { currentUser } = this.props;
-    const userSettingName = this.getUserSettingName();
-    if (currentUser && userSettingName in currentUser) {
+    if (currentUser && currentUser.recommendationSettings && userSettingName in currentUser.recommendationSettings) {
       return deepmerge(this.getDefaultSettings(), currentUser[userSettingName]||{});
     } else {
       return this.getDefaultSettings();
@@ -71,7 +66,7 @@ class ConfigurableRecommendationsList extends PureComponent {
   }
   
   changeSettings = (newSettings) => {
-    const { updateUser, currentUser } = this.props;
+    const { updateUser, currentUser, configName } = this.props;
     
     this.setState({
       settings: newSettings
@@ -81,7 +76,7 @@ class ConfigurableRecommendationsList extends PureComponent {
       updateUser({
         selector: { _id: currentUser._id },
         data: {
-          [this.getUserSettingName()]: newSettings
+          [`recommendationSettings.${configName}`]: newSettings
         },
       });
     }

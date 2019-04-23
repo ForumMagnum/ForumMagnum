@@ -734,14 +734,7 @@ addFieldsDict(Users, {
   },
   
   // Admin-only options for configuring Recommendations placement, for experimentation
-  recommendationSettings_frontpage: {
-    type: Object,
-    blackbox: true,
-    hidden: true,
-    canRead: [Users.owns],
-    canUpdate: [Users.owns],
-  },
-  recommendationSettings_recommendationspage: {
+  recommendationSettings: {
     type: Object,
     blackbox: true,
     hidden: true,
