@@ -39,7 +39,10 @@ const RecommendationsList = ({ recommendations, recommendationsLoading, currentU
   if (recommendationsLoading || !recommendations)
     return <Components.PostsLoading/>
   
-  return <div>{recommendations.map(post => <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}</div>
+  return <div>
+    {recommendations.map(post => <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}
+    {recommendations.length===0 && <span>There are no more recommendations left.</span>}
+  </div>
 }
 
 registerComponent('RecommendationsList', RecommendationsList,
