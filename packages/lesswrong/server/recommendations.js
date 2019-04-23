@@ -45,7 +45,7 @@ const recommendablePostFilter = {
   meta: false,
 }
 
-const topUnreadPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
+const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
   const unreadPostsMetadata = await Posts.aggregate([
     { $match: {
       ...recommendablePostFilter,
@@ -67,7 +67,7 @@ const topUnreadPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
   ).fetch();
 }
 
-const sampleUnreadPosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => {
+const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => {
   const unreadPostsMetadata = await Posts.aggregate([
     { $match: {
       ...recommendablePostFilter,
@@ -101,14 +101,14 @@ const getRecommendations = async ({count, algorithm, currentUser}) => {
   // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
   switch(algorithm.method) {
     case "top": {
-      return await topUnreadPosts({
+      return await topPosts({
         count, currentUser,
         onlyUnread: algorithm.onlyUnread,
         scoreFn
       });
     }
     case "sample": {
-      return await sampleUnreadPosts({
+      return await samplePosts({
         count, currentUser,
         onlyUnread: algorithm.onlyUnread,
         sampleWeightFn: scoreFn,
