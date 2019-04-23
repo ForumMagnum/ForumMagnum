@@ -58,31 +58,40 @@ addGraphQLMutation('useEmailToken(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
     async useEmailToken(root, {token}, context) {
-      const results = await EmailTokens.find({ token }).fetch();
-      if (results.length !== 1)
-        throw new Error("Invalid email token");
-      const tokenObj = results[0];
-      
-      if (!(tokenObj.tokenType in emailTokenTypesByName))
-        throw new Error("Email token has invalid type");
-      
-      const tokenType = emailTokenTypesByName[tokenObj.tokenType];
-      
-      if (tokenObj.usedAt && !tokenType.reusable)
-        throw new Error("Email token has already been used");
-      
-      const resultProps = await tokenType.handleToken(tokenObj);
-      await editMutation({
-        collection: EmailTokens,
-        documentId: tokenObj._id,
-        set: {
-          usedAt: new Date()
-        },
-        unset: {},
-        validate: false
-      });
-      
-      return resultProps;
+      try {
+        const results = await EmailTokens.find({ token }).fetch();
+        if (results.length != 1)
+          throw new Error("Invalid email token");
+        const tokenObj = results[0];
+        
+        if (!(tokenObj.tokenType in emailTokenTypesByName))
+          throw new Error("Email token has invalid type");
+        
+        const tokenType = emailTokenTypesByName[tokenObj.tokenType];
+        
+        if (tokenObj.usedAt && !tokenType.reusable)
+          throw new Error("This email link has already been used.");
+        
+        const resultProps = await tokenType.handleToken(tokenObj);
+        await editMutation({
+          collection: EmailTokens,
+          documentId: tokenObj._id,
+          set: {
+            usedAt: new Date()
+          },
+          unset: {},
+          validate: false
+        });
+        
+        return resultProps;
+      } catch(e) {
+        return {
+          componentName: "EmailTokenResult",
+          props: {
+            message: e.message,
+          }
+        };
+      }
     }
   }
 });
