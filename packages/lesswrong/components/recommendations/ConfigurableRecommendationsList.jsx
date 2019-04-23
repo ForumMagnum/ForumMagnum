@@ -56,12 +56,12 @@ class ConfigurableRecommendationsList extends PureComponent {
       settings: newSettings
     });
     
-    const mergedSettings = {
-      ...currentUser.recommendationSettings,
-      [configName]: newSettings
-    };
-    
     if (currentUser) {
+      const mergedSettings = {
+        ...currentUser.recommendationSettings,
+        [configName]: newSettings
+      };
+    
       updateUser({
         selector: { _id: currentUser._id },
         data: {
