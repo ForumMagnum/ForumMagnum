@@ -43,48 +43,6 @@ function PostsSetPostedAt (modifier, post) {
 }
 addCallback("posts.undraft.sync", PostsSetPostedAt);
 
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsEditIncreaseFrontpagePostCount (post, oldPost) {
-  if (post.frontpageDate && !oldPost.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
-  }
-}
-addCallback("posts.edit.async", postsEditIncreaseFrontpagePostCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsNewIncreaseFrontpageCount (post) {
-  if (post.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
-  }
-}
-addCallback("posts.new.async", postsNewIncreaseFrontpageCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsRemoveDecreaseFrontpageCount (post) {
-  if (post.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
-  }
-}
-addCallback("posts.remove.async", postsRemoveDecreaseFrontpageCount);
-
-/**
- * @summary update frontpagePostCount when post is moved out of frontpage
- */
-function postsEditDecreaseFrontpagePostCount (post, oldPost) {
-  if (!post.frontpageDate && oldPost.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
-  }
-}
-addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
-
-
-
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
     let thresholdTimestamp = {};
