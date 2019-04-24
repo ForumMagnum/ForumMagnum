@@ -392,7 +392,7 @@ const schema = {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
     onCreate: ({newDocument}) => {
-      return newDocument.originalPostRelationSourceId ? true : newDocument.hiddenRelatedQuestion
+      return newDocument.originalPostRelationSourceId ? true : !!newDocument.hiddenRelatedQuestion
     },
   },
 

@@ -39,16 +39,17 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
   const { PostsItem2, SectionTitle } = Components
 
-  const parentQuestionCount = post.sourcePostRelations && post.sourcePostRelations.length 
-  const relatedQuestionCount = post.targetPostRelations && post.targetPostRelations.length 
-  const totalRelatedQuestionCount = parentQuestionCount + relatedQuestionCount
+  const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
+  const targetPostRelations = _.filter(post.targetPostRelations, rel => !!rel.targetPost)
+
+  const totalRelatedQuestionCount = sourcePostRelations.length + targetPostRelations.length
   
   return (
     <div className={classes.root}>
 
       {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
-      {post.sourcePostRelations && post.sourcePostRelations.map((rel, i) => 
+      {sourcePostRelations.map((rel, i) => 
         <PostsItem2
           key={rel._id}
           post={rel.sourcePost} 
@@ -57,7 +58,7 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
           parentQuestion
       /> )} 
 
-      {post.targetPostRelations && post.targetPostRelations.map((rel, i) => 
+      {targetPostRelations.map((rel, i) => 
         <PostsItem2 
           key={rel._id} 
           post={rel.targetPost} 

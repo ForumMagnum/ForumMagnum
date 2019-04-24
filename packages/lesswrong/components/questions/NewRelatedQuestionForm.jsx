@@ -53,7 +53,7 @@ const NewRelatedQuestionForm = (props) => {
           question: true,
           originalPostRelationSourceId: post._id
         }}
-        successCallback={() => {
+        successCallback={(...args) => {
           // This refetches the post data so that the Related Questions list will show the new question.
           refetch()
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
