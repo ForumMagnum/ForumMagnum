@@ -44,22 +44,6 @@ function PostsSetPostedAt (modifier, post) {
 addCallback("posts.undraft.sync", PostsSetPostedAt);
 
 /**
- * @summary increment postCount when post is undrafted
- */
-function postsUndraftIncrementPostCount (post, oldPost) {
-  Users.update({_id: post.userId}, {$inc: {postCount: 1}})
-}
-addCallback("posts.undraft.async", postsUndraftIncrementPostCount);
-
-/**
- * @summary decrement postCount when post is drafted
- */
-function postsDraftDecrementPostCount (post, oldPost) {
-  Users.update({_id: post.userId}, {$inc: {postCount: -1}})
-}
-addCallback("posts.draft.async", postsDraftDecrementPostCount);
-
-/**
  * @summary update frontpagePostCount when post is moved into frontpage
  */
 function postsEditIncreaseFrontpagePostCount (post, oldPost) {

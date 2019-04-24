@@ -2,7 +2,7 @@ import { Posts } from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -933,10 +933,14 @@ makeEditable({
 addFieldsDict(Users, {
   // Count of the user's posts
   postCount: {
-    type: Number,
-    optional: true,
-    denormalized: true,
-    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "postCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+    }),
     viewableBy: ['guests'],
   },
   // The user's associated posts (GraphQL only)

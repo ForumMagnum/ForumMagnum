@@ -2,7 +2,7 @@ import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
-import { foreignKeyField, addFieldsDict } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
@@ -242,9 +242,13 @@ makeEditable({
 addFieldsDict(Users, {
   // Count of the user's comments
   commentCount: {
-    type: Number,
-    optional: true,
-    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "commentCount",
+      collectionName: "Users",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "userId",
+    }),
     canRead: ['guests'],
   }
 });
@@ -255,6 +259,14 @@ addFieldsDict(Posts, {
     type: Number,
     optional: true,
     defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "commentCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+    }),
     canRead: ['guests'],
   },
 });

@@ -37,14 +37,8 @@ function CommentsNewOperations (comment) {
 
   var userId = comment.userId;
 
-  // increment comment count
-  Users.update({_id: userId}, {
-    $inc:       {'commentCount': 1}
-  });
-
   // update post
   Posts.update(comment.postId, {
-    $inc:       {commentCount: 1},
     $set:       {lastCommentedAt: new Date()},
     $addToSet:  {commenters: userId}
   });
@@ -74,12 +68,7 @@ addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
 //////////////////////////////////////////////////////
 
 function CommentsRemovePostCommenters (comment, currentUser) {
-  const { userId, postId } = comment;
-
-  // dec user's comment count
-  Users.update({_id: userId}, {
-    $inc: {'commentCount': -1}
-  });
+  const { postId } = comment;
 
   const postComments = Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
 
@@ -88,7 +77,6 @@ function CommentsRemovePostCommenters (comment, currentUser) {
 
   // update post with a decremented comment count, a unique list of commenters and corresponding last commented at date
   Posts.update(postId, {
-    $inc: {commentCount: -1},
     $set: {lastCommentedAt, commenters},
   });
 
