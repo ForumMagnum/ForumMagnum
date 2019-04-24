@@ -37,7 +37,7 @@ const styles = theme => ({
 
 const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
-  const { RelatedQuestionsItem, SectionTitle } = Components
+  const { PostsItem2, SectionTitle } = Components
 
   const parentQuestionCount = post.sourcePostRelations && post.sourcePostRelations.length 
   const relatedQuestionCount = post.targetPostRelations && post.targetPostRelations.length 
@@ -49,7 +49,7 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
       {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
       {post.sourcePostRelations && post.sourcePostRelations.map((rel, i) => 
-        <RelatedQuestionsItem
+        <PostsItem2
           key={rel._id}
           post={rel.sourcePost} 
           currentUser={currentUser} 
@@ -58,7 +58,7 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
       /> )} 
 
       {post.targetPostRelations && post.targetPostRelations.map((rel, i) => 
-        <RelatedQuestionsItem 
+        <PostsItem2 
           key={rel._id} 
           post={rel.targetPost} 
           currentUser={currentUser} 
