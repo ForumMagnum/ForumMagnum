@@ -241,20 +241,25 @@ export async function sendEmail(renderedEmail)
 
 export async function renderAndSendEmail(emailProps)
 {
+  const { user } = emailProps;
+  if (user.unsubscribeFromAll) {
+    return;
+  }
+  
   const renderedEmail = await generateEmail(emailProps);
   sendEmail(renderedEmail);
   
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
-    user: emailProps.user._id,
+    user: user._id,
   };
   // Log in LWEvents table
   newMutation({
     collection: LWEvents,
-    currentUser: emailProps.user,
+    currentUser: user,
     document: {
-      userId: emailProps.user._id,
+      userId: user._id,
       name: "emailSent",
       properties: emailJson,
       intercom: false,
@@ -271,6 +276,8 @@ export function reasonUserCantReceiveEmails(user)
     return "No email address";
   if (!Users.emailAddressIsVerified(user))
     return "Address is not verified";
+  if (user.unsubscribeFromAll)
+    return "Setting 'Do not send me any emails' is checked";
   
   return null;
 }

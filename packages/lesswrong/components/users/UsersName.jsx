@@ -5,8 +5,10 @@ import PropTypes from 'prop-types';
 const UsersName = ({user, documentId}) => {
   if (documentId) {
     return <Components.UsersNameWrapper documentId={documentId} />
-  } else {
+  } else if(user) {
     return <Components.UsersNameDisplay user={user}/>
+  } else {
+    return <Components.UserNameDeleted />
   }
 }
 UsersName.propTypes = {

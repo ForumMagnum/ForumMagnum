@@ -83,6 +83,7 @@ extendFragment('UsersCurrent', `
   googleLocation
   mongoLocation
   emailSubscribedToCurated
+  unsubscribeFromAll
   emails
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
@@ -388,6 +389,7 @@ registerFragment(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    unsubscribeFromAll
 
     # Moderation
     moderatorAssistance

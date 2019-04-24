@@ -517,6 +517,15 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canRead: ['members'],
   },
+  unsubscribeFromAll: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.emails,
+    label: "Do not send me any emails (unsubscribe from all)",
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
 
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
