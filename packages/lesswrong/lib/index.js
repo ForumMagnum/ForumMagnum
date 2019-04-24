@@ -129,8 +129,6 @@ import './scrollRestoration.js';
 
 import './components.js';
 
-import './recommendations.js';
-
 // PostRelation
 import './collections/postRelations';
 
