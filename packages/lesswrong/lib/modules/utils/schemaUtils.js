@@ -1,3 +1,4 @@
+import { addCallback, getCollection } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import SimpleSchema from 'simpl-schema'
 
@@ -125,7 +126,11 @@ SimpleSchema.extendOptions(['getValue'])
 SimpleSchema.extendOptions(['canAutoDenormalize'])
 
 
-// Helper function to add all the correct callbacks and metainfo to make fields denormalized
+// Helper function to add all the correct callbacks and metadata for a field
+// which is denormalized, where its denormalized value is a function only of
+// the other fields on the document. (Doesn't work if it depends on the contents
+// of other collections, because it doesn't set up callbacks for changes in
+// those collections)
 export function denormalizedField({ needsUpdate, getValue }) {
   return {
     onUpdate: async ({data, newDocument}) => {
@@ -143,5 +148,94 @@ export function denormalizedField({ needsUpdate, getValue }) {
     optional: true,
     needsUpdate,
     getValue
+  }
+}
+
+// Create a denormalized field which counts the number of objects in some other
+// collection whose value for a field is this object's ID. For example, count
+// the number of comments on a post, or the number of posts by a user, updating
+// when objects are created/deleted/updated.
+export function denormalizedCountOfReferences({ collectionName, fieldName,
+  foreignCollectionName, foreignTypeName, foreignFieldName, filterFn })
+{
+  const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
+  
+  if (!filterFn)
+    filterFn = doc=>true;
+  
+  if (Meteor.isServer)
+  {
+    // When inserting a new document which potentially needs to be counted, follow
+    // its reference and update with $inc.
+    const createCallback = async (newDoc, {currentUser, collection, context}) => {
+      if (newDoc[foreignFieldName] && filterFn(newDoc)) {
+        const collection = getCollection(collectionName);
+        await collection.update(newDoc[foreignFieldName], {
+          $inc: { [fieldName]: 1 }
+        });
+      }
+      
+      return newDoc;
+    }
+    createCallback.name = `${collectionName}_${fieldName}_countNew`;
+    addCallback(`${foreignCollectionCallbackPrefix}.create.after`, createCallback);
+    
+    // When updating a document, we may need to decrement a count, we may
+    // need to increment a count, we may need to do both with them cancelling
+    // out, or we may need to both but on different documents.
+    addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
+      async (newDoc, {document, currentUser, collection}) => {
+        const countingCollection = getCollection(collectionName);
+        if (filterFn(newDoc) && !filterFn(document)) {
+          // The old doc didn't count, but the new doc does. Increment on the new doc.
+          await countingCollection.update(newDoc[foreignFieldName], {
+            $inc: { [fieldName]: 1 }
+          });
+        } else if (!filterFn(newDoc) && filterFn(document)) {
+          // The old doc counted, but the new doc doesn't. Decrement on the old doc.
+          await countingCollection.update(document[foreignFieldName], {
+            $inc: { [fieldName]: -1 }
+          });
+        } else if(filterFn(newDoc) && document[foreignFieldName] !== newDoc[foreignFieldName]) {
+          // The old and new doc both count, but the reference target has changed.
+          // Decrement on one doc and increment on the other.
+          await countingCollection.update(document[foreignFieldName], {
+            $inc: { [fieldName]: -1 }
+          });
+          await countingCollection.update(newDoc[foreignFieldName], {
+            $inc: { [fieldName]: 1 }
+          });
+        }
+        return newDoc;
+      }
+    );
+    addCallback(`${foreignCollectionCallbackPrefix}.delete.async`,
+      async ({document, currentUser, collection}) => {
+        if (document[foreignFieldName] && filterFn(document)) {
+          const countingCollection = getCollection(collectionName);
+          await countingCollection.update(document[foreignFieldName], {
+            $inc: { [fieldName]: -1 }
+          });
+        }
+      }
+    );
+  }
+  
+  return {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    denormalized: true,
+    canAutoDenormalize: true,
+    
+    getValue: async (document) => {
+      const foreignCollection = getCollection(foreignCollectionName);
+      // Use the raw collection to bypass Vulcan's convertSelector BS
+      const docsThatMayCount = await foreignCollection.rawCollection().find({
+        [foreignFieldName]: document._id
+      });
+      return _.count(docsThatMayCount, d=>filterFn(d));
+    }
   }
 }
