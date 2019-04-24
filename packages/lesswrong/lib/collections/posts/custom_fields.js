@@ -2,7 +2,7 @@ import { Posts } from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -401,8 +401,24 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-
-
+  
+  // disableRecommendation: If true, this post will never appear as a
+  // recommended post (but will still appear in all other places, ie on its
+  // author's profile, in archives, etc).
+  // Use for things that lose their relevance with age, like announcements, or
+  // for things that aged poorly, like results that didn't replicate.
+  disableRecommendation: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Exclude from Recommendations",
+    control: "checkbox",
+    order: 12,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
 
   // Drafts
   draft: {
@@ -949,11 +965,7 @@ addFieldsDict(Users, {
       type: '[Post]',
       resolver: (user, { limit }, { currentUser, Users, Posts }) => {
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
-
-        // restrict documents fields
-        const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
-        const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
-        return restrictedPosts
+        return accessFilterMultiple(currentUser, Posts, posts);
       }
     }
   },
