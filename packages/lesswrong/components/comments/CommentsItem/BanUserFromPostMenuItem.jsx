@@ -49,7 +49,7 @@ BanUserFromPostMenuItem.propTypes = {
 
 const withEditOptions = {
   collection: Posts,
-  fragmentName: 'PostsPage',
+  fragmentName: 'PostsEdit',
 };
 
 registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withEdit, withEditOptions], withUser);
