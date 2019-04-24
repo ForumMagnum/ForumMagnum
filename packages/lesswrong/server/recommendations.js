@@ -162,7 +162,7 @@ const getRecommendations = async ({count, algorithm, currentUser}) => {
 addGraphQLResolvers({
   Query: {
     async Recommendations(root, {count,algorithm}, {currentUser}) {
-      const recommended = getRecommendations({count, algorithm, currentUser})
+      const recommended = await getRecommendations({count, algorithm, currentUser})
       const accessFiltered = accessFilterMultiple(currentUser, Posts, recommended);
       if (recommended.length !== accessFiltered.length) {
         // eslint-disable-next-line no-console
