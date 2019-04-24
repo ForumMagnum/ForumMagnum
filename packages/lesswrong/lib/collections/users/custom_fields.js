@@ -750,7 +750,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
-  }
+  },
 });
 
 export const makeEditableOptionsModeration = {

@@ -4,6 +4,7 @@ import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
+import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 import moment from 'moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
@@ -41,8 +42,7 @@ export const servePostRSS = (terms, url) => {
   parameters.options.limit = 10;
 
   const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
-  const viewablePosts = _.filter(postsCursor, post => Posts.checkAccess(null, post));
-  const restrictedPosts = Users.restrictViewableFields(null, Posts, viewablePosts);
+  const restrictedPosts = accessFilterMultiple(null, Posts, postsCursor);
 
   restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
@@ -94,8 +94,7 @@ export const serveCommentRSS = (terms, url) => {
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
   const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
-  const viewableComments = _.filter(commentsCursor, comment => Comments.checkAccess(null, comment));
-  const restrictedComments = Users.restrictViewableFields(null, Comments, viewableComments);
+  const restrictedComments = accessFilterMultiple(null, Comments, commentsCursor);
 
   restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
