@@ -345,4 +345,7 @@ import '../components/questions/QuestionsPage.jsx';
 import '../components/questions/AnswerTocRow.jsx';
 import '../components/questions/RelatedQuestionsList.jsx';
 
+import '../components/recommendations/ConfigurableRecommendationsList.jsx';
+import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
+import '../components/recommendations/RecommendationsList.jsx';
 import '../components/recommendations/RecommendationsPage.jsx';
