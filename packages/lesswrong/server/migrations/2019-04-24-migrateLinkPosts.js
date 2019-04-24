@@ -6,17 +6,26 @@ registerMigration({
   idempotent: true,
   action: async () => {
     // Get posts which were linkposts in legacy, but aren't linkposts now.
-    // There are only 239 such posts, so no batching is necessary.
+    // There are only ~800 such posts, so no batching is necessary.
     const unmigratedLinkposts = await Posts.find({
-      "legacyData.url": {
-        "$exists": true,
-        // You can recognize a legacy linkpost by its legacyData.url being an
-        // absolute URL, rather than a relative URL. There is, strangely, no
-        // (imported) field besides that one which reflects the difference.
-        "$regex": "^http",
-      },
+      // In old-LW/Reddit ontology, there are two fundamental types of post:
+      // link-posts and self-posts. This is represented by the is_self field,
+      // which, after making its way through the old DB schema and our import
+      // script, is either present and "t" (a self-post), or missing (a
+      // link-post).
+      "legacyData.is_self": { "$exists": false },
+      
+      // Also make sure it actually has a legacy URL. This excludes non-legacy
+      // posts.
+      "legacyData.url": { "$exists": true, },
+      
+      // And it isn't already a linkpost, ie, this script hasn't already
+      // migrated it.
       url: {$exists:false}
     }).fetch();
+    
+    // eslint-disable-next-line no-console
+    console.log(`Found ${unmigratedLinkposts.length} old linkposts to migrate`);
     
     const updates = _.map(unmigratedLinkposts, post => ({
       updateOne: {
