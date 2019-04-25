@@ -87,8 +87,14 @@ export function dataToMarkdown(data, type) {
 }
 
 export async function dataToWordCount(data, type) {
-  const markdown = dataToMarkdown(data, type) || ""
-  return markdown.split(" ").length
+  try {
+    const markdown = dataToMarkdown(data, type) || ""
+    return markdown.split(" ").length
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error("Error in dataToWordCount", data, type, err)
+    return 0
+  }
 }
 
 function getInitialVersion(document) {
