@@ -4,8 +4,6 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import { withStyles } from  '@material-ui/core/styles'
-import { SplitComponent } from 'meteor/vulcan:routing';
-import Users from 'meteor/vulcan:users';
 
 const styles = theme => ({
   recentDiscussionListWrapper: {
@@ -60,13 +58,8 @@ const Home = ({ currentUser, router, classes }) => {
     }
   }
 
-  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
-      Users.canDo(currentUser, 'alignment.sidebar')
-
   return (
     <div>
-      {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
-
       <Components.HeadTags image={getSetting('siteImage')} />
       <Components.RecommendedReading />
       {currentUser &&
