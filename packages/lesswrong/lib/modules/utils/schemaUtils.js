@@ -134,16 +134,16 @@ export const addFieldsDict = (collection, fieldsDict) => {
   collection.addField(translatedFields);
 }
 
-// For denormalized fields, getValue returns the new denormalized value of
-// the field, given the new document after an update or an insert
-SimpleSchema.extendOptions(['needsUpdate'])
-
-// For denormalized fields, needsUpdate is an optional attribute that 
+// For denormalized fields, needsUpdate is an optional attribute that
 // determines whether the denormalization function should be rerun given
 // the new document after an update or an insert
+SimpleSchema.extendOptions(['needsUpdate'])
+
+// For denormalized fields, getValue returns the new denormalized value of
+// the field, given the new document after an update or an insert
 SimpleSchema.extendOptions(['getValue'])
 
-// For denormalized fields, marks a field so that we can automatically 
+// For denormalized fields, marks a field so that we can automatically
 // get the automatically recompute the new denormalized value via
 // `Vulcan.recomputeDenormalizedValues` in the Meteor shell
 SimpleSchema.extendOptions(['canAutoDenormalize'])
