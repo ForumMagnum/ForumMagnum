@@ -6,7 +6,7 @@ import {
 } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import NoSSR from 'react-no-ssr';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';

@@ -13,15 +13,7 @@ $alignment-text: rgba(95, 155, 101, 1);
 $hmargin: 10px;
 $vmargin: 15px;
 
-$smaller-font: 0.8rem;
-$small-font: 0.9rem;
-$medium-font: 1rem;
-$large-font: 1.25rem;
-$larger-font: 1.35rem;
-
 $border: 1px solid $light-border;
-
-$post-width: 640px;
 
 @mixin flex-center{
   display: flex;

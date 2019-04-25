@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment, withMessages, withDocument } from 'meteor/vulcan:core';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js'
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({

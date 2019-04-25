@@ -2,13 +2,15 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
-import { withRouter, Link } from 'react-router'
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js'
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 import Users from 'meteor/vulcan:users';
 import postViewSections from '../../lib/sections.js'
 import withUser from '../common/withUser';
+import classNames from 'classnames';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const defaultViews = ["frontpage"];
 const defaultExpandedViews = [];
@@ -29,6 +31,100 @@ const styles = theme => ({
     color: "white",
     top: 2,
     marginRight: 1,
+  },
+
+  postsViewButton: {
+    [theme.breakpoints.down('sm')]: {
+      "&::after": {
+        content: "|",
+        marginLeft: 5,
+        marginRight: 5,
+        fontStyle: "normal",
+      },
+      float: "left",
+    }
+  },
+
+  viewChip: {
+    display: "inline-block",
+    backgroundColor: "transparent",
+    fontSize: 16,
+    fontStyle: "normal",
+    color: "rgba(0,0,0,0.5)",
+    paddingLeft: 3,
+    paddingRight: 0,
+    lineHeight: "25px",
+    cursor: "pointer",
+    textDecoration: "none !important",
+    position: "relative",
+
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: "0px !important",
+    },
+
+    "&:hover $viewChipMenuWrapper": {
+      display: "block",
+    },
+  },
+  viewChipActive: {
+    color: "rgba(0, 0, 0, .8) !important",
+    textDecoration: "underline !important",
+  },
+  viewChipInactive: {
+    "&:hover": {
+      color: "rgba(0, 0, 0, .3)",
+    }
+  },
+  viewChipMenuWrapper: {
+    position: "absolute",
+    borderRadius: 2,
+    right: -266,
+    top: -12,
+    display: "none",
+    textAlign: "left",
+    zIndex: 1,
+    paddingLeft: 5,
+
+    [legacyBreakpoints.maxSmall]: {
+      left: -25,
+      top: 20,
+    },
+
+    "&:hover": {
+      display: "block",
+    },
+  },
+  viewChipMenu: {
+    borderRadius: 2,
+    backgroundColor: "rgba(0,0,0,.8)",
+    boxShadow: "1px 1px 4px rgba(0,0,0,.2)",
+    color: "rgba(255,255,255,.75)",
+    width: 260,
+    fontWeight: 300,
+    lineHeight: "18px",
+    fontSize: 12,
+    padding: "10px 0",
+    zIndex: 1,
+  },
+  viewChipMenuItem: {
+    fontStyle: "normal",
+    zIndex: 2,
+    color: "rgba(255,255,255,.75)",
+    textDecoration: "none",
+    borderTop: "solid 1px rgba(255,255,255,.2)",
+    padding: "5px 10px",
+    "&:hover": {
+      background: "rgba(255,255,255,.2)",
+    }
+  },
+  viewDescription: {
+    borderTop: "none",
+    "&:hover": {
+      background: "none"
+    }
+  },
+  learnMore: {
+    borderTop: "none",
   },
 });
 
@@ -66,16 +162,16 @@ class HomePostsViews extends Component {
   renderMenu = (viewData, view) => {
     const { classes } = this.props;
     return (
-      <div className="view-chip-menu-wrapper">
-        <div className="view-chip-menu">
-          <div className="view-chip-menu-item description">
+      <div className={classes.viewChipMenuWrapper}>
+        <div className={classes.viewChipMenu}>
+          <div className={classNames(classes.viewChipMenuItem, classes.viewDescription)}>
             {viewData.categoryIcon && <Icon className={classnames("material-icons", classes.categoryIcon)}>
               {viewData.categoryIcon}
             </Icon>}
             {viewData.description}
           </div>
-          { viewData.includes && <div className="view-chip-menu-item includes">{viewData.includes}</div>}
-          { viewData.learnMoreLink && <div className="view-chip-menu-item learn-more">
+          { viewData.includes && <div className={classNames(classes.viewChipMenuItem, classes.viewDescription)}>{viewData.includes}</div>}
+          { viewData.learnMoreLink && <div className={classNames(classes.viewChipMenuItem, classes.learnMore)}>
             <Link to={viewData.learnMoreLink}>
               <Icon className={classnames("material-icons", classes.helpIcon)}>help</Icon>
               <span style={{color:"white"}}> Learn More</span>
@@ -88,6 +184,7 @@ class HomePostsViews extends Component {
 
   render() {
     const props = this.props;
+    const { classes } = this.props;
     const views = props.views || defaultViews;
     let expandedViews = props.expandedViews || defaultExpandedViews;
     const currentView = this.getCurrentView();
@@ -100,10 +197,10 @@ class HomePostsViews extends Component {
     return (
       <div className="posts-views">
         {views.map(view => (
-          <div key={view} className={classnames("posts-view-button", {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
+          <div key={view} className={classnames(classes.postsViewButton, {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView})}>
 
-            <span className="view-chip" onClick={() => this.handleChange(view)}>
-              <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
+            <span className={classes.viewChip} onClick={() => this.handleChange(view)}>
+              <Components.SectionSubtitle className={view === currentView ? classes.viewChipActive : classes.viewChipInactive}>
                 {postViewSections[view].label}
                 { this.renderMenu(postViewSections[view], view)}
               </Components.SectionSubtitle>
@@ -116,31 +213,31 @@ class HomePostsViews extends Component {
               <div
                 key={view}
                 className={classnames(
-                    "posts-view-button",
+                    classes.postsViewButton,
                   {"posts-views-button-active": view === currentView, "posts-views-button-inactive": view !== currentView}
                 )}
               >
-                <span className="view-chip" onClick={() => this.handleChange(view)} >
-                  <Components.SectionSubtitle className={view === currentView ? "posts-views-chip-active" : "posts-views-chip-inactive"}>
+                <span className={classes.viewChip} onClick={() => this.handleChange(view)} >
+                  <Components.SectionSubtitle className={view === currentView ? classes.viewChipActive : classes.viewChipInactive}>
                     {postViewSections[view].label}
                     { this.renderMenu(postViewSections[view])}
                   </Components.SectionSubtitle>
                 </span>
               </div>
             ))}
-            {!props.hideDaily && <div className="posts-view-button"><span className="view-chip">
+            {!props.hideDaily && <div className={classes.postsViewButton}><span className={classes.viewChip}>
               {/* TODO; Regression */}
-              <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+              <Components.SectionSubtitle className={classes.viewChipInactive}>
                 <Link to="/community">Community</Link> { this.renderMenu(postViewSections["meta"])}
               </Components.SectionSubtitle></span>
             </div>}
-            {!props.hideDaily && <span className="view-chip">
-              <Components.SectionSubtitle className={"posts-views-chip-inactive"}>
+            {!props.hideDaily && <span className={classes.viewChip}>
+              <Components.SectionSubtitle className={classes.viewChipInactive}>
                 <Link to="/allPosts">Daily</Link> { this.renderMenu(postViewSections["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>
-            <div className="view-chip more"
+            <div className={classes.viewChip}
               onClick={() => this.setState({expanded: true})}>
               ...
               { this.renderMenu(postViewSections["more"])}

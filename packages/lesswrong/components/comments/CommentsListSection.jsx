@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import {
   Components,
-  registerComponent,
-  getSetting
+  registerComponent
 } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
-import { Comments } from "../../lib/collections/comments";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
@@ -47,7 +45,8 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 12px',
+    padding: theme.spacing.unit*1.5,
+    paddingTop: 0,
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
     marginBottom: "1.3em",
@@ -76,7 +75,7 @@ class CommentsListSection extends Component {
   constructor(props) {
     super(props);
     const {lastEvent, post} = this.props;
-    
+
     this.state = {
       highlightDate:
         (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
@@ -138,8 +137,8 @@ class CommentsListSection extends Component {
             terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
             clickCallback={this.handleDateChange}/>}
           <Divider />
-          {suggestedHighlightDates.map((date,i) => {
-            return <MenuItem key={i} onClick={() => this.handleDateChange(date)}>
+          {suggestedHighlightDates.map(date => {
+            return <MenuItem key={date.toString()} onClick={() => this.handleDateChange(date)}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -149,32 +148,24 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments, parentAnswerId, startThreadCollapsed } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadCollapsed, newForm=true, guidelines=true } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className={classes.root}>
-        <div className={classes.moderationGuidelinesWrapper}>
+        {guidelines && <div className={classes.moderationGuidelinesWrapper}>
           <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-        </div>
+        </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
-        {!currentUser &&
-          <div>
-            <Components.LoginPopupLink>
-              <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-            </Components.LoginPopupLink>
-          </div>
-        }
         <div id="comments"/>
-        {currentUser && Users.isAllowedToComment(currentUser, post) &&
+
+        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
-              alignmentForumPost={post.af}
-              postId={postId}
+              post={post}
               prefilledProps={{
-                af: Comments.defaultToAlignment(currentUser, post),
                 parentAnswerId: parentAnswerId}}
               type="comment"
             />

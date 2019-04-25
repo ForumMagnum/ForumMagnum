@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
+import { withVote } from './withVote';
 
 const styles = theme => ({
   upvote: {
@@ -42,8 +43,8 @@ const styles = theme => ({
 
 class PostsVote extends PureComponent {
   render() {
-    const { post, classes, currentUser, collection } = this.props
-    const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
+    const { post, classes, currentUser, collection, vote } = this.props
+    const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
 
     return (
         <div className={classes.voteBlock}>
@@ -60,6 +61,7 @@ class PostsVote extends PureComponent {
                 document={post}
                 currentUser={currentUser}
                 collection={collection}
+                vote={vote}
               />
             </div>
           </Tooltip>
@@ -72,7 +74,7 @@ class PostsVote extends PureComponent {
               <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
             </Tooltip>
 
-            {!!post.af && !!post.afBaseScore && !getSetting('AlignmentForum', false) &&
+            {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&
               <Tooltip
                 title="Alignment Forum karma"
                 placement="right"
@@ -99,6 +101,7 @@ class PostsVote extends PureComponent {
                 document={post}
                 currentUser={currentUser}
                 collection={collection}
+                vote={vote}
               />
             </div>
           </Tooltip>
@@ -113,6 +116,6 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote, withUser,
+registerComponent('PostsVote', PostsVote, withUser, withVote,
   withStyles(styles, { name: "PostsVote" })
 );

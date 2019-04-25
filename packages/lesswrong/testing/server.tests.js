@@ -1,5 +1,6 @@
 import './metatest.tests.js';
 import './voting.tests.js';
+import './debouncer.tests.js';
 
 import '../components/comments/CommentsItem/_comments-unit-tests.js';
 

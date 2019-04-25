@@ -36,7 +36,7 @@ registerComponent('EmailHistoryPage', EmailHistoryPage, withUser);
 export const EmailHistory = ({results, classes}) => {
   if (!results) return <Components.Loading/>
   
-  return results.map((email,i) => <Components.EmailPreview key={i} email={email.properties}/>);
+  return results.map((email,i) => <Components.EmailPreview key={email._id} email={email.properties}/>);
 }
 
 registerComponent('EmailHistory', EmailHistory,

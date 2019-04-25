@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
@@ -30,22 +30,11 @@ const styles = theme => ({
       marginTop: 7,
     }
   },
-  coreReadingWrapperWrapper: {
-    // TODO: Remove this silliness
-    marginLeft: -19,
-    marginTop: 22,
-  },
-  sequencesGridWrapperWrapper: {
-    // TODO: Remove this silliness
-    marginLeft: -17,
-    marginTop: 35,
-  },
   listDescription: {
     marginTop: theme.spacing.unit*2,
     ...postBodyStyles(theme)
   },
   newSequence: {
-    paddingRight: theme.spacing.unit,
     color: theme.palette.primary.light
   }
 });
@@ -73,9 +62,7 @@ const SequencesHome = ({classes}) => {
 
     <SingleColumnSection>
       <SectionTitle title="Core Reading" />
-      <div className={classes.coreReadingWrapperWrapper}>
-        <Components.CoreReading />
-      </div>
+      <Components.CoreReading />
       <Divider />
     </SingleColumnSection>
 

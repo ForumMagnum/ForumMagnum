@@ -56,7 +56,6 @@ accounts-password@1.5.1
 # example-reactions
 
 # vulcan:debug
-vulcan:events-ga
 
 lesswrong
 # webtoken-session

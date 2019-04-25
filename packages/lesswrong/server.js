@@ -13,6 +13,7 @@ import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
 import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
+import './server/scripts/exportForAprilFoolsTraining.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
 import './server/scripts/fixEmailField.js';
@@ -44,6 +45,7 @@ import './server/mapsUtils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
+import './server/debouncer.js';
 import './server/logging.js';
 import './server/rss.js';
 import './server/akismet.js';

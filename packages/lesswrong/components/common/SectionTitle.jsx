@@ -11,7 +11,6 @@ const styles = (theme) => ({
     alignItems: "center",
     marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit
   },
   title: {
     margin:0,
@@ -22,27 +21,37 @@ const styles = (theme) => ({
     borderTop: "solid 2px rgba(0,0,0,.5)",
     width: theme.spacing.unit*4,
     marginRight: theme.spacing.unit*1.5,
+    [theme.breakpoints.down('sm')]: {
+      width: theme.spacing.unit*2,
+    },
   },
   rightDivider: {
     flexGrow:1,
     marginLeft: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)"
   },
+  rightMargin: {
+    marginRight: theme.spacing.unit*1.5
+  },
+  noTitle: {
+    marginLeft: 0,
+  },
   tailDivider: {
+    marginLeft: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)",
-    width: theme.spacing.unit*4
-  }
+    width: theme.spacing.unit*4,
+  },
 })
 class SectionTitle extends PureComponent {
   render() {
-    const {children, classes, className, title, dividers=true} = this.props 
+    const {children, classes, className, title, dividers=true} = this.props
     return (
       <div className={classes.root}>
-        { dividers && <div className={classes.leftDivider}/>}
+        { dividers && title && <div className={classes.leftDivider}/>}
         <Typography variant='display1' className={classNames(classes.title, className)}>
           {title}
         </Typography>
-        { dividers && <div className={classes.rightDivider}/>}
+        { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}
         { children }
         { children && dividers && <div className={classes.tailDivider}/>}
       </div>

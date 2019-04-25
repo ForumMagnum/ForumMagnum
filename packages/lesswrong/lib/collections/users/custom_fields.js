@@ -135,7 +135,7 @@ addFieldsDict(Users, {
           {value:'postCommentsNew', label: 'most recent'},
           {value:'postCommentsOld', label: 'oldest'},
         ];
-        if (getSetting('AlignmentForum', false)) {
+        if (getSetting('forumType') === 'AlignmentForum') {
           return commentViews.concat([
             {value:'postLWComments', label: 'magical algorithm (include LW)'}
           ])
@@ -356,7 +356,7 @@ addFieldsDict(Users, {
     foreignKey: "Users",
     optional: true
   },
-
+  
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
@@ -628,35 +628,35 @@ addFieldsDict(Users, {
     denormalized: true,
     optional: true,
     label: "Small Upvote Count",
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   smallUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   smallDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   bigUpvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   bigDownvoteCount: {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['sunshineRegiment'],
   },
 
   // Full Name field to display full name for alignment forum users
@@ -705,6 +705,16 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
   },
 
+  sunshineShowNewUserContent: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    group: formGroups.adminOptions,
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+  },
+
   viewUnreviewedComments: {
     type: Boolean,
     optional: true,
@@ -713,6 +723,14 @@ addFieldsDict(Users, {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     order: 0,
+  },
+  // TODO: Remove this after april fools
+  blockedGPT2: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    label: "Auto-collapse comments from GPT2"
   }
 });
 

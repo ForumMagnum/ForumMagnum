@@ -5,11 +5,12 @@ import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../../../server/editor/ma
 import { highlightFromHTML } from '../../editor/ellipsize';
 import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
+import { Utils } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text'
+import { truncate } from '../../editor/ellipsize'
 
-const PLAINTEXT_DESCRIPTION_LENGTH = 500
-
-
+const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
+const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 
 function domBuilder(html) {
   const jsdom = new JSDOM(html)
@@ -32,6 +33,8 @@ export function htmlToDraftServer(...args) {
 }
 
 export function dataToDraftJS(data, type) {
+  if (data===undefined || data===null) return null;
+  
   switch (type) {
     case "draftJS": {
       return data
@@ -44,6 +47,9 @@ export function dataToDraftJS(data, type) {
       const html = markdownToHtmlNoLaTeX(data)
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
       return convertToRaw(draftJSContentState) 
+    }
+    default: {
+      throw new Error(`Unrecognized type: ${type}`);
     }
   }
 }
@@ -74,9 +80,12 @@ addFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => htmlToText
-        .fromString(html)
-        .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+      resolver: ({html}) => {
+        const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+        return htmlToText
+          .fromString(truncatedHtml)
+          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+      } 
     }
   }
 })

@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -24,7 +24,6 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit*2,
-    marginRight: theme.spacing.unit*2,
     flexWrap: "wrap",
     marginLeft: 3,
     [theme.breakpoints.down('md')]: {

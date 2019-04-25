@@ -5,7 +5,7 @@ import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'
@@ -13,6 +13,15 @@ import { withApollo } from 'react-apollo'
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  root: {
+    width: "60%",
+    margin: "auto",
+    marginBottom: 100,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    }
+  },
+  
   header: {
     margin: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,
@@ -32,7 +41,7 @@ const UsersEditForm = (props) => {
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
     return (
-      <div className="page users-edit-form">
+      <div className={classes.root}>
         Log in to edit your profile.
       </div>
     );
@@ -43,7 +52,7 @@ const UsersEditForm = (props) => {
   }
 
   return (
-    <div className="page users-edit-form">
+    <div className={classes.root}>
       <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
       <Button color="secondary" variant="outlined" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
           (error) => props.flash({ messageString: error ? error.reason : "Sent password reset email to " + props.currentUser.email }))

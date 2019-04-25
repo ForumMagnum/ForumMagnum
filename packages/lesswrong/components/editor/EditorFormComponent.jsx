@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
-import { editorStyles, postBodyStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import classnames from 'classnames';
@@ -22,12 +22,24 @@ const commentEditorHeightRows = 5;
 
 const styles = theme => ({
   root: {
-    position: 'relative'
+    position: 'relative',
   },
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
     maxWidth:640,
+    '& li .public-DraftStyleDefault-block': {
+      margin: 0
+    }
+  },
+
+  answerStyles: {
+    ...editorStyles(theme, postHighlightStyles),
+    cursor: "text",
+    maxWidth:620,
+    '& li .public-DraftStyleDefault-block': {
+      margin: 0
+    }
   },
 
   commentBodyStyles: {
@@ -38,7 +50,7 @@ const styles = theme => ({
     pointerEvents: 'auto'
   },
   questionWidth: {
-    width: 540,
+    width: 640,
     [theme.breakpoints.down('sm')]: {
       width: 'inherit'
     }
@@ -57,6 +69,8 @@ const styles = theme => ({
   }
 })
 
+const autosaveInterval = 3000; //milliseconds
+
 class EditorFormComponent extends Component {
   constructor(props) {
     super(props)
@@ -66,6 +80,9 @@ class EditorFormComponent extends Component {
       updateType: 'minor',
       ...this.getEditorStatesFromType(editorType)
     }
+    this.hasUnsavedData = false;
+
+    this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
   }
 
   getEditorStatesFromType = (editorType) => {
@@ -130,14 +147,14 @@ class EditorFormComponent extends Component {
     // And lastly, if the field is empty, create an empty draftJS object
     return EditorState.createEmpty();
   }
-  
+
   initializeText = (originalContents) => {
     const { document, name } = this.props
     const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
     if (savedState) {
       return savedState;
     }
-  
+
     return originalContents;
   }
 
@@ -158,6 +175,11 @@ class EditorFormComponent extends Component {
         case "html":
           data = htmlValue
           break
+        default:
+          // eslint-disable-next-line no-console
+          console.error(`Unrecognized editor type: ${type}`);
+          data = "";
+          break;
       }
       return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
     }
@@ -176,6 +198,22 @@ class EditorFormComponent extends Component {
       return result;
     }
     this.context.addToSuccessForm(resetEditor);
+
+    if (Meteor.isClient && window) {
+      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
+        if (this.hasUnsavedData) {
+          ev.preventDefault();
+          ev.returnValue = 'Are you sure you want to close?';
+          return ev.returnValue
+        }
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.unloadEventListener) {
+      window.removeEventListener(this.unloadEventListener);
+    }
   }
 
   handleEditorOverride = (editorType) => {
@@ -194,49 +232,53 @@ class EditorFormComponent extends Component {
     const newContent = value.getCurrentContent()
     const changed = (currentContent !== newContent);
     this.setState({draftJSValue: value})
-    
+
     if (changed) {
-      this.maybeSaveBackup();
+      this.afterChange();
     }
   }
-  
+
   setHtml = (e) => {
     const newContent = e.target.value
     const changed = (this.state.htmlValue !== newContent);
     this.setState({htmlValue: newContent})
-    
+
     if (changed)
-      this.maybeSaveBackup();
+      this.afterChange();
   }
-  
+
   setMarkdown = (e) => {
     const newContent = e.target.value
     const changed = (this.state.htmlValue !== newContent);
     this.setState({markdownValue: newContent})
-    
+
     if (changed)
-      this.maybeSaveBackup();
+      this.afterChange();
   }
-  
-  maybeSaveBackup = () => {
+
+  afterChange = () => {
+    this.hasUnsavedData = true;
+    this.throttledSaveBackup();
+  }
+
+  saveBackup = () => {
     const { document, name } = this.props;
-    
-    // Only save to localStorage on every 30th content change
-    // TODO: Consider debouncing rather than saving every 30th change
-    // TODO: Consider saving on blur
-    this.changeCount = this.changeCount + 1;
-    if (this.changeCount % 30 === 0) {
-      const serialized = this.editorContentsToJson();
-      
-      this.getStorageHandlers().set({
-        state: serialized,
-        doc: document,
-        name,
-        prefix: this.getLSKeyPrefix()
-      })
+
+    const serialized = this.editorContentsToJson();
+
+    const success = this.getStorageHandlers().set({
+      state: serialized,
+      doc: document,
+      name,
+      prefix: this.getLSKeyPrefix()
+    });
+
+    if (success) {
+      this.hasUnsavedData = false;
     }
+    return success;
   }
-  
+
   // Take the editor contents (whichever editor you're using), and return
   // something JSON (ie, a JSON object or a string) which represents the
   // content and can be saved to localStorage.
@@ -251,7 +293,7 @@ class EditorFormComponent extends Component {
         return this.state.htmlValue;
     }
   }
-  
+
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
   getLSKeyPrefix = () => {
@@ -267,7 +309,7 @@ class EditorFormComponent extends Component {
     const { type } = (value && value.originalContents) || (document[fieldName] && document[fieldName].originalContents) || {}
     return <Typography variant="body2" color="primary">
       This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
-      <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
+      <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride()}> Click here </a>
       to switch to {this.getUserDefaultEditor(currentUser)} editor (your default editor).
     </Typography>
   }
@@ -331,12 +373,19 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  getBodyStyles = () => {
+    const { classes, commentStyles, document } = this.props
+    if (commentStyles && document.answer) return classes.answerStyles
+    if (commentStyles) return classes.commentBodyStyles
+    return classes.postBodyStyles
+  }
+
   render() {
     const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
     const { document, currentUser, formType, form, classes, fieldName } = this.props
     const commentStyles = form && form.commentStyles
     const currentEditorType = this.getCurrentEditorType()
-    
+
     if (!document) return null;
 
     // The class which determines clickable height (as tall as a comment editor,
@@ -344,7 +393,8 @@ class EditorFormComponent extends Component {
     // the draftJS editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
     const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
-    const bodyStyles = (commentStyles && !document.answer) ? classes.commentBodyStyles : classes.postBodyStyles;
+
+    const bodyStyles = this.getBodyStyles()
 
     const editorWarning =
       !editorOverride
@@ -369,7 +419,7 @@ class EditorFormComponent extends Component {
         </div>);
     } else {
       const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
-      
+
       return (
         <div className={classnames(classes.root, "editor-form-component")}>
           { editorWarning }

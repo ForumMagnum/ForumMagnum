@@ -10,9 +10,9 @@ const styles = (theme) => ({
     alignItems: "center",
     marginTop: theme.spacing.unit*1.5,
     marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit*3.5,
+    marginRight: theme.spacing.unit*1.5,
     marginLeft: theme.spacing.unit,
-    color: theme.palette.text.secondary,
+    color: theme.palette.lwTertiary.main,
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap"
     },
@@ -20,6 +20,8 @@ const styles = (theme) => ({
       [theme.breakpoints.down('xs')]: {
         width: "100%",
         textAlign: "right",
+        paddingTop: theme.spacing.unit,
+        paddingBottom: theme.spacing.unit
       },
       [theme.breakpoints.up('sm')]: {
         height: 30,

@@ -7,9 +7,12 @@ Old comments file TODO: Integrate this properly into the CSS file
 $comments-font: Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $ea-blue: #0c869b;
 
-$small-font: 1.1rem;
-
 .comments-item{
+  padding:2px 12px 3px 12px;
+  position: relative;
+  line-height: 1.25;
+  color: rgba(0,0,0,0.87);
+  
   .comments-item-body {
     border-style: none;
     padding: 0px;
@@ -28,35 +31,13 @@ $small-font: 1.1rem;
   .comments-item-bottom {
     padding-bottom: 5px;
     font-size: 12px;
-    .vote {
-      font-weight: 300;
-      color: rgba(0,0,0,0.5);
-    }
-  }
-
-  .comments-item-bottom, .comments-item-meta {
-    .vote {
-      display: inline;
-    }
-    .comments-item-reply-link {
-      margin-right: 5px;
-      display: inline;
-      color:rgba(0,0,0,.5);
-      @media print { display: none; }
-    }
   }
 }
-
-
 
 .comments-item-body, .recent-comments-item-body {
   font-family: $comments-font;
 }
 
-.comments-item {
-  padding:2px 12px 3px 12px;
-  position: relative;
-}
 .comments-item.deleted {
   background-color: #ffefef;
   .comments-item-text.content-body {
@@ -110,29 +91,12 @@ $small-font: 1.1rem;
     margin-right: 5px;
   }
 
-  .comments-collapse{
-    margin-right: 5px;
-    opacity: 0.8;
-    font-size: 0.8rem;
-    line-height: 1rem;
-    padding-bottom: 4px;
-    display: inline-block;
-    vertical-align: middle;
-
-    span {
-      font-family: monospace;
-    }
-  }
-
   .comments-item-origin {
     display: inline-block;
     color: rgba(0,0,0,0.4);
-    .comments-item-origin-post-title {
-      color: rgba(0,0,0,0.5)
-    }
   }
   .comments-item-origin:hover {
-    .comments-item-origin-post-title, .comments-item-date {
+    .comments-item-date {
       color: rgba(0,0,0,0.3);
     }
     color: rgba(0,0,0,0.3);
@@ -155,18 +119,6 @@ $small-font: 1.1rem;
   padding-bottom: 2px;
 }
 
-.comments-item-vote{
-  display: inline-block;
-  position:relative;
-  left:-10px;
-  .vote {
-    .material-icons {
-      vertical-align:middle;
-      line-height:16px;
-    }
-  }
-}
-
 .comments-edit-form {
   position:relative;
   padding-bottom:12px;
@@ -174,10 +126,6 @@ $small-font: 1.1rem;
     text-align: right;
     margin-right:10px;
   }
-}
-
-.comment-blocked-replies {
-  padding:5px 0;
 }
 
 .comments-item-reply{
@@ -285,13 +233,6 @@ $small-font: 1.1rem;
       padding:10px;
     }
   }
-  .recent-comment-username-spacing {
-    padding-right:1px;
-    color:rgba(0,0,0,.3);
-    @include max-small() {
-      padding:0 10px;
-    }
-  }
 
   &.loading {
     min-height:80px;
@@ -312,20 +253,6 @@ $small-font: 1.1rem;
     margin-bottom:.8em;
     position:inherit;
   }
-}
-
-.comments-delete-modal-textfield {
-  margin-top: 10px;
-}
-
-.comments-item-deleted-info {
-  opacity: 0.5;
-}
-
-.comments-item-deleted-info-meta {
-  font-size: 12px;
-  margin-left: 3px;
-  font-style: italic;
 }
 
 .comments-children {

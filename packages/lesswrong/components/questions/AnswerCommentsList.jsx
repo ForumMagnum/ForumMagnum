@@ -9,12 +9,9 @@ import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  answersList: {
-    marginLeft: 34,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: 0
-    }
+  commentsList: {
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5,
   },
   noComments: {
     position: "relative",
@@ -25,13 +22,14 @@ const styles = theme => ({
     borderTop: 'transparent'
   },
   editor: {
-    marginLeft: 34,
-    marginTop: 16,
-    paddingLeft: 12,
+    marginLeft: theme.spacing.unit*4,
+    marginTop: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
     borderTop: `solid 1px ${theme.palette.grey[300]}`
   },
   newComment: {
-    marginBottom: 8,
+    padding: theme.spacing.unit*2.5,
     textAlign: 'right',
     color: theme.palette.grey[600]
   },
@@ -53,13 +51,13 @@ class AnswerCommentsList extends PureComponent {
 
   constructor(props) {
     super(props);
-    
+
     const { lastEvent, post } = this.props;
-    
+
     this.state = {
       commenting: false,
       loadedMore: false,
-      highlightDate: 
+      highlightDate:
         (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
           && new Date(lastEvent.properties.createdAt))
         || (post && post.lastVisitedAt
@@ -100,14 +98,11 @@ class AnswerCommentsList extends PureComponent {
           { commenting &&
               <div className={classes.editor}>
                 <CommentsNewForm
-                  postId={post._id}
+                  post={post}
                   parentComment={parentAnswer}
                   prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post, parentAnswer),
                     parentAnswerId: parentAnswer._id,
-                    parentCommentId: parentAnswer._id,
                   }}
-                  alignmentForumPost={post.af}
                   successCallback={this.closeCommentNewForm}
                   cancelCallback={this.closeCommentNewForm}
                   type="reply"
@@ -116,7 +111,7 @@ class AnswerCommentsList extends PureComponent {
             }
           <div onClick={this.loadMoreComments}
             className={classNames(
-              classes.answersList, {
+              classes.commentsList, {
                 [classes.noCommentAnswersList]: noComments,
                 [classes.loadingMore]: loadingMore,
                 [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
@@ -130,6 +125,7 @@ class AnswerCommentsList extends PureComponent {
               highlightDate={highlightDate}
               post={post}
               parentAnswerId={parentAnswer._id}
+              defaultNestingLevel={2}
               postPage
               startThreadCollapsed
             />

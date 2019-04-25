@@ -1,5 +1,6 @@
-// # Vulcan Modifications
 
+// Settings
+import './registerSettings.js'
 // schema utils
 import './modules/utils/schemaUtils.js'
 // Permissions
@@ -52,6 +53,9 @@ import './collections/reports/permissions.js'
 
 // LWEvents
 import { LWEvents } from './collections/lwevents/index.js';
+
+// DebouncerEvents
+import './collections/debouncerEvents/collection.js';
 
 // Bans
 import { Bans } from './collections/bans/index.js'
@@ -124,6 +128,8 @@ import './scrollRestoration.js';
 
 import './components.js';
 
+import './recommendations.js';
+
 // Alignment Forum
 import './modules/alignment-forum/callbacks.js';
 import './modules/alignment-forum/permissions.js';
@@ -147,7 +153,6 @@ import './modules/alignment-forum/users/callbacks.js';
 import './modules/alignment-forum/users/custom_fields.js';
 import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
-
 
 
 //

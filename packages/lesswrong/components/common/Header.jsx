@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
-import { Link } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
@@ -73,12 +72,37 @@ const styles = theme => ({
     marginRight: -theme.spacing.unit,
     display: "flex",
   },
-  headroomPinnedOpen: {
-    "& .headroom--unpinned": {
-      transform: "none",
+  headroom: {
+    // Styles for header scrolling, provided by react-headroom
+    // https://github.com/KyleAMathews/react-headroom
+    "& .headroom": {
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1300,
     },
     "& .headroom--unfixed": {
+      position: "relative",
+      transform: "translateY(0)",
+    },
+    "& .headroom--scrolled": {
+      transition: "transform 200ms ease-in-out",
+    },
+    "& .headroom--unpinned": {
       position: "fixed",
+      transform: "translateY(-100%)",
+    },
+    "& .headroom--pinned": {
+      position: "fixed",
+      transform: "translateY(0%)",
+    },
+  },
+  headroomPinnedOpen: {
+    "& .headroom--unpinned": {
+      transform: "none !important",
+    },
+    "& .headroom--unfixed": {
+      position: "fixed !important",
     },
   },
 });
@@ -140,9 +164,10 @@ class Header extends Component {
           <Headroom
             disableInlineStyles
             downTolerance={10} upTolerance={10}
-            className={classNames({
-              [classes.headroomPinnedOpen]: headroomPinnedOpen
-            })}
+            className={classNames(
+              classes.headroom,
+              { [classes.headroomPinnedOpen]: headroomPinnedOpen }
+            )}
           >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
               <Toolbar>

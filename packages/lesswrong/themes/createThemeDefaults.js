@@ -58,6 +58,15 @@ const createLWTheme = (theme) => {
   const typography = theme.typography || {}
 
   const defaultLWTheme = {
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 960,
+        lg: 1280,
+        xl: 1400,
+      },
+    },
     spacing: {
       unit: spacingUnit
     },
@@ -169,11 +178,15 @@ const createLWTheme = (theme) => {
     zIndexes: {
       commentsMenu: 1,
       postsVote: 1,
+      postItemTitle: 2,
       sidebarHoverOver: 2,
+      questionPageWhitescreen: 3,
+      textbox: 4,
       sunshineSidebar: 1000,
       postItemMenu: 1001,
       layout: 1100,
       tabNavigation: 1101,
+      searchResults: 1102,
       header: 1300,
       karmaChangeNotifier: 1400,
       notificationsMenu: 1500,
