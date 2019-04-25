@@ -18,6 +18,9 @@ import DataLoader from 'dataloader';
 //
 export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id, projection)
 {
+  if (!collection.extraLoaders) {
+    collection.extraLoaders = {};
+  }
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
       let query = {

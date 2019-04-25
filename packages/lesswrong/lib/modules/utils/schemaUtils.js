@@ -1,6 +1,7 @@
 import { addCallback, getCollection } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import SimpleSchema from 'simpl-schema'
+import { getWithLoader } from "../../loaders.js";
 
 const generateIdResolverSingle = ({collectionName, fieldName}) => {
   return async (doc, args, context) => {
@@ -254,11 +255,16 @@ export function denormalizedCountOfReferences({ collectionName, fieldName,
     
     getValue: async (document) => {
       const foreignCollection = getCollection(foreignCollectionName);
-      // Use the raw collection to bypass Vulcan's convertSelector BS
-      const docsThatMayCount = await foreignCollection.rawCollection().find({
-        [foreignFieldName]: document._id
-      });
-      return _.count(docsThatMayCount, d=>filterFn(d));
+      const docsThatMayCount = await getWithLoader(
+        foreignCollection,
+        `denormalizedCount_${collectionName}.${fieldName}`,
+        { },
+        foreignFieldName,
+        document._id
+      );
+      
+      const docsThatCount = _.filter(docsThatMayCount, d=>filterFn(d));
+      return docsThatCount.length;
     }
   }
 }

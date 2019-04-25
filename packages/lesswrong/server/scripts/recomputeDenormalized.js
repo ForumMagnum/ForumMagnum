@@ -26,7 +26,16 @@ export const recomputeDenormalizedValues = async (collectionName, fieldName) => 
       // eslint-disable-next-line no-console
       throw new Error(`${collectionName} does not have field ${fieldName}, not computing denormalized values`)
     }
+    if (!schema[fieldName].denormalized) {
+      throw new Error(`${collectionName}.${fieldName} is not marked as a denormalized field`)
+    }
+    if (!schema[fieldName].canAutoDenormalize) {
+      throw new Error(`${collectionName}.${fieldName} is not marked as canAutoDenormalize`)
+    }
     const getValue = schema[fieldName].getValue
+    if (!getValue) {
+      throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
+    }
     // eslint-disable-next-line no-console
     await runDenormalizedFieldMigration({ collection, fieldName, getValue })
   } else {
@@ -56,7 +65,7 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
   await migrateDocuments({
     description: `Recomputing denormalized values for ${collection.collectionName} and field ${fieldName}`,
     collection,
-    batchSize: 1000,
+    batchSize: 100,
     migrate: async (documents) => {
       // eslint-disable-next-line no-console
       const updates = await Promise.all(documents.map(async doc => {
