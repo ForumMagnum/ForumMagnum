@@ -33,6 +33,11 @@ const styles = theme => ({
       marginRight: 0,
     }
   },
+  header: {
+    ...theme.typography.body2,
+    marginTop: theme.spacing.unit*1.5,
+    color: theme.palette.grey[500]
+  }
 })
 
 const RelatedQuestionsList = ({ post, currentUser, classes }) => {
@@ -44,11 +49,15 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
   const totalRelatedQuestionCount = sourcePostRelations.length + targetPostRelations.length
   
+  const showParentLabel = sourcePostRelations.length > 0
+  const showSubQuestionLabel = (sourcePostRelations.length > 0) && (targetPostRelations.length > 0)
+
   return (
     <div className={classes.root}>
 
       {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
+      {showParentLabel && <div className={classes.header}>Parent Question{(sourcePostRelations.length > 1) && "s"}</div>}
       {sourcePostRelations.map((rel, i) => 
         <PostsItem2
           key={rel._id}
@@ -57,7 +66,7 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
           index={i}
           parentQuestion
       /> )} 
-
+      {showSubQuestionLabel && <div className={classes.header}>Sub-Questions</div>}
       {targetPostRelations.map((rel, i) => 
         <PostsItem2 
           key={rel._id} 
