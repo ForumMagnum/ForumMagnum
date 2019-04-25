@@ -76,7 +76,7 @@ class PostsVote extends PureComponent {
 
             {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&
               <Tooltip
-                title="Alignment Forum karma"
+                title="AI Alignment Forum karma"
                 placement="right"
                 classes={{tooltip: classes.tooltip}}
               >
