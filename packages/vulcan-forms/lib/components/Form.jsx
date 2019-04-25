@@ -408,7 +408,7 @@ class SmartForm extends Component {
 
       // get nested schema
       // for each nested field, get field object by calling createField recursively
-      field.nestedFields = this.getFieldNames({ schema: field.nestedSchema }).map(subFieldName => {
+      field.nestedFields = this.getFieldNames({ schema: field.nestedSchema, addExtraFields: false }).map(subFieldName => {
         return this.createField(subFieldName, field.nestedSchema, fieldName, fieldPath);
       });
     }
@@ -778,7 +778,10 @@ class SmartForm extends Component {
     if (this.props.errorCallback) this.props.errorCallback(document, error);
 
     // scroll back up to show error messages
-    Utils.scrollIntoView('.flash-message');
+    // LESSWRONG: Removed because what this actually does is align the error
+    // message with the top of the screen, which is usually scrolling *down*,
+    // and which is a terrible jarring experience.
+    //Utils.scrollIntoView('.flash-message');
   };
 
   /*
