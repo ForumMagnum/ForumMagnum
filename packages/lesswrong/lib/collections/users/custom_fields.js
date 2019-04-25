@@ -554,20 +554,28 @@ addFieldsDict(Users, {
 
   // sequenceCount: count of how many non-draft, non-deleted sequences you have
   sequenceCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "sequenceCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => !sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   // sequenceDraftCount: count of how many draft, non-deleted sequences you have
   sequenceDraftCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "sequenceDraftCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   mongoLocation: {

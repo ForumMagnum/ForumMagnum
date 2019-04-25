@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { formGroups } from "../../../collections/users/custom_fields.js"
-import { addFieldsDict } from '../../utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 
 addFieldsDict(Users, {
   afKarma: {
@@ -25,17 +25,27 @@ addFieldsDict(Users, {
   },
 
   afSequenceCount: {
-    type: Number,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afSequenceCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.af && !sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   afSequenceDraftCount: {
-    type: Number,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afSequenceDraftCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.af && sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   reviewForAlignmentForumUserId: {
