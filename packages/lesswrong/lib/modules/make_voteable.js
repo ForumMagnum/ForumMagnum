@@ -8,101 +8,6 @@ export const makeVoteable = collection => {
 
   collection.addField([
     /**
-      The current user's votes on the document, if they exists
-    */
-    {
-      fieldName: 'currentUserVotes',
-      fieldSchema: {
-        type: Array,
-        optional: true,
-        canRead: ['guests'],
-        resolveAs: {
-          type: '[Vote]',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            if (!currentUser) return [];
-            const votes = await Connectors.find(Votes, {
-              userId: currentUser._id,
-              documentId: document._id,
-              cancelled: false,
-            });
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);
-          },
-
-        }
-      }
-    },
-    {
-      fieldName: 'currentUserVotes.$',
-      fieldSchema: {
-        type: Object,
-        optional: true,
-      }
-    },
-    /**
-      All votes on the document
-    */
-    {
-      fieldName: 'allVotes',
-      fieldSchema: {
-        type: Array,
-        optional: true,
-        canRead: ['guests'],
-        resolveAs: {
-          type: '[Vote]',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await Connectors.find(Votes, {
-              documentId: document._id,
-              cancelled: false,
-            });
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);
-          },
-        }
-      }
-    },
-    {
-      fieldName: 'allVotes.$',
-      fieldSchema: {
-        type: Object,
-        optional: true,
-      }
-    },
-    // /**
-    //   An array containing the `_id`s of the document's upvoters
-    // */
-    // {
-    //   fieldName: 'voters',
-    //   fieldSchema: {
-    //     type: Array,
-    //     optional: true,
-    //     viewableBy: ['sunshineRegiment', 'admins'],
-    //     resolveAs: {
-    //       type: '[User]',
-    //       resolver: async (document, args, { currentUser, Users, Votes }) => {
-    //         // eslint-disable-next-line no-undef
-    //         const votes = await Connectors.find(Votes, {
-    //           documentId: document._id,
-    //           cancelled: false,
-    //         });
-    //         const votersIds = _.pluck(votes, 'userId');
-    //         // eslint-disable-next-line no-undef
-    //         const voters = await Connectors.find(Users, {_id: {$in: votersIds}});
-    //         return Users.restrictViewableFields(currentUser, Users, voters);
-    //         // if (!document.upvoters) return [];
-    //         // const upvoters = await Users.loader.loadMany(document.upvoters);
-    //       },
-    //     },
-    //   }
-    // },
-    // {
-    //   fieldName: 'voters.$',
-    //   fieldSchema: {
-    //     type: String,
-    //     optional: true
-    //   }
-    // },
-    /**
       The document's base score (not factoring in the document's age)
     */
     {
@@ -115,22 +20,6 @@ export const makeVoteable = collection => {
         onInsert: document => {
           // default to 0 if empty
           return document.baseScore || 0;
-        }
-      }
-    },
-    /**
-      The number of votes on the document
-    */
-    {
-      fieldName: 'voteCount',
-      fieldSchema: {
-        type: Number,
-        optional: true,
-        defaultValue: 0,
-        canRead: ['guests'],
-        onInsert: document => {
-          // default to 0 if empty
-          return document.voteCount || 0;
         }
       }
     },

@@ -12,12 +12,6 @@ addFieldsDict(Votes, {
 });
 
 VoteableCollections.forEach(collection => {
-  // Replace currentUserVotes and allVotes resolvers with our own
-  // implementations. The default implementations from vulcan-voting don't
-  // have batching, which makes them veeeery slow when applied to votes on
-  // comments.
-  collection.removeField(["currentUserVotes", "currentUserVotes.$"]);
-  collection.removeField(["allVotes", "allVotes.$"]);
   addFieldsDict(collection, {
     currentUserVotes: {
       type: Array,
