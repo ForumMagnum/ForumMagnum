@@ -63,9 +63,6 @@ const Home = ({ currentUser, router, classes }) => {
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
       Users.canDo(currentUser, 'alignment.sidebar')
 
-  console.log('shouldRenderSidebar', shouldRenderSidebar)
-  console.log('permission check', Users.canDo(currentUser, 'posts.moderate.all'))
-
   return (
     <div>
       {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
