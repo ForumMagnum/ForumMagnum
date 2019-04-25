@@ -35,7 +35,7 @@ Comments.getRSSUrl = function(comment, isAbsolute = false) {
 };
 
 Comments.defaultToAlignment = (currentUser, post, comment) => {
-  if (getSetting('AlignmentForum', false)) { return true }
+  if (getSetting('forumType') === 'AlignmentForum') { return true }
   if (comment) {
     return (Users.canDo(currentUser, "comments.alignment.new") && post.af && comment.af)
   } else {

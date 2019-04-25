@@ -10,7 +10,7 @@ const styles = (theme) => ({
     alignItems: "center",
     marginTop: theme.spacing.unit*1.5,
     marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit*3.5,
+    marginRight: theme.spacing.unit*1.5,
     marginLeft: theme.spacing.unit,
     color: theme.palette.lwTertiary.main,
     [theme.breakpoints.down('xs')]: {

@@ -1,6 +1,5 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -10,34 +9,36 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   root: {
-    color: "rgba(0,0,0,.95)",
-    display: "flex",
+    color: "rgba(0,0,0,.87)",
     position: "relative",
+    lineHeight: "2rem",
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
     },
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "space-between",
-      flexGrow: 1,
-    }
-  },
-  title: {
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    display: "inline-block",
     alignItems: "center",
     fontSize: "1.3rem",
     [theme.breakpoints.down('sm')]: {
-      maxWidth: "unset",
       whiteSpace: "unset",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
     marginRight: theme.spacing.unit,
-    '&:hover': {
-      overflow: "unset",
-      paddingRight: 16,
+  },
+  expandOnHover: {
+    [theme.breakpoints.up('md')]: {
+      '&:hover': {
+        overflow: "visible",
+        textOverflow: "unset",
+        position: "absolute",
+        background: "white",
+        borderImage: "linear-gradient(to right, white, rgba(0,0,0,0)) 1 100%",
+        borderRightWidth: 20,
+        borderRightStyle: "solid",
+        backgroundClip: "padding-box",
+      }
     }
   },
   sticky: {
@@ -50,6 +51,11 @@ const styles = theme => ({
     textShadow: "none",
     '&:hover': {
       opacity: 1
+    }
+  },
+  hideSmDown: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
     }
   },
   tooltip:{
@@ -97,12 +103,6 @@ const styles = theme => ({
       display: "none"
     },
   },
-  postIcon: {
-    marginLeft: theme.spacing.unit,
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
   tag: {
     marginRight: theme.spacing.unit
   }
@@ -122,8 +122,8 @@ const getPostCategory = (post) => {
   return "Personal Blogpost"
 }
 
-const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location, backgroundColor}) => {
-  const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components
+const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, location}) => {
+  const { PostsItemIcons } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
@@ -145,26 +145,31 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const showQuestionsTag = !(location.pathname === "/questions")
   const showEventsTag = !(location.pathname === "/community")
 
-  const postTitle = <div className={classNames(classes.root, {[classes.read]:read})}>
-    <Typography variant="body1" className={classes.title} style={{backgroundColor: backgroundColor}}>
-      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+  const postTitle = <span className={classNames(
+    classes.root,
+    {
+      [classes.read]: read,
+      [classes.expandOnHover]: postItem2
+    }
+  )}>
+    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
-      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+    {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
-      {shared && <span className={classes.tag}>[Shared]</span>}
+    {shared && <span className={classes.tag}>[Shared]</span>}
 
-      {post.question && showQuestionsTag && <span className={classes.tag}>[Question]</span>}
+    {post.question && showQuestionsTag && <span className={classes.tag}>[Question]</span>}
 
-      {post.url && <span className={classes.tag}>[Link]</span>}
+    {post.url && <span className={classes.tag}>[Link]</span>}
 
-      {post.isEvent && showEventsTag && <span className={classes.tag}>[Event]</span>}
+    {post.isEvent && showEventsTag && <span className={classes.tag}>[Event]</span>}
 
-      <span>{post.title}</span>
+    <span>{post.title}</span>
 
-      {post.curatedDate && postItem2 && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
-      {!getSetting('AlignmentForum', false) && post.af && postItem2 && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
-    </Typography>
-  </div>
+    {postItem2 && <span className={classes.hideSmDown}>
+      <PostsItemIcons post={post}/>
+    </span>}
+  </span>
 
   if (postItem2) {
     return <Tooltip title={tooltip} classes={{tooltip:classes.tooltip}} TransitionProps={{ timeout: 0 }} placement="left-start" enterDelay={0} PopperProps={{ style: { pointerEvents: 'none' } }}>

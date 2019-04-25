@@ -31,6 +31,7 @@ class NewQuestionDialog extends PureComponent {
     return (
       <Dialog
         open={true}
+        maxWidth={false}
         onClose={onClose}
         fullScreen={fullScreen}
       >

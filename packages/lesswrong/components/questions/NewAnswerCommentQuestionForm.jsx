@@ -10,14 +10,14 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 const styles = theme => ({
   root: {
-    maxWidth:650,
+    borderTop: "solid 2px rgba(0,0,0,.5)",
+    maxWidth:650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
     }
   },
   chooseResponseType: {
-    borderTop: "solid 3px rgba(0,0,0,.87)",
     display: "flex",
     justifyContent: "space-between",
     padding: theme.spacing.unit,

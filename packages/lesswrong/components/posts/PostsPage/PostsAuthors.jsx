@@ -20,7 +20,7 @@ const PostsAuthors = ({classes, post}) => {
   return <Typography variant="body1" component="span" className={classes.root}>
     by
     <span className={classes.authorName}>
-      {!post.user || post.hideAuthor ? '[deleted]' : <UsersName user={post.user} />}
+      {!post.user || post.hideAuthor ? <Components.UserNameDeleted/> : <UsersName user={post.user} />}
       { post.coauthors.map(coauthor=><span key={coauthor._id} >
         , <UsersName user={coauthor} />
       </span>)}

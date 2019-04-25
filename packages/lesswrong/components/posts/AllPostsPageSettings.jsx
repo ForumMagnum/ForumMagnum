@@ -24,7 +24,6 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit*2,
-    marginRight: theme.spacing.unit*2,
     flexWrap: "wrap",
     marginLeft: 3,
     [theme.breakpoints.down('md')]: {

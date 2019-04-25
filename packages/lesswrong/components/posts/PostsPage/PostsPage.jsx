@@ -19,6 +19,7 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import Users from 'meteor/vulcan:users';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -27,7 +28,7 @@ const styles = theme => ({
       position: "relative"
     },
     post: {
-      maxWidth: 650,
+      maxWidth: 650 + (theme.spacing.unit*4),
       [theme.breakpoints.down('md')]: {
         marginLeft: "auto",
         marginRight: "auto"
@@ -188,7 +189,7 @@ class PostsPage extends Component {
     const { loading, document: post, currentUser, location, router, classes, params } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -287,6 +288,12 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
+            
+            {/* Recommendations */}
+            {currentUser && Users.isAdmin(currentUser) &&
+              <ConfigurableRecommendationsList configName="afterpost"/>}
+             
+            
             {/* Answers Section */}
             {post.question && <div>
               <div id="answers"/>

@@ -1,5 +1,6 @@
-// # Vulcan Modifications
 
+// Settings
+import './registerSettings.js'
 // schema utils
 import './modules/utils/schemaUtils.js'
 // Permissions
@@ -107,6 +108,7 @@ import Revisions from './collections/revisions/collection.js'
 // Users
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
+import './collections/users/recommendationSettings.js';
 import './collections/users/karmaChangesGraphQL.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
@@ -126,8 +128,6 @@ import './routes.js';
 import './scrollRestoration.js';
 
 import './components.js';
-
-import './recommendations.js';
 
 // Alignment Forum
 import './modules/alignment-forum/callbacks.js';
@@ -152,7 +152,6 @@ import './modules/alignment-forum/users/callbacks.js';
 import './modules/alignment-forum/users/custom_fields.js';
 import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
-
 
 
 //

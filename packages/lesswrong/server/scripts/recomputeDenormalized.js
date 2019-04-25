@@ -78,10 +78,12 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue }
       const nonEmptyUpdates = _.without(updates, null)
       // eslint-disable-next-line no-console
       console.log(`Updating ${nonEmptyUpdates.length} documents`)
-      await collection.rawCollection().bulkWrite(
-        nonEmptyUpdates,
-        { ordered: false }
-      );
+      if (nonEmptyUpdates.length > 0)  {
+        await collection.rawCollection().bulkWrite(
+          nonEmptyUpdates,
+          { ordered: false }
+        );
+      }
     },
   });
 }
