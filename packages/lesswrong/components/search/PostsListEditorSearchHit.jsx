@@ -25,7 +25,9 @@ const PostsListEditorSearchHit = ({hit, clickAction, router, classes}) => {
   // If clickAction is provided, disable link and replace with Click of the action
   return (
     <div className={classes.root}>
-      <Components.PostsItemTitle post={hit} />
+      <div>
+        <Components.PostsItemTitle post={hit} />
+      </div>
       {hit.authorDisplayName && <Components.MetaInfo>
         {hit.authorDisplayName}
       </Components.MetaInfo>}

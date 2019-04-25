@@ -25,6 +25,8 @@ const styles = theme => ({
     },
     fontFamily: theme.typography.postStyle.fontFamily,
     marginRight: theme.spacing.unit,
+  },
+  expandOnHover: {
     [theme.breakpoints.up('md')]: {
       '&:hover': {
         overflow: "visible",
@@ -73,7 +75,13 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, lo
   const showQuestionsTag = !(location.pathname === "/questions")
   const showEventsTag = !(location.pathname === "/community")
 
-  const postTitle = <span className={classNames(classes.root, {[classes.read]:read})}>
+  const postTitle = <span className={classNames(
+    classes.root,
+    {
+      [classes.read]: read,
+      [classes.expandOnHover]: postItem2
+    }
+  )}>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
