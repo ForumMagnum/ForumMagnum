@@ -56,7 +56,7 @@ const styles = theme => ({
 const getPostCategory = (post) => {
   const postOrQuestion = post.question ? "Question" : "Post"
 
-  if (post.af) return `Alignment Forum ${postOrQuestion}`
+  if (post.af) return `AI Alignment Forum ${postOrQuestion}`
   if (post.meta) return `Meta ${postOrQuestion}`
   if (post.curatedDate) return `Curated ${postOrQuestion}`
   if (post.frontpageDate) return `Frontpage ${postOrQuestion}`
