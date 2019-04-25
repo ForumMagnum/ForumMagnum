@@ -147,8 +147,6 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       <Divider className={classes.divider}/>
 
-      <Divider className={classes.divider}/>
-
       <NavigationMenuLink icon={<ListAlt/>} to={"/allPosts"} label="All Posts"/>
       <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Community"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
