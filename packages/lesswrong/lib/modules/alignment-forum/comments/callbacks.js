@@ -39,15 +39,6 @@ function AlignmentCommentsNewOperations (comment) {
 }
 addCallback('comments.new.async', AlignmentCommentsNewOperations);
 
-async function CommentsMoveToAFUpdatesAFPostCount (comment) {
-  const afCommentCount = Comments.find({userId:comment.userId, af: true}).count()
-  Users.update({_id:comment.userId}, {$set: {afCommentCount: afCommentCount}})
-}
-
-addCallback("comments.alignment.async", CommentsMoveToAFUpdatesAFPostCount);
-addCallback("comments.edit.async", CommentsMoveToAFUpdatesAFPostCount);
-addCallback("comments.new.async", CommentsMoveToAFUpdatesAFPostCount);
-
 //TODO: Probably change these to take a boolean argument?
 const updateParentsSetAFtrue = (comment) => {
   Comments.update({_id:comment.parentCommentId}, {$set: {af: true}});

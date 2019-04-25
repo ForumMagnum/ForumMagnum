@@ -11,17 +11,30 @@ addFieldsDict(Users, {
   },
 
   afPostCount: {
-    type: Number,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afPostCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post) => (post.af && !post.draft && post.status===Posts.config.STATUS_APPROVED),
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   afCommentCount: {
     type: Number,
     optional: true,
-    canRead: ['guests'],
     onInsert: (document, currentUser) => 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "afCommentCount",
+      collectionName: "Users",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "userId",
+      filterFn: (comment) => comment.af,
+    }),
+    canRead: ['guests'],
   },
 
   afSequenceCount: {
