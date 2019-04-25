@@ -1,7 +1,6 @@
 import { Posts } from "../../../collections/posts";
 import { Comments } from '../../../collections/comments'
 import { addCallback, editMutation } from 'meteor/vulcan:core';
-import Users from "meteor/vulcan:users";
 
 function recalculateAFCommentMetadata(postId) {
   const afComments = Comments.find({

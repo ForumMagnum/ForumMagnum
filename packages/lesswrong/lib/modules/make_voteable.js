@@ -1,5 +1,5 @@
-import { Connectors } from 'meteor/vulcan:core'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import { addFieldsDict } from './utils/schemaUtils'
+import { getWithLoader } from '../loaders.js'
 
 export const VoteableCollections = [];
 

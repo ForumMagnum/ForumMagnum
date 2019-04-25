@@ -1,6 +1,7 @@
 import Users from "meteor/vulcan:users";
 import { formGroups } from "../../../collections/users/custom_fields.js"
 import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { Posts } from '../../../collections/posts';
 
 addFieldsDict(Users, {
   afKarma: {

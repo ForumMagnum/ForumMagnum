@@ -171,7 +171,6 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
     documentId: comment.postId,
     set: {
       lastCommentedAt:new Date(lastCommentedAt),
-      commentCount:comments.length
     },
     unset: {},
     validate: false,
