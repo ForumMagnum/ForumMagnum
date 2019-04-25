@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 
 const Meta = ({location, currentUser}, context) => {

@@ -1,6 +1,6 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import Users from "meteor/vulcan:users";
 
 const UsersSingle = ({params, router}) => {

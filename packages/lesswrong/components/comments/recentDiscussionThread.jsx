@@ -7,7 +7,7 @@ import {
   getActions,
   withMutation
 } from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
@@ -24,6 +24,7 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
+    marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*4,
   },
   postStyle: theme.typography.postStyle,
@@ -67,7 +68,7 @@ const styles = theme => ({
   },
   threadMeta: {
     cursor: "pointer",
-    
+
     "&:hover $showHighlight": {
       opacity: 1
     },
@@ -75,6 +76,14 @@ const styles = theme => ({
   showHighlight: {
     opacity: 0,
   },
+  commentsList: {
+    marginLeft: theme.spacing.unit*2,
+    marginRight: 35,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: 0,
+      marginRight: 0
+    }
+  }
 })
 
 class RecentDiscussionThread extends PureComponent {
@@ -131,7 +140,7 @@ class RecentDiscussionThread extends PureComponent {
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
 
-    const { ContentItemBody, LinkPostMessage, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+    const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
     const nestedComments = unflattenComments(results);
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
@@ -169,18 +178,16 @@ class RecentDiscussionThread extends PureComponent {
         </div>
         { this.state.showHighlight ?
           <div className={highlightClasses}>
-            <LinkPostMessage post={post} />
             <PostsHighlight post={post} />
           </div>
           : <div className={highlightClasses} onClick={this.showHighlight}>
-              <LinkPostMessage post={post} />
               { (!post.lastVisitedAt || post.commentCount === null) &&
                 <ContentItemBody
                   className={classes.postHighlight}
                   dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
             </div>
         }
-        <div className="recent-discussion-thread-comment-list">
+        <div className={classes.commentsList}>
           <div className={"comments-items"}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>

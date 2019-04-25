@@ -26,7 +26,7 @@ export default function getHeaderSubtitleData(routeName, query, params, client) 
     return communitySubtitle()
   } else if (routeName == "groups.post") {
     return communitySubtitle()
-  } else if ((!getSetting('AlignmentForum', false) && routeName == "alignment.forum") || (query && query.af)) {
+  } else if ((getSetting('forumType') !== 'AlignmentForum' && routeName == "alignment.forum") || (query && query.af)) {
     return alignmentSubtitle()
   }
 }
@@ -43,7 +43,7 @@ const profileSubtitle = (userSlug, client) => {
 
 const userPostSubtitle = (postId, client) => {
   const post = client && Posts.findOneInStore(client.store, postId)
-  if (!getSetting('AlignmentForum', false) && post && post.af) {
+  if (getSetting('forumType') !== 'AlignmentForum' && post && post.af) {
     return alignmentSubtitle()
   } else if (post && post.frontpageDate) {
     return null

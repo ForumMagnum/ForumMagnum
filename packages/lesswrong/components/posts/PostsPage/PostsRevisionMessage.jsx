@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router';
+import { Link } from '../../../lib/reactRouterWrapper.js';
 import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
 

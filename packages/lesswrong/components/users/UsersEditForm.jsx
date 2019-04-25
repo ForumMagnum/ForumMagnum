@@ -5,7 +5,7 @@ import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'

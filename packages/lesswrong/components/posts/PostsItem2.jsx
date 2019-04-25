@@ -1,9 +1,8 @@
 import { Components, registerComponent, withMutation, getActions, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
-import Tooltip from '@material-ui/core/Tooltip';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
@@ -12,21 +11,22 @@ import { connect } from 'react-redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-
+import grey from '@material-ui/core/colors/grey';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+
+import { POSTED_AT_WIDTH, START_TIME_WIDTH } from './PostsItemDate.jsx';
 
 export const MENU_WIDTH = 18
 export const AUTHOR_WIDTH = 140
 export const EVENT_WIDTH = 110
-export const KARMA_WIDTH = 28
-export const POSTED_AT_WIDTH = 38
-export const START_TIME_WIDTH = 72
+export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
-export const LIST_PADDING = 16
 
-const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH - LIST_PADDING
+const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH
 
-const EVENT_TITLE_WIDTH =  SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH - LIST_PADDING
+const EVENT_TITLE_WIDTH = SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH
+
+const COMMENTS_BACKGROUND_COLOR = grey[200]
 
 const styles = (theme) => ({
   root: {
@@ -51,13 +51,10 @@ const styles = (theme) => ({
   background: {
     transition: "3s",
     backgroundColor: "none",
-    width: SECTION_WIDTH - LIST_PADDING,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%"
-    }
+    width: "100%",
   },
   commentsBackground: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: COMMENTS_BACKGROUND_COLOR,
     transition: "0s",
   },
   commentBox: {
@@ -93,6 +90,9 @@ const styles = (theme) => ({
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
+    },
+    '&:hover': {
+      opacity: 1,
     }
   },
   eventTitle: {
@@ -131,34 +131,6 @@ const styles = (theme) => ({
       maxWidth: EVENT_WIDTH,
       marginLeft: 0,
       flex: "unset"
-    }
-  },
-  postedAt: {
-    '&&': {
-      width: POSTED_AT_WIDTH,
-      justifyContent: "center",
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
-      }
-    }
-  },
-  startTime: {
-    '&&': {
-      width: START_TIME_WIDTH,
-      justifyContent: "center",
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
-      }
     }
   },
   newCommentsSection: {
@@ -230,10 +202,12 @@ class PostsItem2 extends PureComponent {
     this.postsItemRef = React.createRef();
   }
 
-  toggleComments = () => {
+  toggleComments = (scroll) => {
     this.handleMarkAsRead()
     this.setState((prevState) => {
-      this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      if (scroll) {
+        this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
+      }
       return ({
         showComments:!prevState.showComments,
         readComments: true
@@ -288,7 +262,7 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, chapter, currentUser, index, terms } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, FormatDate, EventVicinity, EventTime, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
+    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
 
@@ -300,7 +274,7 @@ class PostsItem2 extends PureComponent {
             <PostsItemKarma post={post} />
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
+              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} backgroundColor={showComments ? COMMENTS_BACKGROUND_COLOR : "white"} sticky={this.isSticky(post, terms)} />
             </Link>
 
             { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.author}>
@@ -311,32 +285,20 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItemMetaInfo>}
 
-            {post.postedAt && !post.isEvent && <PostsItemMetaInfo className={classes.postedAt}>
-              <FormatDate date={post.postedAt}/>
-            </PostsItemMetaInfo>}
-
-            { post.isEvent && <PostsItemMetaInfo className={classes.startTime}>
-              {post.startTime
-                ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
-                    <FormatDate date={post.startTime} format={"MMM Do"}/>
-                  </Tooltip>
-                : <Tooltip title={<span>To Be Determined</span>}>
-                    <span>TBD</span>
-                  </Tooltip>}
-            </PostsItemMetaInfo>}
+            <Components.PostsItemDate post={post}/>
 
             {<div className={classes.mobileActions}>
               <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
             </div>}
 
             {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
-            {!getSetting('AlignmentForum', false) && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+            {getSetting('forumType') !== 'AlignmentForum' && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
 
             <div className={classes.commentsIcon}>
-              <PostsItemComments post={post} onClick={this.toggleComments} readStatus={readComments}/>
+              <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
             </div>
 
-            {this.state.showComments && <div className={classes.newCommentsSection} onClick={this.toggleComments}>
+            {this.state.showComments && <div className={classes.newCommentsSection} onClick={()=> this.toggleComments(true)}>
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={post.lastVisitedAt}
@@ -351,7 +313,7 @@ class PostsItem2 extends PureComponent {
           </div>}
         </div>
       </div>
-      
+
     )
   }
 }

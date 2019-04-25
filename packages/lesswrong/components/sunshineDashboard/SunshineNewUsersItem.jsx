@@ -2,7 +2,7 @@
 import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
@@ -21,14 +21,6 @@ const styles = theme => ({
     wordBreak: "break-word",
     display: "inline-block"
   },
-  sample: {
-    maxHeight: 100,
-    overflow: "hidden",
-    '&:hover': {
-      maxHeight: "unset",
-      overflow: "unset"
-    }
-  }
 })
 class SunshineNewUsersItem extends Component {
   state = {hidden: false}
@@ -105,7 +97,7 @@ class SunshineNewUsersItem extends Component {
             </MetaInfo>
           </div>
           {showNewUserContent && 
-            <div className={classes.sample}>
+            <div>
               <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
               <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
             </div>

@@ -5,11 +5,10 @@ The Navigation for the Inbox components
 */
 
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 

@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -27,7 +27,7 @@ const styles = theme => ({
       position: "relative"
     },
     post: {
-      maxWidth: 650,
+      maxWidth: 650 + (theme.spacing.unit*4),
       [theme.breakpoints.down('md')]: {
         marginLeft: "auto",
         marginRight: "auto"

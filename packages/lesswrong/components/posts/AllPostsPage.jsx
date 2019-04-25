@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vu
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
-import { withRouter } from 'react-router';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -10,7 +10,7 @@ import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 const styles = theme => ({
-  allPostsContent: {
+  daily: {
     padding: theme.spacing.unit,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
@@ -105,13 +105,13 @@ class AllPostsPage extends Component {
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
           />
-          <div className={classes.allPostsContent}>
-            {currentView === "daily" ?
+          {currentView === "daily" ?
+            <div className={classes.daily}>
               <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
-              :
-              <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
-            }
-          </div>
+            </div>
+            :
+            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+          }
         </SingleColumnSection>
       </React.Fragment>
     )
