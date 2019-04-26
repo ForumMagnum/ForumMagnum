@@ -1,4 +1,4 @@
-import { addFieldsDict } from './utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
 import { getWithLoader } from '../loaders.js'
 
 export const VoteableCollections = [];
@@ -59,8 +59,14 @@ export const makeVoteable = collection => {
       optional: true
     },
     voteCount: {
-      type: Number,
-      optional: true,
+      ...denormalizedCountOfReferences({
+        fieldName: "voteCount",
+        collectionName: collection.collectionName,
+        foreignCollectionName: "Votes",
+        foreignTypeName: "vote",
+        foreignFieldName: "documentId",
+        filterFn: vote => !vote.cancelled
+      }),
       viewableBy: ['guests'],
     },
     // The document's base score (not factoring in the document's age)

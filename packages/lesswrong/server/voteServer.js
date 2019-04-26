@@ -48,7 +48,6 @@ const addVoteServer = async (voteOptions) => {
           baseScore: newDocument.baseScore,
           score: newDocument.score
         },
-        $inc: { voteCount: 1 },
       },
       {}, true
     );
@@ -100,7 +99,6 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
         {_id: document._id},
         {
           $set: {baseScore: recalculateBaseScore(document) },
-          $inc: {voteCount: -votes.length},
         },
         {}, true
       );
@@ -162,9 +160,6 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
           score: newDocument.score,
           baseScore: newDocument.baseScore
         },
-        $inc: {
-          voteCount: -1
-        }
       },
       {},
       true
