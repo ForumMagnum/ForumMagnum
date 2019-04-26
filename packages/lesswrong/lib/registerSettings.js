@@ -38,5 +38,11 @@ registerSetting('disallowCrawlers', false, 'Whether to serve a robots.txt that a
 // rss.js
 registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
-// Google Analytics
+// Google Analytics + Tag Manager
 registerSetting('googleAnalytics.apiKey', null, 'Google Analytics ID');
+registerSetting('googleTagManager.apiKey', null, 'Google Tag Manager ID');
+
+// Sentry
+registerSetting('sentry.url', null, 'Sentry DSN URL')
+registerSetting('sentry.environment', null, 'Sentry environment {development, production}')
+registerSetting('sentry.release', null, 'Sentry release')
