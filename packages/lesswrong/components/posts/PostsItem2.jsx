@@ -27,7 +27,6 @@ const styles = (theme) => ({
   root: {
     position: "relative",
     width: SECTION_WIDTH,
-    paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
