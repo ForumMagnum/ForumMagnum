@@ -46,7 +46,7 @@ const NewRelatedQuestionForm = (props) => {
     <div className={classes.root}>
       <Components.WrappedSmartForm
         collection={Posts}
-        fields={['title', 'contents', 'body', 'question', 'draft', 'submitToFrontpage', 'hiddenRelatedQuestion', 'originalPostRelationSourceId']}
+        fields={['title', 'contents', 'question', 'draft', 'submitToFrontpage', 'hiddenRelatedQuestion', 'originalPostRelationSourceId']}
         mutationFragment={getFragment('PostsList')}
         prefilledProps={{
           userId: currentUser._id,
