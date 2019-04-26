@@ -80,14 +80,12 @@ class CommentBody extends Component {
 
     if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
     if (collapsed) { return null }
+
+    const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
   
     return (
       <div className={classes.root}>
-        {truncated ? 
-          <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(comment, currentUser, postPage)}}/>
-          :
-          <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: html}}/>
-        }
+        <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: innerHtml }}/>
       </div>
     )
   }

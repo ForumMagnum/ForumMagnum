@@ -16,7 +16,7 @@ const PostsItemNewCommentsWrapper = ({ loading, results, currentUser, highlightD
         currentUser={currentUser}
         comments={nestedComments}
         highlightDate={highlightDate}
-        startThreadCollapsed={true}
+        startThreadTruncated={true}
         post={post}
       />
     );
