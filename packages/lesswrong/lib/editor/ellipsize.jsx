@@ -1,8 +1,9 @@
 import truncatise from 'truncatise';
 
 const highlightMaxChars = 2400;
-export const defaultCommentMaxLength = 2400
-export const excerptMaxChars = 700;
+export const GTP2_TRUNCATION_CHAR_COUNT = 400;
+export const SMALL_TRUNCATION_CHAR_COUNT = 750;
+export const LARGE_TRUNCATION_CHAR_COUNT = 1600;
 export const postExcerptMaxChars = 600;
 
 export const highlightFromMarkdown = (body, mdi) => {
@@ -48,15 +49,15 @@ export const getTruncationCharCount = (comment, currentUser, postPage) => {
     return 10000000
   }
   const commentIsByGPT2 = !!(comment && comment.user && comment.user.displayName === "GPT2")
-  if (commentIsByGPT2) return 400
+  if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
 
   const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
   const commentIsHighKarma = comment.baseScore >= 10
   
   if (postPage) {
-    return (commentIsRecent || commentIsHighKarma) ? 1600 : 800
+    return (commentIsRecent || commentIsHighKarma) ? LARGE_TRUNCATION_CHAR_COUNT : SMALL_TRUNCATION_CHAR_COUNT
   } else {
-    return 700
+    return SMALL_TRUNCATION_CHAR_COUNT
   }
 }
 

@@ -262,15 +262,14 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, truncated, collapsed, classes, postPage } = this.props;
-    const markdown = (comment.contents && comment.contents.markdown) || ""
+    const { comment, currentUser, collapsed, classes } = this.props;
     const { MetaInfo } = Components
 
-    if ((!truncated || (markdown.length <= getTruncationCharCount(comment, currentUser, postPage))) && !collapsed) {
+    if (!collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
-        !comment.isDeleted &&
+        !comment.deleted &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
         (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
       )
