@@ -12,7 +12,6 @@ import withNewEvents from '../../lib/events/withNewEvents.jsx';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import Hidden from '@material-ui/core/Hidden';
 
 import { POSTED_AT_WIDTH, START_TIME_WIDTH } from './PostsItemDate.jsx';
@@ -27,7 +26,6 @@ const COMMENTS_BACKGROUND_COLOR = grey[200]
 const styles = (theme) => ({
   root: {
     position: "relative",
-    width: SECTION_WIDTH,
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       width: "100%"

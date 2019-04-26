@@ -120,6 +120,7 @@ import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItem2.jsx';
 import '../components/posts/PostsItem2MetaInfo.jsx';
 import '../components/posts/PostsItemTitle.jsx';
+import '../components/posts/PostsItemTooltip.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
 import '../components/posts/PostsItemKarma.jsx';
@@ -333,6 +334,7 @@ import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
 
 import '../components/questions/NewQuestionDialog.jsx';
+import '../components/questions/NewRelatedQuestionForm.jsx';
 import '../components/questions/NewAnswerForm.jsx';
 import '../components/questions/PostsPageQuestionContent.jsx';
 import '../components/questions/NewAnswerCommentQuestionForm.jsx';
@@ -341,6 +343,7 @@ import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/QuestionsPage.jsx';
 import '../components/questions/AnswerTocRow.jsx';
+import '../components/questions/RelatedQuestionsList.jsx';
 
 import '../components/recommendations/ConfigurableRecommendationsList.jsx';
 import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
