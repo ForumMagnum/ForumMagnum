@@ -58,10 +58,6 @@ export const getTruncationCharCount = (comment, currentUser, postPage) => {
   } else {
     return 700
   }
-  if (!postPage) {
-    return 700
-  }
-  return 2400 
 }
 
 export const commentExcerptFromHTML = (comment, currentUser, postPage) => {
