@@ -44,5 +44,5 @@ registerSetting('googleTagManager.apiKey', null, 'Google Tag Manager ID');
 
 // Sentry
 registerSetting('sentry.url', null, 'Sentry DSN URL')
-registerSetting('sentry.environment', null, 'Sentry environment {development, production}')
+registerSetting('sentry.environment', null, 'Sentry environment ie: development')
 registerSetting('sentry.release', null, 'Sentry release')
