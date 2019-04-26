@@ -12,7 +12,6 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
-import { getTruncationCharCount } from '../../../lib/editor/ellipsize';
 
 const styles = theme => ({
   root: {
