@@ -125,8 +125,14 @@ class EditorFormComponent extends Component {
       try {
         // eslint-disable-next-line no-console
         console.log("Restoring saved document state: ", savedState);
-        state = EditorState.createWithContent(convertFromRaw(savedState))
-        return state;
+        const contentState = convertFromRaw(savedState)
+        if (contentState.hasText()) {
+          return EditorState.createWithContent(contentState)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("Not restoring empty document state: ", contentState)
+        }
+        
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e)
@@ -448,7 +454,8 @@ class EditorFormComponent extends Component {
 
 EditorFormComponent.contextTypes = {
   addToSubmitForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func
+  addToSuccessForm: PropTypes.func, 
+  updateCurrentValues: PropTypes.func
 };
 
 registerComponent('EditorFormComponent', EditorFormComponent, withUser, withStyles(styles, { name: "EditorFormComponent" }), withErrorBoundary);
