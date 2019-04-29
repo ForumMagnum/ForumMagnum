@@ -1,11 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping';
-import { SequencesNewButton } from './SequencesNewButton.jsx';
 
 const styles = theme => ({
   root: {
