@@ -77,7 +77,7 @@ const styles = theme => ({
   },
 })
 
-class AllPostsPageSettings extends Component {
+class PostsListSettings extends Component {
 
   setFilter = (filter) => {
     const { updateUser, currentUser, persistentSettings } = this.props
@@ -211,15 +211,15 @@ class AllPostsPageSettings extends Component {
   }
 }
 
-AllPostsPageSettings.propTypes = {
+PostsListSettings.propTypes = {
   currentUser: PropTypes.object,
 };
 
-AllPostsPageSettings.displayName = 'AllPostsPageSettings';
+PostsListSettings.displayName = 'PostsListSettings';
 
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('AllPostsPageSettings', AllPostsPageSettings, withUser, withStyles(styles, {name:"AllPostsPageSettings"}), [withUpdate, withUpdateOptions]);
+registerComponent('PostsListSettings', PostsListSettings, withUser, withStyles(styles, {name:"PostsListSettings"}), [withUpdate, withUpdateOptions]);

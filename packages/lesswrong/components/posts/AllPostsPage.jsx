@@ -64,7 +64,7 @@ class AllPostsPage extends Component {
   render() {
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { AllPostsPageSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
+    const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
     const query = _.clone(router.location.query) || {}
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
@@ -99,7 +99,7 @@ class AllPostsPage extends Component {
               </SectionTitle>
             </div>
           </Tooltip>
-          <AllPostsPageSettings
+          <PostsListSettings
             hidden={!showSettings}
             currentView={currentView}
             currentFilter={currentFilter}

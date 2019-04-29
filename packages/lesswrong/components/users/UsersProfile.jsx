@@ -163,7 +163,7 @@ class UsersProfile extends Component {
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, AllPostsPageSettings, MetaInfo, PostsList2 } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, MetaInfo, PostsList2 } = Components
     const { showSettings } = this.state
     const currentView = query.view ||  "new"
     const currentFilter = query.filter ||  "all"
@@ -212,7 +212,7 @@ class UsersProfile extends Component {
               <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
             </SectionTitle>
           </div>
-          {showSettings && <AllPostsPageSettings
+          {showSettings && <PostsListSettings
             hidden={false}
             currentView={currentView}
             currentFilter={currentFilter}
