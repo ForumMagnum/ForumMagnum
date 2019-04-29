@@ -66,4 +66,4 @@ export const EmailPreview = ({email, classes}) => {
 }
 
 registerComponent('EmailPreview', EmailPreview,
-  withStyles(styles, { name: "EmailHistory" }));
+  withStyles(styles, { name: "EmailPreview" }));

@@ -104,6 +104,7 @@ class AllPostsPage extends Component {
             currentView={currentView}
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
+            persistentSettings
           />
           {currentView === "daily" ?
             <div className={classes.daily}>

@@ -279,6 +279,7 @@ import '../components/sequences/SequencesGridWrapper.jsx';
 import '../components/sequences/SequencesNavigation.jsx';
 import '../components/sequences/CollectionsNavigation.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
+import '../components/sequences/SequencesNewButton.jsx';
 import '../components/sequences/SequencesNavigationLinkDisabled.jsx';
 import '../components/sequences/BottomNavigation.jsx';
 import '../components/sequences/BottomNavigationItem.jsx';
