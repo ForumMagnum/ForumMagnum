@@ -29,7 +29,9 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
       to={Posts.getPageUrl(hit)}
       target={Posts.getLinkTarget(hit)}
     >
-        <Components.PostsItemTitle post={hit} />
+        <div>
+          <Components.PostsItemTitle post={hit} />
+        </div>
         {hit.authorDisplayName && <Components.MetaInfo>
           {hit.authorDisplayName}
         </Components.MetaInfo>}

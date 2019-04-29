@@ -28,7 +28,7 @@ class AlignmentCheckbox extends Component {
         layout="elementOnly"
              />
       { this.state.showWarning && <span className="alignment-checkbox-warning">
-        NOTE: Upstream comments will become visible on Alignment Forum
+        NOTE: Upstream comments will become visible on AI Alignment Forum
       </span>}
     </div>
   }

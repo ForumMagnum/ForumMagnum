@@ -18,8 +18,8 @@ const PostsItemMetaInfo = ({children, classes, className}) => {
     component='span'
     className={classNames(classes.root, className)}
     variant='body2'>
-      {children}  
+      {children}
   </Typography>
 }
 
-registerComponent( 'PostsItemMetaInfo', PostsItemMetaInfo, withStyles(styles, {name: 'PostsItemMetaInfo'}))
+registerComponent('PostsItemMetaInfo', PostsItemMetaInfo, withStyles(styles, {name: 'PostsItemMetaInfo'}))
