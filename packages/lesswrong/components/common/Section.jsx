@@ -93,8 +93,11 @@ const Section = ({
   subscribeLinks = null,
   className = null,
   children,
-  classes
+  classes,
+  deactivateSection
 }) => {
+
+  if (deactivateSection) return <React.Fragment>{children}</React.Fragment>
 
   return (
     <Components.ErrorBoundary>
