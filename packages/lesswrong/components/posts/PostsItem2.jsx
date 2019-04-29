@@ -14,10 +14,9 @@ import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
 
-import { POSTED_AT_WIDTH, START_TIME_WIDTH } from './PostsItemDate.jsx';
+import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
 
 export const MENU_WIDTH = 18
-export const EVENT_WIDTH = 110
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
@@ -26,7 +25,6 @@ const COMMENTS_BACKGROUND_COLOR = grey[200]
 const styles = (theme) => ({
   root: {
     position: "relative",
-    paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
@@ -107,19 +105,14 @@ const styles = (theme) => ({
     }
   },
   event: {
-    width: EVENT_WIDTH,
-    justifyContent: "flex-end",
-    flex: 1,
+    maxWidth: 250,
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
       width: "unset",
-      maxWidth: EVENT_WIDTH,
       marginLeft: 0,
-      flex: "unset"
     }
   },
   postedAt: {
@@ -130,20 +123,6 @@ const styles = (theme) => ({
       color: "rgba(0,0,0,.9)",
       [theme.breakpoints.down('sm')]: {
         width: "auto",
-      }
-    }
-  },
-  startTime: {
-    '&&': {
-      width: START_TIME_WIDTH,
-      justifyContent: "center",
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "auto",
-        flexGrow: 1,
       }
     }
   },
