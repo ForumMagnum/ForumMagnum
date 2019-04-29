@@ -45,7 +45,7 @@ const styles = theme => ({
   }
 })
 
-export const ABRIDGE_COMMENT_COUNT = 20;
+export const ABRIDGE_COMMENT_COUNT = 500;
 
 class AnswerCommentsList extends PureComponent {
 
