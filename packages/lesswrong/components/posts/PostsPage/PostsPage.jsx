@@ -291,7 +291,7 @@ class PostsPage extends Component {
              
             
             {/* Answers Section */}
-            {post.question && <div>
+            {post.question && <div className={classes.post}>
               <div id="answers"/>
               <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
             </div>}
