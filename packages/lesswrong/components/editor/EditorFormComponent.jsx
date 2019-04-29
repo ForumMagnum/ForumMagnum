@@ -392,8 +392,8 @@ class EditorFormComponent extends Component {
     // or as tall as a post editor) needs to be applied deeper in the tree, for
     // the draftJS editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
-    const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
 
+    const heightClass = (commentStyles || document.question) ? classes.commentEditorHeight : classes.postEditorHeight;
     const bodyStyles = this.getBodyStyles()
 
     const editorWarning =
