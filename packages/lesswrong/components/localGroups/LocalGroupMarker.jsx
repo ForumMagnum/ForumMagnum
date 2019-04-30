@@ -87,8 +87,6 @@ class LocalGroupMarker extends PureComponent {
         icon={circleIcon}
         position={{lat:lat, lng:lng}}
       >
-        <div className={classes.infoWindowWrapper}>
-        </div>
         {infoOpen &&
           <InfoWindow>
             <div className={classes.mapInfoWindow}>
