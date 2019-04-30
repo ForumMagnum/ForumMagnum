@@ -573,7 +573,7 @@ workflows:
           type: approval
           requires:
             - build
-      - deploy_prod-fast:
+      - deploy_prod_fast:
           filters:
             branches:
               only: master
