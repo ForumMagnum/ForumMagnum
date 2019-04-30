@@ -567,6 +567,9 @@ workflows:
           requires:
             - hold_baserates
       - hold_deploy_fast:
+          filters:
+            branches:
+              only: master
           type: approval
           requires:
             - build
