@@ -185,8 +185,13 @@ function getHostname(url) {
 
 class PostsPage extends Component {
 
+  getSequenceId() {
+    const { params, document: post } = this.props;
+    return params.sequenceId || post.canonicalSequenceId;
+  }
+  
   render() {
-    const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
+    const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
@@ -201,7 +206,7 @@ class PostsPage extends Component {
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
-      const sequenceId = params.sequenceId || post.canonicalSequenceId;
+      const sequenceId = this.getSequenceId();
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
@@ -341,6 +346,7 @@ class PostsPage extends Component {
           userId: currentUser._id,
           important: false,
           intercom: true,
+          sequenceId: this.getSequenceId(),
         };
 
         if(this.props.document) {
@@ -387,24 +393,12 @@ const mapStateToProps = state => ({ postsViewed: state.postsViewed });
 const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
-  // component name used by Vulcan
-  'PostsPage',
-  // React component
-  PostsPage,
-  // HOC to give access to the current user
-  withUser,
-  // HOC to give access to LW2 event API
-  withNewEvents,
-  // HOC to give access to router and params
-  withRouter,
-  // HOC to load the data of the document, based on queryOptions & a documentId props
+  'PostsPage', PostsPage,
+  withUser, withNewEvents, withRouter,
   [withDocument, queryOptions],
-  // HOC to provide a single mutation, based on mutationOptions
   withMutation(mutationOptions),
   // HOC to give access to the redux store & related actions
   connect(mapStateToProps, mapDispatchToProps),
-  // HOC to add JSS styles to component
   withStyles(styles, { name: "PostsPage" }),
-  // Add error boundary to post
   withErrorBoundary
 );
