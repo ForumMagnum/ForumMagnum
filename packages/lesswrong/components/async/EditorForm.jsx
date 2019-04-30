@@ -123,7 +123,7 @@ class EditorForm extends Component {
           mathjaxConfig: {
             jax: ['input/TeX', 'output/CommonHTML'],
             TeX: {
-              extensions: ['autoload-all.js'],
+              extensions: ['autoload-all.js', 'Safe.js'],
             },
             messageStyle: 'none',
             showProcessingMessages: false,
