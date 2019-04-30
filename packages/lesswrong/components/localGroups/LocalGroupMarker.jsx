@@ -17,8 +17,8 @@ export const styles = theme => ({
   },
   closeIcon: {
     position: "absolute",
-    right: "-3px",
-    top: "4px",
+    right: 15,
+    top: 15,
     color: "rgba(0,0,0,0.5)",
     height: "15px",
     width: "15px",
@@ -44,8 +44,7 @@ export const styles = theme => ({
   },
   linksWrapper: {
     position: "absolute",
-    bottom: "0px",
-    right: "-2px",
+    right: 10,
   },
 });
 
@@ -87,6 +86,8 @@ class LocalGroupMarker extends PureComponent {
         icon={circleIcon}
         position={{lat:lat, lng:lng}}
       >
+        <div className={classes.infoWindowWrapper}>
+        </div>
         {infoOpen &&
           <InfoWindow>
             <div className={classes.mapInfoWindow}>
