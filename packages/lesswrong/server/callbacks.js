@@ -21,7 +21,7 @@ import {
   runQuery
 } from 'meteor/vulcan:core';
 
-import { performSubscriptionAction } from '../lib/subscriptions/mutations.js';
+import { performSubscriptionAction } from '../lib/collections/subscriptions/mutations.js';
 
 
 function updateConversationActivity (message) {

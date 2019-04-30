@@ -1,7 +1,8 @@
 import Notifications from '../lib/collections/notifications/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
 import Conversations from '../lib/collections/conversations/collection.js';
-
+import Subscriptions from '../lib/collections/subscriptions/collection.js';
+import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
@@ -19,9 +20,15 @@ import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 
+async function getSubscribedUsers(documentId, collectionName, type) {
+  const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
+  const userIds = _.pluck(subscriptions, 'userId')
+  const users = await Users.find({_id: {$in: userIds}}).fetch()
+  return users
+}
+
 const createNotifications = (userIds, notificationType, documentType, documentId) => {
   userIds.forEach(userId => {
-
     let user = Users.findOne({ _id:userId });
 
     let notificationData = {
@@ -144,35 +151,27 @@ function PostsApprovedNotification(post) {
 }
 addCallback("posts.approve.async", PostsApprovedNotification);
 
-function PostsUndraftNotification(post) {
+async function PostsUndraftNotification(post) {
   //eslint-disable-next-line no-console
   console.info("Post undrafted, creating notifications");
 
-  postsNewNotifications(post);
+  await postsNewNotifications(post);
 }
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
 // Add new post notification callback on post submit
-function postsNewNotifications (post) {
+async function postsNewNotifications (post) {
   if (!post.draft && post.status === Posts.config.STATUS_APPROVED) {
-    // Removed because this was useless. Will be reintroduced in a different
-    // form (with advanced filters and emailing.)
-    //let usersToNotify = _.pluck(Users.find({'notifications_posts': true}, {fields: {_id:1}}).fetch(), '_id');
-    let usersToNotify = [];
 
     // add users who are subscribed to this post's author
-    const postAuthor = Users.findOne(post.userId);
-    if (!!postAuthor.subscribers) {
-      usersToNotify = _.union(usersToNotify, postAuthor.subscribers);
-    }
+    let usersToNotify = await getSubscribedUsers(post.userId, "Users", subscriptionTypes.newPosts)
 
     // add users who are subscribed to this post's groups
     if (post.groupId) {
-      const group = Localgroups.findOne(post.groupId);
-      if (group.subscribers) {
-        usersToNotify = _.union(usersToNotify, group.subscribers);
-      }
+      const subscribedUsers = await getSubscribedUsers(post.groupId, "Localgroups", subscriptionTypes.newEvents)
+      usersToNotify = _.union(usersToNotify, subscribedUsers)
     }
+    
     // remove this post's author
     usersToNotify = _.without(usersToNotify, post.userId);
 
@@ -241,38 +240,33 @@ addCallback("posts.edit.async", PostsCurateNotification);
 async function CommentsNewNotifications(comment) {
   // note: dummy content has disableNotifications set to true
   if(Meteor.isServer && !comment.disableNotifications) {
-
-    const post = await Posts.findOne(comment.postId);
-
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
     let notifiedUsers = [];
 
     // 1. Notify users who are subscribed to the parent comment
-    if (!!comment.parentCommentId) {
-      const parentComment = Comments.findOne(comment.parentCommentId);
-
-      if (!!parentComment.subscribers && !!parentComment.subscribers.length) {
-        // remove userIds of users that have already been notified
+    if (comment.parentCommentId) {
+      const parentComment = Comments.findOne(comment.parentCommentId)
+      const subscribedUsers = await getSubscribedUsers(comment.parentCommentId, "Comments", subscriptionTypes.newReplies)
+      // remove userIds of users that have already been notified
         // and of comment and parentComment author (they could be replying in a thread they're subscribed to)
-        let parentCommentSubscribersToNotify = _.difference(parentComment.subscribers, notifiedUsers, [comment.userId, parentComment.userId]);
-        createNotifications(parentCommentSubscribersToNotify, 'newReply', 'comment', comment._id);
-        notifiedUsers = [...notifiedUsers, ...parentCommentSubscribersToNotify];
+      let parentCommentSubscribersToNotify = _.difference(subscribedUsers, notifiedUsers, [comment.userId, parentComment.userId])
+      createNotifications(parentCommentSubscribersToNotify, 'newReply', 'comment', comment._id);
 
-        // Separately notify author of comment with different notification, if they are subscribed, and are NOT the author of the comment
-        if (parentComment.subscribers.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
-          createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
-          notifiedUsers = [...notifiedUsers, parentComment.userId];
-        }
+      // Separately notify author of comment with different notification, if they are subscribed, and are NOT the author of the comment
+      if (subscribedUsers.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
+        createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
+        notifiedUsers = [...notifiedUsers, parentComment.userId];
       }
     }
-
+    
     // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
-    if (post && post.subscribers && post.subscribers.length) {
-      // remove userIds of users that have already been notified
-      // and of comment author (they could be replying in a thread they're subscribed to)
-      let postSubscribersToNotify = _.difference(post.subscribers, notifiedUsers, [comment.userId]);
-      createNotifications(postSubscribersToNotify, 'newComment', 'comment', comment._id);
+    const usersSubscribedToPost = await getSubscribedUsers(comment.postId, "Posts", subscriptionTypes.newComments)
+    // remove userIds of users that have already been notified
+    // and of comment author (they could be replying in a thread they're subscribed to)
+    const postSubscribersToNotify = _.difference(usersSubscribedToPost, notifiedUsers, [comment.userId])
+    if (postSubscribersToNotify.length > 0) {
+      createNotifications(postSubscribersToNotify, 'newComment', 'comment', comment._id)
     }
   }
 }

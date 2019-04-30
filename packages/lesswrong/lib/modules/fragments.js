@@ -70,7 +70,6 @@ extendFragment('UsersCurrent', `
   allPostsShowLowKarma
   allPostsOpenSettings
   lastNotificationsCheck
-  subscribedItems
   groups
   bannedUserIds
   moderationStyle

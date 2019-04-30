@@ -146,7 +146,7 @@ export function addEditableCallbacks({collection, options = {}}) {
     }
     return doc
   }
-
+  
   addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
 
   async function editorSerializationEdit (docData, { document, currentUser }) {

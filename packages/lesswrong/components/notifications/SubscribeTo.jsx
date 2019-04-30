@@ -1,107 +1,88 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
-import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import Users from 'meteor/vulcan:users';
-import { withMessages, registerComponent, Utils } from 'meteor/vulcan:core';
+import { withMessages, registerComponent, Utils, withMulti, withCreate } from 'meteor/vulcan:core';
+import { Subscriptions } from '../../lib/collections/subscriptions/collection'
+import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
+import mapProps from 'recompose/mapProps'
+import { FormattedMessage } from 'meteor/vulcan:i18n';
 import withUser from '../common/withUser';
 
-// boolean -> unsubscribe || subscribe
 const getSubscribeAction = subscribed => subscribed ? 'unsubscribe' : 'subscribe'
 
-class SubscribeToActionHandler extends Component {
-
-  constructor(props, context) {
-    super(props, context);
-
-    this.onSubscribe = this.onSubscribe.bind(this);
-
-    this.state = {
-      subscribed: !!Users.isSubscribedTo(props.currentUser, props.document, props.documentType),
-    };
+class SubscribeTo extends Component {
+  isSubscribed = () => {
+    const { results } = this.props
+    if (!results || results.length === 0) return false
+    // Get the last element of the results array, which will be the most recent subscription
+    const currentSubscription = results[results.length-1]
+    return !!(currentSubscription.state === "subscribed")
   }
-
-  async onSubscribe(e) {
+  onSubscribe = async (e) => {
+    const { document, createSubscription, collectionName, flash } = this.props;
     try {
       e.preventDefault();
-
-      const { document, documentType } = this.props;
-      const action = getSubscribeAction(this.state.subscribed);
-
-      // TODO: change the mutation to auto-update the user in the store id:13
-      await this.setState(prevState => ({subscribed: !prevState.subscribed}));
-
-      // mutation name will be for example postsSubscribe
-      await this.props[`${documentType + Utils.capitalize(action)}`]({documentId: document._id});
+      
+      const newSubscription = {
+        state: this.isSubscribed() ? 'suppressed' : 'subscribed',
+        documentId: document._id,
+        collectionName,
+        type: defaultSubscriptionTypeTable[collectionName]
+      }
+      createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed
-      this.props.flash(
-        {id: `${documentType}.${action}d`,
-        // handle usual name properties
-        name: document.name || document.title || document.displayName
-      , type: "success"});
-
-
+      flash({messageString: `Successfully ${this.isSubscribed() ? "unsubscribed" : "subscribed"}`});
     } catch(error) {
-      this.props.flash(error.message, "error");
+      flash({messageString: error.message});
     }
   }
 
   render() {
-    const { currentUser, document, documentType } = this.props;
-    const { subscribed } = this.state;
-
-    const action = `${documentType}.${getSubscribeAction(subscribed)}`;
-
+    const { currentUser, document, collectionName, documentType } = this.props;
+    const action = `${documentType}.${getSubscribeAction(this.isSubscribed())}`;
     // can't subscribe to yourself
-    if (!currentUser || !document || (documentType === 'users' && document._id === currentUser._id)) {
+    if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
       return null;
     }
 
     const className = this.props.className || "";
-    return Users.canDo(currentUser, action) ? <a className={className} onClick={this.onSubscribe}><FormattedMessage id={action} /></a> : null;
+    return <a className={className} onClick={this.onSubscribe}><FormattedMessage id={action} /></a>
   }
 
 }
 
-SubscribeToActionHandler.propTypes = {
-  document: PropTypes.object.isRequired,
-  className: PropTypes.string,
-  currentUser: PropTypes.object,
-}
-
-SubscribeToActionHandler.contextTypes = {
-  intl: intlShape
+const options = {
+  collection: Subscriptions,
+  queryName: 'subscriptionState',
+  fragmentName: 'SubscriptionState',
+  enableTotal: false,
+  ssr: true
 };
 
-const subscribeMutationContainer = ({documentType, actionName}) => graphql(gql`
-  mutation ${documentType + actionName}($documentId: String) {
-    ${documentType + actionName}(documentId: $documentId) {
-      _id
-      subscribedItems
-    }
-  }
-`, {
-  props: ({ownProps, mutate}) => ({
-    [documentType + actionName]: vars => {
-      return mutate({
-        variables: vars,
-      });
-    },
-  }),
-});
-
-const SubscribeTo = props => {
-
-  const documentType = Utils.getCollectionNameFromTypename(props.document.__typename);
-
-  const withSubscribeMutations = ['Subscribe', 'Unsubscribe'].map(actionName => subscribeMutationContainer({documentType, actionName}));
-
-  const EnhancedHandler = compose(...withSubscribeMutations)(SubscribeToActionHandler);
-
-  return <EnhancedHandler {...props} documentType={documentType} />;
+const withCreateOptions = {
+  collection: Subscriptions,
+  fragmentName: 'SubscriptionState',
 }
 
+const remapProps = ({document, currentUser, type}) => {
+  const documentType = Utils.getCollectionNameFromTypename(document.__typename)
+  const collectionName = Utils.capitalize(documentType)
+  return {
+    document,
+    collectionName,
+    currentUser,
+    type,
+    documentType, 
+    terms: {
+      view: "subscriptionState", 
+      documentId: document._id, 
+      userId: currentUser._id, 
+      type: type || defaultSubscriptionTypeTable[collectionName], 
+      collectionName,
+      limit: 1
+    }
+  }
+}
+//Note: the order of HoCs matters in this case, since we need to have access to currentUser before we call mapProps
+registerComponent('SubscribeTo', SubscribeTo, withUser, mapProps(remapProps), withMessages, [withMulti, options], [withCreate, withCreateOptions]);
 
-registerComponent('SubscribeTo', SubscribeTo, withUser, withMessages);
+
