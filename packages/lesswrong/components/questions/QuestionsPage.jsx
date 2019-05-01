@@ -1,11 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
-
+import withDialog from '../common/withDialog'
 class QuestionsPage extends PureComponent {
   render () {
-    const { location } = this.props
-    const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2 } = Components
+    const { location, openDialog } = this.props
+    const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
 
     const topQuestionsTerms = {
       view: 'topQuestions',
@@ -26,7 +26,13 @@ class QuestionsPage extends PureComponent {
           <PostsList2 terms={topQuestionsTerms}/>
         </SingleColumnSection>
         <SingleColumnSection>
-          <SectionTitle title="Recent Activity"/>
+          <SectionTitle title="Recent Activity">
+            <SectionButton>
+              <span onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+                New Question
+              </span>
+            </SectionButton>
+          </SectionTitle>
           <PostsList2 terms={recentActivityTerms}>
             <Link to={"/allPosts?filter=questions&view=new"}>View All Questions</Link>
           </PostsList2>
@@ -37,4 +43,4 @@ class QuestionsPage extends PureComponent {
   }
 }
 
-registerComponent('QuestionsPage', QuestionsPage, withRouter);
+registerComponent('QuestionsPage', QuestionsPage, withRouter, withDialog);
