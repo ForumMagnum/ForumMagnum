@@ -64,7 +64,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
   if (votes.length) {
     // Cancel all the existing votes
     await Connectors.update(Votes,
-      {documentId: document._id, userId: user._id},
+      {documentId: document._id, userId: user._id, cancelled: false},
       {$set: {cancelled: true}},
       {multi:true}, true);
     votes.forEach((vote) => {

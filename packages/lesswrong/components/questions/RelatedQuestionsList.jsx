@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
+    marginBottom: 100,
     [theme.breakpoints.down('md')]: {
       width: "unset",
       marginLeft: "auto",
