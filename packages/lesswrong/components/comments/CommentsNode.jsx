@@ -169,9 +169,14 @@ class CommentsNode extends Component {
     return !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
   }
 
+  isNewComment = () => {
+    const { comment, highlightDate } = this.props;
+    return highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+  }
+
   isSingleLine = () => {
     const { comment, condensed } = this.props 
-    return this.isTruncated() && (comment.baseScore < 10 || condensed) 
+    return this.isTruncated() && !this.isNewComment() && (comment.baseScore < 10 || condensed) 
   }
 
   render() {
@@ -184,7 +189,7 @@ class CommentsNode extends Component {
 
     const { hover, collapsed, finishedScroll } = this.state
 
-    const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+    const newComment = this.isNewComment()
 
     const nodeClass = classNames(
       "comments-node",
