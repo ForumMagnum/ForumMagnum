@@ -3,8 +3,9 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@material-ui/core/Grid';``
 import classNames from 'classnames';
+import withErrorBoundary from './withErrorBoundary.jsx';
 
 
 const BORDER_TOP_WIDTH = 3
@@ -93,35 +94,36 @@ const Section = ({
   subscribeLinks = null,
   className = null,
   children,
-  classes
+  classes,
+  deactivateSection
 }) => {
 
+  if (deactivateSection) return <React.Fragment>{children}</React.Fragment>
+
   return (
-    <Components.ErrorBoundary>
-      <div className={classNames(className, classes.root)}>
-      <Grid container className={classes.section} spacing={0}>
-        <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
-          {title && <div className={classes.sectionTitleTop}>
-            <Typography variant="display1" className={classes.sectionTitle}>
-              {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
-              { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
-                {subscribeLinks}
-              </Typography> }
-            </Typography>
-          </div>}
-          {titleComponent && <div className={classes.sectionTitleBottom}>
-            {titleComponent}
-          </div>}
-        </Grid>
-        <Grid item xs={12} md={9}>
-          <div className={classes.sectionContent}>
-            {children}
-          </div>
-        </Grid>
+    <div className={classNames(className, classes.root)}>
+    <Grid container className={classes.section} spacing={0}>
+      <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
+        {title && <div className={classes.sectionTitleTop}>
+          <Typography variant="display1" className={classes.sectionTitle}>
+            {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
+            { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
+              {subscribeLinks}
+            </Typography> }
+          </Typography>
+        </div>}
+        {titleComponent && <div className={classes.sectionTitleBottom}>
+          {titleComponent}
+        </div>}
       </Grid>
-      </div>
-    </Components.ErrorBoundary>
+      <Grid item xs={12} md={9}>
+        <div className={classes.sectionContent}>
+          {children}
+        </div>
+      </Grid>
+    </Grid>
+    </div>
   )
 };
 
-registerComponent('Section', Section, withStyles(styles, { name: 'Section'}));
+registerComponent('Section', Section, withStyles(styles, { name: 'Section'}), withErrorBoundary);
