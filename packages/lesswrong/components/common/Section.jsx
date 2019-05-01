@@ -1,9 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';``
+import Grid from '@material-ui/core/Grid';
 import classNames from 'classnames';
 import withErrorBoundary from './withErrorBoundary.jsx';
 
