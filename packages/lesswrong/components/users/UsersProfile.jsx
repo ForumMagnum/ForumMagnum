@@ -11,6 +11,8 @@ import classNames from 'classnames';
 import withUser from '../common/withUser';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
+import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   profilePage: {
@@ -20,10 +22,10 @@ const styles = theme => ({
     }
   },
   meta: {
+    flexGrow: 1,
     display: "flex",
-    alignItems: "center",
-    [theme.breakpoints.up('md')]: {
-      justifyContent: "flex-end",
+    '&:after': {
+      content: '""'
     }
   },
   icon: {
@@ -37,14 +39,10 @@ const styles = theme => ({
     marginLeft: 20,
   },
   bio: {
-    margin: 0,
-    paddingBottom: 10,
-    paddingLeft: 20,
-  
-    "& p": {
-      fontSize: 16,
-      lineHeight: "26px",
-    }
+    marginTop: theme.spacing.unit*3,
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    ...postBodyStyles(theme)
   },
   primaryColor: {
     color: theme.palette.primary.light
@@ -55,17 +53,23 @@ const styles = theme => ({
   },
   title: {
     cursor: "pointer",
-    '&:hover $settingsIcon, &:hover $sortedBy': {
+    '&:hover $settingsIcon, &:hover $settingsText': {
       color: theme.palette.grey[800]
     }
   },
-  sortedBy: {
+  settingsText: {
     fontStyle: "italic",
-    display: "inline-block"
+    display: "inline-block",
+    ...theme.typography.commentStyle,
+    fontSize: "1rem",
+    color: theme.palette.grey[700]
   },
   // Dark Magick
   // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
-  specificalz: {}
+  specificalz: {},
+  userMetaInfo: {
+    display: "inline-flex"
+  }
 })
 
 const views = {
@@ -83,33 +87,10 @@ class UsersProfile extends Component {
 
   displaySequenceSection = (canEdit, user)  => {
     if (getSetting('forumType') === 'AlignmentForum') {
-        return ((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || (!canEdit && user.afSequenceCount)
+        return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
-        return ((canEdit && user.sequenceDraftCount) || user.sequenceCount) || (!canEdit && user.sequenceCount)
+        return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
     }
-  }
-
-  renderActions = () => {
-    const props = this.props
-    const { currentUser, classes } = props
-      const user = props.document;
-
-      return (<div className={classes.actions}>
-        { user.twitterUsername && <div><a href={"http://twitter.com/" + user.twitterUsername}>@{user.twitterUsername}</a></div> }
-        { props.currentUser && props.currentUser.isAdmin &&
-            <Components.DialogGroup
-              actions={[]}
-              trigger={<Components.SectionSubtitle>Register new RSS Feed</Components.SectionSubtitle>}
-            >
-              <div><Components.newFeedButton user={user} /></div>
-            </Components.DialogGroup>
-        }
-        {Users.canEdit(currentUser, user) &&
-          <Components.SectionSubtitle><Link to={Users.getEditUrl(user)}><FormattedMessage id="users.edit_account"/></Link></Components.SectionSubtitle>
-        }
-        { props.currentUser && props.currentUser._id != user._id && <Components.SectionSubtitle><Components.NewConversationButton user={user}> <a>Send a message</a> </Components.NewConversationButton></Components.SectionSubtitle> }
-        { props.currentUser && props.currentUser._id !== user._id && <Components.SectionSubtitle><Components.SubscribeTo document={user} /></Components.SectionSubtitle> }
-      </div>)
   }
 
   renderMeta = () => {
@@ -117,30 +98,54 @@ class UsersProfile extends Component {
     const { classes } = props
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
 
+    const userKarma = karma || 0
+    const userAfKarma = afKarma || 0
+    const userPostCount = getSetting('forumType') !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
+    const userCommentCount = getSetting('forumType') !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
+
       return <div className={classes.meta}>
-        { getSetting('forumType') !== 'AlignmentForum' && <StarIcon className={classNames(classes.icon, classes.specificalz)}/>}
-        { getSetting('forumType') !== 'AlignmentForum' && <Components.MetaInfo title="Karma">
-          {karma || 0}
-        </Components.MetaInfo>}
-        { !!afKarma && <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>}
-        { !!afKarma && <Components.MetaInfo title="Alignment Karma">
-            {afKarma}
-          </Components.MetaInfo>
-        }
-        <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
-        <Components.MetaInfo title="Posts">
-          { getSetting('forumType') !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0}
-        </Components.MetaInfo>
-        <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
-        <Components.MetaInfo title="Comments">
-          { getSetting('forumType') !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0}
-        </Components.MetaInfo>
+
+        { getSetting('forumType') !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
+          <span className={classes.userMetaInfo}>
+            <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo title="Karma">
+              {userKarma}
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>}
+
+        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma on alignmentforum.org`}>
+          <span className={classes.userMetaInfo}>
+            <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo title="Alignment Karma">
+              {userAfKarma}
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>}
+
+        <Tooltip title={`${userPostCount} posts`}>
+          <span className={classes.userMetaInfo}>
+            <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo title="Posts">
+              {userPostCount}
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>
+
+        <Tooltip title={`${userCommentCount} comments`}>
+          <span className={classes.userMetaInfo}>
+            <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo title="Comments">
+              { userCommentCount }
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>
       </div>
   }
 
   render() {
     const props = this.props
-    const { classes } = props;
+    const { classes, currentUser } = props;
   
     if (props.loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -163,7 +168,7 @@ class UsersProfile extends Component {
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, MetaInfo, PostsList2 } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, } = Components
     const { showSettings } = this.state
     const currentView = query.view ||  "new"
     const currentFilter = query.filter ||  "all"
@@ -173,16 +178,34 @@ class UsersProfile extends Component {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         {/* Bio Section */}
         <SingleColumnSection>
-          <SectionTitle title={user.displayName}>
-            {this.renderMeta(props)}
-          </SectionTitle>
-          { user.bio &&
-            <div className="content-body">
-              <div className={classes.bio}>
-                <p>{ user.bio }</p>
+          <SectionTitle title={user.displayName}/>
+
+          <SectionFooter>
+            { this.renderMeta(props) }
+            { user.twitterUsername &&  <a href={"http://twitter.com/" + user.twitterUsername}>
+              @{user.twitterUsername}
+            </a>}
+            { currentUser && currentUser.isAdmin &&
+              <div>
+                <DialogGroup
+                  actions={[]}
+                  trigger={<span>Register RSS Feed</span>}
+                >
+                  <div><Components.newFeedButton user={user} /></div>
+                </DialogGroup>
               </div>
-            </div>}
-          { this.renderActions(props) }
+            }
+            { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
+              <a>Send Message</a> 
+            </NewConversationButton>}
+            { currentUser && currentUser._id !== user._id && <SubscribeTo document={user} /> }
+            {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              <FormattedMessage id="users.edit_account"/>
+            </Link>}
+          </SectionFooter>
+        
+          { user.bio && <div className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
+
         </SingleColumnSection>
 
         {/* Sequences Section */}
@@ -209,7 +232,7 @@ class UsersProfile extends Component {
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
             <SectionTitle title={`${user.displayName}'s Posts`}>
               <SettingsIcon className={classes.settingsIcon}/>
-              <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
+              <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
             </SectionTitle>
           </div>
           {showSettings && <PostsListSettings
