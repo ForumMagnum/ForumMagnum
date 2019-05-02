@@ -2,6 +2,7 @@ import { addCallback, editMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Sequences from '../lib/collections/sequences/collection.js';
 import Posts from '../lib/collections/posts/collection.js';
+import findIndex from 'lodash/findIndex';
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have
@@ -16,10 +17,12 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
   if (anyUnread) {
     // First unread post. Relies on the fact that postIDs is sorted in sequence
     // reading order.
-    const nextPostId = _.find(postIDs, postID=>!postReadStatuses[postID]);
+    const nextPostIndex = findIndex(postIDs, postID=>!postReadStatuses[postID]);
+    const nextPostId = postIDs[nextPostIndex];
     
     const sequenceReadStatus = {
       sequenceId: sequenceId,
+      lastReadPostId: postId,
       nextPostId: nextPostId,
     };
     
@@ -60,7 +63,6 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
 }
 
 const EventUpdatePartialReadStatusCallback = async (event) => {
-  console.log("Creating post-view event");
   if (event.name === 'post-view' && event.properties.sequenceId) {
     // Deliberately lacks an await - this runs concurrently in the background
     updateSequenceReadStatusForPostRead(event.userId, event.documentId, event.properties.sequenceId);
@@ -109,7 +111,5 @@ const postsToReadStatuses = async (user, postIDs) => {
     resultDict[postID] = false;
   for (let readPost of readPosts)
     resultDict[readPost._id] = true;
-  console.log("resultDict");
-  console.log(resultDict);
   return resultDict;
 }

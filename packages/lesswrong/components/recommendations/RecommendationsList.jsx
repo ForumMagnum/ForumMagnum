@@ -10,7 +10,21 @@ const withRecommendations = component => {
   const recommendationsQuery = gql`
     query RecommendationsQuery($count: Int, $algorithm: JSON) {
       Recommendations(count: $count, algorithm: $algorithm) {
-        ...PostsList
+        posts {
+          ...PostsList
+        }
+        resumeReading {
+          sequence {
+            _id
+            title
+          }
+          lastReadPost {
+            ...PostsList
+          }
+          nextPost {
+            ...PostsList
+          }
+        }
       }
     }
     ${getFragment("PostsList")}
@@ -36,13 +50,17 @@ const withRecommendations = component => {
 }
 
 const RecommendationsList = ({ recommendations, recommendationsLoading, currentUser }) => {
-  const { PostsItem2 } = Components;
+  const { PostsItem2, ResumeReadingItem, PostsLoading } = Components;
   if (recommendationsLoading || !recommendations)
-    return <Components.PostsLoading/>
+    return <PostsLoading/>
   
   return <div>
-    {recommendations.map(post => <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}
-    {recommendations.length===0 && <span>There are no more recommendations left.</span>}
+    {recommendations.resumeReading.map(resumeReading =>
+      <ResumeReadingItem sequence={resumeReading.sequence} lastReadPost={resumeReading.lastReadPost} nextPost={resumeReading.nextPost} key={resumeReading.sequence._id} currentUser={currentUser}/>)}
+    {recommendations.posts.map(post =>
+      <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}
+    {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&
+      <span>There are no more recommendations left.</span>}
   </div>
 }
 

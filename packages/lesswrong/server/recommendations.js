@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
@@ -126,7 +126,7 @@ const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => 
   ).fetch();
 }
 
-const getRecommendations = async ({count, algorithm, currentUser}) => {
+const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   const scoreFn = post => {
     const sectionModifier = post.curatedDate
       ? algorithm.curatedModifier
@@ -159,18 +159,52 @@ const getRecommendations = async ({count, algorithm, currentUser}) => {
   }
 };
 
+const getResumeSequences = async (currentUser, context) => {
+  if (!currentUser)
+    return [];
+  if (currentUser.partiallyReadSequences) {
+    return Promise.all(_.map(currentUser.partiallyReadSequences, async partiallyReadSequence => ({
+      sequence: await context["Sequences"].loader.load(partiallyReadSequence.sequenceId),
+      lastReadPost: await context["Posts"].loader.load(partiallyReadSequence.lastReadPostId),
+      nextPost: await context["Posts"].loader.load(partiallyReadSequence.nextPostId),
+    })));
+  } else {
+    return [];
+  }
+}
+
+
 addGraphQLResolvers({
   Query: {
-    async Recommendations(root, {count,algorithm}, {currentUser}) {
-      const recommended = await getRecommendations({count, algorithm, currentUser})
-      const accessFiltered = accessFilterMultiple(currentUser, Posts, recommended);
-      if (recommended.length !== accessFiltered.length) {
+    async Recommendations(root, {count,algorithm}, context) {
+      const { currentUser } = context;
+      const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
+      const accessFilteredPosts = accessFilterMultiple(currentUser, Posts, recommendedPosts);
+      if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
-      return accessFiltered;
+      
+      const resumeSequences = await getResumeSequences(currentUser, context);
+      
+      return {
+        posts: accessFilteredPosts,
+        resumeReading: resumeSequences
+      };
     }
   }
 });
 
-addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
+addGraphQLSchema(`
+  type RecommendResumeSequence {
+    sequence: Sequence!
+    lastReadPost: Post!
+    nextPost: Post!
+  }
+  type RecommendationList {
+    posts: [Post!]
+    resumeReading: [RecommendResumeSequence!]
+  }
+`);
+
+addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): RecommendationList!");
