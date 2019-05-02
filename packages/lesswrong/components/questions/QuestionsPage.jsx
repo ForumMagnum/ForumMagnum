@@ -2,6 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
 import withDialog from '../common/withDialog'
+import AddBoxIcon from '@material-ui/icons/AddBox'
 class QuestionsPage extends PureComponent {
   render () {
     const { location, openDialog } = this.props
@@ -27,11 +28,12 @@ class QuestionsPage extends PureComponent {
         </SingleColumnSection>
         <SingleColumnSection>
           <SectionTitle title="Recent Activity">
-            <SectionButton>
-              <span onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+            <span onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+              <SectionButton>
+                <AddBoxIcon />
                 New Question
-              </span>
-            </SectionButton>
+              </SectionButton>
+            </span>
           </SectionTitle>
           <PostsList2 terms={recentActivityTerms}>
             <Link to={"/allPosts?filter=questions&view=new"}>View All Questions</Link>
