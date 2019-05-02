@@ -10,7 +10,6 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 
@@ -114,7 +113,7 @@ class UsersProfile extends Component {
           </span>
         </Tooltip>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma on alignmentforum.org`}>
+        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(getSetting('forumType') !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
           <span className={classes.userMetaInfo}>
             <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Alignment Karma">
@@ -144,23 +143,24 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const props = this.props
-    const { classes, currentUser } = props;
+    const { slug, classes, currentUser, loading, document, documentId, router } = this.props;
   
-    if (props.loading) {
+    if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Components.Loading/>
       </div>
     }
     
-    if (!props.document || !props.document._id || props.document.deleted) {
+    if (!document || !document._id || document.deleted) {
       //eslint-disable-next-line no-console
-      console.error(`// missing user (_id/slug: ${props.documentId || props.slug})`);
+      console.error(`// missing user (_id/slug: ${documentId || slug})`);
       return <Components.Error404/>
     }
+
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
     
-    const user = props.document;
-    const query = _.clone(props.router.location.query || {});
+    const user = document;
+    const query = _.clone(router.location.query || {});
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
@@ -168,11 +168,10 @@ class UsersProfile extends Component {
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, } = Components
     const { showSettings } = this.state
     const currentView = query.view ||  "new"
     const currentFilter = query.filter ||  "all"
-    const ownPage = props.currentUser && props.currentUser._id === user._id
+    const ownPage = currentUser && currentUser._id === user._id
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -181,7 +180,7 @@ class UsersProfile extends Component {
           <SectionTitle title={user.displayName}/>
 
           <SectionFooter>
-            { this.renderMeta(props) }
+            { this.renderMeta() }
             { user.twitterUsername &&  <a href={"http://twitter.com/" + user.twitterUsername}>
               @{user.twitterUsername}
             </a>}
@@ -221,7 +220,11 @@ class UsersProfile extends Component {
         {/* Drafts Section */}
         { ownPage && <SingleColumnSection>
           <SectionTitle title="My Drafts">
-            <Typography className={classes.primaryColor} variant="body2"><Link to={"/newPost"}> New Blog Post </Link></Typography>
+            <Link to={"/newPost"}>
+              <SectionButton>
+                <DescriptionIcon /> New Blog Post
+              </SectionButton>
+            </Link>
           </SectionTitle>
           <Components.PostsList2 terms={draftTerms}/>
           <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import { Link } from '../../lib/reactRouterWrapper.js';
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
 const styles = theme => ({
   newSequence: {
@@ -11,7 +11,13 @@ const styles = theme => ({
 });
 
 export const SequencesNewButton = ({ classes }) => {
-  return <Typography className={classes.newSequence} variant="body2"><Link to={"/sequencesnew"}> Create New Sequence </Link></Typography>
+  const { SectionButton } = Components
+  return  <Link to={"/sequencesnew"}> 
+    <SectionButton>
+      <LibraryAddIcon />
+      Create New Sequence
+    </SectionButton>
+  </Link>
 }
 
 registerComponent('SequencesNewButton', SequencesNewButton, withStyles(styles, { name: "SequencesNewButton" }));
