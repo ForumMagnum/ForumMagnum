@@ -2,10 +2,12 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
 import withDialog from '../common/withDialog'
+import withUser from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 class QuestionsPage extends PureComponent {
+
   render () {
-    const { location, openDialog } = this.props
+    const { currentUser, location, openDialog } = this.props
     const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
 
     const topQuestionsTerms = {
@@ -28,12 +30,12 @@ class QuestionsPage extends PureComponent {
         </SingleColumnSection>
         <SingleColumnSection>
           <SectionTitle title="Recent Activity">
-            <span onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+            {currentUser && <span onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
               <SectionButton>
                 <AddBoxIcon />
                 New Question
               </SectionButton>
-            </span>
+            </span>}
           </SectionTitle>
           <PostsList2 terms={recentActivityTerms}>
             <Link to={"/allPosts?filter=questions&view=new"}>View All Questions</Link>
@@ -45,4 +47,4 @@ class QuestionsPage extends PureComponent {
   }
 }
 
-registerComponent('QuestionsPage', QuestionsPage, withRouter, withDialog);
+registerComponent('QuestionsPage', QuestionsPage, withRouter, withDialog, withUser);
