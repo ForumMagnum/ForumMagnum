@@ -10,14 +10,14 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 const styles = theme => ({
   root: {
-    maxWidth:650,
+    borderTop: "solid 2px rgba(0,0,0,.5)",
+    maxWidth:650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
     }
   },
   chooseResponseType: {
-    borderTop: "solid 3px rgba(0,0,0,.87)",
     display: "flex",
     justifyContent: "space-between",
     padding: theme.spacing.unit,
@@ -80,9 +80,9 @@ class NewAnswerCommentQuestionForm extends PureComponent {
   }
 
   getNewForm = () => {
-    const { post } = this.props
+    const { post, refetch } = this.props
     const { selection } = this.state
-    const { NewAnswerForm, CommentsNewForm } = Components
+    const { NewAnswerForm, CommentsNewForm, NewRelatedQuestionForm } = Components
 
     switch(selection) {
       case "answer":
@@ -93,6 +93,8 @@ class NewAnswerCommentQuestionForm extends PureComponent {
           post={post}
           type="comment"
         />
+      case "question":
+       return <NewRelatedQuestionForm post={post} refetch={refetch}/>
     }
   }
 
@@ -112,15 +114,16 @@ class NewAnswerCommentQuestionForm extends PureComponent {
                   New Answer
                 </div>
               </Tooltip>
+              <Tooltip title="Help break down this question into easier sub-questions, or explore new questions building off of it.">
+                <div onClick={()=>this.setState({selection: "question"})}
+                  className={classNames(classes.responseType, {[classes.selected]: selection === "question"})}>
+                  Ask Related Question
+                </div>
+              </Tooltip>
               <Tooltip title="Discuss the question or ask clarifying questions">
                 <div onClick={()=>this.setState({selection: "comment"})}
                   className={classNames(classes.responseType, {[classes.selected]: selection === "comment"})}>
                   New Comment
-                </div>
-              </Tooltip>
-              <Tooltip title="...coming soon">
-                <div className={classNames(classes.responseType, classes.disabled, {[classes.selected]: selection === "question"})}>
-                  Ask Related Question
                 </div>
               </Tooltip>
               <div className={classes.toggleFocus} onClick={this.toggleFormFocus}>

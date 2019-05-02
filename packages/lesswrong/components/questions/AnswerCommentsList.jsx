@@ -9,7 +9,9 @@ import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  answersList: {
+  commentsList: {
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5,
   },
   noComments: {
     position: "relative",
@@ -43,7 +45,7 @@ const styles = theme => ({
   }
 })
 
-export const ABRIDGE_COMMENT_COUNT = 20;
+export const ABRIDGE_COMMENT_COUNT = 500;
 
 class AnswerCommentsList extends PureComponent {
 
@@ -109,7 +111,7 @@ class AnswerCommentsList extends PureComponent {
             }
           <div onClick={this.loadMoreComments}
             className={classNames(
-              classes.answersList, {
+              classes.commentsList, {
                 [classes.noCommentAnswersList]: noComments,
                 [classes.loadingMore]: loadingMore,
                 [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
@@ -125,7 +127,7 @@ class AnswerCommentsList extends PureComponent {
               parentAnswerId={parentAnswer._id}
               defaultNestingLevel={2}
               postPage
-              startThreadCollapsed
+              startThreadTruncated
             />
           </div>
           {(results && results.length && results.length < totalCount) ?

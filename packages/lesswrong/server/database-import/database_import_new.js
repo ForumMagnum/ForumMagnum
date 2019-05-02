@@ -46,7 +46,7 @@ Vulcan.postgresImport = async () => {
   const processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
 
   // Construct user lookup table to avoid repeated querying
-  let legacyIdToUserMap = await new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
+  let legacyIdToUserMap = new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
 
   // Upsert Users
   await upsertProcessedUsers(processedUsers, legacyIdToUserMap);

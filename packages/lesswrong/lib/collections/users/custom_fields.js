@@ -50,6 +50,10 @@ export const karmaChangeNotifierDefaultSettings = {
   // Always in GMT, regardless of the user's timezone (timezone matters for day
   // of the week because time zones could take it across midnight.)
   dayOfWeekGMT: "Saturday",
+
+  // A boolean that determines whether we hide or show negative karma updates. 
+  // False by default because people tend to drastically overweigh negative feedback
+  showNegativeKarma: false,
 };
 
 const karmaChangeSettingsType = new SimpleSchema({
@@ -68,6 +72,10 @@ const karmaChangeSettingsType = new SimpleSchema({
     type: String,
     optional: true,
     allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  },
+  showNegativeKarma: {
+    type: Boolean, 
+    optional: true,
   }
 })
 
@@ -135,7 +143,7 @@ addFieldsDict(Users, {
           {value:'postCommentsNew', label: 'most recent'},
           {value:'postCommentsOld', label: 'oldest'},
         ];
-        if (getSetting('AlignmentForum', false)) {
+        if (getSetting('forumType') === 'AlignmentForum') {
           return commentViews.concat([
             {value:'postLWComments', label: 'magical algorithm (include LW)'}
           ])
@@ -503,6 +511,15 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canRead: ['members'],
   },
+  unsubscribeFromAll: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.emails,
+    label: "Do not send me any emails (unsubscribe from all)",
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
 
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
@@ -717,7 +734,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
-  }
+  },
 });
 
 export const makeEditableOptionsModeration = {

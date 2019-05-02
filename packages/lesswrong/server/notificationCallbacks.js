@@ -11,6 +11,7 @@ import './emailComponents/EmailWrapper.jsx';
 import './emailComponents/NewPostEmail.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
+import { UnsubscribeAllToken } from './emails/emailTokens.js';
 
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 
@@ -43,14 +44,18 @@ const createNotifications = (userIds, notificationType, documentType, documentId
 }
 
 const sendPostByEmail = async (users, postId, reason) => {
-  let post = Posts.findOne(postId);
+  let post = await Posts.findOne(postId);
 
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
+      const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
       await renderAndSendEmail({
         user,
         subject: post.title,
-        bodyComponent: <Components.EmailWrapper>
+        bodyComponent: <Components.EmailWrapper
+          user={user}
+          unsubscribeAllLink={unsubscribeAllLink}
+        >
           <Components.NewPostEmail documentId={post._id} reason={reason}/>
         </Components.EmailWrapper>
       });
@@ -223,7 +228,11 @@ const curationEmailDelay = new EventDebouncer({
 
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
-    curationEmailDelay.recordEvent(post._id, null);
+    curationEmailDelay.recordEvent({
+      key: post._id,
+      data: null,
+      af: false
+    });
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);
@@ -295,17 +304,26 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
     const otherParticipants = _.filter(participants, u=>u._id != recipientUser._id);
     const subject = `Private message conversation with ${otherParticipants.map(u=>u.displayName).join(', ')}`;
     
-    await renderAndSendEmail({
-      user: recipientUser,
-      subject: subject,
-      bodyComponent: <Components.EmailWrapper>
-        <Components.PrivateMessagesEmail
-          conversation={conversation}
-          messages={messages}
-          participantsById={participantsById}
-        />
-      </Components.EmailWrapper>
-    });
+    if(!reasonUserCantReceiveEmails(recipientUser)) {
+      const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(recipientUser._id);
+      await renderAndSendEmail({
+        user: recipientUser,
+        subject: subject,
+        bodyComponent: <Components.EmailWrapper
+          user={recipientUser}
+          unsubscribeAllLink={unsubscribeAllLink}
+        >
+          <Components.PrivateMessagesEmail
+            conversation={conversation}
+            messages={messages}
+            participantsById={participantsById}
+          />
+        </Components.EmailWrapper>
+      });
+    } else {
+      //eslint-disable-next-line no-console
+      console.log(`Skipping user ${recipientUser.username} when emailing: ${reasonUserCantReceiveEmails(recipientUser)}`);
+    }
   }
 }
 
@@ -330,6 +348,10 @@ function messageNewNotification(message) {
   createNotifications(recipients, 'newMessage', 'message', message._id);
   
   // Generate debounced email notifications
-  privateMessagesDebouncer.recordEvent(conversationId, message._id);
+  privateMessagesDebouncer.recordEvent({
+    key: conversationId,
+    data: message._id,
+    af: conversation.af,
+  });
 }
 addCallback("messages.new.async", messageNewNotification);

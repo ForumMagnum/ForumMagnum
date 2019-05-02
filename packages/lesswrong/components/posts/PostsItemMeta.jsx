@@ -25,8 +25,8 @@ const DateWithoutTime = withTimezone(
 
 const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const { wordCount = 0 } = post.contents || {}
-  const baseScore = getSetting('AlignmentForum', false) ? post.afBaseScore : post.baseScore
-  const afBaseScore = !getSetting('AlignmentForum', false) && post.af ? post.afBaseScore : null
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
   const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
 

@@ -15,18 +15,13 @@ import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 const styles = theme => ({
   postContent: {
     ...postHighlightStyles(theme),
-    maxWidth: 620
   },
   root: {
-    maxWidth: 650,
     marginBottom: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit*2.5,
-    paddingBottom: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2.5,
     paddingRight: theme.spacing.unit*2.5,
-    marginLeft: -theme.spacing.unit*2,
-    marginRight: -theme.spacing.unit*2,
-    border: "solid 2px rgba(0,0,0,.12)",
+    border: `solid 2px ${theme.palette.grey[300]}`,
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"

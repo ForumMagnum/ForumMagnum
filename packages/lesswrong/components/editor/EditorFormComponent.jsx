@@ -50,7 +50,7 @@ const styles = theme => ({
     pointerEvents: 'auto'
   },
   questionWidth: {
-    width: 540,
+    width: 640,
     [theme.breakpoints.down('sm')]: {
       width: 'inherit'
     }
@@ -125,8 +125,14 @@ class EditorFormComponent extends Component {
       try {
         // eslint-disable-next-line no-console
         console.log("Restoring saved document state: ", savedState);
-        state = EditorState.createWithContent(convertFromRaw(savedState))
-        return state;
+        const contentState = convertFromRaw(savedState)
+        if (contentState.hasText()) {
+          return EditorState.createWithContent(contentState)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("Not restoring empty document state: ", contentState)
+        }
+        
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e)
@@ -309,7 +315,7 @@ class EditorFormComponent extends Component {
     const { type } = (value && value.originalContents) || (document[fieldName] && document[fieldName].originalContents) || {}
     return <Typography variant="body2" color="primary">
       This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
-      <a className={classes.errorTextColor} onClick={this.handleEditorOverride}> Click here </a>
+      <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride()}> Click here </a>
       to switch to {this.getUserDefaultEditor(currentUser)} editor (your default editor).
     </Typography>
   }
@@ -373,6 +379,13 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  getBodyStyles = () => {
+    const { classes, commentStyles, document } = this.props
+    if (commentStyles && document.answer) return classes.answerStyles
+    if (commentStyles) return classes.commentBodyStyles
+    return classes.postBodyStyles
+  }
+
   render() {
     const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
     const { document, currentUser, formType, form, classes, fieldName } = this.props
@@ -385,8 +398,9 @@ class EditorFormComponent extends Component {
     // or as tall as a post editor) needs to be applied deeper in the tree, for
     // the draftJS editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
-    const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
-    const bodyStyles = (commentStyles && !document.answer) ? classes.commentBodyStyles : classes.answerStyles;
+
+    const heightClass = (commentStyles || document.question) ? classes.commentEditorHeight : classes.postEditorHeight;
+    const bodyStyles = this.getBodyStyles()
 
     const editorWarning =
       !editorOverride

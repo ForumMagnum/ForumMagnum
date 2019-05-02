@@ -77,7 +77,7 @@ Users.addField([
           
           const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
           
-          const alignmentForum = getSetting('AlignmentForum', false);
+          const alignmentForum = getSetting('forumType') === 'AlignmentForum';
           return getKarmaChanges({
             user: document,
             startDate, endDate,

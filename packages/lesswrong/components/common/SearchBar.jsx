@@ -154,7 +154,7 @@ class SearchBar extends Component {
   render() {
     const algoliaAppId = getSetting('algolia.appId')
     const algoliaSearchKey = getSetting('algolia.searchKey')
-    const alignmentForum = getSetting('AlignmentForum', false);
+    const alignmentForum = getSetting('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
     const { searchOpen, inputOpen } = this.state

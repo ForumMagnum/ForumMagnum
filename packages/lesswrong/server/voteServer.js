@@ -64,7 +64,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
   if (votes.length) {
     // Cancel all the existing votes
     await Connectors.update(Votes,
-      {documentId: document._id, userId: user._id},
+      {documentId: document._id, userId: user._id, cancelled: false},
       {$set: {cancelled: true}},
       {multi:true}, true);
     votes.forEach((vote) => {
@@ -165,8 +165,6 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
   
-  await checkRateLimit({ document, collection, voteType, user });
-
   debug('');
   debugGroup('--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------');
   debug('collectionName: ', collectionName);
@@ -193,6 +191,8 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
     runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
 
   } else {
+
+    await checkRateLimit({ document, collection, voteType, user });
 
     // console.log('action: vote')
 
@@ -227,6 +227,10 @@ const getVotingRateLimits = async (user) => {
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
 const checkRateLimit = async ({ document, collection, voteType, user }) => {
+  // No rate limit on self-votes
+  if(document.userId === user._id)
+    return;
+  
   const rateLimits = await getVotingRateLimits(user);
   
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours

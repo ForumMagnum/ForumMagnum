@@ -19,6 +19,7 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import Users from 'meteor/vulcan:users';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -27,11 +28,9 @@ const styles = theme => ({
       position: "relative"
     },
     post: {
-      maxWidth: 650,
-      [theme.breakpoints.down('md')]: {
-        marginLeft: "auto",
-        marginRight: "auto"
-      }
+      maxWidth: 650 + (theme.spacing.unit*4),
+      marginLeft: "auto",
+      marginRight: "auto"
     },
     header: {
       position: 'relative',
@@ -106,7 +105,6 @@ const styles = theme => ({
       display: 'inline-block',
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingRight: 50,
       marginBottom: 40
     },
     draft: {
@@ -143,7 +141,6 @@ const styles = theme => ({
     },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
-      marginLeft: -67,
       [theme.breakpoints.down('sm')]: {
         paddingRight: 0,
         marginLeft: 0
@@ -185,10 +182,10 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   render() {
-    const { loading, document: post, currentUser, location, router, classes, params } = this.props
+    const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -212,7 +209,7 @@ class PostsPage extends Component {
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
-          <Section>
+          <Section deactivateSection={!sectionData}>
             <div className={classes.post}>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
@@ -256,7 +253,7 @@ class PostsPage extends Component {
               {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
           </Section>
-          <Section titleComponent={
+          <Section deactivateSection={!sectionData} titleComponent={
             <TableOfContents sectionData={sectionData} document={post} />
           }>
             <div className={classes.post}>
@@ -287,10 +284,16 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
+            
+            {/* Recommendations */}
+            {currentUser && Users.isAdmin(currentUser) &&
+              <ConfigurableRecommendationsList configName="afterpost"/>}
+             
+            
             {/* Answers Section */}
-            {post.question && <div>
+            {post.question && <div className={classes.post}>
               <div id="answers"/>
-              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post}/>
+              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
             </div>}
             {/* Comments Section */}
             <div className={classes.commentsSection}>

@@ -31,13 +31,14 @@ class NewQuestionDialog extends PureComponent {
     return (
       <Dialog
         open={true}
+        maxWidth={false}
         onClose={onClose}
         fullScreen={fullScreen}
       >
         <DialogContent>
           <Components.WrappedSmartForm
             collection={Posts}
-            fields={['title', 'contents', 'body', 'question', 'draft', 'submitToFrontpage']}
+            fields={['title', 'contents', 'question', 'draft', 'submitToFrontpage']}
             mutationFragment={getFragment('PostsList')}
             prefilledProps={{
               userId: currentUser._id,

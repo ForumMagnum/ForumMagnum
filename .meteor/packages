@@ -56,7 +56,6 @@ accounts-github@1.4.2
 # example-reactions
 
 # vulcan:debug
-vulcan:events-ga
 
 lesswrong
 # webtoken-session

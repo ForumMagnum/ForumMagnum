@@ -45,22 +45,14 @@ const styles = theme => ({
     }
   },
   isAnswer: {
-    borderLeft: 'transparent',
-    borderRight: 'solid 1px rgba(0,0,0,.125)',
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
+    border: `solid 2px ${theme.palette.grey[300]}`,
   },
   answerChildComment: {
-    borderLeft: 'transparent',
-    borderRight: 'transparent',
-    borderTop: 'transparent',
-    paddingBottom: 1,
-    marginBottom: 0
+    marginBottom: theme.spacing.unit,
+    border: `solid 1px ${theme.palette.grey[300]}`,
   },
   childAnswerComment: {
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
-    marginBottom: 8
+    borderRight: "none"
   },
   oddAnswerComment: {
     backgroundColor: 'white'
@@ -98,8 +90,8 @@ class CommentsNode extends Component {
   }
 
   beginTruncated = () => {
-    const { nestingLevel, startThreadCollapsed } = this.props
-    return startThreadCollapsed && nestingLevel === 1
+    const { nestingLevel, startThreadTruncated } = this.props
+    return startThreadTruncated && nestingLevel === 1
   }
 
   componentDidMount() {

@@ -1,10 +1,9 @@
 import Users from 'meteor/vulcan:users';
-import { Utils, /*getSetting,*/ registerSetting, getCollection } from 'meteor/vulcan:core';
+import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
-
-registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
+import { PostRelations } from "../postRelations/collection.js"
 
 
 const formGroups = {
@@ -361,6 +360,7 @@ const schema = {
       return contents.html;
     }
   }),
+
   submitToFrontpage: {
     type: Boolean,
     viewableBy: ['guests'],
@@ -381,6 +381,79 @@ const schema = {
       if (updatedDocIsEvent) return false
       return ('submitToFrontpage' in newDocument) ? newDocument.submitToFrontpage : true
     }
+  },
+
+  hiddenRelatedQuestion: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+    onCreate: ({newDocument}) => {
+      return newDocument.originalPostRelationSourceId ? true : !!newDocument.hiddenRelatedQuestion
+    },
+  },
+
+  originalPostRelationSourceId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    hidden: true,
+  },
+
+  sourcePostRelations: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[PostRelation!]',
+    viewableBy: ['guests'],
+    resolver: async (post, args, { Posts }) => {
+      return await PostRelations.find({targetPostId: post._id}).fetch()
+    }
+  }),
+  'sourcePostRelations.$': {
+    type: String,
+    optional: true,
+  },
+
+  targetPostRelations: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[PostRelation!]',
+    viewableBy: ['guests'],
+    resolver: async (post, args, { Posts }) => {
+      const postRelations = await Posts.rawCollection().aggregate([
+        { $match: { _id: post._id }},
+        { $graphLookup: { 
+            from: "postrelations", 
+            as: "relatedQuestions", 
+            startWith: post._id, 
+            connectFromField: "targetPostId", 
+            connectToField: "sourcePostId", 
+            maxDepth: 3 
+          } 
+        },
+        { 
+          $project: {
+            relatedQuestions: 1
+          }
+        }, 
+        {
+          $unwind: "$relatedQuestions"
+        }, 
+        {
+          $replaceRoot: {
+            newRoot: "$relatedQuestions"
+          }
+        }
+     ]).toArray()
+     if (!postRelations || postRelations.length < 1) return []
+     return postRelations
+    }
+  }),
+  'targetPostRelations.$': {
+    type: String,
+    optional: true,
   }
 };
 

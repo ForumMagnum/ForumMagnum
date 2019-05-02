@@ -15,7 +15,7 @@ class NewConversationButton extends Component {
 
    newConversation = async () => {
     const { user, currentUser, newMutation, router } = this.props
-    const alignmentFields = getSetting('AlignmentForum', false) ? {af: true} : {}
+    const alignmentFields = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
 
     const response = await newMutation({
       collection: Conversations,
