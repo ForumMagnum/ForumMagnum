@@ -60,9 +60,12 @@ const styles = theme => ({
   answerLeafComment: {
     paddingBottom: 0
   },
-  condensed: {
-    marginBottom: -1
+  noBottomMargin: {
+    marginBottom: 4
   },
+  smallBottomMargin: {
+    marginBottom: 4
+  }
 })
 
 class CommentsNode extends Component {
@@ -93,8 +96,7 @@ class CommentsNode extends Component {
   }
 
   beginTruncated = () => {
-    const { startThreadCollapsed } = this.props
-    return startThreadCollapsed
+    return this.props.startThreadTruncated
   }
 
   componentDidMount() {
@@ -176,7 +178,7 @@ class CommentsNode extends Component {
 
   isSingleLine = () => {
     const { comment, condensed } = this.props 
-    return this.isTruncated() && !this.isNewComment() && (comment.baseScore < 10 || condensed) 
+    return this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
   }
 
   render() {
@@ -218,7 +220,8 @@ class CommentsNode extends Component {
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
-        [classes.condensed]: condensed && this.isSingleLine(),
+        [classes.noBottomMargin]: this.isSingleLine() && nestingLevel > 2,
+        [classes.smallBottomMargin]: this.isSingleLine() && nestingLevel <= 2,
       }
     )
 
@@ -266,6 +269,7 @@ class CommentsNode extends Component {
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                condensed={condensed}
               />)}
           </div>}
         </div>

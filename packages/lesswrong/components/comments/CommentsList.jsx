@@ -70,7 +70,7 @@ class CommentsList extends Component {
           <div className="comments-list">
             {comments.map(comment =>
               <Components.CommentsNode
-                startThreadTruncated={startThreadTruncated || totalComments >= 100}
+                startThreadTruncated={startThreadTruncated || totalComments >= 50}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
