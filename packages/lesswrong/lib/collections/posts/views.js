@@ -91,7 +91,7 @@ Posts.addView("userPosts", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, postedAt: -1, }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, postedAt: -1, }),
   {
     name: "posts.userId_postedAt",
   }
@@ -141,7 +141,7 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, score:-1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, score:-1 }),
   {
     name: "posts.userId_stickies_score",
   }
@@ -158,7 +158,7 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, baseScore:-1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, baseScore:-1 }),
   {
     name: "posts.userId_stickies_baseScore",
   }
@@ -175,7 +175,7 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, postedAt:-1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, postedAt:-1 }),
   {
     name: "posts.userId_stickies_postedAt",
   }
@@ -357,7 +357,7 @@ Posts.addView("drafts", terms => {
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 ensureIndex(Posts,
@@ -615,7 +615,7 @@ Posts.addView("sunshineNewUsersPosts", function (terms) {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ status:1, userId:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
+  augmentForDefaultView({ status:1, userId:1, hideAuthor: 1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
   { name: "posts.sunshineNewUsersPosts" }
 );
 

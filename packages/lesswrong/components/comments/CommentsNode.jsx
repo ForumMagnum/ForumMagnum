@@ -90,8 +90,8 @@ class CommentsNode extends Component {
   }
 
   beginTruncated = () => {
-    const { nestingLevel, startThreadCollapsed } = this.props
-    return startThreadCollapsed && nestingLevel === 1
+    const { nestingLevel, startThreadTruncated } = this.props
+    return startThreadTruncated && nestingLevel === 1
   }
 
   componentDidMount() {
