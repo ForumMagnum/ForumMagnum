@@ -1,6 +1,7 @@
 import Users from "meteor/vulcan:users";
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../posts'
+import request from 'request';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -81,3 +82,36 @@ function clearKarmaChangeBatchOnSettingsChange (modifier, user)
   }
 }
 addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);
+
+const reCaptchaSecret = getSetting('reCaptcha.secret')
+const getCaptchaRating = async (token) => {
+  // Make an HTTP POST request to get reply text
+  return new Promise((resolve, reject) => {
+    request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
+        form: {
+          secret: reCaptchaSecret,
+          response: token
+        }
+      },
+      function(err, httpResponse, body) {
+        if (err) reject(err);
+        return resolve(body);
+      }
+    );
+  });
+}
+async function addReCaptchaRating (user) {
+  if (reCaptchaSecret) {
+    const reCaptchaToken = user?.profile?.reCaptchaToken 
+    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
+    const reCaptchaData = JSON.parse(reCaptchaResponse)
+    if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+      Users.update(user._id, {$set: {signUpReCaptchaRating: reCaptchaData.score}})
+    } else {
+      // eslint-disable-next-line no-console
+      console.log("reCaptcha check failed:", reCaptchaData)
+    }
+  }
+}
+
+addCallback('users.new.async', addReCaptchaRating);

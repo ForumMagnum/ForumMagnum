@@ -40,3 +40,7 @@ registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
 // Google Analytics
 registerSetting('googleAnalytics.apiKey', null, 'Google Analytics ID');
+
+// ReCaptcha ApiKey
+registerSetting('reCaptcha.apiKey', null, 'ReCaptcha API Key')
+registerSetting('reCaptcha.secret', null, 'ReCaptcha Secret')

@@ -65,6 +65,7 @@ class SunshineNewUsersItem extends Component {
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
               <MetaInfo>
+                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
                 <div>Posts: { user.postCount || 0 }</div>
                 <div>Comments: { user.commentCount || 0 }</div>
                 <hr />

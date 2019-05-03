@@ -68,6 +68,7 @@ import '../components/common/CloudinaryImage.jsx';
 import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 import '../components/common/LoadMore.jsx';
+import '../components/common/ReCaptcha.jsx';
 
 
 // Outgoing RSS Feed builder

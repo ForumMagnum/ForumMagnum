@@ -217,6 +217,7 @@ registerFragment(`
     bigDownvoteCount
     banned
     reviewedByUserId
+    signUpReCaptchaRating
   }
 `);
 
