@@ -15,7 +15,7 @@ export const styles = theme => ({
 
   gridContent: {
     marginLeft: -15,
-    marginRight: -15,
+    marginRight: -24,
     paddingRight: 6,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,

@@ -24,7 +24,6 @@ const styles = (theme) => ({
         paddingBottom: theme.spacing.unit
       },
       [theme.breakpoints.up('sm')]: {
-        height: 30,
         '&:after': {
           content: '"•"',
           marginLeft: theme.spacing.unit*2,
