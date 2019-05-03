@@ -208,3 +208,4 @@ addGraphQLSchema(`
 `);
 
 addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): RecommendationList!");
+

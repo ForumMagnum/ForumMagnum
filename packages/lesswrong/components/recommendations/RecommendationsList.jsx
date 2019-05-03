@@ -7,6 +7,9 @@ import withUser from '../common/withUser';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
 
 const withRecommendations = component => {
+  // FIXME: For some unclear reason, using a ...fragment in the 'sequence' part
+  // of this query doesn't work (leads to a 400 Bad Request), so this is expanded
+  // out to a short list of individual fields.
   const recommendationsQuery = gql`
     query RecommendationsQuery($count: Int, $algorithm: JSON) {
       Recommendations(count: $count, algorithm: $algorithm) {
@@ -17,6 +20,8 @@ const withRecommendations = component => {
           sequence {
             _id
             title
+            gridImageId
+            canonicalCollectionSlug
           }
           lastReadPost {
             ...PostsList
@@ -50,15 +55,15 @@ const withRecommendations = component => {
 }
 
 const RecommendationsList = ({ recommendations, recommendationsLoading, currentUser }) => {
-  const { PostsItem2, ResumeReadingItem, PostsLoading } = Components;
+  const { PostsItem2, PostsLoading } = Components;
   if (recommendationsLoading || !recommendations)
     return <PostsLoading/>
   
   return <div>
     {recommendations.resumeReading.map(resumeReading =>
-      <ResumeReadingItem sequence={resumeReading.sequence} lastReadPost={resumeReading.lastReadPost} nextPost={resumeReading.nextPost} key={resumeReading.sequence._id} currentUser={currentUser}/>)}
+      <PostsItem2 post={resumeReading.nextPost} sequence={resumeReading.sequence} key={resumeReading.sequence._id}/>)}
     {recommendations.posts.map(post =>
-      <PostsItem2 post={post} key={post._id} currentUser={currentUser}/>)}
+      <PostsItem2 post={post} key={post._id}/>)}
     {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&
       <span>There are no more recommendations left.</span>}
   </div>

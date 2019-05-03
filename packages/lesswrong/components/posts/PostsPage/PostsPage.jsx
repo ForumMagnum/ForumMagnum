@@ -187,7 +187,7 @@ class PostsPage extends Component {
 
   getSequenceId() {
     const { params, document: post } = this.props;
-    return params.sequenceId || post.canonicalSequenceId;
+    return params.sequenceId || post?.canonicalSequenceId;
   }
   
   render() {

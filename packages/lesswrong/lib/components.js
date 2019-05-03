@@ -349,4 +349,3 @@ import '../components/recommendations/ConfigurableRecommendationsList.jsx';
 import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
 import '../components/recommendations/RecommendationsList.jsx';
 import '../components/recommendations/RecommendationsPage.jsx';
-import '../components/recommendations/ResumeReadingItem.jsx';

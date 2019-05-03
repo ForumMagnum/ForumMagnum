@@ -3,8 +3,10 @@ import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
+import { Sequences } from "../../lib/collections/sequences/collection.js";
 import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -13,6 +15,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
+import NoSSR from 'react-no-ssr';
 
 import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
 
@@ -27,6 +30,9 @@ const styles = (theme) => ({
     position: "relative",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
+    },
+    [theme.breakpoints.up('md')]: {
+      height: 49,
     },
     '&:hover $actions': {
       opacity: .2,
@@ -46,6 +52,13 @@ const styles = (theme) => ({
     transition: "3s",
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     width: "100%",
+  },
+  hasSequence: {
+    ...theme.typography.body,
+    "& $title": {
+      position: "relative",
+      top: -5,
+    },
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -152,7 +165,7 @@ const styles = (theme) => ({
     display: "flex",
     position: "absolute",
     top: 0,
-    right: -MENU_WIDTH,
+    right: -MENU_WIDTH - 6,
     width: MENU_WIDTH,
     height: "100%",
     cursor: "pointer",
@@ -183,6 +196,45 @@ const styles = (theme) => ({
     display: "none",
     [theme.breakpoints.down('sm')]: {
       display: "block"
+    }
+  },
+  nextUnreadIn: {
+    color: grey[800],
+    
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      left: 42,
+      top: 30,
+      zIndex: 1000,
+    },
+    [theme.breakpoints.down('sm')]: {
+      order: -1,
+      width: "100%",
+      marginTop: -10,
+    },
+    
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+  },
+  sequenceImage: {
+    marginTop: -12,
+    marginBottom: -12,
+    top: 4,
+    position: "relative",
+    marginLeft: -60,
+    zIndex: -1,
+    opacity: 0.6,
+    
+    // Overlay a white-to-transparent gradient over the image
+    "&:after": {
+      content: "''",
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      left: 0,
+      top: 0,
+      background: "linear-gradient(to right, white 0%, rgba(255,255,255,.8) 60%, transparent 100%)",
     }
   },
 })
@@ -250,9 +302,13 @@ class PostsItem2 extends PureComponent {
       )
     }
   }
+  
+  dismissSequence = () => {
+    // TODO
+  }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms } = this.props
+    const { classes, post, chapter, currentUser, index, terms, sequence } = this.props
     const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -266,7 +322,8 @@ class PostsItem2 extends PureComponent {
             [classes.commentsBackground]: showComments,
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
-            [classes.commentBox]: showComments
+            [classes.commentBox]: showComments,
+            [classes.hasSequence]: !!sequence,
           }
         )}>
           <div className={classes.postsItem}>
@@ -277,6 +334,10 @@ class PostsItem2 extends PureComponent {
             <Link to={postLink} className={classes.title}>
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
             </Link>
+            
+            {sequence && <div className={classes.nextUnreadIn}>
+              Next unread in <Link to={Sequences.getPageUrl(sequence)}>{sequence.title}</Link>
+            </div>}
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post}/>
@@ -286,7 +347,7 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            <Components.PostsItemDate post={post}/>
+            {!sequence && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
             
@@ -298,13 +359,26 @@ class PostsItem2 extends PureComponent {
               <PostsItemIcons post={post}/>
             </Hidden>
 
-            <div className={classes.commentsIcon}>
+            {!sequence && <div className={classes.commentsIcon}>
               <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
-            </div>
+            </div>}
+            
+            {sequence &&
+              <div className={classes.sequenceImage}>
+                <NoSSR>
+                  <Components.CloudinaryImage
+                    publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+                    height={48}
+                    width={146}
+                  />
+                </NoSSR>
+              </div>}
 
           </div>
+          
           {<div className={classes.actions}>
-            <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
+            {sequence && <CloseIcon onClick={() => this.dismissSequence()}/>}
+            {!sequence && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           
           {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
