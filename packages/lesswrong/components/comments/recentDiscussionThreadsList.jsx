@@ -5,7 +5,6 @@ import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 
 const RecentDiscussionThreadsList = ({
-  classes,
   results,
   loading,
   loadMore,
