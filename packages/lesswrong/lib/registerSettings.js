@@ -46,3 +46,7 @@ registerSetting('googleTagManager.apiKey', null, 'Google Tag Manager ID');
 registerSetting('sentry.url', null, 'Sentry DSN URL')
 registerSetting('sentry.environment', null, 'Sentry environment ie: development')
 registerSetting('sentry.release', null, 'Sentry release')
+
+// ReCaptcha ApiKey
+registerSetting('reCaptcha.apiKey', null, 'ReCaptcha API Key')
+registerSetting('reCaptcha.secret', null, 'ReCaptcha Secret')
