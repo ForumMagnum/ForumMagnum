@@ -24,8 +24,8 @@ const styles = theme => ({
     }
   },
   child: {
-    marginLeft: 8,
-    marginBottom: 8,
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
     borderLeft: `solid 1px ${theme.palette.grey[300]}`,
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
@@ -63,9 +63,6 @@ const styles = theme => ({
   noBottomMargin: {
     marginBottom: 4
   },
-  smallBottomMargin: {
-    marginBottom: 4
-  }
 })
 
 class CommentsNode extends Component {
@@ -126,10 +123,7 @@ class CommentsNode extends Component {
   }
 
   unTruncate = (event) => {
-    const { parentAnswerId } = this.props
-    if (!parentAnswerId && !this.isSingleLine()) {
-      event.stopPropagation()
-    }
+    event.stopPropagation()
     this.setState({truncated: false, truncatedStateSet: true});
   }
 
@@ -167,7 +161,6 @@ class CommentsNode extends Component {
   isTruncated = () => {
     const { comment, expandAllThreads } = this.props;
     const { truncatedStateSet } = this.state
-
     return !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
   }
 
@@ -177,8 +170,8 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { comment, condensed } = this.props 
-    return this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
+    const { currentUser, comment, condensed } = this.props 
+    return currentUser && currentUser.isAdmin && this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
   }
 
   render() {
@@ -220,8 +213,7 @@ class CommentsNode extends Component {
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
-        [classes.noBottomMargin]: this.isSingleLine() && nestingLevel > 2,
-        [classes.smallBottomMargin]: this.isSingleLine() && nestingLevel <= 2,
+        [classes.noBottomMargin]: this.isSingleLine()
       }
     )
 
