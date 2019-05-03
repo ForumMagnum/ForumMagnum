@@ -103,13 +103,15 @@ const getCaptchaRating = async (token) => {
 async function addReCaptchaRating (user) {
   if (reCaptchaSecret) {
     const reCaptchaToken = user?.profile?.reCaptchaToken 
-    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-    const reCaptchaData = JSON.parse(reCaptchaResponse)
-    if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
-      Users.update(user._id, {$set: {signUpReCaptchaRating: reCaptchaData.score}})
-    } else {
-      // eslint-disable-next-line no-console
-      console.log("reCaptcha check failed:", reCaptchaData)
+    if (reCaptchaToken) {
+      const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
+      const reCaptchaData = JSON.parse(reCaptchaResponse)
+      if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+        Users.update(user._id, {$set: {signUpReCaptchaRating: reCaptchaData.score}})
+      } else {
+        // eslint-disable-next-line no-console
+        console.log("reCaptcha check failed:", reCaptchaData)
+      }
     }
   }
 }
