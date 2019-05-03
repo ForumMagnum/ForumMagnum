@@ -10,7 +10,13 @@ registerMigration({
   name: "migrateSubscriptions",
   idempotent: true,
   action: async () => {
-    forEachDocumentBatchInCollection({
+    let numCommentSubscriptions = 0;
+    let numPostSubscriptions = 0;
+    let numGroupSubscriptions = 0;
+    let numUserSubscriptions = 0;
+    let numTotalSubscriptions = 0;
+    
+    await forEachDocumentBatchInCollection({
       collection: Users,
       batchSize: 1000,
       callback: async (users) => {
@@ -34,6 +40,7 @@ registerMigration({
                   collectionName: "Comments",
                   type: "newReplies",
                 });
+                numCommentSubscriptions++;
               }
             }
           }
@@ -49,6 +56,7 @@ registerMigration({
                   collectionName: "Posts",
                   type: "newComments",
                 });
+                numPostSubscriptions++;
               }
             }
           }
@@ -63,6 +71,7 @@ registerMigration({
                 collectionName: "Localgroups",
                 type: "newEvents",
               });
+              numGroupSubscriptions++;
             }
           }
           
@@ -76,19 +85,19 @@ registerMigration({
                 collectionName: "Users",
                 type: "newPosts",
               });
+              numUserSubscriptions++;
             }
           }
           
           // Save the resulting subscriptions in the Subscriptions table
           if (newSubscriptions.length > 0) {
+            numTotalSubscriptions += newSubscriptions.length;
             Promise.all(_.map(newSubscriptions, async sub => {
               await newMutation({
                 collection: Subscriptions,
                 document: sub,
-                context: {
-                  currentUser: user
-                },
-                validate: false
+                currentUser: user,
+                validate: false,
               });
             }));
           }
@@ -103,6 +112,9 @@ registerMigration({
             );
           }
         }
+    
+        // eslint-disable-next-line no-console
+        console.log(`Migrated batch of ${users.length} users. Cumulative updates: ${numCommentSubscriptions} comment subscriptions, ${numPostSubscriptions} post subscriptions, ${numGroupSubscriptions} group subscriptions, ${numUserSubscriptions} user subscriptions (${numTotalSubscriptions} total)`);
       }
     });
   },
