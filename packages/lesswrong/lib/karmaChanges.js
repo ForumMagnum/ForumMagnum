@@ -38,6 +38,8 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
   if (!endDate) throw new Error("Missing required argument: endDate");
   if (startDate > endDate)
     throw new Error("getKarmaChanges: endDate must be after startDate");
+
+  const showNegativeKarmaSetting = user.karmaChangeNotifierSettings?.showNegativeKarma
   
   function karmaChangesInCollectionPipeline(collectionName) {
     return [
@@ -57,10 +59,11 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
         scoreChange: { $sum: af ? "$afPower" : "$power" },
       }},
       
-      // Filter out things with zero net change (eg where someone voted and then
+      // Filter out things with zero or negative net change (eg where someone voted and then
       // unvoted and nothing else happened)
+      // User setting determines whether we show negative changes
       {$match: {
-        scoreChange: {$ne: 0}
+        scoreChange: showNegativeKarmaSetting ? {$ne: 0} : {$gt: 0}
       }}
     ];
   }

@@ -23,3 +23,12 @@ a:hover, a:active {
   text-decoration: none;
   opacity: 0.5;
 }
+
+// Hide ReCaptcha box (see: https://developers.google.com/recaptcha/docs/faq)
+.grecaptcha-badge { visibility: hidden; } 
+
+.reCaptcha-text {
+  font-family: sans-serif;
+  color: rgba(0,0,0,0.5);
+  font-size: 11px;
+}
