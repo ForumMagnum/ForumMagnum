@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { SetQueryLink } from '../../../lib/reactRouterWrapper.js';
 import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
 
@@ -25,7 +25,7 @@ const PostsRevisionMessage = ({post, classes}) => {
   return (
     <div className={classes.root}>
       You are viewing a version of this post published on the <FormatDate date={post.contents.editedAt} format="Do MMM YYYY"/>. 
-      Click <Link to={loc => ({...loc, query: {...loc.query, revision: undefined}})}>here</Link> to see the most recent version of this post.
+      Click <SetQueryLink newQuery={{revision: undefined}}>here</SetQueryLink> to see the most recent version of this post.
     </div>
   );
 }

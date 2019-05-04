@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { Link, SetQueryLink } from '../../lib/reactRouterWrapper.js'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -170,26 +170,26 @@ class AllPostsPageSettings extends Component {
           </MetaInfo>
           {filters.map(filter => {
             return (
-              <Link 
+              <SetQueryLink
                 key={filter.name} 
                 onClick={() => this.setFilter(filter.name)}
-                to={loc=> ({...loc, query: {...loc.query, filter: filter.name}})}
+                newQuery={{filter: filter.name}}
               >
                 <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentFilter === filter.name})}>
                   <Tooltip title={<div>{filter['tooltip']}</div>} placement="left-start">
                     <span>{ filter.label }</span>
                   </Tooltip>
                 </MetaInfo>
-              </Link>
+              </SetQueryLink>
             )
           })}
         </div>
 
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
-          <Link 
+          <SetQueryLink
             className={classes.checkboxGroup}
             onClick={() => this.setShowLowKarma(!currentShowLowKarma)}
-            to={loc=> ({...loc, query: {...loc.query, karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}})}
+            newQuery={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} /> 
 
@@ -204,7 +204,7 @@ class AllPostsPageSettings extends Component {
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>
-          </Link>
+          </SetQueryLink>
         </Tooltip>
       </div>
     );
