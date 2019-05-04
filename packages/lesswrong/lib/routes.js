@@ -2,11 +2,11 @@ import { addRoute, getSetting } from 'meteor/vulcan:core';
 
 // example-forum routes
 addRoute([
-  {name:'users.single',     path:'users/:slug',           componentName: 'UsersSingle'},
-  {name:'users.single.user',path:'user/:slug',            componentName: 'UsersSingle'},
-  {name:'users.single.u',   path:'u/:slug',               componentName: 'UsersSingle'},
-  {name:'users.account',    path:'account',               componentName: 'UsersAccount'},
-  {name:'users.edit',       path:'users/:slug/edit',      componentName: 'UsersAccount'}
+  {name:'users.single',     path:'/users/:slug',           componentName: 'UsersSingle'},
+  {name:'users.single.user',path:'/user/:slug',            componentName: 'UsersSingle'},
+  {name:'users.single.u',   path:'/u/:slug',               componentName: 'UsersSingle'},
+  {name:'users.account',    path:'/account',               componentName: 'UsersAccount'},
+  {name:'users.edit',       path:'/users/:slug/edit',      componentName: 'UsersAccount'}
 ]);
 
 // Miscellaneous LW2 routes
@@ -66,9 +66,9 @@ addRoute({ name: 'searchTest', path: '/searchTest', componentName: 'SearchBar'})
 addRoute({ name: 'postsListEditorTest', path:'/postsListEditorTest', componentName: 'PostsListEditor'})
 addRoute({ name: 'imageUploadTest', path: '/imageUpload', componentName: 'ImageUpload'});
 
-addRoute({name:'posts.single',   path:'posts/:_id(/:slug)', componentName: 'PostsSingle'});
-addRoute({name:'Localgroups.single',   path:'groups/:groupId', componentName: 'LocalGroupSingle'});
-addRoute({name:'events.single',   path:'events/:_id(/:slug)', componentName: 'PostsSingle'});
+addRoute({name:'posts.single',   path:'/posts/:_id/:slug?', componentName: 'PostsSingle'});
+addRoute({name:'Localgroups.single',   path:'/groups/:groupId', componentName: 'LocalGroupSingle'});
+addRoute({name:'events.single',   path:'/events/:_id/:slug?', componentName: 'PostsSingle'});
 addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'PostsSingle'});
 
 addRoute({ name: 'admin', path: '/admin', componentName: 'AdminHome', title: "Admin" });
