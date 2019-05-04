@@ -306,6 +306,17 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
+    this.recordPostView();
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+      this.props.closeAllEvents();
+      this.recordPostView();
+    }
+  }
+  
+  async recordPostView() {
     try {
 
       // destructure the relevant props
@@ -322,16 +333,17 @@ class PostsPage extends Component {
       // a post id has been found & it's has not been seen yet on this client session
       if (documentId && !postsViewed.includes(documentId)) {
 
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: documentId});
+        // Trigger the asynchronous mutation with postId as an argument
+        // Deliberately not awaiting, because this should be fire-and-forget
+        increasePostViewCount({postId: documentId});
 
-        // once the mutation is done, update the redux store
+        // Update the redux store
         setViewed(documentId);
       }
 
       //LESSWRONG: register page-visit event
       if(this.props.currentUser) {
-        const registerEvent = this.props.registerEvent;
+        const recordEvent = this.props.recordEvent;
         const currentUser = this.props.currentUser;
         const eventProperties = {
           userId: currentUser._id,
@@ -345,7 +357,7 @@ class PostsPage extends Component {
         } else if (this.props.documentId){
           eventProperties.documentId = this.props.documentId;
         }
-        registerEvent('post-view', eventProperties);
+        recordEvent('post-view', true, eventProperties);
       }
     } catch(error) {
       console.log("PostPage componentDidMount error:", error); // eslint-disable-line

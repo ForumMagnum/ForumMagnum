@@ -237,7 +237,7 @@ class PostsItem2 extends PureComponent {
 
       eventProperties.documentId = post._id;
       eventProperties.postTitle = post.title;
-      this.props.registerEvent('post-view', eventProperties)
+      this.props.recordEvent('post-view', false, eventProperties)
     }
   }
 
