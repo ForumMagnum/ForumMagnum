@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, withCurrentUser } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
 import { withRouter } from '../lib/reactRouterWrapper.js';
@@ -159,4 +159,4 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme());
+registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCurrentUser);
