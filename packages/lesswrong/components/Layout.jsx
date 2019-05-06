@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting, withCurrentUser } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
-import { withRouter } from '../lib/reactRouterWrapper.js';
+import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,11 +10,11 @@ import Intercom from 'react-intercom';
 import moment from 'moment-timezone';
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
-import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
+import { getHeaderSubtitleDataFromRouterProps } from '../lib/routeUtil.js';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 
@@ -81,7 +81,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
+    const {currentUser, children, currentRoute, classes, theme} = this.props;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -105,9 +105,7 @@ class Layout extends PureComponent {
       }
     }
 
-    const routeName = currentRoute.name
-    const query = location && location.query
-    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
+    const { subtitleText } = getHeaderSubtitleDataFromRouterProps(this.props);
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { getHeaderSubtitleDataFromRouterProps } from '../../lib/routeUtil.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
@@ -14,7 +15,6 @@ import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
-import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -147,12 +147,9 @@ class Header extends Component {
   }
 
   render() {
-    const { currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea } = this.props
+    const { currentUser, classes, routes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
-    //const routeName = routes[1].name //TODO
-    const routeName = "";
-    const query = location && location.query
-    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
+    const { subtitleLink, subtitleText } = getHeaderSubtitleDataFromRouterProps(this.props);
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
     
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
