@@ -29,6 +29,7 @@ export const intlFormatPropTypes = {
   formatNumber: funcReq,
   formatPlural: funcReq,
   formatMessage: funcReq,
+  formatLabel: funcReq,
   formatHTMLMessage: funcReq,
 };
 
