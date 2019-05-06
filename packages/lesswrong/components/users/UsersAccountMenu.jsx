@@ -22,6 +22,7 @@ class UsersAccountMenu extends PureComponent {
     super(props);
     this.state = {
       open: false,
+      reCaptchaToken: null
     }
   }
 
@@ -37,6 +38,10 @@ class UsersAccountMenu extends PureComponent {
     this.setState({
       open: false,
     });
+  }
+
+  setReCaptchaToken = (token) => {
+    this.setState({reCaptchaToken: token})
   }
 
   render() {
@@ -55,7 +60,13 @@ class UsersAccountMenu extends PureComponent {
           anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
           onClose={this.handleRequestClose}
         >
-          <Components.AccountsLoginForm />
+          {this.state.open && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
+          <Components.AccountsLoginForm 
+            onPreSignUpHook={(options) => {
+              const reCaptchaToken = this.state.reCaptchaToken
+              return {...options, profile: {...options.profile, reCaptchaToken}}
+            }}
+          />
         </Popover>
       </div>
     )

@@ -17,6 +17,7 @@ import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents'
 import { getHeaderSubtitleDataFromRouterProps } from '../lib/routeUtil.js';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
+const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
 const styles = theme => ({
   main: {
@@ -136,6 +137,8 @@ class Layout extends PureComponent {
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
+            {/* Google Tag Manager i-frame fallback */}
+            <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
             <Components.Header toc={this.state.toc} searchResultsArea={this.searchResultsAreaRef} />
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
