@@ -67,7 +67,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
   if (votes.length) {
     for (let vote of votes) {
       // Cancel the existing votes
-      editMutation({
+      await editMutation({
         collection: Votes,
         documentId: vote._id,
         set: { cancelled: true },

@@ -129,6 +129,9 @@ import './scrollRestoration.js';
 
 import './components.js';
 
+// PostRelation
+import './collections/postRelations';
+
 // Alignment Forum
 import './modules/alignment-forum/callbacks.js';
 import './modules/alignment-forum/permissions.js';

@@ -8,7 +8,7 @@ addFieldsDict(Users, {
       needsUpdate: (data) => ('bio' in data),
       getValue: async (user) => {
         if (!user.bio) return "";
-        return markdownToHtml(user.bio);
+        return await markdownToHtml(user.bio);
       }
     })
   }
