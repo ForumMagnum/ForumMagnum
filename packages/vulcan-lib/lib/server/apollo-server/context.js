@@ -69,6 +69,7 @@ const generateDataLoaders = (context) => {
         cache: true,
       }
     );
+    context[collection.options.collectionName].extraLoaders = {};
   });
   return context;
 };
