@@ -289,7 +289,7 @@ class PostsItem2 extends PureComponent {
 
       eventProperties.documentId = post._id;
       eventProperties.postTitle = post.title;
-      this.props.registerEvent('post-view', eventProperties)
+      this.props.recordEvent('post-view', false, eventProperties)
     }
   }
 
@@ -385,7 +385,7 @@ class PostsItem2 extends PureComponent {
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
               highlightDate={post.lastVisitedAt}
-              terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
+              terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
               post={post}
             />
             <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>

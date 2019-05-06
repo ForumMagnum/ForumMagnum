@@ -50,6 +50,10 @@ export const karmaChangeNotifierDefaultSettings = {
   // Always in GMT, regardless of the user's timezone (timezone matters for day
   // of the week because time zones could take it across midnight.)
   dayOfWeekGMT: "Saturday",
+
+  // A boolean that determines whether we hide or show negative karma updates. 
+  // False by default because people tend to drastically overweigh negative feedback
+  showNegativeKarma: false,
 };
 
 const karmaChangeSettingsType = new SimpleSchema({
@@ -68,6 +72,10 @@ const karmaChangeSettingsType = new SimpleSchema({
     type: String,
     optional: true,
     allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  },
+  showNegativeKarma: {
+    type: Boolean, 
+    optional: true,
   }
 })
 
@@ -768,6 +776,13 @@ addFieldsDict(Users, {
     type: partiallyReadSequenceItem,
     optional: true,
   },
+  
+  // ReCaptcha v3 Integration
+  signUpReCaptchaRating: {
+    type: Number, 
+    optional: true, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins']
+  }
 });
 
 export const makeEditableOptionsModeration = {

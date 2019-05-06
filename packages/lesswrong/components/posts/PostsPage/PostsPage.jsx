@@ -29,10 +29,8 @@ const styles = theme => ({
     },
     post: {
       maxWidth: 650 + (theme.spacing.unit*4),
-      [theme.breakpoints.down('md')]: {
-        marginLeft: "auto",
-        marginRight: "auto"
-      }
+      marginLeft: "auto",
+      marginRight: "auto"
     },
     header: {
       position: 'relative',
@@ -107,7 +105,6 @@ const styles = theme => ({
       display: 'inline-block',
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingRight: 50,
       marginBottom: 40
     },
     draft: {
@@ -144,7 +141,6 @@ const styles = theme => ({
     },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
-      marginLeft: -67,
       [theme.breakpoints.down('sm')]: {
         paddingRight: 0,
         marginLeft: 0
@@ -218,7 +214,7 @@ class PostsPage extends Component {
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
-          <Section>
+          <Section deactivateSection={!sectionData}>
             <div className={classes.post}>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
@@ -262,7 +258,7 @@ class PostsPage extends Component {
               {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
           </Section>
-          <Section titleComponent={
+          <Section deactivateSection={!sectionData} titleComponent={
             <TableOfContents sectionData={sectionData} document={post} />
           }>
             <div className={classes.post}>
@@ -300,7 +296,7 @@ class PostsPage extends Component {
              
             
             {/* Answers Section */}
-            {post.question && <div>
+            {post.question && <div className={classes.post}>
               <div id="answers"/>
               <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
             </div>}
@@ -315,6 +311,17 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
+    this.recordPostView();
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+      this.props.closeAllEvents();
+      this.recordPostView();
+    }
+  }
+  
+  async recordPostView() {
     try {
 
       // destructure the relevant props
@@ -331,16 +338,17 @@ class PostsPage extends Component {
       // a post id has been found & it's has not been seen yet on this client session
       if (documentId && !postsViewed.includes(documentId)) {
 
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: documentId});
+        // Trigger the asynchronous mutation with postId as an argument
+        // Deliberately not awaiting, because this should be fire-and-forget
+        increasePostViewCount({postId: documentId});
 
-        // once the mutation is done, update the redux store
+        // Update the redux store
         setViewed(documentId);
       }
 
       //LESSWRONG: register page-visit event
       if(this.props.currentUser) {
-        const registerEvent = this.props.registerEvent;
+        const recordEvent = this.props.recordEvent;
         const currentUser = this.props.currentUser;
         const eventProperties = {
           userId: currentUser._id,
@@ -355,7 +363,7 @@ class PostsPage extends Component {
         } else if (this.props.documentId){
           eventProperties.documentId = this.props.documentId;
         }
-        registerEvent('post-view', eventProperties);
+        recordEvent('post-view', true, eventProperties);
       }
     } catch(error) {
       console.log("PostPage componentDidMount error:", error); // eslint-disable-line

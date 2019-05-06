@@ -6,6 +6,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
@@ -22,6 +23,9 @@ const styles = theme => ({
   inline: {
     display: "inline",
   },
+  checkbox: {
+    marginLeft: -10,
+  }
 });
 
 export const karmaNotificationTimingChoices = {
@@ -93,6 +97,17 @@ class KarmaChangeNotifierSettings extends PureComponent {
       [this.props.path]: newSettings
     });
   }
+
+  setNegativeKarmaFilter = (value) => {
+    const oldSettings = this.props.value
+    const newSettings = {
+      ...oldSettings,
+      showNegativeKarma: value
+    }
+    this.context.updateCurrentValues({
+      [this.props.path]: newSettings
+    })
+  }
   
   // Given a time of day (number of hours, 0-24)
   convertTimezone = (timeOfDay, dayOfWeek, fromTimezone, toTimezone) => {
@@ -130,7 +145,6 @@ class KarmaChangeNotifierSettings extends PureComponent {
         set to real time (removing the batching), disabled (to remove it
         from the header entirely), or to some other update interval.
       </Typography>
-      
       <RadioGroup className={classes.radioGroup}
         value={settings.updateFrequency}
         onChange={(event, newValue) => this.setUpdateFrequency(newValue)}
@@ -189,6 +203,18 @@ class KarmaChangeNotifierSettings extends PureComponent {
         of feedback, and to checking the site frequently when you'd rather be
         doing something else.
       </span> }
+      {
+        <div>
+          <Checkbox
+            classes={{root: classes.checkbox}}
+            checked={settings.showNegativeKarma}
+            onChange={(event, checked) => this.setNegativeKarmaFilter(checked)}
+          />
+          <Typography variant="body2" className={classes.inline} component="label">
+            Show negative karma notifications
+          </Typography>
+        </div>
+      }
     </div>
   }
 }
