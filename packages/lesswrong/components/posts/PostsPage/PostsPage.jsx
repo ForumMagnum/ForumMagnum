@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 //import { connect } from 'react-redux';
 //import { bindActionCreators } from 'redux';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
+import { withRouter } from 'react-router';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -19,6 +19,7 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import { parseQuery } from '../../../lib/routeUtil.js';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -185,7 +186,8 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   render() {
-    const { loading, document: post, currentUser, location, router, classes, params } = this.props
+    const { loading, document: post, currentUser, classes } = this.props
+    const { params } = this.props.match;
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
@@ -196,8 +198,8 @@ class PostsPage extends Component {
       return <Error404/>
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
-      let query = location && location.query
-      const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
+      let query = parseQuery(this.props);
+      const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
