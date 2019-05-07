@@ -62,7 +62,11 @@ class LocalGroupPage extends Component {
       <div className={classes.groupSidebar}>
         {this.props.currentUser
           && <Components.SectionSubtitle>
-            <Components.SubscribeTo document={group} />
+            <Components.SubscribeTo
+              document={group}
+              subscribeMessage="Subscribe to group"
+              unsubscribeMessage="Unsubscribe from group"
+            />
           </Components.SectionSubtitle>}
         {Posts.options.mutations.new.check(this.props.currentUser)
           && <Components.SectionSubtitle>

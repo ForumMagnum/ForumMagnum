@@ -3,7 +3,6 @@ import { withMessages, registerComponent, Utils, withMulti, withCreate } from 'm
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import mapProps from 'recompose/mapProps'
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import withUser from '../common/withUser';
 
 const getSubscribeAction = subscribed => subscribed ? 'unsubscribe' : 'subscribe'
@@ -37,20 +36,21 @@ class SubscribeTo extends Component {
   }
 
   render() {
-    const { currentUser, document, collectionName, documentType } = this.props;
-    const action = `${documentType}.${getSubscribeAction(this.isSubscribed())}`;
+    const { currentUser, document, collectionName, documentType, subscribeMessage, unsubscribeMessage } = this.props;
     // can't subscribe to yourself
     if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
       return null;
     }
 
     const className = this.props.className || "";
-    return <a className={className} onClick={this.onSubscribe}><FormattedMessage id={action} /></a>
+    return <a className={className} onClick={this.onSubscribe}>
+      { this.isSubscribed() ? unsubscribeMessage : subscribeMessage }
+    </a>
   }
 
 }
 
-const remapProps = ({document, currentUser, type}) => {
+const remapProps = ({document, currentUser, type, ...rest}) => {
   const documentType = Utils.getCollectionNameFromTypename(document.__typename)
   const collectionName = Utils.capitalize(documentType)
   return {
@@ -66,7 +66,8 @@ const remapProps = ({document, currentUser, type}) => {
       type: type || defaultSubscriptionTypeTable[collectionName],
       collectionName,
       limit: 1
-    }
+    },
+    ...rest
   }
 }
 //Note: the order of HoCs matters in this case, since we need to have access to currentUser before we call mapProps

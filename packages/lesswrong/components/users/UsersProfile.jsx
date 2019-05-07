@@ -197,7 +197,11 @@ class UsersProfile extends Component {
             { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
               <a>Send Message</a> 
             </NewConversationButton>}
-            { currentUser && currentUser._id !== user._id && <SubscribeTo document={user} /> }
+            { currentUser && currentUser._id !== user._id && <SubscribeTo
+              document={user}
+              subscribeMessage="Subscribe to this user's posts"
+              unsubscribeMessage="Unsubscribe from this user's posts"
+            /> }
             {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
               <FormattedMessage id="users.edit_account"/>
             </Link>}
