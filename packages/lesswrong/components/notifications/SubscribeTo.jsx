@@ -50,19 +50,6 @@ class SubscribeTo extends Component {
 
 }
 
-const options = {
-  collection: Subscriptions,
-  queryName: 'subscriptionState',
-  fragmentName: 'SubscriptionState',
-  enableTotal: false,
-  ssr: true
-};
-
-const withCreateOptions = {
-  collection: Subscriptions,
-  fragmentName: 'SubscriptionState',
-}
-
 const remapProps = ({document, currentUser, type}) => {
   const documentType = Utils.getCollectionNameFromTypename(document.__typename)
   const collectionName = Utils.capitalize(documentType)
@@ -71,18 +58,32 @@ const remapProps = ({document, currentUser, type}) => {
     collectionName,
     currentUser,
     type,
-    documentType, 
+    documentType,
     terms: {
-      view: "subscriptionState", 
-      documentId: document._id, 
-      userId: currentUser._id, 
-      type: type || defaultSubscriptionTypeTable[collectionName], 
+      view: "subscriptionState",
+      documentId: document._id,
+      userId: currentUser._id,
+      type: type || defaultSubscriptionTypeTable[collectionName],
       collectionName,
       limit: 1
     }
   }
 }
 //Note: the order of HoCs matters in this case, since we need to have access to currentUser before we call mapProps
-registerComponent('SubscribeTo', SubscribeTo, withUser, mapProps(remapProps), withMessages, [withMulti, options], [withCreate, withCreateOptions]);
+registerComponent('SubscribeTo', SubscribeTo,
+  withUser, withMessages,
+  mapProps(remapProps),
+  [withMulti, {
+    collection: Subscriptions,
+    queryName: 'subscriptionState',
+    fragmentName: 'SubscriptionState',
+    enableTotal: false,
+    ssr: true
+  }],
+  [withCreate, {
+    collection: Subscriptions,
+    fragmentName: 'SubscriptionState',
+  }]
+);
 
 
