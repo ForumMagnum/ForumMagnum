@@ -749,6 +749,12 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
   },
+  // ReCaptcha v3 Integration
+  signUpReCaptchaRating: {
+    type: Number, 
+    optional: true, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins']
+  }
 });
 
 export const makeEditableOptionsModeration = {
