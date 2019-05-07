@@ -4,6 +4,7 @@ import { runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 
 export const defaultSubscriptionTypeTable = {
+  "Comments": subscriptionTypes.newReplies,
   "Posts": subscriptionTypes.newComments,
   "Users": subscriptionTypes.newPosts,
   "Localgroups": subscriptionTypes.newEvents,
@@ -23,7 +24,6 @@ export const performSubscriptionAction = async (action, collection, itemId, user
     state: action === "subscribe" ? 'subscribed' : 'supressed',
     documentId: itemId,
     collectionName,
-    deleted: false,
     type: defaultSubscriptionTypeTable[collectionName]
   }
   newMutation({
