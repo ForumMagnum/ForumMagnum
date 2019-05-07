@@ -96,49 +96,49 @@ class RecentDiscussionThread extends PureComponent {
     };
   }
 
-  async handleMarkAsRead () {
-    // try {
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        post,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-      } = this.props;
-      // a post id has been found & it's has not been seen yet on this client session
-      if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
+  handleMarkAsRead = async () => {
+    const {
+      // from the parent component, used in withDocument, GraphQL HOC
+      // from connect, Redux HOC
+      setViewed,
+      postsViewed,
+      post,
+      // from withMutation, GraphQL HOC
+      increasePostViewCount,
+    } = this.props;
+    // a post id has been found & it's has not been seen yet on this client session
+    if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
 
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: post._id});
+      // trigger the asynchronous mutation with postId as an argument
+      await increasePostViewCount({postId: post._id});
 
-        // once the mutation is done, update the redux store
-        setViewed(post._id);
-      }
+      // once the mutation is done, update the redux store
+      setViewed(post._id);
+    }
 
-      //LESSWRONG: register page-visit event
-      if (this.props.currentUser) {
-        const eventProperties = {
-          userId: this.props.currentUser._id,
-          important: false,
-          intercom: true,
-        };
+    //LESSWRONG: register page-visit event
+    if (this.props.currentUser) {
+      const eventProperties = {
+        userId: this.props.currentUser._id,
+        important: false,
+        intercom: true,
+      };
 
-        eventProperties.documentId = post._id;
-        eventProperties.postTitle = post.title;
-        this.props.registerEvent('post-view', eventProperties)
-      }
+      eventProperties.documentId = post._id;
+      eventProperties.postTitle = post.title;
+      this.props.recordEvent('post-view', false, eventProperties)
+    }
   }
 
   showHighlight = () => {
-    this.setState({showHighlight:!this.state.showHighlight});
+    this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
     this.setState({readStatus:true});
     this.handleMarkAsRead()
   }
 
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
+    const { readStatus, showHighlight } = this.state
 
     const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
     const nestedComments = unflattenComments(results);
@@ -167,16 +167,16 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
+            {currentUser && !(post.lastVisitedAt || readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>
             }
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
               className={classes.showHighlight}
-              open={this.state.showHighlight}/>
+              open={showHighlight}/>
           </div>
         </div>
-        { this.state.showHighlight ?
+        { showHighlight ?
           <div className={highlightClasses}>
             <PostsHighlight post={post} />
           </div>
@@ -188,20 +188,21 @@ class RecentDiscussionThread extends PureComponent {
             </div>
         }
         <div className={classes.commentsList}>
-          <div className={"comments-items"}>
+          <div className={"comments-items"} onClick={this.handleMarkAsRead}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <CommentsNode
-                  startThreadCollapsed={true}
+                  startThreadTruncated={true}
                   nestingLevel={1}
                   currentUser={currentUser}
                   comment={comment.item}
+                  highlightDate={post.lastVisitedAt}
                   //eslint-disable-next-line react/no-children-prop
                   children={comment.children}
                   key={comment.item._id}
                   editMutation={editMutation}
                   post={post}
-                  frontPage
+                  condensed
                 />
               </div>
             )}

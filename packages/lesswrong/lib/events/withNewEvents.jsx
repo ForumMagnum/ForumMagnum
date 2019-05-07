@@ -5,10 +5,7 @@ import { LWEvents } from '../collections/lwevents/collection.js';
 import { shallowEqual } from '../modules/utils/componentUtils';
 
 
-/*
-  HoC that passes functions for registering events to child
-*/
-
+// HoC that passes functions for recording events to child
 function withNewEvents(WrappedComponent) {
   class EventsWrapped extends Component {
     constructor(props) {
@@ -16,8 +13,8 @@ function withNewEvents(WrappedComponent) {
       this.state = {
         events: {},
       };
-      this.registerEvent = this.registerEvent.bind(this);
-      this.closeEvent = this.closeEvent.bind(this);
+      this.recordEvent = this.recordEvent.bind(this);
+      this.closeAllEvents = this.closeAllEvents.bind(this);
     }
     
     // Don't update on changes to state.events (which is this component's
@@ -29,7 +26,14 @@ function withNewEvents(WrappedComponent) {
       return false;
     }
     
-    registerEvent(name, properties) {
+    // Record an event in the LWEvents table, eg a post-view. This is passed to
+    // the wrapped component as a prop named recordEvent.
+    //   name: (string) The type of the event.
+    //   closeOnLeave: (bool) Whether to record a second event of the same type,
+    //     with an endTime and duration, when this component unmounts, the
+    //     user leaves the page, or closeAllEvents is called.
+    //   properties: (JSON) Other properties to attach to the LWEvent record.
+    recordEvent(name, closeOnLeave, properties) {
       const newMutation = this.props.newMutation;
       const { userId, documentId, important, intercom, ...rest} = properties;
       let event = {
@@ -46,10 +50,12 @@ function withNewEvents(WrappedComponent) {
         ...event.properties,
       }
       const eventId = uuid();
-      this.setState(prevState => {
-        prevState.events[eventId] = event;
-        return prevState;
-      });
+      if (closeOnLeave) {
+        this.setState(prevState => {
+          prevState.events[eventId] = event;
+          return prevState;
+        });
+      }
       newMutation({document: event});
       return eventId;
     }
@@ -72,9 +78,31 @@ function withNewEvents(WrappedComponent) {
       });
       return eventId;
     }
+    
+    // Record a close-event in the LWEvents table for any events that were
+    // created with recordEvent and which haven't been closed yet. This is
+    // passed to the wrapped component as a prop named closeAllEvents.
+    closeAllEvents() {
+      const events = this.state.events;
+      Object.keys(events).forEach(key => {
+        this.closeEvent(key);
+      });
+      this.setState(prevState => ({
+        events: {}
+      }));
+    }
 
+    // When unmounting, close all current event trackers. This happens when
+    // following an on-site link to a different page, but there are two major
+    // caveats:
+    //  * This doesn't happen when navigating to a page with a sufficiently
+    //    similar structure that the component gets reused, eg from one
+    //    PostsPage to another PostsPage. To handle that case, make the wrapped
+    //    component call closeAllEvents from inside componentDidUpdate.
+    //  * This doesn't happen when closing the tab, or navigating to a
+    //    different domain. TODO: Attach an event handler to make this work,
+    //    if it can indeed be made to work.
     componentWillUnmount() {
-      // When unmounting, close all current event trackers
       const events = this.state.events;
       Object.keys(events).forEach(key => {
         this.closeEvent(key);
@@ -83,18 +111,16 @@ function withNewEvents(WrappedComponent) {
 
     render() {
       return <WrappedComponent
-                registerEvent={this.registerEvent}
-                closeEvent={this.closeEvent}
-                {...this.props}
-              />
+        recordEvent={this.recordEvent}
+        closeAllEvents={this.closeAllEvents}
+        {...this.props}
+      />
     }
   }
-  return withNew(newEventOptions)(EventsWrapped);
-}
-
-const newEventOptions = {
-  collection: LWEvents,
-  fragmentName: 'newEventFragment',
+  return withNew({
+    collection: LWEvents,
+    fragmentName: 'newEventFragment',
+  })(EventsWrapped);
 }
 
 export default withNewEvents;
