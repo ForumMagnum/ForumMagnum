@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -60,7 +60,9 @@ class UsersAccountMenu extends PureComponent {
           anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
           onClose={this.handleRequestClose}
         >
-          {this.state.open && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
+          {this.state.open
+            && getSetting('reCaptcha.apiKey')
+            && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
           <Components.AccountsLoginForm 
             onPreSignUpHook={(options) => {
               const reCaptchaToken = this.state.reCaptchaToken
