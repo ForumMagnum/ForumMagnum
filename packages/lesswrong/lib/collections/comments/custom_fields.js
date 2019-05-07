@@ -248,6 +248,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
+      filterFn: comment => !comment.deleted
     }),
     canRead: ['guests'],
   }
@@ -266,6 +267,7 @@ addFieldsDict(Posts, {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted
     }),
     canRead: ['guests'],
   },
