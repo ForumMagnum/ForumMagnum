@@ -210,7 +210,7 @@ export async function dropUnusedField(collection, fieldName) {
   await forEachBucketRangeInCollection({
     collection,
     filter: {
-      [fieldName]: {$exists: false}
+      [fieldName]: {$exists: true}
     },
     fn: async (bucketSelector) => {
       await runThenSleep(loadFactor, async () => {
@@ -223,7 +223,8 @@ export async function dropUnusedField(collection, fieldName) {
           {multi: true}
         );
         
-        nModified += writeResult.nModified;
+        if (writeResult.nModified)
+          nModified += writeResult.nModified;
       });
     }
   });
