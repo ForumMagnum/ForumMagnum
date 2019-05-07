@@ -92,7 +92,7 @@ registerMigration({
           // Save the resulting subscriptions in the Subscriptions table
           if (newSubscriptions.length > 0) {
             numTotalSubscriptions += newSubscriptions.length;
-            Promise.all(_.map(newSubscriptions, async sub => {
+            await Promise.all(_.map(newSubscriptions, async sub => {
               await newMutation({
                 collection: Subscriptions,
                 document: sub,

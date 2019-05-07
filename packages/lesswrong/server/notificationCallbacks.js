@@ -20,11 +20,46 @@ import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 
-async function getSubscribedUsers(documentId, collectionName, type) {
+// Return a list of users subscribed to a given document. This is the union of
+// users who have subscribed to it explicitly, and users who were subscribed to
+// it by default and didn't suppress the subscription.
+//
+// documentId: The document to look for subscriptions to.
+// collectionName: The collection the document to look for subscriptions to is in.
+// type: The type of subscription to check for.
+// potentiallyDefaultSubscribedUserIds: (Optional) An array of user IDs for
+//   users who are potentially subscribed to this document by default, eg
+//   because they wrote the post being replied to or are an organizer of the
+//   group posted in.
+// userIsDefaultSubscribed: (Optional. User=>bool) If
+//   potentiallyDefaultSubscribedUserIds is given, takes a user and returns
+//   whether they would be default-subscribed to this document.
+async function getSubscribedUsers({
+  documentId, collectionName, type,
+  potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
+}) {
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
-  const userIds = _.pluck(subscriptions, 'userId')
-  const users = await Users.find({_id: {$in: userIds}}).fetch()
-  return users
+  const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
+  
+  const explicitlySubscribedUsers = await Users.find({_id: {$in: explicitlySubscribedUserIds}}).fetch()
+  const explicitlySubscribedUsersDict = keyBy(explicitlySubscribedUsers, u=>u._id);
+  
+  // Handle implicitly subscribed users
+  if (potentiallyDefaultSubscribedUserIds && potentiallyDefaultSubscribedUserIds.length>0) {
+    // Filter explicitly-subscribed users out of the potentially-implicitly-subscribed
+    // users list, since their subscription status is already known
+    potentiallyDefaultSubscribedUserIds = _.filter(potentiallyDefaultSubscribedUserIds, id=>!(id in explicitlySubscribedUsersDict));
+    
+    // Fetch and filter potentially-subscribed users
+    const potentiallyDefaultSubscribedUsers = await Users.find({
+      _id: {$in: potentiallyDefaultSubscribedUserIds}
+    }).fetch();
+    const defaultSubscribedUsers = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
+    
+    return _.union(explicitlySubscribedUsers, defaultSubscribedUsers);
+  } else {
+    return explicitlySubscribedUsers;
+  }
 }
 
 const createNotifications = (userIds, notificationType, documentType, documentId) => {
@@ -164,11 +199,25 @@ async function postsNewNotifications (post) {
   if (!post.draft && post.status === Posts.config.STATUS_APPROVED) {
 
     // add users who are subscribed to this post's author
-    let usersToNotify = await getSubscribedUsers(post.userId, "Users", subscriptionTypes.newPosts)
+    let usersToNotify = await getSubscribedUsers({
+      documentId: post.userId,
+      collectionName: "Users",
+      type: subscriptionTypes.newPosts
+    })
 
     // add users who are subscribed to this post's groups
     if (post.groupId) {
-      const subscribedUsers = await getSubscribedUsers(post.groupId, "Localgroups", subscriptionTypes.newEvents)
+      // Load the group, so we know who the organizers are
+      const group = await Localgroups.findOne(post.groupId);
+      const organizerIds = group.organizers;
+      
+      const subscribedUsers = await getSubscribedUsers({
+        documentId: post.groupId,
+        collectionName: "Localgroups",
+        type: subscriptionTypes.newEvent,
+        potentiallyDefaultSubscribedUserIds: organizerIds,
+        userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
+      });
       usersToNotify = _.union(usersToNotify, subscribedUsers)
     }
     
@@ -247,7 +296,13 @@ async function CommentsNewNotifications(comment) {
     // 1. Notify users who are subscribed to the parent comment
     if (comment.parentCommentId) {
       const parentComment = Comments.findOne(comment.parentCommentId)
-      const subscribedUsers = await getSubscribedUsers(comment.parentCommentId, "Comments", subscriptionTypes.newReplies)
+      const subscribedUsers = await getSubscribedUsers({
+        documentId: comment.parentCommentId,
+        collectionName: "Comments",
+        type: subscriptionTypes.newReplies,
+        potentiallyDefaultSubscribedUserIds: [parentComment.userId],
+        userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
+      })
       // remove userIds of users that have already been notified
         // and of comment and parentComment author (they could be replying in a thread they're subscribed to)
       let parentCommentSubscribersToNotify = _.difference(subscribedUsers, notifiedUsers, [comment.userId, parentComment.userId])
@@ -261,7 +316,14 @@ async function CommentsNewNotifications(comment) {
     }
     
     // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
-    const usersSubscribedToPost = await getSubscribedUsers(comment.postId, "Posts", subscriptionTypes.newComments)
+    const post = await Posts.findOne(comment.postId);
+    const usersSubscribedToPost = await getSubscribedUsers({
+      documentId: comment.postId,
+      collectionName: "Posts",
+      type: subscriptionTypes.newComments,
+      potentiallyDefaultSubscribedUserIds: [post.userId],
+      userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
+    })
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
     const postSubscribersToNotify = _.difference(usersSubscribedToPost, notifiedUsers, [comment.userId])

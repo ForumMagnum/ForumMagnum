@@ -477,7 +477,11 @@ addFieldsDict(Users, {
   },
   auto_subscribe_to_my_comments: {
     group: formGroups.notifications,
-    label: "Notifications For Replies to My Comments",
+    label: "Notifications for Replies to My Comments",
+  },
+  autoSubscribeAsOrganizer: {
+    group: formGroups.notifications,
+    label: "Notifications for posts and meetups in groups I organize",
   },
   
   // Karma-change notifier settings
