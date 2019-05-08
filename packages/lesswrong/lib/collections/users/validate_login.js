@@ -6,12 +6,11 @@ Accounts.validateLoginAttempt((attempt) => {
   const userStub = attempt.user || (attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user);
   const user = userStub && Users.findOne({username: userStub.username});
   if (user && user.legacy
-      && user.legacyData && user.legacyData.password
       && user.services
       && user.services.password
       && !attempt.allowed)
   {
-    const legacyData = LegacyData.findOne({ objectId: user._id }).fetch();
+    let legacyData = user.legacyData ? user.legacyData : LegacyData.findOne({ objectId: user._id }).legacyData;
     if (legacyData && legacyData.password) {
       throw new Meteor.Error(
         'legacy-account',
