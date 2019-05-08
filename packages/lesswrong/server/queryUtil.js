@@ -20,7 +20,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
     }
   ).fetch();
   
-  do {
+  while(rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
       await callback(rows);
       const lastID = rows[rows.length - 1]._id
@@ -32,7 +32,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
         }
       ).fetch();
     });
-  } while(rows.length > 0)
+  }
 }
 
 // Given a collection, an optional filter, and a target batch size, partition
@@ -51,7 +51,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
 // fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
 //     selector, which includes both an _id range (either one- or two-sided)
 //     and also the selector from `filter`.
-export async function forEachBucketRangeInCollection({collection, filter, bucketSize, fn})
+export async function forEachBucketRangeInCollection({collection, filter, bucketSize=1000, fn})
 {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();
