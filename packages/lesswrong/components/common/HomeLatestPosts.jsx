@@ -62,7 +62,7 @@ class HomeLatestPosts extends PureComponent {
       <SingleColumnSection>
         <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
         <PostsList2 terms={recentPostsTerms}>
-          <Link to={"/allPosts"}>View All Posts</Link>
+          <Link to={"/daily"}>View All Posts</Link>
           <SectionFooterCheckbox 
             onClick={this.toggleFilter} 
             value={!(currentFilter === "frontpage")} 
