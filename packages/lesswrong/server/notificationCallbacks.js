@@ -56,7 +56,11 @@ async function getSubscribedUsers({
     }).fetch();
     const defaultSubscribedUsers = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
     
-    return _.union(explicitlySubscribedUsers, defaultSubscribedUsers);
+    // Check for suppression in the subscriptions table
+    const suppressions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: "suppressed"}).fetch();
+    const suppressionsByUserId = keyBy(suppressions, s=>s.userId);
+    
+    return _.union(explicitlySubscribedUsers, _.filter(defaultSubscribedUsers, u=>!(u._id in suppressionsByUserId)));
   } else {
     return explicitlySubscribedUsers;
   }
