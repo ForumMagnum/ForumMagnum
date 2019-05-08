@@ -40,7 +40,7 @@ const Home2 = ({ currentUser }) => {
 
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion" />
-        <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}} />
+        <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}} />
       </SingleColumnSection>
     </React.Fragment>
   )

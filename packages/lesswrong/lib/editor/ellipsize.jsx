@@ -19,11 +19,11 @@ export const highlightFromHTML = (html) => {
   });
 };
 
-export const truncate = (html, truncateLength) => {
+export const truncate = (html, truncateLength, suffix) => {
   return truncatise(html, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: "characters",
-    Suffix: "...",
+    Suffix: `...${suffix}`,
   });
 }
 

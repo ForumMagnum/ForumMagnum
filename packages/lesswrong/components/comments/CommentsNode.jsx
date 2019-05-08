@@ -226,7 +226,7 @@ class CommentsNode extends Component {
           id={comment._id}>
           {/*eslint-disable-next-line react/no-string-refs*/}
           <div ref="comment">
-            {this.isSingleLine() ? <SingleLineComment comment={comment} />
+            {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
               collapsed={collapsed}
               truncated={this.isTruncated()}

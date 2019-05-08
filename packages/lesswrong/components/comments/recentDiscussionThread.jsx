@@ -26,6 +26,8 @@ const styles = theme => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*4,
+    position: "relative",
+    minHeight: 50,
   },
   postStyle: theme.typography.postStyle,
   postBody: {
@@ -36,8 +38,13 @@ const styles = theme => ({
     overflowY: "hidden",
   },
   postItem: {
+    position: "absolute",
+    right: "100%",
     paddingBottom:10,
+    marginRight: theme.spacing.unit*2,
     ...theme.typography.postStyle,
+    width: 250,
+    textAlign: "right"
   },
   continueReading: {
     marginTop:theme.spacing.unit*2,
@@ -77,12 +84,14 @@ const styles = theme => ({
     opacity: 0,
   },
   commentsList: {
-    marginLeft: theme.spacing.unit*2,
-    marginRight: 35,
     [theme.breakpoints.down('md')]: {
       marginLeft: 0,
       marginRight: 0
     }
+  },
+  title: {
+    ...theme.typography.body1,
+    ...theme.typography.postStyle,
   }
 })
 
@@ -160,13 +169,14 @@ class RecentDiscussionThread extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <div className={classNames(classes.postItem)}>
+        <div className={classes.postItem}>
 
-          <Link to={Posts.getPageUrl(post)}>
-            <PostsItemTitle post={post} />
+          <Link className={classes.title} to={Posts.getPageUrl(post)}>
+            {post.title}
+            {/* <PostsItemTitle post={post} /> */}
           </Link>
 
-          <div className={classes.threadMeta} onClick={this.showHighlight}>
+          {/* <div className={classes.threadMeta} onClick={this.showHighlight}>
             {currentUser && !(post.lastVisitedAt || readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>
             }
@@ -174,7 +184,7 @@ class RecentDiscussionThread extends PureComponent {
             <ShowOrHideHighlightButton
               className={classes.showHighlight}
               open={showHighlight}/>
-          </div>
+          </div> */}
         </div>
         { showHighlight ?
           <div className={highlightClasses}>
