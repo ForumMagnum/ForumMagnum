@@ -41,10 +41,11 @@ const styles = theme => ({
     position: "absolute",
     right: "100%",
     paddingBottom:10,
-    marginRight: theme.spacing.unit*2,
     ...theme.typography.postStyle,
-    width: 250,
-    textAlign: "right"
+    width: 300,
+    marginTop: -2,
+    textAlign: "right",
+    marginRight: -theme.spacing.unit
   },
   continueReading: {
     marginTop:theme.spacing.unit*2,
@@ -64,14 +65,13 @@ const styles = theme => ({
     ...postHighlightStyles(theme),
     marginTop:5,
     maxWidth:600,
-    lineHeight:"22px",
     marginBottom:16,
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
   },
   noComments: {
-    borderBottom: "solid 1px rgba(0,0,0,.2)"
+    // borderBottom: "solid 1px rgba(0,0,0,.2)"
   },
   threadMeta: {
     cursor: "pointer",
@@ -82,6 +82,11 @@ const styles = theme => ({
   },
   showHighlight: {
     opacity: 0,
+  },
+  content :{
+    [theme.breakpoints.up('lg')]: {
+      marginLeft: theme.spacing.unit*3,
+    }
   },
   commentsList: {
     [theme.breakpoints.down('md')]: {
@@ -186,36 +191,38 @@ class RecentDiscussionThread extends PureComponent {
               open={showHighlight}/>
           </div> */}
         </div>
-        { showHighlight ?
-          <div className={highlightClasses}>
-            <PostsHighlight post={post} />
-          </div>
-          : <div className={highlightClasses} onClick={this.showHighlight}>
-              { (!post.lastVisitedAt || post.commentCount === null) &&
-                <ContentItemBody
-                  className={classes.postHighlight}
-                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
+        <div className={classes.content}>
+          { showHighlight ?
+            <div className={highlightClasses}>
+              <PostsHighlight post={post} />
             </div>
-        }
-        <div className={classes.commentsList}>
-          <div className={"comments-items"} onClick={this.handleMarkAsRead}>
-            {nestedComments.map(comment =>
-              <div key={comment.item._id}>
-                <CommentsNode
-                  startThreadTruncated={true}
-                  nestingLevel={1}
-                  currentUser={currentUser}
-                  comment={comment.item}
-                  highlightDate={post.lastVisitedAt}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={comment.children}
-                  key={comment.item._id}
-                  editMutation={editMutation}
-                  post={post}
-                  condensed
-                />
+            : <div className={highlightClasses} onClick={this.showHighlight}>
+                { (!post.lastVisitedAt || post.commentCount === null) &&
+                  <ContentItemBody
+                    className={classes.postHighlight}
+                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
               </div>
-            )}
+          }
+          <div className={classes.commentsList}>
+            <div className={"comments-items"} onClick={this.handleMarkAsRead}>
+              {nestedComments.map(comment =>
+                <div key={comment.item._id}>
+                  <CommentsNode
+                    startThreadTruncated={true}
+                    nestingLevel={1}
+                    currentUser={currentUser}
+                    comment={comment.item}
+                    highlightDate={post.lastVisitedAt}
+                    //eslint-disable-next-line react/no-children-prop
+                    children={comment.children}
+                    key={comment.item._id}
+                    editMutation={editMutation}
+                    post={post}
+                    condensed
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

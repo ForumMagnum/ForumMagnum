@@ -24,7 +24,7 @@ const RecentDiscussionThreadsList = ({
   return (
     <div>
         {loading || !results ? <Loading /> :
-        <div>
+        <div> 
           {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}

@@ -4,7 +4,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { truncate } from '../../lib/editor/ellipsize'
 
 const styles = theme => ({
   root: {
@@ -18,14 +17,15 @@ const styles = theme => ({
     '&:hover $highlight': {
       whiteSpace: "unset",
       backgroundColor: "#f0f0f0",
-      border: "solid 1px #aaa",
-      zIndex: 1,
+      boxShadow: "1px 1px 5px rgba(0,0,0,.35)",
+      zIndex: theme.zIndexes.singleLineCommentHover,
       '& *': {
         display: "block"
       },
-      '& blockquote, & br, & figure, & img': {
+      '& blockquote'{
         display: "block"
       },
+    }, & br, & figure, & img': {
       '& p': {
         marginRight: 0
       },
@@ -44,12 +44,13 @@ const styles = theme => ({
       color: "rgba(0,0,0,.87)",
     },
     fontWeight: 600,
+    minWidth:120,
   },
   karma: {
     display:"inline-block",
-    textAlign: "left",
-    paddingLeft: theme.spacing.unit*2,
-    width:100,
+    textAlign: "center",
+    paddingLeft: theme.spacing.unit,
+    width: 30,
     paddingTop: 6,
     paddingBottom: 6,
   },
@@ -70,7 +71,7 @@ const styles = theme => ({
   highlight: {
     position: "absolute",
     right: 0,
-    maxWidth: 600,
+    width: "calc(100% - 158px)",
     paddingTop: 6,
     paddingBottom: 6,
     overflow: "hidden",
@@ -78,10 +79,6 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
-    marginRight: -1,
-    marginTop: -1,
-    borderTop: "solid 1px #ddd",
-    borderRight: "solid 1px #ddd",
   },
   isAnswer: {
     ...postBodyStyles(theme),
@@ -94,6 +91,11 @@ const styles = theme => ({
       backgroundImage: "none"
     }
   },
+  meta: {
+    backgroundColor: "#f0f0f0",
+    zIndex: theme.zIndexes.singleLineCommentMeta,
+    position: "relative"
+  },
   odd: {
     backgroundColor: "white !important"
   }
@@ -105,18 +107,20 @@ const SingleLineComment = ({comment, classes, nestingLevel}) => {
   const { html = ""} = comment.contents || {}
   
   return <div className={classNames(classes.root, {[classes.isAnswer]: comment.answer})}>
-    <span className={classes.username}>
-      {comment.answer && <span>Answer by </span>}<UsersName user={comment.user}/>
-    </span>
-    <span className={classes.karma}>
-      <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-        <span>
-          {baseScore || 0}
-        </span>
-      </Tooltip>
+    <span className={classNames(classes.meta, {[classes.odd]:((nestingLevel%2) !== 0)})}>
+      <span className={classes.karma}>
+        <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+          <span>
+            {baseScore || 0}
+          </span>
+        </Tooltip>
+      </span>
+      <span className={classes.username}>
+        {comment.user.displayName}
+      </span>
     </span>
 
-    <span className={classNames(classes.highlight, classes.truncatedHighlight, {[classes.odd]:((nestingLevel%2) !== 0)})} dangerouslySetInnerHTML={{__html:truncate(comment, 500, " (Click to expand Thread more)")}} />
+    <span className={classNames(classes.highlight, classes.truncatedHighlight, {[classes.odd]:((nestingLevel%2) !== 0)})} dangerouslySetInnerHTML={{__html: html}} />
   </div>
 };
 
