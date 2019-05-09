@@ -7,11 +7,13 @@ registerMigration({
   name: "denormalizeReadStatus",
   idempotent: true,
   action: async () => {
-    forEachDocumentBatchInCollection({
+    await forEachDocumentBatchInCollection({
       collection: LWEvents,
-      batchSize: 10000,
+      batchSize: 1000,
       filter: {name: "post-view"},
-      callback: (postViews) => {
+      callback: async (postViews) => {
+        // eslint-disable-next-line no-console
+        console.log(`Updating batch of ${postViews.length} read statuses`);
         const updates = postViews.map(view => ({
           updateOne: {
             filter: {
@@ -29,7 +31,7 @@ registerMigration({
             upsert: true,
           }
         }));
-        ReadStatuses.rawCollection().bulkWrite(updates);
+        await ReadStatuses.rawCollection().bulkWrite(updates);
       }
     })
   }
