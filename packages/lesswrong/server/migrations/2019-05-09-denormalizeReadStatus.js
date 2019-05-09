@@ -15,7 +15,7 @@ registerMigration({
         const updates = postViews.map(view => ({
           updateOne: {
             filter: {
-              postId: view.docmentId,
+              postId: view.documentId,
               userId: view.userId,
             },
             update: {
