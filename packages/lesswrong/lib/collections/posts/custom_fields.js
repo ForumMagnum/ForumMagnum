@@ -9,6 +9,8 @@ import GraphQLJSON from 'graphql-type-json';
 import { Comments } from '../comments'
 import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { getWithCustomLoader } from '../../loaders.js';
+import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -159,13 +161,21 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { LWEvents, currentUser }) => {
-      if(currentUser) {
-        const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-        if (event && event.createdAt)
-          return event.createdAt;
-      }
-      return null;
+    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+      if (!currentUser) return null;
+      
+      return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+        async postIDs => {
+          const readDates = await ReadStatuses.find({
+            userId: currentUser._id,
+            postId: {$in: postIDs},
+            isRead: true,
+          }, {postId:1, lastUpdated:1}).fetch();
+          
+          const readDateByPostID = keyBy(readDates, ev=>ev.postId);
+          return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
+        }
+      );
     }
   }),
 
