@@ -2,7 +2,7 @@ import { Posts } from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -154,27 +154,20 @@ addFieldsDict(Posts, {
     blackbox: true,
   },
 
-  // lastVisitDateDefault: Sets the default of what the lastVisit of a post
-  // should be, resolves to the date of the last visit of a user, when a user is
-  // loggedn in. Returns null when no user is logged in;
-  lastVisitedAtDefault: {
+  // lastVisitedAt: If the user is logged in and has viewed this post, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
     type: Date,
-    optional: true,
-    hidden: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'lastVisitedAt',
-      type: 'Date',
-      resolver: async (post, args, { LWEvents, currentUser }) => {
-        if(currentUser){
-          const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-          return event && event.createdAt
-        } else {
-          return post.lastVisitDateDefault
-        }
+    resolver: async (post, args, { LWEvents, currentUser }) => {
+      if(currentUser) {
+        const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+        if (event && event.createdAt)
+          return event.createdAt;
       }
+      return null;
     }
-  },
+  }),
 
   lastCommentedAt: {
     type: Date,
