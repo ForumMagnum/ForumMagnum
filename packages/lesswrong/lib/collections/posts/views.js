@@ -672,4 +672,8 @@ ensureIndex(Posts, {isFuture:1, postedAt:1});
 // Used in scoring aggregate query
 ensureIndex(Posts, {inactive:1,postedAt:1});
 
-
+// Used for recommendations
+ensureIndex(Posts,
+  augmentForDefaultView({ meta:1, disableRecommendation:1, baseScore:1, curatedDate:1, frontpageDate:1 }),
+  { name: "posts.recommendable" }
+);

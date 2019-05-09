@@ -142,20 +142,6 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions
   },
 
-  // legacyData: A complete dump of all the legacy data we have on this post in a
-  // single blackbox object. Never queried on the client, but useful for a lot
-  // of backend functionality, and simplifies the data import from the legacy
-  // LessWrong database
-  legacyData: {
-    type: Object,
-    optional: true,
-    viewableBy: ['admins'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    hidden: true,
-    blackbox: true,
-  },
-
   // lastVisitedAt: If the user is logged in and has viewed this post, the date
   // they last viewed it. Otherwise, null.
   lastVisitedAt: resolverOnlyField({
