@@ -150,7 +150,13 @@ addFieldsDict(Posts, {
     resolver: async (post, args, { ReadStatuses, currentUser }) => {
       if (!currentUser) return null;
       
-      return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+      // Slow method, from the LWEvents table. This is an N+1 select. Switch
+      // after the migration script is run.
+      const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+      return event && event.createdAt
+      
+      // Faster method, using the ReadStatuses table.
+      /*return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
         async postIDs => {
           const readDates = await ReadStatuses.find({
             userId: currentUser._id,
@@ -161,7 +167,7 @@ addFieldsDict(Posts, {
           const readDateByPostID = keyBy(readDates, ev=>ev.postId);
           return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
         }
-      );
+      );*/
     }
   }),
 
