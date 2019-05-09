@@ -52,7 +52,7 @@ const discussionThreadsOptions = {
 
 const withEditOptions = {
   collection: Comments,
-  fragmentName: 'SelectCommentsList',
+  fragmentName: 'CommentsList',
 };
 
 registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser);
