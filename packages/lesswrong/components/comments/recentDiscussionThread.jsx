@@ -238,7 +238,7 @@ const commentsOptions = {
   pollInterval: 0,
   enableCache: true,
   fetchPolicy: 'cache-and-network',
-  limit: 3,
+  limit: 6,
 };
 
 const mutationOptions = {

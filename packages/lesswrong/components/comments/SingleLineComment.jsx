@@ -2,59 +2,50 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
+import withHover from '../common/withHover';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import Icon from '@material-ui/core/Icon';
 
 const styles = theme => ({
   root: {
+    position: "relative"
+  },
+  commentInfo: {
     cursor: "pointer",
+    backgroundColor: "#f0f0f0",
     ...commentBodyStyles(theme),
     color: "rgba(0,0,0,.6)",
+    paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
-    position: "relative",
     marginTop: 0,
     marginBottom: 0,
-    '&:hover $highlight': {
-      whiteSpace: "unset",
-      backgroundColor: "#f0f0f0",
-      boxShadow: "1px 1px 5px rgba(0,0,0,.35)",
-      zIndex: theme.zIndexes.singleLineCommentHover,
-      '& *': {
-        display: "block"
-      },
-      '& blockquote'{
-        display: "block"
-      },
-    }, & br, & figure, & img': {
-      '& p': {
-        marginRight: 0
-      },
-      '& strong': {
-        fontWeight: 600
-      }
-    },
-  },
-  username: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
     paddingTop: 6,
     paddingBottom: 6,
+  },
+  username: {
     display:"inline-block",
-    paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
     '& a, & a:hover': {
       color: "rgba(0,0,0,.87)",
     },
     fontWeight: 600,
-    minWidth:120,
   },
   karma: {
     display:"inline-block",
     textAlign: "center",
-    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
     width: 30,
-    paddingTop: 6,
-    paddingBottom: 6,
   },
   truncatedHighlight: {
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*1.5,
+    ...commentBodyStyles(theme),
+    marginTop: 0,
+    marginBottom: 0,
     '& *': {
       display: "inline"
     },
@@ -69,16 +60,20 @@ const styles = theme => ({
     }
   },
   highlight: {
+    ...commentBodyStyles(theme),
+    backgroundColor: "#f0f0f0",
+    padding: theme.spacing.unit*1.5,
+    width: 625,
     position: "absolute",
+    top: "calc(100% - 20px)",
     right: 0,
-    width: "calc(100% - 158px)",
-    paddingTop: 6,
-    paddingBottom: 6,
+    zIndex: 5,
+    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    maxHeight: 500,
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    '& img': {
+      maxHeight: "200px"
+    }
   },
   isAnswer: {
     ...postBodyStyles(theme),
@@ -91,37 +86,36 @@ const styles = theme => ({
       backgroundImage: "none"
     }
   },
-  meta: {
-    backgroundColor: "#f0f0f0",
-    zIndex: theme.zIndexes.singleLineCommentMeta,
-    position: "relative"
-  },
   odd: {
     backgroundColor: "white !important"
-  }
+  },
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) => {
   const { voteCount, baseScore } = comment
-  const { UsersName } = Components
+  const { CommentBody, ShowParentComment } = Components
   const { html = ""} = comment.contents || {}
-  
-  return <div className={classNames(classes.root, {[classes.isAnswer]: comment.answer})}>
-    <span className={classNames(classes.meta, {[classes.odd]:((nestingLevel%2) !== 0)})}>
-      <span className={classes.karma}>
+
+  return (
+    <div className={classes.root}>
+      <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
+        <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-          <span>
+          <span className={classes.karma}>
+
             {baseScore || 0}
           </span>
         </Tooltip>
-      </span>
-      <span className={classes.username}>
-        {comment.user.displayName}
-      </span>
-    </span>
-
-    <span className={classNames(classes.highlight, classes.truncatedHighlight, {[classes.odd]:((nestingLevel%2) !== 0)})} dangerouslySetInnerHTML={{__html: html}} />
-  </div>
+        <span className={classes.username}>
+          {comment.user.displayName}
+        </span>
+        <span className={classNames(classes.truncatedHighlight, {[classes.odd]:((nestingLevel%2) !== 0)})} dangerouslySetInnerHTML={{__html: html}} />
+      </div>
+      {hover && <span className={classNames(classes.highlight, {[classes.odd]:((nestingLevel%2) !== 0)})}>
+        <CommentBody truncated comment={comment}/>
+      </span>}
+    </div>
+  )
 };
 
-registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}));
+registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover);

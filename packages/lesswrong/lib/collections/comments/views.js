@@ -156,6 +156,7 @@ ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
 Comments.addView("recentDiscussionThread", function (terms) {
   const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  console.log(terms)
   return {
     selector: {
       postId: terms.postId,
