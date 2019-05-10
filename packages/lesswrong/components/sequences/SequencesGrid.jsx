@@ -61,5 +61,5 @@ const options = {
 }
 
 
-registerComponent('SequencesGrid', SequencesGrid, [withList, options],
+registerComponent('SequencesGrid', SequencesGrid,
   withStyles(styles, {name: "SequencesGrid"}));
