@@ -80,8 +80,13 @@ class EditorFormComponent extends Component {
       updateType: 'minor',
       ...this.getEditorStatesFromType(editorType)
     }
+    if (Meteor.isClient) {
+      import('../async/CKEditor.jsx').then((module) => {
+        this.CKEditor = module.default
+      })
+    }
+    
     this.hasUnsavedData = false;
-
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
   }
 
@@ -376,6 +381,7 @@ class EditorFormComponent extends Component {
       <MenuItem value={'html'}>HTML</MenuItem>
       <MenuItem value={'markdown'}>Markdown</MenuItem>
       <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
+      <MenuItem value={'ckEditor'}>CKEditor</MenuItem>
     </Select>
   }
 
@@ -408,6 +414,20 @@ class EditorFormComponent extends Component {
       && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
+
+    if (this.getCurrentEditorType() === "ckEditor") {
+      const CKEditor = this.CKEditor || <div>CKEditor SSR</div>
+      console.log("CKEditor", CKEditor)
+      return (
+        <div className={classnames(heightClass, classes.root, "editor-form-component")}>
+          { editorWarning }
+          <CKEditor />
+          { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
+        </div>
+      ) 
+
+    }
 
     if (this.getCurrentEditorType() === "draftJS" && draftJSValue) {
       return (
