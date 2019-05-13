@@ -7,6 +7,8 @@ import {
   getActions,
   withMutation
 } from 'meteor/vulcan:core';
+import moment from 'moment';
+
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
@@ -38,14 +40,14 @@ const styles = theme => ({
     overflowY: "hidden",
   },
   postItem: {
-    position: "absolute",
-    right: "100%",
+    // position: "absolute",
+    // right: "100%",
     paddingBottom:10,
     ...theme.typography.postStyle,
-    width: 300,
-    marginTop: -2,
-    textAlign: "right",
-    marginRight: -theme.spacing.unit
+    // width: 300,
+    // marginTop: -2,
+    // textAlign: "right",
+    // marginRight: -theme.spacing.unit
   },
   continueReading: {
     marginTop:theme.spacing.unit*2,
@@ -155,7 +157,8 @@ class RecentDiscussionThread extends PureComponent {
     const { readStatus, showHighlight } = this.state
 
     const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
-    const nestedComments = unflattenComments(results);
+
+    const nestedComments = unflattenComments(results)
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
     if (loading && postCount === 0) {
@@ -181,15 +184,14 @@ class RecentDiscussionThread extends PureComponent {
             {/* <PostsItemTitle post={post} /> */}
           </Link>
 
-          {/* <div className={classes.threadMeta} onClick={this.showHighlight}>
+          <div className={classes.threadMeta} onClick={this.showHighlight}>
             {currentUser && !(post.lastVisitedAt || readStatus) &&
-              <span title="Unread" className={classes.unreadDot}>•</span>
-            }
+              <span title="Unread" className={classes.unreadDot}>•</span>}
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
               className={classes.showHighlight}
               open={showHighlight}/>
-          </div> */}
+          </div>
         </div>
         <div className={classes.content}>
           { showHighlight ?
@@ -238,7 +240,7 @@ const commentsOptions = {
   pollInterval: 0,
   enableCache: true,
   fetchPolicy: 'cache-and-network',
-  limit: 6,
+  limit: 12,
 };
 
 const mutationOptions = {

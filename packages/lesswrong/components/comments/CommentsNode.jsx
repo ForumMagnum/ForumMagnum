@@ -60,8 +60,14 @@ const styles = theme => ({
   answerLeafComment: {
     paddingBottom: 0
   },
-  noBottomMargin: {
-    marginBottom: 4
+  isSingleLine: {
+    marginBottom: 0,
+    borderBottom: "none",
+    borderTop: "solid 1px rgba(0,0,0,.15)",
+    '&.comments-node-root':{
+      marginBottom: 6,
+      borderBottom: "solid 1px rgba(0,0,0,.2)",
+    }
   },
 })
 
@@ -213,7 +219,7 @@ class CommentsNode extends Component {
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
-        [classes.noBottomMargin]: this.isSingleLine()
+        [classes.isSingleLine]: this.isSingleLine()
       }
     )
 

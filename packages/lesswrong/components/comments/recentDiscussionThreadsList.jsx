@@ -21,6 +21,8 @@ const RecentDiscussionThreadsList = ({
     return null
   }
 
+  const limit = (currentUser && currentUser.isAdmin) ? 8 : 3
+
   return (
     <div>
         {loading || !results ? <Loading /> :
@@ -30,7 +32,7 @@ const RecentDiscussionThreadsList = ({
               key={post._id}
               post={post}
               postCount={i}
-              terms={{view:threadView, postId:post._id}}
+              terms={{view:threadView, postId:post._id, limit: limit}}
               currentUser={currentUser}
               editMutation={editMutation}/>
 

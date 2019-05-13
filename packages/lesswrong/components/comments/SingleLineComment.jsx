@@ -6,14 +6,18 @@ import withHover from '../common/withHover';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   root: {
-    position: "relative"
+    position: "relative",
   },
   commentInfo: {
     cursor: "pointer",
     backgroundColor: "#f0f0f0",
+    '&:hover': {
+      backgroundColor: "#e0e0e0",
+    },
     ...commentBodyStyles(theme),
     color: "rgba(0,0,0,.6)",
     paddingLeft: theme.spacing.unit,
@@ -23,12 +27,10 @@ const styles = theme => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    paddingTop: 6,
-    paddingBottom: 6,
   },
   username: {
     display:"inline-block",
-    paddingRight: theme.spacing.unit,
+    padding: 5,
     '& a, & a:hover': {
       color: "rgba(0,0,0,.87)",
     },
@@ -37,12 +39,11 @@ const styles = theme => ({
   karma: {
     display:"inline-block",
     textAlign: "center",
-    paddingRight: theme.spacing.unit,
     width: 30,
+    padding: 5,
   },
   truncatedHighlight: {
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 5,
     ...commentBodyStyles(theme),
     marginTop: 0,
     marginBottom: 0,
@@ -61,13 +62,14 @@ const styles = theme => ({
   },
   highlight: {
     ...commentBodyStyles(theme),
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "white",
     padding: theme.spacing.unit*1.5,
     width: 625,
     position: "absolute",
     top: "calc(100% - 20px)",
     right: 0,
     zIndex: 5,
+    border: "solid 1px rgba(0,0,0,.1)",
     boxShadow: "0 0 10px rgba(0,0,0,.2)",
     maxHeight: 500,
     overflow: "hidden",
@@ -77,7 +79,6 @@ const styles = theme => ({
   },
   isAnswer: {
     ...postBodyStyles(theme),
-    marginTop: 9,
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
     '& a, & a:hover': {
@@ -87,7 +88,10 @@ const styles = theme => ({
     }
   },
   odd: {
-    backgroundColor: "white !important"
+    backgroundColor: "white",
+    '&:hover': {
+      backgroundColor: "#f3f3f3",
+    }
   },
 })
 
@@ -109,13 +113,13 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) =>
         <span className={classes.username}>
           {comment.user.displayName}
         </span>
-        <span className={classNames(classes.truncatedHighlight, {[classes.odd]:((nestingLevel%2) !== 0)})} dangerouslySetInnerHTML={{__html: html}} />
+        <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: html}} />
       </div>
-      {hover && <span className={classNames(classes.highlight, {[classes.odd]:((nestingLevel%2) !== 0)})}>
+      {hover && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
       </span>}
     </div>
   )
 };
 
-registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover);
+registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover, withErrorBoundary);
