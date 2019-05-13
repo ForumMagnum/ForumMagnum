@@ -212,16 +212,17 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: (post, args, context) => {
+      resolver: async (post, args, context) => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
-        const users = _.map(post.suggestForCuratedUserIds,
-          (userId => {
-            return context.Users.findOne({ _id: userId }).displayName
-          })
-        )
+        const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
+          async userId => {
+            const user = await context.Users.loader.load(userId)
+            return user.displayName;
+          }
+        ))
         if (users.length) {
           return users.join(", ")
         } else {
