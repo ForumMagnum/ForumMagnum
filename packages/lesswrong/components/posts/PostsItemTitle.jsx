@@ -33,10 +33,13 @@ const styles = theme => ({
         textOverflow: "unset",
         position: "absolute",
         background: "white",
-        borderImage: "linear-gradient(to right, white, rgba(0,0,0,0)) 1 100%",
+        borderImage: "linear-gradient(to right, white, rgba(255,255,255,0)) 1 100%",
         borderRightWidth: 20,
         borderRightStyle: "solid",
         backgroundClip: "padding-box",
+        borderLeft: 0,
+        borderTop: 0,
+        borderBottom: 0,
       }
     }
   },

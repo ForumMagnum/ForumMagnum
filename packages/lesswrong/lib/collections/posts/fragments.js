@@ -228,9 +228,6 @@ registerFragment(`
       htmlHighlight
       wordCount
     }
-    feed {
-      ...RSSFeedMinimumInfo
-    }
   }
 `);
 
