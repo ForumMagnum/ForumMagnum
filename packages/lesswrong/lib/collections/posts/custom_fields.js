@@ -9,8 +9,8 @@ import GraphQLJSON from 'graphql-type-json';
 import { Comments } from '../comments'
 import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getWithCustomLoader } from '../../loaders.js';
-import keyBy from 'lodash/keyBy';
+//import { getWithCustomLoader } from '../../loaders.js';
+//import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -147,7 +147,7 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
       if (!currentUser) return null;
       
       // Slow method, from the LWEvents table. This is an N+1 select. Switch
