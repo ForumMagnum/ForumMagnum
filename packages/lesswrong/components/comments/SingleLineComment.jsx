@@ -5,7 +5,6 @@ import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import Icon from '@material-ui/core/Icon';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({

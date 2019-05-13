@@ -7,7 +7,6 @@ import {
   getActions,
   withMutation
 } from 'meteor/vulcan:core';
-import moment from 'moment';
 
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
@@ -156,7 +155,7 @@ class RecentDiscussionThread extends PureComponent {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
     const { readStatus, showHighlight } = this.state
 
-    const { ContentItemBody, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
 
     const nestedComments = unflattenComments(results)
 
@@ -181,7 +180,6 @@ class RecentDiscussionThread extends PureComponent {
 
           <Link className={classes.title} to={Posts.getPageUrl(post)}>
             {post.title}
-            {/* <PostsItemTitle post={post} /> */}
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>
