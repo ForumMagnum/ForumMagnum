@@ -10,19 +10,18 @@ import withErrorBoundary from '../common/withErrorBoundary';
 const styles = theme => ({
   root: {
     position: "relative",
+    cursor: "pointer",
   },
   commentInfo: {
-    cursor: "pointer",
     backgroundColor: "#f0f0f0",
     '&:hover': {
       backgroundColor: "#e0e0e0",
     },
     ...commentBodyStyles(theme),
-    color: "rgba(0,0,0,.6)",
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
     marginTop: 0,
     marginBottom: 0,
+    paddingRight: theme.spacing.unit,
+    color: "rgba(0,0,0,.6)",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
