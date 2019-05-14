@@ -82,20 +82,36 @@ class PostActions extends Component {
     })
   }
 
+  
   render() {
     const { classes, post, Container, currentUser } = this.props
-    const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
+    const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    const postAuthor = post.user;
+    
     return (
       <div className={classes.actions}>
-      { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-        <MenuItem>
-          <ListItemIcon>
-            <EditIcon />
-          </ListItemIcon>
-          Edit
-        </MenuItem>
-      </Link>}
-      <ReportPostMenuItem post={post}/>
+        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+          <MenuItem>
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            Edit
+          </MenuItem>
+        </Link>}
+        
+        {currentUser && postAuthor._id!==currentUser._id && <MenuItem>
+          <SubscribeTo document={postAuthor}
+            subscribeMessage="Subscribe to Author"
+            unsubscribeMessage="Unsubscribe from Author"/>
+        </MenuItem>}
+        
+        {currentUser && <MenuItem>
+          <SubscribeTo document={post}
+            subscribeMessage="Subscribe to Replies"
+            unsubscribeMessage="Unsubscribe from Replies"/>
+        </MenuItem>}
+        
+        <ReportPostMenuItem post={post}/>
 
         { Users.canDo(currentUser, "posts.edit.all") &&
           <span>

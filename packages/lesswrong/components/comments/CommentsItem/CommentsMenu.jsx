@@ -35,7 +35,7 @@ class CommentsMenu extends PureComponent {
   render() {
     const { currentUser, children, classes, className, comment, post, showEdit, icon } = this.props
     const { anchorEl } = this.state
-    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem } = Components
+    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo } = Components
     
     if (!currentUser) return null
     
@@ -50,6 +50,7 @@ class CommentsMenu extends PureComponent {
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
         >
+          <SubscribeTo document={comment} collectionName={"Comments"}/>
           <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
           <ReportCommentMenuItem comment={comment}/>
           <MoveToAlignmentMenuItem comment={comment} post={post}/>
