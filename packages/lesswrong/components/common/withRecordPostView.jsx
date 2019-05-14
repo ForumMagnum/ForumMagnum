@@ -1,5 +1,5 @@
 import React from 'react';
-import { getActions, withMutation } from 'meteor/vulcan:core';
+/*import { getActions, withMutation } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -71,6 +71,17 @@ export const withRecordPostView = (Component) => {
     withNewEvents,
     connect(mapStateToProps, mapDispatchToProps),
   )(ComponentWithRecordPostView);
+}*/
+
+export const withRecordPostView = (Component) => {
+  async function recordPostView(props) {
+    // TODO: Stubbed for Apollo 2.
+  }
+  function ComponentWithRecordPostView(props) {
+    return <Component {...props} recordPostView={recordPostView}/>
+  }
+  return ComponentWithRecordPostView;
 }
 
 export default withRecordPostView;
+
