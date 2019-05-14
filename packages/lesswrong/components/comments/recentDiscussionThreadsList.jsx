@@ -32,7 +32,7 @@ const RecentDiscussionThreadsList = ({
               key={post._id}
               post={post}
               postCount={i}
-              terms={{view:threadView, postId:post._id, limit: limit}}
+              terms={{view:threadView, postId:post._id, limit}}
               currentUser={currentUser}
               editMutation={editMutation}/>
 
