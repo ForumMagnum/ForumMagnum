@@ -1,8 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import withHover from '../common/withHover';
-import withUser from '../common/withUser';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 
 const styles = theme => ({
@@ -26,7 +24,7 @@ const styles = theme => ({
   }
 })
 
-const ShowParentComment = ({currentUser, comment, classes, nestingLevel, hover}) => {
+const ShowParentComment = ({ comment, classes, nestingLevel }) => {
   if (!comment.parentCommentId || (nestingLevel !== 1)) return null
 
   // const { RecentCommentsSingle } = Components
@@ -50,4 +48,4 @@ const ShowParentComment = ({currentUser, comment, classes, nestingLevel, hover})
   )
 };
 
-registerComponent('ShowParentComment', ShowParentComment, withStyles(styles, {name:"ShowParentComment"}), withHover, withUser);
+registerComponent('ShowParentComment', ShowParentComment, withStyles(styles, {name:"ShowParentComment"}));
