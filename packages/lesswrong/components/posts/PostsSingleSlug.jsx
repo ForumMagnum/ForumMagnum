@@ -2,10 +2,12 @@ import { Components, registerComponent, withList} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { Error404 } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withRouter } from 'react-router';
+import { parseQuery } from '../../lib/routeUtil.js';
 
-const PostsSingleSlug = ({results, loading, router}) => {
-  const version = router.location && router.location.query && router.location.query.revision
+const PostsSingleSlug = ({results, loading, location}) => {
+  const query = parseQuery(location);
+  const version = query?.revision
   if (results && results.length>0 && results[0]._id) {
     return <Components.PostsPage documentId={results[0]._id } version={version} />
   } else {

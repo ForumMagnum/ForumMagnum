@@ -195,7 +195,7 @@ class PostsPage extends Component {
       return <Error404/>
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
-      let query = parseQuery(this.props);
+      let query = parseQuery(this.props.location);
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}

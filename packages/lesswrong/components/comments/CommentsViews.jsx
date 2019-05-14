@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import { parseQuery } from '../../lib/routeUtil.js';
 
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
@@ -42,8 +43,9 @@ class CommentsViews extends Component {
   };
 
   handleViewClick = (view) => {
-    const { router, post } = this.props
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
+    const { router, post, location } = this.props
+    const query = parseQuery(location);
+    const currentQuery = query || {view: 'postCommentsTop'}
     this.setState({ anchorEl: null })
     router.replace({...router.location, query: {...currentQuery, view: view, postId: post ? post._id : undefined}})
   };
@@ -58,7 +60,8 @@ class CommentsViews extends Component {
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
-    const currentView = _.clone(router.location.query).view ||  Comments.getDefaultView(post, currentUser)
+    const query = parseQuery(location);
+    const currentView = query?.view || Comments.getDefaultView(post, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);

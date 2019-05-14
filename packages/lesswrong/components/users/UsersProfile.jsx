@@ -145,7 +145,7 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const { slug, classes, currentUser, loading, document, documentId } = this.props;
+    const { slug, classes, currentUser, loading, document, documentId, location } = this.props;
   
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -162,7 +162,7 @@ class UsersProfile extends Component {
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
     
     const user = document;
-    const query = parseQuery(this.props);
+    const query = parseQuery(location);
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}

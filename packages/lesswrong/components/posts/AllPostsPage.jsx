@@ -2,12 +2,13 @@ import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vu
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withRouter } from 'react-router';
 import withUser from '../common/withUser';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { parseQuery } from '../../lib/routeUtil.js';
 
 const styles = theme => ({
   daily: {
@@ -62,10 +63,10 @@ class AllPostsPage extends Component {
   }
 
   render() {
-    const { classes, currentUser, router } = this.props
+    const { classes, currentUser, location } = this.props
     const { showSettings } = this.state
     const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
-    const query = _.clone(router.location.query) || {}
+    const query = parseQuery(location)
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
     const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"

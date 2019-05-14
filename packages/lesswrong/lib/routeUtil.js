@@ -3,8 +3,8 @@ import qs from 'qs';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
-export function parseQuery(props) {
-  let query = props?.location?.search;
+export function parseQuery(location) {
+  let query = location?.search;
   if (!query) return {};
   
   // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
@@ -21,7 +21,7 @@ export function parseQuery(props) {
 export function getHeaderSubtitleDataFromRouterProps(props) {
   const routeName = ""; //TODO
   const currentRoute = null; //TODO
-  const query = parseQuery(props);
+  const query = parseQuery(props.location);
   const params = props.match.params;
   const client = props.client;
   const { subtitleText = currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(routeName, query, params, client) || {};
