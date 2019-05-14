@@ -254,7 +254,7 @@ const TabNavigationMenu = ({
         </span>
 
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
-          <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>
+          <Link to="/daily" className={classNames(classes.navButton, {[classes.selected]: pathname === "/daily"})}>
             <span className={classes.icon}>
               { allPostsIcon }
             </span>
