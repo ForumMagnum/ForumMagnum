@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
@@ -8,7 +8,6 @@ import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 const styles = theme => ({
   root: {
     paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
   },
