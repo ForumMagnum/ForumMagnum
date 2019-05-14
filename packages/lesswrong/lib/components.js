@@ -22,7 +22,6 @@ import '../components/messaging/NewConversationButton.jsx';
 import '../components/editor/EditorFormComponent.jsx';
 import '../components/editor/EditTitle.jsx';
 import '../components/editor/EditUrl.jsx';
-import '../components/editor/SaveDraftButton.jsx';
 
 // RSS Feed Integration
 import '../components/feeds/newFeedButton.jsx';
@@ -331,7 +330,6 @@ import '../components/form-components/WrappedSmartForm.jsx';
 
 
 
-import '../components/alignment-forum/AlignmentCheckbox.jsx';
 import '../components/alignment-forum/withSetAlignmentPost.jsx';
 import '../components/alignment-forum/withSetAlignmentComment.jsx';
 import '../components/alignment-forum/AFApplicationForm.jsx';
