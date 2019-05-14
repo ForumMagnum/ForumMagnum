@@ -46,6 +46,7 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
   const { PostsItem2, SectionTitle } = Components
 
+  
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
   const targetPostRelations = _.filter(post.targetPostRelations, rel => !!rel.targetPost)
 

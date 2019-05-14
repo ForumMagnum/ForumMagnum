@@ -140,20 +140,6 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions
   },
 
-  // legacyData: A complete dump of all the legacy data we have on this post in a
-  // single blackbox object. Never queried on the client, but useful for a lot
-  // of backend functionality, and simplifies the data import from the legacy
-  // LessWrong database
-  legacyData: {
-    type: Object,
-    optional: true,
-    viewableBy: ['admins'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    hidden: true,
-    blackbox: true,
-  },
-
   // lastVisitDateDefault: Sets the default of what the lastVisit of a post
   // should be, resolves to the date of the last visit of a user, when a user is
   // loggedn in. Returns null when no user is logged in;
@@ -217,16 +203,17 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: (post, args, context) => {
+      resolver: async (post, args, context) => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
-        const users = _.map(post.suggestForCuratedUserIds,
-          (userId => {
-            return context.Users.findOne({ _id: userId }).displayName
-          })
-        )
+        const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
+          async userId => {
+            const user = await context.Users.loader.load(userId)
+            return user.displayName;
+          }
+        ))
         if (users.length) {
           return users.join(", ")
         } else {

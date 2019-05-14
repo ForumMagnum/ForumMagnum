@@ -215,6 +215,7 @@ import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm
 import '../components/comments/LastVisitList.jsx'
 import '../components/comments/CommentsNewForm.jsx';
 import '../components/comments/SingleLineComment.jsx';
+import '../components/comments/ShowParentComment';
 
 import '../components/search/PostsListEditorSearchHit.jsx';
 import '../components/search/PostsSearchHit.jsx';

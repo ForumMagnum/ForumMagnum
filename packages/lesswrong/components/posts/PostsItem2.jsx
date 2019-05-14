@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMutation, getActions } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -7,12 +7,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
-//import { connect } from 'react-redux';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-//import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
+import withRecordPostView from '../common/withRecordPostView';
 
 import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
 
@@ -195,7 +193,7 @@ class PostsItem2 extends PureComponent {
   }
 
   toggleComments = (scroll) => {
-    this.handleMarkAsRead()
+    this.props.recordPostView({...this.props, document:this.props.post})
     this.setState((prevState) => {
       if (scroll) {
         this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
@@ -205,40 +203,6 @@ class PostsItem2 extends PureComponent {
         readComments: true
       })
     })
-  }
-
-  async handleMarkAsRead () {
-    const {
-      // from the parent component, used in withDocument, GraphQL HOC
-      // from connect, Redux HOC
-      setViewed,
-      postsViewed,
-      post,
-      // from withMutation, GraphQL HOC
-      increasePostViewCount,
-    } = this.props;
-    // a post id has been found & it's has not been seen yet on this client session
-    if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
-
-      // trigger the asynchronous mutation with postId as an argument
-      await increasePostViewCount({postId: post._id});
-
-      // once the mutation is done, update the redux store
-      setViewed(post._id);
-    }
-
-    //LESSWRONG: register page-visit event
-    if (this.props.currentUser) {
-      const eventProperties = {
-        userId: this.props.currentUser._id,
-        important: false,
-        intercom: true,
-      };
-
-      eventProperties.documentId = post._id;
-      eventProperties.postTitle = post.title;
-      this.props.recordEvent('post-view', false, eventProperties)
-    }
   }
 
   isSticky = (post, terms) => {
@@ -325,26 +289,13 @@ class PostsItem2 extends PureComponent {
 PostsItem2.propTypes = {
   currentUser: PropTypes.object,
   post: PropTypes.object.isRequired,
-  postsViewed: PropTypes.array,
-  setViewed: PropTypes.func,
-  increasePostViewCount: PropTypes.func,
 };
-
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-//const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-//const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'PostsItem2',
   PostsItem2,
-  withMutation(mutationOptions),
-  withNewEvents,
-  //connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem2" }),
+  withUser,
+  withRecordPostView,
   withErrorBoundary,
-  withUser
 );
