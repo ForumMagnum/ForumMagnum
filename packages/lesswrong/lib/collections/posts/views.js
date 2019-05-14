@@ -434,6 +434,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
+      hideFrontpageComments: false,
       hiddenRelatedQuestion: viewFieldAllowAny,
       groupId: null,
     },
