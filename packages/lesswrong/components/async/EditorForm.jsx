@@ -117,26 +117,26 @@ class EditorForm extends Component {
       linkifyPlugin
     ];
 
-    if (isClient) {
-      const mathjaxPlugin = createMathjaxPlugin(
-        {
-          completion: 'manual',
-          mathjaxConfig: {
-            jax: ['input/TeX', 'output/CommonHTML'],
-            TeX: {
-              extensions: ['autoload-all.js', 'Safe.js'],
-            },
-            messageStyle: 'none',
-            showProcessingMessages: false,
-            showMathMenu: false,
-            showMathMenuMSIE: false,
-            preview: 'none',
-            delayStartupTypeset: true,
-          }
-        }
-      )
-      plugins.push(mathjaxPlugin);
-    }
+    // if (isClient) {
+    //   const mathjaxPlugin = createMathjaxPlugin(
+    //     {
+    //       completion: 'manual',
+    //       mathjaxConfig: {
+    //         jax: ['input/TeX', 'output/CommonHTML'],
+    //         TeX: {
+    //           extensions: ['autoload-all.js', 'Safe.js'],
+    //         },
+    //         messageStyle: 'none',
+    //         showProcessingMessages: false,
+    //         showMathMenu: false,
+    //         showMathMenuMSIE: false,
+    //         preview: 'none',
+    //         delayStartupTypeset: true,
+    //       }
+    //     }
+    //   )
+    //   plugins.push(mathjaxPlugin);
+    // }
 
     return plugins;
   }

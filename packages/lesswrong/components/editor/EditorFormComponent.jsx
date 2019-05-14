@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -78,11 +78,15 @@ class EditorFormComponent extends Component {
     this.state = {
       editorOverride: null,
       updateType: 'minor',
+      ckEditorLoaded: false,
       ...this.getEditorStatesFromType(editorType)
     }
+
+    // On the client, import CKEditor asynchronously using Meteor async imports
     if (Meteor.isClient) {
       import('../async/CKEditor.jsx').then((module) => {
         this.CKEditor = module.default
+        this.setState({ckEditorLoaded: true})
       })
     }
     
@@ -249,13 +253,17 @@ class EditorFormComponent extends Component {
     }
   }
 
-  setHtml = (e) => {
-    const newContent = e.target.value
-    const changed = (this.state.htmlValue !== newContent);
-    this.setState({htmlValue: newContent})
+  setHtmlDirectly = (value) => {
+    const changed = (this.state.htmlValue !== value);
+    this.setState({htmlValue: value})
 
     if (changed)
       this.afterChange();
+  }
+
+  setHtml = (e) => {
+    const newContent = e.target.value
+    this.setHtmlDirectly(newContent)
   }
 
   setMarkdown = (e) => {
@@ -381,7 +389,6 @@ class EditorFormComponent extends Component {
       <MenuItem value={'html'}>HTML</MenuItem>
       <MenuItem value={'markdown'}>Markdown</MenuItem>
       <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
-      <MenuItem value={'ckEditor'}>CKEditor</MenuItem>
     </Select>
   }
 
@@ -393,7 +400,7 @@ class EditorFormComponent extends Component {
   }
 
   render() {
-    const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
+    const { editorOverride, draftJSValue, htmlValue, markdownValue, ckEditorLoaded } = this.state
     const { document, currentUser, formType, form, classes, fieldName } = this.props
     const commentStyles = form && form.commentStyles
     const currentEditorType = this.getCurrentEditorType()
@@ -415,13 +422,16 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    if (this.getCurrentEditorType() === "ckEditor") {
-      const CKEditor = this.CKEditor || <div>CKEditor SSR</div>
-      console.log("CKEditor", CKEditor)
+    
+    if (this.getCurrentEditorType() === "html" && currentUser.isAdmin) {
+      const CKEditor = (ckEditorLoaded && this.CKEditor) || Components.Loading
       return (
-        <div className={classnames(heightClass, classes.root, "editor-form-component")}>
+        <div className={classnames(classes.root, "editor-form-component")}>
           { editorWarning }
-          <CKEditor />
+          <CKEditor 
+            data={htmlValue}
+            onChange={this.setHtmlDirectly}
+          />
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
         </div>
