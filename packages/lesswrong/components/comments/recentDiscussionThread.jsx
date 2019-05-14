@@ -4,19 +4,15 @@ import {
   registerComponent,
   withList,
   Loading,
-  getActions,
-  withMutation
 } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
-import { bindActionCreators } from 'redux';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
+import withRecordPostView from '../common/withRecordPostView';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
@@ -96,44 +92,14 @@ class RecentDiscussionThread extends PureComponent {
     };
   }
 
-  handleMarkAsRead = async () => {
-    const {
-      // from the parent component, used in withDocument, GraphQL HOC
-      // from connect, Redux HOC
-      setViewed,
-      postsViewed,
-      post,
-      // from withMutation, GraphQL HOC
-      increasePostViewCount,
-    } = this.props;
-    // a post id has been found & it's has not been seen yet on this client session
-    if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
-
-      // trigger the asynchronous mutation with postId as an argument
-      await increasePostViewCount({postId: post._id});
-
-      // once the mutation is done, update the redux store
-      setViewed(post._id);
-    }
-
-    //LESSWRONG: register page-visit event
-    if (this.props.currentUser) {
-      const eventProperties = {
-        userId: this.props.currentUser._id,
-        important: false,
-        intercom: true,
-      };
-
-      eventProperties.documentId = post._id;
-      eventProperties.postTitle = post.title;
-      this.props.recordEvent('post-view', false, eventProperties)
-    }
-  }
-
   showHighlight = () => {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
     this.setState({readStatus:true});
-    this.handleMarkAsRead()
+    this.markAsRead()
+  }
+  
+  markAsRead = async () => {
+    this.props.recordPostView({...this.props, document:this.props.post})
   }
 
   render() {
@@ -188,7 +154,7 @@ class RecentDiscussionThread extends PureComponent {
             </div>
         }
         <div className={classes.commentsList}>
-          <div className={"comments-items"} onClick={this.handleMarkAsRead}>
+          <div className={"comments-items"} onClick={this.markAsRead}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <CommentsNode
@@ -224,22 +190,12 @@ const commentsOptions = {
   limit: 3,
 };
 
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
-
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
   [withList, commentsOptions],
-  withMutation(mutationOptions),
   withUser,
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "RecentDiscussionThread" }),
+  withRecordPostView,
   withErrorBoundary
 );
