@@ -21,16 +21,18 @@ const RecentDiscussionThreadsList = ({
     return null
   }
 
+  const limit = (currentUser && currentUser.isAdmin) ? 8 : 3
+
   return (
     <div>
         {loading || !results ? <Loading /> :
-        <div>
+        <div> 
           {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
               postCount={i}
-              terms={{view:threadView, postId:post._id}}
+              terms={{view:threadView, postId:post._id, limit}}
               currentUser={currentUser}
               editMutation={editMutation}/>
 

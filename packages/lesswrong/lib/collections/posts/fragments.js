@@ -151,6 +151,7 @@ registerFragment(`
     }
     targetPostRelations {
       _id
+      sourcePostId
       targetPostId
       targetPost {
         ...PostsBase
